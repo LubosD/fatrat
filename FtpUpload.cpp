@@ -22,7 +22,12 @@ int FtpUpload::acceptable(QString url)
 
 void FtpUpload::init(QString source, QString target)
 {
-	QFileInfo finfo(source);
+	QFileInfo finfo;
+	
+	if(source.startsWith("file:///"))
+		source = source.mid(7);
+	
+	finfo = QFileInfo(source);
 	
 	if(!finfo.exists())
 		throw std::runtime_error("File does not exist");
@@ -199,7 +204,7 @@ void FtpUploadOptsForm::accepted()
 	url.setUserName(lineUsername->text());
 	url.setPassword(linePassword->text());
 	
-	m_upload->setObject(url.toString());
+	m_upload->m_strTarget = url.toString();
 	int ix = comboProxy->currentIndex();
 	m_upload->m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
 	

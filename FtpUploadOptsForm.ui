@@ -123,6 +123,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineTarget</tabstop>
+  <tabstop>comboFtpMode</tabstop>
+  <tabstop>lineUsername</tabstop>
+  <tabstop>linePassword</tabstop>
+  <tabstop>comboProxy</tabstop>
+  <tabstop>lineAddrBind</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -118,17 +118,17 @@
 <context>
     <name>FtpUploadOptsForm</name>
     <message>
-        <location filename="../FtpUpload.cpp" line="178"/>
+        <location filename="../FtpUpload.cpp" line="183"/>
         <source>Active mode</source>
         <translation>Aktivní režim</translation>
     </message>
     <message>
-        <location filename="../FtpUpload.cpp" line="178"/>
+        <location filename="../FtpUpload.cpp" line="183"/>
         <source>Passive mode</source>
         <translation>Pasivní režim</translation>
     </message>
     <message>
-        <location filename="../FtpUpload.cpp" line="181"/>
+        <location filename="../FtpUpload.cpp" line="186"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žádný)</translation>
@@ -464,7 +464,7 @@
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="741"/>
+        <location filename="../MainWindow.cpp" line="744"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -474,17 +474,17 @@
         <translation>Odstranit přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="651"/>
+        <location filename="../MainWindow.cpp" line="654"/>
         <source>Do you really want to delete the selected transfer?</source>
         <translation>Opravdu chcete odstranit vybraný přenos?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="708"/>
+        <location filename="../MainWindow.cpp" line="711"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="713"/>
+        <location filename="../MainWindow.cpp" line="716"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
@@ -494,17 +494,17 @@
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="779"/>
+        <location filename="../MainWindow.cpp" line="782"/>
         <source>downloaded %1 from %2 (%3%)</source>
         <translation>staženo %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="781"/>
+        <location filename="../MainWindow.cpp" line="784"/>
         <source>downloaded %1, total size unknown</source>
         <translation>staženo %1, celková velikost neznámá</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="796"/>
+        <location filename="../MainWindow.cpp" line="799"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
@@ -654,11 +654,6 @@
         <translation>Zobrazit hlavní okno</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1013"/>
-        <source>The transfer of &quot;%1&quot; was completed.</source>
-        <translation>Stahování souboru &quot;%1&quot; bylo dokončeno.</translation>
-    </message>
-    <message>
         <location filename="../MainWindow.cpp" line="43"/>
         <source>Transfer speed graph</source>
         <translation>Graf rychlosti přenosu</translation>
@@ -669,7 +664,7 @@
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1012"/>
+        <location filename="../MainWindow.cpp" line="1015"/>
         <source>Transfer completed</source>
         <translation>Přenos dokončen</translation>
     </message>
@@ -704,9 +699,14 @@
         <translation>Zobrazit drop-box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="580"/>
+        <location filename="../MainWindow.cpp" line="583"/>
         <source>Couldn&apos;t autodetect transfer type.</source>
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1016"/>
+        <source>The transfer of &quot;%1&quot; has been completed.</source>
+        <translation type="unfinished">Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
 </context>
 <context>
@@ -717,12 +717,12 @@
         <translation>Automaticky rozpoznat</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.h" line="171"/>
+        <location filename="../NewTransferDlg.h" line="174"/>
         <source>Choose directory</source>
         <translation>Zvolte adresář</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.h" line="179"/>
+        <location filename="../NewTransferDlg.h" line="182"/>
         <source>Choose files</source>
         <translation>Zvolte soubory</translation>
     </message>

@@ -113,7 +113,8 @@ public:
 				m_lastDirs.removeFirst();
 			m_lastDirs.append(m_strDestination);
 			settings.setValue("lastdirs", m_lastDirs);
-		}		{
+		}
+		{
 			bool bFound = false;
 			const EngineEntry* entries;
 			
@@ -153,7 +154,6 @@ public:
 		comboDestination->addItems(m_lastDirs);
 		comboDestination->setEditText(m_strDestination);
 		
-		textURIs->setText(m_strURIs);
 		spinDown->setValue(m_nDownLimit/1024);
 		spinUp->setValue(m_nUpLimit/1024);
 		checkDetails->setChecked(m_bDetails);
@@ -163,7 +163,10 @@ public:
 		{
 			stackedWidget->setCurrentIndex(1);
 			radioUpload->setChecked(true);
+			textFiles->setText(m_strURIs);
 		}
+		else
+			textURIs->setText(m_strURIs);
 	}
 private slots:
 	void browse()

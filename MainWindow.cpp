@@ -545,6 +545,9 @@ void MainWindow::addTransfer(QString uri)
 	
 	dlg.m_strURIs = uri;
 	
+	if(uri.startsWith("file:/") || uri.startsWith("/"))
+		dlg.m_mode = Transfer::Upload;
+	
 	if(dlg.exec() != QDialog::Accepted)
 		return;
 	
@@ -1010,7 +1013,7 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 		if(popup)
 		{
 			m_trayIcon.showMessage(tr("Transfer completed"),
-					QString(tr("The transfer of \"%1\" was completed.")).arg(d->name()),
+					QString(tr("The transfer of \"%1\" has been completed.")).arg(d->name()),
 					QSystemTrayIcon::Information, settings.value("popuptime",int(4)).toInt()*1000);
 		}
 		if(email)
@@ -1021,7 +1024,7 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 			from = settings.value("emailsender", "root@localhost").toString();
 			to = settings.value("emailrcpt").toString();
 			
-			message = QString("From: <%1>\r\nTo: <%2>\r\nSubject: FatRat transfer completed\r\nX-Mailer: FatRat/SVN\r\nThe transfer of \"%3\" was completed.")
+			message = QString("From: <%1>\r\nTo: <%2>\r\nSubject: FatRat transfer completed\r\nX-Mailer: FatRat/SVN\r\nThe transfer of \"%3\" has been completed.")
 					.arg(from).arg(to).arg(d->name());
 			
 			new SimpleEmail(settings.value("smtpserver","localhost").toString(),from,to,message);
