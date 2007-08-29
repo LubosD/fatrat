@@ -1,0 +1,191 @@
+<ui version="4.0" >
+ <class>SettingsTorrentForm</class>
+ <widget class="QWidget" name="SettingsTorrentForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>521</width>
+    <height>258</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>BitTorrent</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>5</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>Listen port start</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinListenStart" >
+       <property name="maximum" >
+        <number>32768</number>
+       </property>
+       <property name="minimum" >
+        <number>1024</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>5</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>Listen port end</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinListenEnd" >
+       <property name="maximum" >
+        <number>32768</number>
+       </property>
+       <property name="minimum" >
+        <number>1024</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item row="4" column="0" >
+      <widget class="QCheckBox" name="checkDHT" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="text" >
+        <string>Enable distributed tracker (DHT)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2" >
+      <widget class="QSpinBox" name="spinConnections" />
+     </item>
+     <item row="2" column="0" >
+      <widget class="QLabel" name="label_5" >
+       <property name="text" >
+        <string>Upload slots per torrent</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2" >
+      <widget class="QSpinBox" name="spinUploads" >
+       <property name="minimum" >
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2" >
+      <widget class="QLabel" name="label_4" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>5</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>Maximum connections (0 = unlimited)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="label_3" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>5</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>Seed up to ratio</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" >
+      <widget class="QCheckBox" name="checkPEX" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="text" >
+        <string>Enable peer exchange (PEX)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2" >
+      <widget class="QDoubleSpinBox" name="spinRatio" >
+       <property name="decimals" >
+        <number>1</number>
+       </property>
+       <property name="minimum" >
+        <double>0.000000000000000</double>
+       </property>
+       <property name="singleStep" >
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="gfx/resources.qrc" />
+ </resources>
+ <connections/>
+</ui>

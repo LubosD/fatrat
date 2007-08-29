@@ -1,0 +1,340 @@
+<ui version="4.0" >
+ <class>SettingsGeneralForm</class>
+ <widget class="QWidget" name="SettingsGeneralForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>549</width>
+    <height>414</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>General settings</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Default destination directory</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2" >
+    <widget class="QLineEdit" name="lineDestination" />
+   </item>
+   <item row="0" column="3" >
+    <widget class="QToolButton" name="toolDestination" >
+     <property name="text" >
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Don't count transfers under</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QSpinBox" name="spinSpeedThreshold" />
+   </item>
+   <item row="1" column="2" >
+    <widget class="QLabel" name="label_3" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text" >
+      <string>kiB/s as active (0 = off)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_9" >
+     <property name="text" >
+      <string>Display speed graphs for last</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <widget class="QSpinBox" name="spinGraphMinutes" >
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" >
+    <widget class="QLabel" name="label_10" >
+     <property name="text" >
+      <string>minutes</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4" >
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QCheckBox" name="checkTrayIcon" >
+       <property name="text" >
+        <string>Display tray icon</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkHideMinimize" >
+       <property name="text" >
+        <string>Hide by minimizing</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkHideClose" >
+       <property name="text" >
+        <string>Hide by closing</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0" colspan="4" >
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>When download completes</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>9</number>
+      </property>
+      <property name="topMargin" >
+       <number>9</number>
+      </property>
+      <property name="rightMargin" >
+       <number>9</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>9</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
+       <number>6</number>
+      </property>
+      <item row="1" column="3" >
+       <widget class="QLabel" name="label_5" >
+        <property name="text" >
+         <string>s</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QLabel" name="label_4" >
+        <property name="text" >
+         <string>Popup display time</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QCheckBox" name="checkPopup" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text" >
+         <string>Show popup (requires tray icon)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="4" >
+       <widget class="QGroupBox" name="groupBox_2" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="title" >
+         <string>Mailer settings</string>
+        </property>
+        <layout class="QGridLayout" >
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
+         </property>
+         <property name="horizontalSpacing" >
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing" >
+          <number>6</number>
+         </property>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lineRecipient" />
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineSender" />
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineSmtp" />
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_8" >
+           <property name="text" >
+            <string>Recipient address:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_7" >
+           <property name="text" >
+            <string>Sender address:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_6" >
+           <property name="text" >
+            <string>SMTP server:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QCheckBox" name="checkEmail" >
+        <property name="text" >
+         <string>Send e-mail</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QSpinBox" name="spinPopup" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimum" >
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" >
+       <widget class="QCheckBox" name="checkAutoRemove" >
+        <property name="text" >
+         <string>Remove from the queue</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lineDestination</tabstop>
+  <tabstop>toolDestination</tabstop>
+  <tabstop>spinSpeedThreshold</tabstop>
+  <tabstop>checkTrayIcon</tabstop>
+  <tabstop>checkPopup</tabstop>
+  <tabstop>spinPopup</tabstop>
+  <tabstop>checkEmail</tabstop>
+  <tabstop>lineSmtp</tabstop>
+  <tabstop>lineSender</tabstop>
+  <tabstop>lineRecipient</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>checkPopup</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinPopup</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>99</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>502</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkEmail</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>94</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>197</x>
+     <y>327</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkTrayIcon</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkHideMinimize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>68</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>277</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkTrayIcon</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkHideClose</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>77</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>408</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

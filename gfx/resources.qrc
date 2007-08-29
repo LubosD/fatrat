@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/fatrat" >
+        <file>bittorrent.png</file>
+        <file>dropbox.png</file>
+        <file>fatrat.png</file>
+        <file>fatrat_brown.png</file>
+        <file>httpftp.png</file>
+    </qresource>
+    <qresource prefix="/menu" >
+        <file>about.png</file>
+        <file>add.png</file>
+        <file>add_a_lot.png</file>
+        <file>bottom.png</file>
+        <file>configure.png</file>
+        <file>delete.png</file>
+        <file>details.png</file>
+        <file>down.png</file>
+        <file>exit.png</file>
+        <file>log.png</file>
+        <file>main_view.png</file>
+        <file>network.png</file>
+        <file>properties.png</file>
+        <file>queue_add.png</file>
+        <file>queue_remove.png</file>
+        <file>top.png</file>
+        <file>up.png</file>
+    </qresource>
+    <qresource prefix="/states" >
+        <file>active.png</file>
+        <file>completed.png</file>
+        <file>completed_upload.png</file>
+        <file>distribute.png</file>
+        <file>failed.png</file>
+        <file>forced_active.png</file>
+        <file>forced_distribute.png</file>
+        <file>paused.png</file>
+        <file>paused_upload.png</file>
+        <file>waiting.png</file>
+        <file>waiting_upload.png</file>
+    </qresource>
+</RCC>

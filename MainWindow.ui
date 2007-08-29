@@ -1,0 +1,653 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>737</width>
+    <height>502</height>
+   </rect>
+  </property>
+  <property name="acceptDrops" >
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle" >
+   <string>FatRat</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="gfx/resources.qrc" >:/fatrat/fatrat.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QGridLayout" >
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
+    </property>
+    <property name="horizontalSpacing" >
+     <number>6</number>
+    </property>
+    <property name="verticalSpacing" >
+     <number>6</number>
+    </property>
+    <item row="0" column="0" >
+     <widget class="QTabWidget" name="tabMain" >
+      <property name="currentIndex" >
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab" >
+       <attribute name="title" >
+        <string>Main view</string>
+       </attribute>
+       <attribute name="icon" >
+        <iconset resource="gfx/resources.qrc" >:/menu/main_view.png</iconset>
+       </attribute>
+       <layout class="QGridLayout" >
+        <property name="leftMargin" >
+         <number>9</number>
+        </property>
+        <property name="topMargin" >
+         <number>9</number>
+        </property>
+        <property name="rightMargin" >
+         <number>9</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>9</number>
+        </property>
+        <property name="horizontalSpacing" >
+         <number>6</number>
+        </property>
+        <property name="verticalSpacing" >
+         <number>6</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QSplitter" name="splitterQueues" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="layoutWidget" >
+           <layout class="QVBoxLayout" >
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <property name="leftMargin" >
+             <number>0</number>
+            </property>
+            <property name="topMargin" >
+             <number>0</number>
+            </property>
+            <property name="rightMargin" >
+             <number>0</number>
+            </property>
+            <property name="bottomMargin" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label" >
+              <property name="frameShape" >
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="text" >
+               <string>&lt;b>Queues</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListWidget" name="listQueues" >
+              <property name="font" >
+               <font>
+                <family>DejaVu Sans</family>
+                <pointsize>10</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="dragEnabled" >
+               <bool>true</bool>
+              </property>
+              <property name="dragDropMode" >
+               <enum>QAbstractItemView::DropOnly</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget" >
+           <layout class="QVBoxLayout" >
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <property name="leftMargin" >
+             <number>0</number>
+            </property>
+            <property name="topMargin" >
+             <number>0</number>
+            </property>
+            <property name="rightMargin" >
+             <number>0</number>
+            </property>
+            <property name="bottomMargin" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_2" >
+              <property name="frameShape" >
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="text" >
+               <string>&lt;b>Transfers</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeTransfers" >
+              <property name="acceptDrops" >
+               <bool>true</bool>
+              </property>
+              <property name="dragEnabled" >
+               <bool>true</bool>
+              </property>
+              <property name="dragDropMode" >
+               <enum>QAbstractItemView::DragDrop</enum>
+              </property>
+              <property name="alternatingRowColors" >
+               <bool>true</bool>
+              </property>
+              <property name="rootIsDecorated" >
+               <bool>false</bool>
+              </property>
+              <property name="uniformRowHeights" >
+               <bool>true</bool>
+              </property>
+              <property name="itemsExpandable" >
+               <bool>false</bool>
+              </property>
+              <property name="animated" >
+               <bool>true</bool>
+              </property>
+              <property name="allColumnsShowFocus" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2" >
+       <attribute name="title" >
+        <string>Transfer details</string>
+       </attribute>
+       <attribute name="icon" >
+        <iconset resource="gfx/resources.qrc" >:/menu/details.png</iconset>
+       </attribute>
+       <layout class="QGridLayout" >
+        <property name="leftMargin" >
+         <number>9</number>
+        </property>
+        <property name="topMargin" >
+         <number>9</number>
+        </property>
+        <property name="rightMargin" >
+         <number>9</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>9</number>
+        </property>
+        <property name="horizontalSpacing" >
+         <number>6</number>
+        </property>
+        <property name="verticalSpacing" >
+         <number>6</number>
+        </property>
+        <item row="3" column="0" colspan="5" >
+         <widget class="QStackedWidget" name="stackedDetails" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <widget class="QWidget" name="page" />
+          <widget class="QWidget" name="page_2" />
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="3" >
+         <widget class="QLineEdit" name="lineName" >
+          <property name="frame" >
+           <bool>false</bool>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_6" >
+          <property name="text" >
+           <string>&lt;b>Message:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4" >
+         <widget class="QPushButton" name="pushGenericOptions" >
+          <property name="text" >
+           <string>Transfer properties</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label_4" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>&lt;b>Progress:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QLabel" name="label_5" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>&lt;b>Speed:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLabel" name="labelProgress" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Minimum" hsizetype="Expanding" >
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>?</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>&lt;b>Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3" colspan="2" >
+         <widget class="QLabel" name="labelSpeed" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Minimum" hsizetype="Ignored" >
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>?</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="4" >
+         <widget class="QLineEdit" name="lineMessage" >
+          <property name="frame" >
+           <bool>false</bool>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Transfer log</string>
+       </attribute>
+       <attribute name="icon" >
+        <iconset resource="gfx/resources.qrc" >:/menu/log.png</iconset>
+       </attribute>
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="QTextEdit" name="textTransferLog" >
+          <property name="verticalScrollBarPolicy" >
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+          <property name="acceptRichText" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>737</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>Help</string>
+    </property>
+    <addaction name="actionAboutQt" />
+    <addaction name="actionAbout" />
+   </widget>
+   <widget class="QMenu" name="menuSettings" >
+    <property name="title" >
+     <string>Settings</string>
+    </property>
+    <addaction name="actionSettings" />
+   </widget>
+   <widget class="QMenu" name="menuFatRat" >
+    <property name="title" >
+     <string>FatRat</string>
+    </property>
+    <addaction name="actionDropBox" />
+    <addaction name="actionHideAllInfoBars" />
+    <addaction name="separator" />
+    <addaction name="actionQuit" />
+   </widget>
+   <widget class="QMenu" name="menuTransfer" >
+    <property name="title" >
+     <string>Transfer</string>
+    </property>
+    <addaction name="actionNewTransfer" />
+    <addaction name="actionDeleteTransfer" />
+    <addaction name="separator" />
+    <addaction name="actionResume" />
+    <addaction name="actionForcedResume" />
+    <addaction name="actionPause" />
+    <addaction name="separator" />
+    <addaction name="actionTop" />
+    <addaction name="actionUp" />
+    <addaction name="actionDown" />
+    <addaction name="actionBottom" />
+    <addaction name="separator" />
+    <addaction name="actionInfoBar" />
+    <addaction name="separator" />
+    <addaction name="actionProperties" />
+   </widget>
+   <widget class="QMenu" name="menuQueue" >
+    <property name="title" >
+     <string>Queue</string>
+    </property>
+    <addaction name="actionNewQueue" />
+    <addaction name="actionDeleteQueue" />
+    <addaction name="separator" />
+    <addaction name="actionResumeAll" />
+    <addaction name="actionStopAll" />
+    <addaction name="separator" />
+    <addaction name="actionRemoveCompleted" />
+    <addaction name="separator" />
+    <addaction name="actionQueueProperties" />
+   </widget>
+   <addaction name="menuFatRat" />
+   <addaction name="menuQueue" />
+   <addaction name="menuTransfer" />
+   <addaction name="menuSettings" />
+   <addaction name="menuHelp" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QToolBar" name="toolBar" >
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNewTransfer" />
+   <addaction name="actionDeleteTransfer" />
+   <addaction name="separator" />
+   <addaction name="actionResume" />
+   <addaction name="actionForcedResume" />
+   <addaction name="actionPause" />
+   <addaction name="separator" />
+   <addaction name="actionTop" />
+   <addaction name="actionUp" />
+   <addaction name="actionDown" />
+   <addaction name="actionBottom" />
+   <addaction name="separator" />
+   <addaction name="actionNewQueue" />
+   <addaction name="actionDeleteQueue" />
+   <addaction name="separator" />
+   <addaction name="actionAbout" />
+  </widget>
+  <action name="actionQuit" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/exit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionNewQueue" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/queue_add.png</iconset>
+   </property>
+   <property name="text" >
+    <string>New queue</string>
+   </property>
+  </action>
+  <action name="actionDeleteQueue" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/queue_remove.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Delete queue</string>
+   </property>
+  </action>
+  <action name="actionResumeAll" >
+   <property name="text" >
+    <string>Start all</string>
+   </property>
+  </action>
+  <action name="actionStopAll" >
+   <property name="text" >
+    <string>Pause all</string>
+   </property>
+  </action>
+  <action name="actionNewTransfer" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/add.png</iconset>
+   </property>
+   <property name="text" >
+    <string>New transfer</string>
+   </property>
+  </action>
+  <action name="actionDeleteTransfer" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/delete.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Delete transfer</string>
+   </property>
+  </action>
+  <action name="actionResume" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/states/active.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionForcedResume" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/states/forced_active.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Force start</string>
+   </property>
+  </action>
+  <action name="actionPause" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/states/paused.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionAbout" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/about.png</iconset>
+   </property>
+   <property name="text" >
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionTop" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/top.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Move to top</string>
+   </property>
+  </action>
+  <action name="actionUp" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/up.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Move up</string>
+   </property>
+  </action>
+  <action name="actionDown" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/down.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Move down</string>
+   </property>
+  </action>
+  <action name="actionBottom" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/bottom.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Move to bottom</string>
+   </property>
+  </action>
+  <action name="actionRemoveCompleted" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/states/completed.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Remove completed</string>
+   </property>
+  </action>
+  <action name="actionAboutQt" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionInfoBar" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Display info bar</string>
+   </property>
+   <property name="iconText" >
+    <string>Display info bar</string>
+   </property>
+   <property name="toolTip" >
+    <string>Display info bar</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionProperties" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Properties</string>
+   </property>
+  </action>
+  <action name="actionHideAllInfoBars" >
+   <property name="text" >
+    <string>Hide all info bars</string>
+   </property>
+  </action>
+  <action name="actionDisplay" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Display main window</string>
+   </property>
+  </action>
+  <action name="actionSettings" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/configure.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionQueueProperties" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Properties</string>
+   </property>
+  </action>
+  <action name="actionDropBox" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/fatrat/dropbox.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Display drop-box</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="gfx/resources.qrc" />
+ </resources>
+ <connections/>
+</ui>
