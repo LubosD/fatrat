@@ -296,13 +296,13 @@
     </message>
     <message>
         <location filename="../GenericOptsForm.ui" line="42"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Max. rychlost stahování (kiB/s):</translation>
+        <source>Down speed limit (kB/s):</source>
+        <translation>Max. rychlost stahování (kB/s):</translation>
     </message>
     <message>
         <location filename="../GenericOptsForm.ui" line="69"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Max. rychlost uploadu (kiB/s):</translation>
+        <source>Up speed limit (kB/s):</source>
+        <translation>Max. rychlost uploadu (kB/s):</translation>
     </message>
 </context>
 <context>
@@ -514,11 +514,6 @@
         <translation>FatRat</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="48"/>
-        <source>Main view</source>
-        <translation>Hlavní zobrazení</translation>
-    </message>
-    <message>
         <location filename="../MainWindow.ui" line="100"/>
         <source>&lt;b&gt;Queues</source>
         <translation>&lt;b&gt;Fronty</translation>
@@ -706,7 +701,12 @@
     <message>
         <location filename="../MainWindow.cpp" line="1016"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
-        <translation type="unfinished">Přenos souboru &quot;%1&quot; byl dokončen.</translation>
+        <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="48"/>
+        <source>Transfers</source>
+        <translation>Přenosy</translation>
     </message>
 </context>
 <context>
@@ -777,24 +777,24 @@
         <translation>Uploadovat jako:</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="240"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Max. rychlost stahování (kiB/s):</translation>
-    </message>
-    <message>
-        <location filename="../NewTransferDlg.ui" line="263"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Max. rychlost uploadu (kiB/s):</translation>
-    </message>
-    <message>
-        <location filename="../NewTransferDlg.ui" line="286"/>
+        <location filename="../NewTransferDlg.ui" line="257"/>
         <source>Add paused</source>
         <translation>Přidat zastavené</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="293"/>
+        <location filename="../NewTransferDlg.ui" line="274"/>
         <source>Set advanced options</source>
         <translation>Nastavit pokročilé volby</translation>
+    </message>
+    <message>
+        <location filename="../NewTransferDlg.ui" line="240"/>
+        <source>Down speed limit (kB/s):</source>
+        <translation>Max. rychlost stahování (kB/s):</translation>
+    </message>
+    <message>
+        <location filename="../NewTransferDlg.ui" line="264"/>
+        <source>Up speed limit (kB/s):</source>
+        <translation>Max. rychlost uploadu (kB/s):</translation>
     </message>
 </context>
 <context>

@@ -45,7 +45,7 @@
       </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
-        <string>Main view</string>
+        <string>Transfers</string>
        </attribute>
        <attribute name="icon" >
         <iconset resource="gfx/resources.qrc" >:/menu/main_view.png</iconset>

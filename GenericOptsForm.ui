@@ -39,7 +39,7 @@
    <item row="1" column="0" colspan="2" >
     <widget class="QLabel" name="label_4" >
      <property name="text" >
-      <string>Down speed limit (kiB/s):</string>
+      <string>Down speed limit (kB/s):</string>
      </property>
     </widget>
    </item>
@@ -66,7 +66,7 @@
    <item row="2" column="0" colspan="2" >
     <widget class="QLabel" name="label_5" >
      <property name="text" >
-      <string>Up speed limit (kiB/s):</string>
+      <string>Up speed limit (kB/s):</string>
      </property>
     </widget>
    </item>

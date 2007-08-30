@@ -799,10 +799,10 @@ void MainWindow::refreshDetailsTab()
 				progress += QString(tr(", %1 left")).arg( formatTime(todownload/down) );
 			}
 			
-			speed = QString("%1 kiB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
+			speed = QString("%1 kB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
 		}
 		if(up)
-			speed += QString("%1 kiB/ up").arg(double(up)/1024.f, 0, 'f', 1);
+			speed += QString("%1 kB/ up").arg(double(up)/1024.f, 0, 'f', 1);
 		
 		labelSpeed->setText( speed );
 	}

@@ -39,22 +39,32 @@ InfoBar::~InfoBar()
 void InfoBar::refresh()
 {
 	qulonglong done = m_download->done(), total = m_download->total();
-	QString pc, speed = "- - -", time = "- - -";
+	QString pc, speed, time = "- - -";
 	
 	if(m_download->isActive())
 	{
 		QString s;
+		Transfer::Mode mode = m_download->primaryMode();
 		int down,up;
 		m_download->speeds(down,up);
 		
 		if(down)
 		{
-			speed = QString("%1 kiB/s <i>d</i>").arg(double(down)/1024.f, 0, 'f', 1);
-			time = formatTime((total-done)/down);
+			speed = QString("%1 kB/s <i>d</i>").arg(double(down)/1024.f, 0, 'f', 1);
+			
+			if(mode == Transfer::Download)
+				time = formatTime((total-done)/down);
 		}
 		if(up)
-			speed += QString(" %1 kiB/ <i>u</i>").arg(double(up)/1024.f, 0, 'f', 1);
+		{
+			speed += QString(" %1 kB/s <i>u</i>").arg(double(up)/1024.f, 0, 'f', 1);
+			
+			if(mode == Transfer::Upload)
+				time = formatTime((total-done)/up);
+		}
 	}
+	if(speed.isEmpty())
+			speed = "- - -";
 	if(total)
 		pc = QString("%1").arg(100.0/total*done, 0, 'f', 1);
 	

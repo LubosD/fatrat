@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>453</width>
-    <height>526</height>
+    <width>441</width>
+    <height>377</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -237,77 +237,45 @@
    <item row="3" column="0" colspan="2" >
     <widget class="QLabel" name="label_4" >
      <property name="text" >
-      <string>Down speed limit (kiB/s):</string>
+      <string>Down speed limit (kB/s):</string>
      </property>
     </widget>
    </item>
    <item row="3" column="2" colspan="2" >
     <widget class="QSpinBox" name="spinDown" />
    </item>
-   <item row="3" column="4" colspan="2" >
-    <spacer>
+   <item rowspan="2" row="3" column="4" >
+    <widget class="Line" name="line_2" >
      <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="4" column="0" colspan="2" >
-    <widget class="QLabel" name="label_5" >
-     <property name="text" >
-      <string>Up speed limit (kiB/s):</string>
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
-   <item row="4" column="2" colspan="2" >
-    <widget class="QSpinBox" name="spinUp" />
-   </item>
-   <item row="4" column="4" colspan="2" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="5" column="0" colspan="2" >
+   <item row="3" column="5" >
     <widget class="QCheckBox" name="checkPaused" >
      <property name="text" >
       <string>Add paused</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="4" >
+   <item row="4" column="0" colspan="2" >
+    <widget class="QLabel" name="label_5" >
+     <property name="text" >
+      <string>Up speed limit (kB/s):</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2" colspan="2" >
+    <widget class="QSpinBox" name="spinUp" />
+   </item>
+   <item row="4" column="5" >
     <widget class="QCheckBox" name="checkDetails" >
      <property name="text" >
       <string>Set advanced options</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="5" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="8" column="0" colspan="6" >
+   <item row="5" column="4" colspan="2" >
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
