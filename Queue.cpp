@@ -15,7 +15,7 @@ QReadWriteLock g_queuesLock;
 QueueMgr g_qmgr;
 
 Queue::Queue()
-	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(0), m_nUpTransferLimit(0), m_bUpAsDown(false)
+	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1), m_bUpAsDown(false)
 {
 }
 

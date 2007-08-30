@@ -5,6 +5,7 @@
 
 INSTALLS += locale \
             target 
+target.files += fatrat
 target.path = /usr/bin 
 locale.files += locale/*.qm 
 locale.path = /usr/share/locale/fatrat 
@@ -95,4 +96,3 @@ TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
 QT += xml network
-target.files = fatrat
