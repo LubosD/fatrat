@@ -15,6 +15,8 @@
 
 using namespace std;
 
+extern QSettings* g_settings;
+
 TorrentDownload::TorrentDownload() : m_pClient(0), m_nDown(0), m_nUp(0)
 {
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(checkRatio()));
@@ -126,7 +128,7 @@ void TorrentDownload::changeActive(bool nowActive)
 		
 		if(state() == Paused)
 		{
-			double maxRatio = QSettings().value("bittorrent/ratio", 1.0).toDouble();
+			double maxRatio = g_settings->value("bittorrent/ratio", 1.0).toDouble();
 			if(m_pClient && m_pClient->ratio() >= maxRatio && m_pClient->state() == TorrentClient::Seeding)
 			{
 				setState(Completed);
@@ -265,11 +267,10 @@ void TorrentDownload::clientStateChanged(TorrentClient::State s)
 
 void TorrentDownload::checkRatio()
 {
-	QSettings settings;
 	const double ratio = m_pClient->ratio();
 	const State mystate = state();
 	
-	double maxRatio = settings.value("bittorrent/ratio", 1.0).toDouble();
+	double maxRatio = g_settings->value("bittorrent/ratio", 1.0).toDouble();
 	qDebug() << "Checking ratio - maxratio:" << maxRatio << "ratio:" << ratio;
 	if(ratio >= maxRatio && mystate == Active)
 	{
@@ -288,11 +289,10 @@ WidgetHostChild* TorrentDownload::createSettingsWidget(QWidget* w, QIcon& icon)
 
 void TorrentDownload::globalInit()
 {
-	QSettings settings;
-	ConnectionManager::instance()->setMaxConnections( settings.value("bittorrent/connections").toInt() );
-	TorrentClient::setPortRange(settings.value("bittorrent/listenstart", 6881).toInt(),
-				    settings.value("bittorrent/listenend", 6889).toInt());
-	TorrentClient::setNumUploadSlots(settings.value("bittorrent/uploads",4).toInt());
+	ConnectionManager::instance()->setMaxConnections( g_settings->value("bittorrent/connections").toInt() );
+	TorrentClient::setPortRange(g_settings->value("bittorrent/listenstart", 6881).toInt(),
+				    g_settings->value("bittorrent/listenend", 6889).toInt());
+	TorrentClient::setNumUploadSlots(g_settings->value("bittorrent/uploads",4).toInt());
 }
 
 void TorrentDownload::stateChanged(Transfer::State prev, Transfer::State now)
@@ -481,15 +481,13 @@ bool TorrentOptsWidget::accept()
 
 void TorrentDownloadSettings::load()
 {
-	QSettings settings;
-	
-	settings.beginGroup("bittorrent");
-	spinListenStart->setValue(settings.value("listenstart", 6881).toInt());
-	spinListenEnd->setValue(settings.value("listenend", 6889).toInt());
-	spinRatio->setValue(settings.value("ratio", 1.0).toDouble());
-	spinConnections->setValue(settings.value("connections").toInt());
-	spinUploads->setValue(settings.value("uploads",4).toInt());
-	settings.endGroup();
+	g_settings->beginGroup("bittorrent");
+	spinListenStart->setValue(g_settings->value("listenstart", 6881).toInt());
+	spinListenEnd->setValue(g_settings->value("listenend", 6889).toInt());
+	spinRatio->setValue(g_settings->value("ratio", 1.0).toDouble());
+	spinConnections->setValue(g_settings->value("connections").toInt());
+	spinUploads->setValue(g_settings->value("uploads",4).toInt());
+	g_settings->endGroup();
 }
 
 bool TorrentDownloadSettings::accept()
@@ -505,15 +503,13 @@ bool TorrentDownloadSettings::accept()
 
 void TorrentDownloadSettings::accepted()
 {
-	QSettings settings;
-	
-	settings.beginGroup("bittorrent");
-	settings.setValue("listenstart", spinListenStart->value());
-	settings.setValue("listenend", spinListenEnd->value());
-	settings.setValue("ratio", spinRatio->value());
-	settings.setValue("connections", spinConnections->value());
-	settings.setValue("uploads", spinUploads->value());
-	settings.endGroup();
+	g_settings->beginGroup("bittorrent");
+	g_settings->setValue("listenstart", spinListenStart->value());
+	g_settings->setValue("listenend", spinListenEnd->value());
+	g_settings->setValue("ratio", spinRatio->value());
+	g_settings->setValue("connections", spinConnections->value());
+	g_settings->setValue("uploads", spinUploads->value());
+	g_settings->endGroup();
 	
 	TorrentDownload::globalInit();
 }

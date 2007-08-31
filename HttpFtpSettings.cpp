@@ -4,6 +4,8 @@
 #include <QSettings>
 #include <QMessageBox>
 
+extern QSettings* g_settings;
+
 HttpFtpSettings::HttpFtpSettings(QWidget* w)
 {
 	setupUi(w);
@@ -21,12 +23,11 @@ HttpFtpSettings::HttpFtpSettings(QWidget* w)
 
 void HttpFtpSettings::load()
 {
-	QSettings s;
 	bool bFound = false;
 	
 	// LOAD PROXYS
 	m_listProxy = Proxy::loadProxys();
-	m_defaultProxy = s.value("httpftp/defaultproxy").toString();
+	m_defaultProxy = g_settings->value("httpftp/defaultproxy").toString();
 	
 	foreach(Proxy p,m_listProxy)
 	{
@@ -57,41 +58,39 @@ void HttpFtpSettings::load()
 
 void HttpFtpSettings::accepted()
 {
-	QSettings s;
+	g_settings->beginGroup("httpftp");
 	
-	s.beginGroup("httpftp");
-	
-	s.beginWriteArray("proxys");
+	g_settings->beginWriteArray("proxys");
 	for(int i=0;i<m_listProxy.size();i++)
 	{
 		Proxy& p = m_listProxy[i];
 		
-		s.setArrayIndex(i);
-		s.setValue("type", int(p.nType));
-		s.setValue("name", p.strName);
-		s.setValue("ip", p.strIP);
-		s.setValue("port", p.nPort);
-		s.setValue("user", p.strUser);
-		s.setValue("password", p.strPassword);
-		s.setValue("uuid", p.uuid.toString());
+		g_settings->setArrayIndex(i);
+		g_settings->setValue("type", int(p.nType));
+		g_settings->setValue("name", p.strName);
+		g_settings->setValue("ip", p.strIP);
+		g_settings->setValue("port", p.nPort);
+		g_settings->setValue("user", p.strUser);
+		g_settings->setValue("password", p.strPassword);
+		g_settings->setValue("uuid", p.uuid.toString());
 	}
-	s.endArray();
+	g_settings->endArray();
 	
-	s.setValue("defaultproxy", m_defaultProxy.toString());
+	g_settings->setValue("defaultproxy", m_defaultProxy.toString());
 	
-	s.beginWriteArray("auths");
+	g_settings->beginWriteArray("auths");
 	for(int i=0;i<m_listAuth.size();i++)
 	{
 		Auth& a = m_listAuth[i];
 		
-		s.setArrayIndex(i);
-		s.setValue("regexp",a.strRegExp);
-		s.setValue("user",a.strUser);
-		s.setValue("password",a.strPassword);
+		g_settings->setArrayIndex(i);
+		g_settings->setValue("regexp",a.strRegExp);
+		g_settings->setValue("user",a.strUser);
+		g_settings->setValue("password",a.strPassword);
 	}
-	s.endArray();
+	g_settings->endArray();
 	
-	s.endGroup();
+	g_settings->endGroup();
 }
 
 void HttpFtpSettings::proxyAdd()

@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QtDebug>
 
+extern QSettings* g_settings;
+
 class NewTransferDlg : public QDialog, Ui_NewTransferDlg
 {
 Q_OBJECT
@@ -74,8 +76,6 @@ public:
 	}
 	void accepted()
 	{
-		QSettings settings;
-		
 		m_mode = radioDownload->isChecked() ? Transfer::Download : Transfer::Upload;
 		if(m_mode == Transfer::Download)
 		{
@@ -88,7 +88,7 @@ public:
 				if(m_lastDirs.size() >= 5)
 					m_lastDirs.removeFirst();
 				m_lastDirs.append(m_strDestination);
-				settings.setValue("lastdirs", m_lastDirs);
+				g_settings->setValue("lastdirs", m_lastDirs);
 			}
 		}
 		else
@@ -105,14 +105,12 @@ public:
 	}
 	void load()
 	{
-		QSettings settings;
-		
 		if(!m_strClass.isEmpty())
 		{
 			if(m_lastDirs.size() >= 5)
 				m_lastDirs.removeFirst();
 			m_lastDirs.append(m_strDestination);
-			settings.setValue("lastdirs", m_lastDirs);
+			g_settings->setValue("lastdirs", m_lastDirs);
 		}
 		{
 			bool bFound = false;
@@ -146,9 +144,9 @@ public:
 		}
 		
 		if(m_strDestination.isEmpty())
-			m_strDestination = settings.value("defaultdir", QDir::homePath()).toString();
+			m_strDestination = g_settings->value("defaultdir", QDir::homePath()).toString();
 		
-		m_lastDirs = settings.value("lastdirs").toStringList();
+		m_lastDirs = g_settings->value("lastdirs").toStringList();
 		if(!m_lastDirs.contains(m_strDestination))
 			comboDestination->addItem(m_strDestination);
 		comboDestination->addItems(m_lastDirs);

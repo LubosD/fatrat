@@ -12,7 +12,6 @@ using namespace std;
 
 QList<Queue*> g_queues;
 QReadWriteLock g_queuesLock;
-QueueMgr g_qmgr;
 
 Queue::Queue()
 	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1), m_bUpAsDown(false)

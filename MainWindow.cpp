@@ -22,6 +22,7 @@
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
+extern QSettings* g_settings;
 
 using namespace std;
 
@@ -53,10 +54,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupUi()
 {
-	QSettings settings;
 	Ui_MainWindow::setupUi(this);
 	
-	settings.beginGroup("state");
+	g_settings->beginGroup("state");
 	
 	m_dropBox = new DropBox(this);
 	
@@ -115,7 +115,7 @@ void MainWindow::setupUi()
 	//////////////////////////
 	{
 		QHeaderView* hdr = treeTransfers->header();
-		QVariant state = settings.value("mainheaders");
+		QVariant state = g_settings->value("mainheaders");
 		
 		if(state.isNull())
 		{
@@ -125,7 +125,7 @@ void MainWindow::setupUi()
 		else
 			hdr->restoreState(state.toByteArray());
 		
-		state = settings.value("mainsplitter");
+		state = g_settings->value("mainsplitter");
 		
 		if(state.isNull())
 			splitterQueues->setSizes(QList<int>() << 80 << 600);
@@ -148,11 +148,11 @@ void MainWindow::setupUi()
 
 void MainWindow::saveWindowState()
 {
-	QSettings settings;
-	settings.beginGroup("state");
+	g_settings->beginGroup("state");
 	
-	settings.setValue("mainheaders", treeTransfers->header()->saveState());
-	settings.setValue("mainsplitter", splitterQueues->saveState());
+	g_settings->setValue("mainheaders", treeTransfers->header()->saveState());
+	g_settings->setValue("mainsplitter", splitterQueues->saveState());
+	g_settings->sync();
 }
 
 void MainWindow::about()
@@ -199,8 +199,7 @@ void MainWindow::hideAllInfoBars()
 
 void MainWindow::hideEvent(QHideEvent* event)
 {
-	QSettings settings;
-	if(isMinimized() && m_trayIcon.isVisible() && settings.value("hideminimize", false).toBool())
+	if(isMinimized() && m_trayIcon.isVisible() && g_settings->value("hideminimize", false).toBool())
 	{
 		actionDisplay->setChecked(false);
 		hide();
@@ -211,9 +210,7 @@ void MainWindow::hideEvent(QHideEvent* event)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-	QSettings settings;
-	
-	if(m_trayIcon.isVisible() && settings.value("hideclose", true).toBool())
+	if(m_trayIcon.isVisible() && g_settings->value("hideclose", true).toBool())
 	{
 		actionDisplay->setChecked(false);
 		hide();
@@ -992,16 +989,13 @@ void MainWindow::showSettings()
 
 void MainWindow::showTrayIcon()
 {
-	QSettings settings;
-	m_trayIcon.setVisible(settings.value("trayicon", true).toBool());
+	m_trayIcon.setVisible(g_settings->value("trayicon", true).toBool());
 }
 
 void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now)
 {
-	QSettings settings;
-	
-	const bool popup = settings.value("showpopup", true).toBool();
-	const bool email = settings.value("sendemail", false).toBool();
+	const bool popup = g_settings->value("showpopup", true).toBool();
+	const bool email = g_settings->value("sendemail", false).toBool();
 	
 	cout << "MainWindow::downloadStateChanged()\n";
 	
@@ -1014,20 +1008,19 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 		{
 			m_trayIcon.showMessage(tr("Transfer completed"),
 					QString(tr("The transfer of \"%1\" has been completed.")).arg(d->name()),
-					QSystemTrayIcon::Information, settings.value("popuptime",int(4)).toInt()*1000);
+					QSystemTrayIcon::Information, g_settings->value("popuptime",int(4)).toInt()*1000);
 		}
 		if(email)
 		{
 			QString from,to;
 			QString message;
 			
-			from = settings.value("emailsender", "root@localhost").toString();
-			to = settings.value("emailrcpt").toString();
+			from = g_settings->value("emailsender", "root@localhost").toString();
+			to = g_settings->value("emailrcpt").toString();
 			
-			message = QString("From: <%1>\r\nTo: <%2>\r\nSubject: FatRat transfer completed\r\nX-Mailer: FatRat/SVN\r\nThe transfer of \"%3\" has been completed.")
-					.arg(from).arg(to).arg(d->name());
+			message = QString("From: <%1>\r\nTo: <%2>\r\nSubject: FatRat transfer completed\r\nX-Mailer: FatRat/SVN\r\nThe transfer of \"%3\" has been completed.").arg(from).arg(to).arg(d->name());
 			
-			new SimpleEmail(settings.value("smtpserver","localhost").toString(),from,to,message);
+			new SimpleEmail(g_settings->value("smtpserver","localhost").toString(),from,to,message);
 		}
 	}
 }

@@ -6,6 +6,7 @@ using namespace std;
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
+extern QSettings* g_settings;
 
 QueueMgr::QueueMgr() : m_nCycle(0)
 {
@@ -23,11 +24,9 @@ void QueueMgr::run()
 void QueueMgr::doWork()
 {
 	//cout << "QueueMgr::doWork()\n";
-	QSettings settings;
-	
 	g_queuesLock.lockForRead();
-	const int threshold = settings.value("speedthreshold", int(0)).toInt()*1024;
-	const bool autoremove = settings.value("autoremove", false).toBool();
+	const int threshold = g_settings->value("speedthreshold", int(0)).toInt()*1024;
+	const bool autoremove = g_settings->value("autoremove", false).toBool();
 	
 	foreach(Queue* q,g_queues)
 	{

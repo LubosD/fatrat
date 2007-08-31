@@ -16,8 +16,8 @@
 
 using namespace std;
 
-extern QueueMgr g_qmgr;
-MainWindow* g_wndMain;
+MainWindow* g_wndMain = 0;
+QSettings* g_settings = 0;
 
 static void initEngines();
 
@@ -26,10 +26,13 @@ int main(int argc,char** argv)
 	QApplication app(argc, argv);
 	int rval;
 	QTranslator translator;
+	QueueMgr* qmgr;
 	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
+	
+	g_settings = new QSettings;
 	
 	qDebug() << "Current locale" << QLocale::system().name();
 	translator.load(QString("fatrat_") + QLocale::system().name(), "/usr/share/locale/fatrat");
@@ -41,7 +44,8 @@ int main(int argc,char** argv)
 	
 	qRegisterMetaType<QHttpResponseHeader>("QHttpResponseHeader");
 	
-	g_qmgr.start();
+	qmgr = new QueueMgr;
+	qmgr->start();
 	g_wndMain = new MainWindow;
 	
 	new FatratAdaptor(g_wndMain);
@@ -55,8 +59,11 @@ int main(int argc,char** argv)
 	delete g_wndMain;
 	
 	Queue::saveQueues();
-	g_qmgr.exit();
+	qmgr->exit();
 	Queue::unloadQueues();
+	
+	delete qmgr;
+	delete g_settings;
 	
 	return rval;
 }
@@ -124,26 +131,25 @@ QString formatTime(qulonglong inval)
 
 QList<Proxy> Proxy::loadProxys()
 {
-	QSettings s;
 	QList<Proxy> r;
 	
-	int count = s.beginReadArray("httpftp/proxys");
+	int count = g_settings->beginReadArray("httpftp/proxys");
 	for(int i=0;i<count;i++)
 	{
 		Proxy p;
-		s.setArrayIndex(i);
+		g_settings->setArrayIndex(i);
 		
-		p.strName = s.value("name").toString();
-		p.strIP = s.value("ip").toString();
-		p.nPort = s.value("port").toUInt();
-		p.strUser = s.value("user").toString();
-		p.strPassword = s.value("password").toString();
-		p.nType = (Proxy::ProxyType) s.value("type",0).toInt();
-		p.uuid = s.value("uuid").toString();
+		p.strName = g_settings->value("name").toString();
+		p.strIP = g_settings->value("ip").toString();
+		p.nPort = g_settings->value("port").toUInt();
+		p.strUser = g_settings->value("user").toString();
+		p.strPassword = g_settings->value("password").toString();
+		p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
+		p.uuid = g_settings->value("uuid").toString();
 		
 		r << p;
 	}
-	s.endArray();
+	g_settings->endArray();
 	return r;
 }
 

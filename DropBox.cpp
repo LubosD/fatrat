@@ -8,10 +8,10 @@
 #include <QtDebug>
 
 extern MainWindow* g_wndMain;
+extern QSettings* g_settings;
 
 DropBox::DropBox(QWidget* parent) : QLabel(parent, Qt::FramelessWindowHint)
 {
-	QSettings settings;
 	QPixmap pixmap(":/fatrat/dropbox.png");
 	
 	setWindowFlags(Qt::ToolTip);
@@ -21,7 +21,7 @@ DropBox::DropBox(QWidget* parent) : QLabel(parent, Qt::FramelessWindowHint)
 	
 	setAcceptDrops(true);
 	
-	move( settings.value("dropbox/position", QPoint(100,100)).toPoint() );
+	move( g_settings->value("dropbox/position", QPoint(100,100)).toPoint() );
 }
 void DropBox::mousePressEvent(QMouseEvent* event)
 {
@@ -45,8 +45,7 @@ void DropBox::mouseMoveEvent(QMouseEvent* event)
 
 void DropBox::mouseReleaseEvent(QMouseEvent*)
 {
-	QSettings settings;
-	settings.setValue("dropbox/position", pos());
+	g_settings->setValue("dropbox/position", pos());
 }
 
 void DropBox::dragEnterEvent(QDragEnterEvent *event)

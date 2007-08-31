@@ -2,9 +2,12 @@
 #define _SETTINGSDLG_H
 #include <QDialog>
 #include <QList>
+#include <QSettings>
 #include "ui_SettingsDlg.h"
 #include "SettingsGeneralForm.h"
 #include "Transfer.h"
+
+extern QSettings* g_settings;
 
 class SettingsDlg : public QDialog, Ui_SettingsDlg
 {
@@ -47,6 +50,8 @@ public:
 			}
 			
 			QDialog::accept();
+			
+			g_settings->sync();
 		}
 	}
 	

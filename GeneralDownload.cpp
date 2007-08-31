@@ -13,6 +13,8 @@
 
 using namespace std;
 
+extern QSettings* g_settings;
+
 GeneralDownload::GeneralDownload(bool local) : Transfer(local), m_nTotal(0), m_nStart(0), m_bSupportsResume(false),
 m_http(0), m_ftp(0), m_nUrl(0)
 {
@@ -63,8 +65,7 @@ void GeneralDownload::init(QString uri,QString dest)
 		}
 	}
 	
-	QSettings s;
-	obj.proxy = s.value("httpftp/defaultproxy").toString();
+	obj.proxy = g_settings->value("httpftp/defaultproxy").toString();
 	obj.ftpMode = FtpPassive;
 	
 	m_dir = dest;
@@ -575,8 +576,7 @@ void HttpUrlOptsDlg::init()
 	
 	if(m_proxy.isNull() && m_multi != 0)
 	{
-		QSettings s;
-		m_proxy = s.value("httpftp/defaultproxy").toString();
+		m_proxy = g_settings->value("httpftp/defaultproxy").toString();
 	}
 	
 	for(int i=0;i<listProxy.size();i++)

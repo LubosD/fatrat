@@ -4,7 +4,6 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QTimer>
-#include <QSettings>
 #include "Transfer.h"
 
 class SpeedGraph : public QWidget
@@ -21,7 +20,6 @@ protected:
 	
 	Transfer* m_transfer;
 	QTimer* m_timer;
-	QSettings m_settings;
 };
 
 #endif

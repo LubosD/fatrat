@@ -11,6 +11,8 @@ Q_GLOBAL_STATIC(TransferNotifier, transferNotifier)
 
 using namespace std;
 
+extern QSettings* g_settings;
+
 static const EngineEntry m_enginesDownload[] = {
 	{ "FakeDownload", "Fake engine", 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 },
 	{ "GeneralDownload", "HTTP/FTP download", 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
@@ -197,11 +199,10 @@ void Transfer::setMode(Mode newMode)
 void Transfer::updateGraph()
 {
 	int down, up;
-	QSettings settings;
 	
 	speeds(down,up);
 	
-	if(m_qSpeedData.size() >= settings.value("graphminutes",int(5)).toInt()*60)
+	if(m_qSpeedData.size() >= g_settings->value("graphminutes",int(5)).toInt()*60)
 		m_qSpeedData.dequeue();
 	m_qSpeedData.enqueue(QPair<int,int>(down,up));
 }

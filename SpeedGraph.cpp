@@ -1,6 +1,9 @@
 #include "SpeedGraph.h"
 #include "fatrat.h"
 #include <QtDebug>
+#include <QSettings>
+
+extern QSettings* g_settings;
 
 SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_transfer(0)
 {
@@ -26,7 +29,7 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	int top = 0;
 	QQueue<QPair<int,int> > data;
 	QPainter painter;
-	int seconds = m_settings.value("graphminutes",int(5)).toInt()*60;
+	int seconds = g_settings->value("graphminutes",int(5)).toInt()*60;
 	
 	painter.begin(this);
 	painter.setRenderHint(QPainter::Antialiasing);
