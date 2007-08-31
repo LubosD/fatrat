@@ -75,27 +75,27 @@
         <translation>Přihlašuji se</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="682"/>
+        <location filename="../GeneralNetwork.cpp" line="685"/>
         <source>Requesting file</source>
         <translation>Požaduji soubor</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="755"/>
+        <location filename="../GeneralNetwork.cpp" line="758"/>
         <source>Establishing file connection</source>
         <translation>Vytvářím souborové spojení</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="804"/>
+        <location filename="../GeneralNetwork.cpp" line="807"/>
         <source>Unable to establish the data connection</source>
         <translation>Nepodařilo se vytvořit datové spojení</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="878"/>
+        <location filename="../GeneralNetwork.cpp" line="881"/>
         <source>Timeout</source>
         <translation>Vypršel časový limit</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="891"/>
+        <location filename="../GeneralNetwork.cpp" line="894"/>
         <source>Connection to the server lost</source>
         <translation>Spojení k serveru ztraceno</translation>
     </message>
@@ -105,12 +105,12 @@
         <translation>Zjišťuji velikost souboru</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="673"/>
+        <location filename="../GeneralNetwork.cpp" line="676"/>
         <source>Switching directory</source>
         <translation>Přecházím do adresáře</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="711"/>
+        <location filename="../GeneralNetwork.cpp" line="714"/>
         <source>Appending file</source>
         <translation>Připojuji soubor</translation>
     </message>
@@ -177,87 +177,87 @@
 <context>
     <name>GeneralDownload</name>
     <message>
-        <location filename="../GeneralDownload.cpp" line="318"/>
+        <location filename="../GeneralDownload.cpp" line="319"/>
         <source>Redirected</source>
         <translation>Přesměrován</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="332"/>
+        <location filename="../GeneralDownload.cpp" line="333"/>
         <source>Invalid redirect</source>
         <translation>Neplatné přesměrování</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="348"/>
+        <location filename="../GeneralDownload.cpp" line="349"/>
         <source>Restarting download</source>
         <translation>Restartuji stahování</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="355"/>
+        <location filename="../GeneralDownload.cpp" line="356"/>
         <source>Probably no resume support</source>
         <translation>Pravděpodobně bez podpory resume</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="60"/>
+        <location filename="../GeneralDownload.cpp" line="62"/>
         <source>Loaded stored authentication data, matched regexp %1</source>
         <translation>Načteny uložené přihlašovací údaje, URL odpovídá regexpu %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="187"/>
+        <location filename="../GeneralDownload.cpp" line="188"/>
         <source>No URLs have been given</source>
         <translation>Nebyla zadána žádná URL</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="265"/>
+        <location filename="../GeneralDownload.cpp" line="266"/>
         <source>Transfer has failed: %1</source>
         <translation>Přenos selhal: %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="271"/>
+        <location filename="../GeneralDownload.cpp" line="272"/>
         <source>Transfer has been completed</source>
         <translation>Přenos byl dokončen</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="292"/>
+        <location filename="../GeneralDownload.cpp" line="293"/>
         <source>Received HTTP response code %1</source>
         <translation>Obdržena odpověď s HTTP kódem %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="309"/>
+        <location filename="../GeneralDownload.cpp" line="310"/>
         <source>We&apos;re being redirected to: %1</source>
         <translation>Jsme přesměrováni na: %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="326"/>
+        <location filename="../GeneralDownload.cpp" line="327"/>
         <source>We&apos;ve been redirected to an unsupported URL: %1</source>
         <translation>Byli jsme přesměrováni na nepodporované URL: %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="333"/>
+        <location filename="../GeneralDownload.cpp" line="334"/>
         <source>We&apos;ve been redirected, but no new URL has been given</source>
         <translation>Byli jsme přesměrováni, ale bez žádného URL</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="349"/>
+        <location filename="../GeneralDownload.cpp" line="350"/>
         <source>Server does not support resume, transfer has to be restarted</source>
         <translation>Server nepodporuje resume, přenos musel být restartován</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="194"/>
+        <location filename="../GeneralDownload.cpp" line="195"/>
         <source>Downloading URL %1</source>
         <translation>Stahuji URL %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="400"/>
+        <location filename="../GeneralDownload.cpp" line="401"/>
         <source>Switch mirror</source>
         <translation>Změnit zrcadlo</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="414"/>
+        <location filename="../GeneralDownload.cpp" line="415"/>
         <source>No mirror to switch to!</source>
         <translation>Není zrcadlo k přepnutí!</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="417"/>
+        <location filename="../GeneralDownload.cpp" line="418"/>
         <source>Switching mirror: %1 -&gt; %2</source>
         <translation>Přepínám zrcadla: %1 -&gt; %2</translation>
     </message>
@@ -321,22 +321,22 @@
 <context>
     <name>HttpFtpSettings</name>
     <message>
-        <location filename="../HttpFtpSettings.cpp" line="131"/>
+        <location filename="../HttpFtpSettings.cpp" line="130"/>
         <source>Delete proxy</source>
         <translation>Odstranit proxy</translation>
     </message>
     <message>
-        <location filename="../HttpFtpSettings.cpp" line="131"/>
+        <location filename="../HttpFtpSettings.cpp" line="130"/>
         <source>Do you really want to delete the selected proxy?</source>
         <translation>Opravdu chcete odstranit vybranou proxy?</translation>
     </message>
     <message>
-        <location filename="../HttpFtpSettings.cpp" line="230"/>
+        <location filename="../HttpFtpSettings.cpp" line="229"/>
         <source>Delete user credentials</source>
         <translation>Odstranit uživatelské údaje</translation>
     </message>
     <message>
-        <location filename="../HttpFtpSettings.cpp" line="230"/>
+        <location filename="../HttpFtpSettings.cpp" line="229"/>
         <source>Do you really want to delete the selected user credentials?</source>
         <translation>Opravdu chcete odstranit vybrané uživatelské údaje?</translation>
     </message>
@@ -362,17 +362,17 @@
 <context>
     <name>HttpUrlOptsDlg</name>
     <message>
-        <location filename="../GeneralDownload.cpp" line="564"/>
+        <location filename="../GeneralDownload.cpp" line="565"/>
         <source>Active mode</source>
         <translation>Aktivní režim</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="564"/>
+        <location filename="../GeneralDownload.cpp" line="565"/>
         <source>Passive mode</source>
         <translation>Pasivní režim</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="573"/>
+        <location filename="../GeneralDownload.cpp" line="574"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žádný)</translation>
@@ -459,7 +459,7 @@
         <translation>Odstranit frontu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="372"/>
+        <location filename="../MainWindow.cpp" line="369"/>
         <source>Do you really want to delete the active queue?</source>
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
@@ -494,17 +494,7 @@
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="782"/>
-        <source>downloaded %1 from %2 (%3%)</source>
-        <translation>staženo %1 z %2 (%3%)</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="784"/>
-        <source>downloaded %1, total size unknown</source>
-        <translation>staženo %1, celková velikost neznámá</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="799"/>
+        <location filename="../MainWindow.cpp" line="806"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
@@ -649,17 +639,17 @@
         <translation>Zobrazit hlavní okno</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="43"/>
+        <location filename="../MainWindow.cpp" line="44"/>
         <source>Transfer speed graph</source>
         <translation>Graf rychlosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="340"/>
+        <location filename="../MainWindow.cpp" line="337"/>
         <source>Speed of the selected queue: %1 down, %2 up</source>
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1015"/>
+        <location filename="../MainWindow.cpp" line="1014"/>
         <source>Transfer completed</source>
         <translation>Přenos dokončen</translation>
     </message>
@@ -699,7 +689,7 @@
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1016"/>
+        <location filename="../MainWindow.cpp" line="1015"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
@@ -708,21 +698,31 @@
         <source>Transfers</source>
         <translation>Přenosy</translation>
     </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="782"/>
+        <source>transfered %1 from %2 (%3%)</source>
+        <translation>přeneseno %1 z %2 (%3%)</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="784"/>
+        <source>transfered %1, total size unknown</source>
+        <translation>přeneseno %1, celková velikost neznámá</translation>
+    </message>
 </context>
 <context>
     <name>NewTransferDlg</name>
     <message>
-        <location filename="../NewTransferDlg.h" line="39"/>
+        <location filename="../NewTransferDlg.h" line="41"/>
         <source>Auto detect</source>
         <translation>Automaticky rozpoznat</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.h" line="174"/>
+        <location filename="../NewTransferDlg.h" line="172"/>
         <source>Choose directory</source>
         <translation>Zvolte adresář</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.h" line="182"/>
+        <location filename="../NewTransferDlg.h" line="180"/>
         <source>Choose files</source>
         <translation>Zvolte soubory</translation>
     </message>
@@ -838,17 +838,17 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../TorrentDownload.cpp" line="499"/>
+        <location filename="../TorrentDownload.cpp" line="497"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="499"/>
+        <location filename="../TorrentDownload.cpp" line="497"/>
         <source>The specified port range is invalid.</source>
         <translation>Zadaný rozsah portů je neplatný.</translation>
     </message>
     <message>
-        <location filename="../Queue.cpp" line="50"/>
+        <location filename="../Queue.cpp" line="49"/>
         <source>Main queue</source>
         <translation>Hlavní fronta</translation>
     </message>
@@ -899,7 +899,7 @@
 <context>
     <name>SettingsDlg</name>
     <message>
-        <location filename="../SettingsDlg.h" line="20"/>
+        <location filename="../SettingsDlg.h" line="23"/>
         <source>Main</source>
         <translation>Hlavní</translation>
     </message>
@@ -927,7 +927,7 @@
         <translation>Vybraný adresář je nepřístupný.</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="91"/>
+        <location filename="../SettingsGeneralForm.h" line="89"/>
         <source>Choose directory</source>
         <translation>Zvolte adresář</translation>
     </message>
@@ -1131,17 +1131,17 @@
 <context>
     <name>SpeedGraph</name>
     <message>
-        <location filename="../SpeedGraph.cpp" line="99"/>
+        <location filename="../SpeedGraph.cpp" line="102"/>
         <source>Download</source>
         <translation>Stahování</translation>
     </message>
     <message>
-        <location filename="../SpeedGraph.cpp" line="100"/>
+        <location filename="../SpeedGraph.cpp" line="103"/>
         <source>Upload</source>
         <translation>Upload</translation>
     </message>
     <message>
-        <location filename="../SpeedGraph.cpp" line="113"/>
+        <location filename="../SpeedGraph.cpp" line="116"/>
         <source>NO DATA</source>
         <translation>ŽÁDNÁ DATA</translation>
     </message>
@@ -1149,12 +1149,12 @@
 <context>
     <name>TorrentDownload</name>
     <message>
-        <location filename="../TorrentDownload.cpp" line="72"/>
+        <location filename="../TorrentDownload.cpp" line="74"/>
         <source>Cannot create a temporary file</source>
         <translation>Nemohu vytvořit dočasný soubor</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="148"/>
+        <location filename="../TorrentDownload.cpp" line="150"/>
         <source>Downloading .torrent file</source>
         <translation>Stahuji .torrent soubor</translation>
     </message>
@@ -1195,12 +1195,12 @@
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../Transfer.cpp" line="133"/>
+        <location filename="../Transfer.cpp" line="135"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Změněn stav: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location filename="../Transfer.cpp" line="88"/>
+        <location filename="../Transfer.cpp" line="90"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation>Tento typ přenosu nemá žádné pokročilé vlastnosti k nastavování.</translation>
     </message>

@@ -34,7 +34,7 @@ int main(int argc,char** argv)
 	
 	g_settings = new QSettings;
 	
-	qDebug() << "Current locale" << QLocale::system().name();
+	qDebug() << "Current locale" << QLocale::languageToString(QLocale::system().language());
 	translator.load(QString("fatrat_") + QLocale::system().name(), "/usr/share/locale/fatrat");
 	app.installTranslator(&translator);
 	

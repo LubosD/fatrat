@@ -658,7 +658,7 @@ qint64 FtpEngine::querySize()
 
 void FtpEngine::switchToDirectory()
 {
-	QString reply, dir = "/";
+	QString reply, dir;
 	
 	dir = m_url.path();
 	
@@ -669,6 +669,9 @@ void FtpEngine::switchToDirectory()
 		if(pos != -1)
 			dir = dir.left(pos);
 	}
+	
+	if(dir.isEmpty())
+		dir = "/";
 	
 	emit status(tr("Switching directory"));
 		writeLine(QString("CWD %1\r\n").arg(dir));

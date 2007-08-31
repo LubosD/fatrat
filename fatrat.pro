@@ -3,12 +3,7 @@
 # Subdir relative project main directory: .
 # Target is an application:  fatrat
 
-INSTALLS += locale \
-            target 
-target.files += fatrat
-target.path = /usr/bin 
-locale.files += locale/*.qm 
-locale.path = /usr/share/locale/fatrat 
+
 FORMS += MainWindow.ui \
          QueueDlg.ui \
          HttpOptsWidget.ui \
@@ -96,3 +91,11 @@ TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
 QT += xml network
+
+locale.files = locale/*.qm 
+locale.path = /usr/share/locale/fatrat
+INSTALLS += locale
+
+target.path = /usr/bin
+
+INSTALLS += target

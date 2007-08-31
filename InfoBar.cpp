@@ -52,14 +52,14 @@ void InfoBar::refresh()
 		{
 			speed = QString("%1 kB/s <i>d</i>").arg(double(down)/1024.f, 0, 'f', 1);
 			
-			if(mode == Transfer::Download)
+			if(mode == Transfer::Download && total)
 				time = formatTime((total-done)/down);
 		}
 		if(up)
 		{
 			speed += QString(" %1 kB/s <i>u</i>").arg(double(up)/1024.f, 0, 'f', 1);
 			
-			if(mode == Transfer::Upload)
+			if(mode == Transfer::Upload && total)
 				time = formatTime((total-done)/up);
 		}
 	}

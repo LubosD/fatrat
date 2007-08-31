@@ -552,6 +552,9 @@ void MainWindow::addTransfer(QString uri)
 	{
 		QStringList uris = dlg.m_strURIs.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		
+		if(uris.isEmpty())
+			return;
+		
 		if(dlg.m_nClass == -1)
 		{
 			// autodetection
@@ -776,30 +779,32 @@ void MainWindow::refreshDetailsTab()
 	lineMessage->setText(d->message());
 	
 	if(d->total())
-		progress = QString(tr("downloaded %1 from %2 (%3%)")).arg(formatSize(d->done())).arg(formatSize(d->total())).arg(100.0/d->total()*d->done(), 0, 'f', 1);
+		progress = QString(tr("transfered %1 from %2 (%3%)")).arg(formatSize(d->done())).arg(formatSize(d->total())).arg(100.0/d->total()*d->done(), 0, 'f', 1);
 	else
-		progress = QString(tr("downloaded %1, total size unknown")).arg(formatSize(d->done()));
+		progress = QString(tr("transfered %1, total size unknown")).arg(formatSize(d->done()));
 	
 	if(d->isActive())
 	{
 		int down,up;
 		d->speeds(down,up);
+		Transfer::Mode mode = d->primaryMode();
 		QString speed;
 		
 		if(down)
-		{
-			if(d->total())
-			{
-				QString s;
-				qulonglong todownload = d->total() - d->done();
-				
-				progress += QString(tr(", %1 left")).arg( formatTime(todownload/down) );
-			}
-			
 			speed = QString("%1 kB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
-		}
 		if(up)
-			speed += QString("%1 kB/ up").arg(double(up)/1024.f, 0, 'f', 1);
+			speed += QString("%1 kB/s up").arg(double(up)/1024.f, 0, 'f', 1);
+		
+		if(d->total())
+		{
+			QString s;
+			qulonglong totransfer = d->total() - d->done();
+			
+			if(down && mode == Transfer::Download)
+				progress += QString(tr(", %1 left")).arg( formatTime(totransfer/down) );
+			else if(up && mode == Transfer::Upload)
+				progress += QString(tr(", %1 left")).arg( formatTime(totransfer/up) );
+		}
 		
 		labelSpeed->setText( speed );
 	}
