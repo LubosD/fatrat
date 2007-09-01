@@ -144,6 +144,8 @@ void MainWindow::setupUi()
 	showTrayIcon();
 	
 	statusbar->addWidget(&m_labelStatus);
+	
+	g_settings->endGroup();
 }
 
 void MainWindow::saveWindowState()
@@ -152,6 +154,8 @@ void MainWindow::saveWindowState()
 	
 	g_settings->setValue("mainheaders", treeTransfers->header()->saveState());
 	g_settings->setValue("mainsplitter", splitterQueues->saveState());
+	
+	g_settings->endGroup();
 	g_settings->sync();
 }
 

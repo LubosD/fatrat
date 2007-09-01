@@ -752,7 +752,7 @@
         <translation>Adresy:</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="212"/>
+        <location filename="../NewTransferDlg.ui" line="202"/>
         <source>Destination:</source>
         <translation>Cíl:</translation>
     </message>
@@ -772,29 +772,34 @@
         <translation>Soubory:</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="226"/>
+        <location filename="../NewTransferDlg.ui" line="216"/>
         <source>Upload as:</source>
         <translation>Uploadovat jako:</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="257"/>
+        <location filename="../NewTransferDlg.ui" line="247"/>
         <source>Add paused</source>
         <translation>Přidat zastavené</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="274"/>
+        <location filename="../NewTransferDlg.ui" line="264"/>
         <source>Set advanced options</source>
         <translation>Nastavit pokročilé volby</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="240"/>
+        <location filename="../NewTransferDlg.ui" line="230"/>
         <source>Down speed limit (kB/s):</source>
         <translation>Max. rychlost stahování (kB/s):</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.ui" line="264"/>
+        <location filename="../NewTransferDlg.ui" line="254"/>
         <source>Up speed limit (kB/s):</source>
         <translation>Max. rychlost uploadu (kB/s):</translation>
+    </message>
+    <message>
+        <location filename="../NewTransferDlg.ui" line="172"/>
+        <source>Add</source>
+        <translation>Přidat</translation>
     </message>
 </context>
 <context>
