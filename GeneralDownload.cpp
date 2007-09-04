@@ -519,6 +519,8 @@ void HttpOptsWidget::editUrl()
 	dlg.m_proxy = obj.proxy;
 	dlg.m_strBindAddress = obj.strBindAddress;
 	
+	dlg.init();
+	
 	if(dlg.exec() == QDialog::Accepted)
 	{
 		obj.url = dlg.m_strURL;
