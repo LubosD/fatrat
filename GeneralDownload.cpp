@@ -434,6 +434,13 @@ void GeneralDownload::switchMirror()
 
 void GeneralDownload::computeHash()
 {
+	if(state() != Completed)
+	{
+		if(QMessageBox::warning(getMainWindow(), "FatRat", tr("You're about to compute hash from an incomplete download."),
+		   QMessageBox::Ok | QMessageBox::Cancel) != QMessageBox::Ok)
+			return;
+	}
+	
 	HashDlg dlg(getMainWindow(), filePath());
 	dlg.exec();
 }

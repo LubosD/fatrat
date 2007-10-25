@@ -282,6 +282,11 @@
         <source>Compute hash...</source>
         <translation>Vypočítat hash...</translation>
     </message>
+    <message>
+        <location filename="../GeneralDownload.cpp" line="439"/>
+        <source>You&apos;re about to compute hash from an incomplete download.</source>
+        <translation>Chystáte se počítat hash z nedokončeného stahování.</translation>
+    </message>
 </context>
 <context>
     <name>GenericOptsForm</name>
@@ -426,17 +431,17 @@
 <context>
     <name>HttpUrlOptsDlg</name>
     <message>
-        <location filename="../GeneralDownload.cpp" line="579"/>
+        <location filename="../GeneralDownload.cpp" line="586"/>
         <source>Active mode</source>
         <translation>Aktivní režim</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="579"/>
+        <location filename="../GeneralDownload.cpp" line="586"/>
         <source>Passive mode</source>
         <translation>Pasivní režim</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="588"/>
+        <location filename="../GeneralDownload.cpp" line="595"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žádný)</translation>
