@@ -1,4 +1,12 @@
 #include "fatrat.h"
+
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QMenu>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QtDebug>
+
 #include "MainWindow.h"
 #include "QueueDlg.h"
 #include "Queue.h"
@@ -6,18 +14,14 @@
 #include "WidgetHostDlg.h"
 #include "NewTransferDlg.h"
 #include "GenericOptsForm.h"
-#include <QHeaderView>
-#include <QMessageBox>
-#include <QMenu>
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <iostream>
-#include <QtDebug>
 #include "InfoBar.h"
 #include "SettingsDlg.h"
 #include "SimpleEmail.h"
 #include "SpeedGraph.h"
 #include "DropBox.h"
+#include "CommentForm.h"
+
+#include <iostream>
 #include <stdexcept>
 
 extern QList<Queue*> g_queues;
@@ -769,7 +773,6 @@ void MainWindow::transferOptions()
 	Queue* q = getCurrentQueue();
 	Transfer* d;
 	QModelIndex ctrans = treeTransfers->currentIndex();
-	QWidget* details = dlg.getNextChildHost(tr("Details"));
 	
 	if(!q) return;
 	
@@ -777,17 +780,24 @@ void MainWindow::transferOptions()
 	
 	if(d != 0)
 	{
+		QWidget *widgetDetails;
+		
+		widgetDetails = dlg.getNextChildHost(tr("Details"));
+		CommentForm comment (dlg.getNextChildHost(tr("Comment")), d);
+		
 		wgt.m_mode = d->primaryMode();
 		wgt.m_strURI = d->object();
 		
-		d->userSpeedLimits(wgt.m_nDownLimit,wgt.m_nUpLimit);
+		d->userSpeedLimits(wgt.m_nDownLimit, wgt.m_nUpLimit);
 		
 		dlg.setWindowTitle(tr("Transfer properties"));
 		dlg.addChild(&wgt);
-		if(WidgetHostChild* c = d->createOptionsWidget(details))
+		
+		if(WidgetHostChild* c = d->createOptionsWidget(widgetDetails))
 			dlg.addChild(c);
 		else
-			dlg.removeChildHost(details);
+			dlg.removeChildHost(widgetDetails);
+		dlg.addChild(&comment);
 		
 		if(dlg.exec() == QDialog::Accepted)
 		{
@@ -803,8 +813,6 @@ void MainWindow::transferOptions()
 			updateUi();
 			Queue::saveQueues();
 		}
-		
-		delete details;
 	}
 	doneCurrentQueue(q);
 }

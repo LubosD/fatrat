@@ -71,6 +71,10 @@ public:
 	QString logContents() const { return m_strLog; }
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
 	
+	// COMMENT
+	QString comment() const { return m_strComment; }
+	void setComment(QString text) { m_strComment = text; }
+	
 	// GENERIC UTILITY FUNCTIONS
 	static State string2state(QString s);
 	static QString state2string(State s);
@@ -102,7 +106,7 @@ protected:
 	int m_nDownLimit,m_nUpLimit;
 	bool m_bLocal;
 	
-	QString m_strLog;
+	QString m_strLog, m_strComment;
 	
 	QTimer* m_timer;
 	QQueue<QPair<int,int> > m_qSpeedData;

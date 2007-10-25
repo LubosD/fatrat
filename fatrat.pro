@@ -19,7 +19,8 @@ FORMS += MainWindow.ui \
  HttpUrlOptsDlg.ui \
  NewTransferDlg.ui \
  GenericOptsForm.ui \
- FtpUploadOptsForm.ui
+ FtpUploadOptsForm.ui \
+ CommentForm.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -59,7 +60,8 @@ HEADERS += fatrat.h \
  HttpFtpSettings.h \
  FtpUpload.h \
  NewTransferDlg.h \
- GenericOptsForm.h
+ GenericOptsForm.h \
+ CommentForm.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \

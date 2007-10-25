@@ -177,6 +177,7 @@ void Transfer::load(const QDomNode& map)
 	setState(string2state(getXMLProperty(map, "state")));
 	down = getXMLProperty(map, "downlimit").toInt();
 	up = getXMLProperty(map, "uplimit").toInt();
+	m_strComment = getXMLProperty(map, "comment");
 	
 	setUserSpeedLimits(down, up);
 }
@@ -186,6 +187,7 @@ void Transfer::save(QDomDocument& doc, QDomNode& node)
 	setXMLProperty(doc, node, "state", state2string(m_state));
 	setXMLProperty(doc, node, "downlimit", QString::number(m_nDownLimit));
 	setXMLProperty(doc, node, "uplimit", QString::number(m_nUpLimit));
+	setXMLProperty(doc, node, "comment", m_strComment);
 }
 
 void Transfer::setMode(Mode newMode)
