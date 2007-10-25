@@ -1,6 +1,7 @@
 #ifndef _SETTINGSGENERALFORM_H
 #define _SETTINGSGENERALFORM_H
 #include "ui_SettingsGeneralForm.h"
+#include "fatrat.h"
 #include <QSettings>
 #include <QDir>
 #include <QMessageBox>
@@ -23,23 +24,24 @@ public:
 	
 	virtual void load()
 	{
-		lineDestination->setText( g_settings->value("defaultdir", QDir::homePath()).toString() );
+		lineDestination->setText( g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString() );
+		lineFileExec->setText( g_settings->value("fileexec", getSettingsDefault("fileexec")).toString() );
 		
-		checkTrayIcon->setChecked( g_settings->value("trayicon", true).toBool() );
-		checkHideMinimize->setChecked( g_settings->value("hideminimize", false).toBool() );
-		checkHideClose->setChecked( g_settings->value("hideclose", true).toBool() );
+		checkTrayIcon->setChecked( g_settings->value("trayicon", getSettingsDefault("trayicon")).toBool() );
+		checkHideMinimize->setChecked( g_settings->value("hideminimize", getSettingsDefault("hideminimize")).toBool() );
+		checkHideClose->setChecked( g_settings->value("hideclose", getSettingsDefault("hideclose")).toBool() );
 		
-		spinSpeedThreshold->setValue( g_settings->value("speedthreshold", int(0)).toInt() );
-		checkPopup->setChecked( g_settings->value("showpopup", true).toBool() );
-		spinPopup->setValue( g_settings->value("popuptime", int(4)).toInt() );
-		checkEmail->setChecked( g_settings->value("sendemail", false).toBool() );
-		lineSmtp->setText( g_settings->value("smtpserver", "localhost").toString() );
-		lineSender->setText( g_settings->value("emailsender", "root@localhost").toString() );
-		lineRecipient->setText( g_settings->value("emailrcpt", "root@localhost").toString() );
-		spinGraphMinutes->setValue( g_settings->value("graphminutes", int(5)).toInt() );
+		spinSpeedThreshold->setValue( g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt() );
+		checkPopup->setChecked( g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool() );
+		spinPopup->setValue( g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt() );
+		checkEmail->setChecked( g_settings->value("sendemail", getSettingsDefault("sendemail")).toBool() );
+		lineSmtp->setText( g_settings->value("smtpserver", getSettingsDefault("smtpserver")).toString() );
+		lineSender->setText( g_settings->value("emailsender", getSettingsDefault("emailsender")).toString() );
+		lineRecipient->setText( g_settings->value("emailrcpt", getSettingsDefault("emailrcpt")).toString() );
+		spinGraphMinutes->setValue( g_settings->value("graphminutes", getSettingsDefault("graphminutes")).toInt() );
 		
 		checkPopup->setEnabled(QSystemTrayIcon::supportsMessages());
-		checkAutoRemove->setChecked( g_settings->value("autoremove", false).toBool() );
+		checkAutoRemove->setChecked( g_settings->value("autoremove", getSettingsDefault("autoremove")).toBool() );
 	}
 	
 	virtual bool accept()
@@ -67,6 +69,7 @@ public:
 	virtual void accepted()
 	{
 		g_settings->setValue("defaultdir", lineDestination->text());
+		g_settings->setValue("execfile", lineFileExec->text());
 		
 		g_settings->setValue("trayicon", checkTrayIcon->isChecked());
 		g_settings->setValue("hideminimize", checkHideMinimize->isChecked());

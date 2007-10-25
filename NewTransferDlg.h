@@ -1,6 +1,7 @@
 #ifndef NEWTRANSFERDLG_H
 #define NEWTRANSFERDLG_H
 #include <QWidget>
+#include "fatrat.h"
 #include "ui_NewTransferDlg.h"
 #include "Transfer.h"
 #include <QDir>
@@ -144,7 +145,7 @@ public:
 		}
 		
 		if(m_strDestination.isEmpty())
-			m_strDestination = g_settings->value("defaultdir", QDir::homePath()).toString();
+			m_strDestination = g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
 		
 		m_lastDirs = g_settings->value("lastdirs").toStringList();
 		if(!m_lastDirs.contains(m_strDestination))

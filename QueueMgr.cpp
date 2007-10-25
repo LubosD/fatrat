@@ -1,3 +1,4 @@
+#include "fatrat.h"
 #include "QueueMgr.h"
 #include <iostream>
 #include <QSettings>
@@ -25,8 +26,8 @@ void QueueMgr::doWork()
 {
 	//cout << "QueueMgr::doWork()\n";
 	g_queuesLock.lockForRead();
-	const int threshold = g_settings->value("speedthreshold", int(0)).toInt()*1024;
-	const bool autoremove = g_settings->value("autoremove", false).toBool();
+	const int threshold = g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt()*1024;
+	const bool autoremove = g_settings->value("autoremove", getSettingsDefault("autoremove")).toBool();
 	
 	foreach(Queue* q,g_queues)
 	{

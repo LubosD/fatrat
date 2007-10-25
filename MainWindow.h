@@ -60,6 +60,9 @@ public slots:
 	void transferItemDoubleClicked(const QModelIndex&);
 	void transferItemContext(const QPoint& pos);
 	
+	void transferOpenFile();
+	void transferOpenDirectory();
+	
 	void displayDestroyed();
 	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -76,6 +79,7 @@ protected:
 	virtual void dropEvent(QDropEvent *event);
 	
 	void showTrayIcon();
+	void transferOpen(bool bOpenFile);
 private:
 	QTimer m_timer;
 	QSystemTrayIcon m_trayIcon;

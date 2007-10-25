@@ -4,9 +4,11 @@
 #include <QThread>
 #include <QUuid>
 #include <QList>
+#include <QVariant>
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
+QVariant getSettingsDefault(QString id);
 quint32 qntoh(quint32 source);
 
 class Sleeper : public QThread

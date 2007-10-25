@@ -6,6 +6,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QtDebug>
+#include <QProcess>
 
 #include "MainWindow.h"
 #include "QueueDlg.h"
@@ -99,6 +100,9 @@ void MainWindow::setupUi()
 	connect(actionProperties, SIGNAL(triggered()), this, SLOT(transferOptions()));
 	connect(actionDisplay, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
 	connect(actionHideAllInfoBars, SIGNAL(triggered()),this, SLOT(hideAllInfoBars()));
+	
+	connect(actionOpenFile, SIGNAL(triggered()), this, SLOT(transferOpenFile()));
+	connect(actionOpenDirectory, SIGNAL(triggered()), this, SLOT(transferOpenDirectory()));
 	
 	connect(pushGenericOptions, SIGNAL(clicked()), this, SLOT(transferOptions()));
 	connect(tabMain, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
@@ -213,7 +217,7 @@ void MainWindow::hideAllInfoBars()
 
 void MainWindow::hideEvent(QHideEvent* event)
 {
-	if(isMinimized() && m_trayIcon.isVisible() && g_settings->value("hideminimize", false).toBool())
+	if(isMinimized() && m_trayIcon.isVisible() && g_settings->value("hideminimize", getSettingsDefault("hideminimize")).toBool())
 	{
 		actionDisplay->setChecked(false);
 		hide();
@@ -224,7 +228,7 @@ void MainWindow::hideEvent(QHideEvent* event)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-	if(m_trayIcon.isVisible() && g_settings->value("hideclose", true).toBool())
+	if(m_trayIcon.isVisible() && g_settings->value("hideclose", getSettingsDefault("hideclose")).toBool())
 	{
 		actionDisplay->setChecked(false);
 		hide();
@@ -239,6 +243,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::updateUi()
 {
+	refreshQueues();
 	QList<int> sel = getSelection();
 	
 	// queue view
@@ -265,6 +270,9 @@ void MainWindow::updateUi()
 		tabMain->setTabEnabled(1, bSingle);	// transfer details
 		tabMain->setTabEnabled(2, bSingle);	// transfer graph
 		tabMain->setTabEnabled(3, bSingle);	// transfer log
+		
+		actionOpenFile->setEnabled(bSingle);
+		actionOpenDirectory->setEnabled(bSingle);
 		
 		if(bSingle)
 		{
@@ -306,6 +314,9 @@ void MainWindow::updateUi()
 		tabMain->setTabEnabled(2,false); // transfer graph
 		tabMain->setTabEnabled(3,false); // transfer log
 		
+		actionOpenFile->setEnabled(false);
+		actionOpenDirectory->setEnabled(false);
+		
 		actionTop->setEnabled(false);
 		actionUp->setEnabled(false);
 		actionDown->setEnabled(false);
@@ -325,7 +336,6 @@ void MainWindow::updateUi()
 	if(q != 0)
 		doneCurrentQueue(q,true,false);
 	
-	refreshQueues();
 	m_modelTransfers->refresh();
 	if(tabMain->currentIndex() == 1)
 		refreshDetailsTab();
@@ -897,8 +907,7 @@ void MainWindow::removeCompleted()
 		return;
 	}
 	
-	g_queuesLock.lockForRead();
-	q = g_queues[listQueues->currentRow()];
+	q = getCurrentQueue(false);
 	q->lockW();
 	
 	for(int i=0;i<q->size();i++)
@@ -910,8 +919,9 @@ void MainWindow::removeCompleted()
 	}
 	
 	q->unlock();
-	g_queuesLock.unlock();
-	updateUi();
+	
+	refreshQueues();
+	doneCurrentQueue(q, false, true);
 }
 
 void MainWindow::resumeAll()
@@ -983,6 +993,9 @@ void MainWindow::transferItemContext(const QPoint&)
 	{
 		QMenu menu(treeTransfers);
 		
+		menu.addAction(actionOpenFile);
+		menu.addAction(actionOpenDirectory);
+		menu.addSeparator();
 		menu.addAction(actionResume);
 		menu.addAction(actionForcedResume);
 		menu.addAction(actionPause);
@@ -1058,13 +1071,13 @@ void MainWindow::showSettings()
 
 void MainWindow::showTrayIcon()
 {
-	m_trayIcon.setVisible(g_settings->value("trayicon", true).toBool());
+	m_trayIcon.setVisible(g_settings->value("trayicon", getSettingsDefault("trayicon")).toBool());
 }
 
 void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now)
 {
-	const bool popup = g_settings->value("showpopup", true).toBool();
-	const bool email = g_settings->value("sendemail", false).toBool();
+	const bool popup = g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool();
+	const bool email = g_settings->value("sendemail", getSettingsDefault("sendemail")).toBool();
 	
 	cout << "MainWindow::downloadStateChanged()\n";
 	
@@ -1077,19 +1090,19 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 		{
 			m_trayIcon.showMessage(tr("Transfer completed"),
 					QString(tr("The transfer of \"%1\" has been completed.")).arg(d->name()),
-					QSystemTrayIcon::Information, g_settings->value("popuptime",int(4)).toInt()*1000);
+					QSystemTrayIcon::Information, g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt()*1000);
 		}
 		if(email)
 		{
 			QString from,to;
 			QString message;
 			
-			from = g_settings->value("emailsender", "root@localhost").toString();
-			to = g_settings->value("emailrcpt").toString();
+			from = g_settings->value("emailsender", getSettingsDefault("emailsender")).toString();
+			to = g_settings->value("emailrcpt", getSettingsDefault("emailrcpt")).toString();
 			
 			message = QString("From: <%1>\r\nTo: <%2>\r\nSubject: FatRat transfer completed\r\nX-Mailer: FatRat/SVN\r\nThe transfer of \"%3\" has been completed.").arg(from).arg(to).arg(d->name());
 			
-			new SimpleEmail(g_settings->value("smtpserver","localhost").toString(),from,to,message);
+			new SimpleEmail(g_settings->value("smtpserver",getSettingsDefault("smtpserver")).toString(),from,to,message);
 		}
 	}
 }
@@ -1103,10 +1116,76 @@ QList<int> MainWindow::getSelection()
 	QModelIndexList list = treeTransfers->selectionModel()->selectedRows();
 	QList<int> result;
 	
-	foreach(QModelIndex in, list)
-		result << in.row();
-	
-	qSort(result);
+	if(Queue* q = getCurrentQueue())
+	{
+		int size = q->size();
+		
+		doneCurrentQueue(q, true, false);
+		
+		foreach(QModelIndex in, list)
+		{
+			int row = in.row();
+			
+			if(row < size)
+				result << row;
+		}
+		
+		qSort(result);
+	}
 	
 	return result;
+}
+
+void MainWindow::transferOpen(bool bOpenFile)
+{
+	QList<int> sel = getSelection();
+	
+	if(sel.size() != 1)
+		return;
+	
+	if(Queue* q = getCurrentQueue())
+	{
+		q->lock();
+		
+		QString path;
+		Transfer* d = q->at(sel[0]);
+		QString obj = d->object();
+		
+		if(d->primaryMode() == Transfer::Download)
+		{
+			if(bOpenFile)
+				path = QDir(obj).filePath(d->name());
+			else
+				path = obj;
+		}
+		else
+		{
+			if(bOpenFile)
+				path = obj;
+			else
+			{
+				QDir dir(obj);
+				dir.cdUp();
+				path = dir.absolutePath();
+			}
+		}
+		
+		q->unlock();
+		doneCurrentQueue(q, true, false);
+		
+		QString command = QString("%1 \"%2\"")
+				.arg(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString())
+				.arg(path);
+		QProcess::startDetached(command);
+	}
+}
+
+void MainWindow::transferOpenDirectory()
+{
+	transferOpen(false);
+}
+
+void MainWindow::transferOpenFile()
+{
+	transferOpen(true);
 }

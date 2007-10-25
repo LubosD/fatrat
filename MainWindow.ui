@@ -648,6 +648,22 @@
     <string>Display drop-box</string>
    </property>
   </action>
+  <action name="actionOpenFile" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/run.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionOpenDirectory" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/directory.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Open directory</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="gfx/resources.qrc" />

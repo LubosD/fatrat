@@ -457,7 +457,7 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="168"/>
+        <location filename="../MainWindow.cpp" line="172"/>
         <source>About FatRat</source>
         <translation>O FatRatu</translation>
     </message>
@@ -467,12 +467,12 @@
         <translation>Odstranit frontu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="397"/>
+        <location filename="../MainWindow.cpp" line="407"/>
         <source>Do you really want to delete the active queue?</source>
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="810"/>
+        <location filename="../MainWindow.cpp" line="820"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -482,12 +482,12 @@
         <translation>Odstranit přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="771"/>
+        <location filename="../MainWindow.cpp" line="781"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="785"/>
+        <location filename="../MainWindow.cpp" line="795"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
@@ -497,7 +497,7 @@
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="870"/>
+        <location filename="../MainWindow.cpp" line="880"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
@@ -642,17 +642,17 @@
         <translation>Zobrazit hlavní okno</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="48"/>
+        <location filename="../MainWindow.cpp" line="49"/>
         <source>Transfer speed graph</source>
         <translation>Graf rychlosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="365"/>
+        <location filename="../MainWindow.cpp" line="375"/>
         <source>Speed of the selected queue: %1 down, %2 up</source>
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1078"/>
+        <location filename="../MainWindow.cpp" line="1091"/>
         <source>Transfer completed</source>
         <translation>Přenos dokončen</translation>
     </message>
@@ -687,12 +687,12 @@
         <translation>Zobrazit drop-box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="638"/>
+        <location filename="../MainWindow.cpp" line="648"/>
         <source>Couldn&apos;t autodetect transfer type.</source>
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1079"/>
+        <location filename="../MainWindow.cpp" line="1092"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
@@ -702,45 +702,55 @@
         <translation>Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="846"/>
+        <location filename="../MainWindow.cpp" line="856"/>
         <source>transfered %1 from %2 (%3%)</source>
         <translation>přeneseno %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="848"/>
+        <location filename="../MainWindow.cpp" line="858"/>
         <source>transfered %1, total size unknown</source>
         <translation>přeneseno %1, celková velikost neznámá</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="708"/>
+        <location filename="../MainWindow.cpp" line="718"/>
         <source>Delete transfers</source>
         <translation>Odstranit přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="709"/>
+        <location filename="../MainWindow.cpp" line="719"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="786"/>
+        <location filename="../MainWindow.cpp" line="796"/>
         <source>Comment</source>
         <translation>Komentář</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="656"/>
+        <source>Open</source>
+        <translation>Otevřít</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="664"/>
+        <source>Open directory</source>
+        <translation>Otevřít adresář</translation>
     </message>
 </context>
 <context>
     <name>NewTransferDlg</name>
     <message>
-        <location filename="../NewTransferDlg.h" line="41"/>
+        <location filename="../NewTransferDlg.h" line="42"/>
         <source>Auto detect</source>
         <translation>Automaticky rozpoznat</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.h" line="172"/>
+        <location filename="../NewTransferDlg.h" line="173"/>
         <source>Choose directory</source>
         <translation>Zvolte adresář</translation>
     </message>
     <message>
-        <location filename="../NewTransferDlg.h" line="180"/>
+        <location filename="../NewTransferDlg.h" line="181"/>
         <source>Choose files</source>
         <translation>Zvolte soubory</translation>
     </message>
@@ -940,17 +950,17 @@
 <context>
     <name>SettingsGeneralForm</name>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="61"/>
+        <location filename="../SettingsGeneralForm.h" line="63"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="54"/>
+        <location filename="../SettingsGeneralForm.h" line="56"/>
         <source>The specified directory is inaccessible.</source>
         <translation>Vybraný adresář je nepřístupný.</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="89"/>
+        <location filename="../SettingsGeneralForm.h" line="92"/>
         <source>Choose directory</source>
         <translation>Zvolte adresář</translation>
     </message>
@@ -1055,9 +1065,14 @@
         <translation>Odstranit z fronty</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="61"/>
+        <location filename="../SettingsGeneralForm.h" line="63"/>
         <source>The e-mail address is incorrect.</source>
         <translation>E-mailová adresa je nesprávná.</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="262"/>
+        <source>Open files/directories by running</source>
+        <translation>Otevírat soubory/adresáře spuštěním</translation>
     </message>
 </context>
 <context>

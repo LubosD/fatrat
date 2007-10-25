@@ -12,6 +12,9 @@
 #include <QLocale>
 #include <QtDebug>
 #include <QSettings>
+#include <QVariant>
+#include <QMap>
+#include <QDir>
 #include <QHttpResponseHeader>
 
 using namespace std;
@@ -19,6 +22,8 @@ using namespace std;
 MainWindow* g_wndMain = 0;
 QSettings* g_settings = 0;
 
+static QMap<QString, QVariant> g_mapDefaults;
+static void initSettingsDefaults();
 static void initEngines();
 
 int main(int argc,char** argv)
@@ -39,6 +44,7 @@ int main(int argc,char** argv)
 	app.installTranslator(&translator);
 	
 	// Init download engines (let them load settings)
+	initSettingsDefaults();
 	initEngines();
 	Queue::loadQueues();
 	
@@ -85,6 +91,29 @@ static void initEngines()
 		if(engines[i].lpfnInit)
 			engines[i].lpfnInit();
 	}
+}
+
+void initSettingsDefaults()
+{
+	g_mapDefaults["defaultdir"] = QDir::homePath();
+	g_mapDefaults["fileexec"] = "kfmclient exec";
+	g_mapDefaults["trayicon"] = true;
+	g_mapDefaults["hideminimize"] = false;
+	g_mapDefaults["hideclose"] = true;
+	g_mapDefaults["speedthreshold"] = 0;
+	g_mapDefaults["showpopup"] = true;
+	g_mapDefaults["popuptime"] = 4;
+	g_mapDefaults["sendemail"] = false;
+	g_mapDefaults["smtpserver"] = "localhost";
+	g_mapDefaults["emailsender"] = "root@localhost";
+	g_mapDefaults["emailrcpt"] = "root@localhost";
+	g_mapDefaults["graphminutes"] = 5;
+	g_mapDefaults["autoremove"] = false;
+}
+
+QVariant getSettingsDefault(QString id)
+{
+	return g_mapDefaults.value(id);
 }
 
 QString formatSize(qulonglong size, bool persec)
