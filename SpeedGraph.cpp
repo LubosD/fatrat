@@ -58,18 +58,19 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	
 	top = std::max(top/10*11,10*1024);
 	const int height = this->height();
+	const int width = this->width();
 	
 	painter.setPen(QPen(Qt::gray, 1.0, Qt::DashLine));
 	for(int i=1;i<10;i++)
 	{
 		int pos = int( float(height)/10.f*i );
-		painter.drawLine(0,pos,width(),pos);
+		painter.drawLine(0,pos,width,pos);
 		painter.drawText(0,pos-10,formatSize( qulonglong( top/10.f*(10-i) ), true));
 	}
 	
 	const int elems = data.size()-1;
-	qreal perpt = width() / (qreal(std::max(elems,seconds))-1);
-	qreal pos = width();
+	qreal perpt = width / (qreal(std::max(elems,seconds))-1);
+	qreal pos = width;
 	QLineF* lines = new QLineF[elems+1];
 	
 	for(int i = 0;i<elems;i++) // download speed
@@ -84,7 +85,7 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	lines[elems] = QLineF(2,7,12,7);
 	painter.drawLines(lines,elems+1);
 	
-	pos = width();
+	pos = width;
 	for(int i = 0;i<elems;i++) // upload speed
 	{
 		lines[i] = QLineF(pos, height-height/qreal(top)*data[elems-i].second,
@@ -97,6 +98,14 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	lines[elems] = QLineF(2,19,12,19);
 	painter.drawLines(lines,elems+1);
 	delete [] lines;
+	
+	painter.setPen(QColor(255,128,128));
+	for(int i=0;i<4;i++)
+	{
+		int x = width-(i+1)*(width/5);
+		painter.drawLine(x, height, x, height-15);
+		painter.drawText(x+2, height-2, tr("%1 mins ago").arg( (seconds/4) * (i+1) / 60.0 ));
+	}
 	
 	painter.setPen(Qt::black);
 	painter.drawText(15,12,tr("Download"));
