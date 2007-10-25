@@ -383,6 +383,8 @@
     <addaction name="actionDropBox" />
     <addaction name="actionHideAllInfoBars" />
     <addaction name="separator" />
+    <addaction name="actionComputeHash" />
+    <addaction name="separator" />
     <addaction name="actionQuit" />
    </widget>
    <widget class="QMenu" name="menuTransfer" >
@@ -602,7 +604,7 @@
     <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
    </property>
    <property name="text" >
-    <string>Properties</string>
+    <string>Properties...</string>
    </property>
   </action>
   <action name="actionHideAllInfoBars" >
@@ -626,7 +628,7 @@
     <iconset resource="gfx/resources.qrc" >:/menu/configure.png</iconset>
    </property>
    <property name="text" >
-    <string>Settings</string>
+    <string>Settings...</string>
    </property>
   </action>
   <action name="actionQueueProperties" >
@@ -634,7 +636,7 @@
     <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
    </property>
    <property name="text" >
-    <string>Properties</string>
+    <string>Properties...</string>
    </property>
   </action>
   <action name="actionDropBox" >
@@ -662,6 +664,11 @@
    </property>
    <property name="text" >
     <string>Open directory</string>
+   </property>
+  </action>
+  <action name="actionComputeHash" >
+   <property name="text" >
+    <string>Compute hash...</string>
    </property>
   </action>
  </widget>

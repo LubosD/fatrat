@@ -1,6 +1,9 @@
+#include "fatrat.h"
 #include "FtpUpload.h"
+#include "HashDlg.h"
 #include <stdexcept>
 #include <QFileInfo>
+#include <QMenu>
 #include <QtDebug>
 
 FtpUpload::FtpUpload()
@@ -159,6 +162,20 @@ void FtpUpload::save(QDomDocument& doc, QDomNode& map)
 WidgetHostChild* FtpUpload::createOptionsWidget(QWidget* w)
 {
 	return new FtpUploadOptsForm(w, this);
+}
+
+void FtpUpload::fillContextMenu(QMenu& menu)
+{
+	QAction* a;
+	
+	a = menu.addAction(tr("Compute hash..."));
+	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
+}
+
+void FtpUpload::computeHash()
+{
+	HashDlg dlg(getMainWindow(), m_strSource);
+	dlg.exec();
 }
 
 ////////////////////////////////////////////////////////////

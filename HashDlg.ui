@@ -1,0 +1,134 @@
+<ui version="4.0" >
+ <class>HashDlg</class>
+ <widget class="QDialog" name="HashDlg" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>418</width>
+    <height>195</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Compute hash</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Hash type</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QComboBox" name="comboHash" />
+   </item>
+   <item row="1" column="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>171</width>
+       <height>25</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="3" >
+    <widget class="QPushButton" name="pushCompute" >
+     <property name="text" >
+      <string>Compute</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="4" >
+    <widget class="QProgressBar" name="progressBar" />
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Result</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4" >
+    <widget class="QLineEdit" name="lineResult" >
+     <property name="readOnly" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="4" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2" >
+    <widget class="QLineEdit" name="lineFile" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="readOnly" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3" >
+    <widget class="QToolButton" name="toolBrowse" >
+     <property name="text" >
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>HashDlg</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>HashDlg</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -21,6 +21,7 @@
 #include "SpeedGraph.h"
 #include "DropBox.h"
 #include "CommentForm.h"
+#include "HashDlg.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -103,6 +104,8 @@ void MainWindow::setupUi()
 	
 	connect(actionOpenFile, SIGNAL(triggered()), this, SLOT(transferOpenFile()));
 	connect(actionOpenDirectory, SIGNAL(triggered()), this, SLOT(transferOpenDirectory()));
+	
+	connect(actionComputeHash, SIGNAL(triggered()), this, SLOT(computeHash()));
 	
 	connect(pushGenericOptions, SIGNAL(clicked()), this, SLOT(transferOptions()));
 	connect(tabMain, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
@@ -828,7 +831,7 @@ void MainWindow::transferOptions()
 }
 
 void MainWindow::refreshDetailsTab()
-{	
+{
 	Queue* q;
 	Transfer* d;
 	QModelIndex ctrans = treeTransfers->currentIndex();
@@ -1032,8 +1035,6 @@ void MainWindow::toggleInfoBar(bool show)
 {
 	if(Queue* q = getCurrentQueue())
 	{
-		q->lock();
-		
 		QModelIndex ctrans = treeTransfers->currentIndex();
 		Transfer* d = q->at(ctrans.row());
 		
@@ -1045,7 +1046,6 @@ void MainWindow::toggleInfoBar(bool show)
 				delete InfoBar::getInfoBar(d);
 		}
 		
-		q->unlock();
 		doneCurrentQueue(q,true,false);
 	}
 }
@@ -1145,8 +1145,6 @@ void MainWindow::transferOpen(bool bOpenFile)
 	
 	if(Queue* q = getCurrentQueue())
 	{
-		q->lock();
-		
 		QString path;
 		Transfer* d = q->at(sel[0]);
 		QString obj = d->object();
@@ -1170,7 +1168,6 @@ void MainWindow::transferOpen(bool bOpenFile)
 			}
 		}
 		
-		q->unlock();
 		doneCurrentQueue(q, true, false);
 		
 		QString command = QString("%1 \"%2\"")
@@ -1188,4 +1185,10 @@ void MainWindow::transferOpenDirectory()
 void MainWindow::transferOpenFile()
 {
 	transferOpen(true);
+}
+
+void MainWindow::computeHash()
+{
+	HashDlg dlg(this);
+	dlg.exec();
 }

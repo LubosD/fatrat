@@ -124,19 +124,27 @@
     </message>
 </context>
 <context>
+    <name>FtpUpload</name>
+    <message>
+        <location filename="../FtpUpload.cpp" line="171"/>
+        <source>Compute hash...</source>
+        <translation>Vypočítat hash...</translation>
+    </message>
+</context>
+<context>
     <name>FtpUploadOptsForm</name>
     <message>
-        <location filename="../FtpUpload.cpp" line="183"/>
+        <location filename="../FtpUpload.cpp" line="200"/>
         <source>Active mode</source>
         <translation>Aktivní režim</translation>
     </message>
     <message>
-        <location filename="../FtpUpload.cpp" line="183"/>
+        <location filename="../FtpUpload.cpp" line="200"/>
         <source>Passive mode</source>
         <translation>Pasivní režim</translation>
     </message>
     <message>
-        <location filename="../FtpUpload.cpp" line="186"/>
+        <location filename="../FtpUpload.cpp" line="203"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žádný)</translation>
@@ -185,89 +193,94 @@
 <context>
     <name>GeneralDownload</name>
     <message>
-        <location filename="../GeneralDownload.cpp" line="319"/>
+        <location filename="../GeneralDownload.cpp" line="320"/>
         <source>Redirected</source>
         <translation>Přesměrován</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="333"/>
+        <location filename="../GeneralDownload.cpp" line="334"/>
         <source>Invalid redirect</source>
         <translation>Neplatné přesměrování</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="349"/>
+        <location filename="../GeneralDownload.cpp" line="350"/>
         <source>Restarting download</source>
         <translation>Restartuji stahování</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="356"/>
+        <location filename="../GeneralDownload.cpp" line="357"/>
         <source>Probably no resume support</source>
         <translation>Pravděpodobně bez podpory resume</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="62"/>
+        <location filename="../GeneralDownload.cpp" line="63"/>
         <source>Loaded stored authentication data, matched regexp %1</source>
         <translation>Načteny uložené přihlašovací údaje, URL odpovídá regexpu %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="188"/>
+        <location filename="../GeneralDownload.cpp" line="189"/>
         <source>No URLs have been given</source>
         <translation>Nebyla zadána žádná URL</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="266"/>
+        <location filename="../GeneralDownload.cpp" line="267"/>
         <source>Transfer has failed: %1</source>
         <translation>Přenos selhal: %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="272"/>
+        <location filename="../GeneralDownload.cpp" line="273"/>
         <source>Transfer has been completed</source>
         <translation>Přenos byl dokončen</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="293"/>
+        <location filename="../GeneralDownload.cpp" line="294"/>
         <source>Received HTTP response code %1</source>
         <translation>Obdržena odpověď s HTTP kódem %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="310"/>
+        <location filename="../GeneralDownload.cpp" line="311"/>
         <source>We&apos;re being redirected to: %1</source>
         <translation>Jsme přesměrováni na: %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="327"/>
+        <location filename="../GeneralDownload.cpp" line="328"/>
         <source>We&apos;ve been redirected to an unsupported URL: %1</source>
         <translation>Byli jsme přesměrováni na nepodporované URL: %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="334"/>
+        <location filename="../GeneralDownload.cpp" line="335"/>
         <source>We&apos;ve been redirected, but no new URL has been given</source>
         <translation>Byli jsme přesměrováni, ale bez žádného URL</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="350"/>
+        <location filename="../GeneralDownload.cpp" line="351"/>
         <source>Server does not support resume, transfer has to be restarted</source>
         <translation>Server nepodporuje resume, přenos musel být restartován</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="195"/>
+        <location filename="../GeneralDownload.cpp" line="196"/>
         <source>Downloading URL %1</source>
         <translation>Stahuji URL %1</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="401"/>
+        <location filename="../GeneralDownload.cpp" line="404"/>
         <source>Switch mirror</source>
         <translation>Změnit zrcadlo</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="415"/>
+        <location filename="../GeneralDownload.cpp" line="421"/>
         <source>No mirror to switch to!</source>
         <translation>Není zrcadlo k přepnutí!</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="418"/>
+        <location filename="../GeneralDownload.cpp" line="424"/>
         <source>Switching mirror: %1 -&gt; %2</source>
         <translation>Přepínám zrcadla: %1 -&gt; %2</translation>
+    </message>
+    <message>
+        <location filename="../GeneralDownload.cpp" line="407"/>
+        <source>Compute hash...</source>
+        <translation>Vypočítat hash...</translation>
     </message>
 </context>
 <context>
@@ -311,6 +324,49 @@
         <location filename="../GenericOptsForm.ui" line="69"/>
         <source>Up speed limit (kB/s):</source>
         <translation>Max. rychlost uploadu (kB/s):</translation>
+    </message>
+</context>
+<context>
+    <name>HashDlg</name>
+    <message>
+        <location filename="../HashDlg.cpp" line="34"/>
+        <source>Choose file</source>
+        <translation>Zvolte soubor</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.cpp" line="49"/>
+        <source>Unable to open the file!</source>
+        <translation>Nemohu otevřít soubor!</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.ui" line="13"/>
+        <source>Compute hash</source>
+        <translation>Vypočítat hash</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.ui" line="19"/>
+        <source>Hash type</source>
+        <translation>Typ hashe</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.ui" line="42"/>
+        <source>Compute</source>
+        <translation>Vypočítat</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.ui" line="52"/>
+        <source>Result</source>
+        <translation>Výsledek</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.ui" line="76"/>
+        <source>File</source>
+        <translation>Soubor</translation>
+    </message>
+    <message>
+        <location filename="../HashDlg.ui" line="93"/>
+        <source>...</source>
+        <translation>...</translation>
     </message>
 </context>
 <context>
@@ -370,17 +426,17 @@
 <context>
     <name>HttpUrlOptsDlg</name>
     <message>
-        <location filename="../GeneralDownload.cpp" line="567"/>
+        <location filename="../GeneralDownload.cpp" line="579"/>
         <source>Active mode</source>
         <translation>Aktivní režim</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="567"/>
+        <location filename="../GeneralDownload.cpp" line="579"/>
         <source>Passive mode</source>
         <translation>Pasivní režim</translation>
     </message>
     <message>
-        <location filename="../GeneralDownload.cpp" line="576"/>
+        <location filename="../GeneralDownload.cpp" line="588"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žádný)</translation>
@@ -457,37 +513,37 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="172"/>
+        <location filename="../MainWindow.cpp" line="175"/>
         <source>About FatRat</source>
         <translation>O FatRatu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="477"/>
+        <location filename="../MainWindow.ui" line="479"/>
         <source>Delete queue</source>
         <translation>Odstranit frontu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="407"/>
+        <location filename="../MainWindow.cpp" line="410"/>
         <source>Do you really want to delete the active queue?</source>
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="820"/>
+        <location filename="../MainWindow.cpp" line="823"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="503"/>
+        <location filename="../MainWindow.ui" line="505"/>
         <source>Delete transfer</source>
         <translation>Odstranit přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="781"/>
+        <location filename="../MainWindow.cpp" line="784"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="795"/>
+        <location filename="../MainWindow.cpp" line="798"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
@@ -497,7 +553,7 @@
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="880"/>
+        <location filename="../MainWindow.cpp" line="883"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
@@ -547,7 +603,7 @@
         <translation>&lt;b&gt;Zpráva:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="410"/>
+        <location filename="../MainWindow.ui" line="412"/>
         <source>Queue</source>
         <translation>Fronta</translation>
     </message>
@@ -557,97 +613,92 @@
         <translation>Nápověda</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="390"/>
+        <location filename="../MainWindow.ui" line="392"/>
         <source>Transfer</source>
         <translation>Přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="629"/>
+        <location filename="../MainWindow.ui" line="375"/>
         <source>Settings</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="461"/>
+        <location filename="../MainWindow.ui" line="463"/>
         <source>Quit</source>
         <translation>Ukončit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="469"/>
+        <location filename="../MainWindow.ui" line="471"/>
         <source>New queue</source>
         <translation>Nová fronta</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="495"/>
+        <location filename="../MainWindow.ui" line="497"/>
         <source>New transfer</source>
         <translation>Nový přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="527"/>
+        <location filename="../MainWindow.ui" line="529"/>
         <source>Pause</source>
         <translation>Zastavit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="535"/>
+        <location filename="../MainWindow.ui" line="537"/>
         <source>About</source>
         <translation>O programu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="543"/>
+        <location filename="../MainWindow.ui" line="545"/>
         <source>Move to top</source>
         <translation>Přesunout na začátek</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="551"/>
+        <location filename="../MainWindow.ui" line="553"/>
         <source>Move up</source>
         <translation>Přesunout nahoru</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="559"/>
+        <location filename="../MainWindow.ui" line="561"/>
         <source>Move down</source>
         <translation>Přesunout dolů</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="567"/>
+        <location filename="../MainWindow.ui" line="569"/>
         <source>Move to bottom</source>
         <translation>Přesunout na konec</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="575"/>
+        <location filename="../MainWindow.ui" line="577"/>
         <source>Remove completed</source>
         <translation>Odstranit dokončené</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="580"/>
+        <location filename="../MainWindow.ui" line="582"/>
         <source>About Qt</source>
         <translation>O Qt</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="594"/>
+        <location filename="../MainWindow.ui" line="596"/>
         <source>Display info bar</source>
         <translation>Zobrazit info proužek</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="637"/>
-        <source>Properties</source>
-        <translation>Vlastnosti</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.ui" line="610"/>
+        <location filename="../MainWindow.ui" line="612"/>
         <source>Hide all info bars</source>
         <translation>Skrýt všechny info proužky</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="621"/>
+        <location filename="../MainWindow.ui" line="623"/>
         <source>Display main window</source>
         <translation>Zobrazit hlavní okno</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="49"/>
+        <location filename="../MainWindow.cpp" line="50"/>
         <source>Transfer speed graph</source>
         <translation>Graf rychlosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="375"/>
+        <location filename="../MainWindow.cpp" line="378"/>
         <source>Speed of the selected queue: %1 down, %2 up</source>
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
@@ -657,22 +708,22 @@
         <translation>Přenos dokončen</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="511"/>
+        <location filename="../MainWindow.ui" line="513"/>
         <source>Start</source>
         <translation>Spustit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="519"/>
+        <location filename="../MainWindow.ui" line="521"/>
         <source>Force start</source>
         <translation>Vynutit spuštění</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="482"/>
+        <location filename="../MainWindow.ui" line="484"/>
         <source>Start all</source>
         <translation>Spustit vše</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="487"/>
+        <location filename="../MainWindow.ui" line="489"/>
         <source>Pause all</source>
         <translation>Zastavit vše</translation>
     </message>
@@ -682,12 +733,12 @@
         <translation>Log přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="648"/>
+        <location filename="../MainWindow.ui" line="650"/>
         <source>Display drop-box</source>
         <translation>Zobrazit drop-box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="648"/>
+        <location filename="../MainWindow.cpp" line="651"/>
         <source>Couldn&apos;t autodetect transfer type.</source>
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
     </message>
@@ -702,39 +753,54 @@
         <translation>Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="856"/>
+        <location filename="../MainWindow.cpp" line="859"/>
         <source>transfered %1 from %2 (%3%)</source>
         <translation>přeneseno %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="858"/>
+        <location filename="../MainWindow.cpp" line="861"/>
         <source>transfered %1, total size unknown</source>
         <translation>přeneseno %1, celková velikost neznámá</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="718"/>
+        <location filename="../MainWindow.cpp" line="721"/>
         <source>Delete transfers</source>
         <translation>Odstranit přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="719"/>
+        <location filename="../MainWindow.cpp" line="722"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="796"/>
+        <location filename="../MainWindow.cpp" line="799"/>
         <source>Comment</source>
         <translation>Komentář</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="656"/>
+        <location filename="../MainWindow.ui" line="658"/>
         <source>Open</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="664"/>
+        <location filename="../MainWindow.ui" line="666"/>
         <source>Open directory</source>
         <translation>Otevřít adresář</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="639"/>
+        <source>Properties...</source>
+        <translation>Vlastnosti...</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="631"/>
+        <source>Settings...</source>
+        <translation>Nastavení...</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="671"/>
+        <source>Compute hash...</source>
+        <translation>Vypočítat hash...</translation>
     </message>
 </context>
 <context>

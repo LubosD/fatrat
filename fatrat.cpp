@@ -93,6 +93,11 @@ static void initEngines()
 	}
 }
 
+QWidget* getMainWindow()
+{
+	return g_wndMain;
+}
+
 void initSettingsDefaults()
 {
 	g_mapDefaults["defaultdir"] = QDir::homePath();

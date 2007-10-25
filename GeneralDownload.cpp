@@ -1,6 +1,7 @@
 #include "fatrat.h"
 #include "GeneralDownload.h"
 #include "HttpFtpSettings.h"
+#include "HashDlg.h"
 
 #include <iostream>
 #include <QtDebug>
@@ -398,8 +399,13 @@ WidgetHostChild* GeneralDownload::createSettingsWidget(QWidget* w,QIcon& i)
 
 void GeneralDownload::fillContextMenu(QMenu& menu)
 {
-	QAction* a = menu.addAction(tr("Switch mirror"));
+	QAction* a;
+	
+	a = menu.addAction(tr("Switch mirror"));
 	connect(a, SIGNAL(triggered()), this, SLOT(switchMirror()));
+	
+	a = menu.addAction(tr("Compute hash..."));
+	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
 }
 
 void GeneralDownload::switchMirror()
@@ -424,6 +430,12 @@ void GeneralDownload::switchMirror()
 			changeActive(true);
 		}
 	}
+}
+
+void GeneralDownload::computeHash()
+{
+	HashDlg dlg(getMainWindow(), filePath());
+	dlg.exec();
 }
 
 QDialog* GeneralDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)

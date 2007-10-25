@@ -32,11 +32,14 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map);
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
+	
+	virtual void fillContextMenu(QMenu& menu);
 private:
 	void safeDestroy();
 private slots:
 	void finished(void*,bool error);
 	void status(QString);
+	void computeHash();
 protected:
 	QString m_strName, m_strTarget, m_strSource;
 	QString m_strMessage, m_strBindAddress;

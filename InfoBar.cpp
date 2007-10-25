@@ -83,6 +83,8 @@ void InfoBar::mousePressEvent(QMouseEvent* event)
 		m_mx = event->globalX();
 		m_my = event->globalY();
 	}
+	else if(event->buttons() == Qt::MidButton)
+		delete this;
 }
 
 void InfoBar::mouseMoveEvent(QMouseEvent* event)

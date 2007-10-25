@@ -20,7 +20,8 @@ FORMS += MainWindow.ui \
  NewTransferDlg.ui \
  GenericOptsForm.ui \
  FtpUploadOptsForm.ui \
- CommentForm.ui
+ CommentForm.ui \
+ HashDlg.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -61,7 +62,8 @@ HEADERS += fatrat.h \
  FtpUpload.h \
  NewTransferDlg.h \
  GenericOptsForm.h \
- CommentForm.h
+ CommentForm.h \
+ HashDlg.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -88,7 +90,8 @@ SOURCES += fatrat.cpp \
  DropBox.cpp \
  RapidshareUpload.cpp \
  HttpFtpSettings.cpp \
- FtpUpload.cpp
+ FtpUpload.cpp \
+ HashDlg.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

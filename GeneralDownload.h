@@ -58,7 +58,9 @@ private slots:
 	void responseHeaderReceived(QHttpResponseHeader resp); // HTTP
 	void responseSizeReceived(qulonglong totalsize); // FTP
 	void changeMessage(QString msg) { m_strMessage = msg; }
+	
 	void switchMirror();
+	void computeHash();
 private:
 	void startHttp(QUrl url, QUrl referrer = QUrl());
 	void startFtp(QUrl url);

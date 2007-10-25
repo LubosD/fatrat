@@ -10,6 +10,7 @@ QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
 QVariant getSettingsDefault(QString id);
 quint32 qntoh(quint32 source);
+QWidget* getMainWindow();
 
 class Sleeper : public QThread
 {
