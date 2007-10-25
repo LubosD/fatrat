@@ -68,6 +68,7 @@ public slots:
 private:
 	Queue* getCurrentQueue(bool lock = true);
 	void doneCurrentQueue(Queue* q, bool unlock = true, bool refresh = true);
+	QList<int> getSelection();
 protected:
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void hideEvent(QHideEvent* event);

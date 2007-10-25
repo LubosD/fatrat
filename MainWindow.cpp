@@ -175,7 +175,13 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
 	if(reason == QSystemTrayIcon::Trigger)
 	{
-		actionDisplay->toggle();
+		if(actionDisplay->isChecked() && !this->isActiveWindow())
+		{
+			activateWindow();
+			raise();
+		}
+		else
+			actionDisplay->toggle();
 	}
 	else if(reason == QSystemTrayIcon::Context)
 	{
@@ -229,8 +235,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::updateUi()
 {
-	QModelIndex ctrans = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	
+	// queue view
 	if(listQueues->currentItem())
 	{
 		actionDeleteQueue->setEnabled(true);
@@ -244,37 +251,50 @@ void MainWindow::updateUi()
 		actionNewTransfer->setEnabled(false);
 	}
 	
+	// transfer view
 	Queue* q = getCurrentQueue();
-	if(ctrans.isValid() && q != 0 && ctrans.row() < q->size())
+	if(!sel.empty())
 	{
 		int rcount = m_modelTransfers->rowCount();
+		bool bSingle = sel.size() == 1;
 		
-		tabMain->setTabEnabled(1,true); // transfer details
-		tabMain->setTabEnabled(2,true); // transfer graph
-		tabMain->setTabEnabled(3,true); // transfer log
+		tabMain->setTabEnabled(1, bSingle);	// transfer details
+		tabMain->setTabEnabled(2, bSingle);	// transfer graph
+		tabMain->setTabEnabled(3, bSingle);	// transfer log
 		
-		actionTop->setEnabled(ctrans.row());
-		actionUp->setEnabled(ctrans.row());
-		actionDown->setEnabled(ctrans.row() < rcount-1);
-		actionBottom->setEnabled(ctrans.row() < rcount-1);
+		if(bSingle)
+		{
+			actionTop->setEnabled(sel[0]);
+			actionUp->setEnabled(sel[0]);
+			actionDown->setEnabled(sel[0] < rcount-1);
+			actionBottom->setEnabled(sel[0] < rcount-1);
+			
+			q->lock();
+			
+			Transfer* d = q->at(sel[0]);
+			actionInfoBar->setChecked(InfoBar::getInfoBar(d) != 0);
+			
+			actionForcedResume->setEnabled(d->statePossible(Transfer::ForcedActive));
+			actionResume->setEnabled(d->statePossible(Transfer::Active));
+			actionPause->setEnabled(d->statePossible(Transfer::Paused));
+			
+			m_graph->setRenderSource(d);
+			m_log->setLogSource(d);
+			
+			q->unlock();
+		}
+		else
+		{
+			actionTop->setEnabled(true);
+			actionUp->setEnabled(false);
+			actionDown->setEnabled(false);
+			actionBottom->setEnabled(true);
+		}
+		
 		actionDeleteTransfer->setEnabled(true);
 		
-		actionInfoBar->setEnabled(true);
-		actionProperties->setEnabled(true);
-		
-		q->lock();
-		
-		Transfer* d = q->at(ctrans.row());
-		actionInfoBar->setChecked(InfoBar::getInfoBar(d) != 0);
-		
-		actionForcedResume->setEnabled(d->statePossible(Transfer::ForcedActive));
-		actionResume->setEnabled(d->statePossible(Transfer::Active));
-		actionPause->setEnabled(d->statePossible(Transfer::Paused));
-		
-		m_graph->setRenderSource(d);
-		m_log->setLogSource(d);
-		
-		q->unlock();
+		actionInfoBar->setEnabled(bSingle);
+		actionProperties->setEnabled(bSingle);
 	}
 	else
 	{
@@ -491,22 +511,49 @@ void MainWindow::transferItemDoubleClicked(const QModelIndex&)
 void MainWindow::move(int i)
 {
 	Queue* q = getCurrentQueue(false);
-	QModelIndex ctrans = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	
 	if(!q) return;
 	
-	if(ctrans.isValid())
+	if(!sel.empty())
 	{
 		switch(i)
 		{
-		case 0:
-			q->moveToTop(ctrans.row()); treeTransfers->setCurrentIndex(m_modelTransfers->index(0)); break;
-		case 1:
-			q->moveUp(ctrans.row()); treeTransfers->setCurrentIndex(m_modelTransfers->index(ctrans.row()-1)); break;
-		case 2:
-			q->moveDown(ctrans.row()); treeTransfers->setCurrentIndex(m_modelTransfers->index(ctrans.row()+1)); break;
-		case 3:
-			q->moveToBottom(ctrans.row()); treeTransfers->setCurrentIndex(m_modelTransfers->index(q->size()-1)); break;
+			case 0:
+			{
+				int size = sel.size();
+				QItemSelectionModel* model = treeTransfers->selectionModel();
+				
+				model->clearSelection();
+				
+				for(int j=0;j<size;j++)
+				{
+					q->moveToTop(sel[size-j-1]+j);
+					model->select(m_modelTransfers->index(j), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+				}
+				break;
+			}
+			case 1:
+				q->moveUp(sel[0]);
+				treeTransfers->setCurrentIndex(m_modelTransfers->index(sel[0]-1));
+				break;
+			case 2:
+				q->moveDown(sel[0]);
+				treeTransfers->setCurrentIndex(m_modelTransfers->index(sel[0]+1));
+				break;
+			case 3:
+			{
+				int size = q->size();
+				QItemSelectionModel* model = treeTransfers->selectionModel();
+				model->clearSelection();
+				
+				for(int i=0;i<sel.size();i++)
+				{
+					q->moveToBottom(sel[i]-i);
+					model->select(m_modelTransfers->index(size-i-1), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+				}
+				break;
+			}
 		}
 	}
 	
@@ -648,17 +695,18 @@ void MainWindow::addTransfer(QString uri)
 void MainWindow::deleteTransfer()
 {
 	Queue* q = getCurrentQueue(false);
-	QModelIndex ctrans = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	
 	if(!q) return;
 	
-	if(ctrans.isValid())
+	if(!sel.empty())
 	{
-		if(QMessageBox::warning(this, tr("Delete transfer"),
-			tr("Do you really want to delete the selected transfer?"),
+		if(QMessageBox::warning(this, tr("Delete transfers"),
+			tr("Do you really want to delete selected transfers?"),
 			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 		{
-			q->remove(ctrans.row());
+			foreach(int i,sel)
+				q->remove(i);
 			Queue::saveQueues();
 		}
 	}
@@ -669,16 +717,18 @@ void MainWindow::deleteTransfer()
 void MainWindow::resumeTransfer()
 {
 	Queue* q = getCurrentQueue();
-	Transfer* d;
-	QModelIndex ctrans = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	
 	if(!q) return;
 	
-	d = q->at(ctrans.row());
-	if(d->state() == Transfer::ForcedActive)
-		d->setState(Transfer::Active);
-	else
-		d->setState(Transfer::Waiting);
+	foreach(int i,sel)
+	{
+		Transfer* d = q->at(i);
+		if(d->state() == Transfer::ForcedActive)
+			d->setState(Transfer::Active);
+		else
+			d->setState(Transfer::Waiting);
+	}
 	
 	doneCurrentQueue(q);
 }
@@ -696,14 +746,16 @@ void MainWindow::pauseTransfer()
 void MainWindow::setTransfer(Transfer::State state)
 {
 	Queue* q = getCurrentQueue();
-	Transfer* d;
-	QModelIndex ctrans = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	
 	if(!q) return;
 	
-	d = q->at(ctrans.row());
-	if(d->state() != Transfer::Active || state != Transfer::Waiting)
-		d->setState(state);
+	foreach(int i,sel)
+	{
+		Transfer* d = q->at(i);
+		if(d->state() != Transfer::Active || state != Transfer::Waiting)
+			d->setState(state);
+	}
 	
 	doneCurrentQueue(q);
 }
@@ -1038,3 +1090,15 @@ void MainWindow::downloadModeChanged(Transfer* d, Transfer::State prev, Transfer
 {
 }
 
+QList<int> MainWindow::getSelection()
+{
+	QModelIndexList list = treeTransfers->selectionModel()->selectedRows();
+	QList<int> result;
+	
+	foreach(QModelIndex in, list)
+		result << in.row();
+	
+	qSort(result);
+	
+	return result;
+}
