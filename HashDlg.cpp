@@ -37,6 +37,7 @@ void HashDlg::browse()
 	{
 		lineFile->setText(newfile);
 		m_file.setFileName(newfile);
+		progressBar->setValue(0);
 	}
 }
 
