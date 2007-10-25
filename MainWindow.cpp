@@ -705,8 +705,8 @@ void MainWindow::deleteTransfer()
 			tr("Do you really want to delete selected transfers?"),
 			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 		{
-			foreach(int i,sel)
-				q->remove(i);
+			for(int i=0;i<sel.size();i++)
+				q->remove(sel[i]-i);
 			Queue::saveQueues();
 		}
 	}
