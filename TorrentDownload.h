@@ -45,6 +45,7 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map);
+	virtual void fillContextMenu(QMenu& menu);
 	
 	qint64 totalDownload() { return m_nPrevDownload + m_status.total_download; }
 	qint64 totalUpload() { return m_nPrevUpload + m_status.total_upload; }

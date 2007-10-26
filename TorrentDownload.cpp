@@ -4,6 +4,7 @@
 #include "RuntimeException.h"
 #include "GeneralDownload.h"
 #include <QIcon>
+#include <QMenu>
 #include <QTemporaryFile>
 #include <fstream>
 #include <stdexcept>
@@ -109,6 +110,7 @@ void TorrentDownload::init(QString source, QString target)
 			m_info = libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>());
 			
 			m_strTarget = target;
+			qDebug() << "Downloading to directory" << target;
 			m_handle = m_session->add_torrent(m_info, target.toStdString(), false);
 		
 			if(!isActive())
@@ -208,8 +210,12 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 {
 	if(m_handle.is_valid())
 	{
-		//m_handle.set_upload_limit(up);
-		//m_handle.set_download_limit(down);
+		if(!down)
+			down--;
+		if(!up)
+			up--;
+		m_handle.set_upload_limit(up);
+		m_handle.set_download_limit(down);
 	}
 }
 
@@ -288,11 +294,14 @@ void TorrentDownload::load(const QDomNode& map)
 	try
 	{
 		libtorrent::entry torrent_resume;
-		QString target = getXMLProperty(map, "target");
+		QString target;
+		
+		m_strTarget = target = getXMLProperty(map, "target");
 		
 		m_info = bdecode(getXMLProperty(map, "torrent_data"));
 		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
 		
+		qDebug() << "Downloading to directory" << target;
 		m_handle = m_session->add_torrent(m_info, target.toStdString(), torrent_resume);
 			
 		if(!isActive())
@@ -515,3 +524,12 @@ void TorrentDownload::forceReannounce()
 	if(m_status.state == libtorrent::torrent_status::seeding || m_status.state == libtorrent::torrent_status::downloading)
 		m_handle.force_reannounce();
 }
+
+void TorrentDownload::fillContextMenu(QMenu& menu)
+{
+	QAction* a;
+	
+	a = menu.addAction(tr("Force announce"));
+	connect(a, SIGNAL(triggered()), this, SLOT(forceReannounce()));
+}
+
