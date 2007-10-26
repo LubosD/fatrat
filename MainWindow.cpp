@@ -300,6 +300,10 @@ void MainWindow::updateUi()
 		}
 		else
 		{
+			actionForcedResume->setEnabled(true);
+			actionResume->setEnabled(true);
+			actionPause->setEnabled(true);
+			
 			actionTop->setEnabled(true);
 			actionUp->setEnabled(false);
 			actionDown->setEnabled(false);
@@ -352,7 +356,11 @@ void MainWindow::refreshQueues()
 	for(i=0;i<g_queues.size();i++)
 	{
 		if(i>=listQueues->count())
-			listQueues->addItem(g_queues[i]->name());
+		{
+			QListWidgetItem* item = new QListWidgetItem(g_queues[i]->name(), listQueues);
+			item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled);
+			listQueues->addItem(item);
+		}
 		else
 			listQueues->item(i)->setText(g_queues[i]->name());
 	}
@@ -722,8 +730,10 @@ void MainWindow::deleteTransfer()
 			tr("Do you really want to delete selected transfers?"),
 			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 		{
+			q->lockW();
 			for(int i=0;i<sel.size();i++)
-				q->remove(sel[i]-i);
+				q->remove(sel[i]-i, true);
+			q->unlock();
 			Queue::saveQueues();
 		}
 	}

@@ -22,7 +22,7 @@ HashDlg::~HashDlg()
 {
 	if(m_thread.isRunning())
 	{
-		m_thread.terminate();
+		m_thread.stop();
 		m_thread.wait();
 	}
 }
@@ -76,7 +76,7 @@ void HashDlg::finished(QByteArray result)
 }
 
 HashThread::HashThread(QFile* file)
-	: m_file(file)
+	: m_file(file), m_bStop(false)
 {
 }
 
@@ -87,7 +87,7 @@ void HashThread::run()
 	qint64 total = m_file->size();
 	int pcts = 0;
 	
-	setTerminationEnabled(true);
+	m_bStop = false;
 	
 	do
 	{
@@ -104,7 +104,8 @@ void HashThread::run()
 			emit progress(pcts);
 		}
 	}
-	while(buf.size() == 1024);
+	while(buf.size() == 1024 && !m_bStop);
 	
-	emit finished(hash.result());
+	if(!m_bStop)
+		emit finished(hash.result());
 }

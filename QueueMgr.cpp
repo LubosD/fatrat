@@ -40,7 +40,8 @@ void QueueMgr::doWork()
 		q->transferLimits(lim_down,lim_up);
 		q->speedLimits(down,up);
 		
-		//foreach(Transfer* d,q->m_transfers)
+		q->lock();
+		
 		for(int i=0;i<q->m_transfers.size();i++)
 		{
 			Transfer* d = q->m_transfers[i];
@@ -74,8 +75,14 @@ void QueueMgr::doWork()
 					d->setState(Transfer::Waiting);
 			}
 			else if(state == Transfer::Completed && autoremove)
+			{
+				q->unlock();
 				q->remove(i--);
+				q->lock();
+			}
 		}
+		
+		q->unlock();
 		
 		if(running > 0 && (down || up))
 		{
@@ -99,10 +106,12 @@ void QueueMgr::doWork()
 			
 			//cout << "--- limiting to " << down << endl;
 			
+			q->lock();
 			foreach(Transfer* d,q->m_transfers)
 			{
 				d->setInternalSpeedLimits(downl,upl);
 			}
+			q->unlock();
 		}
 	}
 	

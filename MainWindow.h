@@ -18,6 +18,7 @@ public:
 	void setupUi();
 	void move(int i);
 	void changeAll(bool resume);
+	QList<int> getSelection();
 public slots:
 	void about();
 	void showSettings();
@@ -73,7 +74,6 @@ public slots:
 private:
 	Queue* getCurrentQueue(bool lock = true);
 	void doneCurrentQueue(Queue* q, bool unlock = true, bool refresh = true);
-	QList<int> getSelection();
 protected:
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void hideEvent(QHideEvent* event);

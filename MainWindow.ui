@@ -105,20 +105,35 @@
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="listQueues" >
+             <widget class="QueueView" name="listQueues" >
               <property name="font" >
                <font>
                 <family>DejaVu Sans</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
-                <bold>false</bold>
+                <weight>75</weight>
+                <bold>true</bold>
                </font>
               </property>
-              <property name="dragEnabled" >
+              <property name="dragDropOverwriteMode" >
                <bool>true</bool>
               </property>
               <property name="dragDropMode" >
                <enum>QAbstractItemView::DropOnly</enum>
+              </property>
+              <property name="selectionBehavior" >
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <property name="movement" >
+               <enum>QListView::Free</enum>
+              </property>
+              <property name="spacing" >
+               <number>5</number>
+              </property>
+              <property name="uniformItemSizes" >
+               <bool>true</bool>
+              </property>
+              <property name="selectionRectVisible" >
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -672,6 +687,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QueueView</class>
+   <extends>QListWidget</extends>
+   <header>QueueView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="gfx/resources.qrc" />
  </resources>

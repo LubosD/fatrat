@@ -24,12 +24,15 @@ public:
 	~TransfersModel();
 	QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex &index) const;
-	//Qt::ItemFlags flags(const QModelIndex &index) const;
+	Qt::ItemFlags flags(const QModelIndex &index) const;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	int columnCount(const QModelIndex &parent) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	QVariant data(const QModelIndex &index, int role) const;
 	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
+	Qt::DropActions supportedDragActions() const;
+	QStringList mimeTypes() const { return QStringList("application/x-fatrat-transfer"); }
+	QMimeData* mimeData(const QModelIndexList &indexes) const;
 	
 	void setQueue(int q);
 	void refresh();

@@ -13,12 +13,14 @@ public:
 	HashThread(QFile* file);
 	void setAlgorithm(QCryptographicHash::Algorithm alg) { m_alg = alg; }
 	void run();
+	void stop() { m_bStop = true; }
 signals:
 	void progress(int pcts);
 	void finished(QByteArray result);
 private:
 	QCryptographicHash::Algorithm m_alg;
 	QFile* m_file;
+	bool m_bStop;
 };
 
 class HashDlg : public QDialog, Ui_HashDlg

@@ -238,7 +238,7 @@ void Queue::moveToBottom(int n)
 	m_lock.unlock();
 }
 
-void Queue::remove(int n, bool nolock)
+Transfer* Queue::take(int n, bool nolock)
 {
 	Transfer* d = 0;
 	
@@ -248,6 +248,13 @@ void Queue::remove(int n, bool nolock)
 		d = m_transfers.takeAt(n);
 	if(!nolock)
 		m_lock.unlock();
+	
+	return d;
+}
+
+void Queue::remove(int n, bool nolock)
+{
+	Transfer* d = take(n, nolock);
 	
 	if(d->isActive())
 		d->setState(Transfer::Paused);

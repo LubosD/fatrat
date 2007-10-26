@@ -63,7 +63,8 @@ HEADERS += fatrat.h \
  NewTransferDlg.h \
  GenericOptsForm.h \
  CommentForm.h \
- HashDlg.h
+ HashDlg.h \
+ QueueView.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -91,7 +92,8 @@ SOURCES += fatrat.cpp \
  RapidshareUpload.cpp \
  HttpFtpSettings.cpp \
  FtpUpload.cpp \
- HashDlg.cpp
+ HashDlg.cpp \
+ QueueView.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

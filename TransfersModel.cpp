@@ -1,12 +1,14 @@
 #include <QApplication>
 #include <QPainter>
+#include <QMimeData>
+
 #include "TransfersModel.h"
 #include "fatrat.h"
-#include <iostream>
-#include <cassert>
+#include "MainWindow.h"
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
+extern MainWindow* g_wndMain;
 
 using namespace std;
 
@@ -247,6 +249,35 @@ void TransfersModel::setQueue(int q)
 {
 	m_queue = q;
 	refresh();
+}
+
+Qt::DropActions TransfersModel::supportedDragActions() const
+{
+	return Qt::MoveAction;
+}
+
+Qt::ItemFlags TransfersModel::flags(const QModelIndex &index) const
+{
+	Qt::ItemFlags defaultFlags = QAbstractListModel::flags(index);
+
+	if(index.isValid())
+		return Qt::ItemIsDragEnabled | defaultFlags;
+	else
+		return defaultFlags;
+}
+
+QMimeData* TransfersModel::mimeData(const QModelIndexList&) const
+{
+	QMimeData *mimeData = new QMimeData;
+	QByteArray encodedData;
+	QList<int> sel = g_wndMain->getSelection();
+
+	QDataStream stream(&encodedData, QIODevice::WriteOnly);
+	stream << m_queue << sel;
+	
+	mimeData->setData("application/x-fatrat-transfer", encodedData);
+	
+	return mimeData;
 }
 
 void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
