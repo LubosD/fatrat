@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Application;Network;
+Comment=Qt-based download/upload manager
+Encoding=UTF-8
+Exec=fatrat
+GenericName=FatRat download manager
+Icon=fatrat.png
+Name=FatRat
+StartupNotify=true
+Terminal=false
+Type=Application

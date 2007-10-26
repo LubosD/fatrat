@@ -105,6 +105,14 @@ locale.files = locale/*.qm
 locale.path = /usr/share/locale/fatrat
 INSTALLS += locale
 
+icons.files = gfx/fatrat.png
+icons.path = /usr/share/pixmaps
+INSTALLS += icons
+
+menu.files = data/fatrat.desktop
+menu.path = /usr/share/applications
+INSTALLS += menu
+
 target.path = /usr/bin
 
 INSTALLS += target
