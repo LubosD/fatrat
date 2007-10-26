@@ -22,6 +22,7 @@
 #include "DropBox.h"
 #include "CommentForm.h"
 #include "HashDlg.h"
+#include "RuntimeException.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -189,11 +190,12 @@ void MainWindow::about()
 {
 	QMessageBox::about(this, tr("About FatRat"),
 				QString::fromUtf8("<b>FatRat download manager</b><p>"
-				"Copyright © 2006-2007 Luboš Doležel &lt;lubos@dolezel.info&gt;<p>"
-				"Copyright © 2004-2006 <a href=\"http://www.trolltech.com\">Trolltech ASA</a><br>"
-				"Copyright © 2001 The Internet Society. All Rights Reserved.<p>"
-				"Web: <a href=\"http://fatrat.dolezel.info\">http://fatrat.dolezel.info</a><p>"
-				"Licensed under terms of the GNU GPL v2 license.")
+				"Copyright © 2006-2007 <a href=\"http://www.dolezel.info\">Luboš Doležel</a><p>"
+				"This application uses the <a href=\"http://www.rasterbar.com/products/libtorrent/\">Rasterbar libtorrent library</a>.<br>"
+				"Copyright © 2003-2007 Arvid Norberg"
+				"<p>"
+				"Web: <a href=\"http://fatrat.dolezel.info\">http://fatrat.dolezel.info</a><br>"
+				"Licensed under terms of the <a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU GPL v2 licence</a>.")
 			);
 }
 
@@ -683,7 +685,7 @@ void MainWindow::addTransfer(QString uri)
 			Transfer* d = Transfer::createInstance(dlg.m_mode, dlg.m_nClass);
 			
 			if(d == 0)
-				throw std::runtime_error("Failed to create class instance.");
+				throw RuntimeException(tr("Failed to create a class instance."));
 			
 			listTransfers << d;
 			
@@ -707,22 +709,22 @@ void MainWindow::addTransfer(QString uri)
 					dlg.addChild(q);
 					
 					if(dlg.exec() != QDialog::Accepted)
-						throw std::runtime_error(std::string());
+						throw RuntimeException();
 				}
 			}
 			else // show a dialog designed for multiple
 			{
 				if(!Transfer::runProperties(this, dlg.m_mode, dlg.m_nClass, listTransfers))
-					throw std::runtime_error(std::string());
+					throw RuntimeException();
 			}
 		}
 		
 		queue->add(listTransfers);
 	}
-	catch(const std::exception& e)
+	catch(const RuntimeException& e)
 	{
 		qDeleteAll(listTransfers);
-		if(e.what()[0])
+		if(!e.what().isEmpty())
 			QMessageBox::critical(this, tr("Error"), e.what());
 	}
 	

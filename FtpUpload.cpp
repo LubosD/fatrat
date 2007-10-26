@@ -1,7 +1,7 @@
 #include "fatrat.h"
 #include "FtpUpload.h"
 #include "HashDlg.h"
-#include <stdexcept>
+#include "RuntimeException.h"
 #include <QFileInfo>
 #include <QMenu>
 #include <QtDebug>
@@ -33,14 +33,14 @@ void FtpUpload::init(QString source, QString target)
 	finfo = QFileInfo(source);
 	
 	if(!finfo.exists())
-		throw std::runtime_error("File does not exist");
+		throw RuntimeException(tr("File does not exist"));
 	
 	m_nTotal = finfo.size();
 	if(m_strName.isEmpty())
 		m_strName = finfo.fileName();
 	
 	if(!target.startsWith("ftp://"))
-		throw std::runtime_error("Invalid protocol for this upload class (FTP)");
+		throw RuntimeException(tr("Invalid protocol for this upload class (FTP)"));
 	
 	m_strTarget = target;
 	m_strSource = source;
@@ -140,7 +140,7 @@ void FtpUpload::load(const QDomNode& map)
 	{
 		init(source, target);
 	}
-	catch(std::exception& e)
+	catch(const RuntimeException& e)
 	{
 		setState(Failed);
 		m_strMessage = e.what();

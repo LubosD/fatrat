@@ -120,19 +120,10 @@
               <property name="dragDropMode" >
                <enum>QAbstractItemView::DropOnly</enum>
               </property>
-              <property name="selectionBehavior" >
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <property name="movement" >
-               <enum>QListView::Free</enum>
-              </property>
               <property name="spacing" >
                <number>5</number>
               </property>
               <property name="uniformItemSizes" >
-               <bool>true</bool>
-              </property>
-              <property name="selectionRectVisible" >
                <bool>true</bool>
               </property>
              </widget>

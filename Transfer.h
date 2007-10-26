@@ -131,6 +131,7 @@ struct EngineEntry
 	const char* shortName;
 	const char* longName;
 	void (*lpfnInit)();
+	void (*lpfnExit)();
 	Transfer* (*lpfnCreate)();
 	int (*lpfnAcceptable)(QString);
 	WidgetHostChild* (*lpfnSettings)(QWidget*,QIcon&); // global settings

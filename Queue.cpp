@@ -38,8 +38,8 @@ void Queue::loadQueues()
 	QFile file;
 	QDir dir = QDir::home();
 	
-	dir.mkdir(".fatrat");
-	if(!dir.cd(".fatrat"))
+	dir.mkpath(".local/share/fatrat");
+	if(!dir.cd(".local/share/fatrat"))
 		return;
 	file.setFileName(dir.filePath("queues.xml"));
 	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
@@ -89,7 +89,7 @@ void Queue::saveQueues()
 	QFile file;
 	QDir dir = QDir::home();
 	
-	if(!dir.cd(".fatrat"))
+	if(!dir.cd(".local/share/fatrat"))
 		return;
 	file.setFileName(dir.filePath("queues.xml"));
 	

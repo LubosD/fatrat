@@ -11,12 +11,10 @@ FORMS += MainWindow.ui \
          SettingsDlg.ui \
          SettingsGeneralForm.ui \
          SettingsTorrentForm.ui \
-         DetailsTorrentForm.ui  \
          SettingsHttpForm.ui \
          ProxyDlg.ui \
          UserAuthDlg.ui \
-         TorrentOptsWidget.ui \
- HttpUrlOptsDlg.ui \
+         HttpUrlOptsDlg.ui \
  NewTransferDlg.ui \
  GenericOptsForm.ui \
  FtpUploadOptsForm.ui \
@@ -36,20 +34,9 @@ HEADERS += fatrat.h \
            WidgetHostDlg.h \
            GeneralNetwork.h \
            InfoBar.h \
-           TorrentDownload.h \
            SettingsDlg.h \
            WidgetHostChild.h \
            SettingsGeneralForm.h \
-           torrent/bencodeparser.h \
-           torrent/connectionmanager.h \
-           torrent/filemanager.h \
-           torrent/metainfo.h \
-           torrent/peerwireclient.h \
-           torrent/ratecontroller.h \
-           torrent/sha1.h \
-           torrent/torrentclient.h \
-           torrent/torrentserver.h \
-           torrent/trackerclient.h  \
            ProxyDlg.h \
            dbus_adaptor.h \
            SimpleEmail.h \
@@ -64,7 +51,9 @@ HEADERS += fatrat.h \
  GenericOptsForm.h \
  CommentForm.h \
  HashDlg.h \
- QueueView.h
+ QueueView.h \
+ TorrentDownload.h \
+ TorrentSettings.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -74,17 +63,6 @@ SOURCES += fatrat.cpp \
            GeneralDownload.cpp \
            GeneralNetwork.cpp \
            InfoBar.cpp \
-           TorrentDownload.cpp \
-           torrent/bencodeparser.cpp \
-           torrent/connectionmanager.cpp \
-           torrent/filemanager.cpp \
-           torrent/metainfo.cpp \
-           torrent/peerwireclient.cpp \
-           torrent/ratecontroller.cpp \
-           torrent/sha1.c \
-           torrent/torrentclient.cpp \
-           torrent/torrentserver.cpp \
-           torrent/trackerclient.cpp  \
            dbus_adaptor.cpp \
            SimpleEmail.cpp \
            SpeedGraph.cpp \
@@ -93,16 +71,23 @@ SOURCES += fatrat.cpp \
  HttpFtpSettings.cpp \
  FtpUpload.cpp \
  HashDlg.cpp \
- QueueView.cpp
+ QueueView.cpp \
+ TorrentDownload.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
 QT += xml network
+LIBS += -ltorrent
+INCLUDEPATH = /usr/include/libtorrent
+
+!exists( /usr/include/libtorrent/session.hpp ){
+    error("You need Rasterbar libtorrent to compile this program - http://www.rasterbar.com/products/libtorrent/")
+}
 
 INSTALL_ROOT = /usr/bin
 
 locale.files = locale/*.qm 
-locale.path = /usr/share/locale/fatrat
+locale.path = /usr/share/fatrat/lang
 INSTALLS += locale
 
 icons.files = gfx/fatrat.png

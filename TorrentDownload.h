@@ -1,12 +1,12 @@
-#ifndef _TORRENTDOWNLOAD_H
-#define _TORRENTDOWNLOAD_H
+#ifndef TORRENTDOWNLOAD_H
+#define TORRENTDOWNLOAD_H
 #include "Transfer.h"
-#include "torrent/torrentclient.h"
-#include "torrent/metainfo.h"
-#include "WidgetHostChild.h"
-#include "ui_SettingsTorrentForm.h"
-#include "ui_TorrentOptsWidget.h"
 #include <QTimer>
+#include <QMutex>
+#include <libtorrent/session.hpp>
+#include <libtorrent/torrent_handle.hpp>
+
+class TorrentWorker;
 
 class TorrentDownload : public Transfer
 {
@@ -15,90 +15,72 @@ public:
 	TorrentDownload();
 	virtual ~TorrentDownload();
 	
+	static Transfer* createInstance() { return new TorrentDownload; }
+	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon& i);
+	static int acceptable(QString url);
+	
+	static void globalInit();
+	static void applySettings();
+	static void globalExit();
+	
+	static QByteArray bencode_simple(libtorrent::entry e);
+	static QString bencode(libtorrent::entry e);
+	static libtorrent::entry bdecode_simple(QByteArray d);
+	static libtorrent::entry bdecode(QString d);
+	
+	virtual void init(QString source, QString target);
+	virtual void setObject(QString source);
+	
 	virtual void changeActive(bool nowActive);
+	virtual void setSpeedLimits(int down, int up);
+	
+	virtual QString object() const;
+	virtual QString myClass() const { return "TorrentDownload"; }
 	virtual QString name() const;
+	virtual QString message() const;
+	virtual Mode primaryMode() { return Download; }
 	virtual void speeds(int& down, int& up) const;
 	virtual qulonglong total() const;
 	virtual qulonglong done() const;
+	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map);
-	virtual bool supportsDistribute() { return true; }
-	virtual QString myClass() const { return "TorrentDownload"; }
-	virtual QString message() const { return m_strMessage; }
 	
-	virtual void init(QString uri,QString target);
-	virtual void setObject(QString object);
-	virtual QString object() const;
-	virtual void setSpeedLimits(int down,int up);
-	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
-	
-	static int acceptable(QString uri);
-	static Transfer* createInstance() { return new TorrentDownload; }
-	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon&);
-	static void globalInit();
+	qint64 totalDownload() { return m_nPrevDownload + m_status.total_download; }
+	qint64 totalUpload() { return m_nPrevUpload + m_status.total_upload; }
+private slots:
+	void fileStateChanged(Transfer::State,Transfer::State);
+	void forceReannounce();
 protected:
-	void initFileDownload(QString uri,QString target);
-public slots:
-	void init();
-	void updateMessage();
-	void uploadRateUpdated(int v) { m_nUp=v; }
-	void downloadRateUpdated(int v) { m_nDown=v; }
-	void clientStateChanged(TorrentClient::State state);
-	void checkRatio();
+	libtorrent::torrent_handle m_handle;
+	libtorrent::torrent_info m_info;
+	libtorrent::torrent_status m_status;
 	
-	// .torrent download
-	void stateChanged(Transfer::State prev, Transfer::State now);
-protected:
-	TorrentClient* m_pClient;
-	MetaInfo m_metaInfo;
-	int m_nDown, m_nUp;
-	QString m_strTarget,m_strMessage;
-	QTimer m_timer;
-	QMap<QString,bool> m_mapWanted;
+	QString m_strError, m_strTarget;
+	qint64 m_nPrevDownload, m_nPrevUpload;
 	
-	friend class TorrentOptsWidget;
+	Transfer* m_pFileDownload;
+	
+	static libtorrent::session* m_session;
+	static TorrentWorker* m_worker;
+	
+	friend class TorrentWorker;
 };
 
-class TorrentOptsWidget : public QObject, public WidgetHostChild, Ui_TorrentOptsWidget
+class TorrentWorker : public QObject
 {
 Q_OBJECT
 public:
-	TorrentOptsWidget(QWidget* me,TorrentDownload* myobj);
-	virtual void load();
-	virtual void accepted();
-	virtual bool accept();
+	TorrentWorker();
+	void addObject(TorrentDownload* d);
+	void removeObject(TorrentDownload* d);
+	TorrentDownload* getByHandle(libtorrent::torrent_handle handle) const;
 public slots:
-	void updateStatus();
+	void doWork();
 private:
-	struct Directory;
-	Directory& getDirectory(QString path);
-	void fillTree();
-	static void generateMap(QMap<QString,bool>& map, Directory& dir, QString prefix);
-private:
-	TorrentDownload* m_download;
-	
-	struct File
-	{
-		QString name;
-		bool download;
-		QTreeWidgetItem* item;
-	};
-	struct Directory
-	{
-		QString name;
-		QList<Directory> dirs;
-		QList<File> files;
-		QTreeWidgetItem* item;
-	} m_toplevel;
-};
-
-class TorrentDownloadSettings : public WidgetHostChild, Ui_SettingsTorrentForm
-{
-public:
-	TorrentDownloadSettings(QWidget* w) { setupUi(w); }
-	virtual void load();
-	virtual bool accept();
-	virtual void accepted();
+	QTimer m_timer;
+	QMutex m_mutex;
+	QList<TorrentDownload*> m_objects;
 };
 
 #endif

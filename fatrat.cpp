@@ -24,7 +24,7 @@ QSettings* g_settings = 0;
 
 static QMap<QString, QVariant> g_mapDefaults;
 static void initSettingsDefaults();
-static void initEngines();
+static void runEngines(bool init = true);
 
 int main(int argc,char** argv)
 {
@@ -39,13 +39,13 @@ int main(int argc,char** argv)
 	
 	g_settings = new QSettings;
 	
-	qDebug() << "Current locale" << QLocale::languageToString(QLocale::system().language());
-	translator.load(QString("fatrat_") + QLocale::system().name(), "/usr/share/locale/fatrat");
+	qDebug() << "Current locale" << QLocale::system().name();
+	translator.load(QString("fatrat_") + QLocale::system().name(), "/usr/share/fatrat/lang");
 	app.installTranslator(&translator);
 	
 	// Init download engines (let them load settings)
 	initSettingsDefaults();
-	initEngines();
+	runEngines();
 	Queue::loadQueues();
 	
 	qRegisterMetaType<QHttpResponseHeader>("QHttpResponseHeader");
@@ -68,28 +68,46 @@ int main(int argc,char** argv)
 	qmgr->exit();
 	Queue::unloadQueues();
 	
+	runEngines(false);
+	
 	delete qmgr;
 	delete g_settings;
 	
 	return rval;
 }
 
-static void initEngines()
+static void runEngines(bool init)
 {
 	const EngineEntry* engines;
 	
 	engines = Transfer::engines(Transfer::Download);
 	for(int i=0;engines[i].shortName;i++)
 	{
-		if(engines[i].lpfnInit)
-			engines[i].lpfnInit();
+		if(init)
+		{
+			if(engines[i].lpfnInit)
+				engines[i].lpfnInit();
+		}
+		else
+		{
+			if(engines[i].lpfnExit)
+				engines[i].lpfnExit();
+		}
 	}
 	
 	engines = Transfer::engines(Transfer::Upload);
 	for(int i=0;engines[i].shortName;i++)
 	{
-		if(engines[i].lpfnInit)
-			engines[i].lpfnInit();
+		if(init)
+		{
+			if(engines[i].lpfnInit)
+				engines[i].lpfnInit();
+		}
+		else
+		{
+			if(engines[i].lpfnExit)
+				engines[i].lpfnExit();
+		}
 	}
 }
 
@@ -114,6 +132,11 @@ void initSettingsDefaults()
 	g_mapDefaults["emailrcpt"] = "root@localhost";
 	g_mapDefaults["graphminutes"] = 5;
 	g_mapDefaults["autoremove"] = false;
+	g_mapDefaults["torrent/listen_start"] = 6881;
+	g_mapDefaults["torrent/listen_end"] = 6888;
+	g_mapDefaults["torrent/maxconnections"] = 200;
+	g_mapDefaults["torrent/maxuploads"] = 5;
+	g_mapDefaults["torrent/dht"] = true;
 }
 
 QVariant getSettingsDefault(QString id)
@@ -239,5 +262,3 @@ quint32 qntoh(quint32 source)
 		   | ((source & 0xff000000) >> 24);
 #endif
 }
-
-

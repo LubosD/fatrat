@@ -2,6 +2,7 @@
 #include "GeneralDownload.h"
 #include "HttpFtpSettings.h"
 #include "HashDlg.h"
+#include "RuntimeException.h"
 
 #include <iostream>
 #include <QtDebug>
@@ -72,7 +73,7 @@ void GeneralDownload::init(QString uri,QString dest)
 	m_dir = dest;
 	
 	if(obj.url.scheme() != "http" && obj.url.scheme() != "ftp")
-		throw std::runtime_error("Unsupported protocol");
+		throw RuntimeException(tr("Unsupported protocol"));
 	
 	m_urls.clear();
 	m_urls << obj;
@@ -269,10 +270,6 @@ void GeneralDownload::requestFinished(void* obj, bool error)
 		}
 		else if(isActive())
 		{
-			m_strMessage.clear();
-			enterLogMessage(tr("Transfer has been completed"));
-			setState(Completed);
-			
 			if(m_http)
 			{
 				m_http->destroy();
@@ -283,6 +280,10 @@ void GeneralDownload::requestFinished(void* obj, bool error)
 				m_ftp->destroy();
 				m_ftp = 0;
 			}
+			
+			m_strMessage.clear();
+			enterLogMessage(tr("Transfer has been completed"));
+			setState(Completed);
 		}
 	}
 }

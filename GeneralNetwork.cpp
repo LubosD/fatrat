@@ -182,6 +182,7 @@ void HttpEngine::run()
 		
 		while((bOK = readCycle()) && !m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer));
 		
+		m_file.close();
 		if(!m_bAbort)
 			emit finished(this,!bOK);
 		else
@@ -830,6 +831,7 @@ econn: // FIXME: this all looks so wrong
 		doClose(m_pSocket);
 		readStatus(reply);
 		
+		m_file.close();
 		if(!m_bAbort)
 			emit finished(this,!m_strError.isEmpty());
 		else
