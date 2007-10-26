@@ -4,6 +4,7 @@
 #include "ui_MainWindow.h"
 #include <QTimer>
 #include <QSystemTrayIcon>
+#include <QToolButton>
 #include "TransfersModel.h"
 #include "TransferLog.h"
 
@@ -91,6 +92,7 @@ private:
 	SpeedGraph* m_graph;
 	TransferLog* m_log;
 	QWidget* m_dropBox;
+	QToolButton* m_toolTabClose;
 	
 	friend class DropBox;
 };

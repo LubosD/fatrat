@@ -24,16 +24,19 @@ bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction 
 	
 	stream >> queueFrom >> transfers;
 	
-	q = g_queues[queueFrom];
-	q->lockW();
-	
-	for(int i=0;i<transfers.size();i++)
-		objects << q->take(transfers[i]-i, false);
-	
-	q->unlock();
-	
-	q = g_queues[queueTo];
-	q->add(objects);
+	if(queueFrom != queueTo)
+	{
+		q = g_queues[queueFrom];
+		q->lockW();
+		
+		for(int i=0;i<transfers.size();i++)
+			objects << q->take(transfers[i]-i, false);
+		
+		q->unlock();
+		
+		q = g_queues[queueTo];
+		q->add(objects);
+	}
 	
 	g_queuesLock.unlock();
 	

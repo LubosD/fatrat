@@ -99,6 +99,8 @@ TARGET = fatrat
 CONFIG += qdbus debug
 QT += xml network
 
+INSTALL_ROOT = /usr/bin
+
 locale.files = locale/*.qm 
 locale.path = /usr/share/locale/fatrat
 INSTALLS += locale

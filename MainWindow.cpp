@@ -156,6 +156,21 @@ void MainWindow::setupUi()
 	
 	statusbar->addWidget(&m_labelStatus);
 	
+	m_toolTabClose = new QToolButton(this);
+	m_toolTabClose->setIcon(QIcon(":/menu/tab_remove.png"));
+	m_toolTabClose->setEnabled(false);
+	tabMain->setCornerWidget(m_toolTabClose);
+	
+	QToolButton* toolOpen = new QToolButton(this);
+	QMenu* tabOpenMenu = new QMenu(toolOpen);
+	
+	tabOpenMenu->addAction(tr("New BitTorrent search"));
+	
+	toolOpen->setIcon(QIcon(":/menu/tab_new.png"));
+	toolOpen->setPopupMode(QToolButton::InstantPopup);
+	toolOpen->setMenu(tabOpenMenu);
+	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
+	
 	g_settings->endGroup();
 }
 
