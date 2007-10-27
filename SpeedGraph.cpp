@@ -99,7 +99,7 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	painter.drawLines(lines,elems+1);
 	delete [] lines;
 	
-	painter.setPen(QColor(255,128,128));
+	painter.setPen(QColor(80,180,80));
 	for(int i=0;i<4;i++)
 	{
 		int x = width-(i+1)*(width/5);

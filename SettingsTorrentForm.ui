@@ -150,6 +150,13 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="0" >
+      <widget class="QCheckBox" name="checkPEX" >
+       <property name="text" >
+        <string>Enable uTorrent Peer Exchange</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="2" column="0" >

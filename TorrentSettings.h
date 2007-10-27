@@ -27,6 +27,7 @@ public:
 		spinConnections->setValue(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 		spinUploads->setValue(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
 		checkDHT->setChecked(g_settings->value("dht", getSettingsDefault("torrent/dht")).toBool());
+		checkPEX->setChecked(g_settings->value("pex", getSettingsDefault("torrent/pex")).toBool());
 		g_settings->endGroup();
 	}
 	
@@ -39,6 +40,7 @@ public:
 		g_settings->setValue("maxconnections", spinConnections->value());
 		g_settings->setValue("maxuploads", spinUploads->value());
 		g_settings->setValue("dht", checkDHT->isChecked());
+		g_settings->setValue("pex", checkDHT->isChecked());
 		g_settings->endGroup();
 		
 		TorrentDownload::applySettings();

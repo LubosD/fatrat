@@ -137,6 +137,7 @@ void initSettingsDefaults()
 	g_mapDefaults["torrent/maxconnections"] = 200;
 	g_mapDefaults["torrent/maxuploads"] = 5;
 	g_mapDefaults["torrent/dht"] = true;
+	g_mapDefaults["torrent/pex"] = true;
 }
 
 QVariant getSettingsDefault(QString id)

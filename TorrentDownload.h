@@ -1,12 +1,15 @@
 #ifndef TORRENTDOWNLOAD_H
 #define TORRENTDOWNLOAD_H
 #include "Transfer.h"
+#include "ui_TorrentDetailsForm.h"
 #include <QTimer>
 #include <QMutex>
+#include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
 
 class TorrentWorker;
+class TorrentDetails;
 
 class TorrentDownload : public Transfer
 {
@@ -46,6 +49,7 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map);
 	virtual void fillContextMenu(QMenu& menu);
+	virtual QObject* createDetailsWidget(QWidget* widget);
 	
 	qint64 totalDownload() { return m_nPrevDownload + m_status.total_download; }
 	qint64 totalUpload() { return m_nPrevUpload + m_status.total_upload; }
@@ -64,8 +68,10 @@ protected:
 	
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;
+	static bool m_bDHT;
 	
 	friend class TorrentWorker;
+	friend class TorrentDetails;
 };
 
 class TorrentWorker : public QObject
@@ -75,6 +81,8 @@ public:
 	TorrentWorker();
 	void addObject(TorrentDownload* d);
 	void removeObject(TorrentDownload* d);
+	// To reduce QTimer usage
+	void setDetailsObject(TorrentDetails* d);
 	TorrentDownload* getByHandle(libtorrent::torrent_handle handle) const;
 public slots:
 	void doWork();
@@ -82,6 +90,22 @@ private:
 	QTimer m_timer;
 	QMutex m_mutex;
 	QList<TorrentDownload*> m_objects;
+};
+
+class TorrentDetails : public QObject, Ui_TorrentDetailsForm
+{
+Q_OBJECT
+public:
+	TorrentDetails(QWidget* me, TorrentDownload* obj);
+	virtual ~TorrentDetails();
+	// only constant data
+	void fill();
+public slots:
+	void refresh();
+private:
+	TorrentDownload* m_download;
+	bool m_bFilled;
+	std::vector<bool> m_vecPieces;
 };
 
 #endif

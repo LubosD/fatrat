@@ -10,10 +10,12 @@
 #include <stdexcept>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
+#include <libtorrent/extensions/ut_pex.hpp>
 
 extern QSettings* g_settings;
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
+bool TorrentDownload::m_bDHT = false;
 
 TorrentDownload::TorrentDownload()
 	: m_nPrevDownload(0), m_nPrevUpload(0), m_pFileDownload(0)
@@ -43,6 +45,9 @@ void TorrentDownload::globalInit()
 	
 	applySettings();
 	
+	if(g_settings->value("torrent/pex", getSettingsDefault("torrent/pex")).toBool())
+		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
+	
 	m_worker = new TorrentWorker;
 }
 
@@ -58,12 +63,22 @@ void TorrentDownload::applySettings()
 	if(lend < lstart)
 		lend = lstart;
 	
-	m_session->listen_on(std::pair<int,int>(lstart,lend));
+	if(m_session->listen_port() != lstart)
+		m_session->listen_on(std::pair<int,int>(lstart,lend));
 	
 	if(g_settings->value("dht", getSettingsDefault("torrent/dht")).toBool())
 	{
-		m_session->start_dht(bdecode_simple(g_settings->value("dht_state").toByteArray()));
-		m_session->add_dht_node(std::pair<std::string, int>("router.bittorrent.com", 6881));
+		try
+		{
+			m_session->start_dht(bdecode_simple(g_settings->value("dht_state").toByteArray()));
+			m_session->add_dht_node(std::pair<std::string, int>("router.bittorrent.com", 6881));
+			m_bDHT = true;
+		}
+		catch(...)
+		{
+			m_bDHT = false;
+			qDebug() << "Failed to start DHT!";
+		}
 	}
 	else
 		m_session->stop_dht();
@@ -76,9 +91,12 @@ void TorrentDownload::applySettings()
 
 void TorrentDownload::globalExit()
 {
-	g_settings->beginGroup("bittorrent");
-	g_settings->setValue("dht_state", bencode_simple(m_session->dht_state()));
-	g_settings->endGroup();
+	if(m_bDHT)
+	{
+		g_settings->beginGroup("bittorrent");
+		g_settings->setValue("dht_state", bencode_simple(m_session->dht_state()));
+		g_settings->endGroup();
+	}
 	
 	delete m_worker;
 	delete m_session;
@@ -99,6 +117,8 @@ QString TorrentDownload::name() const
 
 void TorrentDownload::init(QString source, QString target)
 {
+	m_strTarget = target;
+	
 	try
 	{
 		if(source.startsWith('/'))
@@ -109,12 +129,12 @@ void TorrentDownload::init(QString source, QString target)
 			
 			m_info = libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>());
 			
-			m_strTarget = target;
 			qDebug() << "Downloading to directory" << target;
 			m_handle = m_session->add_torrent(m_info, target.toStdString(), false);
 		
 			if(!isActive())
 				m_handle.pause();
+			m_worker->doWork();
 		}
 		else
 		{
@@ -157,6 +177,7 @@ void TorrentDownload::fileStateChanged(Transfer::State prev,Transfer::State now)
 	
 	if(now != Completed)
 	{
+		qDebug() << "Torrent-get completed without success";
 		m_strError = tr("Failed to download the .torrent file");
 		setState(Failed);
 	}
@@ -203,7 +224,10 @@ void TorrentDownload::changeActive(bool nowActive)
 			m_handle.pause();
 	}
 	else if(m_pFileDownload != 0)
+	{
+		qDebug() << "changeActive() and the handle is not valid";
 		setState(Failed);
+	}
 }
 
 void TorrentDownload::setSpeedLimits(int down, int up)
@@ -309,6 +333,8 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
+		
+		m_worker->doWork();
 	}
 	catch(const std::exception& e)
 	{
@@ -453,20 +479,21 @@ void TorrentWorker::doWork()
 	
 	m_mutex.unlock();
 
-#define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(alert)
+#define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(aaa)
 	
 	while(true)
 	{
-		libtorrent::alert* alert;
+		libtorrent::alert* aaa;
 		std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
 		
-		if((alert = a.get()) == 0)
+		if((aaa = a.get()) == 0)
 			break;
 		
 		if(IS_ALERT(torrent_alert))
 		{
 			TorrentDownload* d = getByHandle(alert->handle);
-			QString errmsg = QString::fromUtf8(alert->msg().c_str());
+			const char* shit = static_cast<libtorrent::torrent_alert*>(a.get())->msg().c_str();
+			QString errmsg = QString::fromUtf8(shit);
 			
 			if(!d)
 				continue;
@@ -531,5 +558,74 @@ void TorrentDownload::fillContextMenu(QMenu& menu)
 	
 	a = menu.addAction(tr("Force announce"));
 	connect(a, SIGNAL(triggered()), this, SLOT(forceReannounce()));
+}
+
+QObject* TorrentDownload::createDetailsWidget(QWidget* widget)
+{
+	return new TorrentDetails(widget, this);
+}
+
+void TorrentWorker::setDetailsObject(TorrentDetails* d)
+{
+	connect(&m_timer, SIGNAL(timeout()), d, SLOT(refresh()));
+}
+
+/////////////////////////////////////////////
+
+TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
+	: m_download(obj), m_bFilled(false)
+{
+	setupUi(me);
+	refresh();
+	TorrentDownload::m_worker->setDetailsObject(this);
+}
+
+TorrentDetails::~TorrentDetails()
+{
+}
+
+void TorrentDetails::fill()
+{
+	if(m_download->m_handle.is_valid())
+	{
+		m_bFilled = true;
+		
+		boost::optional<boost::posix_time::ptime> time = m_download->m_info.creation_date();
+		if(time)
+		{
+			std::string created = boost::posix_time::to_simple_string(time.get());
+			labelCreationDate->setText(created.c_str());
+		}
+		labelPieceLength->setText( QString("%1 kB").arg(m_download->m_info.piece_length()/1024.f) );
+		lineComment->setText(m_download->m_info.comment().c_str());
+		lineCreator->setText(m_download->m_info.creator().c_str());
+		labelPrivate->setText( m_download->m_info.priv() ? tr("yes") : tr("no"));
+	}
+}
+
+void TorrentDetails::refresh()
+{
+	if(m_download->m_handle.is_valid())
+	{
+		if(!m_bFilled)
+			fill();
+		
+		boost::posix_time::time_duration& next = m_download->m_status.next_announce;
+		boost::posix_time::time_duration& intv = m_download->m_status.announce_interval;
+		
+		labelAvailability->setText(QString::number(m_download->m_status.distributed_copies));
+		labelTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
+				.arg(m_download->m_status.current_tracker.c_str())
+				.arg(next.hours()).arg(next.minutes(),2,10,QChar('0')).arg(next.seconds(),2,10,QChar('0'))
+				.arg(intv.hours()).arg(intv.minutes(),2,10,QChar('0')).arg(intv.seconds(),2,10,QChar('0')));
+		
+		const std::vector<bool>* pieces = m_download->m_status.pieces;
+		
+		if(pieces != 0 && m_vecPieces != (*pieces))
+		{
+			widgetCompletition->generate(*pieces);
+			m_vecPieces = *pieces;
+		}
+	}
 }
 

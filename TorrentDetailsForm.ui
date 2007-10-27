@@ -1,0 +1,195 @@
+<ui version="4.0" >
+ <class>TorrentDetailsForm</class>
+ <widget class="QWidget" name="TorrentDetailsForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>711</width>
+    <height>546</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="tabPosition" >
+      <enum>QTabWidget::South</enum>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>General</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label" >
+         <property name="text" >
+          <string>&lt;b>Tracker:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QLabel" name="labelTracker" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2" >
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>&lt;b>Private torrent:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3" >
+        <widget class="QLabel" name="labelPrivate" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
+          <string>&lt;b>Availability:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QLabel" name="labelAvailability" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>&lt;b>Piece length:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QLabel" name="labelPieceLength" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QLabel" name="label_7" >
+         <property name="text" >
+          <string>&lt;b>Creation date:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <widget class="QLabel" name="labelCreationDate" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
+        <widget class="QLabel" name="label_5" >
+         <property name="text" >
+          <string>&lt;b>Comment:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="3" >
+        <widget class="QLineEdit" name="lineComment" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" >
+        <widget class="QLabel" name="label_6" >
+         <property name="text" >
+          <string>&lt;b>Creator:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="3" >
+        <widget class="QLineEdit" name="lineCreator" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="4" >
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Completition</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="leftMargin" >
+           <number>5</number>
+          </property>
+          <property name="topMargin" >
+           <number>0</number>
+          </property>
+          <property name="rightMargin" >
+           <number>5</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>7</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="TorrentProgressWidget" native="1" name="widgetCompletition" >
+            <property name="minimumSize" >
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="7" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>164</width>
+           <height>231</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>Tab 2</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TorrentProgressWidget</class>
+   <extends>QWidget</extends>
+   <header>TorrentProgressWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
