@@ -9,6 +9,7 @@
 #include <QIcon>
 #include <QMenu>
 #include <QTemporaryFile>
+#include <QHeaderView>
 #include <fstream>
 #include <stdexcept>
 #include <libtorrent/bencode.hpp>
@@ -587,6 +588,15 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	
 	m_pPeersModel = new TorrentPeersModel(treePeers, obj);
 	treePeers->setModel(m_pPeersModel);
+	
+	QHeaderView* hdr = treePeers->header();
+	hdr->resizeSection(1, 80);
+	hdr->resizeSection(3, 80);
+	
+	for(int i=4;i<8;i++)
+		hdr->resizeSection(i, 70);
+	
+	hdr->resizeSection(8, 300);
 	
 	refresh();
 }

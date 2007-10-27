@@ -9,6 +9,7 @@ TorrentPeersModel::TorrentPeersModel(QObject* parent, TorrentDownload* d)
 	m_columns << tr("IP address") << tr("Country") << tr("Client");
 	m_columns << tr("Seed?") << tr("Download") << tr("Upload");
 	m_columns << tr("Downloaded") << tr("Uploaded") << tr("State");
+	m_columns << tr("Completed");
 }
 
 QModelIndex TorrentPeersModel::index(int row, int column, const QModelIndex &parent) const
@@ -85,8 +86,17 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 						text += "Remote_chocked ";
 					if(info.connection_type == libtorrent::peer_info::web_seed)
 						text += "WEB_SEED";
+					
 					return text;
 				}
+			case 9:
+			{
+				int pcs = 0;
+				for(int i=0;i<info.pieces.size();i++)
+					if(info.pieces[i])
+						pcs++;
+				return QString("%1%").arg((int) (100.0/double(info.pieces.size())*pcs));
+			}
 		}
 	}
 	else if(role == Qt::DecorationRole)
