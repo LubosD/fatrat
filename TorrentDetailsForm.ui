@@ -18,6 +18,9 @@
      <property name="tabPosition" >
       <enum>QTabWidget::South</enum>
      </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
        <string>General</string>
@@ -175,7 +178,35 @@
      </widget>
      <widget class="QWidget" name="tab_2" >
       <attribute name="title" >
-       <string>Tab 2</string>
+       <string>Peers</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab_3" >
+      <attribute name="title" >
+       <string>Pieces</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QTreeView" name="treePieces" >
+         <property name="rootIsDecorated" >
+          <bool>false</bool>
+         </property>
+         <property name="uniformRowHeights" >
+          <bool>true</bool>
+         </property>
+         <property name="itemsExpandable" >
+          <bool>false</bool>
+         </property>
+         <property name="sortingEnabled" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4" >
+      <attribute name="title" >
+       <string>Files</string>
       </attribute>
      </widget>
     </widget>

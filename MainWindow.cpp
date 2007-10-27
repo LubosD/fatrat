@@ -120,7 +120,7 @@ void MainWindow::setupUi()
 	
 	m_modelTransfers = new TransfersModel(this);
 	treeTransfers->setModel(m_modelTransfers);
-	treeTransfers->setItemDelegate(new ProgressDelegate);
+	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
 	
 	//////////////////////////
 	// RESTORE WINDOW STATE //

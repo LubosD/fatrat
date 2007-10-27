@@ -55,7 +55,8 @@ HEADERS += fatrat.h \
  QueueView.h \
  TorrentDownload.h \
  TorrentSettings.h \
- TorrentProgressWidget.h
+ TorrentProgressWidget.h \
+ TorrentPiecesModel.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -75,7 +76,8 @@ SOURCES += fatrat.cpp \
  HashDlg.cpp \
  QueueView.cpp \
  TorrentDownload.cpp \
- TorrentProgressWidget.cpp
+ TorrentProgressWidget.cpp \
+ TorrentPiecesModel.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

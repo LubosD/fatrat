@@ -3,6 +3,8 @@
 #include "TorrentSettings.h"
 #include "RuntimeException.h"
 #include "GeneralDownload.h"
+#include "TorrentPiecesModel.h"
+
 #include <QIcon>
 #include <QMenu>
 #include <QTemporaryFile>
@@ -246,11 +248,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 qulonglong TorrentDownload::done() const
 {
 	if(m_handle.is_valid())
-	{
-		qulonglong val = m_handle.status().num_pieces * m_info.piece_length();
-		
-		return (val < qulonglong(m_info.total_size())) ? val : m_info.total_size();
-	}
+		return m_status.total_done;
 	else if(m_pFileDownload != 0)
 		return m_pFileDownload->done();
 	else
@@ -576,8 +574,13 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	: m_download(obj), m_bFilled(false)
 {
 	setupUi(me);
-	refresh();
 	TorrentDownload::m_worker->setDetailsObject(this);
+	
+	m_pPiecesModel = new TorrentPiecesModel(treePieces, obj);
+	treePieces->setModel(m_pPiecesModel);
+	treePieces->setItemDelegate(new BlockDelegate(treePieces));
+	
+	refresh();
 }
 
 TorrentDetails::~TorrentDetails()
@@ -610,6 +613,7 @@ void TorrentDetails::refresh()
 		if(!m_bFilled)
 			fill();
 		
+		// GENERAL
 		boost::posix_time::time_duration& next = m_download->m_status.next_announce;
 		boost::posix_time::time_duration& intv = m_download->m_status.announce_interval;
 		
@@ -626,6 +630,9 @@ void TorrentDetails::refresh()
 			widgetCompletition->generate(*pieces);
 			m_vecPieces = *pieces;
 		}
+		
+		// PIECES IN PROGRESS
+		m_pPiecesModel->refresh();
 	}
 }
 
