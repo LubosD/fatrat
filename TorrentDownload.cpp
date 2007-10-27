@@ -4,6 +4,7 @@
 #include "RuntimeException.h"
 #include "GeneralDownload.h"
 #include "TorrentPiecesModel.h"
+#include "TorrentPeersModel.h"
 
 #include <QIcon>
 #include <QMenu>
@@ -134,6 +135,8 @@ void TorrentDownload::init(QString source, QString target)
 			qDebug() << "Downloading to directory" << target;
 			m_handle = m_session->add_torrent(m_info, target.toStdString(), false);
 		
+			if(g_settings->value("torrent/countries", getSettingsDefault("torrent/countries")).toBool())
+				m_handle.resolve_countries(true);
 			if(!isActive())
 				m_handle.pause();
 			m_worker->doWork();
@@ -325,7 +328,9 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		qDebug() << "Downloading to directory" << target;
 		m_handle = m_session->add_torrent(m_info, target.toStdString(), torrent_resume);
-			
+		
+		if(g_settings->value("torrent/countries", getSettingsDefault("torrent/countries")).toBool())
+			m_handle.resolve_countries(true);
 		if(!isActive())
 			m_handle.pause();
 		
@@ -580,6 +585,9 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	treePieces->setModel(m_pPiecesModel);
 	treePieces->setItemDelegate(new BlockDelegate(treePieces));
 	
+	m_pPeersModel = new TorrentPeersModel(treePeers, obj);
+	treePeers->setModel(m_pPeersModel);
+	
 	refresh();
 }
 
@@ -633,6 +641,9 @@ void TorrentDetails::refresh()
 		
 		// PIECES IN PROGRESS
 		m_pPiecesModel->refresh();
+		
+		// CONNECTED PEERS
+		m_pPeersModel->refresh();
 	}
 }
 

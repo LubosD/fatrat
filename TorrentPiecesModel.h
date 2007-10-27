@@ -21,7 +21,6 @@ class TorrentPiecesModel : public QAbstractListModel
 Q_OBJECT
 public:
 	TorrentPiecesModel(QObject* parent, TorrentDownload* d);
-	~TorrentPiecesModel();
 	QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex &index) const;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;

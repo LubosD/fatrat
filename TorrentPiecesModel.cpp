@@ -7,10 +7,6 @@ TorrentPiecesModel::TorrentPiecesModel(QObject* parent, TorrentDownload* d)
 {
 }
 
-TorrentPiecesModel::~TorrentPiecesModel()
-{
-}
-
 QModelIndex TorrentPiecesModel::index(int row, int column, const QModelIndex &parent) const
 {
 	if(!parent.isValid())
@@ -19,12 +15,12 @@ QModelIndex TorrentPiecesModel::index(int row, int column, const QModelIndex &pa
 		return QModelIndex();
 }
 
-QModelIndex TorrentPiecesModel::parent(const QModelIndex &index) const
+QModelIndex TorrentPiecesModel::parent(const QModelIndex&) const
 {
 	return QModelIndex();
 }
 
-int TorrentPiecesModel::rowCount(const QModelIndex &parent) const
+int TorrentPiecesModel::rowCount(const QModelIndex&) const
 {
 	return m_pieces.size();
 }
@@ -54,6 +50,8 @@ QVariant TorrentPiecesModel::data(const QModelIndex &index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
+		if(index.row() >= m_pieces.size())
+			return QVariant();
 		const libtorrent::partial_piece_info& info = m_pieces[index.row()];
 		
 		switch(index.column())
@@ -112,17 +110,22 @@ void BlockDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		TorrentPiecesModel* model = (TorrentPiecesModel*) index.internalPointer();
 		const libtorrent::partial_piece_info& piece = model->m_pieces[index.row()];
 		
-		int bwidth = option.rect.width() / piece.blocks_in_piece;
+		QRect myrect = option.rect;
+		
+		myrect.setWidth(myrect.width()-1);
+		//myrect.setHeight(myrect.height()-1);
+		
+		int bwidth = myrect.width() / piece.blocks_in_piece;
 		for(int i=0;i<piece.blocks_in_piece;i++)
 		{
 			if(piece.finished_blocks.test(i))
-				painter->fillRect(option.rect.x()+i*bwidth, option.rect.y(), bwidth, option.rect.height(), QColor(128,128,255));
+				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), bwidth, myrect.height(), QColor(128,128,255));
 			else if(piece.requested_blocks.test(i))
-				painter->fillRect(option.rect.x()+i*bwidth, option.rect.y(), bwidth, option.rect.height(), Qt::gray);
+				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), bwidth, myrect.height(), Qt::gray);
 		}
 		
 		painter->setPen(Qt::black);
-		painter->drawRect(option.rect);
+		painter->drawRect(myrect);
 	}
 	else
 		QItemDelegate::paint(painter, option, index);

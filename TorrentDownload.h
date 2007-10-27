@@ -73,6 +73,7 @@ protected:
 	friend class TorrentWorker;
 	friend class TorrentDetails;
 	friend class TorrentPiecesModel;
+	friend class TorrentPeersModel;
 };
 
 class TorrentWorker : public QObject
@@ -94,6 +95,7 @@ private:
 };
 
 class TorrentPiecesModel;
+class TorrentPeersModel;
 class TorrentDetails : public QObject, Ui_TorrentDetailsForm
 {
 Q_OBJECT
@@ -109,6 +111,7 @@ private:
 	bool m_bFilled;
 	std::vector<bool> m_vecPieces;
 	TorrentPiecesModel* m_pPiecesModel;
+	TorrentPeersModel* m_pPeersModel;
 };
 
 #endif

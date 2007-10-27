@@ -180,6 +180,24 @@
       <attribute name="title" >
        <string>Peers</string>
       </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QTreeView" name="treePeers" >
+         <property name="rootIsDecorated" >
+          <bool>false</bool>
+         </property>
+         <property name="uniformRowHeights" >
+          <bool>true</bool>
+         </property>
+         <property name="itemsExpandable" >
+          <bool>false</bool>
+         </property>
+         <property name="animated" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
       <attribute name="title" >
@@ -197,7 +215,7 @@
          <property name="itemsExpandable" >
           <bool>false</bool>
          </property>
-         <property name="sortingEnabled" >
+         <property name="animated" >
           <bool>true</bool>
          </property>
         </widget>

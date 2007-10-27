@@ -157,6 +157,13 @@
        </property>
       </widget>
      </item>
+     <item row="5" column="0" >
+      <widget class="QCheckBox" name="checkCountries" >
+       <property name="text" >
+        <string>Resolve peer's country</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="2" column="0" >
