@@ -16,9 +16,13 @@ static quint16 m_ftpPort = 50000;
 HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_url(url)
 {
 	QString user_info;
-	QString query, host = url.host() + ":" + QString::number(url.port(80));
+	QString query, host;
 	QList<Proxy> listProxy = Proxy::loadProxys();
 	m_proxyData.nType = Proxy::ProxyNone;
+	
+	host = url.host();
+	if(url.port(80) != 80)
+		host += QString(":") + QString::number(url.port(80));
 	
 	foreach(Proxy p,listProxy)
 	{
@@ -159,9 +163,7 @@ void HttpEngine::run()
 	
 	QHttpResponseHeader header(text);
 	
-	if(header.value("transfer-encoding").compare("chunked",Qt::CaseInsensitive) == 0)
-		header.setValue("content-length",QString::number(readLine().toULongLong(0,16)));
-	
+	//qDebug() << "Processed the header";
 	emit responseReceived(header);
 	
 	switch(header.statusCode())
@@ -177,10 +179,34 @@ void HttpEngine::run()
 	}
 	case 206: // data will follow
 	{
-		m_nToTransfer = header.value("content-length").toULongLong();
-		bool bOK;
+		bool bChunked = false;
+		if(header.value("transfer-encoding").compare("chunked",Qt::CaseInsensitive) == 0)
+			bChunked = true;
 		
-		while((bOK = readCycle()) && !m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer));
+		bool bOK = true;
+		do
+		{
+			m_nTransfered = 0;
+			
+			if(bChunked)
+			{
+				QString line;
+				do
+				{
+					line = readLine();
+				}
+				while(line.trimmed().isEmpty());
+				
+				m_nToTransfer = line.toULongLong(0,16);
+				if(!m_nToTransfer)
+					break;
+			}
+			else
+				m_nToTransfer = header.value("content-length").toULongLong();
+			
+			while((bOK = readCycle()) && !m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer));
+		}
+		while(bChunked && bOK);
 		
 		m_file.close();
 		if(!m_bAbort)
@@ -265,7 +291,7 @@ QByteArray LimitedSocket::readLine()
 {
 	while(true)
 	{
-		cout << "ReadLine cycle\n";
+		//cout << "ReadLine cycle\n";
 		QByteArray array = m_pSocket->readLine();
 		if(!array.isEmpty())
 			return array;
@@ -350,7 +376,7 @@ bool LimitedSocket::readCycle()
 		if(m_nTransfered+buffer.size() >= m_nToTransfer && m_nToTransfer)
 			break;
 		
-		QByteArray buf = m_pSocket->read(1024);
+		QByteArray buf = m_pSocket->read(qMin<qint64>(1024, m_nToTransfer-m_nTransfered));
 		
 		if(buf.isEmpty() && !m_pSocket->waitForReadyRead())
 		{
@@ -359,15 +385,9 @@ bool LimitedSocket::readCycle()
 		}
 		
 		buffer += buf;
+		m_nTransfered += buf.size();
 	}
 	
-	if(m_nToTransfer && buffer.size()+m_nTransfered > m_nToTransfer)
-	{
-		// we've received more data than we should
-		buffer.resize(m_nToTransfer-m_nTransfered);
-	}
-	
-	m_nTransfered += buffer.size();
 	m_file.write(buffer);
 	
 	if(bProblem)

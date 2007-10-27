@@ -115,13 +115,13 @@ void BlockDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		myrect.setWidth(myrect.width()-1);
 		//myrect.setHeight(myrect.height()-1);
 		
-		int bwidth = myrect.width() / piece.blocks_in_piece;
+		float bwidth = myrect.width() / float(piece.blocks_in_piece);
 		for(int i=0;i<piece.blocks_in_piece;i++)
 		{
 			if(piece.finished_blocks.test(i))
-				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), bwidth, myrect.height(), QColor(128,128,255));
+				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), round(bwidth), myrect.height(), QColor(128,128,255));
 			else if(piece.requested_blocks.test(i))
-				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), bwidth, myrect.height(), Qt::gray);
+				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), round(bwidth), myrect.height(), Qt::gray);
 		}
 		
 		painter->setPen(Qt::black);

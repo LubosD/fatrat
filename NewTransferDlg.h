@@ -193,7 +193,16 @@ private slots:
 	}
 	void switchMode()
 	{
-		stackedWidget->setCurrentIndex(radioUpload->isChecked() ? 1 : 0);
+		if(radioUpload->isChecked())
+		{
+			stackedWidget->setCurrentIndex(1);
+			textFiles->setText( textURIs->toPlainText() );
+		}
+		else
+		{
+			stackedWidget->setCurrentIndex(0);
+			textURIs->setText( textFiles->toPlainText() );
+		}
 	}
 public:
 	QString m_strURIs,m_strDestination,m_strClass;

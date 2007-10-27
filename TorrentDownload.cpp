@@ -12,14 +12,18 @@
 #include <QHeaderView>
 #include <fstream>
 #include <stdexcept>
+#include <GeoIP.h>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
 
 extern QSettings* g_settings;
+
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
+
+GeoIP* g_pGeoIP;
 
 TorrentDownload::TorrentDownload()
 	: m_nPrevDownload(0), m_nPrevUpload(0), m_pFileDownload(0)
@@ -37,7 +41,7 @@ TorrentDownload::~TorrentDownload()
 int TorrentDownload::acceptable(QString uri)
 {
 	const bool istorrent = uri.endsWith(".torrent", Qt::CaseInsensitive);
-        if(uri[0] == '/' || uri.startsWith("http://") || uri.startsWith("ftp://"))
+        if(uri[0] == '/' || uri.startsWith("http://") || uri.startsWith("ftp://") || uri.startsWith("file://"))
                 return (istorrent) ? 3 : 2;
         return 0;
 }
@@ -53,6 +57,8 @@ void TorrentDownload::globalInit()
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
 	
 	m_worker = new TorrentWorker;
+	
+	g_pGeoIP = GeoIP_new(GEOIP_MEMORY_CACHE);
 }
 
 void TorrentDownload::applySettings()
@@ -104,6 +110,8 @@ void TorrentDownload::globalExit()
 	
 	delete m_worker;
 	delete m_session;
+	
+	GeoIP_delete(g_pGeoIP);
 }
 
 QString TorrentDownload::name() const
@@ -125,6 +133,8 @@ void TorrentDownload::init(QString source, QString target)
 	
 	try
 	{
+		if(source.startsWith("file://"))
+			source = source.mid(7);
 		if(source.startsWith('/'))
 		{
 			std::string file = source.toStdString();
@@ -133,11 +143,8 @@ void TorrentDownload::init(QString source, QString target)
 			
 			m_info = libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>());
 			
-			qDebug() << "Downloading to directory" << target;
 			m_handle = m_session->add_torrent(m_info, target.toStdString(), false);
-		
-			if(g_settings->value("torrent/countries", getSettingsDefault("torrent/countries")).toBool())
-				m_handle.resolve_countries(true);
+			
 			if(!isActive())
 				m_handle.pause();
 			m_worker->doWork();
@@ -161,7 +168,7 @@ void TorrentDownload::init(QString source, QString target)
 			
 			dir = temp->fileName();
 			name = dir.dirName();
-			qDebug() << "Downloading torrent to" <<temp->fileName();
+			qDebug() << "Downloading torrent to" << temp->fileName();
 			dir.cdUp();
 			
 			connect(download, SIGNAL(stateChanged(Transfer::State,Transfer::State)), this, SLOT(fileStateChanged(Transfer::State,Transfer::State)));
@@ -229,10 +236,10 @@ void TorrentDownload::changeActive(bool nowActive)
 		else
 			m_handle.pause();
 	}
-	else if(m_pFileDownload != 0)
+	else if(m_pFileDownload == 0)
 	{
 		qDebug() << "changeActive() and the handle is not valid";
-		setState(Failed);
+		//setState(Failed);
 	}
 }
 
@@ -327,11 +334,8 @@ void TorrentDownload::load(const QDomNode& map)
 		m_info = bdecode(getXMLProperty(map, "torrent_data"));
 		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
 		
-		qDebug() << "Downloading to directory" << target;
 		m_handle = m_session->add_torrent(m_info, target.toStdString(), torrent_resume);
 		
-		if(g_settings->value("torrent/countries", getSettingsDefault("torrent/countries")).toBool())
-			m_handle.resolve_countries(true);
 		if(!isActive())
 			m_handle.pause();
 		
@@ -367,6 +371,8 @@ QString TorrentDownload::message() const
 	
 	if(this->state() == Failed)
 		return m_strError;
+	else if(m_pFileDownload != 0)
+		return tr("Downloading .torrent file");
 	
 	if(!m_status.paused)
 	{
@@ -380,10 +386,10 @@ QString TorrentDownload::message() const
 			break;
 		case libtorrent::torrent_status::connecting_to_tracker:
 			state = tr("Connecting to tracker");
-			break;
+			state += " | ";
 		case libtorrent::torrent_status::seeding:
 		case libtorrent::torrent_status::downloading:
-			state = QString("Seeds: %1 (%2) | Peers: %3 (%4)");
+			state += QString("Seeds: %1 (%2) | Peers: %3 (%4)");
 			
 			if(m_status.state == libtorrent::torrent_status::downloading)
 				state = state.arg(m_status.num_seeds);
@@ -579,6 +585,7 @@ void TorrentWorker::setDetailsObject(TorrentDetails* d)
 TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	: m_download(obj), m_bFilled(false)
 {
+	connect(obj, SIGNAL(destroyed(QObject*)), this, SLOT(destroy()));
 	setupUi(me);
 	TorrentDownload::m_worker->setDetailsObject(this);
 	
@@ -590,13 +597,25 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	treePeers->setModel(m_pPeersModel);
 	
 	QHeaderView* hdr = treePeers->header();
-	hdr->resizeSection(1, 80);
+	hdr->resizeSection(1, 110);
 	hdr->resizeSection(3, 80);
 	
 	for(int i=4;i<8;i++)
 		hdr->resizeSection(i, 70);
 	
 	hdr->resizeSection(8, 300);
+	
+	QTreeWidgetItem* header = treeFiles->headerItem();
+	QStringList fileHdr;
+	
+	fileHdr << tr("File name") << tr("File size") << tr("Progress");
+	fileHdr << tr("Priority") << tr("Progress display");
+	
+	for(int i=0;i<fileHdr.size();i++)
+		header->setText(i, fileHdr[i]);
+	
+	hdr = treeFiles->header();
+	hdr->resizeSection(0, 500);
 	
 	refresh();
 }
@@ -605,9 +624,14 @@ TorrentDetails::~TorrentDetails()
 {
 }
 
+void TorrentDetails::destroy()
+{
+	m_download = 0;
+}
+
 void TorrentDetails::fill()
 {
-	if(m_download->m_handle.is_valid())
+	if(m_download && m_download->m_handle.is_valid())
 	{
 		m_bFilled = true;
 		
@@ -621,12 +645,26 @@ void TorrentDetails::fill()
 		lineComment->setText(m_download->m_info.comment().c_str());
 		lineCreator->setText(m_download->m_info.creator().c_str());
 		labelPrivate->setText( m_download->m_info.priv() ? tr("yes") : tr("no"));
+		
+		for(libtorrent::torrent_info::file_iterator it=m_download->m_info.begin_files();it!=m_download->m_info.end_files();it++)
+		{
+			QTreeWidgetItem* item;
+			QStringList values;
+			
+			values << QString::fromUtf8(it->path.string().c_str());
+			values << formatSize(it->size);
+			
+			item = new QTreeWidgetItem(treeFiles, values);
+			
+			m_vecFiles << item;
+			treeFiles->addTopLevelItem( item );
+		}
 	}
 }
 
 void TorrentDetails::refresh()
 {
-	if(m_download->m_handle.is_valid())
+	if(m_download && m_download->m_handle.is_valid())
 	{
 		if(!m_bFilled)
 			fill();
@@ -649,11 +687,55 @@ void TorrentDetails::refresh()
 			m_vecPieces = *pieces;
 		}
 		
+		// ratio
+		qint64 d, u;
+		QString ratio;
+		
+		d = m_download->totalDownload();
+		u = m_download->totalUpload();
+		
+		if(!d)
+			ratio = QString::fromUtf8("∞");
+		else
+			ratio = QString::number(double(u)/double(d));
+		labelRatio->setText(ratio);
+		
 		// PIECES IN PROGRESS
 		m_pPiecesModel->refresh();
 		
 		// CONNECTED PEERS
 		m_pPeersModel->refresh();
+		
+		// FILES
+		int piece_size = m_download->m_info.piece_length();
+		int j = 0;
+		for(libtorrent::torrent_info::file_iterator it=m_download->m_info.begin_files();it!=m_download->m_info.end_files();it++,j++)
+		{
+			qint64 completed;
+			int piece_start = it->offset / piece_size;
+			int piece_end = (int) ((it->offset + it->size) / piece_size + 0.5f) - 1;
+			int piece = piece_start + 1;
+			
+			if(m_vecPieces[piece_start])
+				completed = piece_size - (it->offset % piece_size);
+			else
+				completed = 0;
+			
+			while(piece < piece_end)
+			{
+				if(m_vecPieces[piece])
+					completed += piece_size;
+				piece++;
+			}
+			
+			if(piece_end > piece_start)
+				completed += (it->offset + it->size) % piece_size;
+			
+			if(completed > it->size)
+				completed = it->size;
+			
+			m_vecFiles[j]->setText(2, QString("%1%").arg(100.0/it->size*completed, 0, 'f', 1));
+		}
 	}
 }
 

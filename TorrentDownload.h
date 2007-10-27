@@ -106,10 +106,12 @@ public:
 	void fill();
 public slots:
 	void refresh();
+	void destroy();
 private:
 	TorrentDownload* m_download;
 	bool m_bFilled;
 	std::vector<bool> m_vecPieces;
+	QList<QTreeWidgetItem*> m_vecFiles;
 	TorrentPiecesModel* m_pPiecesModel;
 	TorrentPeersModel* m_pPeersModel;
 };

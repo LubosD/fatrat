@@ -2,6 +2,9 @@
 #include "TorrentPeersModel.h"
 #include "fatrat.h"
 #include <QtDebug>
+#include <GeoIP.h>
+
+extern GeoIP* g_pGeoIP;
 
 TorrentPeersModel::TorrentPeersModel(QObject* parent, TorrentDownload* d)
 	: QAbstractListModel(parent), m_download(d), m_nLastRowCount(0)
@@ -53,7 +56,14 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 				return QString(ip.c_str());
 			}
 			case 1:
-				return QString(QByteArray(info.country, 2));
+			{
+				std::string ip = info.ip.address().to_string();
+				const char* country = GeoIP_country_name_by_addr(g_pGeoIP, ip.c_str());
+				if(country != 0)
+					return QString(country);
+				else
+					return QString();
+			}
 			case 2:
 				return QString::fromUtf8(info.client.c_str());
 			case 3:
@@ -79,11 +89,11 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 					if(info.flags & libtorrent::peer_info::interesting)
 						text += "Interesting ";
 					if(info.flags & libtorrent::peer_info::choked)
-						text += "Chocked ";
+						text += "Choked ";
 					if(info.flags & libtorrent::peer_info::remote_interested)
 						text += "Remote_interested ";
 					if(info.flags & libtorrent::peer_info::remote_choked)
-						text += "Remote_chocked ";
+						text += "Remote_choked ";
 					if(info.connection_type == libtorrent::peer_info::web_seed)
 						text += "WEB_SEED";
 					
@@ -103,9 +113,12 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 	{
 		if(index.column() == 1)
 		{
-			if(isalpha(info.country[0]))
+			std::string ip = info.ip.address().to_string();
+			const char* country = GeoIP_country_code_by_addr(g_pGeoIP, ip.c_str());
+			
+			if(country != 0)
 			{
-				QString flag = QString(":/flags/%1%2.gif").arg((char) tolower(info.country[0])).arg((char) tolower(info.country[1]));
+				QString flag = QString(":/flags/%1%2.gif").arg((char) tolower(country[0])).arg((char) tolower(country[1]));
 				
 				return QIcon(flag);
 			}
