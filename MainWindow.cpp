@@ -523,8 +523,6 @@ void MainWindow::displayDestroyed()
 	QModelIndex i = treeTransfers->currentIndex();
 	Transfer* d = q->at(i.row());
 	
-	qDebug() << "MainWindow::displayDestroyed()";
-	
 	if(QWidget* w = stackedDetails->currentWidget())
 		stackedDetails->removeWidget(w);
 	m_pDetailsDisplay = 0;

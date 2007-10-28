@@ -74,6 +74,8 @@ protected:
 	friend class TorrentDetails;
 	friend class TorrentPiecesModel;
 	friend class TorrentPeersModel;
+	friend class TorrentFilesModel;
+	friend class TorrentProgressDelegate;
 };
 
 class TorrentWorker : public QObject
@@ -96,6 +98,8 @@ private:
 
 class TorrentPiecesModel;
 class TorrentPeersModel;
+class TorrentFilesModel;
+
 class TorrentDetails : public QObject, Ui_TorrentDetailsForm
 {
 Q_OBJECT
@@ -111,9 +115,9 @@ private:
 	TorrentDownload* m_download;
 	bool m_bFilled;
 	std::vector<bool> m_vecPieces;
-	QList<QTreeWidgetItem*> m_vecFiles;
 	TorrentPiecesModel* m_pPiecesModel;
 	TorrentPeersModel* m_pPeersModel;
+	TorrentFilesModel* m_pFilesModel;
 };
 
 #endif

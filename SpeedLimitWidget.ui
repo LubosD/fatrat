@@ -1,0 +1,99 @@
+<ui version="4.0" >
+ <class>SpeedLimitWidget</class>
+ <widget class="QWidget" name="SpeedLimitWidget" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>114</width>
+    <height>20</height>
+   </rect>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="label" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="statusTip" >
+      <string>Download speed limit</string>
+     </property>
+     <property name="pixmap" >
+      <pixmap resource="gfx/resources.qrc" >:/menu/down.png</pixmap>
+     </property>
+     <property name="scaledContents" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelDown" />
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="statusTip" >
+      <string>Upload speed limit</string>
+     </property>
+     <property name="pixmap" >
+      <pixmap resource="gfx/resources.qrc" >:/menu/up.png</pixmap>
+     </property>
+     <property name="scaledContents" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelUp" />
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="gfx/resources.qrc" />
+ </resources>
+ <connections/>
+</ui>

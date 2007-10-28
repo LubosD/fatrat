@@ -12,6 +12,7 @@ public:
 	TorrentProgressWidget(QWidget* parent);
 	~TorrentProgressWidget();
 	void generate(const std::vector<bool>& data);
+	static QImage generate(const std::vector<bool>& data, int width, quint32* data, float sstart = 0, float send = 0);
 	void paintEvent(QPaintEvent* event);
 private:
 	QImage m_image;

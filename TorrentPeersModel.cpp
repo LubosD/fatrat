@@ -23,12 +23,12 @@ QModelIndex TorrentPeersModel::index(int row, int column, const QModelIndex &par
 		return QModelIndex();
 }
 
-QModelIndex TorrentPeersModel::parent(const QModelIndex &index) const
+QModelIndex TorrentPeersModel::parent(const QModelIndex&) const
 {
 	return QModelIndex();
 }
 
-int TorrentPeersModel::rowCount(const QModelIndex &parent) const
+int TorrentPeersModel::rowCount(const QModelIndex&) const
 {
 	return m_nLastRowCount;
 }

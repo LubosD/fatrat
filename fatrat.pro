@@ -20,7 +20,8 @@ FORMS += MainWindow.ui \
  FtpUploadOptsForm.ui \
  CommentForm.ui \
  HashDlg.ui \
- TorrentDetailsForm.ui
+ TorrentDetailsForm.ui \
+ SpeedLimitWidget.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -57,7 +58,9 @@ HEADERS += fatrat.h \
  TorrentSettings.h \
  TorrentProgressWidget.h \
  TorrentPiecesModel.h \
- TorrentPeersModel.h
+ TorrentPeersModel.h \
+ SpeedLimitWidget.h \
+ TorrentFilesModel.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -79,7 +82,8 @@ SOURCES += fatrat.cpp \
  TorrentDownload.cpp \
  TorrentProgressWidget.cpp \
  TorrentPiecesModel.cpp \
- TorrentPeersModel.cpp
+ TorrentPeersModel.cpp \
+ TorrentFilesModel.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

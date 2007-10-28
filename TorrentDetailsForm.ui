@@ -242,7 +242,10 @@
       </attribute>
       <layout class="QGridLayout" >
        <item row="0" column="0" >
-        <widget class="QTreeWidget" name="treeFiles" >
+        <widget class="QTreeView" name="treeFiles" >
+         <property name="alternatingRowColors" >
+          <bool>true</bool>
+         </property>
          <property name="rootIsDecorated" >
           <bool>false</bool>
          </property>
@@ -252,34 +255,6 @@
          <property name="itemsExpandable" >
           <bool>false</bool>
          </property>
-         <property name="columnCount" >
-          <number>5</number>
-         </property>
-         <column>
-          <property name="text" >
-           <string>1</string>
-          </property>
-         </column>
-         <column>
-          <property name="text" >
-           <string>2</string>
-          </property>
-         </column>
-         <column>
-          <property name="text" >
-           <string>3</string>
-          </property>
-         </column>
-         <column>
-          <property name="text" >
-           <string>4</string>
-          </property>
-         </column>
-         <column>
-          <property name="text" >
-           <string>5</string>
-          </property>
-         </column>
         </widget>
        </item>
       </layout>

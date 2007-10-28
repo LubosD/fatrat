@@ -5,6 +5,7 @@
 #include "GeneralDownload.h"
 #include "TorrentPiecesModel.h"
 #include "TorrentPeersModel.h"
+#include "TorrentFilesModel.h"
 
 #include <QIcon>
 #include <QMenu>
@@ -601,6 +602,10 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	m_pPeersModel = new TorrentPeersModel(treePeers, obj);
 	treePeers->setModel(m_pPeersModel);
 	
+	m_pFilesModel = new TorrentFilesModel(treeFiles, obj);
+	treeFiles->setModel(m_pFilesModel);
+	treeFiles->setItemDelegate(new TorrentProgressDelegate(treeFiles));
+	
 	QHeaderView* hdr = treePeers->header();
 	hdr->resizeSection(1, 110);
 	hdr->resizeSection(3, 80);
@@ -609,15 +614,6 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 		hdr->resizeSection(i, 70);
 	
 	hdr->resizeSection(8, 300);
-	
-	QTreeWidgetItem* header = treeFiles->headerItem();
-	QStringList fileHdr;
-	
-	fileHdr << tr("File name") << tr("File size") << tr("Progress");
-	fileHdr << tr("Priority") << tr("Progress display");
-	
-	for(int i=0;i<fileHdr.size();i++)
-		header->setText(i, fileHdr[i]);
 	
 	hdr = treeFiles->header();
 	hdr->resizeSection(0, 500);
@@ -651,19 +647,7 @@ void TorrentDetails::fill()
 		lineCreator->setText(m_download->m_info.creator().c_str());
 		labelPrivate->setText( m_download->m_info.priv() ? tr("yes") : tr("no"));
 		
-		for(libtorrent::torrent_info::file_iterator it=m_download->m_info.begin_files();it!=m_download->m_info.end_files();it++)
-		{
-			QTreeWidgetItem* item;
-			QStringList values;
-			
-			values << QString::fromUtf8(it->path.string().c_str());
-			values << formatSize(it->size);
-			
-			item = new QTreeWidgetItem(treeFiles, values);
-			
-			m_vecFiles << item;
-			treeFiles->addTopLevelItem( item );
-		}
+		m_pFilesModel->fill();
 	}
 }
 
@@ -690,6 +674,9 @@ void TorrentDetails::refresh()
 		{
 			widgetCompletition->generate(*pieces);
 			m_vecPieces = *pieces;
+			
+			// FILES
+			m_pFilesModel->refresh(&m_vecPieces);
 		}
 		
 		// ratio
@@ -710,37 +697,6 @@ void TorrentDetails::refresh()
 		
 		// CONNECTED PEERS
 		m_pPeersModel->refresh();
-		
-		// FILES
-		int piece_size = m_download->m_info.piece_length();
-		int j = 0;
-		for(libtorrent::torrent_info::file_iterator it=m_download->m_info.begin_files();it!=m_download->m_info.end_files();it++,j++)
-		{
-			qint64 completed;
-			int piece_start = it->offset / piece_size;
-			int piece_end = (int) ((it->offset + it->size) / piece_size + 0.5f) - 1;
-			int piece = piece_start + 1;
-			
-			if(m_vecPieces[piece_start])
-				completed = piece_size - (it->offset % piece_size);
-			else
-				completed = 0;
-			
-			while(piece < piece_end)
-			{
-				if(m_vecPieces[piece])
-					completed += piece_size;
-				piece++;
-			}
-			
-			if(piece_end > piece_start)
-				completed += (it->offset + it->size) % piece_size;
-			
-			if(completed > it->size)
-				completed = it->size;
-			
-			m_vecFiles[j]->setText(2, QString("%1%").arg(100.0/it->size*completed, 0, 'f', 1));
-		}
 	}
 }
 

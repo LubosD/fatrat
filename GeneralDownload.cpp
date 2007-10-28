@@ -346,7 +346,7 @@ void GeneralDownload::responseHeaderReceived(QHttpResponseHeader resp)
 		else
 			m_nTotal = 0;
 		
-		if(done())
+		if(done() && !resp.hasKey("content-range"))
 		{
 			m_strMessage = tr("Restarting download");
 			enterLogMessage(tr("Server does not support resume, transfer has to be restarted"));

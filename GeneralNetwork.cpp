@@ -170,7 +170,7 @@ void HttpEngine::run()
 	{
 	case 200:
 	{
-		if(m_file.pos())
+		if(m_file.pos() && !header.hasKey("content-range"))
 		{
 			// resume not supported
 			m_file.resize(0);
@@ -204,9 +204,17 @@ void HttpEngine::run()
 			else
 				m_nToTransfer = header.value("content-length").toULongLong();
 			
-			while((bOK = readCycle()) && !m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer));
+			while(!m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer))
+			{
+				bOK = readCycle();
+				if(!bOK)
+					break;
+			}
 		}
 		while(bChunked && bOK);
+		
+		if(!bOK && !m_nToTransfer)
+			bOK = true;
 		
 		m_file.close();
 		if(!m_bAbort)
@@ -372,17 +380,20 @@ bool LimitedSocket::readCycle()
 	
 	while(buffer.size() < 1024)
 	{
-		//qDebug() << "Received:" << m_nTransfered << "To receive:" << m_nToTransfer;
 		if(m_nTransfered+buffer.size() >= m_nToTransfer && m_nToTransfer)
 			break;
 		
-		QByteArray buf = m_pSocket->read(qMin<qint64>(1024, m_nToTransfer-m_nTransfered));
-		
-		if(buf.isEmpty() && !m_pSocket->waitForReadyRead())
+		if(!m_pSocket->waitForReadyRead())
 		{
 			bProblem = true;
 			break;
 		}
+		
+		qint64 toread = 1024;
+		
+		if(m_nToTransfer && m_nToTransfer-m_nTransfered < 1024)
+			toread = m_nToTransfer-m_nTransfered;
+		QByteArray buf = m_pSocket->read(toread);
 		
 		buffer += buf;
 		m_nTransfered += buf.size();
@@ -392,9 +403,7 @@ bool LimitedSocket::readCycle()
 	
 	if(bProblem)
 	{
-		if(m_nTransfered >= m_nToTransfer)
-			bProblem = false;
-		else if(m_pSocket->state() == QAbstractSocket::ConnectedState) // timeout
+		if(m_pSocket->state() == QAbstractSocket::ConnectedState) // timeout
 			m_strError = tr("Timeout");
 		else if(m_pSocket->error() == QAbstractSocket::RemoteHostClosedError)
 		{
