@@ -119,9 +119,9 @@ void BlockDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		for(int i=0;i<piece.blocks_in_piece;i++)
 		{
 			if(piece.finished_blocks.test(i))
-				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), round(bwidth), myrect.height(), QColor(128,128,255));
+				painter->fillRect(round(myrect.x()+i*bwidth), myrect.y(), round(bwidth), myrect.height(), QColor(128,128,255));
 			else if(piece.requested_blocks.test(i))
-				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), round(bwidth), myrect.height(), Qt::gray);
+				painter->fillRect(round(myrect.x()+i*bwidth), myrect.y(), round(bwidth), myrect.height(), Qt::gray);
 		}
 		
 		painter->setPen(Qt::black);

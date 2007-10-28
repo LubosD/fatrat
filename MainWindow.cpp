@@ -47,10 +47,6 @@ MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
 		queueItemActivated(0);
 	}
 	
-	m_graph = new SpeedGraph(this);
-	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), QApplication::translate("MainWindow", "Transfer speed graph", 0, QApplication::UnicodeUTF8));
-	m_log = new TransferLog(this, textTransferLog);
-	
 	updateUi();
 }
 
@@ -173,6 +169,10 @@ void MainWindow::setupUi()
 	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
 	
 	g_settings->endGroup();
+	
+	m_graph = new SpeedGraph(this);
+	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Transfer speed graph"));
+	m_log = new TransferLog(this, textTransferLog);
 }
 
 void MainWindow::saveWindowState()
