@@ -66,6 +66,7 @@ void TorrentDownload::applySettings()
 	g_settings->beginGroup("torrent");
 	
 	int lstart,lend;
+	libtorrent::session_settings settings;
 	
 	lstart = g_settings->value("listen_start", getSettingsDefault("torrent/listen_start")).toInt();
 	lend = g_settings->value("listen_end", getSettingsDefault("torrent/listen_end")).toInt();
@@ -95,6 +96,10 @@ void TorrentDownload::applySettings()
 	
 	m_session->set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
 	m_session->set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
+	
+	settings.file_pool_size = g_settings->value("maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
+	settings.use_dht_as_fallback = false;
+	m_session->set_settings(settings);
 	
 	g_settings->endGroup();
 }

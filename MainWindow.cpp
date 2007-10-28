@@ -450,6 +450,8 @@ void MainWindow::queueItemActivated(QListWidgetItem*)
 	
 	if(m_pDetailsDisplay)
 		m_pDetailsDisplay->deleteLater();
+	else
+		displayDestroyed();
 }
 
 void MainWindow::queueItemProperties()
@@ -1029,6 +1031,8 @@ void MainWindow::transferItemContext(const QPoint&)
 		menu.addAction(actionResume);
 		menu.addAction(actionForcedResume);
 		menu.addAction(actionPause);
+		menu.addSeparator();
+		menu.addAction(actionDeleteTransfer);
 		menu.addSeparator();
 		menu.addAction(actionTop);
 		menu.addAction(actionUp);
