@@ -92,7 +92,7 @@ LIBS += -ltorrent -lGeoIP
 INCLUDEPATH = /usr/include/libtorrent
 
 !exists( /usr/include/libtorrent/session.hpp ){
-    error("You need Rasterbar libtorrent to compile this program - http://www.rasterbar.com/products/libtorrent/")
+    error("You need Rasterbar libtorrent ***0.13*** (unreleased dev version) to compile this program - http://www.rasterbar.com/products/libtorrent/")
 }
 
 !exists( /usr/include/GeoIP.h ){
