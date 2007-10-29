@@ -28,7 +28,7 @@ bool TorrentDownload::m_bDHT = false;
 GeoIP* g_pGeoIP;
 
 TorrentDownload::TorrentDownload()
-	: m_nPrevDownload(0), m_nPrevUpload(0), m_pFileDownload(0)
+	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_pFileDownload(0)
 {
 	m_worker->addObject(this);
 }
@@ -153,6 +153,9 @@ void TorrentDownload::init(QString source, QString target)
 			std::string file = source.toStdString();
 			std::ifstream in(file.c_str(), std::ios_base::binary);
 			in.unsetf(std::ios_base::skipws);
+			
+			if(!in.is_open())
+				throw RuntimeException(tr("Unable to open the file!"));
 			
 			m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
 			
@@ -371,7 +374,7 @@ void TorrentDownload::load(const QDomNode& map)
 				createDefaultPriorityList();
 			else
 			{
-				m_vecPriorities.reserve(numFiles);
+				m_vecPriorities.resize(numFiles);
 				
 				for(int i=0;i<numFiles;i++)
 					m_vecPriorities[i] = priorities[i].toInt();
@@ -391,10 +394,13 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 {
 	Transfer::save(doc, map);
 	
-	setXMLProperty(doc, map, "torrent_data", bencode(m_info->create_torrent()));
-	
-	if(m_handle.is_valid())
-		setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
+	if(m_info != 0)
+	{
+		setXMLProperty(doc, map, "torrent_data", bencode(m_info->create_torrent()));
+		
+		if(m_handle.is_valid())
+			setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
+	}
 	
 	setXMLProperty(doc, map, "target", object());
 	setXMLProperty(doc, map, "downloaded", QString::number( totalDownload() ));
@@ -515,6 +521,7 @@ void TorrentWorker::doWork()
 			{
 				if(d->m_status.state == libtorrent::torrent_status::finished)
 				{
+					qDebug() << "According to the status, the torrent is complete";
 					d->setState(Transfer::Completed);
 					d->setMode(Transfer::Download);
 				}

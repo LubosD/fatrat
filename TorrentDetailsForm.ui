@@ -206,6 +206,9 @@
          <property name="itemsExpandable" >
           <bool>false</bool>
          </property>
+         <property name="sortingEnabled" >
+          <bool>true</bool>
+         </property>
          <property name="animated" >
           <bool>true</bool>
          </property>
@@ -228,6 +231,9 @@
          </property>
          <property name="itemsExpandable" >
           <bool>false</bool>
+         </property>
+         <property name="sortingEnabled" >
+          <bool>true</bool>
          </property>
          <property name="animated" >
           <bool>true</bool>
@@ -257,6 +263,9 @@
          </property>
          <property name="itemsExpandable" >
           <bool>false</bool>
+         </property>
+         <property name="sortingEnabled" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>

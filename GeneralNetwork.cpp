@@ -383,7 +383,7 @@ bool LimitedSocket::readCycle()
 		if(m_nTransfered+buffer.size() >= m_nToTransfer && m_nToTransfer)
 			break;
 		
-		if(!m_pSocket->waitForReadyRead())
+		if(!m_pSocket->bytesAvailable() && !m_pSocket->waitForReadyRead())
 		{
 			bProblem = true;
 			break;

@@ -460,9 +460,8 @@ void MainWindow::queueItemActivated(QListWidgetItem*)
 void MainWindow::queueItemProperties()
 {
 	QueueDlg dlg(this);
-	g_queuesLock.lockForRead();
 	
-	Queue* q = g_queues[listQueues->currentRow()];
+	Queue* q = getCurrentQueue(false);
 	
 	dlg.m_strName = q->name();
 	dlg.m_bUpAsDown = q->upAsDown();
@@ -471,7 +470,7 @@ void MainWindow::queueItemProperties()
 	
 	if(dlg.m_nDownTransfersLimit < 0 || dlg.m_nUpTransfersLimit < 0)
 	{
-		dlg.m_nDownLimit = dlg.m_nUpLimit = 1;
+		dlg.m_nDownTransfersLimit = dlg.m_nUpTransfersLimit = 1;
 		dlg.m_bLimit = false;
 	}
 	else
@@ -491,7 +490,7 @@ void MainWindow::queueItemProperties()
 		Queue::saveQueues();
 	}
 	
-	g_queuesLock.unlock();
+	doneCurrentQueue(q, false);
 }
 
 void MainWindow::queueItemContext(const QPoint&)
@@ -646,7 +645,7 @@ void MainWindow::addTransfer(QString uri)
 	
 	try
 	{
-		QStringList uris = dlg.m_strURIs.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+		QStringList uris = dlg.m_strURIs.split(/*QRegExp("\\s+")*/ '\n', QString::SkipEmptyParts);
 		
 		if(uris.isEmpty())
 			return;

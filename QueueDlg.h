@@ -21,16 +21,17 @@ public:
 		lineName->setFocus(Qt::OtherFocusReason);
 		
 		connect(groupLimitQueue, SIGNAL(clicked(bool)), this, SLOT(limitToggled(bool)));
+		
+		spinDown->setRange(0,INT_MAX);
+		spinUp->setRange(0,INT_MAX);
+		spinTransfersDown->setMinimum(1);
+		spinTransfersUp->setMinimum(1);
 	}
 	int exec()
 	{
 		int r;
 		
 		lineName->setText(m_strName);
-		spinDown->setRange(0,INT_MAX);
-		spinUp->setRange(0,INT_MAX);
-		spinTransfersDown->setMinimum(1);
-		spinTransfersUp->setMinimum(1);
 		
 		spinDown->setValue(m_nDownLimit/1024);
 		spinUp->setValue(m_nUpLimit/1024);
