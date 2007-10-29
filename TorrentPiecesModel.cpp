@@ -5,6 +5,8 @@
 TorrentPiecesModel::TorrentPiecesModel(QObject* parent, TorrentDownload* d)
 : QAbstractListModel(parent), m_download(d), m_nLastRowCount(0)
 {
+	m_columns << tr("Piece ID") << tr("State") << tr("Block count");
+	m_columns << tr("Completed blocks") << tr("Requested blocks") << tr("Block view");
 }
 
 QModelIndex TorrentPiecesModel::index(int row, int column, const QModelIndex &parent) const
@@ -29,19 +31,7 @@ QVariant TorrentPiecesModel::headerData(int section, Qt::Orientation orientation
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
 	{
-		switch(section)
-		{
-		case 0:
-			return tr("Piece ID");
-		case 1:
-			return tr("Block count");
-		case 2:
-			return tr("Completed blocks");
-		case 3:
-			return tr("Requested blocks");
-		case 4:
-			return tr("Block view");
-		}
+		return m_columns[section];
 	}
 	return QVariant();
 }
@@ -59,11 +49,23 @@ QVariant TorrentPiecesModel::data(const QModelIndex &index, int role) const
 		case 0:
 			return info.piece_index;
 		case 1:
-			return info.blocks_in_piece;
+			switch(info.piece_state)
+			{
+				case libtorrent::partial_piece_info::none:
+					return tr("None");
+				case libtorrent::partial_piece_info::slow:
+					return tr("Slow");
+				case libtorrent::partial_piece_info::medium:
+					return tr("Medium fast");
+				case libtorrent::partial_piece_info::fast:
+					return tr("Fast");
+			}
 		case 2:
-			return (int) info.finished_blocks.count();
+			return info.blocks_in_piece;
 		case 3:
-			return (int) info.requested_blocks.count();
+			return (int) info.finished;
+		case 4:
+			return (int) info.requested;
 		}
 	}
 	else if(role == Qt::SizeHintRole)
@@ -100,12 +102,12 @@ void TorrentPiecesModel::refresh()
 	}
 	m_nLastRowCount = count;
 	
-	dataChanged(createIndex(0,0), createIndex(count,5)); // refresh the view
+	dataChanged(createIndex(0,0), createIndex(count, m_columns.size())); // refresh the view
 }
 
 void BlockDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	if(index.column() == 4) // block view
+	if(index.column() == 5) // block view
 	{
 		TorrentPiecesModel* model = (TorrentPiecesModel*) index.internalPointer();
 		const libtorrent::partial_piece_info& piece = model->m_pieces[index.row()];
@@ -118,9 +120,9 @@ void BlockDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		float bwidth = myrect.width() / float(piece.blocks_in_piece);
 		for(int i=0;i<piece.blocks_in_piece;i++)
 		{
-			if(piece.finished_blocks.test(i))
+			if(piece.blocks[i].state == libtorrent::block_info::finished)
 				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), ceilf(bwidth), myrect.height(), QColor(128,128,255));
-			else if(piece.requested_blocks.test(i))
+			else if(piece.blocks[i].state == libtorrent::block_info::requested)
 				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), ceilf(bwidth), myrect.height(), Qt::gray);
 		}
 		

@@ -36,8 +36,6 @@ public:
 	void refresh(const std::vector<bool>* pieces);
 protected:
 	QList<libtorrent::file_entry> m_files;
-	QList<int> m_priorities;
-	//QVector<float> m_progresses;
 	std::vector<float> m_progresses;
 	const std::vector<bool>* m_pieces;
 private:

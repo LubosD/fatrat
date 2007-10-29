@@ -10,115 +10,54 @@
     </message>
 </context>
 <context>
-    <name>DetailsTorrentForm</name>
-    <message>
-        <location filename="../DetailsTorrentForm.ui" line="13"/>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
-    <message>
-        <location filename="../DetailsTorrentForm.ui" line="105"/>
-        <source>Tracker announce</source>
-        <translation type="obsolete">Obnovit tracker</translation>
-    </message>
-    <message>
-        <location filename="../DetailsTorrentForm.ui" line="29"/>
-        <source>Information</source>
-        <translation type="obsolete">Informace</translation>
-    </message>
-    <message>
-        <location filename="../DetailsTorrentForm.ui" line="98"/>
-        <source>Current tracker:</source>
-        <translation type="obsolete">Aktuální tracker:</translation>
-    </message>
-    <message>
-        <location filename="../DetailsTorrentForm.ui" line="91"/>
-        <source>Availability:</source>
-        <translation type="obsolete">Dostupnost:</translation>
-    </message>
-</context>
-<context>
-    <name>FileManager</name>
-    <message>
-        <location filename="../torrent/filemanager.cpp" line="277"/>
-        <source>Failed to create directory %1</source>
-        <translation type="obsolete">Nepodařilo se vytvořit adresář %1</translation>
-    </message>
-    <message>
-        <location filename="../torrent/filemanager.cpp" line="287"/>
-        <source>Failed to open/create file %1: %2</source>
-        <translation type="obsolete">Nelze otevřít/vytvořit soubor %1: %2</translation>
-    </message>
-    <message>
-        <location filename="../torrent/filemanager.cpp" line="298"/>
-        <source>Failed to resize file %1: %2</source>
-        <translation type="obsolete">Nelze změnit velikost souboru %1: %2</translation>
-    </message>
-    <message>
-        <location filename="../torrent/filemanager.cpp" line="334"/>
-        <source>Failed to read from file %1: %2</source>
-        <translation type="obsolete">Nelze číst ze souboru %1: %2</translation>
-    </message>
-    <message>
-        <location filename="../torrent/filemanager.cpp" line="350"/>
-        <source>Failed to read from file %1 (read %3 bytes): %2</source>
-        <translation type="obsolete">Nelze číst ze souboru %1 (přečteno %3 bajtů): %2</translation>
-    </message>
-    <message>
-        <location filename="../torrent/filemanager.cpp" line="393"/>
-        <source>Failed to write to file %1: %2</source>
-        <translation type="obsolete">Nelze zapisovat do souboru %1: %2</translation>
-    </message>
-</context>
-<context>
     <name>FtpEngine</name>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="557"/>
+        <location filename="../GeneralNetwork.cpp" line="566"/>
         <source>Invalid server response</source>
         <translation>Neplatná odpověď serveru</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="614"/>
+        <location filename="../GeneralNetwork.cpp" line="623"/>
         <source>Logging in</source>
         <translation>Přihlašuji se</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="706"/>
+        <location filename="../GeneralNetwork.cpp" line="715"/>
         <source>Requesting file</source>
         <translation>Požaduji soubor</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="779"/>
+        <location filename="../GeneralNetwork.cpp" line="788"/>
         <source>Establishing file connection</source>
         <translation>Vytvářím souborové spojení</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="828"/>
+        <location filename="../GeneralNetwork.cpp" line="837"/>
         <source>Unable to establish the data connection</source>
         <translation>Nepodařilo se vytvořit datové spojení</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="903"/>
+        <location filename="../GeneralNetwork.cpp" line="912"/>
         <source>Timeout</source>
         <translation>Vypršel časový limit</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="916"/>
+        <location filename="../GeneralNetwork.cpp" line="925"/>
         <source>Connection to the server lost</source>
         <translation>Spojení k serveru ztraceno</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="669"/>
+        <location filename="../GeneralNetwork.cpp" line="678"/>
         <source>Querying file size</source>
         <translation>Zjišťuji velikost souboru</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="697"/>
+        <location filename="../GeneralNetwork.cpp" line="706"/>
         <source>Switching directory</source>
         <translation>Přecházím do adresáře</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="735"/>
+        <location filename="../GeneralNetwork.cpp" line="744"/>
         <source>Appending file</source>
         <translation>Připojuji soubor</translation>
     </message>
@@ -510,22 +449,22 @@
 <context>
     <name>LimitedSocket</name>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="398"/>
+        <location filename="../GeneralNetwork.cpp" line="407"/>
         <source>Timeout</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="413"/>
+        <location filename="../GeneralNetwork.cpp" line="422"/>
         <source>Connection lost</source>
         <translation>Spojení ztraceno</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="273"/>
+        <location filename="../GeneralNetwork.cpp" line="281"/>
         <source>Failed to open file</source>
         <translation>Nepodařilo se otevřít soubor</translation>
     </message>
     <message>
-        <location filename="../GeneralNetwork.cpp" line="324"/>
+        <location filename="../GeneralNetwork.cpp" line="332"/>
         <source>Error reading file</source>
         <translation>Chyba při čtení souboru</translation>
     </message>
@@ -533,7 +472,7 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="191"/>
+        <location filename="../MainWindow.cpp" line="194"/>
         <source>About FatRat</source>
         <translation>O FatRatu</translation>
     </message>
@@ -543,12 +482,12 @@
         <translation>Odstranit frontu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="435"/>
+        <location filename="../MainWindow.cpp" line="438"/>
         <source>Do you really want to delete the active queue?</source>
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="852"/>
+        <location filename="../MainWindow.cpp" line="853"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -558,12 +497,12 @@
         <translation>Odstranit přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="813"/>
+        <location filename="../MainWindow.cpp" line="814"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="827"/>
+        <location filename="../MainWindow.cpp" line="828"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
@@ -573,7 +512,7 @@
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="912"/>
+        <location filename="../MainWindow.cpp" line="913"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
@@ -713,17 +652,17 @@
         <translation>Zobrazit hlavní okno</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="174"/>
+        <location filename="../MainWindow.cpp" line="177"/>
         <source>Transfer speed graph</source>
         <translation>Graf rychlosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="403"/>
+        <location filename="../MainWindow.cpp" line="406"/>
         <source>Speed of the selected queue: %1 down, %2 up</source>
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1122"/>
+        <location filename="../MainWindow.cpp" line="1123"/>
         <source>Transfer completed</source>
         <translation>Přenos dokončen</translation>
     </message>
@@ -758,12 +697,12 @@
         <translation>Zobrazit drop-box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="678"/>
+        <location filename="../MainWindow.cpp" line="679"/>
         <source>Couldn&apos;t autodetect transfer type.</source>
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1123"/>
+        <location filename="../MainWindow.cpp" line="1124"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
@@ -773,27 +712,27 @@
         <translation>Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="888"/>
+        <location filename="../MainWindow.cpp" line="889"/>
         <source>transfered %1 from %2 (%3%)</source>
         <translation>přeneseno %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="890"/>
+        <location filename="../MainWindow.cpp" line="891"/>
         <source>transfered %1, total size unknown</source>
         <translation>přeneseno %1, celková velikost neznámá</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="748"/>
+        <location filename="../MainWindow.cpp" line="749"/>
         <source>Delete transfers</source>
         <translation>Odstranit přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="749"/>
+        <location filename="../MainWindow.cpp" line="750"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="828"/>
+        <location filename="../MainWindow.cpp" line="829"/>
         <source>Comment</source>
         <translation>Komentář</translation>
     </message>
@@ -823,12 +762,12 @@
         <translation>Vypočítat hash...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="164"/>
+        <location filename="../MainWindow.cpp" line="167"/>
         <source>New BitTorrent search</source>
         <translation>Nové vyhledávání torrentů</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="690"/>
+        <location filename="../MainWindow.cpp" line="691"/>
         <source>Failed to create a class instance.</source>
         <translation>Nepodařilo se vytvořit instanci třídy.</translation>
     </message>
@@ -966,16 +905,6 @@
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <location filename="../TorrentDownload.cpp" line="497"/>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
-        <location filename="../TorrentDownload.cpp" line="497"/>
-        <source>The specified port range is invalid.</source>
-        <translation type="obsolete">Zadaný rozsah portů je neplatný.</translation>
-    </message>
     <message>
         <location filename="../Queue.cpp" line="49"/>
         <source>Main queue</source>
@@ -1242,24 +1171,9 @@
         <translation>Povolit distribuovaný tracker (DHT)</translation>
     </message>
     <message>
-        <location filename="../SettingsTorrentForm.ui" line="106"/>
-        <source>Upload slots per torrent</source>
-        <translation type="obsolete">Uploadů na torrent</translation>
-    </message>
-    <message>
-        <location filename="../SettingsTorrentForm.ui" line="128"/>
-        <source>Maximum connections (0 = unlimited)</source>
-        <translation type="obsolete">Maximum spojení (0 = neomezeně)</translation>
-    </message>
-    <message>
         <location filename="../SettingsTorrentForm.ui" line="92"/>
         <source>Seed up to ratio</source>
         <translation>Distribuovat až do poměru</translation>
-    </message>
-    <message>
-        <location filename="../SettingsTorrentForm.ui" line="153"/>
-        <source>Enable peer exchange (PEX)</source>
-        <translation type="obsolete">Povolit peer exchange (PEX)</translation>
     </message>
     <message>
         <location filename="../SettingsTorrentForm.ui" line="118"/>
@@ -1278,11 +1192,6 @@
     </message>
     <message>
         <location filename="../SettingsTorrentForm.ui" line="163"/>
-        <source>Resolve peer&apos;s country</source>
-        <translation>Zjišťovat zemi klienta</translation>
-    </message>
-    <message>
-        <location filename="../SettingsTorrentForm.ui" line="170"/>
         <source>Maximum open files</source>
         <translation>Maximum otevřených souborů</translation>
     </message>
@@ -1311,46 +1220,59 @@
     </message>
 </context>
 <context>
+    <name>SpeedLimitWidget</name>
+    <message>
+        <location filename="../SpeedLimitWidget.ui" line="46"/>
+        <source>Download speed limit</source>
+        <translation>Limit rychlosti stahování</translation>
+    </message>
+    <message>
+        <location filename="../SpeedLimitWidget.ui" line="80"/>
+        <source>Upload speed limit</source>
+        <translation>Limit rychlosti uploadu</translation>
+    </message>
+</context>
+<context>
     <name>TorrentDetails</name>
     <message>
-        <location filename="../TorrentDownload.cpp" line="616"/>
-        <source>File name</source>
-        <translation>Název souboru</translation>
-    </message>
-    <message>
-        <location filename="../TorrentDownload.cpp" line="616"/>
-        <source>File size</source>
-        <translation>Velikost souboru</translation>
-    </message>
-    <message>
-        <location filename="../TorrentDownload.cpp" line="616"/>
-        <source>Progress</source>
-        <translation>Průběh</translation>
-    </message>
-    <message>
-        <location filename="../TorrentDownload.cpp" line="617"/>
+        <location filename="../TorrentDownload.cpp" line="662"/>
         <source>Priority</source>
         <translation>Priorita</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="617"/>
-        <source>Progress display</source>
-        <translation>Zobrazení průběhu</translation>
-    </message>
-    <message>
-        <location filename="../TorrentDownload.cpp" line="652"/>
+        <location filename="../TorrentDownload.cpp" line="733"/>
         <source>yes</source>
         <translation>ano</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="652"/>
+        <location filename="../TorrentDownload.cpp" line="733"/>
         <source>no</source>
         <translation>ne</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="683"/>
+        <location filename="../TorrentDownload.cpp" line="752"/>
         <source>%1 (refresh in %2:%3:%4, every %5:%6:%7)</source>
         <translation>%1 (obnovení za %2:%3:%4, každých %5:%6:%7)</translation>
+    </message>
+    <message>
+        <location filename="../TorrentDownload.cpp" line="664"/>
+        <source>Do not download</source>
+        <translation>Nestahovat</translation>
+    </message>
+    <message>
+        <location filename="../TorrentDownload.cpp" line="666"/>
+        <source>Normal</source>
+        <translation>Normální</translation>
+    </message>
+    <message>
+        <location filename="../TorrentDownload.cpp" line="668"/>
+        <source>Increased</source>
+        <translation>Zvýšená</translation>
+    </message>
+    <message>
+        <location filename="../TorrentDownload.cpp" line="670"/>
+        <source>Maximum</source>
+        <translation>Maximální</translation>
     </message>
 </context>
 <context>
@@ -1425,111 +1347,106 @@
         <source>Files</source>
         <translation>Soubory</translation>
     </message>
-    <message>
-        <location filename="../TorrentDetailsForm.ui" line="260"/>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../TorrentDetailsForm.ui" line="265"/>
-        <source>2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../TorrentDetailsForm.ui" line="270"/>
-        <source>3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../TorrentDetailsForm.ui" line="275"/>
-        <source>4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../TorrentDetailsForm.ui" line="280"/>
-        <source>5</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>TorrentDownload</name>
     <message>
-        <location filename="../TorrentDownload.cpp" line="171"/>
+        <location filename="../TorrentDownload.cpp" line="179"/>
         <source>Cannot create a temporary file</source>
         <translation>Nemohu vytvořit dočasný soubor</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="380"/>
+        <location filename="../TorrentDownload.cpp" line="421"/>
         <source>Downloading .torrent file</source>
         <translation>Stahuji .torrent soubor</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="130"/>
+        <location filename="../TorrentDownload.cpp" line="132"/>
         <source>Downloading the .torrent file...</source>
         <translation>Stahuji .torrent soubor...</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="199"/>
+        <location filename="../TorrentDownload.cpp" line="207"/>
         <source>Failed to download the .torrent file</source>
         <translation>Nepodařilo se stáhnout .torrent soubor</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="226"/>
+        <location filename="../TorrentDownload.cpp" line="239"/>
         <source>Cannot change storage!</source>
         <translation>Nemohu přemístit data!</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="387"/>
+        <location filename="../TorrentDownload.cpp" line="428"/>
         <source>Queued for checking</source>
         <translation>Ve frontě pro kontrolu</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="390"/>
+        <location filename="../TorrentDownload.cpp" line="431"/>
         <source>Checking files: %1%</source>
         <translation>Kontroluji soubory: %1%</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="393"/>
+        <location filename="../TorrentDownload.cpp" line="434"/>
         <source>Connecting to tracker</source>
         <translation>Připojuji se k trackeru</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="419"/>
+        <location filename="../TorrentDownload.cpp" line="460"/>
         <source>Allocating: %1%</source>
         <translation>Alokuji: %1%</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="574"/>
+        <location filename="../TorrentDownload.cpp" line="615"/>
         <source>Force announce</source>
         <translation>Vynutit oznámení</translation>
     </message>
 </context>
 <context>
-    <name>TorrentOptsWidget</name>
+    <name>TorrentFilesModel</name>
     <message>
-        <location filename="../TorrentDownload.cpp" line="343"/>
+        <location filename="../TorrentFilesModel.cpp" line="11"/>
         <source>File name</source>
-        <translation type="obsolete">Název souboru</translation>
+        <translation>Název souboru</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="343"/>
+        <location filename="../TorrentFilesModel.cpp" line="11"/>
         <source>File size</source>
-        <translation type="obsolete">Velikost souboru</translation>
+        <translation>Velikost souboru</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="358"/>
-        <source>Failed to download torrent</source>
-        <translation type="obsolete">Nepodařilo se stáhnout torrent</translation>
+        <location filename="../TorrentFilesModel.cpp" line="11"/>
+        <source>Progress</source>
+        <translation>Průběh</translation>
     </message>
     <message>
-        <location filename="../TorrentOptsWidget.ui" line="13"/>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
+        <location filename="../TorrentFilesModel.cpp" line="12"/>
+        <source>Priority</source>
+        <translation>Priorita</translation>
     </message>
     <message>
-        <location filename="../TorrentOptsWidget.ui" line="25"/>
-        <source>Waiting for the torrent to download</source>
-        <translation type="obsolete">Čekám, než se stáhne torrent</translation>
+        <location filename="../TorrentFilesModel.cpp" line="12"/>
+        <source>Progress display</source>
+        <translation>Zobrazení průběhu</translation>
+    </message>
+    <message>
+        <location filename="../TorrentFilesModel.cpp" line="63"/>
+        <source>Do not download</source>
+        <translation>Nestahovat</translation>
+    </message>
+    <message>
+        <location filename="../TorrentFilesModel.cpp" line="65"/>
+        <source>Normal</source>
+        <translation>Normální</translation>
+    </message>
+    <message>
+        <location filename="../TorrentFilesModel.cpp" line="67"/>
+        <source>Increased</source>
+        <translation>Zvýšená</translation>
+    </message>
+    <message>
+        <location filename="../TorrentFilesModel.cpp" line="69"/>
+        <source>Maximum</source>
+        <translation>Maximální</translation>
     </message>
 </context>
 <context>
@@ -1592,7 +1509,7 @@
     <message>
         <location filename="../TorrentPeersModel.cpp" line="83"/>
         <source>Handshaking</source>
-        <translation type="unfinished"></translation>
+        <translation>Handshaking</translation>
     </message>
     <message>
         <location filename="../TorrentPeersModel.cpp" line="85"/>
@@ -1603,65 +1520,90 @@
 <context>
     <name>TorrentPiecesModel</name>
     <message>
-        <location filename="../TorrentPiecesModel.cpp" line="35"/>
+        <location filename="../TorrentPiecesModel.cpp" line="8"/>
         <source>Piece ID</source>
         <translation>ID části</translation>
     </message>
     <message>
-        <location filename="../TorrentPiecesModel.cpp" line="37"/>
+        <location filename="../TorrentPiecesModel.cpp" line="8"/>
         <source>Block count</source>
         <translation>Počet bloků</translation>
     </message>
     <message>
-        <location filename="../TorrentPiecesModel.cpp" line="39"/>
+        <location filename="../TorrentPiecesModel.cpp" line="9"/>
         <source>Completed blocks</source>
         <translation>Dokončených bloků</translation>
     </message>
     <message>
-        <location filename="../TorrentPiecesModel.cpp" line="41"/>
+        <location filename="../TorrentPiecesModel.cpp" line="9"/>
         <source>Requested blocks</source>
         <translation>Vyžádaných bloků</translation>
     </message>
     <message>
-        <location filename="../TorrentPiecesModel.cpp" line="43"/>
+        <location filename="../TorrentPiecesModel.cpp" line="9"/>
         <source>Block view</source>
         <translation>Přehled bloků</translation>
+    </message>
+    <message>
+        <location filename="../TorrentPiecesModel.cpp" line="8"/>
+        <source>State</source>
+        <translation>Stav</translation>
+    </message>
+    <message>
+        <location filename="../TorrentPiecesModel.cpp" line="55"/>
+        <source>None</source>
+        <translation>Žádný</translation>
+    </message>
+    <message>
+        <location filename="../TorrentPiecesModel.cpp" line="57"/>
+        <source>Slow</source>
+        <translation>Pomalé</translation>
+    </message>
+    <message>
+        <location filename="../TorrentPiecesModel.cpp" line="59"/>
+        <source>Medium fast</source>
+        <translation>Středně rychlé</translation>
+    </message>
+    <message>
+        <location filename="../TorrentPiecesModel.cpp" line="61"/>
+        <source>Fast</source>
+        <translation>Rychlé</translation>
     </message>
 </context>
 <context>
     <name>TorrentWorker</name>
     <message>
-        <location filename="../TorrentDownload.cpp" line="520"/>
+        <location filename="../TorrentDownload.cpp" line="561"/>
         <source>File error: %1</source>
         <translation>Souborová chyba: %1</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="524"/>
+        <location filename="../TorrentDownload.cpp" line="565"/>
         <source>Tracker announce: %1</source>
         <translation>Oznámení trackeru: %1</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="529"/>
+        <location filename="../TorrentDownload.cpp" line="570"/>
         <source>Tracker failure: %1, %2 times in a row </source>
         <translation>Selhání trackeru: %1, %2 times in a row(sp)</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="533"/>
+        <location filename="../TorrentDownload.cpp" line="574"/>
         <source>(error %1)</source>
         <translation>(chyba %1)</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="535"/>
+        <location filename="../TorrentDownload.cpp" line="576"/>
         <source>(timeout)</source>
         <translation>(vypršel časový limit)</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="540"/>
+        <location filename="../TorrentDownload.cpp" line="581"/>
         <source>Tracker warning: %1</source>
         <translation>Varování trackeru: %1</translation>
     </message>
     <message>
-        <location filename="../TorrentDownload.cpp" line="544"/>
+        <location filename="../TorrentDownload.cpp" line="585"/>
         <source>Fast-resume data have been rejected: %1</source>
         <translation>Data pro rychlé obnovení byla odmítnuta: %1</translation>
     </message>

@@ -23,6 +23,7 @@
 #include "CommentForm.h"
 #include "HashDlg.h"
 #include "RuntimeException.h"
+#include "SpeedLimitWidget.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -152,6 +153,8 @@ void MainWindow::setupUi()
 	showTrayIcon();
 	
 	statusbar->addWidget(&m_labelStatus);
+	
+	statusbar->addPermanentWidget(new SpeedLimitWidget(statusbar));
 	
 	m_toolTabClose = new QToolButton(this);
 	m_toolTabClose->setIcon(QIcon(":/menu/tab_remove.png"));

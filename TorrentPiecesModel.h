@@ -3,6 +3,7 @@
 #include <QAbstractListModel>
 #include <QItemDelegate>
 #include <vector>
+#include <QStringList>
 #include <libtorrent/session.hpp>
 
 class TorrentDownload;
@@ -24,7 +25,7 @@ public:
 	QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex &index) const;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	int columnCount(const QModelIndex&) const { return 5; }
+	int columnCount(const QModelIndex&) const { return m_columns.size(); }
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	QVariant data(const QModelIndex &index, int role) const;
 	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
@@ -33,6 +34,7 @@ public:
 private:
 	TorrentDownload* m_download;
 	int m_nLastRowCount;
+	QStringList m_columns;
 protected:
 	std::vector<libtorrent::partial_piece_info> m_pieces;
 	friend class BlockDelegate;

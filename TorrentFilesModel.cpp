@@ -6,7 +6,7 @@
 #include <QtDebug>
 
 TorrentFilesModel::TorrentFilesModel(QObject* parent, TorrentDownload* d)
-	: QAbstractListModel(parent), m_download(d), m_pieces(0)
+	: QAbstractListModel(parent), m_pieces(0), m_download(d)
 {
 	m_columns << tr("File name") << tr("File size") << tr("Progress");
 	m_columns << tr("Priority") << tr("Progress display");
@@ -57,15 +57,15 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 					return QString("%1%").arg(m_progresses[i]*100, 0, 'f', 1);
 				break;
 			case 3:
-				switch(m_priorities[i])
+				switch(m_download->m_vecPriorities[i])
 				{
 					case 0:
 						return tr("Do not download");
 					case 1:
 						return tr("Normal");
-					case 4:
+					case 2 ... 4:
 						return tr("Increased");
-					case 7:
+					case 5 ... 7:
 						return tr("Maximum");
 				}
 		}
@@ -80,13 +80,10 @@ bool TorrentFilesModel::hasChildren(const QModelIndex& parent) const
 
 void TorrentFilesModel::fill()
 {
-	for(libtorrent::torrent_info::file_iterator it=m_download->m_info.begin_files();it!=m_download->m_info.end_files();it++)
+	for(libtorrent::torrent_info::file_iterator it=m_download->m_info->begin_files();it!=m_download->m_info->end_files();it++)
 	{
 		m_files << *it;
 	}
-	
-	for(int i=0;i<m_files.size();i++)
-		m_priorities << 1;
 }
 
 void TorrentFilesModel::refresh(const std::vector<bool>* pieces)
@@ -136,7 +133,7 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 {
 	TorrentFilesModel* model = (TorrentFilesModel*) index.internalPointer();
 	
-	if(index.column() == 4 && model->m_pieces)
+	if(index.column() == 4 && model->m_pieces && model->m_download)
 	{
 		int row = index.row();
 		QRect myrect = option.rect;
@@ -146,7 +143,7 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 		quint32* buf = new quint32[myrect.width()];
 		
 		const libtorrent::file_entry& file = model->m_files[row];
-		int piece_size = model->m_download->m_info.piece_length();
+		int piece_size = model->m_download->m_info->piece_length();
 		
 		QImage im;
 		float sstart,send;

@@ -17,6 +17,7 @@
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 extern QSettings* g_settings;
 
@@ -133,6 +134,12 @@ QString TorrentDownload::name() const
 		return "*INVALID*";
 }
 
+void TorrentDownload::createDefaultPriorityList()
+{
+	int numFiles = m_info->num_files();
+	m_vecPriorities.assign(numFiles, 1);
+}
+
 void TorrentDownload::init(QString source, QString target)
 {
 	m_strTarget = target;
@@ -147,12 +154,12 @@ void TorrentDownload::init(QString source, QString target)
 			std::ifstream in(file.c_str(), std::ios_base::binary);
 			in.unsetf(std::ios_base::skipws);
 			
-			m_info = libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>());
+			m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
 			
-			m_handle = m_session->add_torrent(m_info, target.toStdString(), false);
+			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
 			
-			if(!isActive())
-				m_handle.pause();
+			createDefaultPriorityList();
+			
 			m_worker->doWork();
 		}
 		else
@@ -223,8 +230,14 @@ void TorrentDownload::setObject(QString target)
 	if(m_handle.is_valid())
 	{
 		std::string newplace = target.toStdString();
-		if(!m_handle.move_storage(newplace))
+		try
+		{
+			m_handle.move_storage(newplace);
+		}
+		catch(...)
+		{
 			throw RuntimeException(tr("Cannot change storage!"));
+		}
 	}
 }
 
@@ -275,7 +288,7 @@ qulonglong TorrentDownload::done() const
 qulonglong TorrentDownload::total() const
 {
 	if(m_handle.is_valid())
-		return m_info.total_size();
+		return m_info->total_size();
 	else if(m_pFileDownload != 0)
 		return m_pFileDownload->total();
 	else
@@ -333,20 +346,37 @@ void TorrentDownload::load(const QDomNode& map)
 	try
 	{
 		libtorrent::entry torrent_resume;
-		QString target;
+		QString str;
 		
-		m_strTarget = target = getXMLProperty(map, "target");
+		m_strTarget = str = getXMLProperty(map, "target");
 		
-		m_info = bdecode(getXMLProperty(map, "torrent_data"));
+		m_info = new libtorrent::torrent_info( bdecode(getXMLProperty(map, "torrent_data")) );
 		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
 		
-		m_handle = m_session->add_torrent(m_info, target.toStdString(), torrent_resume);
-		
-		if(!isActive())
-			m_handle.pause();
+		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, libtorrent::storage_mode_sparse, !isActive());
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
+		
+		str = getXMLProperty(map, "priorities");
+		
+		if(str.isEmpty())
+			createDefaultPriorityList();
+		else
+		{
+			QStringList priorities = str.split('|');
+			int numFiles = m_info->num_files();
+			
+			if(numFiles != priorities.size())
+				createDefaultPriorityList();
+			else
+			{
+				m_vecPriorities.reserve(numFiles);
+				
+				for(int i=0;i<numFiles;i++)
+					m_vecPriorities[i] = priorities[i].toInt();
+			}
+		}
 		
 		m_worker->doWork();
 	}
@@ -361,7 +391,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 {
 	Transfer::save(doc, map);
 	
-	setXMLProperty(doc, map, "torrent_data", bencode(m_info.create_torrent()));
+	setXMLProperty(doc, map, "torrent_data", bencode(m_info->create_torrent()));
 	
 	if(m_handle.is_valid())
 		setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
@@ -369,6 +399,16 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 	setXMLProperty(doc, map, "target", object());
 	setXMLProperty(doc, map, "downloaded", QString::number( totalDownload() ));
 	setXMLProperty(doc, map, "uploaded", QString::number( totalUpload() ));
+	
+	QString prio;
+	
+	for(int i=0;i<m_vecPriorities.size();i++)
+	{
+		if(i > 0)
+			prio += '|';
+		prio += QString::number(m_vecPriorities[i]);
+	}
+	setXMLProperty(doc, map, "priorities", prio);
 }
 
 QString TorrentDownload::message() const
@@ -618,11 +658,56 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	hdr = treeFiles->header();
 	hdr->resizeSection(0, 500);
 	
+	QAction* act;
+	m_pMenuFiles = new QMenu( tr("Priority") );
+	
+	act = m_pMenuFiles->addAction( tr("Do not download") );
+	connect(act, SIGNAL(triggered()), this, SLOT(setPriority0()));
+	act = m_pMenuFiles->addAction( tr("Normal") );
+	connect(act, SIGNAL(triggered()), this, SLOT(setPriority1()));
+	act = m_pMenuFiles->addAction( tr("Increased") );
+	connect(act, SIGNAL(triggered()), this, SLOT(setPriority4()));
+	act = m_pMenuFiles->addAction( tr("Maximum") );
+	connect(act, SIGNAL(triggered()), this, SLOT(setPriority7()));
+	
+	connect(treeFiles, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(fileContext(const QPoint&)));
+	
 	refresh();
 }
 
 TorrentDetails::~TorrentDetails()
 {
+	delete m_pMenuFiles;
+}
+
+void TorrentDetails::setPriority(int p)
+{
+	foreach(int i, m_selFiles)
+		m_download->m_vecPriorities[i] = p;
+	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
+}
+
+void TorrentDetails::fileContext(const QPoint&)
+{
+	if(m_download && m_download->m_handle.is_valid())
+	{
+		int numFiles = m_download->m_info->num_files();
+		QModelIndexList list = treeFiles->selectionModel()->selectedRows();
+		
+		m_selFiles.clear();
+		
+		foreach(QModelIndex in, list)
+		{
+			int row = in.row();
+			
+			if(row < numFiles)
+				m_selFiles << row;
+		}
+		
+		QMenu menu(treeFiles);
+		menu.addMenu(m_pMenuFiles);
+		menu.exec(QCursor::pos());
+	}
 }
 
 void TorrentDetails::destroy()
@@ -636,16 +721,16 @@ void TorrentDetails::fill()
 	{
 		m_bFilled = true;
 		
-		boost::optional<boost::posix_time::ptime> time = m_download->m_info.creation_date();
+		boost::optional<boost::posix_time::ptime> time = m_download->m_info->creation_date();
 		if(time)
 		{
 			std::string created = boost::posix_time::to_simple_string(time.get());
 			labelCreationDate->setText(created.c_str());
 		}
-		labelPieceLength->setText( QString("%1 kB").arg(m_download->m_info.piece_length()/1024.f) );
-		lineComment->setText(m_download->m_info.comment().c_str());
-		lineCreator->setText(m_download->m_info.creator().c_str());
-		labelPrivate->setText( m_download->m_info.priv() ? tr("yes") : tr("no"));
+		labelPieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );
+		lineComment->setText(m_download->m_info->comment().c_str());
+		lineCreator->setText(m_download->m_info->creator().c_str());
+		labelPrivate->setText( m_download->m_info->priv() ? tr("yes") : tr("no"));
 		
 		m_pFilesModel->fill();
 	}

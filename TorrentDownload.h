@@ -53,16 +53,19 @@ public:
 	
 	qint64 totalDownload() { return m_nPrevDownload + m_status.total_download; }
 	qint64 totalUpload() { return m_nPrevUpload + m_status.total_upload; }
+private:
+	void createDefaultPriorityList();
 private slots:
 	void fileStateChanged(Transfer::State,Transfer::State);
 	void forceReannounce();
 protected:
 	libtorrent::torrent_handle m_handle;
-	libtorrent::torrent_info m_info;
+	libtorrent::torrent_info* m_info;
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;
 	qint64 m_nPrevDownload, m_nPrevUpload;
+	std::vector<int> m_vecPriorities;
 	
 	Transfer* m_pFileDownload;
 	
@@ -106,11 +109,17 @@ Q_OBJECT
 public:
 	TorrentDetails(QWidget* me, TorrentDownload* obj);
 	virtual ~TorrentDetails();
-	// only constant data
-	void fill();
+	void fill(); // only constant data
+	void setPriority(int p);
 public slots:
 	void refresh();
 	void destroy();
+	void fileContext(const QPoint&);
+	
+	void setPriority0() { setPriority(0); }
+	void setPriority1() { setPriority(1); }
+	void setPriority4() { setPriority(4); }
+	void setPriority7() { setPriority(7); }
 private:
 	TorrentDownload* m_download;
 	bool m_bFilled;
@@ -118,6 +127,9 @@ private:
 	TorrentPiecesModel* m_pPiecesModel;
 	TorrentPeersModel* m_pPeersModel;
 	TorrentFilesModel* m_pFilesModel;
+	
+	QList<int> m_selFiles;
+	QMenu* m_pMenuFiles;
 };
 
 #endif

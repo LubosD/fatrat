@@ -9,6 +9,7 @@
 #include "TransferLog.h"
 
 class SpeedGraph;
+
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
 Q_OBJECT
@@ -72,10 +73,10 @@ public slots:
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 	void downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now);
-private:
+protected:
 	Queue* getCurrentQueue(bool lock = true);
 	void doneCurrentQueue(Queue* q, bool unlock = true, bool refresh = true);
-protected:
+
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void hideEvent(QHideEvent* event);
 	virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -95,6 +96,7 @@ private:
 	QToolButton* m_toolTabClose;
 	
 	friend class DropBox;
+	friend class SpeedLimitWidget;
 };
 
 #endif
