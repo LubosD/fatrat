@@ -51,8 +51,8 @@ public:
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QObject* createDetailsWidget(QWidget* widget);
 	
-	qint64 totalDownload() { return m_nPrevDownload + m_status.total_download; }
-	qint64 totalUpload() { return m_nPrevUpload + m_status.total_upload; }
+	qint64 totalDownload() { return m_nPrevDownload + m_status.total_payload_download; }
+	qint64 totalUpload() { return m_nPrevUpload + m_status.total_payload_upload; }
 private:
 	void createDefaultPriorityList();
 	bool storeTorrent(QString orig);
@@ -68,6 +68,7 @@ protected:
 	QString m_strError, m_strTarget;
 	qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<int> m_vecPriorities;
+	bool m_bHasHashCheck;
 	
 	Transfer* m_pFileDownload;
 	

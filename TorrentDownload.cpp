@@ -29,7 +29,7 @@ bool TorrentDownload::m_bDHT = false;
 GeoIP* g_pGeoIP;
 
 TorrentDownload::TorrentDownload()
-	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_pFileDownload(0)
+	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_pFileDownload(0)
 {
 	m_worker->addObject(this);
 }
@@ -51,6 +51,8 @@ int TorrentDownload::acceptable(QString uri)
 
 void TorrentDownload::globalInit()
 {
+	boost::filesystem::path::default_name_check(boost::filesystem::native);
+	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
 	m_session->set_severity_level(libtorrent::alert::warning);
 	
@@ -161,6 +163,8 @@ void TorrentDownload::init(QString source, QString target)
 			m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
 			
 			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
+			
+			m_bHasHashCheck = true;
 			
 			createDefaultPriorityList();
 			
@@ -561,6 +565,12 @@ void TorrentWorker::doWork()
 			continue;
 		
 		d->m_status = d->m_handle.status();
+		
+		if(d->m_bHasHashCheck && d->m_status.state != libtorrent::torrent_status::checking_files && d->m_status.state != libtorrent::torrent_status::queued_for_checking)
+		{
+			d->m_bHasHashCheck = false;
+			d->m_nPrevDownload = d->done();
+		}
 		
 		if(d->isActive())
 		{
