@@ -2,9 +2,11 @@
 #include "TorrentPeersModel.h"
 #include "fatrat.h"
 #include <QtDebug>
-#include <GeoIP.h>
 
-extern GeoIP* g_pGeoIP;
+extern void* g_pGeoIP;
+
+extern const char* (*GeoIP_country_name_by_addr)(void*, const char*);
+extern const char* (*GeoIP_country_code_by_addr)(void*, const char*);
 
 TorrentPeersModel::TorrentPeersModel(QObject* parent, TorrentDownload* d)
 	: QAbstractListModel(parent), m_download(d), m_nLastRowCount(0)
@@ -57,8 +59,11 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 			}
 			case 1:
 			{
+				const char* country = 0;
 				std::string ip = info.ip.address().to_string();
-				const char* country = GeoIP_country_name_by_addr(g_pGeoIP, ip.c_str());
+				
+				if(g_pGeoIP != 0)
+					country = GeoIP_country_name_by_addr(g_pGeoIP, ip.c_str());
 				if(country != 0)
 					return QString(country);
 				else
@@ -111,7 +116,7 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 	}
 	else if(role == Qt::DecorationRole)
 	{
-		if(index.column() == 1)
+		if(index.column() == 1 && g_pGeoIP != 0)
 		{
 			std::string ip = info.ip.address().to_string();
 			const char* country = GeoIP_country_code_by_addr(g_pGeoIP, ip.c_str());

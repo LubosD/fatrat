@@ -88,15 +88,11 @@ TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
 QT += xml network
-LIBS += -ltorrent -lGeoIP
+LIBS += -ltorrent -ldl
 INCLUDEPATH = /usr/include/libtorrent
 
 !exists( /usr/include/libtorrent/session.hpp ){
     error("You need Rasterbar libtorrent ***0.13*** (unreleased dev version) to compile this program - http://www.rasterbar.com/products/libtorrent/")
-}
-
-!exists( /usr/include/GeoIP.h ){
-    error("You need GeoIP to compile this program")
 }
 
 INSTALL_ROOT = /usr/bin

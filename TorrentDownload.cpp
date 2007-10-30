@@ -13,7 +13,7 @@
 #include <QHeaderView>
 #include <fstream>
 #include <stdexcept>
-#include <GeoIP.h>
+#include <dlfcn.h>
 #include <iostream>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
@@ -26,7 +26,12 @@ libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
 
-GeoIP* g_pGeoIP;
+void* g_pGeoIP = 0;
+void* g_pGeoIPLib = 0;
+void* (*GeoIP_new)(int);
+const char* (*GeoIP_country_name_by_addr)(void*, const char*);
+const char* (*GeoIP_country_code_by_addr)(void*, const char*);
+void (*GeoIP_delete)(void*);
 
 TorrentDownload::TorrentDownload()
 	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_pFileDownload(0)
@@ -63,7 +68,17 @@ void TorrentDownload::globalInit()
 	
 	m_worker = new TorrentWorker;
 	
-	g_pGeoIP = GeoIP_new(GEOIP_MEMORY_CACHE);
+	g_pGeoIPLib = dlopen("libGeoIP.so", RTLD_NOW);
+	
+	if(g_pGeoIPLib != 0)
+	{
+		*((void**) &GeoIP_new) = dlsym(g_pGeoIPLib, "GeoIP_new");
+		*((void**) &GeoIP_country_name_by_addr) = dlsym(g_pGeoIPLib, "GeoIP_country_name_by_addr");
+		*((void**) &GeoIP_country_code_by_addr) = dlsym(g_pGeoIPLib, "GeoIP_country_code_by_addr");
+		*((void**) &GeoIP_delete) = dlsym(g_pGeoIPLib, "GeoIP_delete");
+		
+		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
+	}
 }
 
 void TorrentDownload::applySettings()
@@ -121,7 +136,11 @@ void TorrentDownload::globalExit()
 	delete m_worker;
 	delete m_session;
 	
-	GeoIP_delete(g_pGeoIP);
+	if(g_pGeoIPLib != 0)
+	{
+		GeoIP_delete(g_pGeoIP);
+		dlclose(g_pGeoIPLib);
+	}
 }
 
 QString TorrentDownload::name() const
@@ -577,7 +596,7 @@ void TorrentWorker::doWork()
 			if(d->mode() == Transfer::Download)
 			{
 				if(d->m_status.state == libtorrent::torrent_status::finished ||
-				  d->m_status.state == libtorrent::torrent_status::seeding)
+				  d->m_status.state == libtorrent::torrent_status::seeding || d->m_handle.is_seed())
 				{
 					qDebug() << "According to the status, the torrent is complete";
 					d->setMode(Transfer::Upload);
