@@ -55,6 +55,8 @@ public:
 	qint64 totalUpload() { return m_nPrevUpload + m_status.total_upload; }
 private:
 	void createDefaultPriorityList();
+	bool storeTorrent(QString orig);
+	QString storedTorrentName();
 private slots:
 	void fileStateChanged(Transfer::State,Transfer::State);
 	void forceReannounce();

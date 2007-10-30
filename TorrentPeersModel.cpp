@@ -67,7 +67,7 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 			case 2:
 				return QString::fromUtf8(info.client.c_str());
 			case 3:
-				return (info.seed) ? QString("*") : QString();
+				return (info.flags & libtorrent::peer_info::seed) ? QString("*") : QString();
 			case 4:
 				return formatSize(info.down_speed, true);
 			case 5:

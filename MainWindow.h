@@ -31,6 +31,7 @@ public slots:
 	void deleteQueue();
 	void addTransfer(QString uri = QString());
 	void deleteTransfer();
+	void deleteTransferData();
 	void refreshQueues();
 	void refreshDetailsTab();
 	

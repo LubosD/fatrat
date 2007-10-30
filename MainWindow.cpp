@@ -81,6 +81,7 @@ void MainWindow::setupUi()
 	
 	connect(actionNewTransfer, SIGNAL(triggered()), this, SLOT(addTransfer()));
 	connect(actionDeleteTransfer, SIGNAL(triggered()), this, SLOT(deleteTransfer()));
+	connect(actionDeleteTransferData, SIGNAL(triggered()), this, SLOT(deleteTransferData()));
 	connect(actionRemoveCompleted, SIGNAL(triggered()), this, SLOT(removeCompleted()));
 	
 	connect(actionResume, SIGNAL(triggered()), this, SLOT(resumeTransfer()));
@@ -420,6 +421,8 @@ void MainWindow::newQueue()
 		q->setSpeedLimits(dlg.m_nDownLimit,dlg.m_nUpLimit);
 		if(dlg.m_bLimit)
 			q->setTransferLimits(dlg.m_nDownTransfersLimit,dlg.m_nUpTransfersLimit);
+		else
+			q->setTransferLimits(-1, -1);
 		q->setUpAsDown(dlg.m_bUpAsDown);
 		
 		g_queuesLock.lockForWrite();
@@ -760,6 +763,38 @@ void MainWindow::deleteTransfer()
 	doneCurrentQueue(q,false);
 }
 
+void MainWindow::deleteTransferData()
+{
+	Queue* q = getCurrentQueue(false);
+	QList<int> sel = getSelection();
+	
+	if(!q) return;
+	
+	if(!sel.empty())
+	{
+		if(QMessageBox::warning(this, tr("Delete transfers"),
+			tr("Do you really want to delete selected transfers <b>including the data</b>?"),
+			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+		{
+			q->lockW();
+			bool bOK = true;
+			
+			for(int i=0;i<sel.size();i++)
+				bOK &= q->removeWithData(sel[i]-i, true);
+			q->unlock();
+			Queue::saveQueues();
+			
+			if(!bOK)
+			{
+				QMessageBox::warning(this, tr("Delete transfers"),
+					tr("FatRat failed to remove some files, check your permissions."));
+			}
+		}
+	}
+	
+	doneCurrentQueue(q,false);
+}
+
 void MainWindow::resumeTransfer()
 {
 	Queue* q = getCurrentQueue();
@@ -1033,6 +1068,7 @@ void MainWindow::transferItemContext(const QPoint&)
 		menu.addAction(actionPause);
 		menu.addSeparator();
 		menu.addAction(actionDeleteTransfer);
+		menu.addAction(actionDeleteTransferData);
 		menu.addSeparator();
 		menu.addAction(actionTop);
 		menu.addAction(actionUp);
@@ -1180,24 +1216,7 @@ void MainWindow::transferOpen(bool bOpenFile)
 		Transfer* d = q->at(sel[0]);
 		QString obj = d->object();
 		
-		if(d->primaryMode() == Transfer::Download)
-		{
-			if(bOpenFile)
-				path = QDir(obj).filePath(d->name());
-			else
-				path = obj;
-		}
-		else
-		{
-			if(bOpenFile)
-				path = obj;
-			else
-			{
-				QDir dir(obj);
-				dir.cdUp();
-				path = dir.absolutePath();
-			}
-		}
+		path = d->dataPath(bOpenFile);
 		
 		doneCurrentQueue(q, true, false);
 		

@@ -1,3 +1,4 @@
+#include "fatrat.h"
 #include "Queue.h"
 #include "QueueMgr.h"
 #include <QList>
@@ -41,7 +42,7 @@ void Queue::loadQueues()
 	dir.mkpath(".local/share/fatrat");
 	if(!dir.cd(".local/share/fatrat"))
 		return;
-	file.setFileName(dir.filePath("queues.xml"));
+	file.setFileName(dir.absoluteFilePath("queues.xml"));
 	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
 	{
 		// default queue for new users
@@ -261,5 +262,16 @@ void Queue::remove(int n, bool nolock)
 	d->deleteLater();
 }
 
-
+bool Queue::removeWithData(int n, bool nolock)
+{
+	Transfer* d = take(n, nolock);
+	
+	if(d->isActive())
+		d->setState(Transfer::Paused);
+	
+	bool rval = recursiveRemove(d->dataPath(true));
+	d->deleteLater();
+	
+	return rval;
+}
 

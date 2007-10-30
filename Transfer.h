@@ -48,6 +48,7 @@ public:
 	virtual QString message() const { return QString(); }
 	Mode mode() { return m_mode; }
 	virtual Mode primaryMode() { return Download; } // because the BitTorrent transfer may switch modes at run-time
+	QString dataPath(bool bDirect);
 	
 	// TRANSFER SPEED AND SPEED LIMITS
 	virtual void speeds(int& down, int& up) const = 0;

@@ -11,6 +11,7 @@ QString formatTime(qulonglong secs);
 QVariant getSettingsDefault(QString id);
 quint32 qntoh(quint32 source);
 QWidget* getMainWindow();
+bool recursiveRemove(QString what);
 
 class Sleeper : public QThread
 {

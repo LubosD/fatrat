@@ -188,6 +188,32 @@ QString formatTime(qulonglong inval)
 	return result;
 }
 
+bool recursiveRemove(QString what)
+{
+	if(!QFile::remove(what))
+	{
+		QDir dir(what);
+		if(!dir.exists())
+			return false;
+		
+		QStringList contents;
+		contents = dir.entryList();
+		
+		foreach(QString item, contents)
+		{
+			if(!recursiveRemove(dir.filePath(item)))
+				return false;
+		}
+		
+		QString name = dir.dirName();
+		if(!dir.cdUp())
+			return false;
+		if(!dir.rmdir(name))
+			return false;
+	}
+	return true;
+}
+
 QList<Proxy> Proxy::loadProxys()
 {
 	QList<Proxy> r;

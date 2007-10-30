@@ -14,6 +14,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <GeoIP.h>
+#include <iostream>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
@@ -150,8 +151,8 @@ void TorrentDownload::init(QString source, QString target)
 			source = source.mid(7);
 		if(source.startsWith('/'))
 		{
-			std::string file = source.toStdString();
-			std::ifstream in(file.c_str(), std::ios_base::binary);
+			QByteArray file = source.toUtf8();
+			std::ifstream in(file.data(), std::ios_base::binary);
 			in.unsetf(std::ios_base::skipws);
 			
 			if(!in.is_open())
@@ -164,6 +165,7 @@ void TorrentDownload::init(QString source, QString target)
 			createDefaultPriorityList();
 			
 			m_worker->doWork();
+			storeTorrent(source);
 		}
 		else
 		{
@@ -197,6 +199,36 @@ void TorrentDownload::init(QString source, QString target)
 	{
 		throw RuntimeException(e.what());
 	}
+}
+
+bool TorrentDownload::storeTorrent(QString orig)
+{
+	QString str = storedTorrentName();
+	QDir dir = QDir::home();
+	
+	dir.mkpath(".local/share/fatrat/torrents");
+	if(!dir.cd(".local/share/fatrat/torrents"))
+		return false;
+	
+	str = dir.absoluteFilePath(str);
+	
+	if(str != orig)
+		return QFile::copy(orig, str);
+	else
+		return true;
+}
+
+QString TorrentDownload::storedTorrentName()
+{
+	if(!m_info)
+		return QString();
+	
+	QString hash;
+	
+	const libtorrent::big_number& bn = m_info->info_hash();
+	hash = QByteArray((char*) bn.begin(), 20).toHex();
+	
+	return QString("%1 - %2.torrent").arg(name()).arg(hash);
 }
 
 void TorrentDownload::fileStateChanged(Transfer::State prev,Transfer::State now)
@@ -350,10 +382,25 @@ void TorrentDownload::load(const QDomNode& map)
 	{
 		libtorrent::entry torrent_resume;
 		QString str;
+		QDir dir = QDir::home();
+	
+		dir.cd(".local/share/fatrat/torrents");
 		
 		m_strTarget = str = getXMLProperty(map, "target");
 		
-		m_info = new libtorrent::torrent_info( bdecode(getXMLProperty(map, "torrent_data")) );
+		QByteArray file = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") ).toUtf8();
+		std::ifstream in(file.data(), std::ios_base::binary);
+		in.unsetf(std::ios_base::skipws);
+		
+		if(!in.is_open())
+		{
+			m_strError = tr("Unable to open the file!");
+			setState(Failed);
+			return;
+		}
+		
+		m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
+		
 		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
 		
 		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, libtorrent::storage_mode_sparse, !isActive());
@@ -396,7 +443,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 	
 	if(m_info != 0)
 	{
-		setXMLProperty(doc, map, "torrent_data", bencode(m_info->create_torrent()));
+		setXMLProperty(doc, map, "torrent_file", storedTorrentName());
 		
 		if(m_handle.is_valid())
 			setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
@@ -519,16 +566,14 @@ void TorrentWorker::doWork()
 		{
 			if(d->mode() == Transfer::Download)
 			{
-				if(d->m_status.state == libtorrent::torrent_status::finished)
+				if(d->m_status.state == libtorrent::torrent_status::finished ||
+				  d->m_status.state == libtorrent::torrent_status::seeding)
 				{
 					qDebug() << "According to the status, the torrent is complete";
-					d->setState(Transfer::Completed);
-					d->setMode(Transfer::Download);
-				}
-				else if(d->m_status.state == libtorrent::torrent_status::seeding)
 					d->setMode(Transfer::Upload);
+				}
 			}
-			else if(d->state() != Transfer::ForcedActive)
+			if(d->state() != Transfer::ForcedActive && d->mode() == Transfer::Upload)
 			{
 				double maxratio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
 				if(double(d->totalUpload()) / d->totalDownload() > maxratio)

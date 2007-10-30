@@ -239,6 +239,30 @@ void Transfer::setXMLProperty(QDomDocument& doc, QDomNode& node, QString name, Q
 	node.appendChild(sub);
 }
 
+QString Transfer::dataPath(bool bDirect)
+{
+	QString obj = object();
+	
+	if(primaryMode() == Download)
+	{
+		if(bDirect)
+			return QDir(obj).filePath(name());
+		else
+			return obj;
+	}
+	else
+	{
+		if(bDirect)
+			return obj;
+		else
+		{
+			QDir dir(obj);
+			dir.cdUp();
+			return dir.absolutePath();
+		}
+	}
+}
+
 //////////////////
 
 TransferNotifier::TransferNotifier()

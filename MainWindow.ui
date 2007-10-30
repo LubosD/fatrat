@@ -399,6 +399,7 @@
     </property>
     <addaction name="actionNewTransfer" />
     <addaction name="actionDeleteTransfer" />
+    <addaction name="actionDeleteTransferData" />
     <addaction name="separator" />
     <addaction name="actionResume" />
     <addaction name="actionForcedResume" />
@@ -446,6 +447,7 @@
    </attribute>
    <addaction name="actionNewTransfer" />
    <addaction name="actionDeleteTransfer" />
+   <addaction name="actionDeleteTransferData" />
    <addaction name="separator" />
    <addaction name="actionResume" />
    <addaction name="actionForcedResume" />
@@ -675,6 +677,14 @@
   <action name="actionComputeHash" >
    <property name="text" >
     <string>Compute hash...</string>
+   </property>
+  </action>
+  <action name="actionDeleteTransferData" >
+   <property name="icon" >
+    <iconset resource="gfx/resources.qrc" >:/menu/delete_with_data.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Delete transfer including data</string>
    </property>
   </action>
  </widget>
