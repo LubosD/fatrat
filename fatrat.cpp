@@ -190,26 +190,39 @@ QString formatTime(qulonglong inval)
 
 bool recursiveRemove(QString what)
 {
+	qDebug() << "recursiveRemove" << what;
 	if(!QFile::remove(what))
 	{
 		QDir dir(what);
 		if(!dir.exists())
+		{
+			qDebug() << "Not a directory:" << what;
 			return false;
+		}
 		
 		QStringList contents;
 		contents = dir.entryList();
 		
 		foreach(QString item, contents)
 		{
-			if(!recursiveRemove(dir.filePath(item)))
-				return false;
+			if(item != "." && item != "..")
+			{
+				if(!recursiveRemove(dir.filePath(item)))
+					return false;
+			}
 		}
 		
 		QString name = dir.dirName();
 		if(!dir.cdUp())
+		{
+			qDebug() << "Cannot cdUp:" << what;
 			return false;
+		}
 		if(!dir.rmdir(name))
+		{
+			qDebug() << "Cannot rmdir:" << name;
 			return false;
+		}
 	}
 	return true;
 }

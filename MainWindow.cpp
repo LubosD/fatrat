@@ -332,6 +332,7 @@ void MainWindow::updateUi()
 		}
 		
 		actionDeleteTransfer->setEnabled(true);
+		actionDeleteTransferData->setEnabled(true);
 		
 		actionInfoBar->setEnabled(bSingle);
 		actionProperties->setEnabled(bSingle);
@@ -350,6 +351,7 @@ void MainWindow::updateUi()
 		actionDown->setEnabled(false);
 		actionBottom->setEnabled(false);
 		actionDeleteTransfer->setEnabled(false);
+		actionDeleteTransferData->setEnabled(false);
 		
 		actionForcedResume->setEnabled(false);
 		actionResume->setEnabled(false);
