@@ -118,7 +118,10 @@ void TorrentDownload::applySettings()
 	m_session->set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 	
 	settings.file_pool_size = g_settings->value("maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
-	settings.use_dht_as_fallback = false;
+	settings.use_dht_as_fallback = false; // i.e. use DHT always
+	settings.user_agent = "FatRat/" VERSION;
+	settings.max_out_request_queue = 300;
+	settings.piece_timeout = 50;
 	m_session->set_settings(settings);
 	
 	g_settings->endGroup();
@@ -182,6 +185,8 @@ void TorrentDownload::init(QString source, QString target)
 			m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
 			
 			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
+			
+			m_handle.set_ratio(1);
 			
 			m_bHasHashCheck = true;
 			
@@ -427,6 +432,8 @@ void TorrentDownload::load(const QDomNode& map)
 		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
 		
 		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, libtorrent::storage_mode_sparse, !isActive());
+		
+		m_handle.set_ratio(1);
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();

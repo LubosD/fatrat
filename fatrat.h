@@ -6,6 +6,8 @@
 #include <QList>
 #include <QVariant>
 
+#define VERSION "SVN"
+
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
 QVariant getSettingsDefault(QString id);

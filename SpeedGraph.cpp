@@ -102,7 +102,7 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	painter.setPen(QColor(80,180,80));
 	for(int i=0;i<4;i++)
 	{
-		int x = width-(i+1)*(width/5);
+		int x = width-(i+1)*(width/4);
 		painter.drawLine(x, height, x, height-15);
 		painter.drawText(x+2, height-2, tr("%1 mins ago").arg( (seconds/4) * (i+1) / 60.0 ));
 	}

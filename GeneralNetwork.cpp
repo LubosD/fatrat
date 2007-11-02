@@ -58,7 +58,7 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_url(url)
 		m_header.addValue("Referrer", referrer.toString());
 	
 	m_header.addValue("Host", host);
-	m_header.addValue("User-Agent", "FatRat/SVN");
+	m_header.addValue("User-Agent", "FatRat/" VERSION);
 	m_header.addValue("Connection", "close");
 }
 

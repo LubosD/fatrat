@@ -1169,7 +1169,10 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 			from = g_settings->value("emailsender", getSettingsDefault("emailsender")).toString();
 			to = g_settings->value("emailrcpt", getSettingsDefault("emailrcpt")).toString();
 			
-			message = QString("From: <%1>\r\nTo: <%2>\r\nSubject: FatRat transfer completed\r\nX-Mailer: FatRat/SVN\r\nThe transfer of \"%3\" has been completed.").arg(from).arg(to).arg(d->name());
+			message = QString("From: <%1>\r\nTo: <%2>\r\n"
+					"Subject: FatRat transfer completed\r\n"
+					"X-Mailer: FatRat/" VERSION "\r\n"
+					"The transfer of \"%3\" has been completed.").arg(from).arg(to).arg(d->name());
 			
 			new SimpleEmail(g_settings->value("smtpserver",getSettingsDefault("smtpserver")).toString(),from,to,message);
 		}
