@@ -1,6 +1,6 @@
 #include "fatrat.h"
 #include <QApplication>
-#include <QReadWriteLock>
+#include <QMessageBox>
 #include <iostream>
 #include "MainWindow.h"
 #include "QueueMgr.h"
@@ -25,6 +25,10 @@ QSettings* g_settings = 0;
 static QMap<QString, QVariant> g_mapDefaults;
 static void initSettingsDefaults();
 static void runEngines(bool init = true);
+static QString argsToArg(int argc,char** argv);
+static void processSession(QString arg);
+
+static bool m_bForceNewInstance = false;
 
 int main(int argc,char** argv)
 {
@@ -32,12 +36,16 @@ int main(int argc,char** argv)
 	int rval;
 	QTranslator translator;
 	QueueMgr* qmgr;
+	QString arg = argsToArg(argc, argv);
 	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
 	
 	g_settings = new QSettings;
+	
+	if(!m_bForceNewInstance)
+		processSession(arg);
 	
 	qDebug() << "Current locale" << QLocale::system().name();
 	translator.load(QString("fatrat_") + QLocale::system().name(), "/usr/share/fatrat/lang");
@@ -58,7 +66,9 @@ int main(int argc,char** argv)
 	QDBusConnection::sessionBus().registerObject("/", g_wndMain);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 	
-	g_wndMain->showMaximized();
+	if(!arg.isEmpty())
+		g_wndMain->addTransfer(arg);
+	
 	app.setQuitOnLastWindowClosed(false);
 	rval = app.exec();
 	
@@ -74,6 +84,52 @@ int main(int argc,char** argv)
 	delete g_settings;
 	
 	return rval;
+}
+
+QString argsToArg(int argc,char** argv)
+{
+	QString arg;
+	
+	for(int i=1;i<argc;i++)
+	{
+		if(!strcasecmp(argv[i], "--force"))
+		{
+			m_bForceNewInstance = true;
+			continue;
+		}
+		
+		if(i > 1)
+			arg += '\n';
+		arg += argv[i];
+	}
+	
+	return arg;
+}
+
+void processSession(QString arg)
+{
+	QDBusConnection conn = QDBusConnection::sessionBus();
+	QDBusConnectionInterface* bus = conn.interface();
+	
+	if(bus->isServiceRegistered("info.dolezel.fatrat"))
+	{
+		std::cout << "FatRat is already running\n";
+		
+		if(!arg.isEmpty())
+		{
+			std::cout << "Passing arguments to an existing instance.\n";
+			QDBusInterface iface("info.dolezel.fatrat", "/", "info.dolezel.fatrat", conn);
+			
+			iface.call("addTransfers", arg);
+		}
+		else
+		{
+			QMessageBox::critical(0, "FatRat", QObject::tr("There is already a running instance.\n"
+					"If you want to start FatRat anyway, pass --force among arguments"));
+		}
+		
+		exit(0);
+	}
 }
 
 static void runEngines(bool init)

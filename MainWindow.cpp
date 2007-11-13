@@ -35,7 +35,7 @@ extern QSettings* g_settings;
 using namespace std;
 
 MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
-{	
+{
 	setupUi();
 	
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
@@ -53,6 +53,8 @@ MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
 
 MainWindow::~MainWindow()
 {
+	saveWindowState();
+	
 	delete m_modelTransfers;
 }
 
@@ -120,32 +122,6 @@ void MainWindow::setupUi()
 	treeTransfers->setModel(m_modelTransfers);
 	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
 	
-	//////////////////////////
-	// RESTORE WINDOW STATE //
-	//////////////////////////
-	{
-		QHeaderView* hdr = treeTransfers->header();
-		QVariant state = g_settings->value("mainheaders");
-		
-		if(state.isNull())
-		{
-			hdr->resizeSection(0, 300);
-			hdr->resizeSection(3, 160);
-		}
-		else
-			hdr->restoreState(state.toByteArray());
-		
-		state = g_settings->value("mainsplitter");
-		
-		if(state.isNull())
-			splitterQueues->setSizes(QList<int>() << 80 << 600);
-		else
-			splitterQueues->restoreState(state.toByteArray());
-		
-		connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
-		connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));
-	}
-	
 	treeTransfers->setContextMenuPolicy(Qt::CustomContextMenu);
 	listQueues->setContextMenuPolicy(Qt::CustomContextMenu);
 	
@@ -172,19 +148,67 @@ void MainWindow::setupUi()
 	toolOpen->setMenu(tabOpenMenu);
 	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
 	
-	g_settings->endGroup();
-	
 	m_graph = new SpeedGraph(this);
 	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Transfer speed graph"));
 	m_log = new TransferLog(this, textTransferLog);
+	
+	//////////////////////////
+	// RESTORE WINDOW STATE //
+	//////////////////////////
+	{
+		QHeaderView* hdr = treeTransfers->header();
+		QVariant state = g_settings->value("mainheaders");
+		
+		if(state.isNull())
+		{
+			hdr->resizeSection(0, 300);
+			hdr->resizeSection(3, 160);
+		}
+		else
+			hdr->restoreState(state.toByteArray());
+		
+		state = g_settings->value("mainsplitter");
+		
+		if(state.isNull())
+			splitterQueues->setSizes(QList<int>() << 80 << 600);
+		else
+			splitterQueues->restoreState(state.toByteArray());
+		
+		connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
+		connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));
+		
+		QPoint pos = g_settings->value("mainwindow_pos").toPoint();
+		QSize size = g_settings->value("mainwindow_size").toSize();
+		
+		if(size.isEmpty())
+		{
+			qDebug() << "Maximizing the main window";
+			showMaximized();
+		}
+		else
+		{
+			//show();
+			QWidget::move(pos);
+			resize(size);
+			show();
+		}
+	}
+	
+	g_settings->endGroup();
 }
 
 void MainWindow::saveWindowState()
 {
 	g_settings->beginGroup("state");
 	
+	qDebug() << "saveWindowState()";
+	
 	g_settings->setValue("mainheaders", treeTransfers->header()->saveState());
 	g_settings->setValue("mainsplitter", splitterQueues->saveState());
+	g_settings->setValue("mainwindow", saveGeometry());
+	
+	g_settings->setValue("mainwindow_pos", pos());
+	g_settings->setValue("mainwindow_size", size());
 	
 	g_settings->endGroup();
 	g_settings->sync();
