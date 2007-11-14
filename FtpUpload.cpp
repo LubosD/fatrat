@@ -20,7 +20,7 @@ FtpUpload::~FtpUpload()
 
 int FtpUpload::acceptable(QString url)
 {
-	return (url.startsWith("ftp://")) ? 1 : 0;
+	return (url.startsWith("ftp://") || url.startsWith("file://") || url.startsWith("/")) ? 2 : 0;
 }
 
 void FtpUpload::init(QString source, QString target)

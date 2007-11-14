@@ -107,17 +107,65 @@ const EngineEntry* Transfer::engines(Mode type)
 	return (type == Download) ? m_enginesDownload : m_enginesUpload;
 }
 
+Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
+{
+	int curscore = -1;
+	BestEngine best;
+	
+	if(type != Upload)
+	{
+		for(int i=0;m_enginesDownload[i].shortName;i++)
+		{
+			int n;
+			
+			n = m_enginesDownload[i].lpfnAcceptable(uri);
+			
+			if(n > curscore)
+			{
+				curscore = n;
+				
+				best.engine = &m_enginesDownload[i];
+				best.nClass = i;
+				best.type = Download;
+			}
+		}
+	}
+	if(type != Download)
+	{
+		for(int i=0;m_enginesUpload[i].shortName;i++)
+		{
+			int n;
+			
+			n = m_enginesUpload[i].lpfnAcceptable(uri);
+			
+			if(n > curscore)
+			{
+				curscore = n;
+				
+				best.engine = &m_enginesUpload[i];
+				best.nClass = i;
+				best.type = Upload;
+			}
+		}
+	}
+	
+	return best;
+}
+
 bool Transfer::statePossible(State newState)
 {
 	if(m_state == newState)
 		return false;
+	/*
 	if(newState != ForcedActive && m_state == Completed)
 	{
-		//if(done() >= total())
-		//	return false;
-		//else
-		//	cout << "WTF, done: " << done() << " but total: " << total() << endl;
+		if(done() >= total())
+			return false;
+		else
+			cout << "WTF, done: " << done() << " but total: " << total() << endl;
 	}
+	*/
+	
 	return true;
 }
 

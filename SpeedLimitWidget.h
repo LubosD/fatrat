@@ -29,7 +29,7 @@ public slots:
 			int down,up;
 			q->speedLimits(down,up);
 			
-			g_wndMain->doneCurrentQueue(q);
+			g_wndMain->doneQueue(q);
 			
 			if(down > 0)
 				labelDown->setText(formatSize(down,true));

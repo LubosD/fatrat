@@ -49,8 +49,13 @@ TorrentDownload::~TorrentDownload()
 int TorrentDownload::acceptable(QString uri)
 {
 	const bool istorrent = uri.endsWith(".torrent", Qt::CaseInsensitive);
-        if(uri[0] == '/' || uri.startsWith("http://") || uri.startsWith("ftp://") || uri.startsWith("file://"))
+        if(uri.startsWith("http://") || uri.startsWith("ftp://"))
                 return (istorrent) ? 3 : 2;
+	if(istorrent)
+	{
+		if(uri[0] == '/' || uri.startsWith("file://"))
+			return 2;
+	}
         return 0;
 }
 

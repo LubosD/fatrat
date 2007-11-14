@@ -50,14 +50,14 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0" colspan="6" >
+   <item row="2" column="0" colspan="6" >
     <widget class="Line" name="line" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="6" >
+   <item row="3" column="0" colspan="6" >
     <widget class="QStackedWidget" name="stackedWidget" >
      <property name="lineWidth" >
       <number>0</number>
@@ -224,48 +224,48 @@
      </widget>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2" >
+   <item row="4" column="0" colspan="2" >
     <widget class="QLabel" name="label_4" >
      <property name="text" >
       <string>Down speed limit (kB/s):</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="2" colspan="2" >
+   <item row="4" column="2" colspan="2" >
     <widget class="QSpinBox" name="spinDown" />
    </item>
-   <item rowspan="2" row="3" column="4" >
+   <item rowspan="2" row="4" column="4" >
     <widget class="Line" name="line_2" >
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
-   <item row="3" column="5" >
+   <item row="4" column="5" >
     <widget class="QCheckBox" name="checkPaused" >
      <property name="text" >
       <string>Add paused</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2" >
+   <item row="5" column="0" colspan="2" >
     <widget class="QLabel" name="label_5" >
      <property name="text" >
       <string>Up speed limit (kB/s):</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="2" colspan="2" >
+   <item row="5" column="2" colspan="2" >
     <widget class="QSpinBox" name="spinUp" />
    </item>
-   <item row="4" column="5" >
+   <item row="5" column="5" >
     <widget class="QCheckBox" name="checkDetails" >
      <property name="text" >
       <string>Set advanced options</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="4" colspan="2" >
+   <item row="6" column="4" colspan="2" >
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
@@ -274,6 +274,16 @@
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
      </property>
     </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Queue:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="5" >
+    <widget class="QComboBox" name="comboQueue" />
    </item>
   </layout>
  </widget>

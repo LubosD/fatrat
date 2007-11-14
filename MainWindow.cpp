@@ -45,7 +45,7 @@ MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
 	if(g_queues.size())
 	{
 		listQueues->setCurrentRow(0);
-		queueItemActivated(0);
+		queueItemActivated();
 	}
 	
 	updateUi();
@@ -71,7 +71,8 @@ void MainWindow::setupUi()
 	connect(actionDeleteQueue, SIGNAL(triggered()), this, SLOT(deleteQueue()));
 	connect(actionQueueProperties, SIGNAL(triggered()), this, SLOT(queueItemProperties()));
 	
-	connect(listQueues, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
+	//connect(listQueues, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
+	connect(listQueues, SIGNAL(itemSelectionChanged()), this, SLOT(queueItemActivated()));
 	connect(listQueues, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
 	connect(listQueues, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(queueItemProperties()));
 	connect(listQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
@@ -388,7 +389,7 @@ void MainWindow::updateUi()
 		m_log->setLogSource(0);
 	}
 	if(q != 0)
-		doneCurrentQueue(q,true,false);
+		doneQueue(q,true,false);
 	
 	m_modelTransfers->refresh();
 	if(tabMain->currentIndex() == 1)
@@ -425,7 +426,7 @@ void MainWindow::refreshQueues()
 			downt += down;
 			upt += up;
 		}
-		doneCurrentQueue(q,false,false);
+		doneQueue(q,false,false);
 	}
 	g_queuesLock.unlock();
 	
@@ -462,23 +463,30 @@ void MainWindow::newQueue()
 
 void MainWindow::deleteQueue()
 {
-	if(g_queues.empty()) return;
+	int queue;
 	
-	if(QMessageBox::warning(this, tr("Delete queue"), tr("Do you really want to delete the active queue?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+	queue = getSelectedQueue();
+	
+	if(g_queues.empty() || queue < 0)
+		return;
+	
+	if(QMessageBox::warning(this, tr("Delete queue"),
+	   tr("Do you really want to delete the active queue?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 	{
 		g_queuesLock.lockForWrite();
-		g_queues.removeAt(listQueues->currentRow());
+		g_queues.removeAt(queue);
 		g_queuesLock.unlock();
 		
 		Queue::saveQueues();
 		updateUi();
-		queueItemActivated(0);
+		queueItemActivated();
 	}
 }
 
-void MainWindow::queueItemActivated(QListWidgetItem*)
+void MainWindow::queueItemActivated()
 {
-	m_modelTransfers->setQueue(listQueues->currentRow());
+	treeTransfers->selectionModel()->clearSelection();
+	m_modelTransfers->setQueue(getSelectedQueue());
 	
 	if(m_pDetailsDisplay)
 		m_pDetailsDisplay->deleteLater();
@@ -519,12 +527,12 @@ void MainWindow::queueItemProperties()
 		Queue::saveQueues();
 	}
 	
-	doneCurrentQueue(q, false);
+	doneQueue(q, false);
 }
 
 void MainWindow::queueItemContext(const QPoint&)
 {
-	if(listQueues->currentRow() != -1)
+	if(getSelectedQueue() != -1)
 	{
 		QMenu menu(listQueues);
 		
@@ -573,7 +581,7 @@ void MainWindow::displayDestroyed()
 			delete widgetDisplay;
 	}
 	
-	doneCurrentQueue(q);
+	doneQueue(q);
 }
 
 void MainWindow::transferItemDoubleClicked(const QModelIndex&)
@@ -630,7 +638,7 @@ void MainWindow::move(int i)
 		}
 	}
 	
-	doneCurrentQueue(q,false);
+	doneQueue(q,false);
 	Queue::saveQueues();
 }
 
@@ -656,18 +664,26 @@ void MainWindow::moveToBottom()
 
 void MainWindow::addTransfer(QString uri)
 {
-	if(!listQueues->currentItem()) return;
-	
+	int qSel = getSelectedQueue();
 	NewTransferDlg dlg(this);
 	Queue* queue = 0;
 	QList<Transfer*> listTransfers;
 	
-	dlg.setWindowTitle(tr("New transfer"));
+	if(qSel < 0)
+		return;
 	
+	dlg.setWindowTitle(tr("New transfer"));
+	dlg.m_nQueue = qSel;
 	dlg.m_strURIs = uri;
 	
-	if(uri.startsWith("file:/") || uri.startsWith("/"))
-		dlg.m_mode = Transfer::Upload;
+	if(!uri.isEmpty())
+	{
+		QStringList l = uri.split('\n', QString::SkipEmptyParts);
+		Transfer::BestEngine eng = Transfer::bestEngine(l[0]);
+		
+		if(eng.type != Transfer::ModeInvalid)
+			dlg.m_mode = eng.type;
+	}
 	
 	if(dlg.exec() != QDialog::Accepted)
 		return;
@@ -682,34 +698,25 @@ void MainWindow::addTransfer(QString uri)
 		if(dlg.m_nClass == -1)
 		{
 			// autodetection
-			const EngineEntry* entries;
-			int curscore = 0;
+			Transfer::BestEngine eng;
 			
-			entries = Transfer::engines(dlg.m_mode);
+			if(dlg.m_mode == Transfer::Download)
+				eng = Transfer::bestEngine(uris[0], Transfer::Download);
+			else
+				eng = Transfer::bestEngine(dlg.m_strDestination, Transfer::Upload);
 			
-			for(int i=0;entries[i].shortName;i++)
-			{
-				int n;
-				
-				if(dlg.m_mode == Transfer::Download)
-					n = entries[i].lpfnAcceptable(uris[0]);
-				else
-					n = entries[i].lpfnAcceptable(dlg.m_strDestination);
-				if(n > curscore)
-				{
-					curscore = n;
-					dlg.m_nClass = i;
-				}
-			}
-			
-			if(dlg.m_nClass == -1)
+			if(eng.nClass < 0)
 			{
 				QMessageBox::critical(this, tr("Error"), tr("Couldn't autodetect transfer type."));
 				return;
 			}
 		}
 		
-		queue = getCurrentQueue(false);
+		queue = getQueue(dlg.m_nQueue, false);
+		
+		if(!queue)
+			throw RuntimeException(tr("Internal error."));
+		
 		for(int i=0;i<uris.size();i++)
 		{
 			cout << "Class ID: " << dlg.m_nClass << endl;
@@ -760,7 +767,7 @@ void MainWindow::addTransfer(QString uri)
 	}
 	
 	if(queue != 0)
-		doneCurrentQueue(queue,false);
+		doneQueue(queue,false);
 	
 	Queue::saveQueues();
 }
@@ -786,7 +793,9 @@ void MainWindow::deleteTransfer()
 		}
 	}
 	
-	doneCurrentQueue(q,false);
+	doneQueue(q,false);
+	
+	treeTransfers->selectionModel()->clearSelection();
 }
 
 void MainWindow::deleteTransferData()
@@ -818,7 +827,9 @@ void MainWindow::deleteTransferData()
 		}
 	}
 	
-	doneCurrentQueue(q,false);
+	doneQueue(q,false);
+	
+	treeTransfers->selectionModel()->clearSelection();
 }
 
 void MainWindow::resumeTransfer()
@@ -837,7 +848,7 @@ void MainWindow::resumeTransfer()
 			d->setState(Transfer::Waiting);
 	}
 	
-	doneCurrentQueue(q);
+	doneQueue(q);
 }
 
 void MainWindow::forcedResumeTransfer()
@@ -864,7 +875,7 @@ void MainWindow::setTransfer(Transfer::State state)
 			d->setState(state);
 	}
 	
-	doneCurrentQueue(q);
+	doneQueue(q);
 }
 
 void MainWindow::transferOptions()
@@ -917,7 +928,7 @@ void MainWindow::transferOptions()
 			Queue::saveQueues();
 		}
 	}
-	doneCurrentQueue(q);
+	doneQueue(q);
 }
 
 void MainWindow::refreshDetailsTab()
@@ -935,7 +946,7 @@ void MainWindow::refreshDetailsTab()
 	
 	if(ctrans.row() == -1)
 	{
-		doneCurrentQueue(q);
+		doneQueue(q);
 		tabMain->setCurrentIndex(0);
 		return;
 	}
@@ -980,7 +991,7 @@ void MainWindow::refreshDetailsTab()
 	
 	labelProgress->setText( progress );
 	
-	doneCurrentQueue(q,true,false);
+	doneQueue(q,true,false);
 }
 
 void MainWindow::currentTabChanged(int newTab)
@@ -994,7 +1005,7 @@ void MainWindow::removeCompleted()
 	Queue* q;
 	QString progress;
 	
-	if(listQueues->currentRow() == -1)
+	if(getSelectedQueue() == -1)
 	{
 		tabMain->setCurrentIndex(0);
 		return;
@@ -1014,7 +1025,7 @@ void MainWindow::removeCompleted()
 	q->unlock();
 	
 	refreshQueues();
-	doneCurrentQueue(q, false, true);
+	doneQueue(q, false, true);
 }
 
 void MainWindow::resumeAll()
@@ -1042,36 +1053,42 @@ void MainWindow::changeAll(bool resume)
 			q->at(i)->setState(Transfer::Paused);
 	}
 	
-	doneCurrentQueue(q);
+	doneQueue(q);
+}
+
+int MainWindow::getSelectedQueue()
+{
+	QModelIndexList list = listQueues->selectionModel()->selectedRows();
+	
+	if(list.isEmpty())
+		return -1;
+	else
+		return list[0].row();
+}
+
+Queue* MainWindow::getQueue(int index, bool lock)
+{
+	g_queuesLock.lockForRead();
+	
+	if(index < 0 || index >= g_queues.size())
+	{
+		qDebug() << "MainWindow::getQueue(): Invalid queue requested: " << index;
+		g_queuesLock.unlock();
+		return 0;
+	}
+	
+	Queue* q = g_queues[index];
+	if(lock)
+		q->lock();
+	return q;
 }
 
 Queue* MainWindow::getCurrentQueue(bool lock)
 {
-	int row;
-	Queue* q;
-	
-	g_queuesLock.lockForRead();
-	if((row = listQueues->currentRow()) == -1)
-	{
-		g_queuesLock.unlock();
-		return 0;
-	}
-	
-	if(row >= 0 && row < g_queues.size())
-	{
-		q = g_queues[row];
-		if(lock)
-			q->lock();
-		return q;
-	}
-	else
-	{
-		g_queuesLock.unlock();
-		return 0;
-	}
+	return getQueue(getSelectedQueue(), lock);
 }
 
-void MainWindow::doneCurrentQueue(Queue* q, bool unlock, bool refresh)
+void MainWindow::doneQueue(Queue* q, bool unlock, bool refresh)
 {
 	if(unlock)
 		q->unlock();
@@ -1111,7 +1128,7 @@ void MainWindow::transferItemContext(const QPoint&)
 				Transfer* t = q->at(ctrans.row());
 				t->fillContextMenu(menu);
 			}
-			doneCurrentQueue(q, true, false);
+			doneQueue(q, true, false);
 		}
 		
 		menu.addSeparator();
@@ -1139,7 +1156,7 @@ void MainWindow::toggleInfoBar(bool show)
 				delete InfoBar::getInfoBar(d);
 		}
 		
-		doneCurrentQueue(q,true,false);
+		doneQueue(q,true,false);
 	}
 }
 
@@ -1203,7 +1220,7 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 	}
 }
 
-void MainWindow::downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now)
+void MainWindow::downloadModeChanged(Transfer* /*t*/, Transfer::State /*prev*/, Transfer::State /*now*/)
 {
 }
 
@@ -1216,7 +1233,7 @@ QList<int> MainWindow::getSelection()
 	{
 		int size = q->size();
 		
-		doneCurrentQueue(q, true, false);
+		doneQueue(q, true, false);
 		
 		foreach(QModelIndex in, list)
 		{
@@ -1247,7 +1264,7 @@ void MainWindow::transferOpen(bool bOpenFile)
 		
 		path = d->dataPath(bOpenFile);
 		
-		doneCurrentQueue(q, true, false);
+		doneQueue(q, true, false);
 		
 		QString command = QString("%1 \"%2\"")
 				.arg(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString())

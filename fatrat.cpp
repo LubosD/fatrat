@@ -118,7 +118,7 @@ void processSession(QString arg)
 		if(!arg.isEmpty())
 		{
 			std::cout << "Passing arguments to an existing instance.\n";
-			QDBusInterface iface("info.dolezel.fatrat", "/", "info.dolezel.fatrat", conn);
+			QDBusInterface iface("info.dolezel.fatrat", "/", "FatRat", conn);
 			
 			iface.call("addTransfers", arg);
 		}

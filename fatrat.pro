@@ -83,7 +83,8 @@ SOURCES += fatrat.cpp \
  TorrentProgressWidget.cpp \
  TorrentPiecesModel.cpp \
  TorrentPeersModel.cpp \
- TorrentFilesModel.cpp
+ TorrentFilesModel.cpp \
+ NewTransferDlg.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

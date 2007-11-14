@@ -27,7 +27,7 @@ public:
 	
 	// Note that Download oriented class may switch its mode to Upload!
 	// Example: finished BitTorrent download switches to the seeding mode.
-	enum Mode { Download, Upload };
+	enum Mode { ModeInvalid, Download, Upload };
 	
 	virtual void init(QString source, QString target) = 0;
 	
@@ -82,7 +82,17 @@ public:
 	static Transfer* createInstance(QString className);
 	static Transfer* createInstance(Mode mode, int classID);
 	static bool runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects);
+	
+	struct BestEngine
+	{
+		BestEngine() : engine(0), type(ModeInvalid), nClass(-1) {}
+		const EngineEntry* engine;
+		Mode type;
+		int nClass;
+	};
+	
 	static const EngineEntry* engines(Mode type);
+	static BestEngine bestEngine(QString uri, Mode type = ModeInvalid); // type == ModeInvalid => all types
 	
 	// SETTINGS UTILITY FUNCTIONS
 	static QString getXMLProperty(const QDomNode& node, QString name);

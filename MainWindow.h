@@ -56,7 +56,7 @@ public slots:
 	void transferOptions();
 	void removeCompleted();
 	
-	void queueItemActivated(QListWidgetItem*);
+	void queueItemActivated();
 	void queueItemProperties();
 	void queueItemContext(const QPoint& pos);
 	
@@ -75,8 +75,10 @@ public slots:
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 	void downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 protected:
+	int getSelectedQueue();
+	Queue* getQueue(int index, bool lock = true);
 	Queue* getCurrentQueue(bool lock = true);
-	void doneCurrentQueue(Queue* q, bool unlock = true, bool refresh = true);
+	void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
 
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void hideEvent(QHideEvent* event);
