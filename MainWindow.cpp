@@ -73,7 +73,7 @@ void MainWindow::setupUi()
 	
 	//connect(listQueues, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
 	connect(listQueues, SIGNAL(itemSelectionChanged()), this, SLOT(queueItemActivated()));
-	connect(listQueues, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
+	//connect(listQueues, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
 	connect(listQueues, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(queueItemProperties()));
 	connect(listQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
 	
@@ -710,6 +710,8 @@ void MainWindow::addTransfer(QString uri)
 				QMessageBox::critical(this, tr("Error"), tr("Couldn't autodetect transfer type."));
 				return;
 			}
+			else
+				dlg.m_nClass = eng.nClass;
 		}
 		
 		queue = getQueue(dlg.m_nQueue, false);
