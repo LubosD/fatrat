@@ -7,6 +7,7 @@
 #include <QVariant>
 
 #define VERSION "SVN"
+#define DATA_LOCATION "/usr/share/fatrat"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);

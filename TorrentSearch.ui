@@ -1,0 +1,82 @@
+<ui version="4.0" >
+ <class>TorrentSearch</class>
+ <widget class="QWidget" name="TorrentSearch" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>672</width>
+    <height>478</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item rowspan="2" row="0" column="0" >
+    <widget class="QListWidget" name="listEngines" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Ignored" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Search string:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" colspan="2" >
+    <widget class="QLineEdit" name="lineExpr" />
+   </item>
+   <item row="0" column="4" >
+    <widget class="QPushButton" name="pushSearch" >
+     <property name="text" >
+      <string>Search</string>
+     </property>
+     <property name="autoDefault" >
+      <bool>true</bool>
+     </property>
+     <property name="default" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>231</width>
+       <height>25</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="3" colspan="2" >
+    <widget class="QPushButton" name="pushButton_2" >
+     <property name="text" >
+      <string>Update search modules</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="5" >
+    <widget class="QTreeWidget" name="treeResults" >
+     <column>
+      <property name="text" >
+       <string>1</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

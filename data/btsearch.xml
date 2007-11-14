@@ -1,0 +1,14 @@
+<search>
+	<engine id="tpb" name="The Pirate Bay">
+		<param name="query">http://thepiratebay.org/search.php?q=%1</param>
+		<param name="beginning">&lt;td class="vertTh"&gt;</param>
+		<param name="splitter">&lt;/tr&gt;</param>
+		<param name="ending">&lt;/table&gt;</param>
+		
+		<regexp name="name" field="1">class="detLink" title="([^"]+)"&gt;([^"]+)&lt;/a&gt;</regexp>
+		<regexp name="link" match="1">&lt;td&gt;&lt;a href="([^"]+)"</regexp>
+		<regexp name="size">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
+		<regexp name="seeders" match="1">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="2">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
+	</engine>
+</search>

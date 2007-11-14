@@ -70,6 +70,9 @@ public slots:
 	void displayDestroyed();
 	
 	void computeHash();
+	void openAppTool(); // like BitTorrent search
+	
+	void closeTab();
 	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
@@ -85,8 +88,12 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dropEvent(QDropEvent *event);
 	
+	void restoreWindowState();
+	void connectActions();
+	
 	void showTrayIcon();
 	void transferOpen(bool bOpenFile);
+	void initAppTools(QMenu* menu);
 private:
 	QTimer m_timer;
 	QSystemTrayIcon m_trayIcon;

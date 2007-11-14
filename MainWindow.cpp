@@ -24,6 +24,7 @@
 #include "HashDlg.h"
 #include "RuntimeException.h"
 #include "SpeedLimitWidget.h"
+#include "AppTools.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -31,6 +32,8 @@
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
+
+const int FIXED_TAB_COUNT = 4;
 
 using namespace std;
 
@@ -62,18 +65,54 @@ void MainWindow::setupUi()
 {
 	Ui_MainWindow::setupUi(this);
 	
-	g_settings->beginGroup("state");
-	
 	m_dropBox = new DropBox(this);
 	
+	m_modelTransfers = new TransfersModel(this);
+	treeTransfers->setModel(m_modelTransfers);
+	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
+	
+	treeTransfers->setContextMenuPolicy(Qt::CustomContextMenu);
+	listQueues->setContextMenuPolicy(Qt::CustomContextMenu);
+	
+	m_trayIcon.setIcon(QIcon(":/fatrat/fatrat.png"));
+	m_trayIcon.setToolTip("FatRat");
+	showTrayIcon();
+	
+	statusbar->addWidget(&m_labelStatus);
+	
+	statusbar->addPermanentWidget(new SpeedLimitWidget(statusbar));
+	
+	m_toolTabClose = new QToolButton(this);
+	m_toolTabClose->setIcon(QIcon(":/menu/tab_remove.png"));
+	m_toolTabClose->setEnabled(false);
+	tabMain->setCornerWidget(m_toolTabClose);
+	
+	QToolButton* toolOpen = new QToolButton(this);
+	QMenu* tabOpenMenu = new QMenu(toolOpen);
+	
+	initAppTools(tabOpenMenu);
+	
+	toolOpen->setIcon(QIcon(":/menu/tab_new.png"));
+	toolOpen->setPopupMode(QToolButton::InstantPopup);
+	toolOpen->setMenu(tabOpenMenu);
+	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
+	
+	m_graph = new SpeedGraph(this);
+	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Transfer speed graph"));
+	m_log = new TransferLog(this, textTransferLog);
+	
+	connectActions();
+	restoreWindowState();
+}
+
+void MainWindow::connectActions()
+{
 	connect(actionAbout, SIGNAL(triggered()), this, SLOT(about()));
 	connect(actionNewQueue, SIGNAL(triggered()), this, SLOT(newQueue()));
 	connect(actionDeleteQueue, SIGNAL(triggered()), this, SLOT(deleteQueue()));
 	connect(actionQueueProperties, SIGNAL(triggered()), this, SLOT(queueItemProperties()));
 	
-	//connect(listQueues, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
 	connect(listQueues, SIGNAL(itemSelectionChanged()), this, SLOT(queueItemActivated()));
-	//connect(listQueues, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(queueItemActivated(QListWidgetItem*)));
 	connect(listQueues, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(queueItemProperties()));
 	connect(listQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
 	
@@ -119,80 +158,47 @@ void MainWindow::setupUi()
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
 	
-	m_modelTransfers = new TransfersModel(this);
-	treeTransfers->setModel(m_modelTransfers);
-	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
+	connect(m_toolTabClose, SIGNAL(clicked()), this, SLOT(closeTab()));
+}
+
+void MainWindow::restoreWindowState()
+{
+	g_settings->beginGroup("state");
 	
-	treeTransfers->setContextMenuPolicy(Qt::CustomContextMenu);
-	listQueues->setContextMenuPolicy(Qt::CustomContextMenu);
+	QHeaderView* hdr = treeTransfers->header();
+	QVariant state = g_settings->value("mainheaders");
 	
-	m_trayIcon.setIcon(QIcon(":/fatrat/fatrat.png"));
-	m_trayIcon.setToolTip("FatRat");
-	showTrayIcon();
-	
-	statusbar->addWidget(&m_labelStatus);
-	
-	statusbar->addPermanentWidget(new SpeedLimitWidget(statusbar));
-	
-	m_toolTabClose = new QToolButton(this);
-	m_toolTabClose->setIcon(QIcon(":/menu/tab_remove.png"));
-	m_toolTabClose->setEnabled(false);
-	tabMain->setCornerWidget(m_toolTabClose);
-	
-	QToolButton* toolOpen = new QToolButton(this);
-	QMenu* tabOpenMenu = new QMenu(toolOpen);
-	
-	tabOpenMenu->addAction(tr("New BitTorrent search"));
-	
-	toolOpen->setIcon(QIcon(":/menu/tab_new.png"));
-	toolOpen->setPopupMode(QToolButton::InstantPopup);
-	toolOpen->setMenu(tabOpenMenu);
-	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
-	
-	m_graph = new SpeedGraph(this);
-	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Transfer speed graph"));
-	m_log = new TransferLog(this, textTransferLog);
-	
-	//////////////////////////
-	// RESTORE WINDOW STATE //
-	//////////////////////////
+	if(state.isNull())
 	{
-		QHeaderView* hdr = treeTransfers->header();
-		QVariant state = g_settings->value("mainheaders");
-		
-		if(state.isNull())
-		{
-			hdr->resizeSection(0, 300);
-			hdr->resizeSection(3, 160);
-		}
-		else
-			hdr->restoreState(state.toByteArray());
-		
-		state = g_settings->value("mainsplitter");
-		
-		if(state.isNull())
-			splitterQueues->setSizes(QList<int>() << 80 << 600);
-		else
-			splitterQueues->restoreState(state.toByteArray());
-		
-		connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
-		connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));
-		
-		QPoint pos = g_settings->value("mainwindow_pos").toPoint();
-		QSize size = g_settings->value("mainwindow_size").toSize();
-		
-		if(size.isEmpty())
-		{
-			qDebug() << "Maximizing the main window";
-			showMaximized();
-		}
-		else
-		{
-			//show();
-			QWidget::move(pos);
-			resize(size);
-			show();
-		}
+		hdr->resizeSection(0, 300);
+		hdr->resizeSection(3, 160);
+	}
+	else
+		hdr->restoreState(state.toByteArray());
+	
+	state = g_settings->value("mainsplitter");
+	
+	if(state.isNull())
+		splitterQueues->setSizes(QList<int>() << 80 << 600);
+	else
+		splitterQueues->restoreState(state.toByteArray());
+	
+	connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
+	connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));
+	
+	QPoint pos = g_settings->value("mainwindow_pos").toPoint();
+	QSize size = g_settings->value("mainwindow_size").toSize();
+	
+	if(size.isEmpty())
+	{
+		qDebug() << "Maximizing the main window";
+		showMaximized();
+	}
+	else
+	{
+		QWidget::move(pos);
+		resize(size);
+		show();
 	}
 	
 	g_settings->endGroup();
@@ -226,6 +232,30 @@ void MainWindow::about()
 				"Web: <a href=\"http://fatrat.dolezel.info\">http://fatrat.dolezel.info</a><br>"
 				"Licensed under terms of the <a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU GPL v2 licence</a>.")
 			);
+}
+
+void MainWindow::initAppTools(QMenu* tabOpenMenu)
+{
+	const AppTool* tools = getAppTools();
+	
+	for(int i=0;tools[i].pszName;i++)
+	{
+		QAction* action;
+		
+		action = tabOpenMenu->addAction(tr("New %1").arg(tools[i].pszName));
+		action->setData(i);
+		
+		connect(action, SIGNAL(triggered()), this, SLOT(openAppTool()));
+	}
+}
+
+void MainWindow::openAppTool()
+{
+	const AppTool* tools = getAppTools();
+	QAction* action = (QAction*) sender();
+	int tool = action->data().toInt();
+	
+	tabMain->setCurrentIndex( tabMain->addTab(tools[tool].pfnCreate(), tools[tool].pszName) );
 }
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -1000,6 +1030,23 @@ void MainWindow::currentTabChanged(int newTab)
 {
 	if(newTab == 1)
 		refreshDetailsTab();
+	m_toolTabClose->setEnabled(newTab > FIXED_TAB_COUNT-1);
+}
+
+void MainWindow::closeTab()
+{
+	int i = tabMain->currentIndex();
+	
+	if(i > FIXED_TAB_COUNT-1)
+	{
+		QWidget* w;
+		
+		w = tabMain->widget(i);
+		tabMain->setCurrentIndex(0);
+		tabMain->removeTab(i);
+		
+		delete w;
+	}
 }
 
 void MainWindow::removeCompleted()

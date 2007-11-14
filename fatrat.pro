@@ -21,7 +21,8 @@ FORMS += MainWindow.ui \
  CommentForm.ui \
  HashDlg.ui \
  TorrentDetailsForm.ui \
- SpeedLimitWidget.ui
+ SpeedLimitWidget.ui \
+ TorrentSearch.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -60,7 +61,9 @@ HEADERS += fatrat.h \
  TorrentPiecesModel.h \
  TorrentPeersModel.h \
  SpeedLimitWidget.h \
- TorrentFilesModel.h
+ TorrentFilesModel.h \
+ AppTools.h \
+ TorrentSearch.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -84,7 +87,9 @@ SOURCES += fatrat.cpp \
  TorrentPiecesModel.cpp \
  TorrentPeersModel.cpp \
  TorrentFilesModel.cpp \
- NewTransferDlg.cpp
+ NewTransferDlg.cpp \
+ AppTools.cpp \
+ TorrentSearch.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
@@ -101,6 +106,10 @@ INSTALL_ROOT = /usr/bin
 locale.files = locale/*.qm 
 locale.path = /usr/share/fatrat/lang
 INSTALLS += locale
+
+other_data.files = data/btsearch.xml
+other_data.path = /usr/share/fatrat/data
+INSTALLS += other_data
 
 icons.files = gfx/fatrat.png
 icons.path = /usr/share/pixmaps
