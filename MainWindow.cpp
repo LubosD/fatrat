@@ -692,7 +692,7 @@ void MainWindow::moveToBottom()
 	move(3);
 }
 
-void MainWindow::addTransfer(QString uri)
+void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className)
 {
 	int qSel = getSelectedQueue();
 	NewTransferDlg dlg(this);
@@ -706,13 +706,18 @@ void MainWindow::addTransfer(QString uri)
 	dlg.m_nQueue = qSel;
 	dlg.m_strURIs = uri;
 	
-	if(!uri.isEmpty())
+	if(!uri.isEmpty() && className.isEmpty())
 	{
 		QStringList l = uri.split('\n', QString::SkipEmptyParts);
-		Transfer::BestEngine eng = Transfer::bestEngine(l[0]);
+		Transfer::BestEngine eng = Transfer::bestEngine(l[0], mode);
 		
 		if(eng.type != Transfer::ModeInvalid)
 			dlg.m_mode = eng.type;
+	}
+	else
+	{
+		dlg.m_mode = mode;
+		dlg.m_strClass = className;
 	}
 	
 	if(dlg.exec() != QDialog::Accepted)
@@ -935,6 +940,8 @@ void MainWindow::transferOptions()
 		wgt.m_strURI = d->object();
 		
 		d->userSpeedLimits(wgt.m_nDownLimit, wgt.m_nUpLimit);
+		wgt.m_nDownLimit /= 1024;
+		wgt.m_nUpLimit /= 1024;
 		
 		dlg.setWindowTitle(tr("Transfer properties"));
 		dlg.addChild(&wgt);
@@ -955,7 +962,7 @@ void MainWindow::transferOptions()
 			{
 				QMessageBox::critical(this, tr("Error"), e.what());
 			}
-			d->setUserSpeedLimits(wgt.m_nDownLimit,wgt.m_nUpLimit);
+			d->setUserSpeedLimits(wgt.m_nDownLimit*1024,wgt.m_nUpLimit*1024);
 			updateUi();
 			Queue::saveQueues();
 		}

@@ -115,6 +115,7 @@ protected:
 	State m_state;
 	Mode m_mode;
 	int m_nDownLimit,m_nUpLimit;
+	int m_nDownLimitInt,m_nUpLimitInt;
 	bool m_bLocal;
 	
 	QString m_strLog, m_strComment;

@@ -29,7 +29,7 @@ public slots:
 	void updateUi();
 	void newQueue();
 	void deleteQueue();
-	void addTransfer(QString uri = QString());
+	void addTransfer(QString uri = QString(), Transfer::Mode mode = Transfer::ModeInvalid, QString className = QString());
 	void deleteTransfer();
 	void deleteTransferData();
 	void refreshQueues();

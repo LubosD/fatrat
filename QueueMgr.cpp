@@ -84,12 +84,10 @@ void QueueMgr::doWork()
 		
 		q->unlock();
 		
+		int downl=0,upl=0;
+		
 		if(running > 0 && (down || up))
 		{
-			//cout << "--- " << running << " active transfers, using " << downt << " B/s, total limit is " << down << endl;
-			
-			int downl=0,upl=0;
-			
 			// unused bandwidth
 			if(down)
 			{
@@ -103,16 +101,14 @@ void QueueMgr::doWork()
 				if(running > 1)
 					upl += std::max(up-upt,0)/(running-1);
 			}
-			
-			//cout << "--- limiting to " << down << endl;
-			
-			q->lock();
-			foreach(Transfer* d,q->m_transfers)
-			{
-				d->setInternalSpeedLimits(downl,upl);
-			}
-			q->unlock();
 		}
+		
+		q->lock();
+		foreach(Transfer* d,q->m_transfers)
+		{
+			d->setInternalSpeedLimits(downl,upl);
+		}
+		q->unlock();
 	}
 	
 	g_queuesLock.unlock();

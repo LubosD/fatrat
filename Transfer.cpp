@@ -26,7 +26,8 @@ static const EngineEntry m_enginesUpload[] = {
 };
 
 Transfer::Transfer(bool local)
-	: m_state(Waiting), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0), m_bLocal(local)
+	: m_state(Waiting), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
+		  m_nDownLimitInt(0), m_nUpLimitInt(0), m_bLocal(local)
 {
 	m_timer = new QTimer(this);
 	
@@ -40,18 +41,25 @@ Transfer::~Transfer()
 
 void Transfer::setUserSpeedLimits(int down,int up)
 {
-	m_nDownLimit = down;
-	m_nUpLimit = up;
+	m_nDownLimitInt = m_nDownLimit = down;
+	m_nUpLimitInt = m_nUpLimit = up;
 	setSpeedLimits(down,up);
 }
 
 void Transfer::setInternalSpeedLimits(int down,int up)
 {
-	if(m_nDownLimit)
+	if(m_nDownLimit < down && m_nDownLimit)
 		down = m_nDownLimit;
-	if(m_nUpLimit)
+	if(m_nUpLimit < up && m_nUpLimit)
 		up = m_nUpLimit;
-	setSpeedLimits(down,up);
+	
+	if(down != m_nDownLimitInt || up != m_nUpLimitInt)
+	{
+		m_nDownLimitInt = down;
+		m_nUpLimitInt = up;
+	
+		setSpeedLimits(down,up);
+	}
 }
 
 bool Transfer::isActive() const

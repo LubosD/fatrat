@@ -92,7 +92,7 @@ void Queue::saveQueues()
 	
 	if(!dir.cd(".local/share/fatrat"))
 		return;
-	file.setFileName(dir.filePath("queues.xml"));
+	file.setFileName(dir.filePath("queues.xml.new"));
 	
 	if(!file.open(QIODevice::WriteOnly))
 		return;
@@ -118,6 +118,10 @@ void Queue::saveQueues()
 	
 	g_queuesLock.unlock();
 	file.write(doc.toByteArray());
+	file.close();
+	
+	dir.remove("queues.xml");
+	dir.rename("queues.xml.new", "queues.xml");
 }
 
 void Queue::loadQueue(const QDomNode& node)

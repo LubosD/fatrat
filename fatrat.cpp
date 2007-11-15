@@ -125,7 +125,7 @@ void processSession(QString arg)
 		else
 		{
 			QMessageBox::critical(0, "FatRat", QObject::tr("There is already a running instance.\n"
-					"If you want to start FatRat anyway, pass --force among arguments"));
+					"If you want to start FatRat anyway, pass --force among arguments."));
 		}
 		
 		exit(0);

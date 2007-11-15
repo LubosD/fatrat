@@ -36,6 +36,7 @@ protected:
 		QBuffer* buffer;
 	};
 	
+	void updateUi();
 	void loadEngines();
 	void parseResults(Engine* e);
 	
@@ -43,9 +44,24 @@ protected:
 public slots:
 	void search();
 	void searchDone(bool error);
+	void itemDoubleClicked(QTreeWidgetItem* item);
+	void setSearchFocus();
 private:
 	QList<Engine> m_engines;
 	bool m_bSearching;
+};
+
+class SearchTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+	SearchTreeWidgetItem(QTreeWidget* parent) : QTreeWidgetItem(parent) {}
+	
+	void parseSize(QString in);
+	
+	QString m_strLink; // torrent download link
+	qint64 m_nSize; // torrent's data size
+private:
+	bool operator<(const QTreeWidgetItem& other) const;
 };
 
 #endif
