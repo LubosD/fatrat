@@ -23,4 +23,9 @@
 		<regexp name="seeders" field="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
 		<regexp name="leechers" field="1" match="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
 	</engine>
+	<!--<engine name="IsoHunt">
+		<param name="query">http://isohunt.com/torrents/?ihq=%1</param>
+		<param name="beginning">&lt;/th&gt;&lt;/tr&gt;</param>
+		<param name="splitter"></param>
+	</engine>-->
 </search>

@@ -23,7 +23,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="label" >
+    <widget class="RightClickLabel" name="labelDown2" >
      <property name="sizePolicy" >
       <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
        <horstretch>0</horstretch>
@@ -54,10 +54,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="labelDown" />
+    <widget class="RightClickLabel" name="labelDown" >
+     <property name="statusTip" >
+      <string>Download speed limit</string>
+     </property>
+    </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_2" >
+    <widget class="RightClickLabel" name="labelUp2" >
      <property name="sizePolicy" >
       <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
        <horstretch>0</horstretch>
@@ -88,10 +92,21 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="labelUp" />
+    <widget class="RightClickLabel" name="labelUp" >
+     <property name="statusTip" >
+      <string>Upload speed limit</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>RightClickLabel</class>
+   <extends>QLabel</extends>
+   <header>SpeedLimitWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="gfx/resources.qrc" />
  </resources>

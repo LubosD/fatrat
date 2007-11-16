@@ -89,7 +89,8 @@ SOURCES += fatrat.cpp \
  TorrentFilesModel.cpp \
  NewTransferDlg.cpp \
  AppTools.cpp \
- TorrentSearch.cpp
+ TorrentSearch.cpp \
+ SpeedLimitWidget.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

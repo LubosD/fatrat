@@ -213,7 +213,7 @@ void HttpEngine::run()
 		}
 		while(bChunked && bOK);
 		
-		if(!bOK && !m_nToTransfer)
+		if(!m_nToTransfer)
 			bOK = true;
 		
 		m_file.close();

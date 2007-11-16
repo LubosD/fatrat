@@ -79,7 +79,7 @@ public slots:
 	void downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 protected:
 	int getSelectedQueue();
-	Queue* getQueue(int index, bool lock = true);
+	static Queue* getQueue(int index, bool lock = true);
 	Queue* getCurrentQueue(bool lock = true);
 	void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
 
@@ -107,6 +107,7 @@ private:
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;
+	friend class RightClickLabel;
 };
 
 #endif

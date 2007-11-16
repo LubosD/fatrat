@@ -1,47 +1,38 @@
 #ifndef SPEEDLIMITWIDGET_H
 #define SPEEDLIMITWIDGET_H
 #include <QWidget>
+#include <QLabel>
 #include <QTimer>
-#include "MainWindow.h"
-#include "Queue.h"
-#include "fatrat.h"
-#include "ui_SpeedLimitWidget.h"
 
-extern MainWindow* g_wndMain;
+class RightClickLabel : public QLabel
+{
+Q_OBJECT
+public:
+	RightClickLabel(QWidget* parent) : QLabel(parent), m_nSpeed(0), m_bUpload(false)
+	{
+	}
+	void setUpload(bool is) { m_bUpload = is; }
+	void refresh(int speed) { m_nSpeed = speed; }
+public slots:
+	void setLimit();
+protected:
+	void mousePressEvent(QMouseEvent* event);
+	
+	int m_nSpeed;
+	bool m_bUpload;
+};
+
+#include "ui_SpeedLimitWidget.h"
 
 class SpeedLimitWidget : public QWidget, Ui_SpeedLimitWidget
 {
 Q_OBJECT
 public:
-	SpeedLimitWidget(QWidget* parent)
-	: QWidget(parent)
-	{
-		setupUi(this);
-		m_timer.start(1000);
-		connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-	}
+	SpeedLimitWidget(QWidget* parent);
 public slots:
-	void refresh()
-	{
-		Queue* q = g_wndMain->getCurrentQueue();
-		if(q != 0)
-		{
-			int down,up;
-			q->speedLimits(down,up);
-			
-			g_wndMain->doneQueue(q);
-			
-			if(down > 0)
-				labelDown->setText(formatSize(down,true));
-			else
-				labelDown->setText(QString::fromUtf8("∞ kB/s"));
-			
-			if(up > 0)
-				labelUp->setText(formatSize(up,true));
-			else
-				labelUp->setText(QString::fromUtf8("∞ kB/s"));
-		}
-	}
+	void refresh();
+protected:
+	void mouseDoubleClickEvent(QMouseEvent*);
 private:
 	QTimer m_timer;
 };
