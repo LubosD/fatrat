@@ -202,7 +202,7 @@
       </widget>
       <widget class="QWidget" name="tab_2" >
        <attribute name="title" >
-        <string>Transfer details</string>
+        <string>Details</string>
        </attribute>
        <attribute name="icon" >
         <iconset resource="gfx/resources.qrc" >:/menu/details.png</iconset>
@@ -335,7 +335,7 @@
       </widget>
       <widget class="QWidget" name="tab_3" >
        <attribute name="title" >
-        <string>Transfer log</string>
+        <string>Log</string>
        </attribute>
        <attribute name="icon" >
         <iconset resource="gfx/resources.qrc" >:/menu/log.png</iconset>

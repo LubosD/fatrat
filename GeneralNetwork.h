@@ -43,6 +43,7 @@ protected:
 	bool request(QString file, bool bOpenForWrite = true);
 	static void doClose(QTcpSocket*& sock);
 	static bool bindSocket(QAbstractSocket* sock, QHostAddress addr);
+	static QString getErrorString(QAbstractSocket::SocketError err);
 protected:
 	QString m_strError;
 	QTcpSocket* m_pSocket;
@@ -64,6 +65,7 @@ Q_OBJECT
 public:
 	HttpEngine(QUrl url, QUrl referrer, QUuid proxy);
 	void request(QString file);
+	void dataCycle(bool bChunked);
 	virtual void run();
 signals:
 	void responseReceived(QHttpResponseHeader resp);

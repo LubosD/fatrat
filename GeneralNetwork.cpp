@@ -85,155 +85,179 @@ void HttpEngine::run()
 	m_pSocket = new QTcpSocket;
 	m_pSocket->setReadBufferSize(1024);
 	
-	if(!bindSocket(m_pSocket, m_bindAddress))
+	try
 	{
-		m_strError = tr("Failed to bind socket");
-		doClose(m_pSocket);
-		emit finished(this,true);
-		return;
-	}
-	
-	if(m_proxyData.nType == Proxy::ProxyHttp)
-		m_pSocket->connectToHost(m_proxyData.strIP,m_proxyData.nPort);
-	else
-	{
-		if(m_proxyData.nType == Proxy::ProxySocks5)
-		{
-			QNetworkProxy proxy;
-			
-			proxy.setType(QNetworkProxy::Socks5Proxy);
-			proxy.setHostName(m_proxyData.strIP);
-			proxy.setPort(m_proxyData.nPort);
-			proxy.setUser(m_proxyData.strUser);
-			proxy.setPassword(m_proxyData.strPassword);
-			
-			m_pSocket->setProxy(proxy);
-		}
-		m_pSocket->connectToHost(m_url.host(),m_url.port(80));
-	}
-	
-	if(!m_pSocket->waitForConnected())
-	{
-		emit finished(this,true);
-		doClose(m_pSocket);
-		return;
-	}
-	if(m_bAbort)
-		return;
-	
-	m_pSocket->write(m_header.toString().toAscii());
-	m_pSocket->write("\r\n", 2);
-	
-	if(!m_pSocket->waitForBytesWritten())
-	{
-		doClose(m_pSocket);
-		emit finished(this,true);
-		return;
-	}
-	if(m_bAbort)
-		return;
-	
-	QByteArray response;
-	QString text;
-	
-	while(true)
-	{
-		QByteArray line = readLine();
+		if(!bindSocket(m_pSocket, m_bindAddress))
+			throw tr("Failed to bind socket");
 		
-		qDebug() << "Received HTTP line" << line;
-		
-		if(line.size() <= 2)
-		{
-			cout << "Line len is " << line.size() << endl;
-			if(line.isEmpty())
-			{
-				m_strError = tr("Timeout");
-				emit finished(this,true);
-				doClose(m_pSocket);
-				return;
-			}
-			else
-				break;
-		}
+		if(m_proxyData.nType == Proxy::ProxyHttp)
+			m_pSocket->connectToHost(m_proxyData.strIP,m_proxyData.nPort);
 		else
-			response += line;
-	}
-	
-	text = response;
-	
-	QHttpResponseHeader header(text);
-	
-	//qDebug() << "Processed the header";
-	emit responseReceived(header);
-	
-	switch(header.statusCode())
-	{
-	case 200:
-	{
-		if(m_file.pos() && !header.hasKey("content-range"))
 		{
-			// resume not supported
-			m_file.resize(0);
-			m_file.seek(0);
-		}
-	}
-	case 206: // data will follow
-	{
-		bool bChunked = false;
-		if(header.value("transfer-encoding").compare("chunked",Qt::CaseInsensitive) == 0)
-			bChunked = true;
-		
-		bool bOK = true;
-		do
-		{
-			m_nTransfered = 0;
-			
-			if(bChunked)
+			if(m_proxyData.nType == Proxy::ProxySocks5)
 			{
-				QString line;
-				do
-				{
-					line = readLine();
-				}
-				while(line.trimmed().isEmpty());
+				QNetworkProxy proxy;
 				
-				m_nToTransfer = line.toULongLong(0,16);
-				if(!m_nToTransfer)
+				proxy.setType(QNetworkProxy::Socks5Proxy);
+				proxy.setHostName(m_proxyData.strIP);
+				proxy.setPort(m_proxyData.nPort);
+				proxy.setUser(m_proxyData.strUser);
+				proxy.setPassword(m_proxyData.strPassword);
+				
+				m_pSocket->setProxy(proxy);
+			}
+			m_pSocket->connectToHost(m_url.host(),m_url.port(80));
+		}
+		
+		if(!m_pSocket->waitForConnected())
+			throw getErrorString(m_pSocket->error());
+		if(m_bAbort)
+			return;
+		
+		m_pSocket->write(m_header.toString().toAscii());
+		m_pSocket->write("\r\n", 2);
+		
+		if(!m_pSocket->waitForBytesWritten())
+			throw getErrorString(m_pSocket->error());
+		
+		if(m_bAbort)
+			return;
+		
+		QByteArray response;
+		QString text;
+		
+		while(true)
+		{
+			QByteArray line = readLine();
+			
+			qDebug() << "Received HTTP line" << line;
+			
+			if(line.size() <= 2)
+			{
+				if(line.isEmpty())
+					throw getErrorString(m_pSocket->error());
+				else
 					break;
 			}
+			else
+				response += line;
+		}
+		
+		text = response;
+		
+		QHttpResponseHeader header(text);
+		
+		//qDebug() << "Processed the header";
+		emit responseReceived(header);
+		
+		switch(header.statusCode())
+		{
+		case 200:
+		{
+			if(m_file.pos() && !header.hasKey("content-range"))
+			{
+				// resume not supported
+				m_file.resize(0);
+				m_file.seek(0);
+			}
+		}
+		case 206: // data will follow
+		{
+			bool bChunked = false;
+			if(header.value("transfer-encoding").compare("chunked",Qt::CaseInsensitive) == 0)
+				bChunked = true;
 			else
 				m_nToTransfer = header.value("content-length").toULongLong();
 			
-			while(!m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer))
-			{
-				bOK = readCycle();
-				if(!bOK)
-					break;
-			}
+			dataCycle(bChunked);
+			emit finished(this, false);
+			
+			break;
 		}
-		while(bChunked && bOK);
-		
-		if(!m_nToTransfer)
-			bOK = true;
-		
-		m_file.close();
-		if(!m_bAbort)
-			emit finished(this,!bOK);
-		else
-			m_bAbort = false;
-		
-		break;
+		case 301:
+		case 302: // redirect
+			break;
+		default: // error
+			throw header.reasonPhrase();
+		}
 	}
-	case 301:
-	case 302: // redirect
-		break;
-	default: // error
-		m_strError = header.reasonPhrase();
-		emit finished(this,true);
+	catch(const QString& text)
+	{
+		m_strError = text;
+		emit finished(this, true);
 	}
+	
+	m_file.close();
 	
 	if(m_pSocket)
 		doClose(m_pSocket);
+}
+
+void HttpEngine::dataCycle(bool bChunked)
+{
+	bool bOK = true;
+	do
+	{
+		m_nTransfered = 0;
+		
+		if(bChunked)
+		{
+			QString line;
+			do
+			{
+				line = readLine();
+			}
+			while(line.trimmed().isEmpty());
+			
+			m_nToTransfer = line.toULongLong(0,16);
+			if(!m_nToTransfer)
+				break;
+		}
+		
+		while(!m_bAbort && (m_nTransfered < m_nToTransfer || !m_nToTransfer))
+		{
+			if(! (bOK = readCycle()))
+			{
+				if(m_nToTransfer != 0)
+					throw getErrorString(m_pSocket->error());
+				break;
+			}
+		}
+	}
+	while(bChunked && bOK && !m_bAbort);
+}
+
+QString LimitedSocket::getErrorString(QAbstractSocket::SocketError err)
+{
+	switch(err)
+	{
+	case QAbstractSocket::ConnectionRefusedError:
+		return tr("Connection refused");
+	case QAbstractSocket::RemoteHostClosedError:
+		return tr("Connection lost");
+	case QAbstractSocket::HostNotFoundError:
+		return tr("Host not found");
+	case QAbstractSocket::SocketAccessError:
+		return tr("Access denied");
+	case QAbstractSocket::SocketResourceError:
+		return tr("Socket resource error");
+	case QAbstractSocket::SocketTimeoutError:
+		return tr("Timeout");
+	case QAbstractSocket::DatagramTooLargeError:
+		return tr("Datagram too large");
+	case QAbstractSocket::NetworkError:
+		return tr("Network error");
+	case QAbstractSocket::AddressInUseError:
+		return tr("Address is already in use");
+	case QAbstractSocket::SocketAddressNotAvailableError:
+		return tr("Address is not available");
+	case QAbstractSocket::UnsupportedSocketOperationError:
+		return tr("Unsupported operation");
+	case QAbstractSocket::ProxyAuthenticationRequiredError:
+		return tr("The proxy requires authentication");
+	default:
+		return tr("Unknown error");
+	}
 }
 
 bool LimitedSocket::bindSocket(QAbstractSocket* sock, QHostAddress addr)
@@ -337,7 +361,7 @@ bool LimitedSocket::writeCycle()
 	//qDebug() << "Written data";
 	if(!m_pSocket->waitForBytesWritten(10000))
 	{
-		m_strError = tr("Timeout");
+		throw getErrorString(m_pSocket->error());
 		return false;
 	}
 	
@@ -371,87 +395,95 @@ bool LimitedSocket::readCycle()
 {
 	QByteArray buffer;
 	bool bProblem = false;
-	
+
 	if(m_timer.isNull())
 	{
 		m_prevBytes = 0;
 		m_timer.start();
 	}
 	
-	while(buffer.size() < 1024)
+	int limit = m_nSpeedLimit;
+
+	do
 	{
-		if(m_nTransfered+buffer.size() >= m_nToTransfer && m_nToTransfer)
-			break;
+		QByteArray buf;
+		qint64 available;
 		
-		if(!m_pSocket->bytesAvailable() && !m_pSocket->waitForReadyRead())
+		available = m_pSocket->bytesAvailable();
+		if(!available && !m_pSocket->waitForReadyRead())
 		{
 			bProblem = true;
 			break;
 		}
 		
-		qint64 toread = 1024;
+		qint64 toread = (limit) ? limit/2 : available;
 		
-		if(m_nToTransfer && m_nToTransfer-m_nTransfered < 1024)
+		if(m_nToTransfer && m_nToTransfer-m_nTransfered < toread)
 			toread = m_nToTransfer-m_nTransfered;
-		QByteArray buf = m_pSocket->read(toread);
 		
+		buf = m_pSocket->read(toread);
 		buffer += buf;
 		m_nTransfered += buf.size();
+		
+		if(m_nTransfered >= m_nToTransfer && m_nToTransfer)
+			break;
 	}
-	
+	while(buffer.size() < 1024);
+
 	m_file.write(buffer);
-	
+
 	if(bProblem)
 	{
-		if(m_pSocket->state() == QAbstractSocket::ConnectedState) // timeout
-			m_strError = tr("Timeout");
+		/*if(m_pSocket->state() == QAbstractSocket::ConnectedState) // timeout
+			m_strError = tr ( "Timeout" );
 		else if(m_pSocket->error() == QAbstractSocket::RemoteHostClosedError)
 		{
 			if(m_nToTransfer > m_nTransfered && m_nToTransfer)
 			{
 				qDebug() << "Remote host closed the connection";
-				m_strError = tr("Connection lost");
+				m_strError = tr ( "Connection lost" );
 			}
 		}
 		else
 		{
 			m_strError = m_pSocket->errorString();
-			if(m_strError.isEmpty())
+			if ( m_strError.isEmpty() )
 			{
 				qDebug() << "Connection lost!";
-				m_strError = tr("Connection lost");
+				m_strError = tr ( "Connection lost" );
 			}
-		}
+		}*/
 	}
 	else if(!m_bAbort)
 	{
 		QTime now = QTime::currentTime();
 		qulonglong bnow = m_nTransfered;
-	
+
 		int msecs;
 		qulonglong bytes = bnow - m_prevBytes;
-		
+
 		if((msecs = m_timer.elapsed()) > 1000)
 		{
 			m_statsLock.lockForWrite();
-			m_stats << QPair<int,qulonglong>(m_timer.restart(), bytes);
+			m_stats << QPair<int,qulonglong> ( m_timer.restart(), bytes );
 			if(m_stats.size() > SPEED_SAMPLES)
 				m_stats.removeFirst();
 			m_statsLock.unlock();
-			
+
 			m_prevBytes = bnow;
 		}
-		
+
 		if(m_nSpeedLimit > 0 && bytes)
 		{
-			int sleeptime = bytes/(m_nSpeedLimit/1000) - msecs;
+			int sleeptime = bytes/ ( limit/1000 ) - msecs;
 			if(sleeptime > 0)
 				msleep(sleeptime*2);
 		}
 	}
-	
+
 	return !bProblem;
 }
+
 
 int LimitedSocket::speed() const
 {

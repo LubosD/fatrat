@@ -98,7 +98,7 @@ void MainWindow::setupUi()
 	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
 	
 	m_graph = new SpeedGraph(this);
-	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Transfer speed graph"));
+	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Speed graph"));
 	m_log = new TransferLog(this, textTransferLog);
 	
 	connectActions();
@@ -590,7 +590,10 @@ void MainWindow::displayDestroyed()
 {
 	Queue* q = getCurrentQueue();
 	QModelIndex i = treeTransfers->currentIndex();
-	Transfer* d = q->at(i.row());
+	Transfer* d = 0;
+	
+	if(q != 0)
+		d = q->at(i.row());
 	
 	if(QWidget* w = stackedDetails->currentWidget())
 		stackedDetails->removeWidget(w);
@@ -1128,7 +1131,8 @@ Queue* MainWindow::getQueue(int index, bool lock)
 	
 	if(index < 0 || index >= g_queues.size())
 	{
-		qDebug() << "MainWindow::getQueue(): Invalid queue requested: " << index;
+		if(index != -1)
+			qDebug() << "MainWindow::getQueue(): Invalid queue requested: " << index;
 		g_queuesLock.unlock();
 		return 0;
 	}
@@ -1146,11 +1150,14 @@ Queue* MainWindow::getCurrentQueue(bool lock)
 
 void MainWindow::doneQueue(Queue* q, bool unlock, bool refresh)
 {
-	if(unlock)
-		q->unlock();
-	g_queuesLock.unlock();
-	if(refresh)
-		updateUi();
+	if(q != 0)
+	{
+		if(unlock)
+			q->unlock();
+		g_queuesLock.unlock();
+		if(refresh)
+			updateUi();
+	}
 }
 
 void MainWindow::transferItemContext(const QPoint&)

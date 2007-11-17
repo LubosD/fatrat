@@ -48,9 +48,9 @@ void Transfer::setUserSpeedLimits(int down,int up)
 
 void Transfer::setInternalSpeedLimits(int down,int up)
 {
-	if(m_nDownLimit < down && m_nDownLimit)
+	if((m_nDownLimit < down && m_nDownLimit) || !down)
 		down = m_nDownLimit;
-	if(m_nUpLimit < up && m_nUpLimit)
+	if((m_nUpLimit < up && m_nUpLimit) || !up)
 		up = m_nUpLimit;
 	
 	if(down != m_nDownLimitInt || up != m_nUpLimitInt)

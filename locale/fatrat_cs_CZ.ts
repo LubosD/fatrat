@@ -333,7 +333,7 @@
     <message>
         <location filename="../GeneralNetwork.cpp" line="150"/>
         <source>Timeout</source>
-        <translation>Vypřšel časový limit</translation>
+        <translation>Vypršel časový limit</translation>
     </message>
     <message>
         <location filename="../GeneralNetwork.cpp" line="90"/>
@@ -487,7 +487,7 @@
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="956"/>
+        <location filename="../MainWindow.cpp" line="966"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -497,12 +497,12 @@
         <translation>Odstranit přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="917"/>
+        <location filename="../MainWindow.cpp" line="925"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="931"/>
+        <location filename="../MainWindow.ui" line="205"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
@@ -512,7 +512,7 @@
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1016"/>
+        <location filename="../MainWindow.cpp" line="1026"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
@@ -532,7 +532,7 @@
         <translation>&lt;b&gt;Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="205"/>
+        <location filename="../MainWindow.cpp" line="783"/>
         <source>Transfer details</source>
         <translation>Detaily přenosu</translation>
     </message>
@@ -654,7 +654,7 @@
     <message>
         <location filename="../MainWindow.cpp" line="101"/>
         <source>Transfer speed graph</source>
-        <translation>Graf rychlosti přenosu</translation>
+        <translation type="obsolete">Graf rychlosti přenosu</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="464"/>
@@ -662,7 +662,7 @@
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1250"/>
+        <location filename="../MainWindow.cpp" line="1264"/>
         <source>Transfer completed</source>
         <translation>Přenos dokončen</translation>
     </message>
@@ -689,7 +689,7 @@
     <message>
         <location filename="../MainWindow.ui" line="338"/>
         <source>Transfer log</source>
-        <translation>Log přenosu</translation>
+        <translation type="obsolete">Log přenosu</translation>
     </message>
     <message>
         <location filename="../MainWindow.ui" line="658"/>
@@ -697,12 +697,12 @@
         <translation>Zobrazit drop-box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="740"/>
+        <location filename="../MainWindow.cpp" line="748"/>
         <source>Couldn&apos;t autodetect transfer type.</source>
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1251"/>
+        <location filename="../MainWindow.cpp" line="1265"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
@@ -712,27 +712,27 @@
         <translation>Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="992"/>
+        <location filename="../MainWindow.cpp" line="1002"/>
         <source>transfered %1 from %2 (%3%)</source>
         <translation>přeneseno %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="994"/>
+        <location filename="../MainWindow.cpp" line="1004"/>
         <source>transfered %1, total size unknown</source>
         <translation>přeneseno %1, celková velikost neznámá</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="856"/>
+        <location filename="../MainWindow.cpp" line="864"/>
         <source>Delete transfers</source>
         <translation>Odstranit přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="817"/>
+        <location filename="../MainWindow.cpp" line="825"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="932"/>
+        <location filename="../MainWindow.cpp" line="940"/>
         <source>Comment</source>
         <translation>Komentář</translation>
     </message>
@@ -767,7 +767,7 @@
         <translation type="obsolete">Nové vyhledávání torrentů</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="758"/>
+        <location filename="../MainWindow.cpp" line="766"/>
         <source>Failed to create a class instance.</source>
         <translation>Nepodařilo se vytvořit instanci třídy.</translation>
     </message>
@@ -777,17 +777,17 @@
         <translation>Nový %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="750"/>
+        <location filename="../MainWindow.cpp" line="758"/>
         <source>Internal error.</source>
         <translation>Interní chyba.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="843"/>
+        <location filename="../MainWindow.cpp" line="851"/>
         <source>Do you really want to delete selected transfers &lt;b&gt;including the data&lt;/b&gt;?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy &lt;b&gt;včetně dat&lt;/b&gt;?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="857"/>
+        <location filename="../MainWindow.cpp" line="865"/>
         <source>FatRat failed to remove some files, check your permissions.</source>
         <translation>FatRatu se nepodařilo smazat některé soubory, ověřte svá oprávnění.</translation>
     </message>
@@ -795,6 +795,16 @@
         <location filename="../MainWindow.ui" line="687"/>
         <source>Delete transfer including data</source>
         <translation>Odstranit přenos včetně dat</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="101"/>
+        <source>Speed graph</source>
+        <translation>Graf rychlosti</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="338"/>
+        <source>Log</source>
+        <translation>Log</translation>
     </message>
 </context>
 <context>
@@ -995,6 +1005,19 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../QueueDlg.ui" line="84"/>
         <source>Limit active transfer count</source>
         <translation>Omezovat počet aktivních přenosů</translation>
+    </message>
+</context>
+<context>
+    <name>RightClickLabel</name>
+    <message>
+        <location filename="../SpeedLimitWidget.cpp" line="84"/>
+        <source>Upload</source>
+        <translation>Upload</translation>
+    </message>
+    <message>
+        <location filename="../SpeedLimitWidget.cpp" line="84"/>
+        <source>Download</source>
+        <translation>Stahování</translation>
     </message>
 </context>
 <context>
@@ -1265,12 +1288,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SpeedLimitWidget</name>
     <message>
-        <location filename="../SpeedLimitWidget.ui" line="46"/>
+        <location filename="../SpeedLimitWidget.ui" line="59"/>
         <source>Download speed limit</source>
         <translation>Limit rychlosti stahování</translation>
     </message>
     <message>
-        <location filename="../SpeedLimitWidget.ui" line="80"/>
+        <location filename="../SpeedLimitWidget.ui" line="97"/>
         <source>Upload speed limit</source>
         <translation>Limit rychlosti uploadu</translation>
     </message>
@@ -1621,32 +1644,32 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>TorrentSearch</name>
     <message>
-        <location filename="../TorrentSearch.cpp" line="33"/>
+        <location filename="../TorrentSearch.cpp" line="37"/>
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../TorrentSearch.cpp" line="33"/>
+        <location filename="../TorrentSearch.cpp" line="37"/>
         <source>Size</source>
         <translation>Velikost</translation>
     </message>
     <message>
-        <location filename="../TorrentSearch.cpp" line="33"/>
+        <location filename="../TorrentSearch.cpp" line="37"/>
         <source>Seeders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../TorrentSearch.cpp" line="33"/>
+        <location filename="../TorrentSearch.cpp" line="37"/>
         <source>Leechers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../TorrentSearch.cpp" line="33"/>
+        <location filename="../TorrentSearch.cpp" line="37"/>
         <source>Source</source>
         <translation>Zdroj</translation>
     </message>
     <message>
-        <location filename="../TorrentSearch.cpp" line="48"/>
+        <location filename="../TorrentSearch.cpp" line="63"/>
         <source>Failed to load BitTorrent search engine information.</source>
         <translation>Nepodařilo se načíst informace o vyhledávacích enginech pro BitTorrent.</translation>
     </message>
@@ -1663,7 +1686,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../TorrentSearch.ui" line="62"/>
         <source>Update search modules</source>
-        <translation>Aktualizovat vyhledávací moduly</translation>
+        <translation type="obsolete">Aktualizovat vyhledávací moduly</translation>
+    </message>
+    <message>
+        <location filename="../TorrentSearch.cpp" line="172"/>
+        <source>Please enable at least one search engine.</source>
+        <translation>Prosím povolte alespoň jeden vyhledávací engine.</translation>
+    </message>
+    <message>
+        <location filename="../TorrentSearch.cpp" line="286"/>
+        <source>Stop searching</source>
+        <translation>Zastavit hledání</translation>
     </message>
 </context>
 <context>
@@ -1707,12 +1740,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../Transfer.cpp" line="183"/>
+        <location filename="../Transfer.cpp" line="191"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Změněn stav: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location filename="../Transfer.cpp" line="90"/>
+        <location filename="../Transfer.cpp" line="98"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation>Tento typ přenosu nemá žádné pokročilé vlastnosti k nastavování.</translation>
     </message>

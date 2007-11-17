@@ -247,6 +247,8 @@ QString formatTime(qulonglong inval)
 bool recursiveRemove(QString what)
 {
 	qDebug() << "recursiveRemove" << what;
+	if(!QFile::exists(what))
+		return true; // silently ignore
 	if(!QFile::remove(what))
 	{
 		QDir dir(what);

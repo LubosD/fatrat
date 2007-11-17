@@ -55,7 +55,7 @@ void RightClickLabel::setLimit()
 	if(q != 0)
 	{
 		QAction* action = (QAction*) sender();
-		int speed = action->data().toInt();
+		int speed = action->data().toInt() * 1024;
 		int down, up;
 		
 		q->speedLimits(down,up);
@@ -77,7 +77,7 @@ void RightClickLabel::mousePressEvent(QMouseEvent* event)
 	{
 		QMenu menu;
 		QAction* action;
-		int speed = (m_nSpeed) ? (m_nSpeed) : 200*1024;
+		int speed = (m_nSpeed) ? (m_nSpeed/1024) : 200;
 		
 		menu.setSeparatorsCollapsible(false);
 		action = menu.addSeparator();
@@ -90,9 +90,9 @@ void RightClickLabel::mousePressEvent(QMouseEvent* event)
 		
 		speed *= 8;
 		
-		for(int i=0;i<8;i++)
+		for(int i=0;i<8 && speed;i++)
 		{
-			action = menu.addAction(formatSize(speed, true));
+			action = menu.addAction(formatSize(speed*1024, true));
 			action->setData(speed);
 			connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
 			
