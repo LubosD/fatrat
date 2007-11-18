@@ -96,22 +96,21 @@ void SftpEngine::run()
 		}
 		
 		int sock = m_pSocket->socketDescriptor();
-		int mode = fcntl(sock,F_GETFL);
-		fcntl(sock,F_SETFL,mode & ~O_NDELAY);
+		fcntl(sock,F_SETFL, fcntl(sock,F_GETFL) & ~O_NDELAY);
 		
 		if(libssh2_session_startup(m_pSession, sock) < 0)
-			throw tr("libssh2_session_startup failed");
+			throw sshError();
 		
 		QByteArray data = m_url.userName().toUtf8();
 		
 		if(libssh2_userauth_keyboard_interactive(m_pSession, data.constData(), kbInteractiveCallback) < 0)
-			throw tr("SSH authentication failed");
+			throw sshError();
 		
 		emit statusMessage("Authenticated");
 		
 		sftp = libssh2_sftp_init(m_pSession);
 		if(sftp == 0)
-			throw tr("Failed to open the SFTP subsystem");
+			throw sshError();
 		
 		data = m_url.path().toUtf8();
 		
@@ -174,11 +173,6 @@ void SftpEngine::run()
 	{
 		qDebug() << "Exception:" << msg;
 		
-		char* err;
-		libssh2_session_last_error(m_pSession, &err, 0, 0);
-		
-		qDebug () << err;
-		
 		if(!m_bAbort)
 		{
 			m_strError = msg.trimmed();
@@ -193,6 +187,13 @@ void SftpEngine::run()
 	
 	if(m_pSocket)
 		doClose(&m_pSocket);
+}
+
+QString SftpEngine::sshError()
+{
+	char* err;
+	libssh2_session_last_error(m_pSession, &err, 0, 0);
+	return err;
 }
 
 SftpFile::SftpFile(LIBSSH2_SFTP_HANDLE* handle, qint64 mysize, QObject* parent)

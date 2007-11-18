@@ -21,6 +21,7 @@ public:
 	QUrl m_url;
 private:
 	qint64 querySize(LIBSSH2_SFTP* sftp);
+	QString sshError();
 	
 	QIODevice* m_pFileDevice;
 	QTcpSocket* m_pSocket;

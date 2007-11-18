@@ -418,6 +418,8 @@ void MainWindow::updateUi()
 		m_graph->setRenderSource(0);
 		m_log->setLogSource(0);
 	}
+	
+	actionNewTransfer->setEnabled(q != 0);
 	if(q != 0)
 		doneQueue(q,true,false);
 	
@@ -515,6 +517,7 @@ void MainWindow::deleteQueue()
 
 void MainWindow::queueItemActivated()
 {
+	updateUi();
 	treeTransfers->selectionModel()->clearSelection();
 	m_modelTransfers->setQueue(getSelectedQueue());
 	
