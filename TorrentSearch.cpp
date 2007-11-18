@@ -195,45 +195,51 @@ void TorrentSearch::parseResults(Engine* e)
 		
 		foreach(QByteArray ar, results)
 		{
-			QMap<QString, QString> map;
-			
-			for(int i=0;i<e->regexps.size();i++)
+			try
 			{
-				QRegExp re(e->regexps[i].second.regexp);
-				int pos = 0;
+				QMap<QString, QString> map;
 				
-				for(int k=0;k<e->regexps[i].second.match+1;k++)
+				for(int i=0;i<e->regexps.size();i++)
 				{
-					pos = re.indexIn(ar, pos);
+					QRegExp re(e->regexps[i].second.regexp);
+					int pos = 0;
 					
-					if(pos < 0)
-						throw RuntimeException(QString("Failed to match \"%1\" in \"%2\"").arg(e->regexps[i].first).arg(QString(ar)));
-					else
-						pos++; // FIXME
+					for(int k=0;k<e->regexps[i].second.match+1;k++)
+					{
+						pos = re.indexIn(ar, pos);
+						
+						if(pos < 0)
+							throw RuntimeException(QString("Failed to match \"%1\" in \"%2\"").arg(e->regexps[i].first).arg(QString(ar)));
+						else
+							pos++; // FIXME
+					}
+					
+					QTextDocument doc;
+					doc.setHtml(re.cap(e->regexps[i].second.field+1));
+					map[e->regexps[i].first] = doc.toPlainText();
 				}
 				
-				QTextDocument doc;
-				doc.setHtml(re.cap(e->regexps[i].second.field+1));
-				map[e->regexps[i].first] = doc.toPlainText();
+				SearchTreeWidgetItem* item = new SearchTreeWidgetItem(treeResults);
+				item->setText(0, map["name"]);
+				item->setText(1, map["size"]);
+				item->parseSize(map["size"]);
+				item->setText(2, map["seeders"]);
+				item->setText(3, map["leechers"]);
+				item->setText(4, e->name);
+				item->m_strLink = map["link"];
+				
+				if(item->m_strLink[0] == '/')
+				{
+					QUrl url(e->query);
+					item->m_strLink = QString("%1://%2:%3%4")
+							.arg(url.scheme()).arg(url.host()).arg(url.port(80)).arg(map["link"]);
+				}
+				
+				treeResults->addTopLevelItem(item);
 			}
-			
-			SearchTreeWidgetItem* item = new SearchTreeWidgetItem(treeResults);
-			item->setText(0, map["name"]);
-			item->setText(1, map["size"]);
-			item->parseSize(map["size"]);
-			item->setText(2, map["seeders"]);
-			item->setText(3, map["leechers"]);
-			item->setText(4, e->name);
-			item->m_strLink = map["link"];
-			
-			if(item->m_strLink[0] == '/')
+			catch(...)
 			{
-				QUrl url(e->query);
-				item->m_strLink = QString("%1://%2:%3%4")
-						.arg(url.scheme()).arg(url.host()).arg(url.port(80)).arg(map["link"]);
 			}
-			
-			treeResults->addTopLevelItem(item);
 		}
 	}
 	catch(const RuntimeException& e)

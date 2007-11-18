@@ -10,7 +10,7 @@
 #include <QTime>
 #include <QReadWriteLock>
 #include <QDialog>
-#include "GeneralNetwork.h"
+#include "LimitedSocket.h"
 #include "ui_HttpOptsWidget.h"
 #include "ui_HttpUrlOptsDlg.h"
 #include "WidgetHostChild.h"
@@ -54,9 +54,9 @@ public:
 	void setTargetName(QString strName) { m_strFile=strName; }
 	
 private slots:
-	void requestFinished(void* obj, bool error);
-	void responseHeaderReceived(QHttpResponseHeader resp); // HTTP
-	void responseSizeReceived(qulonglong totalsize); // FTP
+	void requestFinished(bool error);
+	void responseSizeReceived(qint64 totalsize);
+	void redirected(QString newurl);
 	void changeMessage(QString msg) { m_strMessage = msg; }
 	
 	void switchMirror();
@@ -64,6 +64,7 @@ private slots:
 private:
 	void startHttp(QUrl url, QUrl referrer = QUrl());
 	void startFtp(QUrl url);
+	void startSftp(QUrl url);
 	void generateName();
 protected:
 	QUrl m_urlLast;
@@ -72,12 +73,7 @@ protected:
 	
 	QString m_strMessage, m_strFile;
 	
-	// HTTP
-	bool m_bSupportsResume, m_bResume;
-	HttpEngine *m_http;
-	
-	// FTP
-	FtpEngine *m_ftp;
+	LimitedSocket* m_engine;
 	
 	struct UrlObject
 	{

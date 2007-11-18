@@ -1,5 +1,5 @@
 #include "Transfer.h"
-#include "GeneralNetwork.h"
+#include "FtpClient.h"
 #include <QUuid>
 #include "ui_FtpUploadOptsForm.h"
 #include "WidgetHostChild.h"

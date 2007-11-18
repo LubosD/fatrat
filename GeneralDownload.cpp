@@ -4,6 +4,10 @@
 #include "HashDlg.h"
 #include "RuntimeException.h"
 
+#include "HttpClient.h"
+#include "FtpClient.h"
+#include "SftpClient.h"
+
 #include <iostream>
 #include <QtDebug>
 #include <QThread>
@@ -17,18 +21,16 @@ using namespace std;
 
 extern QSettings* g_settings;
 
-GeneralDownload::GeneralDownload(bool local) : Transfer(local), m_nTotal(0), m_nStart(0), m_bSupportsResume(false),
-m_http(0), m_ftp(0), m_nUrl(0)
+GeneralDownload::GeneralDownload(bool local) : Transfer(local), m_nTotal(0), m_nStart(0),
+m_engine(0), m_nUrl(0)
 {
 }
 
 GeneralDownload::~GeneralDownload()
 {
 	qDebug() << "Destroying generalDownload\n";
-	if(m_http)
-		m_http->destroy();
-	if(m_ftp)
-		m_ftp->destroy();
+	if(m_engine)
+		m_engine->destroy();
 	qDebug() << "GeneralDownload::~GeneralDownload() exiting\n";
 }
 
@@ -37,7 +39,7 @@ int GeneralDownload::acceptable(QString uri)
 	QUrl url = uri;
 	QString scheme = url.scheme();
 	
-	if(scheme != "http" && scheme != "ftp")
+	if(scheme != "http" && scheme != "ftp" && scheme != "sftp")
 		return 0;
 	else
 		return 2;
@@ -72,7 +74,8 @@ void GeneralDownload::init(QString uri,QString dest)
 	
 	m_dir = dest;
 	
-	if(obj.url.scheme() != "http" && obj.url.scheme() != "ftp")
+	QString scheme = obj.url.scheme();
+	if(scheme != "http" && scheme != "ftp" && scheme != "sftp")
 		throw RuntimeException(tr("Unsupported protocol"));
 	
 	m_urls.clear();
@@ -114,10 +117,8 @@ void GeneralDownload::speeds(int& down, int& up) const
 	up = down = 0;
 	if(isActive())
 	{
-		if(m_http)
-			down = m_http->speed();
-		if(m_ftp)
-			down = m_ftp->speed();
+		if(m_engine)
+			down = m_engine->speed();
 	}
 }
 
@@ -125,7 +126,6 @@ void GeneralDownload::load(const QDomNode& map)
 {
 	m_dir = getXMLProperty(map, "dir");
 	m_nTotal = getXMLProperty(map, "knowntotal").toULongLong();
-	m_bSupportsResume = getXMLProperty(map, "supportsresume").toInt() != 0;
 	
 	m_strFile = getXMLProperty(map, "filename");
 	
@@ -157,7 +157,6 @@ void GeneralDownload::save(QDomDocument& doc, QDomNode& map)
 	
 	setXMLProperty(doc, map, "dir", m_dir.path());
 	setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
-	setXMLProperty(doc, map, "supportsresume", QString::number(int(m_bSupportsResume)));
 	setXMLProperty(doc, map, "filename", m_strFile);
 	
 	for(int i=0;i<m_urls.size();i++)
@@ -205,19 +204,16 @@ void GeneralDownload::changeActive(bool nowActive)
 				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);
+			else if(scheme == "sftp")
+				startSftp(m_urls[m_nUrl].url);
 		}
 	}
 	else
 	{
-		if(m_http)
+		if(m_engine)
 		{
-			m_http->destroy();
-			m_http = 0;
-		}
-		if(m_ftp)
-		{
-			m_ftp->destroy();
-			m_ftp = 0;
+			m_engine->destroy();
+			m_engine = 0;
 		}
 	}
 }
@@ -228,39 +224,60 @@ void GeneralDownload::startHttp(QUrl url, QUrl referrer)
 	
 	m_urlLast = url;
 	
-	m_http = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
+	m_engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
 	
-	connect(m_http, SIGNAL(responseReceived(QHttpResponseHeader)), this, SLOT(responseHeaderReceived(QHttpResponseHeader)), Qt::DirectConnection);
-	connect(m_http, SIGNAL(finished(void*,bool)), this, SLOT(requestFinished(void*,bool)), Qt::QueuedConnection);
+	connect(m_engine, SIGNAL(receivedSize(qint64)), this, SLOT(responseSizeReceived(qint64)), Qt::DirectConnection);
+	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(requestFinished(bool)), Qt::QueuedConnection);
+	connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
+	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
+	connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
 	
-	m_http->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
-	m_http->request(filePath());
+	m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
+	m_engine->request(filePath(), false, 0);
 }
 
 void GeneralDownload::startFtp(QUrl url)
 {
 	qDebug() << "GeneralDownload::startFtp" << url;
 	
-	m_ftp = new FtpEngine(url, m_urls[m_nUrl].proxy);
+	m_engine = new FtpEngine(url, m_urls[m_nUrl].proxy);
 	
-	connect(m_ftp, SIGNAL(finished(void*,bool)), this, SLOT(requestFinished(void*,bool)), Qt::QueuedConnection);
-	connect(m_ftp, SIGNAL(responseReceived(qulonglong)), this, SLOT(responseSizeReceived(qulonglong)), Qt::QueuedConnection);
-	connect(m_ftp, SIGNAL(status(QString)), this, SLOT(changeMessage(QString)));
-	connect(m_ftp, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
+	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(requestFinished(bool)), Qt::QueuedConnection);
+	connect(m_engine, SIGNAL(receivedSize(qint64)), this, SLOT(responseSizeReceived(qint64)), Qt::QueuedConnection);
+	connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
+	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
 	
-	m_ftp->request(filePath(), FtpEngine::FtpGet | (m_urls[m_nUrl].ftpMode == FtpActive ? FtpEngine::FtpActive : FtpEngine::FtpPassive));
+	m_engine->request(filePath(), false, (m_urls[m_nUrl].ftpMode == FtpActive ? FtpEngine::FtpActive : FtpEngine::FtpPassive));
 }
 
-void GeneralDownload::responseSizeReceived(qulonglong totalsize)
+void GeneralDownload::startSftp(QUrl url)
+{
+	qDebug() << "GeneralDownload::startSftp" << url;
+	
+	m_urlLast = url;
+	
+	m_engine = new SftpEngine(url);
+	
+	connect(m_engine, SIGNAL(receivedSize(qint64)), this, SLOT(responseSizeReceived(qint64)), Qt::DirectConnection);
+	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(requestFinished(bool)), Qt::QueuedConnection);
+	connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
+	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
+	
+	//m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
+	m_engine->request(filePath(), false, 0);
+}
+
+void GeneralDownload::responseSizeReceived(qint64 totalsize)
 {
 	m_nTotal = totalsize;
 }
 
-void GeneralDownload::requestFinished(void* obj, bool error)
+void GeneralDownload::requestFinished(bool error)
 {
 	cout << "GeneralDownload::requestFinished()\n";
+	void* obj = sender();
 	
-	if(isActive() && (m_http == obj || m_ftp == obj))
+	if(isActive() && m_engine == obj)
 	{
 		if(error)
 		{
@@ -270,15 +287,10 @@ void GeneralDownload::requestFinished(void* obj, bool error)
 		}
 		else if(isActive())
 		{
-			if(m_http)
+			if(m_engine)
 			{
-				m_http->destroy();
-				m_http = 0;
-			}
-			if(m_ftp)
-			{
-				m_ftp->destroy();
-				m_ftp = 0;
+				m_engine->destroy();
+				m_engine = 0;
 			}
 			
 			m_strMessage.clear();
@@ -288,89 +300,42 @@ void GeneralDownload::requestFinished(void* obj, bool error)
 	}
 }
 
-void GeneralDownload::responseHeaderReceived(QHttpResponseHeader resp)
+void GeneralDownload::redirected(QString newurl)
 {
-	int code = resp.statusCode();
-	
-	enterLogMessage(tr("Received HTTP response code %1").arg(code));
-	
-	if(!isActive())
-		return;
-	
-	if(code == 302 || code == 301) // HTTP 302 Found, 301 Moved Permanently
+	if(!newurl.isEmpty())
 	{
-		// we're being redirected to another URL
-		if(resp.hasKey("location"))
+		QUrl location = newurl;
+		QString scheme = location.scheme();
+		
+		location.setUserInfo(m_urlLast.userInfo());
+		m_urlLast.setUserInfo(QString());
+		
+		qDebug() << "Redirected to: " << location << endl;
+		enterLogMessage(tr("We're being redirected to: %1").arg(location.toString()));
+		
+		if(scheme == "http" || scheme == "ftp")
 		{
-			QUrl location = resp.value("location");
-			QString scheme = location.scheme();
-			
-			location.setUserInfo(m_urlLast.userInfo());
-			m_urlLast.setUserInfo(QString());
-			
-			qDebug() << "Redirected to: " << location << endl;
-			enterLogMessage(tr("We're being redirected to: %1").arg(location.toString()));
-			
-			if(scheme == "http" || scheme == "ftp")
-			{
-				if(scheme == "http")
-					startHttp(location, m_urlLast);
-				else
-					startFtp(location);
-				
-				m_strMessage = tr("Redirected");
-			
-				if(code == 301)
-					m_urls[m_nUrl].url = location;
-			}
+			if(scheme == "http")
+				startHttp(location, m_urlLast);
 			else
-			{
-				m_strMessage = tr("Invalid redirect");
-				enterLogMessage(tr("We've been redirected to an unsupported URL: %1").arg(location.toString()));
-				setState(Failed);
-			}
+				startFtp(location);
+			
+			m_strMessage = tr("Redirected");
+		
+			//if(code == 301)
+			//	m_urls[m_nUrl].url = location;
 		}
 		else
 		{
 			m_strMessage = tr("Invalid redirect");
-			enterLogMessage(tr("We've been redirected, but no new URL has been given"));
+			enterLogMessage(tr("We've been redirected to an unsupported URL: %1").arg(location.toString()));
 			setState(Failed);
 		}
 	}
-	else if(code == 200) // HTTP 200 OK
-	{
-		m_bSupportsResume = false;
-		
-		if(resp.hasKey("content-length"))
-			m_nTotal = resp.value("content-length").toULongLong();
-		else
-			m_nTotal = 0;
-		
-		if(done() && !resp.hasKey("content-range"))
-		{
-			m_strMessage = tr("Restarting download");
-			enterLogMessage(tr("Server does not support resume, transfer has to be restarted"));
-			
-//			m_file.resize(0);
-//			m_file.seek(0);
-		}
-		else
-			m_strMessage = tr("Probably no resume support");
-	}
-	else if(code == 206) // HTTP 206 Partial Content
-	{
-		m_bSupportsResume = true;
-		
-		if(resp.hasKey("content-length"))
-			m_nTotal = done() + resp.value("content-length").toULongLong();
-		else
-			m_nTotal = 0;
-		
-		//m_strMessage = "Downloading";
-	}
 	else
 	{
-		m_strMessage = resp.reasonPhrase();
+		m_strMessage = tr("Invalid redirect");
+		enterLogMessage(tr("We've been redirected, but no new URL has been given"));
 		setState(Failed);
 	}
 }
@@ -381,10 +346,8 @@ void GeneralDownload::setSpeedLimits(int down,int)
 		qDebug() << "Down speed limit:" << down;
 	if(down < 1000)
 		down = 0;
-	if(m_http)
-		m_http->setLimit(down);
-	if(m_ftp)
-		m_ftp->setLimit(down);
+	if(m_engine)
+		m_engine->setLimit(down);
 }
 
 WidgetHostChild* GeneralDownload::createOptionsWidget(QWidget* w)
@@ -640,7 +603,7 @@ void HttpUrlOptsDlg::accept()
 {
 	QString url = lineUrl->text();
 	
-	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://"))
+	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://") || url.startsWith("sftp://"))
 		QDialog::accept();
 }
 

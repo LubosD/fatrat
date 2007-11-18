@@ -61,7 +61,7 @@ void FtpUpload::changeActive(bool nowActive)
 		connect(m_engine, SIGNAL(finished(void*,bool)), this, SLOT(finished(void*,bool)));
 		connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
 		m_engine->setRemoteName(m_strName);
-		m_engine->request(m_strSource, FtpEngine::FtpPut | (m_mode == FtpActive) ? FtpEngine::FtpActive : FtpEngine::FtpPassive);
+		m_engine->request(m_strSource, true, (m_mode == FtpActive) ? FtpEngine::FtpActive : FtpEngine::FtpPassive);
 	}
 	else if(m_engine != 0)
 	{

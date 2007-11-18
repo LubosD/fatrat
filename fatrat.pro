@@ -35,7 +35,6 @@ HEADERS += fatrat.h \
            FakeDownload.h \
            GeneralDownload.h \
            WidgetHostDlg.h \
-           GeneralNetwork.h \
            InfoBar.h \
            SettingsDlg.h \
            WidgetHostChild.h \
@@ -63,7 +62,11 @@ HEADERS += fatrat.h \
  SpeedLimitWidget.h \
  TorrentFilesModel.h \
  AppTools.h \
- TorrentSearch.h
+ TorrentSearch.h \
+ FtpClient.h \
+ HttpClient.h \
+ LimitedSocket.h \
+ SftpClient.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -71,7 +74,6 @@ SOURCES += fatrat.cpp \
            Transfer.cpp \
            TransfersModel.cpp \
            GeneralDownload.cpp \
-           GeneralNetwork.cpp \
            InfoBar.cpp \
            dbus_adaptor.cpp \
            SimpleEmail.cpp \
@@ -90,16 +92,24 @@ SOURCES += fatrat.cpp \
  NewTransferDlg.cpp \
  AppTools.cpp \
  TorrentSearch.cpp \
- SpeedLimitWidget.cpp
+ SpeedLimitWidget.cpp \
+ FtpClient.cpp \
+ HttpClient.cpp \
+ LimitedSocket.cpp \
+ SftpClient.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
 QT += xml network
-LIBS += -ltorrent -ldl
+LIBS += -ltorrent -ldl -lssh2
 INCLUDEPATH = /usr/include/libtorrent
 
 !exists( /usr/include/libtorrent/session.hpp ){
     error("You need Rasterbar libtorrent ***0.13*** (unreleased dev version) to compile this program - http://www.rasterbar.com/products/libtorrent/")
+}
+
+!exists( /usr/include/libssh2.h ){
+    error("You need the libssh2 library - http://www.libssh2.org")
 }
 
 INSTALL_ROOT = /usr/bin
