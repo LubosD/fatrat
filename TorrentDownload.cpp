@@ -46,7 +46,7 @@ TorrentDownload::~TorrentDownload()
 		m_session->remove_torrent(m_handle);
 }
 
-int TorrentDownload::acceptable(QString uri)
+int TorrentDownload::acceptable(QString uri, bool)
 {
 	const bool istorrent = uri.endsWith(".torrent", Qt::CaseInsensitive);
         if(uri.startsWith("http://") || uri.startsWith("ftp://"))

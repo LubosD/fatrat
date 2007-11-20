@@ -35,7 +35,7 @@ public:
 	virtual void setObject(QString) { }
 	
 	static Transfer* createInstance() { return new FakeDownload; }
-	static int acceptable(QString) { return 1; }
+	static int acceptable(QString, bool) { return 1; }
 private:
 	QString m_strName;
 };

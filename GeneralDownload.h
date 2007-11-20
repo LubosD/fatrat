@@ -47,7 +47,7 @@ public:
 	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon&);
 	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
 	
-	static int acceptable(QString uri);
+	static int acceptable(QString uri, bool);
 	static Transfer* createInstance() { return new GeneralDownload; }
 	
 	QString filePath() const { return m_dir.filePath(name()); }

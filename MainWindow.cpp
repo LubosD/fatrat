@@ -7,6 +7,7 @@
 #include <QDropEvent>
 #include <QtDebug>
 #include <QProcess>
+#include <QUrl>
 
 #include "MainWindow.h"
 #include "QueueDlg.h"
@@ -42,6 +43,8 @@ MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
 	setupUi();
 	
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
+	
 	m_timer.start(1000);
 	
 	refreshQueues();
@@ -322,7 +325,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::updateUi()
 {
-	refreshQueues();
+	//refreshQueues();
 	QList<int> sel = getSelection();
 	
 	// queue view
@@ -445,8 +448,10 @@ void MainWindow::refreshQueues()
 			listQueues->item(i)->setText(g_queues[i]->name());
 	}
 	
+	g_queuesLock.unlock();
+	
 	while(i<listQueues->count())
-		delete listQueues->takeItem(i);
+		qDebug() << "Removing item" << i << listQueues->takeItem(i);
 	
 	int upt = 0,downt = 0;
 	if(Queue* q = getCurrentQueue(false))
@@ -460,7 +465,6 @@ void MainWindow::refreshQueues()
 		}
 		doneQueue(q,false,false);
 	}
-	g_queuesLock.unlock();
 	
 	if(upt || downt)
 		m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downt,true)).arg(formatSize(upt,true)) );
@@ -489,7 +493,7 @@ void MainWindow::newQueue()
 		g_queuesLock.unlock();
 		
 		Queue::saveQueues();
-		updateUi();
+		refreshQueues();
 	}
 }
 
@@ -510,8 +514,7 @@ void MainWindow::deleteQueue()
 		g_queuesLock.unlock();
 		
 		Queue::saveQueues();
-		updateUi();
-		queueItemActivated();
+		refreshQueues();
 	}
 }
 
@@ -772,7 +775,26 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 			
 			if(dlg.m_bPaused)
 				d->setState(Transfer::Paused);
-			d->init(uris[i].trimmed(),dlg.m_strDestination);
+			
+			QString source, destination;
+			
+			source = uris[i].trimmed();
+			destination = dlg.m_strDestination;
+			
+			if(!dlg.m_auth.strUser.isEmpty())
+			{
+				QString& obj = (dlg.m_mode == Transfer::Download) ? source : destination;
+				
+				QUrl url = obj;
+				if(url.userInfo().isEmpty())
+				{
+					url.setUserName(dlg.m_auth.strUser);
+					url.setPassword(dlg.m_auth.strPassword);
+				}
+				obj = url.toString();
+			}
+			
+			d->init(source, destination);
 			d->setUserSpeedLimits(dlg.m_nDownLimit,dlg.m_nUpLimit);
 		}
 		

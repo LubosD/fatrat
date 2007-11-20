@@ -195,7 +195,7 @@ QString HttpFtpSettings::composeName(const Proxy& p)
 
 void HttpFtpSettings::authAdd()
 {
-	UserAuthDlg dlg(pushAdd->parentWidget());
+	UserAuthDlg dlg(true, pushAdd->parentWidget());
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
@@ -210,7 +210,7 @@ void HttpFtpSettings::authEdit()
 	if(index < 0)
 		return;
 	
-	UserAuthDlg dlg(pushAdd->parentWidget());
+	UserAuthDlg dlg(true, pushAdd->parentWidget());
 	dlg.m_auth = m_listAuth[index];
 	
 	if(dlg.exec() == QDialog::Accepted)

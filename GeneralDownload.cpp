@@ -34,7 +34,7 @@ GeneralDownload::~GeneralDownload()
 	qDebug() << "GeneralDownload::~GeneralDownload() exiting\n";
 }
 
-int GeneralDownload::acceptable(QString uri)
+int GeneralDownload::acceptable(QString uri, bool)
 {
 	QUrl url = uri;
 	QString scheme = url.scheme();
@@ -55,17 +55,21 @@ void GeneralDownload::init(QString uri,QString dest)
 	UrlObject obj;
 	
 	obj.url = uri;
-	QList<Auth> auths = Auth::loadAuths();
-	foreach(Auth a,auths)
+	
+	if(obj.url.userInfo().isEmpty())
 	{
-		if(QRegExp(a.strRegExp).exactMatch(uri))
+		QList<Auth> auths = Auth::loadAuths();
+		foreach(Auth a,auths)
 		{
-			obj.url.setUserName(a.strUser);
-			obj.url.setPassword(a.strPassword);
-			
-			enterLogMessage(tr("Loaded stored authentication data, matched regexp %1").arg(a.strRegExp));
-			
-			break;
+			if(QRegExp(a.strRegExp).exactMatch(uri))
+			{
+				obj.url.setUserName(a.strUser);
+				obj.url.setPassword(a.strPassword);
+				
+				enterLogMessage(tr("Loaded stored authentication data, matched regexp %1").arg(a.strRegExp));
+				
+				break;
+			}
 		}
 	}
 	

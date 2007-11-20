@@ -1,6 +1,7 @@
 #include "NewTransferDlg.h"
 #include "fatrat.h"
 #include "Queue.h"
+#include "UserAuthDlg.h"
 #include <QFileDialog>
 #include <QSettings>
 #include <QReadWriteLock>
@@ -22,11 +23,11 @@ NewTransferDlg::NewTransferDlg(QWidget* parent)
 	spinUp->setRange(0,INT_MAX);
 	
 	connect(toolBrowse, SIGNAL(pressed()), this, SLOT(browse()));
-	//connect(textURIs, SIGNAL(textChanged()), this, SLOT(textChanged()));
-	//connect(textFiles, SIGNAL(textChanged()), this, SLOT(textChanged()));
 	connect(radioDownload, SIGNAL(clicked()), this, SLOT(switchMode()));
 	connect(radioUpload, SIGNAL(clicked()), this, SLOT(switchMode()));
 	connect(pushAddFiles, SIGNAL(clicked()), this, SLOT(browse2()));
+	connect(toolAuth, SIGNAL(clicked()), this, SLOT(authData()));
+	connect(toolAuth2, SIGNAL(clicked()), this, SLOT(authData()));
 	
 	const EngineEntry* entries = Transfer::engines(Transfer::Download);
 	comboClass->addItem(tr("Auto detect"));
@@ -218,3 +219,13 @@ void NewTransferDlg::switchMode()
 		textURIs->setText( textFiles->toPlainText() );
 	}
 }
+
+void NewTransferDlg::authData()
+{
+	UserAuthDlg dlg(false, this);
+	dlg.m_auth = m_auth;
+	
+	if(dlg.exec() == QDialog::Accepted)
+		m_auth = dlg.m_auth;
+}
+

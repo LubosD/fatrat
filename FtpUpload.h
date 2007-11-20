@@ -12,7 +12,7 @@ public:
 	virtual ~FtpUpload();
 	
 	static Transfer* createInstance() { return new FtpUpload; }
-	static int acceptable(QString url);
+	static int acceptable(QString url, bool bDrop);
 	
 	virtual void init(QString source, QString target);
 	virtual void setObject(QString source);
@@ -37,13 +37,14 @@ public:
 private:
 	void safeDestroy();
 private slots:
-	void finished(void*,bool error);
+	void finished(bool error);
 	void status(QString);
 	void computeHash();
 protected:
-	QString m_strName, m_strTarget, m_strSource;
+	QString m_strName, m_strSource;
+	QUrl m_strTarget;
 	QString m_strMessage, m_strBindAddress;
-	FtpEngine* m_engine;
+	LimitedSocket* m_engine;
 	int m_nUpLimit;
 	qint64 m_nTotal;
 	mutable qint64 m_nDone;

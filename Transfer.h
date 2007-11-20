@@ -92,7 +92,7 @@ public:
 	};
 	
 	static const EngineEntry* engines(Mode type);
-	static BestEngine bestEngine(QString uri, Mode type = ModeInvalid); // type == ModeInvalid => all types
+	static BestEngine bestEngine(QString uri, Mode type = ModeInvalid); // type == ModeInvalid => all types & drop search
 	
 	// SETTINGS UTILITY FUNCTIONS
 	static QString getXMLProperty(const QDomNode& node, QString name);
@@ -145,7 +145,7 @@ struct EngineEntry
 	void (*lpfnInit)();
 	void (*lpfnExit)();
 	Transfer* (*lpfnCreate)();
-	int (*lpfnAcceptable)(QString);
+	int (*lpfnAcceptable)(QString, bool);
 	WidgetHostChild* (*lpfnSettings)(QWidget*,QIcon&); // global settings
 	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
 };

@@ -20,7 +20,7 @@ public:
 	
 	QUrl m_url;
 private:
-	qint64 querySize(LIBSSH2_SFTP* sftp);
+	qint64 querySize(LIBSSH2_SFTP* sftp, QByteArray file);
 	QString sshError();
 	
 	QIODevice* m_pFileDevice;
@@ -47,7 +47,7 @@ public:
 	virtual void close();
 	virtual bool open(OpenMode mode);
 	
-	//virtual bool waitForBytesWritten(int) { return true; }
+	virtual bool waitForBytesWritten(int) { return true; }
 	//virtual bool waitForReadyRead(int) { return true; }
 	//virtual qint64 bytesToWrite() const { return 0; }
 	virtual bool canReadLine() const { return false; }

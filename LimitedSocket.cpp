@@ -150,7 +150,7 @@ bool LimitedSocket::writeCycle()
 		m_timer.start();
 	}
 	
-	toRead = qMin<qint64>(1024, m_nToTransfer-m_nTransfered);
+	toRead = qMin<qint64>(1024*16, m_nToTransfer-m_nTransfered);
 	buffer = m_file.read(toRead);
 	
 	if(buffer.size() < toRead)

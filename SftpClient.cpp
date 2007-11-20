@@ -65,13 +65,12 @@ static LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(kbInteractiveCallback)
 	}
 }
 
-qint64 SftpEngine::querySize(LIBSSH2_SFTP* sftp)
+qint64 SftpEngine::querySize(LIBSSH2_SFTP* sftp, QByteArray file)
 {
 	LIBSSH2_SFTP_ATTRIBUTES attr;
-	QByteArray path = m_url.path().toUtf8();
 	int res = 0;
 	
-	res = libssh2_sftp_stat(sftp, path.constData(), &attr);
+	res = libssh2_sftp_stat(sftp, file.constData(), &attr);
 	
 	if(res < 0)
 		return 0;
@@ -114,9 +113,11 @@ void SftpEngine::run()
 		
 		data = m_url.path().toUtf8();
 		
-		qint64 size = querySize(sftp);
+		qint64 size;
 		if(!m_bUpload)
 		{
+			size = querySize(sftp, data);
+			
 			if(m_nSegmentEnd < 0)
 			{
 				if(size > 0)
@@ -129,11 +130,13 @@ void SftpEngine::run()
 		}
 		else
 		{
-			m_nResume = size;
-			m_nToTransfer -= m_nResume;
-			
 			data += '/';
 			data += m_strName;
+			
+			size = querySize(sftp, data);
+			
+			m_nResume = size;
+			m_nToTransfer -= m_nResume;
 		}
 		
 		emit receivedSize(size);
@@ -147,6 +150,7 @@ void SftpEngine::run()
 		
 		m_pFileDevice = new SftpFile(handle, size, 0);
 		m_pFileDevice->open( (!m_bUpload) ? QIODevice::ReadOnly : QIODevice::WriteOnly );
+		qDebug() << "Resuming from" << m_nResume;
 		m_pFileDevice->seek(m_nResume);
 		
 		emit statusMessage("Transferring");

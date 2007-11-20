@@ -20,7 +20,7 @@ public:
 	
 	static Transfer* createInstance() { return new TorrentDownload; }
 	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon& i);
-	static int acceptable(QString url);
+	static int acceptable(QString url, bool);
 	
 	static void globalInit();
 	static void applySettings();

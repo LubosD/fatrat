@@ -1,6 +1,7 @@
 #include "fatrat.h"
 #include "FtpUpload.h"
 #include "HashDlg.h"
+#include "SftpClient.h"
 #include "RuntimeException.h"
 #include <QFileInfo>
 #include <QMenu>
@@ -18,9 +19,12 @@ FtpUpload::~FtpUpload()
 		m_engine->destroy();
 }
 
-int FtpUpload::acceptable(QString url)
+int FtpUpload::acceptable(QString url, bool bDrop)
 {
-	return (url.startsWith("ftp://") || url.startsWith("file://") || url.startsWith("/")) ? 2 : 0;
+	if(bDrop)
+		return (url.startsWith("file://") || url.startsWith("/")) ? 2 : 0;
+	else
+		return (url.startsWith("ftp://") || url.startsWith("sftp://")) ? 2 : 0;
 }
 
 void FtpUpload::init(QString source, QString target)
@@ -39,11 +43,28 @@ void FtpUpload::init(QString source, QString target)
 	if(m_strName.isEmpty())
 		m_strName = finfo.fileName();
 	
-	if(!target.startsWith("ftp://"))
+	if(!target.startsWith("ftp://") && !target.startsWith("sftp://"))
 		throw RuntimeException(tr("Invalid protocol for this upload class (FTP)"));
 	
 	m_strTarget = target;
 	m_strSource = source;
+	
+	if(m_strTarget.userInfo().isEmpty())
+	{
+		QList<Auth> auths = Auth::loadAuths();
+		foreach(Auth a,auths)
+		{
+			if(QRegExp(a.strRegExp).exactMatch(target))
+			{
+				m_strTarget.setUserName(a.strUser);
+				m_strTarget.setPassword(a.strPassword);
+				
+				enterLogMessage(tr("Loaded stored authentication data, matched regexp %1").arg(a.strRegExp));
+				
+				break;
+			}
+		}
+	}
 }
 
 void FtpUpload::setObject(QString object)
@@ -57,8 +78,12 @@ void FtpUpload::changeActive(bool nowActive)
 	{
 		m_strMessage = QString();
 		
-		m_engine = new FtpEngine(m_strTarget, m_proxy);
-		connect(m_engine, SIGNAL(finished(void*,bool)), this, SLOT(finished(void*,bool)));
+		if(m_strTarget.scheme() == "ftp")
+			m_engine = new FtpEngine(m_strTarget, m_proxy);
+		else
+			m_engine = new SftpEngine(m_strTarget);
+		
+		connect(m_engine, SIGNAL(finished(bool)), this, SLOT(finished(bool)));
 		connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
 		m_engine->setRemoteName(m_strName);
 		m_engine->request(m_strSource, true, (m_mode == FtpActive) ? FtpEngine::FtpActive : FtpEngine::FtpPassive);
@@ -71,7 +96,7 @@ void FtpUpload::changeActive(bool nowActive)
 
 void FtpUpload::safeDestroy()
 {
-	FtpEngine* engine = m_engine;
+	LimitedSocket* engine = m_engine;
 	if(engine != 0)
 	{
 		m_engine = 0;
@@ -79,7 +104,7 @@ void FtpUpload::safeDestroy()
 	}
 }
 
-void FtpUpload::finished(void*,bool error)
+void FtpUpload::finished(bool error)
 {
 	if(error)
 	{
@@ -88,6 +113,7 @@ void FtpUpload::finished(void*,bool error)
 	}
 	else
 	{
+		m_nDone = m_nTotal;
 		setState(Completed);
 	}
 	
@@ -152,7 +178,7 @@ void FtpUpload::save(QDomDocument& doc, QDomNode& map)
 	Transfer::save(doc, map);
 	
 	setXMLProperty(doc, map, "source", m_strSource);
-	setXMLProperty(doc, map, "target", m_strTarget);
+	setXMLProperty(doc, map, "target", m_strTarget.toString());
 	setXMLProperty(doc, map, "name", m_strName);
 	setXMLProperty(doc, map, "ftpmode", QString::number(m_mode));
 	setXMLProperty(doc, map, "done", QString::number(m_nDone));
@@ -184,6 +210,12 @@ FtpUploadOptsForm::FtpUploadOptsForm(QWidget* me,FtpUpload* myobj)
 	: m_upload(myobj)
 {
 	setupUi(me);
+	
+	if(myobj->m_strTarget.scheme() != "ftp")
+	{
+		//comboFtpMode->setDisabled(true);
+		comboProxy->setDisabled(true);
+	}
 }
 
 void FtpUploadOptsForm::load()
@@ -231,7 +263,7 @@ void FtpUploadOptsForm::accepted()
 
 bool FtpUploadOptsForm::accept()
 {
-	return lineTarget->text().startsWith("ftp://");
+	return lineTarget->text().startsWith("ftp://") || lineTarget->text().startsWith("sftp://");
 }
 
 

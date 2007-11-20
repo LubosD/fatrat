@@ -158,7 +158,7 @@ void HttpEngine::run()
 			else
 			{
 				m_nToTransfer = header.value("content-length").toULongLong();
-				emit receivedSize(m_nToTransfer);
+				emit receivedSize(m_nToTransfer+m_nResume);
 			}
 			
 			dataCycle(bChunked);
