@@ -214,7 +214,7 @@ void TorrentSearch::parseResults(Engine* e)
 							pos++; // FIXME
 					}
 					
-					QTextDocument doc;
+					QTextDocument doc; // FIXME: ineffective?
 					doc.setHtml(re.cap(e->regexps[i].second.field+1));
 					map[e->regexps[i].first] = doc.toPlainText();
 				}

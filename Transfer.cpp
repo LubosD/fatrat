@@ -15,13 +15,13 @@ extern QSettings* g_settings;
 
 static const EngineEntry m_enginesDownload[] = {
 	{ "FakeDownload", "Fake engine", 0, 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 },
-	{ "GeneralDownload", "HTTP/FTP download", 0, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
+	{ "GeneralDownload", "HTTP/(S)FTP download", 0, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
 	{ "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, TorrentDownload::createSettingsWidget, 0 },
 	{ 0,0,0,0,0,0,0,0 }
 };
 
 static const EngineEntry m_enginesUpload[] = {
-	{ "FtpUpload", "FTP upload", 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0, 0 },
+	{ "FtpUpload", "(S)FTP upload", 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0, 0 },
 	{ 0,0,0,0,0,0,0,0 }
 };
 

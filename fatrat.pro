@@ -22,7 +22,8 @@ FORMS += MainWindow.ui \
  HashDlg.ui \
  TorrentDetailsForm.ui \
  SpeedLimitWidget.ui \
- TorrentSearch.ui
+ TorrentSearch.ui \
+ RapidTools.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -66,7 +67,8 @@ HEADERS += fatrat.h \
  FtpClient.h \
  HttpClient.h \
  LimitedSocket.h \
- SftpClient.h
+ SftpClient.h \
+ RapidTools.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -96,7 +98,8 @@ SOURCES += fatrat.cpp \
  FtpClient.cpp \
  HttpClient.cpp \
  LimitedSocket.cpp \
- SftpClient.cpp
+ SftpClient.cpp \
+ RapidTools.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
