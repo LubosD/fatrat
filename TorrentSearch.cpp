@@ -257,10 +257,10 @@ void TorrentSearch::parseResults(Engine* e)
 				item->setText(4, e->name);
 				item->m_strLink = map["link"];
 				
-				if(item->m_strLink[0] == '/')
+				if(!item->m_strLink.startsWith("http://"))
 				{
 					QUrl url(e->query);
-					item->m_strLink = QString("%1://%2:%3%4")
+					item->m_strLink = QString("%1://%2:%3/%4")
 							.arg(url.scheme()).arg(url.host()).arg(url.port(80)).arg(map["link"]);
 				}
 				

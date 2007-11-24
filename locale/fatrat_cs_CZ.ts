@@ -1055,7 +1055,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../RapidTools.ui" line="29"/>
         <source>Links:</source>
-        <translation>Linky:</translation>
+        <translation>Odkazy:</translation>
     </message>
     <message>
         <location filename="../RapidTools.ui" line="43"/>
