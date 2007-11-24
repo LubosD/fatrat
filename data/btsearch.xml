@@ -23,6 +23,31 @@
 		<regexp name="seeders" field="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
 		<regexp name="leechers" field="1" match="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
 	</engine>
+	<engine name="BtJunkie">
+		<param name="query">http://btjunkie.org/search?q=%1</param>
+		<param name="beginning">class="tab_results"&gt;</param>
+		<param name="splitter">&lt;/table&gt;</param>
+		<param name="ending">&lt;tr class="row_footer"&gt;</param>
+		
+		<regexp name="name">class="BlckUnd"&gt;([^\n]+)</regexp>
+		<regexp name="link">&lt;a href="([^"]+)" rel="nofollow"&gt;&lt;img src="/images/down.gif"</regexp>
+		<regexp name="size">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="seeders" match="2">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="leechers" match="3">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+	</engine>
+	<engine name="LinuxTorrents">
+		<param name="query">http://linuxtracker.org/torrents-search.php?search=%1</param>
+		<param name="beginning">Upped By</param>
+		<param name="splitter">&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;</param>
+		<param name="ending">&lt;p align="center"&gt;</param>
+		
+		<regexp name="name">hit=1"&gt;&lt;b&gt;([^&lt;]+)</regexp>
+		<regexp name="link">&lt;tr&gt;&lt;td&gt;&lt;a href="([^"]+)"</regexp>
+		<regexp name="size">face=Verdana&gt;([^&lt;]+)&lt;/td&gt;</regexp>
+		<regexp name="seeders" match="1">face=Verdana&gt;([^\n]+)</regexp>
+		<regexp name="leechers" match="2">face=Verdana&gt;([^\n]+)</regexp>
+	</engine>
 	<!--<engine name="IsoHunt">
 		<param name="query">http://isohunt.com/torrents/?ihq=%1</param>
 		<param name="beginning">&lt;/th&gt;&lt;/tr&gt;</param>

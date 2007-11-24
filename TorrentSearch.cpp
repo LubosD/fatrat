@@ -14,7 +14,10 @@
 #include <QTextDocument>
 #include <QHeaderView>
 #include <QTimer>
+#include <QSettings>
 #include <QtDebug>
+
+extern QSettings* g_settings;
 
 TorrentSearch::TorrentSearch()
 	: m_bSearching(false)
@@ -26,13 +29,22 @@ TorrentSearch::TorrentSearch()
 	
 	loadEngines();
 	
+	g_settings->beginGroup("torrent_search");
+	
 	foreach(Engine e, m_engines)
 	{
 		QListWidgetItem* item = new QListWidgetItem(e.name, listEngines);
+		bool checked;
+		
 		item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
-		item->setCheckState(Qt::Checked);
+		
+		checked = g_settings->value(e.name, false).toBool();
+		
+		item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 		listEngines->addItem(item);
 	}
+	
+	g_settings->endGroup();
 	
 	QStringList hdr = QStringList() << tr("Name") << tr("Size") << tr("Seeders") << tr("Leechers") << tr("Source");
 	treeResults->setHeaderLabels(hdr);
@@ -42,6 +54,19 @@ TorrentSearch::TorrentSearch()
 	phdr->resizeSection(0, 350);
 	
 	QTimer::singleShot(100, this, SLOT(setSearchFocus()));
+}
+
+TorrentSearch::~TorrentSearch()
+{
+	g_settings->beginGroup("torrent_search");
+	
+	for(int i=0;i<listEngines->count();i++)
+	{
+		QListWidgetItem* item = listEngines->item(i);
+		g_settings->setValue(item->text(), item->checkState() == Qt::Checked);
+	}
+	
+	g_settings->endGroup();
 }
 
 void TorrentSearch::setSearchFocus()
@@ -195,6 +220,8 @@ void TorrentSearch::parseResults(Engine* e)
 		start += e->beginning.size();
 		results = splitArray(data.mid(start, end-start), e->splitter);
 		
+		qDebug() << "Results:" << results.size();
+		
 		foreach(QByteArray ar, results)
 		{
 			try
@@ -239,8 +266,9 @@ void TorrentSearch::parseResults(Engine* e)
 				
 				treeResults->addTopLevelItem(item);
 			}
-			catch(...)
+			catch(const RuntimeException& e)
 			{
+				qDebug() << e.what();
 			}
 		}
 	}
@@ -307,6 +335,8 @@ QList<QByteArray> TorrentSearch::splitArray(const QByteArray& src, QString sep)
 		split = n + sep.size();
 	}
 	
+	out << src.mid(split);
+	
 	return out;
 }
 
@@ -338,30 +368,43 @@ bool SearchTreeWidgetItem::operator<(const QTreeWidgetItem& other) const
 
 void SearchTreeWidgetItem::parseSize(QString in)
 {
-	QStringList l = in.split(' ');
-	if(l.size() != 2)
+	int split = -1;
+	
+	for(int i=0;i<in.size();i++)
+	{
+		if(!in[i].isDigit() && in[i] != '.')
+		{
+			split = i;
+			break;
+		}
+	}
+	
+	if(split < 0)
 	{
 		qDebug() << "Unable to parse size:" << in;
 	}
 	else
 	{
-		double size = l[0].toDouble();
+		QString units;
+		double size = in.left(split).toDouble();
 		
-		if(!l[1].compare("k", Qt::CaseInsensitive)
-			|| !l[1].compare("kb", Qt::CaseInsensitive)
-			|| !l[1].compare("kib", Qt::CaseInsensitive))
+		units = in.mid(split).trimmed();
+		
+		if(!units.compare("k", Qt::CaseInsensitive)
+			|| !units.compare("kb", Qt::CaseInsensitive)
+			|| !units.compare("kib", Qt::CaseInsensitive))
 		{
 			size *= 1024;
 		}
-		else if(!l[1].compare("m", Qt::CaseInsensitive)
-			|| !l[1].compare("mb", Qt::CaseInsensitive)
-			|| !l[1].compare("mib", Qt::CaseInsensitive))
+		else if(!units.compare("m", Qt::CaseInsensitive)
+			|| !units.compare("mb", Qt::CaseInsensitive)
+			|| !units.compare("mib", Qt::CaseInsensitive))
 		{
 			size *= 1024LL*1024LL;
 		}
-		else if(!l[1].compare("g", Qt::CaseInsensitive)
-			|| !l[1].compare("gb", Qt::CaseInsensitive)
-			|| !l[1].compare("gib", Qt::CaseInsensitive))
+		else if(!units.compare("g", Qt::CaseInsensitive)
+			|| !units.compare("gb", Qt::CaseInsensitive)
+			|| !units.compare("gib", Qt::CaseInsensitive))
 		{
 			size *= 1024LL*1024LL*1024LL;
 		}

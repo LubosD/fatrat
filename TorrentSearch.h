@@ -13,6 +13,7 @@ class TorrentSearch : public QWidget, Ui_TorrentSearch
 Q_OBJECT
 public:
 	TorrentSearch();
+	virtual ~TorrentSearch();
 	static QWidget* create() { return new TorrentSearch; }
 protected:
 	struct RegExpParam

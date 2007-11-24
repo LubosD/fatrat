@@ -100,7 +100,6 @@ void RapidTools::doneRShare(bool error)
 			pos++;
 		}
 		
-		qDebug() << result;
 		textLinks->setHtml(result);
 	}
 	
