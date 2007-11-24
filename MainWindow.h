@@ -73,6 +73,7 @@ public slots:
 	void openAppTool(); // like BitTorrent search
 	
 	void closeTab();
+	void changeTabTitle(QString newTitle);
 	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);

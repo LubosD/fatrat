@@ -257,8 +257,20 @@ void MainWindow::openAppTool()
 	const AppTool* tools = getAppTools();
 	QAction* action = (QAction*) sender();
 	int tool = action->data().toInt();
+	QWidget* widget = tools[tool].pfnCreate();
 	
-	tabMain->setCurrentIndex( tabMain->addTab(tools[tool].pfnCreate(), tools[tool].pszName) );
+	connect(widget, SIGNAL(changeTabTitle(QString)), this, SLOT(changeTabTitle(QString)));
+	
+	tabMain->setCurrentIndex( tabMain->addTab(widget, tools[tool].pszName) );
+}
+
+void MainWindow::changeTabTitle(QString newTitle)
+{
+	QWidget* widget = (QWidget*) sender();
+	int i = tabMain->indexOf(widget);
+	
+	if(i >= 0)
+		tabMain->setTabText(i, newTitle);
 }
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)

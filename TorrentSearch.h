@@ -41,6 +41,8 @@ protected:
 	void parseResults(Engine* e);
 	
 	static QList<QByteArray> splitArray(const QByteArray& src, QString sep);
+signals:
+	void changeTabTitle(QString newTitle);
 public slots:
 	void search();
 	void searchDone(bool error);

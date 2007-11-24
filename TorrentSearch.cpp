@@ -142,6 +142,8 @@ void TorrentSearch::search()
 		if(expr.isEmpty())
 			return;
 		
+		emit changeTabTitle("BitTorrent search: " + expr);
+		
 		for(int i=0;i<listEngines->count();i++)
 		{
 			if(listEngines->item(i)->checkState() == Qt::Checked)

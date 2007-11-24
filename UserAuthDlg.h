@@ -42,7 +42,7 @@ public slots:
 			QRegExp re (lineRegExp->text());
 			if(!re.isValid())
 			{
-				QMessageBox::warning(this, "FatRat", tr("The regular expression you've entered is invalid"));
+				QMessageBox::warning(this, "FatRat", tr("The regular expression you've entered is invalid."));
 			}
 			else if(!lineUser->text().isEmpty())
 				QDialog::accept();
