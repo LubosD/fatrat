@@ -866,6 +866,9 @@ void TorrentDetails::refresh()
 			ratio = QString::number(double(u)/double(d));
 		labelRatio->setText(ratio);
 		
+		labelTotalDownload->setText(formatSize(d));
+		labelTotalUpload->setText(formatSize(u));
+		
 		// PIECES IN PROGRESS
 		m_pPiecesModel->refresh();
 		

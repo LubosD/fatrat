@@ -174,6 +174,9 @@ void TorrentSearch::search()
 			if(listEngines->item(i)->checkState() == Qt::Checked)
 			{
 				QUrl url = m_engines[i].query.arg(expr);
+				QString path = url.path();
+				
+				path.replace(' ', '+');
 				
 				m_engines[i].http = new QHttp(url.host(), url.port(80), this);
 				m_engines[i].buffer = new QBuffer(this);
@@ -181,7 +184,7 @@ void TorrentSearch::search()
 				m_engines[i].buffer->open(QIODevice::ReadWrite);
 				
 				connect(m_engines[i].http, SIGNAL(done(bool)), this, SLOT(searchDone(bool)));
-				m_engines[i].http->get(url.path()+"?"+url.encodedQuery(), m_engines[i].buffer);
+				m_engines[i].http->get(path+"?"+url.encodedQuery(), m_engines[i].buffer);
 				
 				bSel = true;
 			}
@@ -263,7 +266,19 @@ void TorrentSearch::parseResults(Engine* e)
 				if(!item->m_strLink.startsWith("http://"))
 				{
 					QUrl url(e->query);
-					item->m_strLink = QString("%1://%2:%3/%4")
+					
+					if(item->m_strLink[0] != '/')
+					{
+						QString path = url.path();
+						int ix = path.lastIndexOf('/');
+						if(ix != -1)
+						{
+							path.resize(ix+1);
+							item->m_strLink.prepend(path);
+						}
+					}
+					
+					item->m_strLink = QString("%1://%2:%3%4")
 							.arg(url.scheme()).arg(url.host()).arg(url.port(80)).arg(map["link"]);
 				}
 				

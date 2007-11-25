@@ -75,6 +75,18 @@
 		<regexp name="seeders" match="3">&lt;td&gt;([^&lt;]+)</regexp>
 		<regexp name="leechers" match="4">&lt;td&gt;([^&lt;]+)</regexp>
 	</engine>
+	<engine name="BitTorrentMonster">
+		<param name="query">http://btmon.com/torrent/%1</param>
+		<param name="beginning">&lt;tr onmouseover="this.className='hl_row'" onmouseout="this.className=''"&gt;</param>
+		<param name="splitter">&lt;tr onmouseover="this.className='hl_row'" onmouseout="this.className=''"&gt;</param>
+		<param name="ending">&lt;table class="pages" align="center"&gt;&lt;tr&gt;</param>
+		
+		<regexp name="name">&lt;div class="long_word"&gt;([^&lt;]+)&lt;/div&gt;</regexp>
+		<regexp name="link" match="1">&lt;a href="([^"]+)"</regexp>
+		<regexp name="size">&lt;td align="right" nowrap="nowrap"&gt;([^&lt;]+)&lt;/td&gt;</regexp>
+		<regexp name="seeders">&lt;td align="center"&gt;&lt;strong&gt;([0-9]+)&lt;/strong&gt;&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="1">&lt;td align="center"&gt;([0-9]+)&lt;/td&gt;</regexp>
+	</engine>
 	<!--<engine name="IsoHunt">
 		<param name="query">http://isohunt.com/torrents/?ihq=%1</param>
 		<param name="beginning">&lt;/th&gt;&lt;/tr&gt;</param>
