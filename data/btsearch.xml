@@ -62,6 +62,19 @@
 		<regexp name="seeders" field="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
 		<regexp name="leechers" field="1" match="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
 	</engine>
+	<engine name="TorrentReactor">
+		<param name="query">http://www.torrentreactor.net/search.php?search=&amp;words=%1&amp;cid=0</param>
+		<param name="beginning">&lt;th&gt;Seeds&lt;/th&gt;</param>
+		<param name="splitter">&lt;/tr&gt;
+&lt;tr&gt;</param>
+		<param name="ending">If you like TorrentReactor.Net</param>
+		
+		<regexp name="name" field="1">&lt;a href="([^"]+)"&gt;([^&lt;]+)&lt;</regexp>
+		<regexp name="link">&lt;a rel="nofollow" href="([^"]+)"</regexp>
+		<regexp name="size" match="2">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="seeders" match="3">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="leechers" match="4">&lt;td&gt;([^&lt;]+)</regexp>
+	</engine>
 	<!--<engine name="IsoHunt">
 		<param name="query">http://isohunt.com/torrents/?ihq=%1</param>
 		<param name="beginning">&lt;/th&gt;&lt;/tr&gt;</param>
