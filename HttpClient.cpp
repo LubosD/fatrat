@@ -50,15 +50,27 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0),
 	m_header.addValue("Connection", "close");
 }
 
-void HttpEngine::request(QString file, bool, int)
+void HttpEngine::request(QString file, bool bUpload, int)
 {
-	if(LimitedSocket::open(file, false))
+	if(LimitedSocket::open(file, bUpload))
 	{
-		m_nResume = m_file.pos();
-		if(m_nSegmentEnd >= 0)
-			m_header.addValue("Range", QString("bytes=%1-%2").arg(m_nResume).arg(m_nSegmentEnd));
+		// when we're uploading, it's full up to the class' user to add special request headers etc.
+		if(!bUpload)
+		{
+			m_nResume = m_file.pos();
+			if(m_nSegmentEnd >= 0)
+				m_header.addValue("Range", QString("bytes=%1-%2").arg(m_nResume).arg(m_nSegmentEnd));
+			else
+				m_header.addValue("Range", QString("bytes=%1-").arg(m_nResume));
+		}
 		else
-			m_header.addValue("Range", QString("bytes=%1-").arg(m_nResume));
+		{
+			if(m_nSegmentStart >= 0)
+				m_nToTransfer = m_file.size();
+			else
+				m_nToTransfer = m_nSegmentEnd - m_nSegmentStart;
+			m_header.addValue("Content-Length", QString::number(m_nToTransfer + m_strBody.size()));
+		}
 		
 		start();
 	}
@@ -68,18 +80,16 @@ void HttpEngine::request(QString file, bool, int)
 
 void HttpEngine::run()
 {
-	QTcpSocket* socket = new QTcpSocket;
-	
-	m_pRemote = socket;
-	socket->setReadBufferSize(1024);
+	m_pRemote = new QTcpSocket;
+	m_pRemote->setReadBufferSize(1024);
 	
 	try
 	{
-		if(!bindSocket(socket, m_bindAddress))
+		if(!bindSocket(m_pRemote, m_bindAddress))
 			throw tr("Failed to bind socket");
 		
 		if(m_proxyData.nType == Proxy::ProxyHttp)
-			socket->connectToHost(m_proxyData.strIP,m_proxyData.nPort);
+			m_pRemote->connectToHost(m_proxyData.strIP,m_proxyData.nPort);
 		else
 		{
 			if(m_proxyData.nType == Proxy::ProxySocks5)
@@ -92,87 +102,28 @@ void HttpEngine::run()
 				proxy.setUser(m_proxyData.strUser);
 				proxy.setPassword(m_proxyData.strPassword);
 				
-				socket->setProxy(proxy);
+				m_pRemote->setProxy(proxy);
 			}
-			socket->connectToHost(m_url.host(),m_url.port(80));
+			m_pRemote->connectToHost(m_url.host(),m_url.port(80));
 		}
 		
-		if(!socket->waitForConnected())
-			throw getErrorString(socket->error());
+		if(!m_pRemote->waitForConnected())
+			throw getErrorString(m_pRemote->error());
 		if(m_bAbort)
 			return;
 		
-		socket->write(m_header.toString().toAscii());
-		socket->write("\r\n", 2);
+		m_pRemote->write(m_header.toString().toAscii());
+		m_pRemote->write("\r\n", 2);
+		m_pRemote->write(m_strBody);
 		
-		if(!socket->waitForBytesWritten())
-			throw getErrorString(socket->error());
+		if(!m_pRemote->waitForBytesWritten())
+			throw getErrorString(m_pRemote->error());
 		
 		if(m_bAbort)
 			return;
 		
-		QByteArray response;
-		
-		while(true)
-		{
-			QByteArray line = readLine();
-			
-			qDebug() << "Received HTTP line" << line;
-			
-			if(line.size() <= 2)
-			{
-				if(line.isEmpty())
-					throw getErrorString(socket->error());
-				else
-					break;
-			}
-			else
-				response += line;
-		}
-		
-		QHttpResponseHeader header = QHttpResponseHeader(QString(response));
-		
-		switch(header.statusCode())
-		{
-		case 200:
-		{
-			if(m_file.pos() && !header.hasKey("content-range"))
-			{
-				if(m_nSegmentStart < 0)
-				{
-					// resume not supported
-					m_file.resize(0);
-					m_file.seek(0);
-					
-					emit statusMessage(tr("Resume not supported"));
-				}
-				else
-					throw tr("Segmentation not supported by server");
-			}
-		}
-		case 206: // data will follow
-		{
-			bool bChunked = false;
-			if(header.value("transfer-encoding").compare("chunked",Qt::CaseInsensitive) == 0)
-				bChunked = true;
-			else
-			{
-				m_nToTransfer = header.value("content-length").toULongLong();
-				emit receivedSize(m_nToTransfer+m_nResume);
-			}
-			
-			dataCycle(bChunked);
-			emit finished(false);
-			
-			break;
-		}
-		case 301:
-		case 302: // redirect
-			emit redirected(header.value("location"));
-			break;
-		default: // error
-			throw header.reasonPhrase();
-		}
+		performUpload();
+		processServerResponse();
 	}
 	catch(const QString& text)
 	{
@@ -182,8 +133,108 @@ void HttpEngine::run()
 	
 	m_file.close();
 	
-	if(socket)
-		doClose(&socket);
+	if(m_pRemote)
+		doClose(&m_pRemote);
+}
+
+void HttpEngine::processServerResponse()
+{
+	QByteArray response;
+	
+	while(true)
+	{
+		QByteArray line = readLine();
+		
+		qDebug() << "Received HTTP line" << line;
+		
+		if(line.size() <= 2)
+		{
+			if(line.isEmpty())
+				throw getErrorString(m_pRemote->error());
+			else
+				break;
+		}
+		else
+			response += line;
+	}
+	
+	QHttpResponseHeader header = QHttpResponseHeader(QString(response));
+	
+	if(!m_bUpload)
+		handleDownloadHeaders(header);
+	else
+		handleUploadHeaders(header);
+}
+
+void HttpEngine::performUpload()
+{
+	if(!m_bUpload)
+		return;
+	
+	while(!m_bAbort && m_nTransfered < m_nToTransfer)
+	{
+		bool success;
+		
+		success = writeCycle();
+		
+		if(!success)
+			throw getErrorString(m_pRemote->error());
+	}
+}
+
+void HttpEngine::handleUploadHeaders(QHttpResponseHeader header)
+{
+	if(header.statusCode() != 200)
+		throw header.reasonPhrase();
+	
+	qint64 clen = header.value("content-length").toLongLong();
+	while(m_strResponse.size() < clen)
+		m_strResponse += m_pRemote->read(1024);
+}
+
+void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
+{
+	switch(header.statusCode())
+	{
+	case 200:
+	{
+		if(m_file.pos() && !header.hasKey("content-range"))
+		{
+			if(m_nSegmentStart < 0)
+			{
+				// resume not supported
+				m_file.resize(0);
+				m_file.seek(0);
+				
+				emit statusMessage(tr("Resume not supported"));
+			}
+			else
+				throw tr("Segmentation not supported by server");
+		}
+	}
+	case 206: // data will follow
+	{
+		bool bChunked = false;
+		if(header.value("transfer-encoding").compare("chunked",Qt::CaseInsensitive) == 0)
+			bChunked = true;
+		else
+		{
+			m_nToTransfer = header.value("content-length").toLongLong();
+			emit receivedSize(m_nToTransfer+m_nResume);
+		}
+		
+		dataCycle(bChunked);
+		emit finished(false);
+		
+		break;
+	}
+	case 301:
+	case 302: // redirect
+		emit redirected(header.value("location"));
+		break;
+	default: // error
+		throw header.reasonPhrase();
+	}
 }
 
 void HttpEngine::dataCycle(bool bChunked)

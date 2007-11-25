@@ -26,6 +26,7 @@
 #include "RuntimeException.h"
 #include "SpeedLimitWidget.h"
 #include "AppTools.h"
+#include "AboutDlg.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -226,15 +227,7 @@ void MainWindow::saveWindowState()
 
 void MainWindow::about()
 {
-	QMessageBox::about(this, tr("About FatRat"),
-				QString::fromUtf8("<b>FatRat download manager</b><p>"
-				"Copyright © 2006-2007 <a href=\"http://www.dolezel.info\">Luboš Doležel</a><p>"
-				"This application uses the <a href=\"http://www.rasterbar.com/products/libtorrent/\">Rasterbar libtorrent library</a>.<br>"
-				"Copyright © 2003-2007 Arvid Norberg"
-				"<p>"
-				"Web: <a href=\"http://fatrat.dolezel.info\">http://fatrat.dolezel.info</a><br>"
-				"Licensed under terms of the <a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU GPL v2 licence</a>.")
-			);
+	AboutDlg(this).exec();
 }
 
 void MainWindow::initAppTools(QMenu* tabOpenMenu)

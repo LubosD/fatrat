@@ -29,7 +29,7 @@ class FatratAdaptor: public QDBusAbstractAdaptor
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "info.dolezel.fatrat")
     Q_CLASSINFO("D-Bus Introspection", ""
-"  <interface name=\"FatRat\" >\n"
+"  <interface name=\"info.dolezel.fatrat\" >\n"
 "    <method name=\"addTransfers\" >\n"
 "      <arg direction=\"in\" type=\"s\" name=\"uri\" />\n"
 "    </method>\n"

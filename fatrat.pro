@@ -23,7 +23,8 @@ FORMS += MainWindow.ui \
  TorrentDetailsForm.ui \
  SpeedLimitWidget.ui \
  TorrentSearch.ui \
- RapidTools.ui
+ RapidTools.ui \
+ AboutDlg.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -68,7 +69,8 @@ HEADERS += fatrat.h \
  HttpClient.h \
  LimitedSocket.h \
  SftpClient.h \
- RapidTools.h
+ RapidTools.h \
+ AboutDlg.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -121,7 +123,7 @@ locale.files = locale/*.qm
 locale.path = /usr/share/fatrat/lang
 INSTALLS += locale
 
-other_data.files = data/btsearch.xml
+other_data.files = data/btsearch.xml data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt
 other_data.path = /usr/share/fatrat/data
 INSTALLS += other_data
 

@@ -13,12 +13,12 @@
 #include <QHeaderView>
 #include <fstream>
 #include <stdexcept>
-#include <dlfcn.h>
 #include <iostream>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <QLibrary>
 
 extern QSettings* g_settings;
 
@@ -27,7 +27,7 @@ TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
 
 void* g_pGeoIP = 0;
-void* g_pGeoIPLib = 0;
+QLibrary g_geoIPLib;
 void* (*GeoIP_new)(int);
 const char* (*GeoIP_country_name_by_addr)(void*, const char*);
 const char* (*GeoIP_country_code_by_addr)(void*, const char*);
@@ -73,14 +73,13 @@ void TorrentDownload::globalInit()
 	
 	m_worker = new TorrentWorker;
 	
-	g_pGeoIPLib = dlopen("libGeoIP.so", RTLD_NOW);
-	
-	if(g_pGeoIPLib != 0)
+	g_geoIPLib.setFileName("libGeoIP");
+	if(g_geoIPLib.load())
 	{
-		*((void**) &GeoIP_new) = dlsym(g_pGeoIPLib, "GeoIP_new");
-		*((void**) &GeoIP_country_name_by_addr) = dlsym(g_pGeoIPLib, "GeoIP_country_name_by_addr");
-		*((void**) &GeoIP_country_code_by_addr) = dlsym(g_pGeoIPLib, "GeoIP_country_code_by_addr");
-		*((void**) &GeoIP_delete) = dlsym(g_pGeoIPLib, "GeoIP_delete");
+		*((void**) &GeoIP_new) = g_geoIPLib.resolve("GeoIP_new");
+		*((void**) &GeoIP_country_name_by_addr) = g_geoIPLib.resolve("GeoIP_country_name_by_addr");
+		*((void**) &GeoIP_country_code_by_addr) = g_geoIPLib.resolve("GeoIP_country_code_by_addr");
+		*((void**) &GeoIP_delete) = g_geoIPLib.resolve("GeoIP_delete");
 		
 		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
 	}
@@ -144,11 +143,8 @@ void TorrentDownload::globalExit()
 	delete m_worker;
 	delete m_session;
 	
-	if(g_pGeoIPLib != 0)
-	{
+	if(g_pGeoIP != 0)
 		GeoIP_delete(g_pGeoIP);
-		dlclose(g_pGeoIPLib);
-	}
 }
 
 QString TorrentDownload::name() const

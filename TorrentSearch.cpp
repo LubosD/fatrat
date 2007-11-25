@@ -175,8 +175,8 @@ void TorrentSearch::search()
 			{
 				QUrl url = m_engines[i].query.arg(expr);
 				
-				m_engines[i].buffer = new QBuffer(this);
 				m_engines[i].http = new QHttp(url.host(), url.port(80), this);
+				m_engines[i].buffer = new QBuffer(this);
 				
 				m_engines[i].buffer->open(QIODevice::ReadWrite);
 				
@@ -219,6 +219,9 @@ void TorrentSearch::parseResults(Engine* e)
 		
 		start += e->beginning.size();
 		results = splitArray(data.mid(start, end-start), e->splitter);
+		
+		delete e->buffer;
+		e->buffer = 0;
 		
 		qDebug() << "Results:" << results.size();
 		
@@ -300,9 +303,6 @@ void TorrentSearch::searchDone(bool error)
 	
 	if(!error)
 		parseResults(e);
-	
-	delete e->buffer;
-	e->buffer = 0;
 	
 	m_bSearching = false;
 	for(int i=0;i<m_engines.size();i++)

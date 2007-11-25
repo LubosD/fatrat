@@ -1,5 +1,6 @@
 #ifndef RAPIDSHAREUPLOAD_H
 #include "Transfer.h"
+#include "HttpClient.h"
 
 class RapidshareUpload : public Transfer
 {
@@ -36,6 +37,8 @@ private:
 	QString m_strUsername, m_strPassword;
 	AccountType m_type;
 	qint64 m_nFileID; // for resume
+	
+	HttpEngine* m_engine;
 };
 
 #endif
