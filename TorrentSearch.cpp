@@ -108,6 +108,8 @@ void TorrentSearch::loadEngines()
 			
 			if(type == "query")
 				e.query = contents;
+			else if(type == "postdata")
+				e.postData = contents;
 			else if(type == "beginning")
 				e.beginning = contents;
 			else if(type == "splitter")
@@ -184,7 +186,26 @@ void TorrentSearch::search()
 				m_engines[i].buffer->open(QIODevice::ReadWrite);
 				
 				connect(m_engines[i].http, SIGNAL(done(bool)), this, SLOT(searchDone(bool)));
-				m_engines[i].http->get(path+"?"+url.encodedQuery(), m_engines[i].buffer);
+				
+				if(!m_engines[i].postData.isEmpty())
+				{
+					QString postQuery;
+					QByteArray postEnc;
+					QHttpRequestHeader hdr ("POST", path+"?"+url.encodedQuery());
+					
+					postQuery = m_engines[i].postData.arg(expr);
+					postQuery.replace(' ', '+');
+					
+					postEnc = postQuery.toUtf8();
+					
+					hdr.addValue("host", url.host());
+					hdr.addValue("content-length", QString::number(postEnc.size()));
+					hdr.addValue("content-type", "application/x-www-form-urlencoded");
+					
+					m_engines[i].http->request(hdr, postEnc, m_engines[i].buffer);
+				}
+				else
+					m_engines[i].http->get(path+"?"+url.encodedQuery(), m_engines[i].buffer);
 				
 				bSel = true;
 			}
@@ -396,9 +417,11 @@ void SearchTreeWidgetItem::parseSize(QString in)
 	
 	if(split < 0)
 	{
-		qDebug() << "Unable to parse size:" << in;
+		//qDebug() << "Unable to parse size:" << in;
+		split = in.size();
+		in += "mb";
 	}
-	else
+	//else
 	{
 		QString units;
 		double size = in.left(split).toDouble();

@@ -25,7 +25,7 @@ protected:
 	struct Engine
 	{
 		QString id, name;
-		QString query;
+		QString query, postData;
 		
 		// parsing blocks
 		QString beginning, splitter, ending;

@@ -187,7 +187,7 @@ void TorrentDownload::init(QString source, QString target)
 			
 			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
 			
-			m_handle.set_ratio(1);
+			m_handle.set_ratio(0);
 			
 			m_bHasHashCheck = true;
 			
@@ -434,7 +434,7 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, libtorrent::storage_mode_sparse, !isActive());
 		
-		m_handle.set_ratio(1);
+		m_handle.set_ratio(0);
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();

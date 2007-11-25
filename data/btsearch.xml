@@ -87,6 +87,19 @@
 		<regexp name="seeders">&lt;td align="center"&gt;&lt;strong&gt;([0-9]+)&lt;/strong&gt;&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="1">&lt;td align="center"&gt;([0-9]+)&lt;/td&gt;</regexp>
 	</engine>
+	<engine name="EZTV">
+		<param name="query">http://www.eztv.it/</param>
+		<param name="beginning">&lt;td class='section_post_header' colspan='11'&gt;</param>
+		<param name="splitter">&lt;/tr&gt;</param>
+		<param name="ending">&lt;a href="http://www.bt-chat.com"&gt;</param>
+		<param name="postdata">SearchString1=%1&amp;SearchString=&amp;search=Search</param>
+		
+		<regexp name="name">&lt;font color='#cd4141'&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="link">&lt;b&gt;&lt;a href='([^']+)' onClick=</regexp>
+		<regexp name="size" match="0">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
+		<regexp name="seeders" match="1">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="2">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
+	</engine>
 	<!--<engine name="IsoHunt">
 		<param name="query">http://isohunt.com/torrents/?ihq=%1</param>
 		<param name="beginning">&lt;/th&gt;&lt;/tr&gt;</param>
