@@ -128,6 +128,11 @@ void TorrentDownload::applySettings()
 	settings.piece_timeout = 50;
 	m_session->set_settings(settings);
 	
+	libtorrent::pe_settings ps;
+	ps.in_enc_policy = ps.out_enc_policy = libtorrent::pe_settings::enabled;
+	ps.allowed_enc_level = libtorrent::pe_settings::both;
+	m_session->set_pe_settings(ps);
+	
 	g_settings->endGroup();
 }
 
@@ -336,6 +341,8 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 			up--;
 		m_handle.set_upload_limit(up);
 		m_handle.set_download_limit(down);
+		
+		qDebug() << "Limits are D:" << m_handle.download_limit() << "U:" << m_handle.upload_limit();
 	}
 }
 
