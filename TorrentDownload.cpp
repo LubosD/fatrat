@@ -344,6 +344,8 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 		
 		qDebug() << "Limits are D:" << m_handle.download_limit() << "U:" << m_handle.upload_limit();
 	}
+	else
+		qDebug() << "Warning: torrent speed limit was not set:" << down << up;
 }
 
 qulonglong TorrentDownload::done() const
@@ -500,6 +502,18 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 		prio += QString::number(m_vecPriorities[i]);
 	}
 	setXMLProperty(doc, map, "priorities", prio);
+	
+	if(m_handle.is_valid())
+	{
+		QDomElement sub = doc.createElement("trackers");
+		std::vector<libtorrent::announce_entry> trackers = m_handle.trackers();
+		for(size_t i=0;i<trackers.size();i++)
+		{
+			setXMLProperty(doc, sub, "tracker", QString::fromUtf8(trackers[i].url.c_str()));
+		}
+		
+		sub = doc.createElement("url_seeds"); // TODO
+	}
 }
 
 QString TorrentDownload::message() const
@@ -717,6 +731,14 @@ QObject* TorrentDownload::createDetailsWidget(QWidget* widget)
 	return new TorrentDetails(widget, this);
 }
 
+WidgetHostChild* TorrentDownload::createOptionsWidget(QWidget* w)
+{
+	if(m_handle.is_valid())
+		return new TorrentOptsWidget(w, this);
+	else
+		return 0;
+}
+
 void TorrentWorker::setDetailsObject(TorrentDetails* d)
 {
 	connect(&m_timer, SIGNAL(timeout()), d, SLOT(refresh()));
@@ -882,5 +904,227 @@ void TorrentDetails::refresh()
 		// CONNECTED PEERS
 		m_pPeersModel->refresh();
 	}
+}
+
+//////////////////////////////////////////////////////////////////
+
+TorrentOptsWidget::TorrentOptsWidget(QWidget* me, TorrentDownload* parent)
+	: m_download(parent), m_bUpdating(false)
+{
+	setupUi(me);
+	
+	QTreeWidgetItem* hdr = treeFiles->headerItem();
+	hdr->setText(0, tr("Name"));
+	hdr->setText(1, tr("Size"));
+	
+	connect(pushAddUrlSeed, SIGNAL(clicked()), this, SLOT(addUrlSeed()));
+	connect(pushTrackerAdd, SIGNAL(clicked()), this, SLOT(addTracker()));
+	connect(pushTrackerRemove, SIGNAL(clicked()), this, SLOT(removeTracker()));
+	
+	connect(treeFiles, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(fileItemChanged(QTreeWidgetItem*,int)));
+}
+
+void TorrentOptsWidget::load()
+{
+	for(libtorrent::torrent_info::file_iterator it = m_download->m_info->begin_files();
+		it != m_download->m_info->end_files();
+		it++)
+	{
+		QStringList elems = QString::fromUtf8(it->path.string().c_str()).split('/');
+		//QString name = elems.takeLast();
+		
+		QTreeWidgetItem* item = 0;
+		
+		for(int x=0;x<elems.size();x++)
+		{
+			if(item != 0)
+			{
+				bool bFound = false;
+				for(int i=0;i<item->childCount();i++)
+				{
+					QTreeWidgetItem* c = item->child(i);
+					if(c->text(0) == elems[x])
+					{
+						bFound = true;
+						item = c;
+					}
+				}
+				
+				if(!bFound)
+					item = new QTreeWidgetItem(item, QStringList( elems[x] ));
+			}
+			else
+			{
+				bool bFound = false;
+				for(int i=0;i<treeFiles->topLevelItemCount();i++)
+				{
+					QTreeWidgetItem* c = treeFiles->topLevelItem(i);
+					if(c->text(0) == elems[x])
+					{
+						bFound = true;
+						item = c;
+					}
+				}
+				
+				if(!bFound)
+					item = new QTreeWidgetItem(treeFiles, QStringList( elems[x] ));
+			}
+		}
+		
+		// fill in info
+		item->setText(1, formatSize(it->size));
+		m_files << item;
+	}
+	
+	for(int i=0;i<m_files.size();i++)
+	{
+		bool download = true;
+		if(i < m_download->m_vecPriorities.size())
+			download = m_download->m_vecPriorities[i] >= 1;
+		
+		m_files[i]->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+		m_files[i]->setCheckState(0, download ? Qt::Checked : Qt::Unchecked);
+	}
+	
+	recursiveUpdateDown(treeFiles->invisibleRootItem());
+	treeFiles->expandAll();
+	
+	std::vector<std::string> seeds = m_download->m_info->url_seeds();
+	for(int i=0;i<seeds.size();i++)
+		listUrlSeeds->addItem(QString::fromUtf8(seeds[i].c_str()));
+	
+	m_trackers = m_download->m_handle.trackers();
+	for(int i=0;i<m_trackers.size();i++)
+		listTrackers->addItem(QString::fromUtf8(m_trackers[i].url.c_str()));
+}
+
+void TorrentOptsWidget::accepted()
+{
+	for(int i=0;i<m_files.size();i++)
+	{
+		bool yes = m_files[i]->checkState(0) == Qt::Checked;
+		int& prio = m_download->m_vecPriorities[i];
+		
+		if(yes && !prio)
+			prio = 1;
+		else if(!yes && prio)
+			prio = 0;
+	}
+	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
+	
+	foreach(QString url, m_seeds)
+		m_download->m_handle.add_url_seed(url.toStdString());
+	m_download->m_handle.replace_trackers(m_trackers);
+}
+
+void TorrentOptsWidget::addUrlSeed()
+{
+	QString url = lineUrl->text();
+	if(url.startsWith("http://"))
+	{
+		m_seeds << url;
+		listUrlSeeds->addItem(url);
+		lineUrl->clear();
+	}
+}
+
+void TorrentOptsWidget::addTracker()
+{
+	QString url = lineTracker->text();
+	
+	if(url.startsWith("http://") || url.startsWith("udp://"))
+	{
+		m_trackers.push_back( libtorrent::announce_entry ( url.toStdString() ) );
+		listTrackers->addItem(url);
+		lineTracker->clear();
+	}
+}
+
+void TorrentOptsWidget::removeTracker()
+{
+	int cur = listTrackers->currentRow();
+	if(cur != -1)
+	{
+		delete listTrackers->takeItem(cur);
+		m_trackers.erase(m_trackers.begin() + cur);
+	}
+}
+
+void TorrentOptsWidget::fileItemChanged(QTreeWidgetItem* item, int column)
+{
+	if(column != 0 || m_bUpdating)
+		return;
+	
+	m_bUpdating = true;
+	
+	if(item->childCount())
+	{
+		// directory
+		recursiveCheck(item, item->checkState(0));
+	}
+	
+	if(QTreeWidgetItem* parent = item->parent())
+		recursiveUpdate(parent);
+	
+	m_bUpdating = false;
+}
+
+void TorrentOptsWidget::recursiveUpdate(QTreeWidgetItem* item)
+{
+	int yes = 0, no = 0;
+	int total = item->childCount();
+	
+	for(int i=0;i<total;i++)
+	{
+		int state = item->child(i)->checkState(0);
+		if(state == Qt::Checked)
+			yes++;
+		else if(state == Qt::Unchecked)
+			no++;
+	}
+	
+	if(yes == total)
+		item->setCheckState(0, Qt::Checked);
+	else if(no == total)
+		item->setCheckState(0, Qt::Unchecked);
+	else
+		item->setCheckState(0, Qt::PartiallyChecked);
+	
+	if(QTreeWidgetItem* parent = item->parent())
+		recursiveUpdate(parent);
+}
+
+void TorrentOptsWidget::recursiveUpdateDown(QTreeWidgetItem* item)
+{
+	int yes = 0, no = 0;
+	int total = item->childCount();
+	
+	for(int i=0;i<total;i++)
+	{
+		QTreeWidgetItem* child = item->child(i);
+		
+		if(child->childCount())
+			recursiveUpdateDown(child);
+		
+		int state = child->checkState(0);
+		if(state == Qt::Checked)
+			yes++;
+		else if(state == Qt::Unchecked)
+			no++;
+	}
+	
+	if(yes == total)
+		item->setCheckState(0, Qt::Checked);
+	else if(no == total)
+		item->setCheckState(0, Qt::Unchecked);
+	else
+		item->setCheckState(0, Qt::PartiallyChecked);
+}
+
+void TorrentOptsWidget::recursiveCheck(QTreeWidgetItem* item, Qt::CheckState state)
+{
+	item->setCheckState(0, state);
+	for(int i=0;i<item->childCount();i++)
+		recursiveCheck(item->child(i), state);
 }
 

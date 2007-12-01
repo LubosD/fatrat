@@ -266,16 +266,14 @@ void Queue::remove(int n, bool nolock)
 	d->deleteLater();
 }
 
-bool Queue::removeWithData(int n, bool nolock)
+void Queue::removeWithData(int n, bool nolock)
 {
 	Transfer* d = take(n, nolock);
 	
 	if(d->isActive())
 		d->setState(Transfer::Paused);
 	
-	bool rval = recursiveRemove(d->dataPath(true));
+	recursiveRemove(d->dataPath(true));
 	d->deleteLater();
-	
-	return rval;
 }
 

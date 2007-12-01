@@ -41,7 +41,7 @@ public:
 	void moveToTop(int n);
 	void moveToBottom(int n);
 	void remove(int n, bool nolock = false);
-	bool removeWithData(int n, bool nolock = false);
+	void removeWithData(int n, bool nolock = false);
 	Transfer* take(int n, bool nolock = false);
 private:
 	void loadQueue(const QDomNode& node);

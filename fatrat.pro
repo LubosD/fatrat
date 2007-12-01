@@ -24,7 +24,8 @@ FORMS += MainWindow.ui \
  SpeedLimitWidget.ui \
  TorrentSearch.ui \
  RapidTools.ui \
- AboutDlg.ui
+ AboutDlg.ui \
+ TorrentOptsWidget.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \

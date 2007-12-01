@@ -244,47 +244,6 @@ QString formatTime(qulonglong inval)
 	return result;
 }
 
-bool recursiveRemove(QString what)
-{
-	qDebug() << "recursiveRemove" << what;
-	if(!QFile::exists(what))
-		return true; // silently ignore
-	if(!QFile::remove(what))
-	{
-		QDir dir(what);
-		if(!dir.exists())
-		{
-			qDebug() << "Not a directory:" << what;
-			return false;
-		}
-		
-		QStringList contents;
-		contents = dir.entryList();
-		
-		foreach(QString item, contents)
-		{
-			if(item != "." && item != "..")
-			{
-				if(!recursiveRemove(dir.filePath(item)))
-					return false;
-			}
-		}
-		
-		QString name = dir.dirName();
-		if(!dir.cdUp())
-		{
-			qDebug() << "Cannot cdUp:" << what;
-			return false;
-		}
-		if(!dir.rmdir(name))
-		{
-			qDebug() << "Cannot rmdir:" << name;
-			return false;
-		}
-	}
-	return true;
-}
-
 QList<Proxy> Proxy::loadProxys()
 {
 	QList<Proxy> r;
@@ -361,3 +320,67 @@ quint32 qntoh(quint32 source)
 		   | ((source & 0xff000000) >> 24);
 #endif
 }
+
+/////////////////////////////////////////////////////////
+
+class RecursiveRemove : public QThread
+{
+public:
+	RecursiveRemove(QString what) : m_what(what)
+	{
+		start();
+	}
+	void run()
+	{
+		work(m_what);
+		deleteLater();
+	}
+	static bool work(QString what)
+	{
+		qDebug() << "recursiveRemove" << what;
+		if(!QFile::exists(what))
+			return true; // silently ignore
+		if(!QFile::remove(what))
+		{
+			QDir dir(what);
+			if(!dir.exists())
+			{
+				qDebug() << "Not a directory:" << what;
+				return false;
+			}
+			
+			QStringList contents;
+			contents = dir.entryList();
+			
+			foreach(QString item, contents)
+			{
+				if(item != "." && item != "..")
+				{
+					if(!work(dir.filePath(item)))
+						return false;
+				}
+			}
+			
+			QString name = dir.dirName();
+			if(!dir.cdUp())
+			{
+				qDebug() << "Cannot cdUp:" << what;
+				return false;
+			}
+			if(!dir.rmdir(name))
+			{
+				qDebug() << "Cannot rmdir:" << name;
+				return false;
+			}
+		}
+		return true;
+	}
+private:
+	QString m_what;
+};
+
+void recursiveRemove(QString what)
+{
+	new RecursiveRemove(what);
+}
+

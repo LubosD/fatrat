@@ -882,18 +882,18 @@ void MainWindow::deleteTransferData()
 			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 		{
 			q->lockW();
-			bool bOK = true;
+			//bool bOK = true;
 			
 			for(int i=0;i<sel.size();i++)
-				bOK &= q->removeWithData(sel[i]-i, true);
+				/*bOK &=*/ q->removeWithData(sel[i]-i, true);
 			q->unlock();
 			Queue::saveQueues();
 			
-			if(!bOK)
+			/*if(!bOK)
 			{
 				QMessageBox::warning(this, tr("Delete transfers"),
 					tr("FatRat failed to remove some files, check your permissions."));
-			}
+			}*/
 		}
 	}
 	

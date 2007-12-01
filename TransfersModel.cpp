@@ -56,7 +56,7 @@ QVariant TransfersModel::headerData(int section, Qt::Orientation orientation, in
 		case 1:
 			return tr("Progress");
 		case 2:
-			return tr("Total size");
+			return tr("Size");
 		case 3:
 			return tr("Speed");
 		case 4:

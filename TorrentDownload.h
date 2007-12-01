@@ -2,6 +2,8 @@
 #define TORRENTDOWNLOAD_H
 #include "Transfer.h"
 #include "ui_TorrentDetailsForm.h"
+#include "ui_TorrentOptsWidget.h"
+#include "WidgetHostChild.h"
 #include <QTimer>
 #include <QMutex>
 #include <vector>
@@ -50,6 +52,7 @@ public:
 	virtual void save(QDomDocument& doc, QDomNode& map);
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QObject* createDetailsWidget(QWidget* widget);
+	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	
 	qint64 totalDownload() { return m_nPrevDownload + m_status.total_payload_download; }
 	qint64 totalUpload() { return m_nPrevUpload + m_status.total_payload_upload; }
@@ -82,6 +85,7 @@ protected:
 	friend class TorrentPeersModel;
 	friend class TorrentFilesModel;
 	friend class TorrentProgressDelegate;
+	friend class TorrentOptsWidget;
 };
 
 class TorrentWorker : public QObject
@@ -133,6 +137,32 @@ private:
 	
 	QList<int> m_selFiles;
 	QMenu* m_pMenuFiles;
+};
+
+class TorrentOptsWidget : public QObject, public WidgetHostChild, Ui_TorrentOptsWidget
+{
+Q_OBJECT
+public:
+	TorrentOptsWidget(QWidget* me, TorrentDownload* parent);
+	
+	virtual void load();
+	virtual void accepted();
+	
+	static void recursiveCheck(QTreeWidgetItem* item, Qt::CheckState state);
+	static void recursiveUpdate(QTreeWidgetItem* item);
+	static void recursiveUpdateDown(QTreeWidgetItem* item);
+public slots:
+	void addUrlSeed();
+	void addTracker();
+	void removeTracker();
+	
+	void fileItemChanged(QTreeWidgetItem* item, int column);
+private:
+	TorrentDownload* m_download;
+	QList<QTreeWidgetItem*> m_files;
+	QStringList m_seeds;
+	std::vector<libtorrent::announce_entry> m_trackers;
+	bool m_bUpdating;
 };
 
 #endif
