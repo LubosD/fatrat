@@ -973,6 +973,7 @@ void TorrentOptsWidget::load()
 		
 		// fill in info
 		item->setText(1, formatSize(it->size));
+		item->setData(1, Qt::UserRole, qint64(it->size));
 		m_files << item;
 	}
 	
@@ -1094,23 +1095,26 @@ void TorrentOptsWidget::recursiveUpdate(QTreeWidgetItem* item)
 		recursiveUpdate(parent);
 }
 
-void TorrentOptsWidget::recursiveUpdateDown(QTreeWidgetItem* item)
+qint64 TorrentOptsWidget::recursiveUpdateDown(QTreeWidgetItem* item)
 {
 	int yes = 0, no = 0;
 	int total = item->childCount();
+	qint64 size = 0;
 	
 	for(int i=0;i<total;i++)
 	{
 		QTreeWidgetItem* child = item->child(i);
 		
 		if(child->childCount())
-			recursiveUpdateDown(child);
+			size += recursiveUpdateDown(child);
 		
 		int state = child->checkState(0);
 		if(state == Qt::Checked)
 			yes++;
 		else if(state == Qt::Unchecked)
 			no++;
+		
+		size += child->data(1, Qt::UserRole).toLongLong();
 	}
 	
 	if(yes == total)
@@ -1119,6 +1123,10 @@ void TorrentOptsWidget::recursiveUpdateDown(QTreeWidgetItem* item)
 		item->setCheckState(0, Qt::Unchecked);
 	else
 		item->setCheckState(0, Qt::PartiallyChecked);
+	
+	item->setText(1, formatSize(size));
+	
+	return size;
 }
 
 void TorrentOptsWidget::recursiveCheck(QTreeWidgetItem* item, Qt::CheckState state)

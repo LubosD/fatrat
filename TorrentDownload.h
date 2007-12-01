@@ -150,7 +150,7 @@ public:
 	
 	static void recursiveCheck(QTreeWidgetItem* item, Qt::CheckState state);
 	static void recursiveUpdate(QTreeWidgetItem* item);
-	static void recursiveUpdateDown(QTreeWidgetItem* item);
+	static qint64 recursiveUpdateDown(QTreeWidgetItem* item);
 public slots:
 	void addUrlSeed();
 	void addTracker();
