@@ -65,7 +65,7 @@ void TorrentDownload::globalInit()
 	boost::filesystem::path::default_name_check(boost::filesystem::native);
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
-	m_session->set_severity_level(libtorrent::alert::debug);
+	m_session->set_severity_level(libtorrent::alert::warning);
 	
 	applySettings();
 	

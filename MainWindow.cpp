@@ -75,9 +75,6 @@ void MainWindow::setupUi()
 	treeTransfers->setModel(m_modelTransfers);
 	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
 	
-	treeTransfers->setContextMenuPolicy(Qt::CustomContextMenu);
-	listQueues->setContextMenuPolicy(Qt::CustomContextMenu);
-	
 	m_trayIcon.setIcon(QIcon(":/fatrat/fatrat.png"));
 	m_trayIcon.setToolTip("FatRat");
 	showTrayIcon();
@@ -205,6 +202,11 @@ void MainWindow::restoreWindowState()
 		show();
 	}
 	
+	int sel = g_settings->value("selqueue", -1).toInt();
+	if(sel < 0 || sel >= g_queues.size())
+		sel = 0;
+	listQueues->setCurrentRow(sel);
+	
 	g_settings->endGroup();
 }
 
@@ -217,6 +219,7 @@ void MainWindow::saveWindowState()
 	g_settings->setValue("mainheaders", treeTransfers->header()->saveState());
 	g_settings->setValue("mainsplitter", splitterQueues->saveState());
 	g_settings->setValue("mainwindow", saveGeometry());
+	g_settings->setValue("selqueue", getSelectedQueue());
 	
 	g_settings->setValue("mainwindow_pos", pos());
 	g_settings->setValue("mainwindow_size", size());
@@ -453,28 +456,43 @@ void MainWindow::refreshQueues()
 			listQueues->item(i)->setText(g_queues[i]->name());
 	}
 	
-	g_queuesLock.unlock();
-	
 	while(i<listQueues->count())
 		qDebug() << "Removing item" << i << listQueues->takeItem(i);
 	
-	int upt = 0,downt = 0;
-	if(Queue* q = getCurrentQueue(false))
+	int upt = 0, downt = 0;
+	int upq = 0, downq = 0;
+	int cur = getSelectedQueue();
+	
+	for(int j=0;j<g_queues.size();j++)
 	{
+		Queue* q = g_queues[j];
+		q->lock();
+		
 		for(int i=0;i<q->size();i++)
 		{
 			int up,down;
 			q->at(i)->speeds(down,up);
 			downt += down;
 			upt += up;
+			
+			if(j == cur)
+			{
+				downq += down;
+				upq += up;
+			}
 		}
-		doneQueue(q,false,false);
+		
+		q->unlock();
 	}
 	
-	if(upt || downt)
-		m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downt,true)).arg(formatSize(upt,true)) );
-	else
-		m_labelStatus.setText(QString());
+	g_queuesLock.unlock();
+	
+	m_trayIcon.setToolTip(QString("FatRat\n%1 down | %2 up").arg(formatSize(downt,true)).arg(formatSize(upt,true)));
+	
+	//if(upt || downt)
+		m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downq,true)).arg(formatSize(upq,true)) );
+	//else
+	//	m_labelStatus.setText(QString());
 }
 
 void MainWindow::newQueue()

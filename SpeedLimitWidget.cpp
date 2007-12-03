@@ -88,7 +88,8 @@ void RightClickLabel::mousePressEvent(QMouseEvent* event)
 		connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
 		menu.addSeparator();
 		
-		speed *= 8;
+		int step = speed/4;
+		speed *= 2;
 		
 		for(int i=0;i<8 && speed;i++)
 		{
@@ -96,9 +97,14 @@ void RightClickLabel::mousePressEvent(QMouseEvent* event)
 			action->setData(speed);
 			connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
 			
-			speed /= 2;
+			speed -= step;
 		}
 		
 		menu.exec(QCursor::pos());
 	}
+}
+
+void RightClickLabel::mouseDoubleClickEvent(QMouseEvent*)
+{
+	g_wndMain->queueItemProperties();
 }

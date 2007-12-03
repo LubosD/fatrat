@@ -209,7 +209,7 @@ QString formatSize(qulonglong size, bool persec)
 	if(size < 1024)
 		rval = QString("%L1 B").arg(size);
 	else if(size < 1024*1024)
-		rval = QString("%L1 kB").arg(size/1024);
+		rval = QString("%L1 KB").arg(size/1024);
 	else if(size < 1024*1024*1024)
 		rval = QString("%L1 MB").arg(double(size)/1024.0/1024.0, 0, 'f', 1);
 	else
