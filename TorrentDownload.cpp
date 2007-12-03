@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QTemporaryFile>
 #include <QHeaderView>
+#include <QMessageBox>
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
@@ -64,7 +65,7 @@ void TorrentDownload::globalInit()
 	boost::filesystem::path::default_name_check(boost::filesystem::native);
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
-	m_session->set_severity_level(libtorrent::alert::warning);
+	m_session->set_severity_level(libtorrent::alert::debug);
 	
 	applySettings();
 	
@@ -106,7 +107,7 @@ void TorrentDownload::applySettings()
 		try
 		{
 			m_session->start_dht(bdecode_simple(g_settings->value("dht_state").toByteArray()));
-			m_session->add_dht_node(std::pair<std::string, int>("router.bittorrent.com", 6881));
+			m_session->add_dht_router(std::pair<std::string, int>("router.bittorrent.com", 6881));
 			m_bDHT = true;
 		}
 		catch(...)
@@ -118,14 +119,16 @@ void TorrentDownload::applySettings()
 	else
 		m_session->stop_dht();
 	
-	m_session->set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
+	//m_session->set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
 	m_session->set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 	
 	settings.file_pool_size = g_settings->value("maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
 	settings.user_agent = "FatRat/" VERSION;
 	settings.max_out_request_queue = 300;
-	settings.piece_timeout = 50;
+	//settings.piece_timeout = 50;
+	settings.request_queue_time = 30.f;
+	settings.max_out_request_queue = 100;
 	m_session->set_settings(settings);
 	
 	libtorrent::pe_settings ps;
@@ -192,7 +195,8 @@ void TorrentDownload::init(QString source, QString target)
 			
 			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
 			
-			m_handle.set_ratio(0);
+			m_handle.set_ratio(1.2f);
+			m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
 			
 			m_bHasHashCheck = true;
 			
@@ -443,7 +447,8 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, libtorrent::storage_mode_sparse, !isActive());
 		
-		m_handle.set_ratio(0);
+		m_handle.set_ratio(1.2f);
+		m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
@@ -655,6 +660,8 @@ void TorrentWorker::doWork()
 		if((aaa = a.get()) == 0)
 			break;
 		
+		qDebug() << "Libtorrent alert:" << QString(aaa->msg().c_str());
+		
 		if(IS_ALERT(torrent_alert))
 		{
 			TorrentDownload* d = getByHandle(alert->handle);
@@ -695,9 +702,11 @@ void TorrentWorker::doWork()
 				d->logMessage(tr("Fast-resume data have been rejected: %1").arg(errmsg));
 			}
 		}
-		else
+		else if(IS_ALERT(peer_error_alert))
 		{
 			// TODO: what to do with this?
+			std::string ip = alert->ip.address().to_string();
+			qDebug() << "\tFor IP address" << ip.c_str() << alert->ip.port();
 		}
 	}
 #undef IS_ALERT
@@ -777,7 +786,7 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	hdr->resizeSection(0, 500);
 	
 	QAction* act;
-	m_pMenuFiles = new QMenu( tr("Priority") );
+	m_pMenuFiles = new QMenu( tr("Priority"), me );
 	
 	act = m_pMenuFiles->addAction( tr("Do not download") );
 	connect(act, SIGNAL(triggered()), this, SLOT(setPriority0()));
@@ -790,12 +799,18 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	
 	connect(treeFiles, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(fileContext(const QPoint&)));
 	
+	m_pMenuPeers = new QMenu(me);
+	act = m_pMenuPeers->addAction( tr("Ban") );
+	act = m_pMenuPeers->addAction( tr("Information") );
+	connect(act, SIGNAL(triggered()), this, SLOT(peerInfo()));
+	
+	connect(treePeers, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(peerContext(const QPoint&)));
+	
 	refresh();
 }
 
 TorrentDetails::~TorrentDetails()
 {
-	delete m_pMenuFiles;
 }
 
 void TorrentDetails::setPriority(int p)
@@ -803,6 +818,16 @@ void TorrentDetails::setPriority(int p)
 	foreach(int i, m_selFiles)
 		m_download->m_vecPriorities[i] = p;
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
+}
+
+void TorrentDetails::peerInfo()
+{
+	int row = treePeers->currentIndex().row();
+	if(row != -1)
+	{
+		const libtorrent::peer_info& info = m_pPeersModel->m_peers[row];
+		QMessageBox::information(treePeers, "FatRat", QString("Load balancing: %1").arg(info.load_balancing));
+	}
 }
 
 void TorrentDetails::fileContext(const QPoint&)
@@ -826,6 +851,11 @@ void TorrentDetails::fileContext(const QPoint&)
 		menu.addMenu(m_pMenuFiles);
 		menu.exec(QCursor::pos());
 	}
+}
+
+void TorrentDetails::peerContext(const QPoint&)
+{
+	m_pMenuPeers->exec(QCursor::pos());
 }
 
 void TorrentDetails::destroy()

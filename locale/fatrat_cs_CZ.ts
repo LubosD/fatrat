@@ -1945,7 +1945,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../TransfersModel.cpp" line="55"/>
         <source>Name</source>
-        <translation>Jméno</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <location filename="../TransfersModel.cpp" line="57"/>

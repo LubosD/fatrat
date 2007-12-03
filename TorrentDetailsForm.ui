@@ -214,6 +214,9 @@
       <layout class="QGridLayout" >
        <item row="0" column="0" >
         <widget class="QTreeView" name="treePeers" >
+         <property name="contextMenuPolicy" >
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
          <property name="rootIsDecorated" >
           <bool>false</bool>
          </property>

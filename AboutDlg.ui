@@ -120,6 +120,9 @@
            <family>Courier New</family>
           </font>
          </property>
+         <property name="lineWrapMode" >
+          <enum>QTextEdit::NoWrap</enum>
+         </property>
         </widget>
        </item>
       </layout>

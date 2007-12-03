@@ -122,11 +122,14 @@ public slots:
 	void refresh();
 	void destroy();
 	void fileContext(const QPoint&);
+	void peerContext(const QPoint&);
 	
 	void setPriority0() { setPriority(0); }
 	void setPriority1() { setPriority(1); }
 	void setPriority4() { setPriority(4); }
 	void setPriority7() { setPriority(7); }
+	
+	void peerInfo();
 private:
 	TorrentDownload* m_download;
 	bool m_bFilled;
@@ -136,7 +139,7 @@ private:
 	TorrentFilesModel* m_pFilesModel;
 	
 	QList<int> m_selFiles;
-	QMenu* m_pMenuFiles;
+	QMenu *m_pMenuFiles, *m_pMenuPeers;
 };
 
 class TorrentOptsWidget : public QObject, public WidgetHostChild, Ui_TorrentOptsWidget

@@ -28,6 +28,8 @@ private:
 	TorrentDownload* m_download;
 	int m_nLastRowCount;
 	QStringList m_columns;
+	
+	friend class TorrentDetails;
 };
 
 #endif

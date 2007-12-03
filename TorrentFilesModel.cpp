@@ -8,7 +8,7 @@
 TorrentFilesModel::TorrentFilesModel(QObject* parent, TorrentDownload* d)
 	: QAbstractListModel(parent), m_pieces(0), m_download(d)
 {
-	m_columns << tr("File name") << tr("File size") << tr("Progress");
+	m_columns << tr("File name") << tr("Size") << tr("Progress");
 	m_columns << tr("Priority") << tr("Progress display");
 }
 

@@ -207,13 +207,13 @@ QString formatSize(qulonglong size, bool persec)
 	QString rval;
 	
 	if(size < 1024)
-		rval = QString("%1 B").arg(size);
+		rval = QString("%L1 B").arg(size);
 	else if(size < 1024*1024)
-		rval = QString("%1 kB").arg(size/1024);
+		rval = QString("%L1 kB").arg(size/1024);
 	else if(size < 1024*1024*1024)
-		rval = QString("%1 MB").arg(double(size)/1024.0/1024.0, 0, 'f', 1);
+		rval = QString("%L1 MB").arg(double(size)/1024.0/1024.0, 0, 'f', 1);
 	else
-		rval = QString("%1 GB").arg(double(size)/1024.0/1024.0/1024.0, 0, 'f', 1);
+		rval = QString("%L1 GB").arg(double(size)/1024.0/1024.0/1024.0, 0, 'f', 1);
 	
 	if(persec) rval += "/s";
 	return rval;
