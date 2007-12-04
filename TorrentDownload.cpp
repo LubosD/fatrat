@@ -634,6 +634,7 @@ void TorrentWorker::doWork()
 				{
 					qDebug() << "According to the status, the torrent is complete";
 					d->setMode(Transfer::Upload);
+					d->logMessage(tr("Torrent has been downloaded"));
 				}
 			}
 			if(d->state() != Transfer::ForcedActive && d->mode() == Transfer::Upload)
@@ -895,7 +896,10 @@ void TorrentDetails::refresh()
 		boost::posix_time::time_duration& next = m_download->m_status.next_announce;
 		boost::posix_time::time_duration& intv = m_download->m_status.announce_interval;
 		
-		labelAvailability->setText(QString::number(m_download->m_status.distributed_copies));
+		if(m_download->m_status.distributed_copies != -1)
+			labelAvailability->setText(QString::number(m_download->m_status.distributed_copies));
+		else
+			labelAvailability->setText("-");
 		labelTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
 				.arg(m_download->m_status.current_tracker.c_str())
 				.arg(next.hours()).arg(next.minutes(),2,10,QChar('0')).arg(next.seconds(),2,10,QChar('0'))

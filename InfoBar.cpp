@@ -48,7 +48,7 @@ void InfoBar::refresh()
 		int down,up;
 		m_download->speeds(down,up);
 		
-		if(down || m_download->primaryMode() == Transfer::Download)
+		if(down || m_download->mode() == Transfer::Download)
 		{
 			speed = QString("%1 kB/s <i>d</i>").arg(double(down)/1024.f, 0, 'f', 1);
 			

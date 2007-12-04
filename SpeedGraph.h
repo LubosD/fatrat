@@ -14,8 +14,11 @@ public:
 	void setRenderSource(Transfer* t);
 public slots:
 	void setNull() { setRenderSource(0); }
+	void saveScreenshot();
 protected:
 	virtual void paintEvent(QPaintEvent* event);
+	virtual void contextMenuEvent(QContextMenuEvent* event);
+	void draw(QPaintDevice* device, QPaintEvent* event = 0);
 	void drawNoData(QPainter& painter);
 	
 	Transfer* m_transfer;

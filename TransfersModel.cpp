@@ -169,7 +169,7 @@ QVariant TransfersModel::data(const QModelIndex &index, int role) const
 					int down,up;
 					d->speeds(down,up);
 					
-					if(down || d->primaryMode() == Transfer::Download)
+					if(down || d->mode() == Transfer::Download)
 						s = QString("%1 kB/s down").arg(double(down)/1024.f, 0, 'f', 1);
 					if(up)
 					{

@@ -2,6 +2,8 @@
 #include "fatrat.h"
 #include <QtDebug>
 #include <QSettings>
+#include <QMenu>
+#include <QFileDialog>
 
 extern QSettings* g_settings;
 
@@ -24,17 +26,45 @@ void SpeedGraph::setRenderSource(Transfer* t)
 	update();
 }
 
-void SpeedGraph::paintEvent(QPaintEvent* event)
+void SpeedGraph::contextMenuEvent(QContextMenuEvent* event)
+{
+	QMenu menu;
+	QAction* act = menu.addAction(tr("Save as..."));
+	
+	connect(act, SIGNAL(triggered()), this, SLOT(saveScreenshot()));
+	
+	menu.exec(mapToGlobal(event->pos()));
+}
+
+void SpeedGraph::saveScreenshot()
+{
+	QString file;
+	QImage image(size(), QImage::Format_RGB32);
+	draw(&image);
+	
+	file = QFileDialog::getSaveFileName(this, "FatRat", QString(), "*.png");
+	
+	if(!file.isEmpty())
+		image.save(file, "PNG");
+}
+
+void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
 {
 	int top = 0;
 	QQueue<QPair<int,int> > data;
 	QPainter painter;
 	int seconds = g_settings->value("graphminutes",int(5)).toInt()*60;
 	
-	painter.begin(this);
+	painter.begin(device);
 	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setClipRegion(event->region());
-	painter.fillRect(event->rect(),QBrush(Qt::white));
+	
+	if(event != 0)
+	{
+		painter.setClipRegion(event->region());
+		painter.fillRect(event->rect(), QBrush(Qt::white));
+	}
+	else
+		painter.fillRect(QRect(QPoint(0, 0), size()), QBrush(Qt::white));
 	
 	if(!m_transfer)
 	{
@@ -112,6 +142,11 @@ void SpeedGraph::paintEvent(QPaintEvent* event)
 	painter.drawText(15,24,tr("Upload"));
 	
 	painter.end();
+}
+
+void SpeedGraph::paintEvent(QPaintEvent* event)
+{
+	draw(this, event);
 }
 
 void SpeedGraph::drawNoData(QPainter& painter)

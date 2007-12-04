@@ -1396,6 +1396,7 @@ void MainWindow::transferOpenFile()
 
 void MainWindow::computeHash()
 {
-	HashDlg dlg(this);
-	dlg.exec();
+	HashDlg(this).exec();
 }
+
+
