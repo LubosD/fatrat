@@ -125,7 +125,8 @@ void TorrentFilesModel::refresh(const std::vector<bool>* pieces)
 	}*/
 	m_pieces = pieces;
 	
-	m_download->m_handle.file_progress(m_progresses);
+	if(m_download->m_handle.is_valid())
+		m_download->m_handle.file_progress(m_progresses);
 	dataChanged(createIndex(0, 2), createIndex(m_files.size(), m_columns.size())); // refresh the view
 }
 

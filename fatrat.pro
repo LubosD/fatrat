@@ -71,7 +71,8 @@ HEADERS += fatrat.h \
  LimitedSocket.h \
  SftpClient.h \
  RapidTools.h \
- AboutDlg.h
+ AboutDlg.h \
+ MainTab.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \

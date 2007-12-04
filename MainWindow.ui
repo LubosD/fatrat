@@ -39,10 +39,7 @@
      <number>6</number>
     </property>
     <item row="0" column="0" >
-     <widget class="QTabWidget" name="tabMain" >
-      <property name="contextMenuPolicy" >
-       <enum>Qt::CustomContextMenu</enum>
-      </property>
+     <widget class="MainTab" name="tabMain" >
       <property name="currentIndex" >
        <number>0</number>
       </property>
@@ -705,6 +702,12 @@
    <class>QueueView</class>
    <extends>QListWidget</extends>
    <header>QueueView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MainTab</class>
+   <extends>QTabWidget</extends>
+   <header>MainTab.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

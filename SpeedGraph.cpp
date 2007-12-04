@@ -45,7 +45,11 @@ void SpeedGraph::saveScreenshot()
 	file = QFileDialog::getSaveFileName(this, "FatRat", QString(), "*.png");
 	
 	if(!file.isEmpty())
+	{
+		if(!file.endsWith(".png", Qt::CaseInsensitive))
+			file += ".png";
 		image.save(file, "PNG");
+	}
 }
 
 void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
