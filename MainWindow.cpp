@@ -35,8 +35,6 @@ extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 
-const int FIXED_TAB_COUNT = 4;
-
 using namespace std;
 
 MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
@@ -51,7 +49,10 @@ MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
 	refreshQueues();
 	if(g_queues.size())
 	{
-		listQueues->setCurrentRow(0);
+		int sel = g_settings->value("state/selqueue", -1).toInt();
+		if(sel < 0 || sel >= g_queues.size())
+			sel = 0;
+		listQueues->setCurrentRow(sel);
 		queueItemActivated();
 	}
 	
@@ -82,21 +83,6 @@ void MainWindow::setupUi()
 	statusbar->addWidget(&m_labelStatus);
 	
 	statusbar->addPermanentWidget(new SpeedLimitWidget(statusbar));
-	
-	m_toolTabClose = new QToolButton(this);
-	m_toolTabClose->setIcon(QIcon(":/menu/tab_remove.png"));
-	m_toolTabClose->setEnabled(false);
-	tabMain->setCornerWidget(m_toolTabClose);
-	
-	QToolButton* toolOpen = new QToolButton(this);
-	QMenu* tabOpenMenu = new QMenu(toolOpen);
-	
-	initAppTools(tabOpenMenu);
-	
-	toolOpen->setIcon(QIcon(":/menu/tab_new.png"));
-	toolOpen->setPopupMode(QToolButton::InstantPopup);
-	toolOpen->setMenu(tabOpenMenu);
-	tabMain->setCornerWidget(toolOpen, Qt::TopLeftCorner);
 	
 	m_graph = new SpeedGraph(this);
 	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Speed graph"));
@@ -158,8 +144,6 @@ void MainWindow::connectActions()
 	connect(actionSettings, SIGNAL(triggered()), this, SLOT(showSettings()));
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
-	
-	connect(m_toolTabClose, SIGNAL(clicked()), this, SLOT(closeTab()));
 }
 
 void MainWindow::restoreWindowState()
@@ -202,11 +186,6 @@ void MainWindow::restoreWindowState()
 		show();
 	}
 	
-	int sel = g_settings->value("selqueue", -1).toInt();
-	if(sel < 0 || sel >= g_queues.size())
-		sel = 0;
-	listQueues->setCurrentRow(sel);
-	
 	g_settings->endGroup();
 }
 
@@ -231,42 +210,6 @@ void MainWindow::saveWindowState()
 void MainWindow::about()
 {
 	AboutDlg(this).exec();
-}
-
-void MainWindow::initAppTools(QMenu* tabOpenMenu)
-{
-	const AppTool* tools = getAppTools();
-	
-	for(int i=0;tools[i].pszName;i++)
-	{
-		QAction* action;
-		
-		action = tabOpenMenu->addAction(tr("New %1").arg(tools[i].pszName));
-		action->setData(i);
-		
-		connect(action, SIGNAL(triggered()), this, SLOT(openAppTool()));
-	}
-}
-
-void MainWindow::openAppTool()
-{
-	const AppTool* tools = getAppTools();
-	QAction* action = (QAction*) sender();
-	int tool = action->data().toInt();
-	QWidget* widget = tools[tool].pfnCreate();
-	
-	connect(widget, SIGNAL(changeTabTitle(QString)), this, SLOT(changeTabTitle(QString)));
-	
-	tabMain->setCurrentIndex( tabMain->addTab(widget, tools[tool].pszName) );
-}
-
-void MainWindow::changeTabTitle(QString newTitle)
-{
-	QWidget* widget = (QWidget*) sender();
-	int i = tabMain->indexOf(widget);
-	
-	if(i >= 0)
-		tabMain->setTabText(i, newTitle);
 }
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -625,7 +568,10 @@ void MainWindow::displayDestroyed()
 		d = q->at(i.row());
 	
 	if(QWidget* w = stackedDetails->currentWidget())
+	{
 		stackedDetails->removeWidget(w);
+		delete w;
+	}
 	m_pDetailsDisplay = 0;
 	
 	if(d != 0)
@@ -1088,23 +1034,6 @@ void MainWindow::currentTabChanged(int newTab)
 {
 	if(newTab == 1)
 		refreshDetailsTab();
-	m_toolTabClose->setEnabled(newTab > FIXED_TAB_COUNT-1);
-}
-
-void MainWindow::closeTab()
-{
-	int i = tabMain->currentIndex();
-	
-	if(i > FIXED_TAB_COUNT-1)
-	{
-		QWidget* w;
-		
-		w = tabMain->widget(i);
-		tabMain->setCurrentIndex(0);
-		tabMain->removeTab(i);
-		
-		delete w;
-	}
 }
 
 void MainWindow::removeCompleted()

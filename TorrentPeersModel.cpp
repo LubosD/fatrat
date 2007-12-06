@@ -8,6 +8,8 @@ extern void* g_pGeoIP;
 extern const char* (*GeoIP_country_name_by_addr)(void*, const char*);
 extern const char* (*GeoIP_country_code_by_addr)(void*, const char*);
 
+static QMap<QString,QIcon> g_mapFlags;
+
 TorrentPeersModel::TorrentPeersModel(QObject* parent, TorrentDownload* d)
 	: QAbstractListModel(parent), m_download(d), m_nLastRowCount(0)
 {
@@ -123,9 +125,15 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 			
 			if(country != 0)
 			{
-				QString flag = QString(":/flags/%1%2.gif").arg((char) tolower(country[0])).arg((char) tolower(country[1]));
+				QString ct = QString("%1%2").arg((char) tolower(country[0])).arg((char) tolower(country[1]));
 				
-				return QIcon(flag);
+				if(!g_mapFlags.contains(ct))
+				{
+					QString flag = QString(":/flags/%1.gif").arg(ct);
+					g_mapFlags[ct] = QIcon(flag);
+				}
+				else
+					return g_mapFlags[ct];
 			}
 		}
 	}
@@ -144,6 +152,7 @@ void TorrentPeersModel::refresh()
 	
 	if(m_download->m_handle.is_valid())
 	{
+		m_peers.clear();
 		m_download->m_handle.get_peer_info(m_peers);
 		count = m_peers.size();
 	}

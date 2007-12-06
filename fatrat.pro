@@ -103,7 +103,8 @@ SOURCES += fatrat.cpp \
  HttpClient.cpp \
  LimitedSocket.cpp \
  SftpClient.cpp \
- RapidTools.cpp
+ RapidTools.cpp \
+ MainTab.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

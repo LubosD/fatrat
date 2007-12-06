@@ -70,10 +70,6 @@ public slots:
 	void displayDestroyed();
 	
 	void computeHash();
-	void openAppTool(); // like BitTorrent search
-	
-	void closeTab();
-	void changeTabTitle(QString newTitle);
 	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
@@ -104,7 +100,6 @@ private:
 	SpeedGraph* m_graph;
 	TransferLog* m_log;
 	QWidget* m_dropBox;
-	QToolButton* m_toolTabClose;
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;

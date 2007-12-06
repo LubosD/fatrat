@@ -86,6 +86,7 @@ void TorrentPiecesModel::refresh()
 	
 	if(m_download->m_handle.is_valid())
 	{
+		m_pieces.clear();
 		m_download->m_handle.get_download_queue(m_pieces);
 		count = m_pieces.size();
 	}

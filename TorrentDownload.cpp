@@ -120,7 +120,7 @@ void TorrentDownload::applySettings()
 		m_session->stop_dht();
 	
 	//m_session->set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
-	m_session->set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
+	//m_session->set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 	
 	settings.file_pool_size = g_settings->value("maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
@@ -184,24 +184,28 @@ void TorrentDownload::init(QString source, QString target)
 			source = source.mid(7);
 		if(source.startsWith('/'))
 		{
-			QByteArray file = source.toUtf8();
-			std::ifstream in(file.data(), std::ios_base::binary);
-			in.unsetf(std::ios_base::skipws);
+			QFile in(source);
+			QByteArray data;
+			const char* p;
 			
-			if(!in.is_open())
+			if(!in.open(QIODevice::ReadOnly))
 				throw RuntimeException(tr("Unable to open the file!"));
 			
-			m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
+			data = in.readAll();
+			p = data.data();
+			
+			m_info = new libtorrent::torrent_info( libtorrent::bdecode(p, p+data.size()) );
 			
 			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
 			
 			m_handle.set_ratio(1.2f);
 			m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
+			m_handle.set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 			
 			m_bHasHashCheck = true;
 			
 			createDefaultPriorityList();
-			
+		
 			m_worker->doWork();
 			storeTorrent(source);
 		}
@@ -233,7 +237,7 @@ void TorrentDownload::init(QString source, QString target)
 			download->setState(Active);
 		}
 	}
-	catch(const std::exception& e)
+	catch(std::exception e)
 	{
 		throw RuntimeException(e.what());
 	}
@@ -346,7 +350,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 		m_handle.set_upload_limit(up);
 		m_handle.set_download_limit(down);
 		
-		qDebug() << "Limits are D:" << m_handle.download_limit() << "U:" << m_handle.upload_limit();
+		//qDebug() << "Limits are D:" << m_handle.download_limit() << "U:" << m_handle.upload_limit();
 	}
 	else
 		qDebug() << "Warning: torrent speed limit was not set:" << down << up;
@@ -449,6 +453,7 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_handle.set_ratio(1.2f);
 		m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
+		m_handle.set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
@@ -490,8 +495,12 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 	{
 		setXMLProperty(doc, map, "torrent_file", storedTorrentName());
 		
-		if(m_handle.is_valid())
-			setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
+		try
+		{
+			if(m_handle.is_valid())
+				setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
+		}
+		catch(...) {}
 	}
 	
 	setXMLProperty(doc, map, "target", object());
@@ -635,6 +644,7 @@ void TorrentWorker::doWork()
 					qDebug() << "According to the status, the torrent is complete";
 					d->setMode(Transfer::Upload);
 					d->logMessage(tr("Torrent has been downloaded"));
+					d->m_handle.set_ratio(0);
 				}
 			}
 			if(d->state() != Transfer::ForcedActive && d->mode() == Transfer::Upload)

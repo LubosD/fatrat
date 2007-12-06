@@ -332,8 +332,8 @@ public:
 	}
 	void run()
 	{
+		connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 		work(m_what);
-		deleteLater();
 	}
 	static bool work(QString what)
 	{
