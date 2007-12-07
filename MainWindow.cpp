@@ -12,7 +12,7 @@
 #include "MainWindow.h"
 #include "QueueDlg.h"
 #include "Queue.h"
-#include "FakeDownload.h"
+#include "engines/FakeDownload.h"
 #include "WidgetHostDlg.h"
 #include "NewTransferDlg.h"
 #include "GenericOptsForm.h"
@@ -22,7 +22,7 @@
 #include "SpeedGraph.h"
 #include "DropBox.h"
 #include "CommentForm.h"
-#include "HashDlg.h"
+#include "tools/HashDlg.h"
 #include "RuntimeException.h"
 #include "SpeedLimitWidget.h"
 #include "AppTools.h"
@@ -1060,7 +1060,6 @@ void MainWindow::removeCompleted()
 	
 	q->unlock();
 	
-	refreshQueues();
 	doneQueue(q, false, true);
 }
 

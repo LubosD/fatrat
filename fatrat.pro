@@ -6,26 +6,26 @@
 
 FORMS += MainWindow.ui \
          QueueDlg.ui \
-         HttpOptsWidget.ui \
          WidgetHostDlg.ui \
          SettingsDlg.ui \
          SettingsGeneralForm.ui \
-         SettingsTorrentForm.ui \
-         SettingsHttpForm.ui \
          ProxyDlg.ui \
          UserAuthDlg.ui \
-         HttpUrlOptsDlg.ui \
- NewTransferDlg.ui \
- GenericOptsForm.ui \
- FtpUploadOptsForm.ui \
+         NewTransferDlg.ui \
  CommentForm.ui \
- HashDlg.ui \
- TorrentDetailsForm.ui \
  SpeedLimitWidget.ui \
- TorrentSearch.ui \
- RapidTools.ui \
  AboutDlg.ui \
- TorrentOptsWidget.ui
+ engines/FtpUploadOptsForm.ui \
+ engines/HttpOptsWidget.ui \
+ engines/HttpUrlOptsDlg.ui \
+ engines/SettingsTorrentForm.ui \
+ engines/TorrentDetailsForm.ui \
+ engines/TorrentOptsWidget.ui \
+ tools/HashDlg.ui \
+ tools/RapidTools.ui \
+ tools/TorrentSearch.ui \
+ GenericOptsForm.ui \
+ engines/SettingsHttpForm.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -35,8 +35,6 @@ HEADERS += fatrat.h \
            Queue.h \
            Transfer.h \
            TransfersModel.h \
-           FakeDownload.h \
-           GeneralDownload.h \
            WidgetHostDlg.h \
            InfoBar.h \
            SettingsDlg.h \
@@ -49,62 +47,64 @@ HEADERS += fatrat.h \
            SpeedGraph.h \
  TransferLog.h \
  DropBox.h \
- RapidshareUpload.h \
- HttpFtpSettings.h \
- FtpUpload.h \
  NewTransferDlg.h \
  GenericOptsForm.h \
  CommentForm.h \
- HashDlg.h \
  QueueView.h \
- TorrentDownload.h \
- TorrentSettings.h \
- TorrentProgressWidget.h \
- TorrentPiecesModel.h \
- TorrentPeersModel.h \
  SpeedLimitWidget.h \
- TorrentFilesModel.h \
  AppTools.h \
- TorrentSearch.h \
- FtpClient.h \
- HttpClient.h \
  LimitedSocket.h \
- SftpClient.h \
- RapidTools.h \
  AboutDlg.h \
- MainTab.h
+ MainTab.h \
+ engines/FakeDownload.h \
+ engines/FtpClient.h \
+ engines/FtpUpload.h \
+ engines/GeneralDownload.h \
+ engines/HttpClient.h \
+ engines/HttpFtpSettings.h \
+ engines/RapidshareUpload.h \
+ engines/SftpClient.h \
+ engines/TorrentDownload.h \
+ engines/TorrentFilesModel.h \
+ engines/TorrentPeersModel.h \
+ engines/TorrentPiecesModel.h \
+ engines/TorrentProgressWidget.h \
+ engines/TorrentSettings.h \
+ tools/HashDlg.h \
+ tools/RapidTools.h \
+ tools/TorrentSearch.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
            Queue.cpp \
            Transfer.cpp \
            TransfersModel.cpp \
-           GeneralDownload.cpp \
            InfoBar.cpp \
            dbus_adaptor.cpp \
            SimpleEmail.cpp \
            SpeedGraph.cpp \
  DropBox.cpp \
- RapidshareUpload.cpp \
- HttpFtpSettings.cpp \
- FtpUpload.cpp \
- HashDlg.cpp \
  QueueView.cpp \
- TorrentDownload.cpp \
- TorrentProgressWidget.cpp \
- TorrentPiecesModel.cpp \
- TorrentPeersModel.cpp \
- TorrentFilesModel.cpp \
  NewTransferDlg.cpp \
  AppTools.cpp \
- TorrentSearch.cpp \
  SpeedLimitWidget.cpp \
- FtpClient.cpp \
- HttpClient.cpp \
  LimitedSocket.cpp \
- SftpClient.cpp \
- RapidTools.cpp \
- MainTab.cpp
+ MainTab.cpp \
+ engines/FtpClient.cpp \
+ engines/FtpUpload.cpp \
+ engines/GeneralDownload.cpp \
+ engines/HttpClient.cpp \
+ engines/HttpFtpSettings.cpp \
+ engines/RapidshareUpload.cpp \
+ engines/SftpClient.cpp \
+ engines/TorrentDownload.cpp \
+ engines/TorrentFilesModel.cpp \
+ engines/TorrentPeersModel.cpp \
+ engines/TorrentPiecesModel.cpp \
+ engines/TorrentProgressWidget.cpp \
+ tools/HashDlg.cpp \
+ tools/RapidTools.cpp \
+ tools/TorrentSearch.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

@@ -125,11 +125,13 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 			
 			if(country != 0)
 			{
-				QString ct = QString("%1%2").arg((char) tolower(country[0])).arg((char) tolower(country[1]));
+				char ct[3] = { country[0], country[1], 0 };
 				
 				if(!g_mapFlags.contains(ct))
 				{
-					QString flag = QString(":/flags/%1.gif").arg(ct);
+					char flag[] = ":/flags/xx.gif";
+					flag[8] = ct[0];
+					flag[9] = ct[1];
 					g_mapFlags[ct] = QIcon(flag);
 				}
 				else

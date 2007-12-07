@@ -1,6 +1,6 @@
 #include "fatrat.h"
 #include "FtpUpload.h"
-#include "HashDlg.h"
+#include "tools/HashDlg.h"
 #include "SftpClient.h"
 #include "RuntimeException.h"
 #include <QFileInfo>

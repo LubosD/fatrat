@@ -1,7 +1,7 @@
 #include "fatrat.h"
 #include "GeneralDownload.h"
 #include "HttpFtpSettings.h"
-#include "HashDlg.h"
+#include "tools/HashDlg.h"
 #include "RuntimeException.h"
 
 #include "HttpClient.h"

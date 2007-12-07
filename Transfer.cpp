@@ -1,8 +1,8 @@
 #include "Transfer.h"
-#include "FakeDownload.h"
-#include "GeneralDownload.h"
-#include "TorrentDownload.h"
-#include "FtpUpload.h"
+#include "engines/FakeDownload.h"
+#include "engines/GeneralDownload.h"
+#include "engines/TorrentDownload.h"
+#include "engines/FtpUpload.h"
 #include <iostream>
 #include <QtDebug>
 #include <QMessageBox>

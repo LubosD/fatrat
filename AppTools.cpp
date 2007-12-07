@@ -1,7 +1,7 @@
 #include <QWidget>
 #include "AppTools.h"
-#include "TorrentSearch.h"
-#include "RapidTools.h"
+#include "tools/TorrentSearch.h"
+#include "tools/RapidTools.h"
 
 static const AppTool m_tools[] = {
 		{ "BitTorrent search", TorrentSearch::create },

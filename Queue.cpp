@@ -263,7 +263,7 @@ void Queue::remove(int n, bool nolock)
 	
 	if(d->isActive())
 		d->setState(Transfer::Paused);
-	d->deleteLater();
+	delete d;
 }
 
 void Queue::removeWithData(int n, bool nolock)

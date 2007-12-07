@@ -478,6 +478,20 @@ void TorrentDownload::load(const QDomNode& map)
 			}
 		}
 		
+		std::vector<libtorrent::announce_entry> trackers;
+		QDomElement n = map.firstChildElement("trackers");
+		if(!n.isNull())
+		{
+			QDomElement tracker = n.firstChildElement("tracker");
+			while(!tracker.isNull())
+			{
+				QByteArray url = tracker.firstChild().toText().data().toUtf8();
+				trackers.push_back(libtorrent::announce_entry(url.data()));
+				tracker = tracker.nextSiblingElement("tracker");
+			}
+			m_handle.replace_trackers(trackers);
+		}
+		
 		m_worker->doWork();
 	}
 	catch(const std::exception& e)
