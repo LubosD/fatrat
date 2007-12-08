@@ -7,6 +7,7 @@
 #include "Queue.h"
 #include "Transfer.h"
 #include "dbus_adaptor.h"
+#include "remote/HttpService.h"
 
 #include <QTranslator>
 #include <QLocale>
@@ -21,6 +22,7 @@ using namespace std;
 
 MainWindow* g_wndMain = 0;
 QSettings* g_settings = 0;
+HttpService* g_http = 0;
 
 static QMap<QString, QVariant> g_mapDefaults;
 static void initSettingsDefaults();
@@ -61,6 +63,7 @@ int main(int argc,char** argv)
 	qmgr = new QueueMgr;
 	qmgr->start();
 	g_wndMain = new MainWindow;
+	g_http = new HttpService;
 	
 	new FatratAdaptor(g_wndMain);
 	QDBusConnection::sessionBus().registerObject("/", g_wndMain);
@@ -72,6 +75,7 @@ int main(int argc,char** argv)
 	app.setQuitOnLastWindowClosed(false);
 	rval = app.exec();
 	
+	delete g_http;
 	delete g_wndMain;
 	
 	Queue::saveQueues();
@@ -195,6 +199,7 @@ void initSettingsDefaults()
 	g_mapDefaults["torrent/dht"] = true;
 	g_mapDefaults["torrent/pex"] = true;
 	g_mapDefaults["torrent/maxfiles"] = 100;
+	g_mapDefaults["remote/port"] = 2233;
 }
 
 QVariant getSettingsDefault(QString id)

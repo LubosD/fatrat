@@ -73,7 +73,7 @@ void MainTab::closeTabBtn()
 
 void MainTab::closeTab()
 {
-	if(m_index > FIXED_TAB_COUNT)
+	if(m_index >= FIXED_TAB_COUNT)
 	{
 		QWidget* w;
 		

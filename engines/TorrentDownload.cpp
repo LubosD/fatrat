@@ -237,7 +237,7 @@ void TorrentDownload::init(QString source, QString target)
 			download->setState(Active);
 		}
 	}
-	catch(std::exception e)
+	catch(const std::exception& e)
 	{
 		throw RuntimeException(e.what());
 	}
@@ -359,7 +359,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 qulonglong TorrentDownload::done() const
 {
 	if(m_handle.is_valid())
-		return m_status.total_done;
+		return m_status.total_wanted_done;
 	else if(m_pFileDownload != 0)
 		return m_pFileDownload->done();
 	else
@@ -369,7 +369,7 @@ qulonglong TorrentDownload::done() const
 qulonglong TorrentDownload::total() const
 {
 	if(m_handle.is_valid())
-		return m_info->total_size();
+		return m_status.total_wanted;
 	else if(m_pFileDownload != 0)
 		return m_pFileDownload->total();
 	else

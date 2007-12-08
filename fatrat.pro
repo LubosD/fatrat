@@ -72,7 +72,10 @@ HEADERS += fatrat.h \
  engines/TorrentSettings.h \
  tools/HashDlg.h \
  tools/RapidTools.h \
- tools/TorrentSearch.h
+ tools/TorrentSearch.h \
+ remote/HttpService.h \
+ remote/GenericService.h \
+ remote/XmlService.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -104,7 +107,10 @@ SOURCES += fatrat.cpp \
  engines/TorrentProgressWidget.cpp \
  tools/HashDlg.cpp \
  tools/RapidTools.cpp \
- tools/TorrentSearch.cpp
+ tools/TorrentSearch.cpp \
+ remote/HttpService.cpp \
+ remote/GenericService.cpp \
+ remote/XmlService.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

@@ -164,7 +164,7 @@ void TorrentSearch::search()
 	else
 	{
 		bool bSel = false;
-		QString expr = lineExpr->text();
+		QString expr = lineExpr->text().trimmed();
 		
 		if(expr.isEmpty())
 			return;
