@@ -237,6 +237,10 @@ void TorrentDownload::init(QString source, QString target)
 			download->setState(Active);
 		}
 	}
+	catch(const libtorrent::invalid_encoding&)
+	{
+		throw RuntimeException(tr("The torrent file is invalid."));
+	}
 	catch(const std::exception& e)
 	{
 		throw RuntimeException(e.what());
@@ -476,6 +480,8 @@ void TorrentDownload::load(const QDomNode& map)
 				for(int i=0;i<numFiles;i++)
 					m_vecPriorities[i] = priorities[i].toInt();
 			}
+			
+			m_handle.prioritize_files(m_vecPriorities);
 		}
 		
 		std::vector<libtorrent::announce_entry> trackers;

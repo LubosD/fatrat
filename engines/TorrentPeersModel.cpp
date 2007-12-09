@@ -125,7 +125,7 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 			
 			if(country != 0)
 			{
-				char ct[3] = { country[0], country[1], 0 };
+				char ct[3] = { tolower(country[0]), tolower(country[1]), 0 };
 				
 				if(!g_mapFlags.contains(ct))
 				{
@@ -134,8 +134,7 @@ QVariant TorrentPeersModel::data(const QModelIndex &index, int role) const
 					flag[9] = ct[1];
 					g_mapFlags[ct] = QIcon(flag);
 				}
-				else
-					return g_mapFlags[ct];
+				return g_mapFlags[ct];
 			}
 		}
 	}

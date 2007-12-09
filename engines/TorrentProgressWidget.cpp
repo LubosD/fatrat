@@ -21,7 +21,7 @@ void TorrentProgressWidget::generate(const std::vector<bool>& data)
 QImage TorrentProgressWidget::generate(const std::vector<bool>& data, int width, quint32* buf, float sstart, float send)
 {
 	double fact = (data.size()-send-sstart)/float(width);
-	int step = (int) qMin<double>(255.0, 255.0/fact);
+	double step = qMin<double>(255.0, 255.0/fact);
 	
 	for(int i=0;i<width;i++)
 	{
@@ -31,16 +31,16 @@ QImage TorrentProgressWidget::generate(const std::vector<bool>& data, int width,
 		if(to >= data.size())
 			to = data.size()-1;
 		
-		int color = 0;
+		double color = 0;
 		do
 		{
-			color += data.at(from) ? step : 0;
+			color += data[from] ? step : 0;
 			from++;
 		}
 		while(from < to);
 		
-		color = 255 - qMin(color, 255);
-		buf[i] = 0xff0000ff | (color << 8) | (color << 16);
+		int rcolor = 255 - qMin(color, 255.0);
+		buf[i] = 0xff0000ff | (rcolor << 8) | (rcolor << 16);
 	}
 	
 	return QImage((uchar*) buf, width, 1, QImage::Format_RGB32);
