@@ -37,7 +37,7 @@ QImage TorrentProgressWidget::generate(const std::vector<bool>& data, int width,
 			color += data[from] ? step : 0;
 			from++;
 		}
-		while(from < to);
+		while(from <= to);
 		
 		int rcolor = 255 - qMin(color, 255.0);
 		buf[i] = 0xff0000ff | (rcolor << 8) | (rcolor << 16);

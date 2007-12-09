@@ -125,7 +125,7 @@ void TorrentDownload::applySettings()
 	settings.file_pool_size = g_settings->value("maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
 	settings.user_agent = "FatRat/" VERSION;
-	settings.max_out_request_queue = 300;
+	//settings.max_out_request_queue = 300;
 	//settings.piece_timeout = 50;
 	settings.request_queue_time = 30.f;
 	settings.max_out_request_queue = 100;
@@ -143,7 +143,7 @@ void TorrentDownload::globalExit()
 {
 	if(m_bDHT)
 	{
-		g_settings->beginGroup("bittorrent");
+		g_settings->beginGroup("torrent");
 		g_settings->setValue("dht_state", bencode_simple(m_session->dht_state()));
 		g_settings->endGroup();
 	}
@@ -363,7 +363,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 qulonglong TorrentDownload::done() const
 {
 	if(m_handle.is_valid())
-		return m_status.total_wanted_done;
+		return qMax<qint64>(0, m_status.total_wanted_done);
 	else if(m_pFileDownload != 0)
 		return m_pFileDownload->done();
 	else
@@ -641,8 +641,9 @@ void TorrentWorker::doWork()
 {
 	m_mutex.lock();
 	
-	foreach(TorrentDownload* d, m_objects)
+	for(int i=0;i<m_objects.size();i++)
 	{
+		TorrentDownload* d = m_objects[i];
 		if(!d->m_handle.is_valid())
 			continue;
 		
@@ -691,7 +692,7 @@ void TorrentWorker::doWork()
 		if((aaa = a.get()) == 0)
 			break;
 		
-		qDebug() << "Libtorrent alert:" << QString(aaa->msg().c_str());
+		qDebug() << "Libtorrent alert:" << QString::fromUtf8(aaa->msg().c_str());
 		
 		if(IS_ALERT(torrent_alert))
 		{
