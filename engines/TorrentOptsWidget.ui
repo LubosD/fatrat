@@ -5,146 +5,183 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>403</height>
+    <width>370</width>
+    <height>370</height>
    </rect>
   </property>
   <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
    <item row="0" column="0" >
-    <widget class="QToolBox" name="toolBox" >
+    <widget class="QStackedWidget" name="stackedWidget" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>380</width>
-        <height>298</height>
-       </rect>
-      </property>
-      <attribute name="label" >
-       <string>Files to download</string>
-      </attribute>
       <layout class="QGridLayout" >
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>0</number>
-       </property>
        <item row="0" column="0" >
-        <widget class="QTreeWidget" name="treeFiles" >
-         <property name="columnCount" >
-          <number>0</number>
+        <widget class="QLabel" name="labelStatus" >
+         <property name="alignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>380</width>
-        <height>298</height>
-       </rect>
-      </property>
-      <attribute name="label" >
-       <string>URL seeds</string>
-      </attribute>
       <layout class="QGridLayout" >
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="2" >
-        <widget class="QListWidget" name="listUrlSeeds" />
-       </item>
-       <item row="1" column="0" >
-        <widget class="QLineEdit" name="lineUrl" />
-       </item>
-       <item row="1" column="1" >
-        <widget class="QPushButton" name="pushAddUrlSeed" >
-         <property name="text" >
-          <string>Add</string>
+       <item row="0" column="0" >
+        <widget class="QToolBox" name="toolBox" >
+         <property name="currentIndex" >
+          <number>0</number>
          </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_3" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>380</width>
-        <height>298</height>
-       </rect>
-      </property>
-      <attribute name="label" >
-       <string>Trackers</string>
-      </attribute>
-      <layout class="QGridLayout" >
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="3" >
-        <widget class="QListWidget" name="listTrackers" />
-       </item>
-       <item row="1" column="0" colspan="3" >
-        <widget class="QLineEdit" name="lineTracker" />
-       </item>
-       <item row="2" column="0" >
-        <widget class="QPushButton" name="pushTrackerAdd" >
-         <property name="text" >
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="2" >
-        <widget class="QPushButton" name="pushTrackerRemove" >
-         <property name="text" >
-          <string>Remove</string>
-         </property>
+         <widget class="QWidget" name="page_3" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>352</width>
+            <height>262</height>
+           </rect>
+          </property>
+          <attribute name="label" >
+           <string>Files to download</string>
+          </attribute>
+          <layout class="QGridLayout" >
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" >
+            <widget class="QTreeWidget" name="treeFiles" >
+             <property name="columnCount" >
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_4" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>104</width>
+            <height>129</height>
+           </rect>
+          </property>
+          <attribute name="label" >
+           <string>URL seeds</string>
+          </attribute>
+          <layout class="QGridLayout" >
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" colspan="2" >
+            <widget class="QListWidget" name="listUrlSeeds" />
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLineEdit" name="lineUrl" />
+           </item>
+           <item row="1" column="1" >
+            <widget class="QPushButton" name="pushAddUrlSeed" >
+             <property name="text" >
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_5" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>170</width>
+            <height>158</height>
+           </rect>
+          </property>
+          <attribute name="label" >
+           <string>Trackers</string>
+          </attribute>
+          <layout class="QGridLayout" >
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" colspan="3" >
+            <widget class="QListWidget" name="listTrackers" />
+           </item>
+           <item row="1" column="0" colspan="3" >
+            <widget class="QLineEdit" name="lineTracker" />
+           </item>
+           <item row="2" column="0" >
+            <widget class="QPushButton" name="pushTrackerAdd" >
+             <property name="text" >
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="2" column="2" >
+            <widget class="QPushButton" name="pushTrackerRemove" >
+             <property name="text" >
+              <string>Remove</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>

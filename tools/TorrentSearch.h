@@ -47,11 +47,12 @@ signals:
 public slots:
 	void search();
 	void searchDone(bool error);
-	void itemDoubleClicked(QTreeWidgetItem* item);
+	void download();
 	void setSearchFocus();
 private:
 	QList<Engine> m_engines;
 	bool m_bSearching;
+	int m_nActiveTotal, m_nActiveDone;
 };
 
 class SearchTreeWidgetItem : public QTreeWidgetItem

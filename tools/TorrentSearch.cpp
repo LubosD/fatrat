@@ -25,7 +25,8 @@ TorrentSearch::TorrentSearch()
 	setupUi(this);
 	
 	connect(pushSearch, SIGNAL(clicked()), this, SLOT(search()));
-	connect(treeResults, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*)));
+	connect(treeResults, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(download()));
+	connect(pushDownload, SIGNAL(clicked()), this, SLOT(download()));
 	
 	loadEngines();
 	
@@ -171,6 +172,8 @@ void TorrentSearch::search()
 		
 		emit changeTabTitle("BitTorrent search: " + expr);
 		
+		m_nActiveTotal = m_nActiveDone = 0;
+		
 		for(int i=0;i<listEngines->count();i++)
 		{
 			if(listEngines->item(i)->checkState() == Qt::Checked)
@@ -208,11 +211,15 @@ void TorrentSearch::search()
 					m_engines[i].http->get(path+"?"+url.encodedQuery(), m_engines[i].buffer);
 				
 				bSel = true;
+				m_nActiveTotal++;
 			}
 		}
 		
 		if(bSel)
 		{
+			progressBar->setValue(0);
+			progressBar->setMaximum(m_nActiveTotal);
+			
 			treeResults->clear();
 			
 			m_bSearching = true;
@@ -227,6 +234,8 @@ void TorrentSearch::search()
 
 void TorrentSearch::parseResults(Engine* e)
 {
+	pushDownload->setEnabled(true);
+	
 	try
 	{
 		const QByteArray& data = e->buffer->data();
@@ -315,6 +324,8 @@ void TorrentSearch::parseResults(Engine* e)
 	{
 		qDebug() << e.what();
 	}
+	
+	progressBar->setValue(++m_nActiveDone);
 }
 
 void TorrentSearch::searchDone(bool error)
@@ -358,6 +369,7 @@ void TorrentSearch::updateUi()
 	pushSearch->setText(m_bSearching ? tr("Stop searching") : tr("Search"));
 	lineExpr->setDisabled(m_bSearching);
 	listEngines->setDisabled(m_bSearching);
+	progressBar->setEnabled(m_bSearching);
 }
 
 QList<QByteArray> TorrentSearch::splitArray(const QByteArray& src, QString sep)
@@ -376,12 +388,25 @@ QList<QByteArray> TorrentSearch::splitArray(const QByteArray& src, QString sep)
 	return out;
 }
 
-void TorrentSearch::itemDoubleClicked(QTreeWidgetItem* item)
+void TorrentSearch::download()
 {
-	SearchTreeWidgetItem* it = (SearchTreeWidgetItem*) item;
-	MainWindow* wnd = (MainWindow*) getMainWindow();
+	QModelIndexList list = treeResults->selectionModel()->selectedRows();
+	QList<int> result;
+	QString links;
 	
-	wnd->addTransfer(it->m_strLink, Transfer::Download, "TorrentDownload");
+	foreach(QModelIndex in, list)
+	{
+		int row = in.row();
+		SearchTreeWidgetItem* it = (SearchTreeWidgetItem*) treeResults->topLevelItem(row);
+		links += it->m_strLink;
+		links += '\n';
+	}
+	
+	if(!links.isEmpty())
+	{
+		MainWindow* wnd = (MainWindow*) getMainWindow();
+		wnd->addTransfer(links, Transfer::Download, "TorrentDownload");
+	}
 }
 
 /////////////////////////////////

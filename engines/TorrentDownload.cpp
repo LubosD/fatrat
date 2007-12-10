@@ -641,9 +641,8 @@ void TorrentWorker::doWork()
 {
 	m_mutex.lock();
 	
-	for(int i=0;i<m_objects.size();i++)
+	foreach(TorrentDownload* d, m_objects)
 	{
-		TorrentDownload* d = m_objects[i];
 		if(!d->m_handle.is_valid())
 			continue;
 		
@@ -774,10 +773,10 @@ QObject* TorrentDownload::createDetailsWidget(QWidget* widget)
 
 WidgetHostChild* TorrentDownload::createOptionsWidget(QWidget* w)
 {
-	if(m_handle.is_valid())
+	//if(m_handle.is_valid())
 		return new TorrentOptsWidget(w, this);
-	else
-		return 0;
+	//else
+	//	return 0;
 }
 
 void TorrentWorker::setDetailsObject(TorrentDetails* d)
@@ -989,8 +988,47 @@ TorrentOptsWidget::TorrentOptsWidget(QWidget* me, TorrentDownload* parent)
 	connect(treeFiles, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(fileItemChanged(QTreeWidgetItem*,int)));
 }
 
+void TorrentOptsWidget::startInvalid()
+{
+	stackedWidget->setCurrentIndex(0);
+	m_timer.start(1000);
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(handleInvalid()));
+	handleInvalid();
+}
+
+void TorrentOptsWidget::handleInvalid()
+{
+	if(m_download->m_handle.is_valid())
+	{
+		m_timer.stop();
+		load();
+		stackedWidget->setCurrentIndex(1);
+	}
+	else
+	{
+		if(m_download->state() == Transfer::Failed)
+		{
+			labelStatus->setText(tr("The .torrent file cannot be downloaded or is invalid."));
+		}
+		else
+		{
+			labelStatus->setText(tr("The .torrent is being downloaded, please wait."));
+		}
+	}
+}
+
 void TorrentOptsWidget::load()
 {
+	if(!m_download->m_handle.is_valid())
+	{
+		startInvalid();
+		return;
+	}
+	
+	
+	QHeaderView* hdr = treeFiles->header();
+	hdr->resizeSection(0, 350);
+	
 	for(libtorrent::torrent_info::file_iterator it = m_download->m_info->begin_files();
 		it != m_download->m_info->end_files();
 		it++)
@@ -1066,6 +1104,9 @@ void TorrentOptsWidget::load()
 
 void TorrentOptsWidget::accepted()
 {
+	if(!m_download->m_handle.is_valid())
+		return;
+	
 	for(int i=0;i<m_files.size();i++)
 	{
 		bool yes = m_files[i]->checkState(0) == Qt::Checked;

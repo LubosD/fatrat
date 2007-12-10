@@ -43,24 +43,11 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType" >
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>20</width>
-       <height>41</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="2" column="0" colspan="4" >
     <widget class="QTreeWidget" name="treeResults" >
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
      <property name="rootIsDecorated" >
       <bool>false</bool>
      </property>
@@ -75,6 +62,39 @@
      </property>
      <property name="columnCount" >
       <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Progress:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" >
+    <widget class="QProgressBar" name="progressBar" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="maximum" >
+      <number>1</number>
+     </property>
+     <property name="value" >
+      <number>0</number>
+     </property>
+     <property name="format" >
+      <string>%v/%m</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3" >
+    <widget class="QPushButton" name="pushDownload" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="text" >
+      <string>Download</string>
      </property>
     </widget>
    </item>

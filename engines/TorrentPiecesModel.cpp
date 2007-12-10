@@ -93,7 +93,7 @@ void TorrentPiecesModel::refresh()
 	
 	if(count > m_nLastRowCount)
 	{
-		beginInsertRows(QModelIndex(), m_nLastRowCount, count);
+		beginInsertRows(QModelIndex(), m_nLastRowCount, count-1);
 		endInsertRows();
 	}
 	else if(count < m_nLastRowCount)

@@ -150,6 +150,7 @@ public:
 	
 	virtual void load();
 	virtual void accepted();
+	void startInvalid();
 	
 	static void recursiveCheck(QTreeWidgetItem* item, Qt::CheckState state);
 	static void recursiveUpdate(QTreeWidgetItem* item);
@@ -158,6 +159,7 @@ public slots:
 	void addUrlSeed();
 	void addTracker();
 	void removeTracker();
+	void handleInvalid();
 	
 	void fileItemChanged(QTreeWidgetItem* item, int column);
 private:
@@ -166,6 +168,7 @@ private:
 	QStringList m_seeds;
 	std::vector<libtorrent::announce_entry> m_trackers;
 	bool m_bUpdating;
+	QTimer m_timer;
 };
 
 #endif
