@@ -57,6 +57,7 @@ void InfoBar::refresh()
 		}
 		if(up)
 		{
+			speed += ' ';
 			speed += formatSize(up, true)+"<i>u</i>";
 			
 			if(mode == Transfer::Upload && total)
