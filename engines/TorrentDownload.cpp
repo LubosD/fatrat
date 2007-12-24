@@ -698,7 +698,7 @@ void TorrentWorker::doWork()
 			down = d->m_handle.download_limit();
 			up = d->m_handle.upload_limit();
 			
-			d->userSpeedLimits(sdown, sup);
+			d->internalSpeedLimits(sdown, sup);
 			
 			if(down != sdown || up != sup)
 				d->setSpeedLimits(sdown, sup);

@@ -97,6 +97,8 @@ public:
 	// SETTINGS UTILITY FUNCTIONS
 	static QString getXMLProperty(const QDomNode& node, QString name);
 	static void setXMLProperty(QDomDocument& doc, QDomNode& node, QString name, QString value);
+	
+	void internalSpeedLimits(int& down, int& up) const { down=m_nDownLimitInt; up = m_nUpLimitInt; }
 signals:
 	void stateChanged(Transfer::State prev, Transfer::State now);
 	void modeChanged(Transfer::Mode prev, Transfer::Mode now);
