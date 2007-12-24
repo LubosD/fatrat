@@ -29,7 +29,7 @@ public slots:
 	void updateUi();
 	void newQueue();
 	void deleteQueue();
-	void addTransfer(QString uri = QString(), Transfer::Mode mode = Transfer::ModeInvalid, QString className = QString());
+	void addTransfer(QString uri = QString(), Transfer::Mode mode = Transfer::ModeInvalid, QString className = QString(), int queue = -1);
 	void deleteTransfer();
 	void deleteTransferData();
 	void refreshQueues();
@@ -60,7 +60,7 @@ public slots:
 	void queueItemProperties();
 	void queueItemContext(const QPoint& pos);
 	
-	void transferItemActivated(const QModelIndex&);
+	void transferItemActivated();
 	void transferItemDoubleClicked(const QModelIndex&);
 	void transferItemContext(const QPoint& pos);
 	

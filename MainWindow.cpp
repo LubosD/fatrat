@@ -103,10 +103,13 @@ void MainWindow::connectActions()
 	connect(listQueues, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(queueItemProperties()));
 	connect(listQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
 	
-	connect(treeTransfers, SIGNAL(activated(const QModelIndex &)), this, SLOT(transferItemActivated(const QModelIndex&)));
-	connect(treeTransfers, SIGNAL(clicked(const QModelIndex &)), this, SLOT(transferItemActivated(const QModelIndex&)));
+	//connect(treeTransfers, SIGNAL(activated(const QModelIndex &)), this, SLOT(transferItemActivated()));
+	//connect(treeTransfers, SIGNAL(clicked(const QModelIndex &)), this, SLOT(transferItemActivated()));
 	connect(treeTransfers, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(transferItemDoubleClicked(const QModelIndex&)));
 	connect(treeTransfers, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(transferItemContext(const QPoint&)));
+	
+	QItemSelectionModel* model = treeTransfers->selectionModel();
+	connect(model, SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)), this, SLOT(transferItemActivated()));
 	
 	connect(actionNewTransfer, SIGNAL(triggered()), this, SLOT(addTransfer()));
 	connect(actionDeleteTransfer, SIGNAL(triggered()), this, SLOT(deleteTransfer()));
@@ -548,7 +551,7 @@ void MainWindow::queueItemContext(const QPoint&)
 	}
 }
 
-void MainWindow::transferItemActivated(const QModelIndex&)
+void MainWindow::transferItemActivated()
 {
 	updateUi();
 	
@@ -569,6 +572,7 @@ void MainWindow::displayDestroyed()
 	
 	if(QWidget* w = stackedDetails->currentWidget())
 	{
+		//disconnect(w, SIGNAL(destroyed()), this, SLOT(displayDestroyed()));
 		stackedDetails->removeWidget(w);
 		delete w;
 	}
@@ -670,15 +674,18 @@ void MainWindow::moveToBottom()
 	move(3);
 }
 
-void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className)
+void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className, int qSel)
 {
-	int qSel = getSelectedQueue();
 	NewTransferDlg dlg(this);
 	Queue* queue = 0;
 	QList<Transfer*> listTransfers;
 	
 	if(qSel < 0)
-		return;
+	{
+		qSel = getSelectedQueue();
+		if(qSel < 0)
+			return;
+	}
 	
 	dlg.setWindowTitle(tr("New transfer"));
 	dlg.m_nQueue = qSel;

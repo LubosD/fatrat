@@ -170,12 +170,12 @@ QVariant TransfersModel::data(const QModelIndex &index, int role) const
 					d->speeds(down,up);
 					
 					if(down || d->mode() == Transfer::Download)
-						s = QString("%1 kB/s down").arg(double(down)/1024.f, 0, 'f', 1);
+						s = formatSize(down, true)+" down";
 					if(up)
 					{
 						if(!s.isEmpty())
 							s += " | ";
-						s += QString("%1 kB/s up").arg(double(up)/1024.f, 0, 'f', 1);
+						s += formatSize(up, true)+" up";
 					}
 					
 					rval = s;

@@ -26,8 +26,8 @@ private:
 	void setResume();
 	qint64 querySize();
 	bool passiveConnect();
-	bool activeConnect(QTcpServer& server);
-	bool activeConnectFin(QTcpServer& server);
+	bool activeConnect(QTcpServer** server);
+	bool activeConnectFin(QTcpServer* server);
 private:
 	QTcpSocket* m_pRemote;
 	QTcpSocket* m_pSocketMain;
@@ -36,6 +36,20 @@ private:
 	int m_flags;
 	int m_nPort;
 	Proxy m_proxyData;
+};
+
+class ActivePortAllocator : public QObject
+{
+Q_OBJECT
+public:
+	ActivePortAllocator();
+	QTcpServer* getNextPort();
+public slots:
+	void listenerDestroyed(QObject* obj);
+private:
+	unsigned short m_nRangeStart;
+	QMap<unsigned short, QTcpServer*> m_existing;
+	QMutex m_mutex;
 };
 
 #endif

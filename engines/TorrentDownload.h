@@ -63,6 +63,7 @@ private:
 private slots:
 	void fileStateChanged(Transfer::State,Transfer::State);
 	void forceReannounce();
+	void forceRecheck();
 protected:
 	libtorrent::torrent_handle m_handle;
 	libtorrent::torrent_info* m_info;

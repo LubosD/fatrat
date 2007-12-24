@@ -23,6 +23,7 @@ TorrentSearch::TorrentSearch()
 	: m_bSearching(false)
 {
 	setupUi(this);
+	updateUi();
 	
 	connect(pushSearch, SIGNAL(clicked()), this, SLOT(search()));
 	connect(treeResults, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(download()));
@@ -369,7 +370,7 @@ void TorrentSearch::updateUi()
 	pushSearch->setText(m_bSearching ? tr("Stop searching") : tr("Search"));
 	lineExpr->setDisabled(m_bSearching);
 	listEngines->setDisabled(m_bSearching);
-	progressBar->setEnabled(m_bSearching);
+	progressBar->setVisible(m_bSearching);
 }
 
 QList<QByteArray> TorrentSearch::splitArray(const QByteArray& src, QString sep)

@@ -45,6 +45,7 @@ TorrentDownload::~TorrentDownload()
 	m_worker->removeObject(this);
 	if(m_handle.is_valid())
 		m_session->remove_torrent(m_handle);
+	//delete m_info;
 }
 
 int TorrentDownload::acceptable(QString uri, bool)
@@ -329,12 +330,17 @@ QString TorrentDownload::object() const
 
 void TorrentDownload::changeActive(bool nowActive)
 {
+	bool bEnableRecheck = false;
+	
 	if(m_handle.is_valid())
 	{
 		if(nowActive)
 			m_handle.resume();
 		else
+		{
+			bEnableRecheck = true;
 			m_handle.pause();
+		}
 	}
 	else if(m_pFileDownload == 0)
 	{
@@ -529,7 +535,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 	
 	QString prio;
 	
-	for(int i=0;i<m_vecPriorities.size();i++)
+	for(size_t i=0;i<m_vecPriorities.size();i++)
 	{
 		if(i > 0)
 			prio += '|';
@@ -661,21 +667,41 @@ void TorrentWorker::doWork()
 				if(d->m_status.state == libtorrent::torrent_status::finished ||
 				  d->m_status.state == libtorrent::torrent_status::seeding || d->m_handle.is_seed())
 				{
-					qDebug() << "According to the status, the torrent is complete";
 					d->setMode(Transfer::Upload);
 					d->logMessage(tr("Torrent has been downloaded"));
 					d->m_handle.set_ratio(0);
 				}
-			}
-			if(d->state() != Transfer::ForcedActive && d->mode() == Transfer::Upload)
-			{
-				double maxratio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
-				if(double(d->totalUpload()) / d->totalDownload() > maxratio)
+				else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
 				{
-					d->setState(Transfer::Completed);
-					d->setMode(Transfer::Download);
+					d->logMessage(tr("Requested parts of the torrent have been downloaded"));
+					d->setMode(Transfer::Upload);
+					d->m_handle.set_ratio(0);
 				}
 			}
+			if(d->mode() == Transfer::Upload)
+			{
+				if(d->m_status.total_wanted < d->m_status.total_wanted_done)
+					d->setMode(Transfer::Download);
+				else if(d->state() != Transfer::ForcedActive)
+				{
+					double maxratio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
+					if(double(d->totalUpload()) / d->totalDownload() > maxratio)
+					{
+						d->setState(Transfer::Completed);
+						d->setMode(Transfer::Download);
+					}
+				}
+			}
+			
+			int down, up, sdown, sup;
+			
+			down = d->m_handle.download_limit();
+			up = d->m_handle.upload_limit();
+			
+			d->userSpeedLimits(sdown, sup);
+			
+			if(down != sdown || up != sup)
+				d->setSpeedLimits(down, up);
 		}
 	}
 	
@@ -706,11 +732,11 @@ void TorrentWorker::doWork()
 			{
 				d->setState(Transfer::Failed);
 				d->m_strError = errmsg;
-				d->logMessage(tr("File error: %1").arg(errmsg));
+				d->enterLogMessage(tr("File error: %1").arg(errmsg));
 			}
 			else if(IS_ALERT(tracker_announce_alert))
 			{
-				d->logMessage(tr("Tracker announce: %1").arg(errmsg));
+				d->enterLogMessage(tr("Tracker announce: %1").arg(errmsg));
 			}
 			else if(IS_ALERT(tracker_alert))
 			{
@@ -722,15 +748,15 @@ void TorrentWorker::doWork()
 					desc += tr("(error %1)").arg(alert->status_code);
 				else
 					desc += tr("(timeout)");
-				d->logMessage(desc);
+				d->enterLogMessage(desc);
 			}
 			else if(IS_ALERT(tracker_warning_alert))
 			{
-				d->logMessage(tr("Tracker warning: %1").arg(errmsg));
+				d->enterLogMessage(tr("Tracker warning: %1").arg(errmsg));
 			}
 			else if(IS_ALERT(fastresume_rejected_alert))
 			{
-				d->logMessage(tr("Fast-resume data have been rejected: %1").arg(errmsg));
+				d->enterLogMessage(tr("Fast-resume data have been rejected: %1").arg(errmsg));
 			}
 		}
 		else if(IS_ALERT(peer_error_alert))
@@ -758,12 +784,48 @@ void TorrentDownload::forceReannounce()
 		m_handle.force_reannounce();
 }
 
+void TorrentDownload::forceRecheck()
+{
+	if(isActive() || !m_handle.is_valid())
+		return;
+	
+	m_bHasHashCheck = false;
+	
+	// dirty but simple
+	QDomDocument doc;
+	QDomElement root = doc.createElement("fake");
+	doc.appendChild(root);
+	
+	save(doc, root);
+	
+	int up = m_handle.upload_limit();
+	int down = m_handle.download_limit();
+	
+	m_session->remove_torrent(m_handle);
+	
+	QDomNodeList list = root.childNodes();
+	for(int i=0;i<list.size();i++)
+	{
+		if(list.at(i).nodeName() == "torrent_resume")
+		{
+			root.removeChild(list.at(i));
+			break;
+		}
+	}
+	
+	load(root);
+	setSpeedLimits(down, up);
+}
+
 void TorrentDownload::fillContextMenu(QMenu& menu)
 {
 	QAction* a;
 	
 	a = menu.addAction(tr("Force announce"));
 	connect(a, SIGNAL(triggered()), this, SLOT(forceReannounce()));
+	a = menu.addAction(QIcon(":/menu/reload.png"), tr("Recheck files"));
+	a->setDisabled(isActive());
+	connect(a, SIGNAL(triggered()), this, SLOT(forceRecheck()));
 }
 
 QObject* TorrentDownload::createDetailsWidget(QWidget* widget)
@@ -773,10 +835,7 @@ QObject* TorrentDownload::createDetailsWidget(QWidget* widget)
 
 WidgetHostChild* TorrentDownload::createOptionsWidget(QWidget* w)
 {
-	//if(m_handle.is_valid())
-		return new TorrentOptsWidget(w, this);
-	//else
-	//	return 0;
+	return new TorrentOptsWidget(w, this);
 }
 
 void TorrentWorker::setDetailsObject(TorrentDetails* d)
@@ -1083,7 +1142,7 @@ void TorrentOptsWidget::load()
 	for(int i=0;i<m_files.size();i++)
 	{
 		bool download = true;
-		if(i < m_download->m_vecPriorities.size())
+		if(size_t(i) < m_download->m_vecPriorities.size())
 			download = m_download->m_vecPriorities[i] >= 1;
 		
 		m_files[i]->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
@@ -1094,11 +1153,11 @@ void TorrentOptsWidget::load()
 	treeFiles->expandAll();
 	
 	std::vector<std::string> seeds = m_download->m_info->url_seeds();
-	for(int i=0;i<seeds.size();i++)
+	for(size_t i=0;i<seeds.size();i++)
 		listUrlSeeds->addItem(QString::fromUtf8(seeds[i].c_str()));
 	
 	m_trackers = m_download->m_handle.trackers();
-	for(int i=0;i<m_trackers.size();i++)
+	for(size_t i=0;i<m_trackers.size();i++)
 		listTrackers->addItem(QString::fromUtf8(m_trackers[i].url.c_str()));
 }
 

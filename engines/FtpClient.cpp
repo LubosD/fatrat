@@ -3,8 +3,51 @@
 #include <QStringList>
 #include <QNetworkProxy>
 
-static quint16 m_ftpPort = 50000;
+Q_GLOBAL_STATIC(ActivePortAllocator, activePortAllocator);
 
+ActivePortAllocator::ActivePortAllocator()
+{
+	m_nRangeStart = 40000;
+}
+
+QTcpServer* ActivePortAllocator::getNextPort()
+{
+	m_mutex.lock();
+	
+	QTcpServer* server = 0;
+	
+	for(unsigned short port = m_nRangeStart; !server; port++)
+	{
+		if(m_existing.contains(port))
+			continue;
+		
+		server = new QTcpServer;
+		if(!server->listen(QHostAddress::Any, port))
+		{
+			delete server;
+			server = 0;
+		}
+		else
+		{
+			connect(server, SIGNAL(destroyed(QObject*)), this, SLOT(listenerDestroyed(QObject*)));
+			m_existing[port] = server;
+		}
+	}
+	
+	m_mutex.unlock();
+	
+	return server;
+}
+
+void ActivePortAllocator::listenerDestroyed(QObject* obj)
+{
+	m_mutex.lock();
+	
+	unsigned short port = m_existing.key((QTcpServer*)obj);
+	m_existing.remove(port);
+	
+	m_mutex.unlock();
+}
 
 FtpEngine::FtpEngine(QUrl url, QUuid proxyUuid) : m_pRemote(0), m_pSocketMain(0)
 {
@@ -14,7 +57,7 @@ FtpEngine::FtpEngine(QUrl url, QUuid proxyUuid) : m_pRemote(0), m_pSocketMain(0)
 	if(m_strUser.isEmpty())
 	{
 		m_strUser = "anonymous";
-		m_strPassword = "fatrat@fatrat.dolezel.info";
+		m_strPassword = "fatrat@ihatepasswords.ww";
 	}
 	
 	m_url = url;
@@ -106,21 +149,16 @@ bool FtpEngine::passiveConnect()
 		return true;
 }
 
-bool FtpEngine::activeConnect(QTcpServer& server)
+bool FtpEngine::activeConnect(QTcpServer** server)
 {
 	QString ipport,reply;
 	QHostAddress local = m_pSocketMain->localAddress();
 	quint32 ip = local.toIPv4Address();
 	quint16 port;
 	
-	while(true) // FIXME
-	{
-		port = ++m_ftpPort;
-		if(server.listen(local, port))
-			break;
-	}
-	
-	server.setMaxPendingConnections(1);
+	QTcpServer* srv = activePortAllocator()->getNextPort();
+	*server = srv;
+	srv->setMaxPendingConnections(1);
 	
 	writeLine(QString("PORT %1,%2,%3,%4,%5,%6\r\n").arg(ip>>24).arg((ip>>16)&0xff).arg((ip>>8)&0xff).arg(ip&0xff).arg(port>>8).arg(port&0xff));
 	
@@ -130,11 +168,11 @@ bool FtpEngine::activeConnect(QTcpServer& server)
 	return true;
 }
 
-bool FtpEngine::activeConnectFin(QTcpServer& server)
+bool FtpEngine::activeConnectFin(QTcpServer* server)
 {
-	if(!server.waitForNewConnection(10000))
+	if(!server->waitForNewConnection(10000))
 		return false;
-	m_pRemote = server.nextPendingConnection();
+	m_pRemote = server->nextPendingConnection();
 	return true;
 }
 
@@ -277,7 +315,7 @@ void FtpEngine::setResume()
 
 void FtpEngine::run()
 {
-	QTcpServer server;
+	QTcpServer* server = 0;
 	try
 	{
 		QString reply,cmd;
@@ -301,7 +339,7 @@ econn: // FIXME: this all looks so wrong
 				if(!passiveConnect())
 					bError = true;
 			}
-			else if(!activeConnect(server))
+			else if(!activeConnect(&server))
 				bError = true;
 			
 			if(bError)
@@ -378,6 +416,8 @@ econn: // FIXME: this all looks so wrong
 			emit finished(true);
 		}
 	}
+	
+	delete server;
 	
 	if(m_pRemote)
 		doClose(&m_pRemote);
