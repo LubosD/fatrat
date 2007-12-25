@@ -1,5 +1,6 @@
 #include "HttpClient.h"
 #include <QNetworkProxy>
+#include <QSslSocket>
 
 HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0), m_url(url)
 {
@@ -80,18 +81,32 @@ void HttpEngine::request(QString file, bool bUpload, int)
 
 void HttpEngine::run()
 {
-	m_pRemote = new QTcpSocket;
-	m_pRemote->setReadBufferSize(1024);
-	
 	try
 	{
 		if(!bindSocket(m_pRemote, m_bindAddress))
 			throw tr("Failed to bind socket");
 		
 		if(m_proxyData.nType == Proxy::ProxyHttp)
+		{
+			m_pRemote = new QTcpSocket;
+			
+			if(!bindSocket(m_pRemote, m_bindAddress))
+				throw tr("Failed to bind socket");
+			
 			m_pRemote->connectToHost(m_proxyData.strIP,m_proxyData.nPort);
+		}
 		else
 		{
+			bool bEncrypted = m_url.scheme() == "https";
+			
+			QSslSocket* sslsock;
+			QTcpSocket* normsock;
+			
+			if(!bEncrypted)
+				m_pRemote = normsock = new QTcpSocket;
+			else
+				m_pRemote = sslsock = new QSslSocket;
+			
 			if(m_proxyData.nType == Proxy::ProxySocks5)
 			{
 				QNetworkProxy proxy;
@@ -104,8 +119,17 @@ void HttpEngine::run()
 				
 				m_pRemote->setProxy(proxy);
 			}
-			m_pRemote->connectToHost(m_url.host(),m_url.port(80));
+			
+			if(!bEncrypted)
+				normsock->connectToHost(m_url.host(),m_url.port(80));
+			else
+			{
+				connect(sslsock, SIGNAL(sslErrors(const QList<QSslError> &)), sslsock, SLOT(ignoreSslErrors()));
+				sslsock->connectToHostEncrypted(m_url.host(),m_url.port(443));
+			}
 		}
+		
+		m_pRemote->setReadBufferSize(1024);
 		
 		if(!m_pRemote->waitForConnected())
 			throw getErrorString(m_pRemote->error());

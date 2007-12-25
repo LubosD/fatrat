@@ -902,6 +902,7 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	m_pMenuFiles->addMenu(submenu);
 	
 	connect(treeFiles, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(fileContext(const QPoint&)));
+	connect(treeFiles, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(openFile()));
 	
 	m_pMenuPeers = new QMenu(me);
 	act = m_pMenuPeers->addAction( tr("Ban") );
@@ -975,7 +976,7 @@ void TorrentDetails::fileContext(const QPoint&)
 
 void TorrentDetails::peerContext(const QPoint&)
 {
-	m_pMenuPeers->exec(QCursor::pos());
+	//m_pMenuPeers->exec(QCursor::pos());
 }
 
 void TorrentDetails::destroy()

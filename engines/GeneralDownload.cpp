@@ -39,7 +39,7 @@ int GeneralDownload::acceptable(QString uri, bool)
 	QUrl url = uri;
 	QString scheme = url.scheme();
 	
-	if(scheme != "http" && scheme != "ftp" && scheme != "sftp")
+	if(scheme != "http" && scheme != "ftp" && scheme != "sftp" && scheme != "https")
 		return 0;
 	else
 		return 2;
@@ -79,7 +79,7 @@ void GeneralDownload::init(QString uri,QString dest)
 	m_dir = dest;
 	
 	QString scheme = obj.url.scheme();
-	if(scheme != "http" && scheme != "ftp" && scheme != "sftp")
+	if(scheme != "http" && scheme != "ftp" && scheme != "sftp" && scheme != "https")
 		throw RuntimeException(tr("Unsupported protocol"));
 	
 	m_urls.clear();
@@ -204,7 +204,7 @@ void GeneralDownload::changeActive(bool nowActive)
 			
 			QString scheme = m_urls[m_nUrl].url.scheme();
 			
-			if(scheme == "http" || (Proxy::getProxyType(m_urls[m_nUrl].proxy) == Proxy::ProxyHttp && scheme == "ftp"))
+			if(scheme == "http" || scheme == "https" || (Proxy::getProxyType(m_urls[m_nUrl].proxy) == Proxy::ProxyHttp && scheme == "ftp"))
 				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);
@@ -317,9 +317,9 @@ void GeneralDownload::redirected(QString newurl)
 		qDebug() << "Redirected to: " << location << endl;
 		enterLogMessage(tr("We're being redirected to: %1").arg(location.toString()));
 		
-		if(scheme == "http" || scheme == "ftp")
+		if(scheme == "http" || scheme == "ftp" || scheme == "https")
 		{
-			if(scheme == "http")
+			if(scheme == "http" || scheme == "https")
 				startHttp(location, m_urlLast);
 			else
 				startFtp(location);
@@ -607,7 +607,7 @@ void HttpUrlOptsDlg::accept()
 {
 	QString url = lineUrl->text();
 	
-	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://") || url.startsWith("sftp://"))
+	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://") || url.startsWith("sftp://") || url.startsWith("https://"))
 		QDialog::accept();
 }
 
