@@ -23,7 +23,27 @@
        <string>General</string>
       </attribute>
       <layout class="QGridLayout" >
-       <item row="0" column="0" colspan="6" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_9" >
+         <property name="text" >
+          <string>Total download:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2" >
+        <widget class="QLabel" name="labelTotalDownload" />
+       </item>
+       <item row="0" column="3" >
+        <widget class="QLabel" name="label_10" >
+         <property name="text" >
+          <string>Total upload:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4" colspan="2" >
+        <widget class="QLabel" name="labelTotalUpload" />
+       </item>
+       <item row="1" column="0" colspan="6" >
         <widget class="QGroupBox" name="groupBox" >
          <property name="title" >
           <string>Completition</string>
@@ -54,77 +74,77 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2" >
+       <item row="2" column="0" colspan="2" >
         <widget class="QLabel" name="label" >
          <property name="text" >
           <string>&lt;b>Tracker:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="2" >
+       <item row="2" column="2" >
         <widget class="QLabel" name="labelTracker" >
          <property name="text" >
           <string/>
          </property>
         </widget>
        </item>
-       <item row="1" column="3" colspan="2" >
+       <item row="2" column="3" colspan="2" >
         <widget class="QLabel" name="label_4" >
          <property name="text" >
           <string>&lt;b>Private torrent:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="5" >
+       <item row="2" column="5" >
         <widget class="QLabel" name="labelPrivate" >
          <property name="text" >
           <string/>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2" >
+       <item row="3" column="0" colspan="2" >
         <widget class="QLabel" name="label_2" >
          <property name="text" >
           <string>&lt;b>Availability:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="2" >
+       <item row="3" column="2" >
         <widget class="QLabel" name="labelAvailability" >
          <property name="text" >
           <string/>
          </property>
         </widget>
        </item>
-       <item row="2" column="3" >
+       <item row="3" column="3" >
         <widget class="QLabel" name="label_8" >
          <property name="text" >
           <string>&lt;b>Share ratio:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="5" >
+       <item row="3" column="5" >
         <widget class="QLabel" name="labelRatio" >
          <property name="text" >
           <string/>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2" >
+       <item row="4" column="0" colspan="2" >
         <widget class="QLabel" name="label_3" >
          <property name="text" >
           <string>&lt;b>Piece length:</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="2" >
+       <item row="4" column="2" >
         <widget class="QLabel" name="labelPieceLength" >
          <property name="text" >
           <string/>
          </property>
         </widget>
        </item>
-       <item row="3" column="3" colspan="2" >
+       <item row="4" column="3" colspan="2" >
         <widget class="QLabel" name="label_6" >
          <property name="sizePolicy" >
           <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
@@ -137,7 +157,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="5" >
+       <item row="4" column="5" >
         <widget class="QLineEdit" name="lineCreator" >
          <property name="sizePolicy" >
           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
@@ -153,28 +173,28 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2" >
+       <item row="5" column="0" colspan="2" >
         <widget class="QLabel" name="label_7" >
          <property name="text" >
           <string>&lt;b>Creation date:</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2" >
+       <item row="5" column="2" >
         <widget class="QLabel" name="labelCreationDate" >
          <property name="text" >
           <string/>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2" >
+       <item row="6" column="0" colspan="2" >
         <widget class="QLabel" name="label_5" >
          <property name="text" >
           <string>&lt;b>Comment:</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="2" colspan="4" >
+       <item row="6" column="2" colspan="4" >
         <widget class="QTextEdit" name="textComment" >
          <property name="readOnly" >
           <bool>true</bool>
@@ -184,26 +204,6 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0" >
-        <widget class="QLabel" name="label_9" >
-         <property name="text" >
-          <string>Total download:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1" colspan="2" >
-        <widget class="QLabel" name="labelTotalDownload" />
-       </item>
-       <item row="6" column="3" >
-        <widget class="QLabel" name="label_10" >
-         <property name="text" >
-          <string>Total upload:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="4" colspan="2" >
-        <widget class="QLabel" name="labelTotalUpload" />
-       </item>
        <item row="7" column="2" >
         <spacer>
          <property name="orientation" >
@@ -212,7 +212,7 @@
          <property name="sizeHint" >
           <size>
            <width>164</width>
-           <height>241</height>
+           <height>101</height>
           </size>
          </property>
         </spacer>
@@ -309,6 +309,14 @@
     </widget>
    </item>
   </layout>
+  <action name="actionOpenFile" >
+   <property name="icon" >
+    <iconset resource="../gfx/resources.qrc" >:/menu/run.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Open</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -318,6 +326,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../gfx/resources.qrc" />
+ </resources>
  <connections/>
 </ui>

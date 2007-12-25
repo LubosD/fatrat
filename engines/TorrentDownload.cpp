@@ -22,6 +22,7 @@
 #include <QLibrary>
 #include <QDir>
 #include <QUrl>
+#include <QProcess>
 #include <QtDebug>
 
 extern QSettings* g_settings;
@@ -165,6 +166,14 @@ QString TorrentDownload::name() const
 		return tr("Downloading the .torrent file...");
 	else
 		return "*INVALID*";
+}
+
+QString TorrentDownload::dataPath(bool bDirect)
+{
+	if(m_handle.is_valid())
+		return Transfer::dataPath(bDirect);
+	else
+		return QString();
 }
 
 void TorrentDownload::createDefaultPriorityList()
@@ -875,16 +884,22 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	hdr->resizeSection(0, 500);
 	
 	QAction* act;
-	m_pMenuFiles = new QMenu( tr("Priority"), me );
+	QMenu* submenu;
 	
-	act = m_pMenuFiles->addAction( tr("Do not download") );
+	m_pMenuFiles = new QMenu(me);
+	submenu = new QMenu(tr("Priority"), m_pMenuFiles);
+	
+	act = submenu->addAction( tr("Do not download") );
 	connect(act, SIGNAL(triggered()), this, SLOT(setPriority0()));
-	act = m_pMenuFiles->addAction( tr("Normal") );
+	act = submenu->addAction( tr("Normal") );
 	connect(act, SIGNAL(triggered()), this, SLOT(setPriority1()));
-	act = m_pMenuFiles->addAction( tr("Increased") );
+	act = submenu->addAction( tr("Increased") );
 	connect(act, SIGNAL(triggered()), this, SLOT(setPriority4()));
-	act = m_pMenuFiles->addAction( tr("Maximum") );
+	act = submenu->addAction( tr("Maximum") );
 	connect(act, SIGNAL(triggered()), this, SLOT(setPriority7()));
+	
+	m_pMenuFiles->addAction(actionOpenFile);
+	m_pMenuFiles->addMenu(submenu);
 	
 	connect(treeFiles, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(fileContext(const QPoint&)));
 	
@@ -894,6 +909,7 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	connect(act, SIGNAL(triggered()), this, SLOT(peerInfo()));
 	
 	connect(treePeers, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(peerContext(const QPoint&)));
+	connect(actionOpenFile, SIGNAL(triggered()), this, SLOT(openFile()));
 	
 	refresh();
 }
@@ -907,6 +923,22 @@ void TorrentDetails::setPriority(int p)
 	foreach(int i, m_selFiles)
 		m_download->m_vecPriorities[i] = p;
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
+}
+
+void TorrentDetails::openFile()
+{
+	if(m_selFiles.size() != 1)
+		return;
+	
+	int i = m_selFiles[0];
+	
+	QString relative = m_download->m_info->file_at(i).path.string().c_str();
+	QString path = m_download->dataPath(false) + relative;
+	
+	QString command = QString("%1 \"%2\"")
+			.arg(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString())
+			.arg(path);
+	QProcess::startDetached(command);
 }
 
 void TorrentDetails::peerInfo()
@@ -936,9 +968,8 @@ void TorrentDetails::fileContext(const QPoint&)
 				m_selFiles << row;
 		}
 		
-		QMenu menu(treeFiles);
-		menu.addMenu(m_pMenuFiles);
-		menu.exec(QCursor::pos());
+		actionOpenFile->setEnabled(list.size() == 1);
+		m_pMenuFiles->exec(QCursor::pos());
 	}
 }
 

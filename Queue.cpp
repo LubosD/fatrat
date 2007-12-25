@@ -273,7 +273,11 @@ void Queue::removeWithData(int n, bool nolock)
 	if(d->isActive())
 		d->setState(Transfer::Paused);
 	
-	recursiveRemove(d->dataPath(true));
+	QString path = d->dataPath(true);
+	
+	if(!path.isEmpty())
+		recursiveRemove(path);
+	
 	d->deleteLater();
 }
 

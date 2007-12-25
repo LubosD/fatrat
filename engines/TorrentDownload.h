@@ -41,6 +41,8 @@ public:
 	virtual void changeActive(bool nowActive);
 	virtual void setSpeedLimits(int down, int up);
 	
+	virtual QString dataPath(bool bDirect);
+	
 	virtual QString object() const;
 	virtual QString myClass() const { return "TorrentDownload"; }
 	virtual QString name() const;
@@ -132,6 +134,7 @@ public slots:
 	void setPriority1() { setPriority(1); }
 	void setPriority4() { setPriority(4); }
 	void setPriority7() { setPriority(7); }
+	void openFile();
 	
 	void peerInfo();
 private:
