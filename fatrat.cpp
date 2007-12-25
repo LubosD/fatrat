@@ -194,11 +194,17 @@ void initSettingsDefaults()
 	g_mapDefaults["autoremove"] = false;
 	g_mapDefaults["torrent/listen_start"] = 6881;
 	g_mapDefaults["torrent/listen_end"] = 6888;
+	
 	g_mapDefaults["torrent/maxconnections"] = 200;
 	g_mapDefaults["torrent/maxuploads"] = 5;
+	
+	g_mapDefaults["torrent/maxconnections_loc"] = 200;
+	g_mapDefaults["torrent/maxuploads_loc"] = 5;
+	
 	g_mapDefaults["torrent/dht"] = true;
 	g_mapDefaults["torrent/pex"] = true;
 	g_mapDefaults["torrent/maxfiles"] = 100;
+	g_mapDefaults["torrent/allocation"] = 0;
 	g_mapDefaults["remote/port"] = 2233;
 }
 

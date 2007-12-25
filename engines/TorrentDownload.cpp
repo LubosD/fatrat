@@ -93,13 +93,11 @@ void TorrentDownload::globalInit()
 
 void TorrentDownload::applySettings()
 {
-	g_settings->beginGroup("torrent");
-	
 	int lstart,lend;
 	libtorrent::session_settings settings;
 	
-	lstart = g_settings->value("listen_start", getSettingsDefault("torrent/listen_start")).toInt();
-	lend = g_settings->value("listen_end", getSettingsDefault("torrent/listen_end")).toInt();
+	lstart = g_settings->value("torrent/listen_start", getSettingsDefault("torrent/listen_start")).toInt();
+	lend = g_settings->value("torrent/listen_end", getSettingsDefault("torrent/listen_end")).toInt();
 	
 	if(lend < lstart)
 		lend = lstart;
@@ -107,11 +105,11 @@ void TorrentDownload::applySettings()
 	if(m_session->listen_port() != lstart)
 		m_session->listen_on(std::pair<int,int>(lstart,lend));
 	
-	if(g_settings->value("dht", getSettingsDefault("torrent/dht")).toBool())
+	if(g_settings->value("torrent/dht", getSettingsDefault("torrent/dht")).toBool())
 	{
 		try
 		{
-			m_session->start_dht(bdecode_simple(g_settings->value("dht_state").toByteArray()));
+			m_session->start_dht(bdecode_simple(g_settings->value("torrent/dht_state").toByteArray()));
 			m_session->add_dht_router(std::pair<std::string, int>("router.bittorrent.com", 6881));
 			m_bDHT = true;
 		}
@@ -124,10 +122,10 @@ void TorrentDownload::applySettings()
 	else
 		m_session->stop_dht();
 	
-	//m_session->set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
-	//m_session->set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
+	m_session->set_max_uploads(g_settings->value("torrent/maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
+	m_session->set_max_connections(g_settings->value("torrent/maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
 	
-	settings.file_pool_size = g_settings->value("maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
+	settings.file_pool_size = g_settings->value("torrent/maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
 	settings.user_agent = "FatRat/" VERSION;
 	//settings.max_out_request_queue = 300;
@@ -140,17 +138,13 @@ void TorrentDownload::applySettings()
 	ps.in_enc_policy = ps.out_enc_policy = libtorrent::pe_settings::enabled;
 	ps.allowed_enc_level = libtorrent::pe_settings::both;
 	m_session->set_pe_settings(ps);
-	
-	g_settings->endGroup();
 }
 
 void TorrentDownload::globalExit()
 {
 	if(m_bDHT)
 	{
-		g_settings->beginGroup("torrent");
-		g_settings->setValue("dht_state", bencode_simple(m_session->dht_state()));
-		g_settings->endGroup();
+		g_settings->setValue("torrent/dht_state", bencode_simple(m_session->dht_state()));
 	}
 	
 	delete m_worker;
@@ -192,6 +186,7 @@ void TorrentDownload::init(QString source, QString target)
 			QFile in(source);
 			QByteArray data;
 			const char* p;
+			libtorrent::storage_mode_t storageMode;
 			
 			if(!in.open(QIODevice::ReadOnly))
 				throw RuntimeException(tr("Unable to open the file!"));
@@ -201,14 +196,20 @@ void TorrentDownload::init(QString source, QString target)
 			
 			m_info = new libtorrent::torrent_info( libtorrent::bdecode(p, p+data.size()) );
 			
-			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), libtorrent::storage_mode_sparse, !isActive());
+			storageMode = (libtorrent::storage_mode_t) g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt();
+			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), storageMode, !isActive());
 			
-			m_handle.set_ratio(1.2f);
-			m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
-			m_handle.set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
+			int limit;
+			
+			limit = g_settings->value("torrent/maxuploads_loc", getSettingsDefault("torrent/maxuploads_loc")).toInt();
+			m_handle.set_max_uploads(limit ? limit : limit-1);
+			
+			limit = g_settings->value("torrent/maxconnections_loc", getSettingsDefault("torrent/maxconnections_loc")).toInt();
+			m_handle.set_max_connections(limit ? limit : limit-1);
 			
 			m_bHasHashCheck = true;
 			
+			m_handle.set_ratio(1.2f);
 			createDefaultPriorityList();
 		
 			m_worker->doWork();
@@ -363,11 +364,9 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 			up--;
 		m_handle.set_upload_limit(up);
 		m_handle.set_download_limit(down);
-		
-		//qDebug() << "Limits are D:" << m_handle.download_limit() << "U:" << m_handle.upload_limit();
 	}
-	else
-		qDebug() << "Warning: torrent speed limit was not set:" << down << up;
+	//else
+	//	qDebug() << "Warning: torrent speed limit was not set:" << down << up;
 }
 
 qulonglong TorrentDownload::done() const
