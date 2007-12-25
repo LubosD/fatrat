@@ -295,6 +295,7 @@ void TorrentDownload::torrentFileDone(bool error)
 	{
 		try
 		{
+			m_pFileDownloadTemp->flush();
 			init(m_pFileDownloadTemp->fileName(), m_strTarget);
 		}
 		catch(const RuntimeException& e)
