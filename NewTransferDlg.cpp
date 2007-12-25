@@ -2,10 +2,11 @@
 #include "fatrat.h"
 #include "Queue.h"
 #include "UserAuthDlg.h"
-#include "NewTransferObjDlg.h"
 #include <QFileDialog>
 #include <QSettings>
 #include <QReadWriteLock>
+#include <QMenu>
+#include <QClipboard>
 #include <QtDebug>
 
 extern QSettings* g_settings;
@@ -29,7 +30,6 @@ NewTransferDlg::NewTransferDlg(QWidget* parent)
 	connect(pushAddFiles, SIGNAL(clicked()), this, SLOT(browse2()));
 	connect(toolAuth, SIGNAL(clicked()), this, SLOT(authData()));
 	connect(toolAuth2, SIGNAL(clicked()), this, SLOT(authData()));
-	connect(pushAddFiles2, SIGNAL(clicked()), this, SLOT(addObject()));
 	
 	const EngineEntry* entries = Transfer::engines(Transfer::Download);
 	comboClass->addItem(tr("Auto detect"));
@@ -42,6 +42,20 @@ NewTransferDlg::NewTransferDlg(QWidget* parent)
 	
 	for(int i=0;entries[i].shortName;i++)
 		comboClass2->addItem(entries[i].longName);
+	
+	QMenu* menu = new QMenu(toolAddSpecial);
+	QAction* act;
+	
+	act = menu->addAction(tr("Add local files..."));
+	connect(act, SIGNAL(triggered()), this, SLOT(browse2()));
+	
+	act = menu->addAction(tr("Add contents of a text file..."));
+	connect(act, SIGNAL(triggered()), this, SLOT(addTextFile()));
+	
+	act = menu->addAction(tr("Add from clipboard"));
+	connect(act, SIGNAL(triggered()), this, SLOT(addClipboard()));
+	
+	toolAddSpecial->setMenu(menu);
 }
 
 int NewTransferDlg::exec()
@@ -180,9 +194,29 @@ void NewTransferDlg::load()
 		textURIs->setText(m_strURIs);
 }
 
+void NewTransferDlg::addTextFile()
+{
+	QString filename = QFileDialog::getOpenFileName(this, "FatRat");
+	if(!filename.isNull())
+	{
+		QFile file(filename);
+		if(file.open(QIODevice::ReadOnly))
+			textURIs->append(file.readAll());
+	}
+}
+
+void NewTransferDlg::addClipboard()
+{
+	QClipboard* cb = QApplication::clipboard();
+	if(radioUpload->isChecked())
+		textFiles->append(cb->text());
+	else
+		textURIs->append(cb->text());
+}
+
 void NewTransferDlg::browse()
 {
-	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose directory"), comboDestination->currentText());
+	QString dir = QFileDialog::getExistingDirectory(this, "FatRat", comboDestination->currentText());
 	if(!dir.isNull())
 		comboDestination->setEditText(dir);
 }
@@ -191,15 +225,12 @@ void NewTransferDlg::browse2()
 {
 	QStringList files;
 	
-	files = QFileDialog::getOpenFileNames(this, tr("Choose files"));
-	textFiles->append(files.join("\n"));
-}
-
-void NewTransferDlg::addObject()
-{
-	NewTransferObjDlg dlg(this);
-	if(dlg.exec() == QDialog::Accepted)
-		textURIs->append(dlg.getResult());
+	files = QFileDialog::getOpenFileNames(this, "FatRat");
+	
+	if(radioUpload->isChecked())
+		textFiles->append(files.join("\n"));
+	else
+		textURIs->append(files.join("\n"));
 }
 
 /*

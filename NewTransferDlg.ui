@@ -81,18 +81,18 @@
         </widget>
        </item>
        <item row="0" column="1" colspan="2" >
-        <widget class="QPushButton" name="pushAddFiles2" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+        <widget class="QToolButton" name="toolAddSpecial" >
          <property name="text" >
-          <string>Add</string>
+          <string>Add special</string>
          </property>
          <property name="icon" >
           <iconset resource="gfx/resources.qrc" >:/menu/add.png</iconset>
+         </property>
+         <property name="popupMode" >
+          <enum>QToolButton::InstantPopup</enum>
+         </property>
+         <property name="toolButtonStyle" >
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
          </property>
         </widget>
        </item>
@@ -103,8 +103,8 @@
          </property>
          <property name="sizeHint" >
           <size>
-           <width>221</width>
-           <height>25</height>
+           <width>211</width>
+           <height>26</height>
           </size>
          </property>
         </spacer>

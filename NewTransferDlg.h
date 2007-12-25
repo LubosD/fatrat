@@ -18,9 +18,11 @@ public:
 private slots:
 	void browse();
 	void browse2();
-	void addObject();
 	void switchMode();
 	void authData();
+	
+	void addTextFile();
+	void addClipboard();
 public:
 	QString m_strURIs,m_strDestination,m_strClass;
 	QStringList m_lastDirs;
