@@ -36,10 +36,13 @@ public:
 	
 	void add(Transfer* d);
 	void add(QList<Transfer*> d);
-	void moveDown(int n);
-	void moveUp(int n);
+	
+	int moveDown(int n);
+	int moveUp(int n);
 	void moveToTop(int n);
 	void moveToBottom(int n);
+	void moveToPos(int from, int to);
+	
 	void remove(int n, bool nolock = false);
 	void removeWithData(int n, bool nolock = false);
 	Transfer* take(int n, bool nolock = false);

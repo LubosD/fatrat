@@ -103,8 +103,6 @@ void MainWindow::connectActions()
 	connect(listQueues, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(queueItemProperties()));
 	connect(listQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
 	
-	//connect(treeTransfers, SIGNAL(activated(const QModelIndex &)), this, SLOT(transferItemActivated()));
-	//connect(treeTransfers, SIGNAL(clicked(const QModelIndex &)), this, SLOT(transferItemActivated()));
 	connect(treeTransfers, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(transferItemDoubleClicked(const QModelIndex&)));
 	connect(treeTransfers, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(transferItemContext(const QPoint&)));
 	
@@ -313,8 +311,6 @@ void MainWindow::updateUi()
 		if(bSingle)
 		{
 			actionTop->setEnabled(sel[0]);
-			actionUp->setEnabled(sel[0]);
-			actionDown->setEnabled(sel[0] < rcount-1);
 			actionBottom->setEnabled(sel[0] < rcount-1);
 			
 			q->lock();
@@ -342,6 +338,9 @@ void MainWindow::updateUi()
 			actionDown->setEnabled(false);
 			actionBottom->setEnabled(true);
 		}
+		
+		actionUp->setEnabled(true);
+		actionDown->setEnabled(true);
 		
 		actionDeleteTransfer->setEnabled(true);
 		actionDeleteTransferData->setEnabled(true);
@@ -610,15 +609,15 @@ void MainWindow::move(int i)
 	
 	if(!sel.empty())
 	{
+		QItemSelectionModel* model = treeTransfers->selectionModel();
+		
+		int size = sel.size();
+		model->clearSelection();
+		
 		switch(i)
 		{
 			case 0:
-			{
-				int size = sel.size();
-				QItemSelectionModel* model = treeTransfers->selectionModel();
-				
-				model->clearSelection();
-				
+			{	
 				for(int j=0;j<size;j++)
 				{
 					q->moveToTop(sel[size-j-1]+j);
@@ -627,23 +626,32 @@ void MainWindow::move(int i)
 				break;
 			}
 			case 1:
-				q->moveUp(sel[0]);
-				treeTransfers->setCurrentIndex(m_modelTransfers->index(sel[0]-1));
+				for(int i=0;i<size;i++)
+				{
+					int newpos;
+					
+					newpos = q->moveUp(sel[i]);
+					model->select(m_modelTransfers->index(newpos), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+				}
 				break;
 			case 2:
-				q->moveDown(sel[0]);
-				treeTransfers->setCurrentIndex(m_modelTransfers->index(sel[0]+1));
+				for(int i=size-1;i>=0;i--)
+				{
+					int newpos;
+					
+					newpos = q->moveDown(sel[i]);
+					model->select(m_modelTransfers->index(newpos), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+				}
 				break;
 			case 3:
 			{
-				int size = q->size();
+				int qsize = q->size();
 				QItemSelectionModel* model = treeTransfers->selectionModel();
-				model->clearSelection();
 				
-				for(int i=0;i<sel.size();i++)
+				for(int i=0;i<size;i++)
 				{
 					q->moveToBottom(sel[i]-i);
-					model->select(m_modelTransfers->index(size-i-1), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+					model->select(m_modelTransfers->index(qsize-i-1), QItemSelectionModel::Select | QItemSelectionModel::Rows);
 				}
 				break;
 			}

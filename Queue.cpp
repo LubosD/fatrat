@@ -209,24 +209,44 @@ void Queue::add(QList<Transfer*> d)
 	m_lock.unlock();
 }
 
-void Queue::moveDown(int n)
+int Queue::moveDown(int n)
 {
 	if(m_transfers.size()>n+1)
 	{
 		m_lock.lockForWrite();
 		m_transfers.swap(n,n+1);
 		m_lock.unlock();
+		
+		return n+1;
 	}
+	else
+		return n;
 }
 
-void Queue::moveUp(int n)
+int Queue::moveUp(int n)
 {
 	if(n > 0)
 	{
 		m_lock.lockForWrite();
 		m_transfers.swap(n-1,n);
 		m_lock.unlock();
+		return n-1;
 	}
+	else
+		return n;
+}
+
+void Queue::moveToPos(int from, int to)
+{
+	Transfer* t;
+	
+	if(to > from)
+		to--;
+	
+	m_lock.lockForWrite();
+	t = m_transfers.takeAt(from);
+	m_transfers.insert(to, t);
+	m_lock.unlock();
 }
 
 void Queue::moveToTop(int n)

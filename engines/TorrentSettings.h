@@ -17,7 +17,7 @@ public:
 	{
 		setupUi(w);
 		
-		comboAllocation->addItems( QStringList() << tr("Sparse") << tr("Full") << tr("Compact") );
+		comboAllocation->addItems( QStringList() << tr("Full") << tr("Sparse") << tr("Compact") );
 	}
 	
 	virtual void load()
