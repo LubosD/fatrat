@@ -6,6 +6,8 @@
 #include "WidgetHostChild.h"
 #include <QTimer>
 #include <QMutex>
+#include <QHttp>
+#include <QTemporaryFile>
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
@@ -61,7 +63,7 @@ private:
 	bool storeTorrent(QString orig);
 	QString storedTorrentName();
 private slots:
-	void fileStateChanged(Transfer::State,Transfer::State);
+	void torrentFileDone(bool error);
 	void forceReannounce();
 	void forceRecheck();
 protected:
@@ -74,7 +76,8 @@ protected:
 	std::vector<int> m_vecPriorities;
 	bool m_bHasHashCheck;
 	
-	Transfer* m_pFileDownload;
+	QHttp* m_pFileDownload;
+	QTemporaryFile* m_pFileDownloadTemp;
 	
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;

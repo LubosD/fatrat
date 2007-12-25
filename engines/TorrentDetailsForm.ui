@@ -65,7 +65,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="3" colspan="2" >
+       <item row="1" column="3" >
         <widget class="QLabel" name="label_8" >
          <property name="text" >
           <string>&lt;b>Share ratio:</string>
@@ -93,6 +93,35 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="3" colspan="2" >
+        <widget class="QLabel" name="label_6" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text" >
+          <string>&lt;b>Creator:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="5" >
+        <widget class="QLineEdit" name="lineCreator" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="0" colspan="2" >
         <widget class="QLabel" name="label_7" >
          <property name="text" >
@@ -115,33 +144,16 @@
         </widget>
        </item>
        <item row="4" column="2" colspan="4" >
-        <widget class="QLineEdit" name="lineComment" >
-         <property name="frame" >
-          <bool>false</bool>
-         </property>
+        <widget class="QTextEdit" name="textComment" >
          <property name="readOnly" >
           <bool>true</bool>
          </property>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="2" >
-        <widget class="QLabel" name="label_6" >
-         <property name="text" >
-          <string>&lt;b>Creator:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="2" colspan="4" >
-        <widget class="QLineEdit" name="lineCreator" >
-         <property name="frame" >
+         <property name="acceptRichText" >
           <bool>false</bool>
          </property>
-         <property name="readOnly" >
-          <bool>true</bool>
-         </property>
         </widget>
        </item>
-       <item row="6" column="0" colspan="6" >
+       <item row="5" column="0" colspan="6" >
         <widget class="QGroupBox" name="groupBox" >
          <property name="title" >
           <string>Completition</string>
@@ -172,27 +184,27 @@
          </layout>
         </widget>
        </item>
-       <item row="7" column="0" >
+       <item row="6" column="0" >
         <widget class="QLabel" name="label_9" >
          <property name="text" >
           <string>Total download:</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="1" colspan="2" >
+       <item row="6" column="1" colspan="2" >
         <widget class="QLabel" name="labelTotalDownload" />
        </item>
-       <item row="7" column="3" >
+       <item row="6" column="3" >
         <widget class="QLabel" name="label_10" >
          <property name="text" >
           <string>Total upload:</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="4" colspan="2" >
+       <item row="6" column="4" colspan="2" >
         <widget class="QLabel" name="labelTotalUpload" />
        </item>
-       <item row="8" column="2" >
+       <item row="7" column="2" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>

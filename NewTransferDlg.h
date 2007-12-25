@@ -18,6 +18,7 @@ public:
 private slots:
 	void browse();
 	void browse2();
+	void addObject();
 	void switchMode();
 	void authData();
 public:

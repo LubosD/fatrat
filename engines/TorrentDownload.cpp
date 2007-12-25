@@ -2,24 +2,27 @@
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
 #include "RuntimeException.h"
-#include "GeneralDownload.h"
 #include "TorrentPiecesModel.h"
 #include "TorrentPeersModel.h"
 #include "TorrentFilesModel.h"
 
-#include <QIcon>
-#include <QMenu>
-#include <QTemporaryFile>
-#include <QHeaderView>
-#include <QMessageBox>
-#include <fstream>
-#include <stdexcept>
-#include <iostream>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+
+#include <fstream>
+#include <stdexcept>
+#include <iostream>
+
+#include <QIcon>
+#include <QMenu>
+#include <QHeaderView>
+#include <QMessageBox>
 #include <QLibrary>
+#include <QDir>
+#include <QUrl>
+#include <QtDebug>
 
 extern QSettings* g_settings;
 
@@ -36,6 +39,7 @@ void (*GeoIP_delete)(void*);
 
 TorrentDownload::TorrentDownload()
 	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_pFileDownload(0)
+		, m_pFileDownloadTemp(0)
 {
 	m_worker->addObject(this);
 }
@@ -213,29 +217,31 @@ void TorrentDownload::init(QString source, QString target)
 		else
 		{
 			QString error,name;
-			GeneralDownload* download;
-			QTemporaryFile* temp;
 			QDir dir;
 			
-			m_pFileDownload = download = new GeneralDownload(true);
-			temp = new QTemporaryFile(download);
+			m_pFileDownload = new QHttp(this);
+			m_pFileDownloadTemp = new QTemporaryFile(m_pFileDownload);
 			
-			if(!temp->open())
+			if(!m_pFileDownloadTemp->open())
 			{
+				delete m_pFileDownload;
 				m_pFileDownload = 0;
-				delete download;
 				throw RuntimeException(tr("Cannot create a temporary file"));
 			}
 			
-			dir = temp->fileName();
+			dir = m_pFileDownloadTemp->fileName();
 			name = dir.dirName();
-			qDebug() << "Downloading torrent to" << temp->fileName();
+			qDebug() << "Downloading torrent to" << m_pFileDownloadTemp->fileName();
 			dir.cdUp();
 			
-			connect(download, SIGNAL(stateChanged(Transfer::State,Transfer::State)), this, SLOT(fileStateChanged(Transfer::State,Transfer::State)));
-			download->init(source, dir.path());
-			download->setTargetName(name);
-			download->setState(Active);
+			QUrl url(source);
+			m_pFileDownload->setHost(url.host(), url.port(80));
+			connect(m_pFileDownload, SIGNAL(done(bool)), this, SLOT(torrentFileDone(bool)));
+			
+			if(url.hasQuery())
+				m_pFileDownload->get(url.path() + '?' + url.encodedQuery(), m_pFileDownloadTemp);
+			else
+				m_pFileDownload->get(url.path(), m_pFileDownloadTemp);
 		}
 	}
 	catch(const libtorrent::invalid_encoding&)
@@ -278,14 +284,10 @@ QString TorrentDownload::storedTorrentName()
 	return QString("%1 - %2.torrent").arg(name()).arg(hash);
 }
 
-void TorrentDownload::fileStateChanged(Transfer::State prev,Transfer::State now)
+void TorrentDownload::torrentFileDone(bool error)
 {
-	if(prev != Active || !m_pFileDownload)
-		return;
-	
-	if(now != Completed)
+	if(error)
 	{
-		qDebug() << "Torrent-get completed without success";
 		m_strError = tr("Failed to download the .torrent file");
 		setState(Failed);
 	}
@@ -293,7 +295,7 @@ void TorrentDownload::fileStateChanged(Transfer::State prev,Transfer::State now)
 	{
 		try
 		{
-			init(static_cast<GeneralDownload*>(m_pFileDownload)->filePath(), m_strTarget);
+			init(m_pFileDownloadTemp->fileName(), m_strTarget);
 		}
 		catch(const RuntimeException& e)
 		{
@@ -305,6 +307,7 @@ void TorrentDownload::fileStateChanged(Transfer::State prev,Transfer::State now)
 	
 	m_pFileDownload->deleteLater();
 	m_pFileDownload = 0;
+	m_pFileDownloadTemp = 0;
 }
 
 void TorrentDownload::setObject(QString target)
@@ -370,8 +373,6 @@ qulonglong TorrentDownload::done() const
 {
 	if(m_handle.is_valid())
 		return qMax<qint64>(0, m_status.total_wanted_done);
-	else if(m_pFileDownload != 0)
-		return m_pFileDownload->done();
 	else
 		return 0;
 }
@@ -380,8 +381,6 @@ qulonglong TorrentDownload::total() const
 {
 	if(m_handle.is_valid())
 		return m_status.total_wanted;
-	else if(m_pFileDownload != 0)
-		return m_pFileDownload->total();
 	else
 		return 0;
 }
@@ -966,7 +965,7 @@ void TorrentDetails::fill()
 			labelCreationDate->setText(created.c_str());
 		}
 		labelPieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );
-		lineComment->setText(m_download->m_info->comment().c_str());
+		textComment->setPlainText(m_download->m_info->comment().c_str());
 		lineCreator->setText(m_download->m_info->creator().c_str());
 		labelPrivate->setText( m_download->m_info->priv() ? tr("yes") : tr("no"));
 		

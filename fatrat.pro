@@ -25,7 +25,8 @@ FORMS += MainWindow.ui \
  tools/RapidTools.ui \
  tools/TorrentSearch.ui \
  GenericOptsForm.ui \
- engines/SettingsHttpForm.ui
+ engines/SettingsHttpForm.ui \
+ NewTransferObjDlg.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -75,7 +76,8 @@ HEADERS += fatrat.h \
  tools/TorrentSearch.h \
  remote/HttpService.h \
  remote/GenericService.h \
- remote/XmlService.h
+ remote/XmlService.h \
+ NewTransferObjDlg.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
