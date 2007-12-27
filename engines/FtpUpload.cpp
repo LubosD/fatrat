@@ -173,7 +173,7 @@ void FtpUpload::load(const QDomNode& map)
 	}
 }
 
-void FtpUpload::save(QDomDocument& doc, QDomNode& map)
+void FtpUpload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
 	

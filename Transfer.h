@@ -40,20 +40,21 @@ public:
 	bool isActive() const;
 	State state() const { return m_state; }
 	virtual void setState(State newState);
-	bool statePossible(State state);
+	bool statePossible(State state) const;
+	int retryCount() const { return m_nRetryCount; }
 	
 	// IDENTIFICATION AND INFORMATION
 	virtual QString myClass() const = 0;
 	virtual QString name() const = 0;
 	virtual QString message() const { return QString(); }
-	Mode mode() { return m_mode; }
-	virtual Mode primaryMode() { return Download; } // because the BitTorrent transfer may switch modes at run-time
-	virtual QString dataPath(bool bDirect);
+	Mode mode() const { return m_mode; }
+	virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
+	virtual QString dataPath(bool bDirect) const;
 	
 	// TRANSFER SPEED AND SPEED LIMITS
 	virtual void speeds(int& down, int& up) const = 0;
 	void setUserSpeedLimits(int down,int up);
-	void userSpeedLimits(int& down,int& up) { down=m_nDownLimit; up=m_nUpLimit; }
+	void userSpeedLimits(int& down,int& up) const { down=m_nDownLimit; up=m_nUpLimit; }
 	
 	// TRANSFER SIZE
 	virtual qulonglong total() const = 0;
@@ -61,7 +62,7 @@ public:
 	
 	// SERIALIZATION
 	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map);
+	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	
 	// TRANSFER OPTIONS/DETAILS
 	virtual WidgetHostChild* createOptionsWidget(QWidget*) { return 0; } // options (properties) of a particular download
@@ -106,6 +107,7 @@ signals:
 	void logMessage(QString msg);
 public slots:
 	void updateGraph();
+	void retry();
 	// This function is supposed to be used by child classes
 	void enterLogMessage(QString msg);
 protected:
@@ -118,7 +120,9 @@ protected:
 	Mode m_mode;
 	int m_nDownLimit,m_nUpLimit;
 	int m_nDownLimitInt,m_nUpLimitInt;
-	bool m_bLocal;
+	bool m_bLocal, m_bWorking;
+	
+	int m_nRetryCount;
 	
 	QString m_strLog, m_strComment;
 	

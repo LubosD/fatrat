@@ -27,7 +27,8 @@ static const EngineEntry m_enginesUpload[] = {
 
 Transfer::Transfer(bool local)
 	: m_state(Waiting), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
-		  m_nDownLimitInt(0), m_nUpLimitInt(0), m_bLocal(local)
+		  m_nDownLimitInt(0), m_nUpLimitInt(0), m_bLocal(local), m_bWorking(false),
+		  m_nRetryCount(0)
 {
 	m_timer = new QTimer(this);
 	
@@ -160,7 +161,7 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 	return best;
 }
 
-bool Transfer::statePossible(State newState)
+bool Transfer::statePossible(State newState) const
 {
 	if(m_state == newState)
 		return false;
@@ -194,7 +195,10 @@ void Transfer::setState(State newState)
 	now = isActive();
 	
 	if(now != was)
+	{
+		m_bWorking = false;
 		changeActive(now);
+	}
 }
 
 Transfer::State Transfer::string2state(QString s)
@@ -238,7 +242,7 @@ void Transfer::load(const QDomNode& map)
 	setUserSpeedLimits(down, up);
 }
 
-void Transfer::save(QDomDocument& doc, QDomNode& node)
+void Transfer::save(QDomDocument& doc, QDomNode& node) const
 {
 	setXMLProperty(doc, node, "state", state2string(m_state));
 	setXMLProperty(doc, node, "downlimit", QString::number(m_nDownLimit));
@@ -295,7 +299,7 @@ void Transfer::setXMLProperty(QDomDocument& doc, QDomNode& node, QString name, Q
 	node.appendChild(sub);
 }
 
-QString Transfer::dataPath(bool bDirect)
+QString Transfer::dataPath(bool bDirect) const
 {
 	QString obj = object();
 	
@@ -317,6 +321,12 @@ QString Transfer::dataPath(bool bDirect)
 			return dir.absolutePath();
 		}
 	}
+}
+
+void Transfer::retry()
+{
+	m_nRetryCount++;
+	setState(Waiting);
 }
 
 //////////////////

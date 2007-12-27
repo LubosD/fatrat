@@ -41,7 +41,7 @@ void RapidshareUpload::load(const QDomNode& map)
 {
 }
 
-void RapidshareUpload::save(QDomDocument& doc, QDomNode& map)
+void RapidshareUpload::save(QDomDocument& doc, QDomNode& map) const
 {
 }
 

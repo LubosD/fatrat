@@ -153,7 +153,7 @@ void GeneralDownload::load(const QDomNode& map)
 	Transfer::load(map);
 }
 
-void GeneralDownload::save(QDomDocument& doc, QDomNode& map)
+void GeneralDownload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
 	

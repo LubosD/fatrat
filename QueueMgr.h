@@ -14,6 +14,7 @@ public:
 	void exit();
 public slots:
 	void doWork();
+	void transferStateChanged(Transfer*,Transfer::State,Transfer::State);
 private:
 	QTimer* m_timer;
 	int m_nCycle;

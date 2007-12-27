@@ -168,7 +168,7 @@ QString TorrentDownload::name() const
 		return "*INVALID*";
 }
 
-QString TorrentDownload::dataPath(bool bDirect)
+QString TorrentDownload::dataPath(bool bDirect) const
 {
 	if(m_handle.is_valid())
 		return Transfer::dataPath(bDirect);
@@ -284,7 +284,7 @@ bool TorrentDownload::storeTorrent(QString orig)
 		return true;
 }
 
-QString TorrentDownload::storedTorrentName()
+QString TorrentDownload::storedTorrentName() const
 {
 	if(!m_info)
 		return QString();
@@ -533,7 +533,7 @@ void TorrentDownload::load(const QDomNode& map)
 	}
 }
 
-void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
+void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
 	

@@ -185,7 +185,8 @@ void initSettingsDefaults()
 	g_mapDefaults["trayicon"] = true;
 	g_mapDefaults["hideminimize"] = false;
 	g_mapDefaults["hideclose"] = true;
-	g_mapDefaults["speedthreshold"] = 0;
+	g_mapDefaults["retrycount"] = 0;
+	g_mapDefaults["retryworking"] = true;
 	g_mapDefaults["showpopup"] = true;
 	g_mapDefaults["popuptime"] = 4;
 	g_mapDefaults["sendemail"] = false;

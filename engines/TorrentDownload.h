@@ -41,29 +41,28 @@ public:
 	virtual void changeActive(bool nowActive);
 	virtual void setSpeedLimits(int down, int up);
 	
-	virtual QString dataPath(bool bDirect);
+	virtual QString dataPath(bool bDirect) const;
 	
 	virtual QString object() const;
 	virtual QString myClass() const { return "TorrentDownload"; }
 	virtual QString name() const;
 	virtual QString message() const;
-	virtual Mode primaryMode() { return Download; }
 	virtual void speeds(int& down, int& up) const;
 	virtual qulonglong total() const;
 	virtual qulonglong done() const;
 	
 	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map);
+	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QObject* createDetailsWidget(QWidget* widget);
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	
-	qint64 totalDownload() { return m_nPrevDownload + m_status.total_payload_download; }
-	qint64 totalUpload() { return m_nPrevUpload + m_status.total_payload_upload; }
+	qint64 totalDownload() const { return m_nPrevDownload + m_status.total_payload_download; }
+	qint64 totalUpload() const { return m_nPrevUpload + m_status.total_payload_upload; }
 private:
 	void createDefaultPriorityList();
 	bool storeTorrent(QString orig);
-	QString storedTorrentName();
+	QString storedTorrentName() const;
 private slots:
 	void torrentFileDone(bool error);
 	void forceReannounce();

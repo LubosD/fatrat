@@ -17,6 +17,9 @@ void QueueMgr::run()
 {
 	m_timer = new QTimer;
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(doWork()), Qt::DirectConnection);
+	
+	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(transferStateChanged(Transfer*,Transfer::State,Transfer::State)));
+	
 	m_timer->start(1000);
 	exec();
 	delete m_timer;
@@ -26,7 +29,7 @@ void QueueMgr::doWork()
 {
 	//cout << "QueueMgr::doWork()\n";
 	g_queuesLock.lockForRead();
-	const int threshold = g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt()*1024;
+	//const int threshold = g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt()*1024;
 	const bool autoremove = g_settings->value("autoremove", getSettingsDefault("autoremove")).toBool();
 	
 	foreach(Queue* q,g_queues)
@@ -51,6 +54,11 @@ void QueueMgr::doWork()
 			
 			d->speeds(downs,ups);
 			
+			if(downs >= 1024 && mode == Transfer::Download)
+				d->m_bWorking = true;
+			else if(ups >= 1024 && mode == Transfer::Upload)
+				d->m_bWorking = true;
+			
 			downt += downs;
 			upt += ups;
 			
@@ -68,7 +76,7 @@ void QueueMgr::doWork()
 					(*lim)--;
 					d->setState(Transfer::Active);
 					
-					if(!threshold || downt >= threshold || upt >= threshold)
+					//if(!threshold || downt >= threshold || upt >= threshold)
 						running++;
 				}
 				else
@@ -118,6 +126,21 @@ void QueueMgr::doWork()
 		m_nCycle = 0;
 		Queue::saveQueues();
 	}
+}
+
+void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::State now)
+{
+	if(now != Transfer::Failed)
+		return;
+	
+	bool bRetry = false;
+	if(g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool())
+		bRetry = t->m_bWorking;
+	else if(g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt() > t->m_nRetryCount)
+		bRetry = true;
+	
+	if(bRetry)
+		QMetaObject::invokeMethod(t, "retry", Qt::QueuedConnection);
 }
 
 void QueueMgr::exit()

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>549</width>
-    <height>414</height>
+    <width>506</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -31,78 +31,125 @@
     </widget>
    </item>
    <item row="1" column="0" >
-    <widget class="QLabel" name="label_2" >
-     <property name="text" >
-      <string>Don't count transfers under</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" >
-    <widget class="QSpinBox" name="spinSpeedThreshold" />
-   </item>
-   <item row="1" column="2" >
-    <widget class="QLabel" name="label_3" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text" >
-      <string>kiB/s as active (0 = off)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" >
     <widget class="QLabel" name="label_9" >
      <property name="text" >
       <string>Display speed graphs for last</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" >
+   <item row="1" column="1" >
     <widget class="QSpinBox" name="spinGraphMinutes" >
      <property name="minimum" >
       <number>1</number>
      </property>
     </widget>
    </item>
-   <item row="2" column="2" >
+   <item row="1" column="2" >
     <widget class="QLabel" name="label_10" >
      <property name="text" >
       <string>minutes</string>
      </property>
     </widget>
    </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_11" >
+     <property name="text" >
+      <string>Open files/directories by running</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="2" >
+    <widget class="QLineEdit" name="lineFileExec" />
+   </item>
+   <item row="3" column="0" colspan="4" >
+    <widget class="QGroupBox" name="checkTrayIcon" >
+     <property name="title" >
+      <string>Display the tray icon</string>
+     </property>
+     <property name="checkable" >
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QCheckBox" name="checkHideMinimize" >
+        <property name="text" >
+         <string>Hide by minimizing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QCheckBox" name="checkHideClose" >
+        <property name="text" >
+         <string>Hide by closing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="4" column="0" colspan="4" >
-    <layout class="QHBoxLayout" >
-     <item>
-      <widget class="QCheckBox" name="checkTrayIcon" >
-       <property name="text" >
-        <string>Display tray icon</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkHideMinimize" >
-       <property name="text" >
-        <string>Hide by minimizing</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkHideClose" >
-       <property name="text" >
-        <string>Hide by closing</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="groupBox_3" >
+     <property name="title" >
+      <string>If transfer fails</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>Retry</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QSpinBox" name="spinRetry" />
+      </item>
+      <item row="0" column="2" >
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>times</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="4" >
+       <widget class="QCheckBox" name="checkRetryWorking" >
+        <property name="text" >
+         <string>Always retry if the transfer has been working before</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item row="5" column="0" colspan="4" >
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >
-      <string>When download completes</string>
+      <string>When transfer completes</string>
      </property>
      <layout class="QGridLayout" >
       <property name="leftMargin" >
@@ -146,7 +193,7 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>Show popup (requires tray icon)</string>
+         <string>Show a popup (requires tray icon)</string>
         </property>
        </widget>
       </item>
@@ -213,7 +260,7 @@
       <item row="2" column="0" >
        <widget class="QCheckBox" name="checkEmail" >
         <property name="text" >
-         <string>Send e-mail</string>
+         <string>Send an e-mail</string>
         </property>
        </widget>
       </item>
@@ -251,28 +298,16 @@
      <property name="sizeHint" >
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>31</height>
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="3" column="0" >
-    <widget class="QLabel" name="label_11" >
-     <property name="text" >
-      <string>Open files/directories by running</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2" >
-    <widget class="QLineEdit" name="lineFileExec" />
    </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>lineDestination</tabstop>
   <tabstop>toolDestination</tabstop>
-  <tabstop>spinSpeedThreshold</tabstop>
-  <tabstop>checkTrayIcon</tabstop>
   <tabstop>checkPopup</tabstop>
   <tabstop>spinPopup</tabstop>
   <tabstop>checkEmail</tabstop>
@@ -311,38 +346,6 @@
     <hint type="destinationlabel" >
      <x>197</x>
      <y>327</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkTrayIcon</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkHideMinimize</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>68</x>
-     <y>115</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>277</x>
-     <y>120</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkTrayIcon</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkHideClose</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>77</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>408</x>
-     <y>114</y>
     </hint>
    </hints>
   </connection>

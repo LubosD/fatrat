@@ -31,7 +31,9 @@ public:
 		checkHideMinimize->setChecked( g_settings->value("hideminimize", getSettingsDefault("hideminimize")).toBool() );
 		checkHideClose->setChecked( g_settings->value("hideclose", getSettingsDefault("hideclose")).toBool() );
 		
-		spinSpeedThreshold->setValue( g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt() );
+		//spinSpeedThreshold->setValue( g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt() );
+		spinRetry->setValue( g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt() );
+		checkRetryWorking->setChecked( g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool() );
 		checkPopup->setChecked( g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool() );
 		spinPopup->setValue( g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt() );
 		checkEmail->setChecked( g_settings->value("sendemail", getSettingsDefault("sendemail")).toBool() );
@@ -75,8 +77,10 @@ public:
 		g_settings->setValue("hideminimize", checkHideMinimize->isChecked());
 		g_settings->setValue("hideclose", checkHideClose->isChecked());
 		
-		g_settings->setValue("speedthreshold", spinSpeedThreshold->value());
+		//g_settings->setValue("speedthreshold", spinSpeedThreshold->value());
 		//g_settings->setValue("distributenotactive", checkDistributeNotActive->isChecked());
+		g_settings->setValue("retrycount", spinRetry->value());
+		g_settings->setValue("retryworking", checkRetryWorking->isChecked());
 		g_settings->setValue("showpopup", checkPopup->isChecked());
 		g_settings->setValue("popuptime", spinPopup->value());
 		g_settings->setValue("sendemail", checkEmail->isChecked());

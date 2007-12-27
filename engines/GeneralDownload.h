@@ -35,7 +35,7 @@ public:
 	virtual void setObject(QString target);
 	void init2(QString uri,QString dest);
 	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map);
+	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual QString object() const { return m_dir.path(); }
 	
 	virtual void setSpeedLimits(int down,int up);

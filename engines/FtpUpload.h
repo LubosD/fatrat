@@ -24,13 +24,13 @@ public:
 	virtual QString myClass() const { return "FtpUpload"; }
 	virtual QString name() const { return m_strName; }
 	virtual QString message() const { return m_strMessage; }
-	virtual Mode primaryMode() { return Upload; }
+	virtual Mode primaryMode() const { return Upload; }
 	virtual void speeds(int& down, int& up) const;
 	virtual qulonglong total() const { return m_nTotal; }
 	virtual qulonglong done() const;
 	
 	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map);
+	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
 	
 	virtual void fillContextMenu(QMenu& menu);

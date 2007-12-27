@@ -22,10 +22,9 @@ public:
 		m_strName = getXMLProperty(map, "name");
 	}
 	
-	virtual void save(QDomDocument& doc, QDomNode& map)
+	virtual void save(QDomDocument& doc, QDomNode& map) const
 	{
 		Transfer::save(doc, map);
-		//map["name"] = m_strName;
 		setXMLProperty(doc, map, "name", m_strName);
 	}
 	
