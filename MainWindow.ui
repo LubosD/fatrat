@@ -364,7 +364,7 @@
      <x>0</x>
      <y>0</y>
      <width>737</width>
-     <height>28</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp" >
@@ -449,6 +449,7 @@
    <addaction name="actionNewTransfer" />
    <addaction name="actionDeleteTransfer" />
    <addaction name="actionDeleteTransferData" />
+   <addaction name="actionRemoveCompleted" />
    <addaction name="separator" />
    <addaction name="actionResume" />
    <addaction name="actionForcedResume" />

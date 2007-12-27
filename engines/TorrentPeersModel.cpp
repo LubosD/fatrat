@@ -165,7 +165,7 @@ void TorrentPeersModel::refresh()
 	}
 	else if(count < m_nLastRowCount)
 	{
-		beginRemoveRows(QModelIndex(), count, m_nLastRowCount);
+		beginRemoveRows(QModelIndex(), 0, m_nLastRowCount-count-1);
 		endRemoveRows();
 	}
 	m_nLastRowCount = count;

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
-    <height>370</height>
+    <width>373</width>
+    <height>437</height>
    </rect>
   </property>
   <layout class="QGridLayout" >
@@ -53,8 +53,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>352</width>
-            <height>262</height>
+            <width>337</width>
+            <height>281</height>
            </rect>
           </property>
           <attribute name="label" >
@@ -82,13 +82,69 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page_6" >
+          <attribute name="label" >
+           <string>Seeding limits</string>
+          </attribute>
+          <layout class="QGridLayout" >
+           <item row="0" column="0" >
+            <widget class="QCheckBox" name="checkSeedRatio" >
+             <property name="text" >
+              <string>Seed up to ratio</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QDoubleSpinBox" name="doubleSeed" >
+             <property name="enabled" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QCheckBox" name="checkSeedUpload" >
+             <property name="text" >
+              <string>Seed until specified amount
+of data has been uploaded</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QLineEdit" name="lineSeed" >
+             <property name="enabled" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QLabel" name="label_2" >
+             <property name="text" >
+              <string>MB</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>81</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="page_4" >
           <property name="geometry" >
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>104</width>
-            <height>129</height>
+            <width>337</width>
+            <height>281</height>
            </rect>
           </property>
           <attribute name="label" >
@@ -128,7 +184,7 @@
             <x>0</x>
             <y>0</y>
             <width>170</width>
-            <height>158</height>
+            <height>126</height>
            </rect>
           </property>
           <attribute name="label" >
@@ -191,5 +247,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkSeedRatio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSeed</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>144</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>269</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkSeedUpload</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineSeed</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>89</x>
+     <y>174</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>292</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

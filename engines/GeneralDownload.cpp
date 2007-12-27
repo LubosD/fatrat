@@ -28,10 +28,8 @@ m_engine(0), m_nUrl(0)
 
 GeneralDownload::~GeneralDownload()
 {
-	qDebug() << "Destroying generalDownload\n";
 	if(m_engine)
 		m_engine->destroy();
-	qDebug() << "GeneralDownload::~GeneralDownload() exiting\n";
 }
 
 int GeneralDownload::acceptable(QString uri, bool)

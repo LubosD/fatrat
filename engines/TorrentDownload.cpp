@@ -186,6 +186,9 @@ void TorrentDownload::init(QString source, QString target)
 {
 	m_strTarget = target;
 	
+	m_seedLimitRatio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
+	m_seedLimitUpload = 0;
+	
 	try
 	{
 		if(source.startsWith("file://"))
@@ -450,6 +453,15 @@ void TorrentDownload::load(const QDomNode& map)
 	
 		dir.cd(".local/share/fatrat/torrents");
 		
+		str = getXMLProperty(map, "seedlimitratio");
+		if(!str.isEmpty())
+			m_seedLimitRatio = str.toDouble();
+		else
+			m_seedLimitRatio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
+		
+		str = getXMLProperty(map, "seedlimitupload");
+		m_seedLimitUpload = str.toInt();
+		
 		m_strTarget = str = getXMLProperty(map, "target");
 		
 		QByteArray file = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") ).toUtf8();
@@ -540,6 +552,9 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map)
 	setXMLProperty(doc, map, "target", object());
 	setXMLProperty(doc, map, "downloaded", QString::number( totalDownload() ));
 	setXMLProperty(doc, map, "uploaded", QString::number( totalUpload() ));
+	
+	setXMLProperty(doc, map, "seedlimitratio", QString::number(m_seedLimitRatio));
+	setXMLProperty(doc, map, "seedlimitupload", QString::number(m_seedLimitUpload));
 	
 	QString prio;
 	
@@ -676,12 +691,12 @@ void TorrentWorker::doWork()
 				  d->m_status.state == libtorrent::torrent_status::seeding || d->m_handle.is_seed())
 				{
 					d->setMode(Transfer::Upload);
-					d->logMessage(tr("Torrent has been downloaded"));
+					d->enterLogMessage(tr("Torrent has been downloaded"));
 					d->m_handle.set_ratio(0);
 				}
 				else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
 				{
-					d->logMessage(tr("Requested parts of the torrent have been downloaded"));
+					d->enterLogMessage(tr("Requested parts of the torrent have been downloaded"));
 					d->setMode(Transfer::Upload);
 					d->m_handle.set_ratio(0);
 				}
@@ -692,8 +707,8 @@ void TorrentWorker::doWork()
 					d->setMode(Transfer::Download);
 				else if(d->state() != Transfer::ForcedActive)
 				{
-					double maxratio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
-					if(double(d->totalUpload()) / d->totalDownload() > maxratio)
+					if(double(d->totalUpload()) / d->totalDownload() >= d->m_seedLimitRatio
+					  || d->totalUpload() >= d->m_seedLimitUpload*1024*1024)
 					{
 						d->setState(Transfer::Completed);
 						d->setMode(Transfer::Download);
@@ -1115,6 +1130,11 @@ void TorrentOptsWidget::load()
 		return;
 	}
 	
+	doubleSeed->setValue(m_download->m_seedLimitRatio);
+	checkSeedRatio->setChecked(m_download->m_seedLimitRatio > 0.0);
+	
+	lineSeed->setText(QString::number(m_download->m_seedLimitUpload));
+	checkSeedUpload->setChecked(m_download->m_seedLimitUpload > 0);
 	
 	QHeaderView* hdr = treeFiles->header();
 	hdr->resizeSection(0, 350);
@@ -1212,6 +1232,9 @@ void TorrentOptsWidget::accepted()
 	foreach(QString url, m_seeds)
 		m_download->m_handle.add_url_seed(url.toStdString());
 	m_download->m_handle.replace_trackers(m_trackers);
+	
+	m_download->m_seedLimitRatio = (checkSeedRatio->isChecked()) ? doubleSeed->value() : 0.0;
+	m_download->m_seedLimitUpload = (checkSeedUpload->isChecked()) ? lineSeed->text().toInt() : 0;
 }
 
 void TorrentOptsWidget::addUrlSeed()

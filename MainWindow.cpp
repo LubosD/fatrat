@@ -37,9 +37,10 @@ extern QSettings* g_settings;
 
 using namespace std;
 
-MainWindow::MainWindow() : m_trayIcon(this), m_pDetailsDisplay(0)
+MainWindow::MainWindow(bool bStartHidden) : m_trayIcon(this), m_pDetailsDisplay(0)
 {
 	setupUi();
+	restoreWindowState(bStartHidden && m_trayIcon.isVisible());
 	
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
@@ -89,7 +90,6 @@ void MainWindow::setupUi()
 	m_log = new TransferLog(this, textTransferLog);
 	
 	connectActions();
-	restoreWindowState();
 }
 
 void MainWindow::connectActions()
@@ -147,7 +147,7 @@ void MainWindow::connectActions()
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
 }
 
-void MainWindow::restoreWindowState()
+void MainWindow::restoreWindowState(bool bStartHidden)
 {
 	g_settings->beginGroup("state");
 	
@@ -172,19 +172,22 @@ void MainWindow::restoreWindowState()
 	connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
 	connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));
 	
-	QPoint pos = g_settings->value("mainwindow_pos").toPoint();
-	QSize size = g_settings->value("mainwindow_size").toSize();
-	
-	if(size.isEmpty())
+	if(!bStartHidden)
 	{
-		qDebug() << "Maximizing the main window";
-		showMaximized();
-	}
-	else
-	{
-		QWidget::move(pos);
-		resize(size);
-		show();
+		QPoint pos = g_settings->value("mainwindow_pos").toPoint();
+		QSize size = g_settings->value("mainwindow_size").toSize();
+		
+		if(size.isEmpty())
+		{
+			qDebug() << "Maximizing the main window";
+			showMaximized();
+		}
+		else
+		{
+			QWidget::move(pos);
+			resize(size);
+			show();
+		}
 	}
 	
 	g_settings->endGroup();
@@ -1008,9 +1011,9 @@ void MainWindow::refreshDetailsTab()
 	lineMessage->setText(d->message());
 	
 	if(d->total())
-		progress = QString(tr("transfered %1 from %2 (%3%)")).arg(formatSize(d->done())).arg(formatSize(d->total())).arg(100.0/d->total()*d->done(), 0, 'f', 1);
+		progress = QString(tr("completed %1 from %2 (%3%)")).arg(formatSize(d->done())).arg(formatSize(d->total())).arg(100.0/d->total()*d->done(), 0, 'f', 1);
 	else
-		progress = QString(tr("transfered %1, total size unknown")).arg(formatSize(d->done()));
+		progress = QString(tr("completed %1, total size unknown")).arg(formatSize(d->done()));
 	
 	if(d->isActive())
 	{

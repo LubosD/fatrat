@@ -81,6 +81,11 @@ protected:
 	QHttp* m_pFileDownload;
 	QTemporaryFile* m_pFileDownloadTemp;
 	
+	// seeding limits
+	double m_seedLimitRatio;
+	int m_seedLimitUpload;
+	//int m_seedLimitTime; // minutes
+	
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;

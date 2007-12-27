@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QMimeData>
+#include <QtDebug>
 
 #include "TransfersModel.h"
 #include "fatrat.h"
@@ -102,12 +103,14 @@ void TransfersModel::refresh()
 	
 	if(count > m_nLastRowCount)
 	{
+		qDebug() << "Adding" << count - m_nLastRowCount << "rows";
 		beginInsertRows(QModelIndex(), m_nLastRowCount, count-1);
 		endInsertRows();
 	}
 	else if(count < m_nLastRowCount)
 	{
-		beginRemoveRows(QModelIndex(), count, m_nLastRowCount);
+		qDebug() << "Removing" << m_nLastRowCount - count << "rows";
+		beginRemoveRows(QModelIndex(), 0, m_nLastRowCount-count-1);
 		endRemoveRows();
 	}
 	m_nLastRowCount = count;

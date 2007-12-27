@@ -31,6 +31,7 @@ static QString argsToArg(int argc,char** argv);
 static void processSession(QString arg);
 
 static bool m_bForceNewInstance = false;
+static bool m_bStartHidden = false;
 
 int main(int argc,char** argv)
 {
@@ -62,7 +63,7 @@ int main(int argc,char** argv)
 	
 	qmgr = new QueueMgr;
 	qmgr->start();
-	g_wndMain = new MainWindow;
+	g_wndMain = new MainWindow(m_bStartHidden);
 	g_http = new HttpService;
 	
 	new FatratAdaptor(g_wndMain);
@@ -97,14 +98,15 @@ QString argsToArg(int argc,char** argv)
 	for(int i=1;i<argc;i++)
 	{
 		if(!strcasecmp(argv[i], "--force"))
-		{
 			m_bForceNewInstance = true;
-			continue;
+		else if(!strcasecmp(argv[i], "--hidden"))
+			m_bStartHidden = true;
+		else
+		{
+			if(i > 1)
+				arg += '\n';
+			arg += argv[i];
 		}
-		
-		if(i > 1)
-			arg += '\n';
-		arg += argv[i];
 	}
 	
 	return arg;

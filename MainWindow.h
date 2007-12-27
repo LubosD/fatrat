@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow, public Ui_MainWindow
 {
 Q_OBJECT
 public:
-	MainWindow();
+	MainWindow(bool bStartHidden);
 	~MainWindow();
 	
 	void setupUi();
@@ -85,7 +85,7 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dropEvent(QDropEvent *event);
 	
-	void restoreWindowState();
+	void restoreWindowState(bool bStartHidden);
 	void connectActions();
 	
 	void showTrayIcon();

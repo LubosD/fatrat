@@ -89,7 +89,7 @@
         </sizepolicy>
        </property>
        <property name="text" >
-        <string>Seed up to ratio</string>
+        <string>Seed up to ratio (default value)</string>
        </property>
       </widget>
      </item>
