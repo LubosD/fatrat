@@ -41,7 +41,6 @@ HEADERS += fatrat.h \
            WidgetHostChild.h \
            SettingsGeneralForm.h \
            ProxyDlg.h \
-           dbus_adaptor.h \
            SimpleEmail.h \
            UserAuthDlg.h \
            SpeedGraph.h \
@@ -75,7 +74,9 @@ HEADERS += fatrat.h \
  tools/TorrentSearch.h \
  remote/HttpService.h \
  remote/GenericService.h \
- remote/XmlService.h
+ remote/XmlService.h \
+ dbus/DbusAdaptor.h \
+ dbus/DbusImpl.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -83,7 +84,6 @@ SOURCES += fatrat.cpp \
            Transfer.cpp \
            TransfersModel.cpp \
            InfoBar.cpp \
-           dbus_adaptor.cpp \
            SimpleEmail.cpp \
            SpeedGraph.cpp \
  DropBox.cpp \
@@ -110,7 +110,9 @@ SOURCES += fatrat.cpp \
  tools/TorrentSearch.cpp \
  remote/HttpService.cpp \
  remote/GenericService.cpp \
- remote/XmlService.cpp
+ remote/XmlService.cpp \
+ dbus/DbusAdaptor.cpp \
+ dbus/DbusImpl.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

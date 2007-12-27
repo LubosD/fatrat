@@ -152,39 +152,14 @@
       <string>When transfer completes</string>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
-       <number>9</number>
-      </property>
-      <property name="topMargin" >
-       <number>9</number>
-      </property>
-      <property name="rightMargin" >
-       <number>9</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>9</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
-       <number>6</number>
-      </property>
-      <item row="1" column="3" >
-       <widget class="QLabel" name="label_5" >
+      <item row="0" column="0" colspan="4" >
+       <widget class="QCheckBox" name="checkAutoRemove" >
         <property name="text" >
-         <string>s</string>
+         <string>Remove from the queue</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" >
-       <widget class="QLabel" name="label_4" >
-        <property name="text" >
-         <string>Popup display time</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" >
+      <item row="1" column="0" colspan="4" >
        <widget class="QCheckBox" name="checkPopup" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
@@ -193,11 +168,74 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>Show a popup (requires tray icon)</string>
+         <string>Show a popup (requires the tray icon)</string>
         </property>
        </widget>
       </item>
+      <item row="1" column="4" colspan="2" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="0" colspan="2" >
+       <widget class="QLabel" name="label_4" >
+        <property name="text" >
+         <string>Popup display time</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" >
+       <widget class="QSpinBox" name="spinPopup" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimum" >
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3" >
+       <widget class="QLabel" name="label_5" >
+        <property name="text" >
+         <string>s</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="3" column="0" colspan="4" >
+       <widget class="QCheckBox" name="checkEmail" >
+        <property name="text" >
+         <string>Send an e-mail</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="6" >
        <widget class="QGroupBox" name="groupBox_2" >
         <property name="enabled" >
          <bool>false</bool>
@@ -257,36 +295,6 @@
         </layout>
        </widget>
       </item>
-      <item row="2" column="0" >
-       <widget class="QCheckBox" name="checkEmail" >
-        <property name="text" >
-         <string>Send an e-mail</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" >
-       <widget class="QSpinBox" name="spinPopup" >
-        <property name="enabled" >
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimum" >
-         <number>1</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" >
-       <widget class="QCheckBox" name="checkAutoRemove" >
-        <property name="text" >
-         <string>Remove from the queue</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -297,8 +305,8 @@
      </property>
      <property name="sizeHint" >
       <size>
-       <width>20</width>
-       <height>31</height>
+       <width>126</width>
+       <height>41</height>
       </size>
      </property>
     </spacer>

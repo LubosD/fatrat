@@ -1,0 +1,20 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="info.dolezel.fatrat">
+    <method name="addTransfers">
+      <arg name="uris" type="s" direction="in"/> <!-- separated by EOL -->
+    </method>
+    <method name="getQueues">
+        <arg name="queues" type="as" direction="out"/> <!-- a list of names -->
+    </method>
+    <method name="addTransfersNonInteractive">
+      <arg name="uris" type="s" direction="in"/> <!-- separated by EOL -->
+      <arg name="target" type="s" direction="in"/> <!-- leave empty for the default -->
+      <arg name="className" type="s" direction="in"/> <!-- "auto" for auto-detection -->
+      <arg name="classType" type="s" direction="in"/> <!-- "download" or "upload" -->
+      <arg name="queueID" type="i" direction="in"/> <!-- an index, see getQueues -->
+    </method>
+  </interface>
+</node>
+

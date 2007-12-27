@@ -189,6 +189,8 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 			show();
 		}
 	}
+	else
+		actionDisplay->setChecked(false);
 	
 	g_settings->endGroup();
 }

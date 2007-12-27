@@ -6,7 +6,8 @@
 #include "QueueMgr.h"
 #include "Queue.h"
 #include "Transfer.h"
-#include "dbus_adaptor.h"
+#include "dbus/DbusAdaptor.h"
+#include "dbus/DbusImpl.h"
 #include "remote/HttpService.h"
 
 #include <QTranslator>
@@ -66,7 +67,7 @@ int main(int argc,char** argv)
 	g_wndMain = new MainWindow(m_bStartHidden);
 	g_http = new HttpService;
 	
-	new FatratAdaptor(g_wndMain);
+	new FatratAdaptor(new DbusImpl);
 	QDBusConnection::sessionBus().registerObject("/", g_wndMain);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 	
