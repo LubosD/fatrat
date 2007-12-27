@@ -12,8 +12,9 @@ InfoBar::InfoBar(QWidget* parent, Transfer* d) : QLabel(parent), m_download(d)
 	setWindowFlags(Qt::ToolTip);
 	//setMinimumWidth(350);
 	//setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-	setFrameStyle(QFrame::Box);
-	setMargin(2);
+	setFrameStyle(QFrame::Box | QFrame::Plain);
+	setMargin(1);
+	setLineWidth(1);
 	
 	connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(downloadDestroyed(QObject*)));
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
@@ -50,15 +51,14 @@ void InfoBar::refresh()
 		
 		if(down || m_download->mode() == Transfer::Download)
 		{
-			speed = formatSize(down, true)+"<i>d</i>";
+			speed = QString("[%1] <b>d</b>").arg(formatSize(down, true));
 			
 			if(mode == Transfer::Download && total)
 				time = formatTime((total-done)/down);
 		}
-		if(up)
+		if(up || m_download->mode() == Transfer::Upload)
 		{
-			speed += ' ';
-			speed += formatSize(up, true)+"<i>u</i>";
+			speed += QString(" [%1] <b>u</b>").arg(formatSize(up, true));
 			
 			if(mode == Transfer::Upload && total)
 				time = formatTime((total-done)/up);
