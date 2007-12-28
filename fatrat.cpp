@@ -2,7 +2,6 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QtDBus/QtDBus>
 #include <QTranslator>
 #include <QLocale>
 #include <QtDebug>
