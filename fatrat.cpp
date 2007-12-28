@@ -69,8 +69,10 @@ int main(int argc,char** argv)
 	g_wndMain = new MainWindow(m_bStartHidden);
 	g_http = new HttpService;
 	
-	new FatratAdaptor(new DbusImpl);
-	QDBusConnection::sessionBus().registerObject("/", g_wndMain);
+	DbusImpl* impl = new DbusImpl;
+	new FatratAdaptor(impl);
+	
+	QDBusConnection::sessionBus().registerObject("/", impl);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 	
 	if(!arg.isEmpty())

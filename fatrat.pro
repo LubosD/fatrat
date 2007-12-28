@@ -76,7 +76,8 @@ HEADERS += fatrat.h \
  remote/GenericService.h \
  remote/XmlService.h \
  dbus/DbusAdaptor.h \
- dbus/DbusImpl.h
+ dbus/DbusImpl.h \
+ engines/TorrentIPFilter.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -112,7 +113,8 @@ SOURCES += fatrat.cpp \
  remote/GenericService.cpp \
  remote/XmlService.cpp \
  dbus/DbusAdaptor.cpp \
- dbus/DbusImpl.cpp
+ dbus/DbusImpl.cpp \
+ engines/TorrentIPFilter.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

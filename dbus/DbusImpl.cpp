@@ -4,6 +4,7 @@
 #include "fatrat.h"
 #include "RuntimeException.h"
 #include <QReadWriteLock>
+#include <QtDBus/QtDBus>
 #include <QtDebug>
 
 extern QList<Queue*> g_queues;
@@ -17,7 +18,7 @@ void DbusImpl::addTransfers(QString uris)
 
 void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, QString classType, int queueID)
 {
-	g_queuesLock.lockForRead();
+	QReadLocker locker(&g_queuesLock);
 	
 	try
 	{
@@ -31,7 +32,7 @@ void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString 
 		if(classType != "download" && classType != "upload")
 			throw RuntimeException("classType is invalid");
 		
-		if(queueID < 0 && queueID >= g_queues.size())
+		if(queueID < 0 || queueID >= g_queues.size())
 			throw RuntimeException("queueID is out of range");
 	
 		const EngineEntry* _class = 0;
@@ -107,8 +108,6 @@ void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString 
 	{
 		qDebug() << "DbusImpl::addTransfersNonInteractive():" << e.what();
 	}
-	
-	g_queuesLock.unlock();
 }
 
 QStringList DbusImpl::getQueues()
