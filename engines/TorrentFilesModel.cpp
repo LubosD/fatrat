@@ -20,12 +20,12 @@ QModelIndex TorrentFilesModel::index(int row, int column, const QModelIndex& par
 		return QModelIndex();
 }
 
-QModelIndex TorrentFilesModel::parent(const QModelIndex &index) const
+QModelIndex TorrentFilesModel::parent(const QModelIndex&) const
 {
 	return QModelIndex();
 }
 
-int TorrentFilesModel::rowCount(const QModelIndex &parent) const
+int TorrentFilesModel::rowCount(const QModelIndex&) const
 {
 	return m_files.size();
 }

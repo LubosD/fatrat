@@ -1011,6 +1011,7 @@ void MainWindow::refreshDetailsTab()
 	
 	lineName->setText(d->name());
 	lineMessage->setText(d->message());
+	lineDestination->setText(d->dataPath(false));
 	
 	if(d->total())
 		progress = QString(tr("completed %1 from %2 (%3%)")).arg(formatSize(d->done())).arg(formatSize(d->total())).arg(100.0/d->total()*d->done(), 0, 'f', 1);

@@ -40,7 +40,7 @@ QVariant TorrentPiecesModel::data(const QModelIndex &index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		if(index.row() >= m_pieces.size())
+		if(index.row() >= (int) m_pieces.size())
 			return QVariant();
 		const libtorrent::partial_piece_info& info = m_pieces[index.row()];
 		

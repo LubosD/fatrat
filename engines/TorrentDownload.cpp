@@ -1012,7 +1012,11 @@ void TorrentDetails::fill()
 			labelCreationDate->setText(created.c_str());
 		}
 		labelPieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );
-		textComment->setPlainText(m_download->m_info->comment().c_str());
+		
+		QString comment = m_download->m_info->comment().c_str();
+		comment.replace('\n', "<br>");
+		textComment->setHtml(comment);
+		
 		lineCreator->setText(m_download->m_info->creator().c_str());
 		labelPrivate->setText( m_download->m_info->priv() ? tr("yes") : tr("no"));
 		

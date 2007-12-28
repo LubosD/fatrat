@@ -568,27 +568,27 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.ui" line="489"/>
+        <location filename="../MainWindow.ui" line="525"/>
         <source>Delete queue</source>
         <translation>Odstranit frontu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="481"/>
+        <location filename="../MainWindow.cpp" line="483"/>
         <source>Do you really want to delete the active queue?</source>
         <translation>Opravdu chcete odstranit vybranou frontu?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="978"/>
+        <location filename="../MainWindow.cpp" line="980"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="515"/>
+        <location filename="../MainWindow.ui" line="551"/>
         <source>Delete transfer</source>
         <translation>Odstranit přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="937"/>
+        <location filename="../MainWindow.cpp" line="939"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
@@ -598,17 +598,17 @@
         <translation>Podrobnosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="259"/>
+        <location filename="../MainWindow.ui" line="347"/>
         <source>Transfer properties</source>
         <translation>Vlastnosti přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1038"/>
+        <location filename="../MainWindow.cpp" line="1041"/>
         <source>, %1 left</source>
         <translation>, zbývá %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="385"/>
+        <location filename="../MainWindow.ui" line="421"/>
         <source>FatRat</source>
         <translation>FatRat</translation>
     </message>
@@ -623,167 +623,162 @@
         <translation>&lt;b&gt;Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="795"/>
+        <location filename="../MainWindow.cpp" line="797"/>
         <source>Transfer details</source>
         <translation>Detaily přenosu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="318"/>
-        <source>?</source>
-        <translation>?</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.ui" line="305"/>
+        <location filename="../MainWindow.ui" line="218"/>
         <source>&lt;b&gt;Name:</source>
         <translation>&lt;b&gt;Jméno:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="285"/>
+        <location filename="../MainWindow.ui" line="302"/>
         <source>&lt;b&gt;Speed:</source>
         <translation>&lt;b&gt;Rychlost:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="272"/>
+        <location filename="../MainWindow.ui" line="247"/>
         <source>&lt;b&gt;Progress:</source>
         <translation>&lt;b&gt;Průběh:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="252"/>
+        <location filename="../MainWindow.ui" line="324"/>
         <source>&lt;b&gt;Message:</source>
         <translation>&lt;b&gt;Zpráva:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="417"/>
+        <location filename="../MainWindow.ui" line="453"/>
         <source>Queue</source>
         <translation>Fronta</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="372"/>
+        <location filename="../MainWindow.ui" line="408"/>
         <source>Help</source>
         <translation>Nápověda</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="396"/>
+        <location filename="../MainWindow.ui" line="432"/>
         <source>Transfer</source>
         <translation>Přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="379"/>
+        <location filename="../MainWindow.ui" line="415"/>
         <source>Settings</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="473"/>
+        <location filename="../MainWindow.ui" line="509"/>
         <source>Quit</source>
         <translation>Ukončit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="481"/>
+        <location filename="../MainWindow.ui" line="517"/>
         <source>New queue</source>
         <translation>Nová fronta</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="507"/>
+        <location filename="../MainWindow.ui" line="543"/>
         <source>New transfer</source>
         <translation>Nový přenos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="539"/>
+        <location filename="../MainWindow.ui" line="575"/>
         <source>Pause</source>
         <translation>Zastavit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="547"/>
+        <location filename="../MainWindow.ui" line="583"/>
         <source>About</source>
         <translation>O programu</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="555"/>
+        <location filename="../MainWindow.ui" line="591"/>
         <source>Move to top</source>
         <translation>Přesunout na začátek</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="563"/>
+        <location filename="../MainWindow.ui" line="599"/>
         <source>Move up</source>
         <translation>Přesunout nahoru</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="571"/>
+        <location filename="../MainWindow.ui" line="607"/>
         <source>Move down</source>
         <translation>Přesunout dolů</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="579"/>
+        <location filename="../MainWindow.ui" line="615"/>
         <source>Move to bottom</source>
         <translation>Přesunout na konec</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="587"/>
+        <location filename="../MainWindow.ui" line="623"/>
         <source>Remove completed</source>
         <translation>Odstranit dokončené</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="592"/>
+        <location filename="../MainWindow.ui" line="628"/>
         <source>About Qt</source>
         <translation>O Qt</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="606"/>
+        <location filename="../MainWindow.ui" line="642"/>
         <source>Display info bar</source>
         <translation>Zobrazit info proužek</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="622"/>
+        <location filename="../MainWindow.ui" line="658"/>
         <source>Hide all info bars</source>
         <translation>Skrýt všechny info proužky</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="633"/>
+        <location filename="../MainWindow.ui" line="669"/>
         <source>Display main window</source>
         <translation>Zobrazit hlavní okno</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="441"/>
+        <location filename="../MainWindow.cpp" line="443"/>
         <source>Speed of the selected queue: %1 down, %2 up</source>
         <translation>Rychlost vybrané fronty: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1258"/>
+        <location filename="../MainWindow.cpp" line="1261"/>
         <source>Transfer completed</source>
         <translation>Přenos dokončen</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="523"/>
+        <location filename="../MainWindow.ui" line="559"/>
         <source>Start</source>
         <translation>Spustit</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="531"/>
+        <location filename="../MainWindow.ui" line="567"/>
         <source>Force start</source>
         <translation>Vynutit spuštění</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="494"/>
+        <location filename="../MainWindow.ui" line="530"/>
         <source>Start all</source>
         <translation>Spustit vše</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="499"/>
+        <location filename="../MainWindow.ui" line="535"/>
         <source>Pause all</source>
         <translation>Zastavit vše</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="660"/>
+        <location filename="../MainWindow.ui" line="696"/>
         <source>Display drop-box</source>
         <translation>Zobrazit drop-box</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="741"/>
+        <location filename="../MainWindow.cpp" line="743"/>
         <source>Couldn&apos;t autodetect transfer type.</source>
         <translation>Nepodařilo se automaticky detekovat typ přenosu.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1259"/>
+        <location filename="../MainWindow.cpp" line="1262"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
@@ -793,62 +788,62 @@
         <translation>Přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="862"/>
+        <location filename="../MainWindow.cpp" line="864"/>
         <source>Delete transfers</source>
         <translation>Odstranit přenosy</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="837"/>
+        <location filename="../MainWindow.cpp" line="839"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="952"/>
+        <location filename="../MainWindow.cpp" line="954"/>
         <source>Comment</source>
         <translation>Komentář</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="668"/>
+        <location filename="../MainWindow.ui" line="704"/>
         <source>Open</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="676"/>
+        <location filename="../MainWindow.ui" line="712"/>
         <source>Open directory</source>
         <translation>Otevřít adresář</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="649"/>
+        <location filename="../MainWindow.ui" line="685"/>
         <source>Properties...</source>
         <translation>Vlastnosti...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="641"/>
+        <location filename="../MainWindow.ui" line="677"/>
         <source>Settings...</source>
         <translation>Nastavení...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="681"/>
+        <location filename="../MainWindow.ui" line="717"/>
         <source>Compute hash...</source>
         <translation>Vypočítat hash...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="759"/>
+        <location filename="../MainWindow.cpp" line="761"/>
         <source>Failed to create a class instance.</source>
         <translation>Nepodařilo se vytvořit instanci třídy.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="751"/>
+        <location filename="../MainWindow.cpp" line="753"/>
         <source>Internal error.</source>
         <translation>Interní chyba.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="863"/>
+        <location filename="../MainWindow.cpp" line="865"/>
         <source>Do you really want to delete selected transfers &lt;b&gt;including the data&lt;/b&gt;?</source>
         <translation>Opravdu chcete odstranit vybrané přenosy &lt;b&gt;včetně dat&lt;/b&gt;?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="689"/>
+        <location filename="../MainWindow.ui" line="725"/>
         <source>Delete transfer including data</source>
         <translation>Odstranit přenos včetně dat</translation>
     </message>
@@ -858,24 +853,29 @@
         <translation>Graf rychlosti</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="336"/>
+        <location filename="../MainWindow.ui" line="372"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../MainWindow.ui" line="438"/>
+        <location filename="../MainWindow.ui" line="474"/>
         <source>Main toolbar</source>
         <translation>Hlavní panel nástrojů</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1014"/>
+        <location filename="../MainWindow.cpp" line="1017"/>
         <source>completed %1 from %2 (%3%)</source>
         <translation>dokončeno %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1016"/>
+        <location filename="../MainWindow.cpp" line="1019"/>
         <source>completed %1, total size unknown</source>
         <translation>dokončeno %1, celková velikost neznámá</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.ui" line="273"/>
+        <source>&lt;b&gt;Destination:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Cíl:&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -1037,7 +1037,7 @@
         <translation>Hlavní fronta</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="134"/>
+        <location filename="../fatrat.cpp" line="135"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>V systému je již běžící instance.Pokud chcete FatRat přesto spustit, předejte --force mezi argumenty.</translation>
@@ -1198,17 +1198,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsGeneralForm</name>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="63"/>
+        <location filename="../SettingsGeneralForm.h" line="65"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="56"/>
+        <location filename="../SettingsGeneralForm.h" line="58"/>
         <source>The specified directory is inaccessible.</source>
         <translation>Vybraný adresář je nepřístupný.</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="92"/>
+        <location filename="../SettingsGeneralForm.h" line="96"/>
         <source>Choose directory</source>
         <translation>Zvolte adresář</translation>
     </message>
@@ -1228,99 +1228,109 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="52"/>
-        <source>kiB/s as active (0 = off)</source>
-        <translation>kiB/s jako aktivní (0 = vypnuto)</translation>
-    </message>
-    <message>
-        <location filename="../SettingsGeneralForm.ui" line="36"/>
-        <source>Don&apos;t count transfers under</source>
-        <translation>Nepočítat přenosy pod</translation>
-    </message>
-    <message>
-        <location filename="../SettingsGeneralForm.ui" line="82"/>
-        <source>Display tray icon</source>
-        <translation>Zobrazit ikonu v liště</translation>
-    </message>
-    <message>
-        <location filename="../SettingsGeneralForm.ui" line="105"/>
-        <source>When download completes</source>
-        <translation>Když je přenos dokončen</translation>
-    </message>
-    <message>
-        <location filename="../SettingsGeneralForm.ui" line="129"/>
+        <location filename="../SettingsGeneralForm.ui" line="214"/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="136"/>
+        <location filename="../SettingsGeneralForm.ui" line="191"/>
         <source>Popup display time</source>
         <translation>Zobrazuj vyskakovací okno</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="159"/>
+        <location filename="../SettingsGeneralForm.ui" line="244"/>
         <source>Mailer settings</source>
         <translation>Nastavení e-mailu</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="192"/>
+        <location filename="../SettingsGeneralForm.ui" line="277"/>
         <source>Recipient address:</source>
         <translation>Cílová adresa:</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="199"/>
+        <location filename="../SettingsGeneralForm.ui" line="284"/>
         <source>Sender address:</source>
         <translation>Adresa odesilatele:</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="206"/>
+        <location filename="../SettingsGeneralForm.ui" line="291"/>
         <source>SMTP server:</source>
         <translation>SMTP server:</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="216"/>
-        <source>Send e-mail</source>
-        <translation>Odeslat e-mail</translation>
-    </message>
-    <message>
-        <location filename="../SettingsGeneralForm.ui" line="149"/>
-        <source>Show popup (requires tray icon)</source>
-        <translation>Zobrazit vyskakovací okno (vyžaduje ikonu v liště)</translation>
-    </message>
-    <message>
-        <location filename="../SettingsGeneralForm.ui" line="59"/>
+        <location filename="../SettingsGeneralForm.ui" line="36"/>
         <source>Display speed graphs for last</source>
         <translation>Zobrazovat graf rychlosti za posledních</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="73"/>
+        <location filename="../SettingsGeneralForm.ui" line="50"/>
         <source>minutes</source>
         <translation>minut</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="89"/>
+        <location filename="../SettingsGeneralForm.ui" line="76"/>
         <source>Hide by minimizing</source>
         <translation>Skrýt při minimalizaci</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="96"/>
+        <location filename="../SettingsGeneralForm.ui" line="83"/>
         <source>Hide by closing</source>
         <translation>Skrýt při zavření</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="239"/>
+        <location filename="../SettingsGeneralForm.ui" line="158"/>
         <source>Remove from the queue</source>
         <translation>Odstranit z fronty</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.h" line="63"/>
+        <location filename="../SettingsGeneralForm.h" line="65"/>
         <source>The e-mail address is incorrect.</source>
         <translation>E-mailová adresa je nesprávná.</translation>
     </message>
     <message>
-        <location filename="../SettingsGeneralForm.ui" line="262"/>
+        <location filename="../SettingsGeneralForm.ui" line="57"/>
         <source>Open files/directories by running</source>
         <translation>Otevírat soubory/adresáře spuštěním</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="67"/>
+        <source>Display the tray icon</source>
+        <translation>Zobrazit ikonu v liště</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="106"/>
+        <source>If transfer fails</source>
+        <translation>Pokud přenos selže</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="112"/>
+        <source>Retry</source>
+        <translation>Zkusit znovu</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="122"/>
+        <source>times</source>
+        <translation>krát</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="142"/>
+        <source>Always retry if the transfer has been working before</source>
+        <translation>Vždy zkusit znovu, pokud už přenos předtím fungoval</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="152"/>
+        <source>When transfer completes</source>
+        <translation>Jakmile je přenos dokončen</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="171"/>
+        <source>Show a popup (requires the tray icon)</source>
+        <translation>Zobrazit popup (vyžaduje ikonu v liště)</translation>
+    </message>
+    <message>
+        <location filename="../SettingsGeneralForm.ui" line="234"/>
+        <source>Send an e-mail</source>
+        <translation>Poslat e-mail</translation>
     </message>
 </context>
 <context>
@@ -1544,42 +1554,42 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Všeobecné</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="80"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="86"/>
         <source>&lt;b&gt;Tracker:</source>
         <translation>&lt;b&gt;Tracker:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="94"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="106"/>
         <source>&lt;b&gt;Private torrent:</source>
         <translation>&lt;b&gt;Soukromý torrent:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="108"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="126"/>
         <source>&lt;b&gt;Availability:</source>
         <translation>&lt;b&gt;Dostupnost:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="122"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="146"/>
         <source>&lt;b&gt;Share ratio:</source>
         <translation>&lt;b&gt;Poměr sdílení:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="136"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="166"/>
         <source>&lt;b&gt;Piece length:</source>
         <translation>&lt;b&gt;Velikost části:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="179"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="221"/>
         <source>&lt;b&gt;Creation date:</source>
         <translation>&lt;b&gt;Datum vytvoření:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="193"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="241"/>
         <source>&lt;b&gt;Comment:</source>
         <translation>&lt;b&gt;Komentář:</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="156"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="192"/>
         <source>&lt;b&gt;Creator:</source>
         <translation>&lt;b&gt;Vytvořil:</translation>
     </message>
@@ -1589,34 +1599,36 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Dokončení</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="224"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="278"/>
         <source>Peers</source>
         <translation>Klienti</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="253"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="304"/>
         <source>Pieces</source>
         <translation>Části</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="279"/>
+        <location filename="../engines/TorrentDetailsForm.ui" line="327"/>
         <source>Files</source>
         <translation>Soubory</translation>
     </message>
     <message>
+        <location filename="../engines/TorrentDetailsForm.ui" line="362"/>
+        <source>Open</source>
+        <translation>Otevřít</translation>
+    </message>
+    <message>
         <location filename="../engines/TorrentDetailsForm.ui" line="29"/>
-        <source>Total download:</source>
-        <translation>Celkem staženo:</translation>
+        <source>&lt;b&gt;Total download:&lt;/b&gt;</source>
+        <comment>Amount of downloaded data</comment>
+        <translation>&lt;b&gt;Celkem staženo:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../engines/TorrentDetailsForm.ui" line="39"/>
-        <source>Total upload:</source>
-        <translation>Celkem uploadnuto:</translation>
-    </message>
-    <message>
-        <location filename="../engines/TorrentDetailsForm.ui" line="317"/>
-        <source>Open</source>
-        <translation>Otevřít</translation>
+        <source>&lt;b&gt;Total upload:&lt;/b&gt;</source>
+        <comment>Amount of uploaded data</comment>
+        <translation>&lt;b&gt;Celkem uploadnuto:&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -1941,12 +1953,12 @@ uploadnut následující objem</translation>
     <message>
         <location filename="../tools/TorrentSearch.cpp" line="51"/>
         <source>Seeders</source>
-        <translation type="unfinished"></translation>
+        <translation>Seedeři</translation>
     </message>
     <message>
         <location filename="../tools/TorrentSearch.cpp" line="51"/>
         <source>Leechers</source>
-        <translation type="unfinished"></translation>
+        <translation>Leecheři</translation>
     </message>
     <message>
         <location filename="../tools/TorrentSearch.cpp" line="51"/>
@@ -2063,12 +2075,12 @@ uploadnut následující objem</translation>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../Transfer.cpp" line="191"/>
+        <location filename="../Transfer.cpp" line="192"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Změněn stav: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location filename="../Transfer.cpp" line="98"/>
+        <location filename="../Transfer.cpp" line="99"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation>Tento typ přenosu nemá žádné pokročilé vlastnosti k nastavování.</translation>
     </message>
