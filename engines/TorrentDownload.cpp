@@ -708,7 +708,7 @@ void TorrentWorker::doWork()
 				else if(d->state() != Transfer::ForcedActive)
 				{
 					if(double(d->totalUpload()) / d->totalDownload() >= d->m_seedLimitRatio
-					  || d->totalUpload() >= d->m_seedLimitUpload*1024*1024)
+					  || (d->totalUpload() >= d->m_seedLimitUpload*1024*1024 && d->m_seedLimitUpload))
 					{
 						d->setState(Transfer::Completed);
 						d->setMode(Transfer::Download);

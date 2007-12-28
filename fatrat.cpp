@@ -1,15 +1,8 @@
 #include "fatrat.h"
+
 #include <QApplication>
 #include <QMessageBox>
-#include <iostream>
-#include "MainWindow.h"
-#include "QueueMgr.h"
-#include "Queue.h"
-#include "Transfer.h"
-#include "dbus/DbusAdaptor.h"
-#include "dbus/DbusImpl.h"
-#include "remote/HttpService.h"
-
+#include <QtDBus/QtDBus>
 #include <QTranslator>
 #include <QLocale>
 #include <QtDebug>
@@ -18,6 +11,16 @@
 #include <QMap>
 #include <QDir>
 #include <QHttpResponseHeader>
+
+#include <iostream>
+
+#include "MainWindow.h"
+#include "QueueMgr.h"
+#include "Queue.h"
+#include "Transfer.h"
+#include "dbus/DbusAdaptor.h"
+#include "dbus/DbusImpl.h"
+#include "remote/HttpService.h"
 
 using namespace std;
 

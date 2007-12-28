@@ -78,7 +78,18 @@ void MainTab::closeTab()
 		QWidget* w;
 		
 		w = widget(m_index);
-		setCurrentIndex(0);
+		
+		if(m_index == currentIndex())
+		{
+			for(int i=m_index-1;i>=0;i--)
+			{
+				if(isTabEnabled(i))
+				{
+					setCurrentIndex(i);
+					break;
+				}
+			}
+		}
 		removeTab(m_index);
 		
 		delete w;
@@ -119,4 +130,15 @@ void MainTab::contextMenuEvent(QContextMenuEvent* event)
 	connect(action, SIGNAL(triggered()), this, SLOT(closeAllTabs()));
 	
 	menu.exec(mapToGlobal(event->pos()));
+}
+
+void MainTab::mousePressEvent(QMouseEvent* event)
+{
+	if(event->buttons() == Qt::MidButton)
+	{
+		QTabBar* bar = tabBar();
+		m_index = bar->tabAt(bar->mapFrom(this, event->pos()));
+		closeTab();
+	}
+	QTabWidget::mousePressEvent(event);
 }

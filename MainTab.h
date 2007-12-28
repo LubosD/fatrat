@@ -21,6 +21,7 @@ public slots:
 protected:
 	void initAppTools(QMenu* tabOpenMenu);
 	void contextMenuEvent(QContextMenuEvent* event);
+	void mousePressEvent(QMouseEvent* event);
 	
 	int m_index;
 	QToolButton* m_toolTabClose;
