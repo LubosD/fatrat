@@ -128,17 +128,76 @@ void TorrentDownload::applySettings()
 	
 	settings.file_pool_size = g_settings->value("torrent/maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
-	settings.user_agent = "FatRat/" VERSION;
+	settings.user_agent = "FatRat " VERSION;
 	//settings.max_out_request_queue = 300;
 	//settings.piece_timeout = 50;
+	settings.max_failcount = 7;
 	settings.request_queue_time = 30.f;
 	settings.max_out_request_queue = 100;
+	
+	QByteArray external_ip = g_settings->value("torrent/external_ip").toString().toUtf8();
+	if(!external_ip.isEmpty())
+		settings.announce_ip = asio::ip::address::from_string(external_ip.constData());
+	
 	m_session->set_settings(settings);
 	
 	libtorrent::pe_settings ps;
 	ps.in_enc_policy = ps.out_enc_policy = libtorrent::pe_settings::enabled;
 	ps.allowed_enc_level = libtorrent::pe_settings::both;
 	m_session->set_pe_settings(ps);
+	
+	// Proxy settings
+	QUuid tracker, seed, peer;
+	
+	tracker = g_settings->value("torrent/proxy_tracker").toString();
+	seed = g_settings->value("torrent/proxy_webseed").toString();
+	peer = g_settings->value("torrent/proxy_peer").toString();
+	
+	libtorrent::proxy_settings proxy;
+	
+	proxy = proxyToLibtorrent(Proxy::getProxy(tracker));
+	m_session->set_tracker_proxy(proxy);
+	
+	proxy = proxyToLibtorrent(Proxy::getProxy(seed));
+	m_session->set_web_seed_proxy(proxy);
+	
+	proxy = proxyToLibtorrent(Proxy::getProxy(peer));
+	m_session->set_peer_proxy(proxy);
+}
+
+libtorrent::proxy_settings TorrentDownload::proxyToLibtorrent(Proxy p)
+{
+	libtorrent::proxy_settings s;
+	
+	if(p.nType != Proxy::ProxyNone)
+	{
+		s.hostname = p.strIP.toStdString();
+		s.port = p.nPort;
+		
+		bool bAuth = !p.strUser.isEmpty();
+		if(bAuth)
+		{
+			s.username = p.strUser.toStdString();
+			s.password = p.strPassword.toStdString();
+		}
+		
+		if(p.nType == Proxy::ProxyHttp)
+		{
+			if(bAuth)
+				s.type = libtorrent::proxy_settings::http_pw;
+			else
+				s.type = libtorrent::proxy_settings::http;
+		}
+		else if(p.nType == Proxy::ProxySocks5)
+		{
+			if(bAuth)
+				s.type = libtorrent::proxy_settings::socks5_pw;
+			else
+				s.type = libtorrent::proxy_settings::socks5;
+		}
+	}
+	
+	return s;
 }
 
 void TorrentDownload::globalExit()
@@ -871,7 +930,7 @@ void TorrentWorker::setDetailsObject(TorrentDetails* d)
 TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	: m_download(obj), m_bFilled(false)
 {
-	connect(obj, SIGNAL(destroyed(QObject*)), this, SLOT(destroy()));
+	connect(obj, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
 	setupUi(me);
 	TorrentDownload::m_worker->setDetailsObject(this);
 	
@@ -888,12 +947,13 @@ TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	
 	QHeaderView* hdr = treePeers->header();
 	hdr->resizeSection(1, 110);
-	hdr->resizeSection(3, 80);
+	hdr->resizeSection(3, 50);
+	hdr->resizeSection(4, 70);
 	
-	for(int i=4;i<8;i++)
+	for(int i=5;i<9;i++)
 		hdr->resizeSection(i, 70);
 	
-	hdr->resizeSection(8, 300);
+	hdr->resizeSection(9, 300);
 	
 	hdr = treeFiles->header();
 	hdr->resizeSection(0, 500);

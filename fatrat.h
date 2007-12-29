@@ -26,13 +26,20 @@ public:
 
 struct Proxy
 {
+	Proxy() : nType(ProxyNone) {}
+	
 	QString strName, strIP, strUser, strPassword;
 	quint16 nPort;
 	enum ProxyType { ProxyNone=-1, ProxyHttp, ProxySocks5 } nType;
 	QUuid uuid;
 	
+	QString toString()
+	{
+		return QString("%1 (%2)").arg(strName).arg( (nType==0) ? "HTTP" : "SOCKS 5");
+	}
+	
 	static QList<Proxy> loadProxys();
-	static ProxyType getProxyType(QUuid uuid);
+	static Proxy getProxy(QUuid uuid);
 };
 
 struct Auth

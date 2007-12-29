@@ -18,6 +18,8 @@ public:
 		
 		m_data.nType = Proxy::ProxyHttp;
 		m_data.nPort = 80;
+		
+		lineName->setFocus(Qt::OtherFocusReason);
 	}
 	
 	int exec()

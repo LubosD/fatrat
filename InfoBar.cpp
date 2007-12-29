@@ -13,7 +13,7 @@ InfoBar::InfoBar(QWidget* parent, Transfer* d) : QLabel(parent), m_download(d)
 	//setMinimumWidth(350);
 	//setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	setFrameStyle(QFrame::Box | QFrame::Plain);
-	setMargin(1);
+	//setMargin(1);
 	setLineWidth(1);
 	
 	connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(downloadDestroyed(QObject*)));

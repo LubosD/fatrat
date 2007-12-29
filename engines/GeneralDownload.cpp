@@ -202,7 +202,7 @@ void GeneralDownload::changeActive(bool nowActive)
 			
 			QString scheme = m_urls[m_nUrl].url.scheme();
 			
-			if(scheme == "http" || scheme == "https" || (Proxy::getProxyType(m_urls[m_nUrl].proxy) == Proxy::ProxyHttp && scheme == "ftp"))
+			if(scheme == "http" || scheme == "https" || (Proxy::getProxy(m_urls[m_nUrl].proxy).nType == Proxy::ProxyHttp && scheme == "ftp"))
 				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);

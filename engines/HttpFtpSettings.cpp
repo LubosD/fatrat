@@ -1,5 +1,4 @@
 #include "HttpFtpSettings.h"
-#include "ProxyDlg.h"
 #include "UserAuthDlg.h"
 #include <QSettings>
 #include <QMessageBox>
@@ -9,12 +8,6 @@ extern QSettings* g_settings;
 HttpFtpSettings::HttpFtpSettings(QWidget* w)
 {
 	setupUi(w);
-	
-	connect(pushAdd, SIGNAL(clicked()), this, SLOT(proxyAdd()));
-	connect(pushEdit, SIGNAL(clicked()), this, SLOT(proxyEdit()));
-	connect(pushDelete, SIGNAL(clicked()), this, SLOT(proxyDelete()));
-	connect(pushSetDefault, SIGNAL(clicked()), this, SLOT(proxySetDefault()));
-	connect(pushCancelDefault, SIGNAL(clicked()), this, SLOT(proxyCancelDefault()));
 	
 	connect(pushAuthAdd, SIGNAL(clicked()), this, SLOT(authAdd()));
 	connect(pushAuthEdit, SIGNAL(clicked()), this, SLOT(authEdit()));
@@ -29,16 +22,14 @@ void HttpFtpSettings::load()
 	m_listProxy = Proxy::loadProxys();
 	m_defaultProxy = g_settings->value("httpftp/defaultproxy").toString();
 	
-	foreach(Proxy p,m_listProxy)
+	comboDefaultProxy->clear();
+	comboDefaultProxy->addItem(tr("None", "No proxy"));
+	for(int i=0;i<m_listProxy.size();i++)
 	{
-		listProxys->addItem( composeName(p) );
-		if(p.uuid == m_defaultProxy)
+		comboDefaultProxy->addItem(m_listProxy[i].toString());
+		if(m_listProxy[i].uuid == m_defaultProxy)
 		{
-			QListWidgetItem* it = listProxys->item(listProxys->count()-1);
-		
-			QFont f = it->font();
-			f.setBold(true);
-			it->setFont(f);
+			comboDefaultProxy->setCurrentIndex(i+1);
 			
 			bFound = true;
 		}
@@ -50,6 +41,7 @@ void HttpFtpSettings::load()
 	// LOAD AUTHs
 	m_listAuth = Auth::loadAuths();
 	
+	listAuths->clear();
 	foreach(Auth a,m_listAuth)
 	{
 		listAuths->addItem(a.strRegExp);
@@ -60,22 +52,11 @@ void HttpFtpSettings::accepted()
 {
 	g_settings->beginGroup("httpftp");
 	
-	g_settings->beginWriteArray("proxys");
-	for(int i=0;i<m_listProxy.size();i++)
-	{
-		Proxy& p = m_listProxy[i];
-		
-		g_settings->setArrayIndex(i);
-		g_settings->setValue("type", int(p.nType));
-		g_settings->setValue("name", p.strName);
-		g_settings->setValue("ip", p.strIP);
-		g_settings->setValue("port", p.nPort);
-		g_settings->setValue("user", p.strUser);
-		g_settings->setValue("password", p.strPassword);
-		g_settings->setValue("uuid", p.uuid.toString());
-	}
-	g_settings->endArray();
-	
+	int index = comboDefaultProxy->currentIndex();
+	if(!index)
+		m_defaultProxy = QUuid();
+	else
+		m_defaultProxy = m_listProxy[index-1].uuid;
 	g_settings->setValue("defaultproxy", m_defaultProxy.toString());
 	
 	g_settings->beginWriteArray("auths");
@@ -93,109 +74,9 @@ void HttpFtpSettings::accepted()
 	g_settings->endGroup();
 }
 
-void HttpFtpSettings::proxyAdd()
-{
-	ProxyDlg dlg(pushAdd->parentWidget());
-	
-	if(dlg.exec() == QDialog::Accepted)
-	{
-		dlg.m_data.uuid = QUuid::createUuid();
-		m_listProxy << dlg.m_data;
-		listProxys->addItem( composeName(dlg.m_data) );
-	}
-}
-
-void HttpFtpSettings::proxyEdit()
-{
-	int index = listProxys->currentRow();
-	if(index < 0)
-		return;
-	
-	ProxyDlg dlg(pushAdd->parentWidget());
-	dlg.m_data = m_listProxy[index];
-	
-	if(dlg.exec() == QDialog::Accepted)
-	{
-		m_listProxy[index] = dlg.m_data;
-		listProxys->currentItem()->setText(composeName( dlg.m_data) );
-	}
-}
-
-void HttpFtpSettings::proxyDelete()
-{
-	int index = listProxys->currentRow();
-	if(index < 0)
-		return;
-	
-	if(QMessageBox::warning(pushAdd->parentWidget(), tr("Delete proxy"), tr("Do you really want to delete the selected proxy?"),
-	   QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
-	{
-		if(m_defaultProxy == m_listProxy[index].uuid)
-			m_defaultProxy = QUuid();
-		
-		delete listProxys->takeItem(index);
-		m_listProxy.removeAt(index);
-	}
-}
-
-void HttpFtpSettings::proxySetDefault()
-{
-	int index = listProxys->currentRow();
-	if(index < 0)
-		return;
-	
-	QListWidgetItem* it;
-	
-	if(!m_defaultProxy.isNull())
-	{
-		for(int i=0;i<m_listProxy.size();i++)
-		{
-			if(m_listProxy[i].uuid == m_defaultProxy)
-			{
-				it = listProxys->item(i);
-		
-				QFont f = it->font();
-				f.setBold(false);
-				it->setFont(f);
-				break;
-			}
-		}
-	}
-	
-	it = listProxys->item(index);
-	QFont f = it->font();
-	
-	f.setBold(true);
-	it->setFont(f);
-	
-	m_defaultProxy = m_listProxy[index].uuid;
-}
-
-void HttpFtpSettings::proxyCancelDefault()
-{
-	for(int i=0;i<m_listProxy.size();i++)
-	{
-		if(m_listProxy[i].uuid == m_defaultProxy)
-		{
-			QListWidgetItem* it = listProxys->item(i);
-	
-			QFont f = it->font();
-			f.setBold(false);
-			it->setFont(f);
-			break;
-		}
-	}
-	m_defaultProxy = QUuid();
-}
-
-QString HttpFtpSettings::composeName(const Proxy& p)
-{
-	return QString("%1 (%2)").arg(p.strName).arg( (p.nType==0) ? "HTTP" : "SOCKS 5");
-}
-
 void HttpFtpSettings::authAdd()
 {
-	UserAuthDlg dlg(true, pushAdd->parentWidget());
+	UserAuthDlg dlg(true, pushAuthAdd->parentWidget());
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
@@ -210,7 +91,7 @@ void HttpFtpSettings::authEdit()
 	if(index < 0)
 		return;
 	
-	UserAuthDlg dlg(true, pushAdd->parentWidget());
+	UserAuthDlg dlg(true, pushAuthAdd->parentWidget());
 	dlg.m_auth = m_listAuth[index];
 	
 	if(dlg.exec() == QDialog::Accepted)
@@ -222,11 +103,11 @@ void HttpFtpSettings::authEdit()
 
 void HttpFtpSettings::authDelete()
 {
-	int index = listProxys->currentRow();
+	int index = listAuths->currentRow();
 	if(index < 0)
 		return;
 	
-	if(QMessageBox::warning(pushAdd->parentWidget(), tr("Delete user credentials"), tr("Do you really want to delete the selected user credentials?"),
+	if(QMessageBox::warning(pushAuthAdd->parentWidget(), tr("Delete user credentials"), tr("Do you really want to delete the selected user credentials?"),
 	   QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 	{
 		delete listAuths->takeItem(index);

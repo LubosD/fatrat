@@ -2,6 +2,7 @@
 #define ABOUTDLG_H
 #include <QDialog>
 #include <QFile>
+#include <QHeaderView>
 #include "fatrat.h"
 #include "ui_AboutDlg.h"
 
@@ -13,12 +14,24 @@ public:
 	{
 		setupUi(this);
 		
-		listMenu->addItem("FatRat");
-		listMenu->item(0)->setIcon(QIcon(":/fatrat/fatrat.png"));
-		listMenu->addItem(tr("License"));
-		listMenu->addItem(tr("Translations"));
-		listMenu->addItem(tr("3rd parties"));
-		listMenu->setCurrentRow(0);
+		QTableWidgetItem* first = new QTableWidgetItem(QIcon(":/fatrat/fatrat.png"), "FatRat");
+		first->setTextAlignment(Qt::AlignCenter);
+		tableMenu->setItem(0, 0, first);
+		
+		QStringList items;
+		items << tr("License") << tr("Translations") << tr("3rd parties");
+		
+		for(int i=0;i<items.size();i++)
+		{
+			QTableWidgetItem* item = new QTableWidgetItem(items[i]);
+			item->setTextAlignment(Qt::AlignCenter);
+			tableMenu->setItem(i+1, 0, item);
+		}
+		
+		tableMenu->setCurrentItem(first);
+		tableMenu->horizontalHeader()->hide();
+		tableMenu->verticalHeader()->hide();
+		tableMenu->setColumnWidth(0, 116);
 		
 		labelVersion->setText(tr("<b>Version %1</b>").arg(VERSION));
 		

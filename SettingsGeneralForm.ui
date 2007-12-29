@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>506</width>
-    <height>582</height>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -152,14 +152,14 @@
       <string>When transfer completes</string>
      </property>
      <layout class="QGridLayout" >
-      <item row="0" column="0" colspan="4" >
+      <item row="0" column="0" colspan="3" >
        <widget class="QCheckBox" name="checkAutoRemove" >
         <property name="text" >
          <string>Remove from the queue</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="4" >
+      <item row="1" column="0" colspan="3" >
        <widget class="QCheckBox" name="checkPopup" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
@@ -172,7 +172,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="4" colspan="2" >
+      <item row="1" column="3" >
        <spacer>
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
@@ -185,14 +185,14 @@
         </property>
        </spacer>
       </item>
-      <item row="2" column="0" colspan="2" >
+      <item row="2" column="0" >
        <widget class="QLabel" name="label_4" >
         <property name="text" >
          <string>Popup display time</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2" >
+      <item row="2" column="1" >
        <widget class="QSpinBox" name="spinPopup" >
         <property name="enabled" >
          <bool>false</bool>
@@ -208,14 +208,14 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="3" >
+      <item row="2" column="2" >
        <widget class="QLabel" name="label_5" >
         <property name="text" >
          <string>s</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="5" >
+      <item row="2" column="3" >
        <spacer>
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
@@ -229,19 +229,15 @@
        </spacer>
       </item>
       <item row="3" column="0" colspan="4" >
-       <widget class="QCheckBox" name="checkEmail" >
-        <property name="text" >
+       <widget class="QGroupBox" name="checkEmail" >
+        <property name="title" >
          <string>Send an e-mail</string>
         </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="6" >
-       <widget class="QGroupBox" name="groupBox_2" >
-        <property name="enabled" >
-         <bool>false</bool>
+        <property name="checkable" >
+         <bool>true</bool>
         </property>
-        <property name="title" >
-         <string>Mailer settings</string>
+        <property name="checked" >
+         <bool>false</bool>
         </property>
         <layout class="QGridLayout" >
          <property name="leftMargin" >
@@ -318,7 +314,6 @@
   <tabstop>toolDestination</tabstop>
   <tabstop>checkPopup</tabstop>
   <tabstop>spinPopup</tabstop>
-  <tabstop>checkEmail</tabstop>
   <tabstop>lineSmtp</tabstop>
   <tabstop>lineSender</tabstop>
   <tabstop>lineRecipient</tabstop>
@@ -338,22 +333,6 @@
     <hint type="destinationlabel" >
      <x>502</x>
      <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkEmail</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox_2</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>94</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>197</x>
-     <y>327</y>
     </hint>
    </hints>
   </connection>

@@ -149,10 +149,8 @@ void MainWindow::connectActions()
 
 void MainWindow::restoreWindowState(bool bStartHidden)
 {
-	g_settings->beginGroup("state");
-	
 	QHeaderView* hdr = treeTransfers->header();
-	QVariant state = g_settings->value("mainheaders");
+	QVariant state = g_settings->value("state/mainheaders");
 	
 	if(state.isNull())
 	{
@@ -162,7 +160,7 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 	else
 		hdr->restoreState(state.toByteArray());
 	
-	state = g_settings->value("mainsplitter");
+	state = g_settings->value("state/mainsplitter");
 	
 	if(state.isNull())
 		splitterQueues->setSizes(QList<int>() << 80 << 600);
@@ -174,8 +172,8 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 	
 	if(!bStartHidden)
 	{
-		QPoint pos = g_settings->value("mainwindow_pos").toPoint();
-		QSize size = g_settings->value("mainwindow_size").toSize();
+		QPoint pos = g_settings->value("state/mainwindow_pos").toPoint();
+		QSize size = g_settings->value("state/mainwindow_size").toSize();
 		
 		if(size.isEmpty())
 		{
@@ -191,25 +189,20 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 	}
 	else
 		actionDisplay->setChecked(false);
-	
-	g_settings->endGroup();
 }
 
 void MainWindow::saveWindowState()
-{
-	g_settings->beginGroup("state");
-	
+{	
 	qDebug() << "saveWindowState()";
 	
-	g_settings->setValue("mainheaders", treeTransfers->header()->saveState());
-	g_settings->setValue("mainsplitter", splitterQueues->saveState());
-	g_settings->setValue("mainwindow", saveGeometry());
-	g_settings->setValue("selqueue", getSelectedQueue());
+	g_settings->setValue("state/mainheaders", treeTransfers->header()->saveState());
+	g_settings->setValue("state/mainsplitter", splitterQueues->saveState());
+	g_settings->setValue("state/mainwindow", saveGeometry());
+	g_settings->setValue("state/selqueue", getSelectedQueue());
 	
-	g_settings->setValue("mainwindow_pos", pos());
-	g_settings->setValue("mainwindow_size", size());
+	g_settings->setValue("state/mainwindow_pos", pos());
+	g_settings->setValue("state/mainwindow_size", size());
 	
-	g_settings->endGroup();
 	g_settings->sync();
 }
 
@@ -381,6 +374,8 @@ void MainWindow::updateUi()
 	}
 	
 	actionNewTransfer->setEnabled(q != 0);
+	actionRemoveCompleted->setEnabled(q != 0);
+	
 	if(q != 0)
 		doneQueue(q,true,false);
 	
@@ -1210,10 +1205,11 @@ void MainWindow::toggleInfoBar(bool show)
 		
 		if(d != 0)
 		{
-			if(show)
+			InfoBar* bar = InfoBar::getInfoBar(d);
+			if(show && !bar)
 				new InfoBar(this,d);
-			else
-				delete InfoBar::getInfoBar(d);
+			else if(!show)
+				delete bar;
 		}
 		
 		doneQueue(q,true,false);

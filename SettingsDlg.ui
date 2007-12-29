@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>543</width>
+    <width>453</width>
     <height>305</height>
    </rect>
   </property>
@@ -50,7 +50,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -89,14 +89,15 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <widget class="QWidget" name="page" />
       <widget class="QWidget" name="page_2" />
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="gfx/resources.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

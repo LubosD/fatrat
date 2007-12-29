@@ -11,6 +11,7 @@
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
+#include "fatrat.h"
 
 class TorrentWorker;
 class TorrentDetails;
@@ -34,6 +35,8 @@ public:
 	static QString bencode(libtorrent::entry e);
 	static libtorrent::entry bdecode_simple(QByteArray d);
 	static libtorrent::entry bdecode(QString d);
+	
+	static libtorrent::proxy_settings proxyToLibtorrent(Proxy p);
 	
 	virtual void init(QString source, QString target);
 	virtual void setObject(QString source);

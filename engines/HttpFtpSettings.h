@@ -12,16 +12,7 @@ public:
 	HttpFtpSettings(QWidget* w);
 	virtual void load();
 	virtual void accepted();
-	
-	static QString composeName(const Proxy& p);
 public slots:
-	void proxyAdd();
-	void proxyEdit();
-	void proxyDelete();
-	
-	void proxySetDefault();
-	void proxyCancelDefault();
-	
 	void authAdd();
 	void authEdit();
 	void authDelete();

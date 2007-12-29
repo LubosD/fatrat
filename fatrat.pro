@@ -25,7 +25,8 @@ FORMS += MainWindow.ui \
  tools/RapidTools.ui \
  tools/TorrentSearch.ui \
  GenericOptsForm.ui \
- engines/SettingsHttpForm.ui
+ engines/SettingsHttpForm.ui \
+ SettingsProxyForm.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -77,7 +78,8 @@ HEADERS += fatrat.h \
  remote/XmlService.h \
  dbus/DbusAdaptor.h \
  dbus/DbusImpl.h \
- engines/TorrentIPFilter.h
+ engines/TorrentIPFilter.h \
+ SettingsProxyForm.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -114,7 +116,9 @@ SOURCES += fatrat.cpp \
  remote/XmlService.cpp \
  dbus/DbusAdaptor.cpp \
  dbus/DbusImpl.cpp \
- engines/TorrentIPFilter.cpp
+ engines/TorrentIPFilter.cpp \
+ SettingsProxyForm.cpp \
+ engines/TorrentSettings.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

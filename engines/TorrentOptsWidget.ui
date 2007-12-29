@@ -53,8 +53,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>337</width>
-            <height>281</height>
+            <width>355</width>
+            <height>299</height>
            </rect>
           </property>
           <attribute name="label" >
@@ -83,6 +83,14 @@
           </layout>
          </widget>
          <widget class="QWidget" name="page_6" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>355</width>
+            <height>299</height>
+           </rect>
+          </property>
           <attribute name="label" >
            <string>Seeding limits</string>
           </attribute>
@@ -98,6 +106,9 @@
             <widget class="QDoubleSpinBox" name="doubleSeed" >
              <property name="enabled" >
               <bool>false</bool>
+             </property>
+             <property name="singleStep" >
+              <double>0.100000000000000</double>
              </property>
             </widget>
            </item>
@@ -143,8 +154,8 @@ of data has been uploaded</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>337</width>
-            <height>281</height>
+            <width>108</width>
+            <height>98</height>
            </rect>
           </property>
           <attribute name="label" >

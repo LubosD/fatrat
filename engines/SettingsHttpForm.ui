@@ -5,111 +5,55 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>535</width>
-    <height>515</height>
+    <width>492</width>
+    <height>290</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>HTTP/FTP</string>
   </property>
-  <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
-   <property name="spacing" >
-    <number>6</number>
-   </property>
-   <item>
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="title" >
-      <string>Proxy servers</string>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Default proxy</string>
      </property>
-     <layout class="QGridLayout" >
-      <property name="margin" >
-       <number>9</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item row="5" column="1" >
-       <widget class="QPushButton" name="pushCancelDefault" >
-        <property name="text" >
-         <string>Cancel default</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" >
-       <widget class="QPushButton" name="pushSetDefault" >
-        <property name="text" >
-         <string>Set as default</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" >
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" >
-         <size>
-          <width>90</width>
-          <height>41</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="1" >
-       <widget class="QPushButton" name="pushDelete" >
-        <property name="text" >
-         <string>Delete</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="gfx/resources.qrc" >:/menu/delete.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" >
-       <widget class="QPushButton" name="pushEdit" >
-        <property name="text" >
-         <string>Edit</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" >
-       <widget class="QPushButton" name="pushAdd" >
-        <property name="text" >
-         <string>Add</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="gfx/resources.qrc" >:/menu/add.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item rowspan="6" row="0" column="0" >
-       <widget class="QListWidget" name="listProxys" />
-      </item>
-     </layout>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1" >
+    <widget class="QComboBox" name="comboDefaultProxy" />
+   </item>
+   <item row="1" column="0" colspan="2" >
     <widget class="QGroupBox" name="groupBox_2" >
      <property name="title" >
       <string>Automatic user credentials</string>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>9</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>9</number>
+      </property>
+      <property name="rightMargin" >
+       <number>9</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>9</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="4" column="0" colspan="2" >
        <widget class="QLabel" name="label" >
         <property name="text" >
          <string>If new download's URI matches a certain regexp, defined user credentials will be set.</string>
+        </property>
+        <property name="wordWrap" >
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -119,7 +63,7 @@
          <string>Add</string>
         </property>
         <property name="icon" >
-         <iconset resource="gfx/resources.qrc" >:/menu/add.png</iconset>
+         <iconset/>
         </property>
        </widget>
       </item>
@@ -129,7 +73,7 @@
          <string>Edit</string>
         </property>
         <property name="icon" >
-         <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+         <iconset/>
         </property>
        </widget>
       </item>
@@ -139,7 +83,7 @@
          <string>Delete</string>
         </property>
         <property name="icon" >
-         <iconset resource="gfx/resources.qrc" >:/menu/delete.png</iconset>
+         <iconset/>
         </property>
        </widget>
       </item>
@@ -165,37 +109,15 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>listProxys</tabstop>
-  <tabstop>pushAdd</tabstop>
-  <tabstop>pushEdit</tabstop>
-  <tabstop>pushDelete</tabstop>
-  <tabstop>pushSetDefault</tabstop>
-  <tabstop>pushCancelDefault</tabstop>
   <tabstop>listAuths</tabstop>
   <tabstop>pushAuthAdd</tabstop>
   <tabstop>pushAuthEdit</tabstop>
   <tabstop>pushAuthDelete</tabstop>
  </tabstops>
  <resources>
-  <include location="gfx/resources.qrc" />
+  <include location="../gfx/resources.qrc" />
  </resources>
  <connections>
-  <connection>
-   <sender>listProxys</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>pushEdit</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>314</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>514</x>
-     <y>92</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>listAuths</sender>
    <signal>doubleClicked(QModelIndex)</signal>

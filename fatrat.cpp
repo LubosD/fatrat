@@ -62,12 +62,11 @@ int main(int argc,char** argv)
 	runEngines();
 	Queue::loadQueues();
 	
-	qRegisterMetaType<QHttpResponseHeader>("QHttpResponseHeader");
-	
 	qmgr = new QueueMgr;
 	qmgr->start();
+	
 	g_wndMain = new MainWindow(m_bStartHidden);
-	g_http = new HttpService;
+	//g_http = new HttpService;
 	
 	DbusImpl* impl = new DbusImpl;
 	new FatratAdaptor(impl);
@@ -309,21 +308,31 @@ QList<Auth> Auth::loadAuths()
 	return r;
 }
 
-Proxy::ProxyType Proxy::getProxyType(QUuid uuid)
+Proxy::Proxy Proxy::getProxy(QUuid uuid)
 {
-	QSettings s;
-	QList<Proxy> r;
-	
-	int count = s.beginReadArray("httpftp/proxys");
+	int count = g_settings->beginReadArray("httpftp/proxys");
 	for(int i=0;i<count;i++)
 	{
 		Proxy p;
-		s.setArrayIndex(i);
+		g_settings->setArrayIndex(i);
 		
-		if(s.value("uuid").toString() == uuid.toString())
-			return (Proxy::ProxyType) s.value("type",0).toInt();
+		p.uuid = g_settings->value("uuid").toString();
+		if(p.uuid != uuid)
+			continue;
+		
+		p.strName = g_settings->value("name").toString();
+		p.strIP = g_settings->value("ip").toString();
+		p.nPort = g_settings->value("port").toUInt();
+		p.strUser = g_settings->value("user").toString();
+		p.strPassword = g_settings->value("password").toString();
+		p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
+		
+		g_settings->endArray();
+		return p;
 	}
-	return Proxy::ProxyNone;
+	
+	g_settings->endArray();
+	return Proxy();
 }
 
 quint32 qntoh(quint32 source)

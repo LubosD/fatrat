@@ -103,6 +103,7 @@ void NewTransferDlg::accepted()
 				m_lastDirs.removeFirst();
 			m_lastDirs.append(m_strDestination);
 			g_settings->setValue("lastdirs", m_lastDirs);
+			g_settings->sync();
 		}
 	}
 	else

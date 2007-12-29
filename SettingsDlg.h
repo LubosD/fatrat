@@ -3,8 +3,11 @@
 #include <QDialog>
 #include <QList>
 #include <QSettings>
+#include <QtDebug>
+
 #include "ui_SettingsDlg.h"
 #include "SettingsGeneralForm.h"
+#include "SettingsProxyForm.h"
 #include "Transfer.h"
 
 extern QSettings* g_settings;
@@ -20,13 +23,20 @@ public:
 		QWidget* w = new QWidget(stackedWidget);
 		
 		m_children << (WidgetHostChild*)(new SettingsGeneralForm(w));
-		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/fatrat_brown.png"), tr("Main"), listWidget) );
+		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/fatrat.png"), tr("Main"), listWidget) );
 		stackedWidget->insertWidget(0, w);
+		
+		w = new QWidget(stackedWidget);
+		m_children << (WidgetHostChild*)(new SettingsProxyForm(w));
+		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/proxy.png"), tr("Proxy"), listWidget) );
+		stackedWidget->insertWidget(1, w);
 		
 		listWidget->setCurrentRow(0);
 		
 		fillEngines( Transfer::engines(Transfer::Download) );
 		fillEngines( Transfer::engines(Transfer::Upload) );
+		
+		connect(buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
 	}
 	
 	virtual void accept()
@@ -45,9 +55,7 @@ public:
 		if(accepted)
 		{
 			foreach(WidgetHostChild* w,m_children)
-			{
 				w->accepted();
-			}
 			
 			QDialog::accept();
 			
@@ -58,16 +66,34 @@ public:
 	int exec()
 	{
 		foreach(WidgetHostChild* w,m_children)
-		{
 			w->load();
-		}
 		
 		return QDialog::exec();
+	}
+	
+public slots:
+	void buttonClicked(QAbstractButton* btn)
+	{
+		if(buttonBox->buttonRole(btn) == QDialogButtonBox::ApplyRole)
+		{
+			foreach(WidgetHostChild* w,m_children)
+			{
+				bool acc = w->accept();
+				
+				if(!acc)
+					return;
+			}
+			
+			foreach(WidgetHostChild* w,m_children)
+				w->accepted();
+			foreach(WidgetHostChild* w,m_children)
+				w->load();
+		}
 	}
 protected:
 	void fillEngines(const EngineEntry* engines)
 	{
-		int x = 0;
+		int x = 1;
 		
 		for(int i=0;engines[i].shortName;i++)
 		{
