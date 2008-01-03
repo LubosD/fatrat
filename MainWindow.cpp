@@ -834,6 +834,8 @@ void MainWindow::deleteTransfer()
 			tr("Do you really want to delete selected transfers?"),
 			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 		{
+			treeTransfers->selectionModel()->clearSelection();
+			
 			q->lockW();
 			for(int i=0;i<sel.size();i++)
 				q->remove(sel[i]-i, true);
@@ -843,8 +845,6 @@ void MainWindow::deleteTransfer()
 	}
 	
 	doneQueue(q,false);
-	
-	treeTransfers->selectionModel()->clearSelection();
 }
 
 void MainWindow::deleteTransferData()
@@ -863,6 +863,8 @@ void MainWindow::deleteTransferData()
 			q->lockW();
 			//bool bOK = true;
 			
+			treeTransfers->selectionModel()->clearSelection();
+			
 			for(int i=0;i<sel.size();i++)
 				/*bOK &=*/ q->removeWithData(sel[i]-i, true);
 			q->unlock();
@@ -877,8 +879,6 @@ void MainWindow::deleteTransferData()
 	}
 	
 	doneQueue(q,false);
-	
-	treeTransfers->selectionModel()->clearSelection();
 }
 
 void MainWindow::resumeTransfer()

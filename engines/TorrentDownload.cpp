@@ -538,7 +538,11 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
 		
-		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, libtorrent::storage_mode_sparse, !isActive());
+		libtorrent::storage_mode_t storageMode;
+		
+		storageMode = (libtorrent::storage_mode_t) g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt();
+		
+		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, storageMode, !isActive());
 		
 		m_handle.set_ratio(1.2f);
 		m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());

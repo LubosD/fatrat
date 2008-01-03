@@ -110,7 +110,7 @@ void TransfersModel::refresh()
 	else if(count < m_nLastRowCount)
 	{
 		qDebug() << "Removing" << m_nLastRowCount - count << "rows";
-		beginRemoveRows(QModelIndex(), 0, m_nLastRowCount-count-1);
+		beginRemoveRows(QModelIndex(), count, m_nLastRowCount-1);
 		endRemoveRows();
 	}
 	m_nLastRowCount = count;

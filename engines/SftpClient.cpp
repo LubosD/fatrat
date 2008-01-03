@@ -102,7 +102,7 @@ void SftpEngine::run()
 		
 		QByteArray data = m_url.userName().toUtf8();
 		
-		if(libssh2_userauth_keyboard_interactive(m_pSession, data.constData(), kbInteractiveCallback) < 0)
+		if(libssh2_userauth_keyboard_interactive(m_pSession, (char*) data.constData(), kbInteractiveCallback) < 0)
 			throw sshError();
 		
 		emit statusMessage("Authenticated");
@@ -144,7 +144,7 @@ void SftpEngine::run()
 		emit statusMessage("Opening file");
 		
 		LIBSSH2_SFTP_HANDLE* handle;
-		handle = libssh2_sftp_open(sftp, data.constData(), (m_bUpload) ? LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT : LIBSSH2_FXF_READ, 0666);
+		handle = libssh2_sftp_open(sftp, (char*) data.constData(), (m_bUpload) ? LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT : LIBSSH2_FXF_READ, 0666);
 		if(handle == 0)
 			throw tr("Failed to open remote file");
 		
@@ -224,7 +224,7 @@ bool SftpFile::atEnd() const
 
 qint64 SftpFile::bytesAvailable() const
 {
-	return 4096;
+	return 1024*16;
 }
 
 qint64 SftpFile::pos() const

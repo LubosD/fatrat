@@ -123,13 +123,14 @@ void NewTransferDlg::accepted()
 
 void NewTransferDlg::load()
 {
-	if(!m_strClass.isEmpty())
+	/*if(!m_strClass.isEmpty())
 	{
 		if(m_lastDirs.size() >= 5)
 			m_lastDirs.removeFirst();
 		m_lastDirs.append(m_strDestination);
 		g_settings->setValue("lastdirs", m_lastDirs);
-	}
+	}*/
+	
 	{
 		bool bFound = false;
 		const EngineEntry* entries;

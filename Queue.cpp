@@ -43,8 +43,13 @@ void Queue::loadQueues()
 	if(!dir.cd(".local/share/fatrat"))
 		return;
 	file.setFileName(dir.absoluteFilePath("queues.xml"));
-	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
+	
+	QString errmsg;
+	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file, false, &errmsg))
 	{
+		if(!errmsg.isEmpty())
+			qDebug() << "PARSE ERROR!" << errmsg;
+		
 		// default queue for new users
 		Queue* q = new Queue;
 		q->setName(QObject::tr("Main queue"));
