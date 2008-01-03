@@ -860,10 +860,10 @@ void MainWindow::deleteTransferData()
 			tr("Do you really want to delete selected transfers <b>including the data</b>?"),
 			QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 		{
+			treeTransfers->selectionModel()->clearSelection();
+			
 			q->lockW();
 			//bool bOK = true;
-			
-			treeTransfers->selectionModel()->clearSelection();
 			
 			for(int i=0;i<sel.size();i++)
 				/*bOK &=*/ q->removeWithData(sel[i]-i, true);
