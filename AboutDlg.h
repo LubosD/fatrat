@@ -14,18 +14,17 @@ public:
 	{
 		setupUi(this);
 		
-		QTableWidgetItem* first = new QTableWidgetItem(QIcon(":/fatrat/fatrat.png"), "FatRat");
-		first->setTextAlignment(Qt::AlignCenter);
-		tableMenu->setItem(0, 0, first);
-		
+		QTableWidgetItem* first;
 		QStringList items;
-		items << tr("License") << tr("Translations") << tr("3rd parties");
+		items << "FatRat" << tr("License") << tr("Translations") << tr("3rd parties");
 		
 		for(int i=0;i<items.size();i++)
 		{
 			QTableWidgetItem* item = new QTableWidgetItem(items[i]);
 			item->setTextAlignment(Qt::AlignCenter);
-			tableMenu->setItem(i+1, 0, item);
+			tableMenu->setItem(i, 0, item);
+			
+			if(!i) first = item;
 		}
 		
 		tableMenu->setCurrentItem(first);

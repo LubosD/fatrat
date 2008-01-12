@@ -28,7 +28,7 @@ QImage TorrentProgressWidget::generate(const std::vector<bool>& data, int width,
 		int from = i*fact+sstart;
 		int to = (i+1)*fact+sstart;
 		
-		if(to >= data.size())
+		if(to >= (int) data.size())
 			to = data.size()-1;
 		
 		double color = 0;

@@ -55,7 +55,7 @@ void Transfer::setInternalSpeedLimits(int down,int up)
 		up = m_nUpLimit;
 	
 	if(down != m_nDownLimitInt || up != m_nUpLimitInt)
-	{
+	{	
 		m_nDownLimitInt = down;
 		m_nUpLimitInt = up;
 	

@@ -433,6 +433,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 			down--;
 		if(!up)
 			up--;
+		qDebug() << name() << ":" << "D:" << down << "U:" << up;
 		m_handle.set_upload_limit(up);
 		m_handle.set_download_limit(down);
 	}
@@ -666,6 +667,7 @@ QString TorrentDownload::message() const
 			state += " | ";
 		case libtorrent::torrent_status::seeding:
 		case libtorrent::torrent_status::downloading:
+		case libtorrent::torrent_status::finished:
 			state += QString("Seeds: %1 (%2) | Peers: %3 (%4)");
 			
 			if(m_status.state == libtorrent::torrent_status::downloading)
@@ -683,9 +685,6 @@ QString TorrentDownload::message() const
 				state = state.arg(m_status.num_incomplete);
 			else
 				state = state.arg('?');
-			break;
-		case libtorrent::torrent_status::finished:
-			state = "Finished";
 			break;
 		case libtorrent::torrent_status::allocating:
 			state = tr("Allocating: %1%").arg(m_status.progress*100.f);
@@ -783,6 +782,9 @@ void TorrentWorker::doWork()
 			
 			down = d->m_handle.download_limit();
 			up = d->m_handle.upload_limit();
+			
+			if(!down) down--;
+			if(!up) up--;
 			
 			d->internalSpeedLimits(sdown, sup);
 			
