@@ -785,8 +785,8 @@ void TorrentWorker::doWork()
 			
 			d->internalSpeedLimits(sdown, sup);
 			
-			if(!down) sdown--;
-			if(!up) sup--;
+			if(!sdown) sdown--;
+			if(!sup) sup--;
 			
 			if(down != sdown || up != sup)
 				d->setSpeedLimits(sdown, sup);
