@@ -185,14 +185,18 @@ void TransfersModel::refresh()
 	}
 	m_nLastRowCount = count;
 	
-	for(int i=0;i<count;i++)
+	for(int i=0;i<count;)
 	{
-		int from = i, to = -1;
-		while(i < count && changes[i])
-			to = i++;
-		
-		if(to != -1)
+		if(!changes[i])
+			i++;
+		else
+		{
+			int from = i, to;
+			while(i < count && changes[i])
+				to = i++;
+			
 			dataChanged(createIndex(from,0), createIndex(to,5)); // refresh the view
+		}
 	}
 }
 

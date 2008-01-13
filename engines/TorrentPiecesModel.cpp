@@ -119,12 +119,19 @@ void BlockDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		//myrect.setHeight(myrect.height()-1);
 		
 		float bwidth = myrect.width() / float(piece.blocks_in_piece);
-		for(int i=0;i<piece.blocks_in_piece;i++)
+		for(int i=0;i<piece.blocks_in_piece;)
 		{
-			if(piece.blocks[i].state == libtorrent::block_info::finished)
-				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), ceilf(bwidth), myrect.height(), QColor(128,128,255));
-			else if(piece.blocks[i].state == libtorrent::block_info::requested)
-				painter->fillRect(myrect.x()+i*bwidth, myrect.y(), ceilf(bwidth), myrect.height(), Qt::gray);
+			int from = i, to;
+			const int state = piece.blocks[i].state;
+			
+			do
+				to = i++;
+			while(i<piece.blocks_in_piece && state == piece.blocks[i].state);
+			
+			if(state == libtorrent::block_info::finished)
+				painter->fillRect(myrect.x()+from*bwidth, myrect.y(), ceilf(bwidth*(to-from+1)), myrect.height(), QColor(128,128,255));
+			else if(state == libtorrent::block_info::requested)
+				painter->fillRect(myrect.x()+from*bwidth, myrect.y(), ceilf(bwidth*(to-from+1)), myrect.height(), Qt::gray);
 		}
 		
 		painter->setPen(Qt::black);
