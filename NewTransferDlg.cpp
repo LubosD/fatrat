@@ -97,7 +97,7 @@ void NewTransferDlg::accepted()
 		m_strDestination = comboDestination->currentText();
 		m_nClass = comboClass->currentIndex()-1;
 		
-		if(!m_lastDirs.contains(m_strDestination))
+		if(!m_lastDirs.contains(m_strDestination) && !m_strDestination.isEmpty())
 		{
 			if(m_lastDirs.size() >= 5)
 				m_lastDirs.removeFirst();

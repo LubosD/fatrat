@@ -42,6 +42,25 @@ private:
 	int m_nLastRowCount;
 	QIcon* m_states[12];
 	
+	struct RowData
+	{
+		Transfer::State state;
+		QString name, speed, timeLeft, message, progress, size;
+		Transfer::Mode mode, primaryMode;
+		
+		inline bool operator!=(const RowData& d2)
+		{
+#define COMP(n) n != d2.n
+			return COMP(state) || COMP(name) || COMP(speed) || COMP(timeLeft) || COMP(message) ||
+					COMP(progress) || COMP(size) || COMP(mode) || COMP(primaryMode);
+#undef COMP
+		}
+	};
+	
+	static RowData createDataSet(Transfer* t);
+	
+	QVector<RowData> m_lastData;
+	
 	friend class ProgressDelegate;
 };
 

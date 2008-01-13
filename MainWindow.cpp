@@ -891,9 +891,11 @@ void MainWindow::resumeTransfer()
 	foreach(int i,sel)
 	{
 		Transfer* d = q->at(i);
-		if(d->state() == Transfer::ForcedActive)
+		Transfer::State state = d->state();
+		
+		if(state == Transfer::ForcedActive)
 			d->setState(Transfer::Active);
-		else
+		else if(state != Transfer::Active)
 			d->setState(Transfer::Waiting);
 	}
 	

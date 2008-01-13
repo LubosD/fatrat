@@ -85,20 +85,90 @@ int TransfersModel::rowCount(const QModelIndex &parent) const
 		g_queuesLock.unlock();
 	}
 	
-	//cout << "Returning row count " << count << endl;
 	return count;
+}
+
+TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
+{
+	RowData newData;
+	
+	newData.state = t->state();
+	newData.name = t->name();
+	newData.progress = (t->total()) ? QString("%1%").arg(100.0/t->total()*t->done(), 0, 'f', 1) : QString();
+	newData.size = (t->total()) ? formatSize(t->total()) : QString("?");
+	
+	if(t->isActive())
+	{
+		QString s;
+		int down,up;
+		t->speeds(down,up);
+		
+		if(down || t->mode() == Transfer::Download)
+			s = formatSize(down, true)+" down";
+		if(up)
+		{
+			if(!s.isEmpty())
+				s += " | ";
+			s += formatSize(up, true)+" up";
+		}
+		
+		newData.speed = s;
+		
+		if(t->total())
+		{
+			QString s;
+			int down,up;
+			qulonglong totransfer = t->total() - t->done();
+			
+			t->speeds(down,up);
+			
+			if(down)
+				newData.timeLeft = formatTime(totransfer/down);
+			else if(up && t->primaryMode() == Transfer::Upload)
+				newData.timeLeft = formatTime(totransfer/up);
+		}
+		
+		newData.message = t->message();
+		newData.mode = t->mode();
+		newData.primaryMode = t->primaryMode();
+	}
+	
+	return newData;
 }
 
 void TransfersModel::refresh()
 {
 	int count = 0;
+	Queue* q = 0;
 	g_queuesLock.lockForRead();
 	
 	if(m_queue < g_queues.size() && m_queue >= 0)
-		count = g_queues[m_queue]->size();
+	{
+		q = g_queues[m_queue];
+		count = q->size();
+	}
 	
-	//cout << "Current row count: " << count << endl;
+	m_lastData.resize(count);
+	
+	QList<bool> changes;
+	
+	if(q != 0)
+	{
+		q->lock();
 		
+		for(int i=0;i<count;i++)
+		{
+			Transfer* t = q->at(i);
+			RowData newData;
+			
+			if(t != 0)
+				newData = createDataSet(t);
+			
+			changes << (newData != m_lastData[i]);
+			m_lastData[i] = newData;
+		}
+		q->unlock();
+	}
 	g_queuesLock.unlock();
 	
 	if(count > m_nLastRowCount)
@@ -115,7 +185,15 @@ void TransfersModel::refresh()
 	}
 	m_nLastRowCount = count;
 	
-	dataChanged(createIndex(0,0), createIndex(count,5)); // refresh the view
+	for(int i=0;i<count;i++)
+	{
+		int from = i, to = -1;
+		while(i < count && changes[i])
+			to = i++;
+		
+		if(to != -1)
+			dataChanged(createIndex(from,0), createIndex(to,5)); // refresh the view
+	}
 }
 
 QModelIndex TransfersModel::parent(const QModelIndex&) const
@@ -135,117 +213,51 @@ int TransfersModel::columnCount(const QModelIndex&) const
 
 QVariant TransfersModel::data(const QModelIndex &index, int role) const
 {
-	QVariant rval;
+	int row = index.row();
 	
 	if(role == Qt::DisplayRole)
 	{
-		g_queuesLock.lockForRead();
-			
-		if(m_queue < g_queues.size())
+		if(row < m_lastData.size())
 		{
-			Transfer* d;
-			Queue* q = g_queues[m_queue];
-			q->lock();
-			
-			d = q->at(index.row());
-			if(!d)
-			{
-				q->unlock();
-				return QVariant();
-			}
-			
 			switch(index.column())
 			{
-			//case 0:
-				//rval = Transfer::state2string(d->state()); break;
-			//	rval = *m_states[d->state()]; break;
 			case 0:
-				rval = d->name(); break;
+				return m_lastData[row].name;
 			case 1:
-				rval = (d->total()) ? QString("%1%").arg(100.0/d->total()*d->done(), 0, 'f', 1) : QVariant(); break;
+				return m_lastData[row].progress;
 			case 2:
-				rval = (d->total()) ? formatSize(d->total()) : QString("?"); break;
+				return m_lastData[row].size;
 			case 3:
-				if(d->isActive())
-				{
-					QString s;
-					int down,up;
-					d->speeds(down,up);
-					
-					if(down || d->mode() == Transfer::Download)
-						s = formatSize(down, true)+" down";
-					if(up)
-					{
-						if(!s.isEmpty())
-							s += " | ";
-						s += formatSize(up, true)+" up";
-					}
-					
-					rval = s;
-				}
-				break;
-			
-			case 4: // time left
-				if(d->isActive() && d->total())
-				{
-					QString s;
-					int down,up;
-					qulonglong totransfer = d->total() - d->done();
-					
-					d->speeds(down,up);
-					
-					if(down)
-						rval = formatTime(totransfer/down);
-					else if(up && d->primaryMode() == Transfer::Upload)
-						rval = formatTime(totransfer/up);
-				}
-				break;
+				return m_lastData[row].speed;
+			case 4:
+				return m_lastData[row].timeLeft;
 			case 5:
-				rval = d->message(); break;
+				return m_lastData[row].message;
 			}
-			q->unlock();
 		}
-		
-		g_queuesLock.unlock();
 	}
 	else if(role == Qt::DecorationRole)
 	{
-		if(index.column() == 0)
+		if(index.column() == 0 && row < m_lastData.size())
 		{
-			g_queuesLock.lockForRead();
-			Transfer* d;
-			Transfer::State state;
-			Queue* q = g_queues[m_queue];
-			q->lock();
-			
-			d = q->at(index.row());
-			if(d == 0)
+			Transfer::State state = m_lastData[row].state;
+			if(m_lastData[row].mode == Transfer::Upload)
 			{
-				q->unlock();
-				return QVariant();
-			}
-			
-			state = d->state();
-			if(d->mode() == Transfer::Upload)
-			{
-				if(state == Transfer::Completed && d->primaryMode() == Transfer::Download)
-					rval = *m_states[5]; // an exception for download-oriented transfers
+				if(state == Transfer::Completed && m_lastData[row].primaryMode == Transfer::Download)
+					return *m_states[5]; // an exception for download-oriented transfers
 				else
-					rval = *m_states[state+6];
+					return *m_states[state+6];
 			}
 			else
-				rval = *m_states[state];
-			
-			q->unlock();
-			g_queuesLock.unlock();
+				return *m_states[state];
 		}
 	}
 	else if(role == Qt::SizeHintRole)
 	{
-		rval = QSize(50, 50);
+		return QSize(50, 50);
 	}
 
-	return rval;
+	return QVariant();
 }
 
 void TransfersModel::setQueue(int q)
