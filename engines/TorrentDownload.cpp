@@ -1121,6 +1121,10 @@ void TorrentDetails::refresh()
 			m_pFilesModel->refresh(&m_vecPieces);
 		}
 		
+		std::vector<int> avail;
+		m_download->m_handle.piece_availability(avail);
+		widgetAvailability->generate(avail);
+		
 		// ratio
 		qint64 d, u;
 		QString ratio;

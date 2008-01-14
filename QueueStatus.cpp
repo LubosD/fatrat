@@ -56,10 +56,11 @@ void QueueStatus::refresh()
 			"<font color=blue>Speed:</font> %5 down | %6 up")
 			.arg(ad).arg(au).arg(wd).arg(wu).arg(formatSize(sd, true)).arg(formatSize(su, true));
 	setText(text);
+	resize(sizeHint());
 }
 
 void QueueStatus::mousePressEvent(QMouseEvent*)
 {
-	deleteLater();
+	hide();
 }
 
