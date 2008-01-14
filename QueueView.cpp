@@ -6,6 +6,10 @@
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
+QueueView::QueueView(QWidget* parent) : QListWidget(parent), m_status(0)
+{
+}
+
 bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction action)
 {
 	if(action == Qt::IgnoreAction)

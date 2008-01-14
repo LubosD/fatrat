@@ -10,9 +10,7 @@ class QueueView : public QListWidget
 {
 Q_OBJECT
 public:
-	QueueView(QWidget* parent) : QListWidget(parent)
-	{
-	}
+	QueueView(QWidget* parent);
 	bool dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction action);
 	QStringList mimeTypes() const;
 	void mouseMoveEvent(QMouseEvent* event);
