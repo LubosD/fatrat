@@ -8,7 +8,6 @@ extern QReadWriteLock g_queuesLock;
 
 bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction action)
 {
-	std::cout << "Drop at index " << queueTo << std::endl;
 	if(action == Qt::IgnoreAction)
 		return true;
 
@@ -50,7 +49,35 @@ bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction 
 		return false;
 	return true;
 }
+
 QStringList QueueView::mimeTypes() const
 {
 	return QStringList() << "application/x-fatrat-transfer" << "text/plain";
+}
+
+void QueueView::mouseMoveEvent(QMouseEvent* event)
+{
+	QListWidgetItem* item = itemAt(event->pos());
+	
+	if(!item)
+	{
+		if(m_status != 0)
+		{
+			m_status->deleteLater();
+			m_status = 0;
+		}
+	}
+	else
+	{
+		Queue* q = static_cast<Queue*>( item->data(Qt::UserRole).value<void*>() );
+		
+		if(!m_status || q != m_status->getQueue())
+		{
+			if(m_status)
+				m_status->deleteLater();
+			m_status = new QueueStatus(getMainWindow(), q);
+		}
+		
+		m_status->move(mapToGlobal(event->pos()) + QPoint(25, 25));
+	}
 }

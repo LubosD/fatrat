@@ -5,8 +5,9 @@
 #include <QList>
 #include "Transfer.h"
 
-class Queue
+class Queue : public QObject
 {
+Q_OBJECT
 public:
 	Queue();
 	~Queue();

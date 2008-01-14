@@ -3,7 +3,8 @@
 #include <QListWidget>
 #include <QMimeData>
 #include <QDragMoveEvent>
-#include <iostream>
+
+#include "QueueStatus.h"
 
 class QueueView : public QListWidget
 {
@@ -14,6 +15,9 @@ public:
 	}
 	bool dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction action);
 	QStringList mimeTypes() const;
+	void mouseMoveEvent(QMouseEvent* event);
+private:
+	QueueStatus* m_status;
 };
 
 #endif

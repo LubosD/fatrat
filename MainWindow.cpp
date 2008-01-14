@@ -391,14 +391,21 @@ void MainWindow::refreshQueues()
 	int i;
 	for(i=0;i<g_queues.size();i++)
 	{
+		QListWidgetItem* item;
+		
 		if(i>=listQueues->count())
 		{
-			QListWidgetItem* item = new QListWidgetItem(g_queues[i]->name(), listQueues);
+			item = new QListWidgetItem(g_queues[i]->name(), listQueues);
 			item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled);
 			listQueues->addItem(item);
 		}
 		else
-			listQueues->item(i)->setText(g_queues[i]->name());
+		{
+			item = listQueues->item(i);
+			item->setText(g_queues[i]->name());
+		}
+		
+		item->setData(Qt::UserRole, qVariantFromValue((void*) g_queues[i]));
 	}
 	
 	while(i<listQueues->count())

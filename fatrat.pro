@@ -79,7 +79,8 @@ HEADERS += fatrat.h \
  dbus/DbusAdaptor.h \
  dbus/DbusImpl.h \
  engines/TorrentIPFilter.h \
- SettingsProxyForm.h
+ SettingsProxyForm.h \
+ QueueStatus.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -118,7 +119,8 @@ SOURCES += fatrat.cpp \
  dbus/DbusImpl.cpp \
  engines/TorrentIPFilter.cpp \
  SettingsProxyForm.cpp \
- engines/TorrentSettings.cpp
+ engines/TorrentSettings.cpp \
+ QueueStatus.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
