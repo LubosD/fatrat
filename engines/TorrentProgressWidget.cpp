@@ -57,8 +57,7 @@ QImage TorrentProgressWidget::generate(const std::vector<int>& data, int width, 
 	if(send < 0)
 		send = data.size();
 	
-	const int maximum = *std::max_element(data.begin(), data.end());
-	//float maxperpt = (send-sstart)/width*maximum;
+	const int maximum = (data.empty()) ? 0 : *std::max_element(data.begin(), data.end());
 	const float step = (send-sstart)/width;
 	
 	if(maximum > 0)
