@@ -7,7 +7,9 @@
 
 #include "ui_SettingsDlg.h"
 #include "SettingsGeneralForm.h"
+#include "SettingsDropBoxForm.h"
 #include "SettingsProxyForm.h"
+#include "MainWindow.h"
 #include "Transfer.h"
 
 extern QSettings* g_settings;
@@ -22,14 +24,19 @@ public:
 		
 		QWidget* w = new QWidget(stackedWidget);
 		
-		m_children << (WidgetHostChild*)(new SettingsGeneralForm(w));
+		m_children << (WidgetHostChild*)(new SettingsGeneralForm(w, this));
 		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/fatrat.png"), tr("Main"), listWidget) );
 		stackedWidget->insertWidget(0, w);
 		
 		w = new QWidget(stackedWidget);
-		m_children << (WidgetHostChild*)(new SettingsProxyForm(w));
-		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/proxy.png"), tr("Proxy"), listWidget) );
+		m_children << (WidgetHostChild*)(new SettingsDropBoxForm(w, this));
+		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/miscellaneous.png"), tr("Drop-box"), listWidget) );
 		stackedWidget->insertWidget(1, w);
+		
+		w = new QWidget(stackedWidget);
+		m_children << (WidgetHostChild*)(new SettingsProxyForm(w, this));
+		listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/proxy.png"), tr("Proxy"), listWidget) );
+		stackedWidget->insertWidget(2, w);
 		
 		listWidget->setCurrentRow(0);
 		
@@ -60,6 +67,7 @@ public:
 			QDialog::accept();
 			
 			g_settings->sync();
+			static_cast<MainWindow*>(getMainWindow())->reconfigure();
 		}
 	}
 	
@@ -88,12 +96,14 @@ public slots:
 				w->accepted();
 			foreach(WidgetHostChild* w,m_children)
 				w->load();
+			
+			static_cast<MainWindow*>(getMainWindow())->reconfigure();
 		}
 	}
 protected:
 	void fillEngines(const EngineEntry* engines)
 	{
-		int x = 1;
+		int x = 2;
 		
 		for(int i=0;engines[i].shortName;i++)
 		{

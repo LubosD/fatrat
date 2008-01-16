@@ -15,7 +15,7 @@ class SettingsGeneralForm : public QObject, Ui_SettingsGeneralForm, public Widge
 {
 Q_OBJECT
 public:
-	SettingsGeneralForm(QWidget* me)
+	SettingsGeneralForm(QWidget* me, QObject* parent) : QObject(parent)
 	{
 		setupUi(me);
 		

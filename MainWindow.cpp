@@ -940,7 +940,6 @@ void MainWindow::transferOptions()
 {
 	cout << "Showing transfer properties\n";
 	WidgetHostDlg dlg(this);
-	GenericOptsForm wgt(dlg.getNextChildHost(tr("Generic options")));
 	
 	Queue* q = getCurrentQueue();
 	Transfer* d;
@@ -953,37 +952,38 @@ void MainWindow::transferOptions()
 	if(d != 0)
 	{
 		QWidget *widgetDetails;
+		GenericOptsForm* wgt = new GenericOptsForm(dlg.getNextChildHost(tr("Generic options")));
 		
 		widgetDetails = dlg.getNextChildHost(tr("Details"));
-		CommentForm comment (dlg.getNextChildHost(tr("Comment")), d);
+		CommentForm* comment = new CommentForm (dlg.getNextChildHost(tr("Comment")), d);
 		
-		wgt.m_mode = d->primaryMode();
-		wgt.m_strURI = d->object();
+		wgt->m_mode = d->primaryMode();
+		wgt->m_strURI = d->object();
 		
-		d->userSpeedLimits(wgt.m_nDownLimit, wgt.m_nUpLimit);
-		wgt.m_nDownLimit /= 1024;
-		wgt.m_nUpLimit /= 1024;
+		d->userSpeedLimits(wgt->m_nDownLimit, wgt->m_nUpLimit);
+		wgt->m_nDownLimit /= 1024;
+		wgt->m_nUpLimit /= 1024;
 		
 		dlg.setWindowTitle(tr("Transfer properties"));
-		dlg.addChild(&wgt);
+		dlg.addChild(wgt);
 		
 		if(WidgetHostChild* c = d->createOptionsWidget(widgetDetails))
 			dlg.addChild(c);
 		else
 			dlg.removeChildHost(widgetDetails);
-		dlg.addChild(&comment);
+		dlg.addChild(comment);
 		
 		if(dlg.exec() == QDialog::Accepted)
 		{
 			try
 			{
-				d->setObject(wgt.m_strURI);
+				d->setObject(wgt->m_strURI);
 			}
 			catch(const std::exception& e)
 			{
 				QMessageBox::critical(this, tr("Error"), e.what());
 			}
-			d->setUserSpeedLimits(wgt.m_nDownLimit*1024,wgt.m_nUpLimit*1024);
+			d->setUserSpeedLimits(wgt->m_nDownLimit*1024,wgt->m_nUpLimit*1024);
 			updateUi();
 			Queue::saveQueues();
 		}
@@ -1077,7 +1077,6 @@ void MainWindow::removeCompleted()
 	
 	for(int i=0;i<q->size();i++)
 	{
-		qDebug() << "Remove one\n";
 		Transfer* d = q->at(i);
 		if(d->state() == Transfer::Completed)
 			q->remove(i--,true);
@@ -1239,9 +1238,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::showSettings()
 {
-	SettingsDlg dlg(this);
-	if(dlg.exec() == QDialog::Accepted)
-		showTrayIcon();
+	SettingsDlg(this).exec();
 }
 
 void MainWindow::showTrayIcon()
@@ -1353,4 +1350,16 @@ void MainWindow::computeHash()
 	HashDlg(this).exec();
 }
 
+void MainWindow::reconfigure()
+{
+	showTrayIcon();
+	if(m_dropBox != 0)
+		m_dropBox->reconfigure();
+}
+
+void MainWindow::unhide()
+{
+	if(m_trayIcon.isVisible() && !actionDisplay->isChecked())
+		actionDisplay->toggle();
+}
 

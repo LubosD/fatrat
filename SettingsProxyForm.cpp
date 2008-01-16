@@ -6,7 +6,7 @@
 
 extern QSettings* g_settings;
 
-SettingsProxyForm::SettingsProxyForm(QWidget* w)
+SettingsProxyForm::SettingsProxyForm(QWidget* w, QObject* parent) : QObject(parent)
 {
 	setupUi(w);
 	

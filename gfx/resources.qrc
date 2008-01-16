@@ -248,6 +248,7 @@
         <file>fatrat.png</file>
         <file>fatrat_brown.png</file>
         <file>httpftp.png</file>
+        <file>miscellaneous.png</file>
         <file>proxy.png</file>
     </qresource>
     <qresource prefix="/menu" >
@@ -288,5 +289,8 @@
         <file>paused_upload.png</file>
         <file>waiting.png</file>
         <file>waiting_upload.png</file>
+    </qresource>
+    <qresource prefix="/svg" >
+        <file>mousetrap.svg</file>
     </qresource>
 </RCC>

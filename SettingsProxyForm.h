@@ -8,7 +8,7 @@ class SettingsProxyForm : public QObject, public WidgetHostChild, Ui_SettingsPro
 {
 Q_OBJECT
 public:
-	SettingsProxyForm(QWidget* w);
+	SettingsProxyForm(QWidget* w, QObject* parent);
 	virtual void load();
 	virtual void accepted();
 public slots:

@@ -15,6 +15,11 @@ public:
 		m_tabs = new QTabWidget(stackedMain);
 		stackedMain->insertWidget(1,m_tabs);
 	}
+	~WidgetHostDlg()
+	{
+		qDeleteAll(m_children);
+	}
+	
 	QWidget* getChildHost()
 	{
 		return widgetGeneric;

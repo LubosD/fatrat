@@ -7,6 +7,7 @@
 #include <QToolButton>
 #include "TransfersModel.h"
 #include "TransferLog.h"
+#include "DropBox.h"
 
 class SpeedGraph;
 
@@ -74,6 +75,9 @@ public slots:
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 	void downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now);
+	
+	void reconfigure();
+	void unhide();
 protected:
 	int getSelectedQueue();
 	static Queue* getQueue(int index, bool lock = true);
@@ -99,7 +103,7 @@ private:
 	QObject* m_pDetailsDisplay;
 	SpeedGraph* m_graph;
 	TransferLog* m_log;
-	QWidget* m_dropBox;
+	DropBox* m_dropBox;
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;

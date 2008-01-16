@@ -26,7 +26,8 @@ FORMS += MainWindow.ui \
  tools/TorrentSearch.ui \
  GenericOptsForm.ui \
  engines/SettingsHttpForm.ui \
- SettingsProxyForm.ui
+ SettingsProxyForm.ui \
+ SettingsDropBoxForm.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -80,7 +81,8 @@ HEADERS += fatrat.h \
  dbus/DbusImpl.h \
  engines/TorrentIPFilter.h \
  SettingsProxyForm.h \
- QueueStatus.h
+ QueueStatus.h \
+ SettingsDropBoxForm.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -124,7 +126,7 @@ SOURCES += fatrat.cpp \
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
-QT += xml network
+QT += xml network svg
 LIBS += -ltorrent -ldl -lssh2
 INCLUDEPATH = /usr/include/libtorrent
 

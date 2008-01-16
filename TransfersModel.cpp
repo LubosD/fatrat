@@ -112,6 +112,7 @@ TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
 			s += formatSize(up, true)+" up";
 		}
 		
+		newData.name = t->name();
 		newData.speed = s;
 		
 		if(t->total())

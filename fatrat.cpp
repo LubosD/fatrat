@@ -213,6 +213,9 @@ void initSettingsDefaults()
 	g_mapDefaults["torrent/maxfiles"] = 100;
 	g_mapDefaults["torrent/allocation"] = 0;
 	g_mapDefaults["remote/port"] = 2233;
+	
+	g_mapDefaults["dropbox/unhide"] = false;
+	g_mapDefaults["dropbox/height"] = 100;
 }
 
 QVariant getSettingsDefault(QString id)

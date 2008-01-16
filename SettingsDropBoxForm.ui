@@ -1,0 +1,63 @@
+<ui version="4.0" >
+ <class>SettingsDropBoxForm</class>
+ <widget class="QWidget" name="SettingsDropBoxForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Height</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QSpinBox" name="spinHeight" >
+     <property name="suffix" >
+      <string> px</string>
+     </property>
+     <property name="minimum" >
+      <number>50</number>
+     </property>
+     <property name="maximum" >
+      <number>1000</number>
+     </property>
+     <property name="singleStep" >
+      <number>50</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QCheckBox" name="checkUnhide" >
+     <property name="text" >
+      <string>Unhide the main window on drop</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
