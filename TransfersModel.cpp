@@ -112,7 +112,6 @@ TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
 			s += formatSize(up, true)+" up";
 		}
 		
-		newData.name = t->name();
 		newData.speed = s;
 		
 		if(t->total())
@@ -128,11 +127,11 @@ TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
 			else if(up && t->primaryMode() == Transfer::Upload)
 				newData.timeLeft = formatTime(totransfer/up);
 		}
-		
-		newData.message = t->message();
-		newData.mode = t->mode();
-		newData.primaryMode = t->primaryMode();
 	}
+	
+	newData.message = t->message();
+	newData.mode = t->mode();
+	newData.primaryMode = t->primaryMode();
 	
 	return newData;
 }

@@ -61,6 +61,7 @@ private slots:
 	
 	void switchMirror();
 	void computeHash();
+	void connectSignals();
 private:
 	void startHttp(QUrl url, QUrl referrer = QUrl());
 	void startFtp(QUrl url);

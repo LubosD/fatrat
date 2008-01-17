@@ -203,19 +203,11 @@ void GeneralDownload::changeActive(bool nowActive)
 			QString scheme = m_urls[m_nUrl].url.scheme();
 			
 			if(scheme == "http" || scheme == "https" || (Proxy::getProxy(m_urls[m_nUrl].proxy).nType == Proxy::ProxyHttp && scheme == "ftp"))
-			{
 				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
-				connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
-			}
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);
 			else if(scheme == "sftp")
 				startSftp(m_urls[m_nUrl].url);
-			
-			connect(m_engine, SIGNAL(receivedSize(qint64)), this, SLOT(responseSizeReceived(qint64)), Qt::DirectConnection);
-			connect(m_engine, SIGNAL(finished(bool)), this, SLOT(requestFinished(bool)), Qt::QueuedConnection);
-			connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
-			connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
 			
 			int down, up;
 			internalSpeedLimits(down, up);
@@ -232,12 +224,23 @@ void GeneralDownload::changeActive(bool nowActive)
 	}
 }
 
+void GeneralDownload::connectSignals()
+{
+	connect(m_engine, SIGNAL(receivedSize(qint64)), this, SLOT(responseSizeReceived(qint64)), Qt::DirectConnection);
+	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(requestFinished(bool)), Qt::QueuedConnection);
+	connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
+	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
+}
+
 void GeneralDownload::startHttp(QUrl url, QUrl referrer)
 {
 	qDebug() << "GeneralDownload::startHttp" << url;
 	
 	m_urlLast = url;
 	m_engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
+	
+	connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
+	connectSignals();
 	
 	m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
 	m_engine->request(filePath(), false, 0);
@@ -250,6 +253,8 @@ void GeneralDownload::startFtp(QUrl url)
 	m_urlLast = url;
 	m_engine = new FtpEngine(url, m_urls[m_nUrl].proxy);
 	
+	connectSignals();
+	
 	m_engine->request(filePath(), false, (m_urls[m_nUrl].ftpMode == FtpActive ? FtpEngine::FtpActive : FtpEngine::FtpPassive));
 }
 
@@ -259,6 +264,8 @@ void GeneralDownload::startSftp(QUrl url)
 	
 	m_urlLast = url;
 	m_engine = new SftpEngine(url);
+	
+	connectSignals();
 	
 	//m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
 	m_engine->request(filePath(), false, 0);
