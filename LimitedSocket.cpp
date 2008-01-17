@@ -273,7 +273,7 @@ bool LimitedSocket::readCycle()
 			m_prevBytes = bnow;
 		}
 
-		if(m_nSpeedLimit > 0 && bytes)
+		if(limit > 0 && bytes)
 		{
 			int sleeptime = bytes/ ( limit/1000 ) - msecs;
 			if(sleeptime > 0)
