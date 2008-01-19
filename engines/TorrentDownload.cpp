@@ -543,7 +543,7 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		storageMode = (libtorrent::storage_mode_t) g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt();
 		
-		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, storageMode, !isActive());
+		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, storageMode, true);
 		
 		m_handle.set_ratio(1.2f);
 		m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
@@ -587,6 +587,36 @@ void TorrentDownload::load(const QDomNode& map)
 			}
 			m_handle.replace_trackers(trackers);
 		}
+		
+		std::set<std::string> cur_seeds = m_handle.url_seeds();
+		std::set<std::string> now_seeds;
+		
+		n = map.firstChildElement("url_seeds");
+		if(!n.isNull())
+		{
+			QDomElement seed = n.firstChildElement("url");
+			while(!seed.isNull())
+			{
+				QByteArray url = seed.firstChild().toText().data().toUtf8();
+				now_seeds.insert(url.constData());
+				seed = seed.nextSiblingElement("url");
+			}
+			
+			std::set<std::string> diff;
+			
+			std::set_difference(cur_seeds.begin(), cur_seeds.end(), now_seeds.begin(), now_seeds.end(), std::inserter(diff, diff.begin()));
+			for(std::set<std::string>::iterator it=diff.begin(); it != diff.end(); it++)
+				m_handle.remove_url_seed(*it);
+			
+			diff.clear();
+			
+			std::set_difference(now_seeds.begin(), now_seeds.end(), cur_seeds.begin(), cur_seeds.end(), std::inserter(diff, diff.begin()));
+			for(std::set<std::string>::iterator it=diff.begin(); it != diff.end(); it++)
+				m_handle.add_url_seed(*it);
+		}
+		
+		if(isActive())
+			m_handle.resume();
 		
 		m_worker->doWork();
 	}
@@ -639,7 +669,12 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 			setXMLProperty(doc, sub, "tracker", QString::fromUtf8(trackers[i].url.c_str()));
 		}
 		
-		sub = doc.createElement("url_seeds"); // TODO
+		sub = doc.createElement("url_seeds");
+		std::set<std::string> seeds = m_handle.url_seeds();
+		for(std::set<std::string>::iterator it=seeds.begin(); it != seeds.end(); it++)
+		{
+			setXMLProperty(doc, sub, "url", QString::fromUtf8(it->c_str()));
+		}
 	}
 }
 
@@ -1277,9 +1312,9 @@ void TorrentOptsWidget::load()
 	recursiveUpdateDown(treeFiles->invisibleRootItem());
 	treeFiles->expandAll();
 	
-	std::vector<std::string> seeds = m_download->m_info->url_seeds();
-	for(size_t i=0;i<seeds.size();i++)
-		listUrlSeeds->addItem(QString::fromUtf8(seeds[i].c_str()));
+	std::set<std::string> seeds = m_download->m_handle.url_seeds();
+	for(std::set<std::string>::iterator it=seeds.begin(); it != seeds.end(); it++)
+		listUrlSeeds->addItem(QString::fromUtf8(it->c_str()));
 	
 	m_trackers = m_download->m_handle.trackers();
 	for(size_t i=0;i<m_trackers.size();i++)
@@ -1303,8 +1338,19 @@ void TorrentOptsWidget::accepted()
 	}
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
 	
+	std::vector<std::string> seeds = m_download->m_info->url_seeds();
 	foreach(QString url, m_seeds)
-		m_download->m_handle.add_url_seed(url.toStdString());
+	{
+		if(std::find(seeds.begin(), seeds.end(), url.toStdString()) == seeds.end())
+			m_download->m_handle.add_url_seed(url.toStdString());
+	}
+	for(size_t i=0;i<seeds.size();i++)
+	{
+		QString url = QString::fromUtf8(seeds[i].c_str());
+		if(!m_seeds.contains(url))
+			m_download->m_handle.remove_url_seed(seeds[i]);
+	}
+	
 	m_download->m_handle.replace_trackers(m_trackers);
 	
 	m_download->m_seedLimitRatio = (checkSeedRatio->isChecked()) ? doubleSeed->value() : 0.0;
