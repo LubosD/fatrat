@@ -82,7 +82,8 @@ HEADERS += fatrat.h \
  engines/TorrentIPFilter.h \
  SettingsProxyForm.h \
  QueueStatus.h \
- SettingsDropBoxForm.h
+ SettingsDropBoxForm.h \
+ TransfersView.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \

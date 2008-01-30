@@ -159,7 +159,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QTreeView" name="treeTransfers" >
+             <widget class="TransfersView" name="treeTransfers" >
               <property name="contextMenuPolicy" >
                <enum>Qt::CustomContextMenu</enum>
               </property>
@@ -740,6 +740,11 @@
    <extends>QTabWidget</extends>
    <header>MainTab.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TransfersView</class>
+   <extends>QTreeView</extends>
+   <header>TransfersView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

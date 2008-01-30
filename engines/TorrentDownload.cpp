@@ -905,6 +905,8 @@ void TorrentDownload::forceReannounce()
 	
 	if(m_status.state == libtorrent::torrent_status::seeding || m_status.state == libtorrent::torrent_status::downloading)
 		m_handle.force_reannounce();
+	else
+		m_handle.scrape_tracker();
 }
 
 void TorrentDownload::forceRecheck()

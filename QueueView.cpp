@@ -28,7 +28,7 @@ bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction 
 		
 		stream >> queueFrom >> transfers;
 		
-		if(queueFrom != queueTo)
+		if(queueFrom != queueTo && queueTo < g_queues.size())
 		{
 			q = g_queues[queueFrom];
 			q->lockW();

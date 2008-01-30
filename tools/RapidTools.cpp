@@ -34,6 +34,7 @@ void RapidTools::checkRShareLinks()
 		
 		foreach(QString link, links)
 		{
+			link = link.trimmed();
 			if(re.indexIn(link) < 0)
 			{
 				QMessageBox::warning(this, "FatRat", tr("An invalid link has been encountered: %1").arg(link));
