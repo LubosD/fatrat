@@ -14,9 +14,6 @@ QueueStatus::QueueStatus(QWidget* parent, Queue* queue)
 	connect(queue, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
 	
 	m_timer.start(1000);
-	
-	//move(QPoint(50,150));
-	show();
 }
 
 void QueueStatus::refresh()
