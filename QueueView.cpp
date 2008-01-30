@@ -79,7 +79,7 @@ void QueueView::mouseMoveEvent(QMouseEvent* event)
 		{
 			if(m_status)
 				m_status->deleteLater();
-			m_status = new QueueStatus(getMainWindow(), q);
+			m_status = new QueueToolTip(getMainWindow(), q);
 		}
 		
 		m_status->move(mapToGlobal(event->pos()) + QPoint(25, 25));

@@ -8,6 +8,7 @@
 #include "TransfersModel.h"
 #include "TransferLog.h"
 #include "DropBox.h"
+#include "MyTrayIcon.h"
 
 class SpeedGraph;
 
@@ -97,7 +98,7 @@ protected:
 	void initAppTools(QMenu* menu);
 private:
 	QTimer m_timer;
-	QSystemTrayIcon m_trayIcon;
+	MyTrayIcon m_trayIcon;
 	TransfersModel* m_modelTransfers;
 	QLabel m_labelStatus;
 	QObject* m_pDetailsDisplay;

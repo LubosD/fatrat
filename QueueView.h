@@ -4,7 +4,7 @@
 #include <QMimeData>
 #include <QDragMoveEvent>
 
-#include "QueueStatus.h"
+#include "tooltips/QueueToolTip.h"
 
 class QueueView : public QListWidget
 {
@@ -15,7 +15,7 @@ public:
 	QStringList mimeTypes() const;
 	void mouseMoveEvent(QMouseEvent* event);
 private:
-	QueueStatus* m_status;
+	QueueToolTip* m_status;
 };
 
 #endif

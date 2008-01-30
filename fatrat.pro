@@ -81,9 +81,12 @@ HEADERS += fatrat.h \
  dbus/DbusImpl.h \
  engines/TorrentIPFilter.h \
  SettingsProxyForm.h \
- QueueStatus.h \
  SettingsDropBoxForm.h \
- TransfersView.h
+ TransfersView.h \
+ tooltips/QueueToolTip.h \
+ tooltips/BaseToolTip.h \
+ tooltips/TrayToolTip.h \
+ MyTrayIcon.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -123,7 +126,9 @@ SOURCES += fatrat.cpp \
  engines/TorrentIPFilter.cpp \
  SettingsProxyForm.cpp \
  engines/TorrentSettings.cpp \
- QueueStatus.cpp
+ tooltips/QueueToolTip.cpp \
+ tooltips/BaseToolTip.cpp \
+ tooltips/TrayToolTip.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug

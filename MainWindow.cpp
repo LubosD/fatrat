@@ -78,7 +78,7 @@ void MainWindow::setupUi()
 	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
 	
 	m_trayIcon.setIcon(QIcon(":/fatrat/fatrat.png"));
-	m_trayIcon.setToolTip("FatRat");
+	//m_trayIcon.setToolTip("FatRat");
 	showTrayIcon();
 	
 	statusbar->addWidget(&m_labelStatus);
@@ -439,7 +439,7 @@ void MainWindow::refreshQueues()
 	
 	g_queuesLock.unlock();
 	
-	m_trayIcon.setToolTip(QString("FatRat\n%1 down | %2 up").arg(formatSize(downt,true)).arg(formatSize(upt,true)));
+	//m_trayIcon.setToolTip(QString("FatRat\n%1 down | %2 up").arg(formatSize(downt,true)).arg(formatSize(upt,true)));
 	
 	//if(upt || downt)
 		m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downq,true)).arg(formatSize(upq,true)) );

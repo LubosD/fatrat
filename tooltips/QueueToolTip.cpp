@@ -1,22 +1,12 @@
-#include "QueueStatus.h"
+#include "QueueToolTip.h"
 #include "fatrat.h"
 
-QueueStatus::QueueStatus(QWidget* parent, Queue* queue)
-	: QLabel(parent), m_queue(queue)
+QueueToolTip::QueueToolTip(QWidget* parent, Queue* queue)
+	: BaseToolTip(queue, parent), m_queue(queue)
 {
-	setWindowFlags(Qt::ToolTip);
-	setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
-	//setMargin(1);
-	setLineWidth(1);
-	refresh();
-	
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-	connect(queue, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
-	
-	m_timer.start(1000);
 }
 
-void QueueStatus::refresh()
+void QueueToolTip::refresh()
 {
 	// Active: %1 down, %2 up
 	// Waiting: %1 down, %2 up
@@ -56,10 +46,5 @@ void QueueStatus::refresh()
 			.arg(ad).arg(au).arg(wd).arg(wu).arg(formatSize(sd, true)).arg(formatSize(su, true));
 	setText(text);
 	resize(sizeHint());
-}
-
-void QueueStatus::mousePressEvent(QMouseEvent*)
-{
-	hide();
 }
 
