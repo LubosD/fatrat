@@ -13,6 +13,7 @@ public:
 	void regMove();
 	void drawGraph(QPainter* painter);
 	void redraw();
+	void updateData();
 	virtual void refresh();
 private:
 	QVector<int> m_speeds[2];

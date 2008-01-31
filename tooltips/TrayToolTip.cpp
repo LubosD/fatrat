@@ -20,6 +20,8 @@ TrayToolTip::TrayToolTip(QWidget* parent)
 	resize(WIDTH, HEIGHT);
 	setAlignment(Qt::AlignTop);
 	placeMe();
+	
+	updateData();
 	redraw();
 }
 
@@ -35,13 +37,15 @@ void TrayToolTip::regMove()
 
 void TrayToolTip::refresh()
 {
+	updateData();
+	
 	if(QApplication::widgetAt(QCursor::pos()) != m_object)
 		hide();
 	else
 		redraw();
 }
 
-void TrayToolTip::redraw()
+void TrayToolTip::updateData()
 {
 	if(m_speeds[0].size() >= VALUES)
 	{
@@ -54,9 +58,15 @@ void TrayToolTip::redraw()
 	
 	m_speeds[0].push_back(downt);
 	m_speeds[1].push_back(upt);
-	
+}
+
+void TrayToolTip::redraw()
+{
 	QPixmap pixmap(WIDTH, HEIGHT);
 	QPainter painter;
+	
+	int downt = QueueMgr::instance()->totalDown();
+	int upt = QueueMgr::instance()->totalUp();
 	
 	pixmap.fill(Qt::white);
 	painter.begin(&pixmap);
