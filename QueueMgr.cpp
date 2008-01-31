@@ -9,8 +9,11 @@ extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 
-QueueMgr::QueueMgr() : m_nCycle(0)
+QueueMgr* QueueMgr::m_instance = 0;
+
+QueueMgr::QueueMgr() : m_nCycle(0), m_down(0), m_up(0)
 {
+	m_instance = this;
 }
 
 void QueueMgr::run()
@@ -27,7 +30,7 @@ void QueueMgr::run()
 
 void QueueMgr::doWork()
 {
-	//cout << "QueueMgr::doWork()\n";
+	int total[2] = { 0, 0 };
 	g_queuesLock.lockForRead();
 	//const int threshold = g_settings->value("speedthreshold", getSettingsDefault("speedthreshold")).toInt()*1024;
 	const bool autoremove = g_settings->value("autoremove", getSettingsDefault("autoremove")).toBool();
@@ -84,13 +87,13 @@ void QueueMgr::doWork()
 			}
 			else if(state == Transfer::Completed && autoremove)
 			{
-				q->unlock();
-				q->remove(i--);
-				q->lock();
+				q->remove(i--, true);
 			}
 		}
 		
-		q->unlock();
+		total[0] += downt;
+		total[1] += upt;
+		//q->unlock();
 		
 		int downl=0,upl=0;
 		
@@ -111,7 +114,7 @@ void QueueMgr::doWork()
 			}
 		}
 		
-		q->lock();
+		//q->lock();
 		foreach(Transfer* d,q->m_transfers)
 		{
 			d->setInternalSpeedLimits(downl,upl);
@@ -120,6 +123,9 @@ void QueueMgr::doWork()
 	}
 	
 	g_queuesLock.unlock();
+	
+	m_down = total[0];
+	m_up = total[1];
 	
 	if(++m_nCycle > 30)
 	{

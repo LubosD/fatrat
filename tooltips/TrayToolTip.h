@@ -12,10 +12,11 @@ public:
 	TrayToolTip(QWidget* parent = 0);
 	void regMove();
 	void drawGraph(QPainter* painter);
+	void redraw();
 	virtual void refresh();
 private:
-	int m_ticks;
-	QVector<QPair<int,int> > m_values;
+	QVector<int> m_speeds[2];
+	QWidget* m_object;
 };
 
 #endif
