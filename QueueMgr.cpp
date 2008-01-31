@@ -41,7 +41,10 @@ void QueueMgr::doWork()
 		
 		int lim_down,lim_up;
 		int down,up;
-		int downt=0,upt=0;
+		
+		Queue::Stats stats;
+		
+		memset(&stats, 0, sizeof stats);
 		
 		q->transferLimits(lim_down,lim_up);
 		q->speedLimits(down,up);
@@ -62,8 +65,8 @@ void QueueMgr::doWork()
 			else if(ups >= 1024 && mode == Transfer::Upload)
 				d->m_bWorking = true;
 			
-			downt += downs;
-			upt += ups;
+			stats.down += downs;
+			stats.up += ups;
 			
 			if(state == Transfer::Waiting || state == Transfer::Active)
 			{
@@ -79,8 +82,7 @@ void QueueMgr::doWork()
 					(*lim)--;
 					d->setState(Transfer::Active);
 					
-					//if(!threshold || downt >= threshold || upt >= threshold)
-						running++;
+					running++;
 				}
 				else
 					d->setState(Transfer::Waiting);
@@ -89,13 +91,17 @@ void QueueMgr::doWork()
 			{
 				q->remove(i--, true);
 			}
+			
+			if(d->isActive())
+				( (mode == Transfer::Download) ? stats.active_d : stats.active_u) ++;
+			else if(d->state() == Transfer::Waiting)
+				( (mode == Transfer::Download) ? stats.waiting_d : stats.waiting_u) ++;
 		}
 		
-		total[0] += downt;
-		total[1] += upt;
-		//q->unlock();
+		total[0] += stats.down;
+		total[1] += stats.up;
 		
-		int downl=0,upl=0;
+		int downl = 0, upl = 0;
 		
 		if(running > 0 && (down || up))
 		{
@@ -104,21 +110,21 @@ void QueueMgr::doWork()
 			{
 				downl = down/running;
 				if(running > 1)
-					downl += std::max(down-downt,0)/(running-1);
+					downl += std::max(down-stats.down,0)/(running-1);
 			}
 			if(up)
 			{
 				upl = up/running;
 				if(running > 1)
-					upl += std::max(up-upt,0)/(running-1);
+					upl += std::max(up-stats.up,0)/(running-1);
 			}
 		}
 		
-		//q->lock();
 		foreach(Transfer* d,q->m_transfers)
-		{
 			d->setInternalSpeedLimits(downl,upl);
-		}
+		
+		q->m_stats = stats;
+		
 		q->unlock();
 	}
 	

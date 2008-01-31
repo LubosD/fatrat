@@ -55,6 +55,13 @@ private:
 	int m_nDownLimit,m_nUpLimit,m_nDownTransferLimit,m_nUpTransferLimit;
 	bool m_bUpAsDown;
 	mutable QReadWriteLock m_lock;
+public:
+	// statistics
+	struct Stats
+	{
+		int active_d, waiting_d, active_u, waiting_u;
+		int down, up;
+	} m_stats;
 protected:
 	QList<Transfer*> m_transfers;
 	

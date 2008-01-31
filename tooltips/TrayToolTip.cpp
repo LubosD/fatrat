@@ -11,8 +11,6 @@ const int WIDTH = 250;
 const int HEIGHT = 80;
 const int OFFSET = 20;
 
-//const int SECSTOHIDE = 3;
-
 TrayToolTip::TrayToolTip(QWidget* parent)
 	: BaseToolTip(0, parent)
 {
@@ -79,29 +77,44 @@ void TrayToolTip::redraw()
 
 void TrayToolTip::drawGraph(QPainter* painter)
 {
-	int top = 0;
+	int top = 10;
 	const int height = HEIGHT-OFFSET - 5;
+	const int arsize = (VALUES-1) * 2;
+	float perbyte;
+	QPoint points[arsize];
 	
 	for(int i=0;i<m_speeds[0].size();i++)
 		top = std::max(top, std::max(m_speeds[0][i], m_speeds[1][i]));
+	
+	perbyte = float(height)/top;
 	
 	for(int j=0;j<2;j++)
 	{
 		painter->setPen((!j) ? Qt::blue : Qt::red);
 		
-		for(int i=m_speeds[j].size()-1;i>0;i--)
+		int x = 0;
+		
+		for(int i=0; i<m_speeds[j].size(); i++)
 		{
-			int xfrom, xto, yfrom, yto;
+			int xfrom, yfrom;
+			
 			xfrom = float(WIDTH)/VALUES*(i);
-			xto = float(WIDTH)/VALUES*(i-1);
-			yfrom = height - float(height)/top*m_speeds[j][i];
-			yto = height - float(height)/top*m_speeds[j][i-1];
+			yfrom = height - perbyte*m_speeds[j][i];
 			
 			yfrom += OFFSET;
-			yto += OFFSET;
 			
-			painter->drawLine(xfrom, yfrom, xto, yto);
+			points[x] = QPoint(xfrom, yfrom);
+			
+			if(x != 0 && x < arsize)
+			{
+				points[x+1] = points[x];
+				x += 2;
+			}
+			else
+				x++;
 		}
+		
+		painter->drawLines(points, arsize/2);
 	}
 }
 
