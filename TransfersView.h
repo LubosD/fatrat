@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QHeaderView>
+#include <QDrag>
 
 class TransfersView : public QTreeView
 {

@@ -156,9 +156,12 @@ bool FtpEngine::activeConnect(QTcpServer** server)
 	quint32 ip = local.toIPv4Address();
 	quint16 port;
 	
-	QTcpServer* srv = activePortAllocator()->getNextPort();
-	*server = srv;
+	QTcpServer* srv;
+	
+	srv = *server = activePortAllocator()->getNextPort();
+	
 	srv->setMaxPendingConnections(1);
+	port = srv->serverPort();
 	
 	writeLine(QString("PORT %1,%2,%3,%4,%5,%6\r\n").arg(ip>>24).arg((ip>>16)&0xff).arg((ip>>8)&0xff).arg(ip&0xff).arg(port>>8).arg(port&0xff));
 	
