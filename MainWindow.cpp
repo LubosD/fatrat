@@ -78,7 +78,6 @@ void MainWindow::setupUi()
 	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
 	
 	m_trayIcon.setIcon(QIcon(":/fatrat/fatrat.png"));
-	//m_trayIcon.setToolTip("FatRat");
 	showTrayIcon();
 	
 	statusbar->addWidget(&m_labelStatus);

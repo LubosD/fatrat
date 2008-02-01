@@ -7,6 +7,7 @@
 
 class TransfersView : public QTreeView
 {
+Q_OBJECT
 public:
 	TransfersView(QWidget* parent) : QTreeView(parent)
 	{

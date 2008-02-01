@@ -6,6 +6,7 @@
 
 class QueueToolTip : public BaseToolTip
 {
+Q_OBJECT
 public:
 	QueueToolTip(QWidget* parent, Queue* queue);
 	Queue* getQueue() const { return m_queue; }

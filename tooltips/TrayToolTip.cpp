@@ -22,7 +22,6 @@ TrayToolTip::TrayToolTip(QWidget* parent)
 	placeMe();
 	
 	updateData();
-	redraw();
 }
 
 void TrayToolTip::regMove()
@@ -31,6 +30,7 @@ void TrayToolTip::regMove()
 	{
 		placeMe();
 		m_object = QApplication::widgetAt(QCursor::pos());
+		redraw();
 		show();
 	}
 }
