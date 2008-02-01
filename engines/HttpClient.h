@@ -21,6 +21,7 @@ public:
 	virtual QIODevice* getRemote() { return m_pRemote; }
 signals:
 	void redirected(QString newurl);
+	void renamed(QString dispName);
 private:
 	void processServerResponse();
 	void dataCycle(bool bChunked);

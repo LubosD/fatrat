@@ -51,13 +51,14 @@ public:
 	static Transfer* createInstance() { return new GeneralDownload; }
 	
 	QString filePath() const { return m_dir.filePath(name()); }
-	void setTargetName(QString strName) { m_strFile=strName; }
+	void setTargetName(QString strName);
 	
 private slots:
 	void requestFinished(bool error);
 	void responseSizeReceived(qint64 totalsize);
 	void redirected(QString newurl);
 	void changeMessage(QString msg) { m_strMessage = msg; }
+	void renamed(QString dispName);
 	
 	void switchMirror();
 	void computeHash();
@@ -73,6 +74,7 @@ protected:
 	qulonglong m_nTotal,m_nStart;
 	
 	QString m_strMessage, m_strFile;
+	bool m_bAutoName;
 	
 	LimitedSocket* m_engine;
 	

@@ -22,7 +22,7 @@ using namespace std;
 extern QSettings* g_settings;
 
 GeneralDownload::GeneralDownload(bool local) : Transfer(local), m_nTotal(0), m_nStart(0),
-m_engine(0), m_nUrl(0)
+m_bAutoName(false), m_engine(0), m_nUrl(0)
 {
 }
 
@@ -93,6 +93,7 @@ void GeneralDownload::generateName()
 	if(!m_urls.isEmpty())
 		name = QFileInfo(m_urls[0].url.path()).fileName();
 	m_strFile = (!name.isEmpty()) ? name : "default.html";
+	m_bAutoName = true;
 }
 
 void GeneralDownload::setObject(QString target)
@@ -128,8 +129,8 @@ void GeneralDownload::load(const QDomNode& map)
 {
 	m_dir = getXMLProperty(map, "dir");
 	m_nTotal = getXMLProperty(map, "knowntotal").toULongLong();
-	
 	m_strFile = getXMLProperty(map, "filename");
+	m_bAutoName = getXMLProperty(map, "autoname").toInt() != 0;
 	
 	QDomElement url = map.firstChildElement("url");
 	while(!url.isNull())
@@ -160,6 +161,7 @@ void GeneralDownload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "dir", m_dir.path());
 	setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
 	setXMLProperty(doc, map, "filename", m_strFile);
+	setXMLProperty(doc, map, "autoname", QString::number(m_bAutoName));
 	
 	for(int i=0;i<m_urls.size();i++)
 	{
@@ -240,6 +242,7 @@ void GeneralDownload::startHttp(QUrl url, QUrl referrer)
 	m_engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
 	
 	connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
+	connect(m_engine, SIGNAL(renamed(QString)), this, SLOT(renamed(QString)));
 	connectSignals();
 	
 	m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
@@ -352,6 +355,25 @@ void GeneralDownload::setSpeedLimits(int down,int)
 		m_engine->setLimit(down);
 }
 
+void GeneralDownload::renamed(QString dispName)
+{
+	if(m_bAutoName)
+	{
+		dispName.replace('/', '_');
+		qDebug() << "Automatically renaming to" << dispName;
+		setTargetName(dispName);
+	}
+}
+
+void GeneralDownload::setTargetName(QString newFileName)
+{
+	if(m_strFile != newFileName)
+	{
+		m_dir.rename(m_strFile, newFileName);
+		m_strFile = newFileName;
+	}
+}
+
 WidgetHostChild* GeneralDownload::createOptionsWidget(QWidget* w)
 {
 	return new HttpOptsWidget(w,this);
@@ -456,8 +478,8 @@ void HttpOptsWidget::accepted()
 	
 	if(newFileName != m_download->m_strFile)
 	{
-		m_download->m_dir.rename(m_download->m_strFile, newFileName);
-		m_download->m_strFile = newFileName;
+		m_download->setTargetName(newFileName);
+		m_download->m_bAutoName = false;
 	}
 	
 	m_download->m_urls = m_urls;

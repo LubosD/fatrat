@@ -169,8 +169,6 @@ void HttpEngine::processServerResponse()
 	{
 		QByteArray line = readLine();
 		
-		qDebug() << "Received HTTP line" << line;
-		
 		if(line.size() <= 2)
 		{
 			if(line.isEmpty())
@@ -245,6 +243,15 @@ void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 		{
 			m_nToTransfer = header.value("content-length").toLongLong();
 			emit receivedSize(m_nToTransfer+m_nResume);
+		}
+		
+		if(header.hasKey("content-disposition"))
+		{
+			QString disp = header.value("content-disposition");
+			int pos = disp.indexOf("filename=");
+			
+			if(pos != -1)
+				emit renamed(disp.mid(pos+9));
 		}
 		
 		dataCycle(bChunked);
