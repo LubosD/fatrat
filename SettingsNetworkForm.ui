@@ -1,0 +1,156 @@
+<ui version="4.0" >
+ <class>SettingsNetworkForm</class>
+ <widget class="QWidget" name="SettingsNetworkForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>347</width>
+    <height>293</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Line speed</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Download</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QSpinBox" name="spinDown" >
+        <property name="minimum" >
+         <number>1</number>
+        </property>
+        <property name="maximum" >
+         <number>9999999</number>
+        </property>
+        <property name="singleStep" >
+         <number>64</number>
+        </property>
+        <property name="value" >
+         <number>128</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>KB/s</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>Upload</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QSpinBox" name="spinUp" >
+        <property name="minimum" >
+         <number>1</number>
+        </property>
+        <property name="maximum" >
+         <number>9999999</number>
+        </property>
+        <property name="singleStep" >
+         <number>64</number>
+        </property>
+        <property name="value" >
+         <number>128</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QLabel" name="label_4" >
+        <property name="text" >
+         <string>KB/s</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>Proxy</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item rowspan="4" row="0" column="0" >
+       <widget class="QListWidget" name="listProxys" />
+      </item>
+      <item row="0" column="1" >
+       <widget class="QPushButton" name="pushAdd" >
+        <property name="text" >
+         <string>Add</string>
+        </property>
+        <property name="icon" >
+         <iconset>../../</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QPushButton" name="pushEdit" >
+        <property name="text" >
+         <string>Edit</string>
+        </property>
+        <property name="icon" >
+         <iconset>../../</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QPushButton" name="pushDelete" >
+        <property name="text" >
+         <string>Delete</string>
+        </property>
+        <property name="icon" >
+         <iconset>../../</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="gfx/resources.qrc" />
+ </resources>
+ <connections/>
+</ui>

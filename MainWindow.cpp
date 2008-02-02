@@ -44,6 +44,7 @@ MainWindow::MainWindow(bool bStartHidden) : m_trayIcon(this), m_pDetailsDisplay(
 	
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
+	connect(&m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
 	
 	m_timer.start(1000);
 	
@@ -160,11 +161,14 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 		hdr->restoreState(state.toByteArray());
 	
 	state = g_settings->value("state/mainsplitter");
-	
 	if(state.isNull())
 		splitterQueues->setSizes(QList<int>() << 80 << 600);
 	else
 		splitterQueues->restoreState(state.toByteArray());
+	
+	state = g_settings->value("state/statssplitter");
+	if(!state.isNull())
+		splitterStats->restoreState(state.toByteArray());
 	
 	connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
 	connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));

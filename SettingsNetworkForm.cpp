@@ -1,12 +1,11 @@
-#include "SettingsProxyForm.h"
+#include "SettingsNetworkForm.h"
 #include "ProxyDlg.h"
 #include <QSettings>
 #include <QMessageBox>
-#include <QtDebug>
 
 extern QSettings* g_settings;
 
-SettingsProxyForm::SettingsProxyForm(QWidget* w, QObject* parent) : QObject(parent)
+SettingsNetworkForm::SettingsNetworkForm(QWidget* w, QObject* parent) : QObject(parent)
 {
 	setupUi(w);
 	
@@ -15,8 +14,11 @@ SettingsProxyForm::SettingsProxyForm(QWidget* w, QObject* parent) : QObject(pare
 	connect(pushDelete, SIGNAL(clicked()), this, SLOT(proxyDelete()));
 }
 
-void SettingsProxyForm::load()
+void SettingsNetworkForm::load()
 {
+	spinDown->setValue( g_settings->value("network/speed_down", 1024).toInt() / 1024 );
+	spinUp->setValue( g_settings->value("network/speed_up", 1024).toInt() / 1024 );
+	
 	m_listProxy = Proxy::loadProxys();
 	
 	listProxys->clear();
@@ -24,8 +26,11 @@ void SettingsProxyForm::load()
 		listProxys->addItem(p.toString());
 }
 
-void SettingsProxyForm::accepted()
+void SettingsNetworkForm::accepted()
 {
+	g_settings->setValue("network/speed_down", spinDown->value() * 1024);
+	g_settings->setValue("network/speed_up", spinUp->value() * 1024);
+	
 	g_settings->beginWriteArray("httpftp/proxys");
 	for(int i=0;i<m_listProxy.size();i++)
 	{
@@ -43,7 +48,7 @@ void SettingsProxyForm::accepted()
 	g_settings->endArray();
 }
 
-void SettingsProxyForm::proxyAdd()
+void SettingsNetworkForm::proxyAdd()
 {
 	ProxyDlg dlg(pushAdd->parentWidget());
 	
@@ -55,7 +60,7 @@ void SettingsProxyForm::proxyAdd()
 	}
 }
 
-void SettingsProxyForm::proxyEdit()
+void SettingsNetworkForm::proxyEdit()
 {
 	int index = listProxys->currentRow();
 	if(index < 0)
@@ -71,7 +76,7 @@ void SettingsProxyForm::proxyEdit()
 	}
 }
 
-void SettingsProxyForm::proxyDelete()
+void SettingsNetworkForm::proxyDelete()
 {
 	int index = listProxys->currentRow();
 	if(index < 0)
@@ -84,3 +89,4 @@ void SettingsProxyForm::proxyDelete()
 		m_listProxy.removeAt(index);
 	}
 }
+

@@ -6,7 +6,7 @@
 #include <QApplication>
 #include <QtDebug>
 
-const int VALUES = 40;
+const int VALUES = 60;
 const int WIDTH = 250;
 const int HEIGHT = 80;
 const int OFFSET = 20;

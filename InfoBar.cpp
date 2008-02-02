@@ -10,10 +10,7 @@ static QList<InfoBar*> m_bars;
 InfoBar::InfoBar(QWidget* parent, Transfer* d) : QLabel(parent), m_download(d)
 {
 	setWindowFlags(Qt::ToolTip);
-	//setMinimumWidth(350);
-	//setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	setFrameStyle(QFrame::Box | QFrame::Plain);
-	//setMargin(1);
 	setLineWidth(1);
 	
 	connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(downloadDestroyed(QObject*)));
@@ -41,6 +38,13 @@ void InfoBar::refresh()
 {
 	qulonglong done = m_download->done(), total = m_download->total();
 	QString pc, speed, time = "- - -";
+	QString name = m_download->name();
+	
+	if(name.length() > 30)
+	{
+		name.resize(30);
+		name += "...";
+	}
 	
 	if(m_download->isActive())
 	{
@@ -69,8 +73,8 @@ void InfoBar::refresh()
 	if(total)
 		pc = QString("%1").arg(100.0/total*done, 0, 'f', 1);
 	
-	setText( QString("<font color=blue>N:</font> %1; <font color=blue>D:</font> %2%; "
-			"<font color=blue>S:</font> %3; <font color=blue>T:</font> %4").arg(m_download->name()).arg(pc).arg(speed).arg(time) );
+	setText( QString("<font color=blue>N:</font> %1 | <font color=blue>P:</font> %2% | "
+			"<font color=blue>S:</font> %3 | <font color=blue>T:</font> %4").arg(name).arg(pc).arg(speed).arg(time) );
 	
 	QSize size = sizeHint();
 	size.setWidth(std::max(size.width(),350));

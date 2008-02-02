@@ -81,6 +81,9 @@
         <height>24</height>
        </size>
       </property>
+      <property name="spacing" >
+       <number>1</number>
+      </property>
      </widget>
      <widget class="QStackedWidget" name="stackedWidget" >
       <property name="sizePolicy" >
@@ -89,7 +92,6 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <widget class="QWidget" name="page_2" />
      </widget>
     </widget>
    </item>

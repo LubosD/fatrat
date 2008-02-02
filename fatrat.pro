@@ -26,8 +26,8 @@ FORMS += MainWindow.ui \
  tools/TorrentSearch.ui \
  GenericOptsForm.ui \
  engines/SettingsHttpForm.ui \
- SettingsProxyForm.ui \
- SettingsDropBoxForm.ui
+ SettingsDropBoxForm.ui \
+ SettingsNetworkForm.ui
 TRANSLATIONS += locale/fatrat_cs_CZ.ts 
 RESOURCES += gfx/resources.qrc 
 HEADERS += fatrat.h \
@@ -80,13 +80,15 @@ HEADERS += fatrat.h \
  dbus/DbusAdaptor.h \
  dbus/DbusImpl.h \
  engines/TorrentIPFilter.h \
- SettingsProxyForm.h \
  SettingsDropBoxForm.h \
  TransfersView.h \
  tooltips/QueueToolTip.h \
  tooltips/BaseToolTip.h \
  tooltips/TrayToolTip.h \
- MyTrayIcon.h
+ MyTrayIcon.h \
+ NetIface.h \
+ SettingsNetworkForm.h \
+ StatsWidget.h
 SOURCES += fatrat.cpp \
            MainWindow.cpp \
            QueueMgr.cpp \
@@ -124,11 +126,14 @@ SOURCES += fatrat.cpp \
  dbus/DbusAdaptor.cpp \
  dbus/DbusImpl.cpp \
  engines/TorrentIPFilter.cpp \
- SettingsProxyForm.cpp \
  engines/TorrentSettings.cpp \
  tooltips/QueueToolTip.cpp \
  tooltips/BaseToolTip.cpp \
- tooltips/TrayToolTip.cpp
+ tooltips/TrayToolTip.cpp \
+ NetIface.cpp \
+ SettingsNetworkForm.cpp \
+ SettingsDlg.cpp \
+ StatsWidget.cpp
 TEMPLATE = app
 TARGET = fatrat
 CONFIG += qdbus debug
