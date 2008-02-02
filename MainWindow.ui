@@ -96,7 +96,11 @@
                 <bool>true</bool>
                </property>
               </widget>
-              <widget class="StatsWidget" native="1" name="widgetStats" />
+              <widget class="StatsWidget" native="1" name="widgetStats" >
+               <property name="autoFillBackground" >
+                <bool>true</bool>
+               </property>
+              </widget>
              </widget>
             </item>
            </layout>

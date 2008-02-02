@@ -56,10 +56,9 @@ void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
 {
 	int top = 0;
 	QQueue<QPair<int,int> > data;
-	QPainter painter;
+	QPainter painter(device);
 	int seconds = g_settings->value("graphminutes",int(5)).toInt()*60;
 	
-	painter.begin(device);
 	painter.setRenderHint(QPainter::Antialiasing);
 	
 	if(event != 0)
@@ -144,8 +143,6 @@ void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
 	painter.setPen(Qt::black);
 	painter.drawText(15,12,tr("Download"));
 	painter.drawText(15,24,tr("Upload"));
-	
-	painter.end();
 }
 
 void SpeedGraph::paintEvent(QPaintEvent* event)

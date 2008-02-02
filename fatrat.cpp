@@ -214,6 +214,9 @@ void initSettingsDefaults()
 	g_mapDefaults["torrent/allocation"] = 0;
 	g_mapDefaults["remote/port"] = 2233;
 	
+	g_mapDefaults["network/speed_down"] = 1024*128;
+	g_mapDefaults["network/speed_up"] = 1024*128;
+	
 	g_mapDefaults["dropbox/unhide"] = false;
 	g_mapDefaults["dropbox/height"] = 100;
 }

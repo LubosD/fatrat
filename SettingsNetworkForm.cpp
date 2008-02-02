@@ -16,8 +16,8 @@ SettingsNetworkForm::SettingsNetworkForm(QWidget* w, QObject* parent) : QObject(
 
 void SettingsNetworkForm::load()
 {
-	spinDown->setValue( g_settings->value("network/speed_down", 1024).toInt() / 1024 );
-	spinUp->setValue( g_settings->value("network/speed_up", 1024).toInt() / 1024 );
+	spinDown->setValue( g_settings->value("network/speed_down", getSettingsDefault("network/speed_down")).toInt() / 1024 );
+	spinUp->setValue( g_settings->value("network/speed_up", getSettingsDefault("network/speed_up")).toInt() / 1024 );
 	
 	m_listProxy = Proxy::loadProxys();
 	
