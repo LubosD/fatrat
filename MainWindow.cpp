@@ -200,6 +200,7 @@ void MainWindow::saveWindowState()
 	
 	g_settings->setValue("state/mainheaders", treeTransfers->header()->saveState());
 	g_settings->setValue("state/mainsplitter", splitterQueues->saveState());
+	g_settings->setValue("state/statssplitter", splitterStats->saveState());
 	g_settings->setValue("state/mainwindow", saveGeometry());
 	g_settings->setValue("state/selqueue", getSelectedQueue());
 	
