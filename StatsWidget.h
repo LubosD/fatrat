@@ -16,6 +16,7 @@ private:
 	qint64 m_globDown, m_globUp;
 	qint64 m_globDownPrev, m_globUpPrev;
 	QTimer* m_timer;
+	QString m_strInterface;
 };
 
 #endif

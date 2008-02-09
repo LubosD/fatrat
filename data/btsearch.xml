@@ -48,7 +48,7 @@
 		<regexp name="seeders" match="1">face=Verdana&gt;([^\n]+)</regexp>
 		<regexp name="leechers" match="2">face=Verdana&gt;([^\n]+)</regexp>
 	</engine>
-	<engine name="CZTorrent">
+	<!--<engine name="CZTorrent">
 		<param name="query">http://tracker.cztorrent.net/torrents.php?search=%1&amp;category=0&amp;active=0&amp;v2=1</param>
 		<param name="beginning">&lt;TD colspan="12" class="lista"&gt;&lt;/TD&gt;&lt;/TR&gt;</param>
 		<param name="splitter">&lt;/td&gt;
@@ -61,7 +61,7 @@
 		<regexp name="size">&lt;td align="center" class="lista"&gt;([^&lt;]+)&lt;</regexp>
 		<regexp name="seeders" field="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
 		<regexp name="leechers" field="1" match="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
-	</engine>
+	</engine>-->
 	<engine name="TorrentReactor">
 		<param name="query">http://www.torrentreactor.net/search.php?search=&amp;words=%1&amp;cid=0</param>
 		<param name="beginning">&lt;th&gt;Seeds&lt;/th&gt;</param>

@@ -121,7 +121,10 @@ void QueueMgr::doWork()
 		}
 		
 		foreach(Transfer* d,q->m_transfers)
-			d->setInternalSpeedLimits(downl,upl);
+		{
+			if(d->isActive())
+				d->setInternalSpeedLimits(downl,upl);
+		}
 		
 		q->m_stats = stats;
 		

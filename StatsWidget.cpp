@@ -21,11 +21,11 @@ StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent)
 
 void StatsWidget::refresh()
 {
-	QString iface = getRoutingInterface4();
 	QPair<qint64, qint64> newv = QPair<qint64, qint64>(-1, -1);
+	m_strInterface = getRoutingInterface4();
 	
-	if(!iface.isEmpty())
-		newv = getInterfaceStats(iface);
+	if(!m_strInterface.isEmpty())
+		newv = getInterfaceStats(m_strInterface);
 	
 	m_globDownPrev = m_globDown;
 	m_globUpPrev = m_globUp;
@@ -38,7 +38,6 @@ void StatsWidget::refresh()
 void StatsWidget::paintEvent(QPaintEvent* event)
 {
 	QPainter painter(this);
-	
 	painter.setRenderHint(QPainter::Antialiasing);
 	
 	if(event != 0)
@@ -80,5 +79,6 @@ void StatsWidget::paintEvent(QPaintEvent* event)
 		
 		painter.drawText(QRect(0, 0, colwidth*3, SPACE), Qt::AlignCenter, "down");
 		painter.drawText(QRect(width()-colwidth*3, 0, colwidth*3, SPACE), Qt::AlignCenter, "up");
+		painter.drawText(QRect(0, height()-SPACE, width(), SPACE), Qt::AlignCenter, m_strInterface);
 	}
 }

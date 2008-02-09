@@ -63,13 +63,12 @@ void TrayToolTip::updateData()
 void TrayToolTip::redraw()
 {
 	QPixmap pixmap(WIDTH, HEIGHT);
-	QPainter painter;
+	QPainter painter(&pixmap);
 	
 	int downt = QueueMgr::instance()->totalDown();
 	int upt = QueueMgr::instance()->totalUp();
 	
 	pixmap.fill(Qt::white);
-	painter.begin(&pixmap);
 	
 	QString text = QString("%1 down | %2 up").arg(formatSize(downt,true)).arg(formatSize(upt,true));
 	painter.setPen(Qt::black);
@@ -81,7 +80,6 @@ void TrayToolTip::redraw()
 	
 	drawGraph(&painter);
 	
-	painter.end();
 	setPixmap(pixmap);
 }
 

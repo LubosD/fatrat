@@ -83,10 +83,10 @@ void TorrentDownload::globalInit()
 	g_geoIPLib.setFileName("libGeoIP");
 	if(g_geoIPLib.load())
 	{
-		*((void**) &GeoIP_new) = g_geoIPLib.resolve("GeoIP_new");
-		*((void**) &GeoIP_country_name_by_addr) = g_geoIPLib.resolve("GeoIP_country_name_by_addr");
-		*((void**) &GeoIP_country_code_by_addr) = g_geoIPLib.resolve("GeoIP_country_code_by_addr");
-		*((void**) &GeoIP_delete) = g_geoIPLib.resolve("GeoIP_delete");
+		GeoIP_new = (void*(*)(int)) g_geoIPLib.resolve("GeoIP_new");
+		GeoIP_country_name_by_addr = (const char*(*)(void*, const char*)) g_geoIPLib.resolve("GeoIP_country_name_by_addr");
+		GeoIP_country_code_by_addr = (const char*(*)(void*, const char*)) g_geoIPLib.resolve("GeoIP_country_code_by_addr");
+		GeoIP_delete = (void(*)(void*)) g_geoIPLib.resolve("GeoIP_delete");
 		
 		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
 	}
@@ -418,11 +418,11 @@ void TorrentDownload::changeActive(bool nowActive)
 			m_handle.pause();
 		}
 	}
-	else if(m_pFileDownload == 0)
+	/*else if(m_pFileDownload == 0)
 	{
 		qDebug() << "changeActive() and the handle is not valid";
 		//setState(Failed);
-	}
+	}*/
 }
 
 void TorrentDownload::setSpeedLimits(int down, int up)
@@ -437,8 +437,6 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 		m_handle.set_upload_limit(up);
 		m_handle.set_download_limit(down);
 	}
-	//else
-	//	qDebug() << "Warning: torrent speed limit was not set:" << down << up;
 }
 
 qulonglong TorrentDownload::done() const
@@ -831,6 +829,7 @@ void TorrentWorker::doWork()
 	m_mutex.unlock();
 
 #define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(aaa)
+#define IS_ALERT_S(type) dynamic_cast<libtorrent::type*>(aaa) != 0
 	
 	while(true)
 	{
@@ -851,13 +850,13 @@ void TorrentWorker::doWork()
 			if(!d)
 				continue;
 			
-			if(IS_ALERT(file_error_alert))
+			if(IS_ALERT_S(file_error_alert))
 			{
 				d->setState(Transfer::Failed);
 				d->m_strError = errmsg;
 				d->enterLogMessage(tr("File error: %1").arg(errmsg));
 			}
-			else if(IS_ALERT(tracker_announce_alert))
+			else if(IS_ALERT_S(tracker_announce_alert))
 			{
 				d->enterLogMessage(tr("Tracker announce: %1").arg(errmsg));
 			}
@@ -873,11 +872,11 @@ void TorrentWorker::doWork()
 					desc += tr("(timeout)");
 				d->enterLogMessage(desc);
 			}
-			else if(IS_ALERT(tracker_warning_alert))
+			else if(IS_ALERT_S(tracker_warning_alert))
 			{
 				d->enterLogMessage(tr("Tracker warning: %1").arg(errmsg));
 			}
-			else if(IS_ALERT(fastresume_rejected_alert))
+			else if(IS_ALERT_S(fastresume_rejected_alert))
 			{
 				d->enterLogMessage(tr("Fast-resume data have been rejected: %1").arg(errmsg));
 			}
@@ -890,6 +889,7 @@ void TorrentWorker::doWork()
 		}
 	}
 #undef IS_ALERT
+#undef IS_ALERT_S
 }
 
 WidgetHostChild* TorrentDownload::createSettingsWidget(QWidget* w,QIcon& i)

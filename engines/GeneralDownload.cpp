@@ -331,6 +331,9 @@ void GeneralDownload::redirected(QString newurl)
 		
 			//if(code == 301)
 			//	m_urls[m_nUrl].url = location;
+			int down, up;
+			internalSpeedLimits(down, up);
+			m_engine->setLimit(down);
 		}
 		else
 		{
