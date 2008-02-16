@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "HttpService.h"
 #include <QSettings>
 #include <QtDebug>

@@ -3,6 +3,6 @@
 
 #cmakedefine WITH_BITTORRENT
 #cmakedefine WITH_SFTP
-#define INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}"
+#define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 
 #endif

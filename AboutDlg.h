@@ -1,5 +1,7 @@
 #ifndef ABOUTDLG_H
 #define ABOUTDLG_H
+#include "config.h"
+
 #include <QDialog>
 #include <QFile>
 #include <QHeaderView>

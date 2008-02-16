@@ -1,3 +1,4 @@
+#include "config.h"
 #include "fatrat.h"
 
 #include <QHeaderView>

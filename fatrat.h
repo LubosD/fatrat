@@ -1,8 +1,6 @@
 #ifndef _FATRAT_H
 #define _FATRAT_H
 
-#include "config.h"
-
 #include <QString>
 #include <QThread>
 #include <QUuid>
@@ -10,7 +8,6 @@
 #include <QVariant>
 
 #define VERSION "SVN"
-#define DATA_LOCATION INSTALL_PREFIX "/share/fatrat"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);

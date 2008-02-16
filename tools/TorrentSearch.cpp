@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "TorrentSearch.h"
 #include "RuntimeException.h"
 #include "fatrat.h"
