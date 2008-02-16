@@ -1,5 +1,11 @@
 #ifndef SftpEngine_H
 #define SftpEngine_H
+#include "config.h"
+
+#ifndef WITH_SFTP
+#	error This file is not supposed to be included!
+#endif
+
 #include "LimitedSocket.h"
 #include <QTcpSocket>
 #include <QUrl>

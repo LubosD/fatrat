@@ -1,7 +1,11 @@
 #include "fatrat.h"
 #include "FtpUpload.h"
 #include "tools/HashDlg.h"
-#include "SftpClient.h"
+
+#ifdef WITH_SFTP
+#	include "SftpClient.h"
+#endif
+
 #include "RuntimeException.h"
 #include <QFileInfo>
 #include <QMenu>
@@ -24,7 +28,12 @@ int FtpUpload::acceptable(QString url, bool bDrop)
 	if(bDrop)
 		return (url.startsWith("file://") || url.startsWith("/")) ? 2 : 0;
 	else
-		return (url.startsWith("ftp://") || url.startsWith("sftp://")) ? 2 : 0;
+		return (
+			url.startsWith("ftp://")
+#ifdef WITH_SFTP
+			|| url.startsWith("sftp://")
+#endif
+		       ) ? 2 : 0;
 }
 
 void FtpUpload::init(QString source, QString target)
@@ -43,7 +52,12 @@ void FtpUpload::init(QString source, QString target)
 	if(m_strName.isEmpty())
 		m_strName = finfo.fileName();
 	
-	if(!target.startsWith("ftp://") && !target.startsWith("sftp://"))
+	if(
+	   !target.startsWith("ftp://")
+#ifdef WITH_SFTP
+	   && !target.startsWith("sftp://")
+#endif
+	)
 		throw RuntimeException(tr("Invalid protocol for this upload class (FTP)"));
 	
 	m_strTarget = target;
@@ -80,8 +94,16 @@ void FtpUpload::changeActive(bool nowActive)
 		
 		if(m_strTarget.scheme() == "ftp")
 			m_engine = new FtpEngine(m_strTarget, m_proxy);
-		else
+#ifdef WITH_SFTP
+		else if(m_strTarget.scheme() == "sftp")
 			m_engine = new SftpEngine(m_strTarget);
+#endif
+		else
+		{
+			m_strMessage = tr("Unsupported protocol");
+			setState(Failed);
+			return;
+		}
 		
 		connect(m_engine, SIGNAL(finished(bool)), this, SLOT(finished(bool)));
 		connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
@@ -263,7 +285,15 @@ void FtpUploadOptsForm::accepted()
 
 bool FtpUploadOptsForm::accept()
 {
-	return lineTarget->text().startsWith("ftp://") || lineTarget->text().startsWith("sftp://");
+	bool acc = false;
+	
+	acc |= lineTarget->text().startsWith("ftp://");
+	
+#ifdef WITH_SFTP
+	acc |= lineTarget->text().startsWith("sftp://");
+#endif
+	
+	return acc;
 }
 
 

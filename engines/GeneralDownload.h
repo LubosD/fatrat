@@ -1,5 +1,14 @@
 #ifndef _GENERALDOWNLOAD_H
 #define _GENERALDOWNLOAD_H
+
+#include "config.h"
+
+#ifdef WITH_SFTP
+#	define GENERALDOWNLOAD_DESCR "HTTP(S)/FTP/SFTP download"
+#else
+#	define GENERALDOWNLOAD_DESCR "HTTP(S)/FTP download"
+#endif
+
 #include "Transfer.h"
 #include <QUrl>
 #include <QDir>

@@ -259,8 +259,7 @@ void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 		
 		break;
 	}
-	case 301:
-	case 302: // redirect
+	case 301 ... 399: // redirect
 		emit redirected(header.value("location"));
 		break;
 	default: // error

@@ -6,7 +6,10 @@
 
 #include "HttpClient.h"
 #include "FtpClient.h"
-#include "SftpClient.h"
+
+#ifdef WITH_SFTP
+#	include "SftpClient.h"
+#endif
 
 #include <iostream>
 #include <QtDebug>
@@ -37,7 +40,11 @@ int GeneralDownload::acceptable(QString uri, bool)
 	QUrl url = uri;
 	QString scheme = url.scheme();
 	
-	if(scheme != "http" && scheme != "ftp" && scheme != "sftp" && scheme != "https")
+	if(scheme != "http" && scheme != "ftp"
+#ifdef WITH_SFTP
+		&& scheme != "sftp"
+#endif
+		&& scheme != "https")
 		return 0;
 	else
 		return 2;
@@ -208,8 +215,16 @@ void GeneralDownload::changeActive(bool nowActive)
 				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);
+#ifdef WITH_SFTP
 			else if(scheme == "sftp")
 				startSftp(m_urls[m_nUrl].url);
+#endif
+			else
+			{
+				m_strMessage = tr("Unsupported protocol");
+				setState(Failed);
+				return;
+			}
 			
 			int down, up;
 			internalSpeedLimits(down, up);
@@ -263,6 +278,7 @@ void GeneralDownload::startFtp(QUrl url)
 
 void GeneralDownload::startSftp(QUrl url)
 {
+#ifdef WITH_SFTP
 	qDebug() << "GeneralDownload::startSftp" << url;
 	
 	m_urlLast = url;
@@ -272,6 +288,10 @@ void GeneralDownload::startSftp(QUrl url)
 	
 	//m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
 	m_engine->request(filePath(), false, 0);
+#else
+	qDebug() << "GeneralDownload::startSftp() should have never been called!";
+	abort();
+#endif
 }
 
 void GeneralDownload::responseSizeReceived(qint64 totalsize)
@@ -630,7 +650,11 @@ void HttpUrlOptsDlg::accept()
 {
 	QString url = lineUrl->text();
 	
-	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://") || url.startsWith("sftp://") || url.startsWith("https://"))
+	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://")
+#ifdef WITH_SFTP
+		  || url.startsWith("sftp://")
+#endif
+		  || url.startsWith("https://"))
 		QDialog::accept();
 }
 

@@ -1,8 +1,19 @@
+#ifndef FTPUPLOAD_H
+#define FTPUPLOAD_H
+
+#include "config.h"
+
 #include "Transfer.h"
 #include "FtpClient.h"
 #include <QUuid>
 #include "ui_FtpUploadOptsForm.h"
 #include "WidgetHostChild.h"
+
+#ifdef WITH_SFTP
+#	define FTPUPLOAD_DESCR "FTP/SFTP upload"
+#else
+#	define FTPUPLOAD_DESCR "FTP upload"
+#endif
 
 class FtpUpload : public Transfer
 {
@@ -66,3 +77,4 @@ private:
 	FtpUpload* m_upload;
 };
 
+#endif

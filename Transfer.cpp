@@ -1,7 +1,13 @@
+#include "config.h"
+
 #include "Transfer.h"
 #include "engines/FakeDownload.h"
 #include "engines/GeneralDownload.h"
-#include "engines/TorrentDownload.h"
+
+#ifdef WITH_BITTORRENT
+#	include "engines/TorrentDownload.h"
+#endif
+
 #include "engines/FtpUpload.h"
 #include <iostream>
 #include <QtDebug>
@@ -15,13 +21,15 @@ extern QSettings* g_settings;
 
 static const EngineEntry m_enginesDownload[] = {
 	{ "FakeDownload", "Fake engine", 0, 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 },
-	{ "GeneralDownload", "HTTP(S)/(S)FTP download", 0, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
+	{ "GeneralDownload", GENERALDOWNLOAD_DESCR, 0, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
+#ifdef WITH_BITTORRENT
 	{ "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, TorrentDownload::createSettingsWidget, 0 },
+#endif
 	{ 0,0,0,0,0,0,0,0 }
 };
 
 static const EngineEntry m_enginesUpload[] = {
-	{ "FtpUpload", "(S)FTP upload", 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0, 0 },
+	{ "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0, 0 },
 	{ 0,0,0,0,0,0,0,0 }
 };
 

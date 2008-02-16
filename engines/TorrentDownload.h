@@ -1,5 +1,12 @@
 #ifndef TORRENTDOWNLOAD_H
 #define TORRENTDOWNLOAD_H
+
+#include "config.h"
+
+#ifndef WITH_BITTORRENT
+#	error This file is not supposed to be included!
+#endif
+
 #include "Transfer.h"
 #include "ui_TorrentDetailsForm.h"
 #include "ui_TorrentOptsWidget.h"
