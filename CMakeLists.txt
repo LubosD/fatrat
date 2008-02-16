@@ -29,6 +29,12 @@ if(WITH_SFTP)
 	endif(LIBSSH2_FOUND)
 endif(WITH_SFTP)
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+	ADD_DEFINITIONS(-ggdb)
+	ADD_DEFINITIONS(-DDEBUG)
+	ADD_DEFINITIONS(-Wall)
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
 CONFIGURE_FILE(config.h.in config.h)
 
 #QT4_ADD_DBUS_INTERFACE (fatrat_SRCS dbus/interface.xml dbusinterface)
@@ -146,7 +152,6 @@ set(fatrat_UIS
 	SettingsDropBoxForm.ui
 	SettingsGeneralForm.ui
 	SettingsNetworkForm.ui
-	ScheduleForm.ui
 	SpeedLimitWidget.ui
 	UserAuthDlg.ui
 	WidgetHostDlg.ui
