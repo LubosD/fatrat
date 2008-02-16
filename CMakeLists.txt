@@ -215,3 +215,17 @@ add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H})
 
 target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${QT_QTDBUS_LIBRARY})
+
+install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt DESTINATION share/fatrat/data)
+install(FILES gfx/fatrat.png DESTINATION share/pixmaps)
+install(FILES data/fatrat.desktop DESTINATION share/applications)
+
+if(WITH_NLS)
+	install(FILES locale/fatrat_cs_CZ.qm DESTINATION share/fatrat/lang)
+endif(WITH_NLS)
+
+if(WITH_BITTORRENT)
+	install(FILES data/btsearch.xml DESTINATION share/fatrat/data)
+endif(WITH_BITTORRENT)
+
+install(PROGRAMS fatrat DESTINATION bin)
