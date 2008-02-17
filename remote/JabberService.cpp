@@ -124,6 +124,9 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 		else
 		{
 			bool bAccepted = m_bRestrictPassword;
+			
+			if(m_bRestrictSelf)
+				bAccepted &= from.bare() == m_strJID.toStdString();
 			bAccepted &= m_strRestrictPassword == message.mid(5);
 			
 			if(bAccepted)
