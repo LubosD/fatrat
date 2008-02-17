@@ -176,7 +176,17 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 	
 	try
 	{
-		if(args[0] == "qlist")
+		if(args[0] == "help")
+		{
+			response = tr("List of commands:\nqlist - Show list of queues\n"
+					"qset - Set current queue ID\n"
+					"list - Show transfers of the current queue\n"
+					"pauseall/resumeall - Pause/resume all transfers\n"
+					"pause/resume/delete - Pause/resume/delete specified transfers\n"
+					"logout/quit/exit - Log out\n"
+					"\nPass arguments like this: \"resume 1 3 5\", use indexes from the lists");
+		}
+		else if(args[0] == "qlist")
 		{
 			QReadLocker locker(&g_queuesLock);
 			response = tr("List of queues:");
