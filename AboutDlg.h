@@ -49,6 +49,9 @@ public:
 #ifdef WITH_SFTP
 		checkFeatureSFTP->setChecked(true);
 #endif
+#ifdef WITH_JABBER
+		checkFeatureJabber->setChecked(true);
+#endif
 	}
 	static void loadFile(QTextEdit* edit, QString filename)
 	{
