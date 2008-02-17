@@ -282,23 +282,27 @@ void MainWindow::updateUi()
 {
 	//refreshQueues();
 	QList<int> sel = getSelection();
+	Queue* q = getCurrentQueue();
 	
 	// queue view
-	if(listQueues->currentItem())
+	if(q != 0)
 	{
 		actionDeleteQueue->setEnabled(true);
 		actionQueueProperties->setEnabled(true);
 		actionNewTransfer->setEnabled(true);
+		actionStopAll->setEnabled(true);
+		actionResumeAll->setEnabled(true);
 	}
 	else
 	{
 		actionDeleteQueue->setEnabled(false);
 		actionQueueProperties->setEnabled(false);
 		actionNewTransfer->setEnabled(false);
+		actionStopAll->setEnabled(false);
+		actionResumeAll->setEnabled(false);
 	}
 	
 	// transfer view
-	Queue* q = getCurrentQueue();
 	if(!sel.empty())
 	{
 		int rcount = m_modelTransfers->rowCount();
@@ -444,12 +448,7 @@ void MainWindow::refreshQueues()
 	
 	g_queuesLock.unlock();
 	
-	//m_trayIcon.setToolTip(QString("FatRat\n%1 down | %2 up").arg(formatSize(downt,true)).arg(formatSize(upt,true)));
-	
-	//if(upt || downt)
-		m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downq,true)).arg(formatSize(upq,true)) );
-	//else
-	//	m_labelStatus.setText(QString());
+	m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downq,true)).arg(formatSize(upq,true)) );
 }
 
 void MainWindow::newQueue()

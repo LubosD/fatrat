@@ -248,6 +248,7 @@
         <file>fatrat.png</file>
         <file>fatrat_brown.png</file>
         <file>httpftp.png</file>
+        <file>jabber.png</file>
         <file>miscellaneous.png</file>
         <file>proxy.png</file>
     </qresource>

@@ -1,3 +1,4 @@
+#include "config.h"
 #include "fatrat.h"
 
 #include <QApplication>
@@ -17,9 +18,14 @@
 #include "QueueMgr.h"
 #include "Queue.h"
 #include "Transfer.h"
+#include "config.h"
 #include "dbus/DbusAdaptor.h"
 #include "dbus/DbusImpl.h"
 #include "remote/HttpService.h"
+
+#ifdef WITH_JABBER
+#	include "remote/JabberService.h"
+#endif
 
 using namespace std;
 
@@ -53,9 +59,11 @@ int main(int argc,char** argv)
 	if(!m_bForceNewInstance)
 		processSession(arg);
 	
+#ifdef WITH_NLS
 	qDebug() << "Current locale" << QLocale::system().name();
-	translator.load(QString("fatrat_") + QLocale::system().name(), "/usr/share/fatrat/lang");
+	translator.load(QString("fatrat_") + QLocale::system().name(), DATA_LOCATION "/lang");
 	app.installTranslator(&translator);
+#endif
 	
 	// Init download engines (let them load settings)
 	initSettingsDefaults();
@@ -77,8 +85,16 @@ int main(int argc,char** argv)
 	if(!arg.isEmpty())
 		g_wndMain->addTransfer(arg);
 	
+#ifdef WITH_JABBER
+	new JabberService;
+#endif
+	
 	app.setQuitOnLastWindowClosed(false);
 	rval = app.exec();
+	
+#ifdef WITH_JABBER
+	delete JabberService::instance();
+#endif
 	
 	delete g_http;
 	delete g_wndMain;
@@ -219,6 +235,10 @@ void initSettingsDefaults()
 	
 	g_mapDefaults["dropbox/unhide"] = false;
 	g_mapDefaults["dropbox/height"] = 100;
+	
+	g_mapDefaults["jabber/enable"] = false;
+	g_mapDefaults["jabber/restrict_self"] = true;
+	g_mapDefaults["jabber/priority"] = -1;
 }
 
 QVariant getSettingsDefault(QString id)

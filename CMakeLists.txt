@@ -29,6 +29,18 @@ if(WITH_SFTP)
 	endif(LIBSSH2_FOUND)
 endif(WITH_SFTP)
 
+if(WITH_JABBER)
+	set(gloox_DIR ${CMAKE_MODULE_PATH})
+	find_package(gloox REQUIRED)
+	
+	if(GLOOX_FOUND)
+		message(STATUS "gloox found OK")
+		include_directories(${GLOOX_INCLUDE_DIRS})
+	else(GLOOX_FOUND)
+		message(FATAL_ERROR "No gloox")
+	endif(GLOOX_FOUND)
+endif(WITH_JABBER)
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
 	ADD_DEFINITIONS(-DDEBUG)
@@ -207,6 +219,23 @@ if(WITH_BITTORRENT)
 	)
 endif(WITH_BITTORRENT)
 
+if(WITH_JABBER)
+	set(fatrat_SRCS
+		${fatrat_SRCS}
+		remote/JabberService.cpp
+		remote/SettingsJabberForm.cpp
+	)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		remote/JabberService.h
+		remote/SettingsJabberForm.h
+	)
+	set(fatrat_UIS
+		${fatrat_UIS}
+		remote/SettingsJabberForm.ui
+	)
+endif(WITH_JABBER)
+
 qt4_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
 
 set(fatrat_RCS
@@ -219,7 +248,7 @@ qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${QT_QTDBUS_LIBRARY})
+target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_QTDBUS_LIBRARY})
 
 install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt DESTINATION share/fatrat/data)
 install(FILES gfx/fatrat.png DESTINATION share/pixmaps)

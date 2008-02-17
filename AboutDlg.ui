@@ -43,11 +43,12 @@
       <bool>false</bool>
      </property>
      <property name="rowCount" >
-      <number>4</number>
+      <number>5</number>
      </property>
      <property name="columnCount" >
       <number>1</number>
      </property>
+     <row/>
      <row/>
      <row/>
      <row/>
@@ -170,6 +171,60 @@
        </property>
        <item row="0" column="0" >
         <widget class="QTextBrowser" name="text3rdParties" />
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_5" >
+      <layout class="QGridLayout" >
+       <item row="0" column="0" colspan="2" >
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>&lt;b>Features enabled at compile time:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <widget class="QCheckBox" name="checkFeatureNLS" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="text" >
+          <string>Native Language Support</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QCheckBox" name="checkFeatureSFTP" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="text" >
+          <string>SFTP</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QCheckBox" name="checkFeatureBitTorrent" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="text" >
+          <string>BitTorrent</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

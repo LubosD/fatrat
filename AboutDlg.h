@@ -18,7 +18,7 @@ public:
 		
 		QTableWidgetItem* first;
 		QStringList items;
-		items << "FatRat" << tr("License") << tr("Translations") << tr("3rd parties");
+		items << "FatRat" << tr("License") << tr("Translations") << tr("3rd parties") << tr("Features");
 		
 		for(int i=0;i<items.size();i++)
 		{
@@ -39,6 +39,16 @@ public:
 		loadFile(textLicense, "LICENSE.txt");
 		loadFile(textTranslators, "TRANSLATIONS.txt");
 		loadFile(text3rdParties, "3RDPARTIES.txt");
+		
+#ifdef WITH_NLS
+		checkFeatureNLS->setChecked(true);
+#endif
+#ifdef WITH_BITTORRENT
+		checkFeatureBitTorrent->setChecked(true);
+#endif
+#ifdef WITH_SFTP
+		checkFeatureSFTP->setChecked(true);
+#endif
 	}
 	static void loadFile(QTextEdit* edit, QString filename)
 	{

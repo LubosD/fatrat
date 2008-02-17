@@ -1,8 +1,14 @@
+#include "config.h"
+
 #include "SettingsDlg.h"
 #include "SettingsGeneralForm.h"
 #include "SettingsDropBoxForm.h"
 #include "SettingsNetworkForm.h"
 #include "MainWindow.h"
+
+#ifdef WITH_JABBER
+#	include "remote/SettingsJabberForm.h"
+#endif
 
 #include <QSettings>
 
@@ -33,7 +39,19 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 	fillEngines( Transfer::engines(Transfer::Download) );
 	fillEngines( Transfer::engines(Transfer::Upload) );
 	
+#ifdef WITH_JABBER
+	w = new QWidget(stackedWidget);
+	m_children << (WidgetHostChild*)(new SettingsJabberForm(w, this));
+	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/jabber.png"), tr("Jabber"), listWidget) );
+	stackedWidget->addWidget(w);
+#endif
+	
 	connect(buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
+}
+
+SettingsDlg::~SettingsDlg()
+{
+	qDeleteAll(m_children);
 }
 
 void SettingsDlg::accept()

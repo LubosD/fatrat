@@ -11,6 +11,8 @@ class SettingsDlg : public QDialog, Ui_SettingsDlg
 Q_OBJECT
 public:
 	SettingsDlg(QWidget* parent);
+	~SettingsDlg();
+	
 	virtual void accept();
 	int exec();
 public slots:
