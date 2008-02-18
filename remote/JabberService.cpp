@@ -5,6 +5,9 @@
 
 #include <gloox/messagesession.h>
 #include <gloox/disco.h>
+#include <gloox/connectionhttpproxy.h>
+#include <gloox/connectionsocks5proxy.h>
+#include <gloox/connectiontcpclient.h>
 #include <QSettings>
 #include <QtDebug>
 
@@ -35,22 +38,54 @@ JabberService::~JabberService()
 
 void JabberService::applySettings()
 {
-	qDebug() << "Loading Jabber settings";
+	QString jid, password;
+	QUuid proxy;
+	int priority;
+	bool bChanged = false;
 	
-	m_strJID = g_settings->value("jabber/jid").toString();
-	m_strPassword = g_settings->value("jabber/password").toString();
+	jid = g_settings->value("jabber/jid").toString();
+	password = g_settings->value("jabber/password").toString();
+	priority = g_settings->value("jabber/priority", getSettingsDefault("jabber/priority")).toInt();
+	proxy = g_settings->value("jabber/proxy").toString();
+	
 	m_bRestrictSelf = g_settings->value("jabber/restrict_self", getSettingsDefault("jabber/restrict_self")).toBool();
 	m_bRestrictPassword = g_settings->value("jabber/restrict_password_bool").toBool();
 	m_strRestrictPassword = g_settings->value("jabber/restrict_password").toString();
-	m_nPriority = g_settings->value("jabber/priority", getSettingsDefault("jabber/priority")).toInt();
+	
+	if(jid != m_strJID)
+	{
+		bChanged = true;
+		m_strJID = jid;
+	}
+	if(password != m_strPassword)
+	{
+		bChanged = true;
+		m_strPassword = password;
+	}
+	if(priority != m_nPriority)
+	{
+		bChanged = true;
+		m_nPriority = priority;
+	}
+	if(proxy != m_proxy)
+	{
+		bChanged = true;
+		m_proxy = proxy;
+	}
 	
 	if(g_settings->value("jabber/enabled", getSettingsDefault("jabber/enabled")).toBool())
 	{
 		qDebug() << "Jabber is enabled";
 		if(!isRunning())
 			start();
-		else
-			; // TODO: compare and possibly restart
+		else if(bChanged)
+		{
+			m_bTerminating = true;
+			m_pClient->disconnect();
+			wait();
+			m_bTerminating = false;
+			start();
+		}
 	}
 	else if(isRunning())
 	{
@@ -61,7 +96,6 @@ void JabberService::applySettings()
 
 void JabberService::run()
 {
-	qDebug() << "Thread is running";
 	while(!m_bTerminating)
 	{
 		gloox::JID jid( (m_strJID + "/FatRat").toStdString());
@@ -74,7 +108,36 @@ void JabberService::run()
 		m_pClient->disco()->setVersion("FatRat", VERSION);
 		m_pClient->setPresence(gloox::PresenceAvailable, m_nPriority);
 		
-		m_pClient->connect(); // this function returns only in case of failure
+		gloox::ConnectionBase* proxy = 0;
+		Proxy pdata = Proxy::getProxy(m_proxy);
+		
+		if(pdata.nType == Proxy::ProxyHttp)
+		{
+			gloox::ConnectionHTTPProxy* p;
+			proxy = p = new gloox::ConnectionHTTPProxy(m_pClient,
+				new gloox::ConnectionTCPClient(m_pClient->logInstance(), pdata.strIP.toStdString(), pdata.nPort),
+                                m_pClient->logInstance(), m_pClient->server(), m_pClient->port());
+			
+			if(!pdata.strUser.isEmpty())
+				p->setProxyAuth(pdata.strUser.toStdString(), pdata.strPassword.toStdString());
+		}
+		else if(pdata.nType == Proxy::ProxySocks5)
+		{
+			gloox::ConnectionSOCKS5Proxy* p;
+			proxy = p = new gloox::ConnectionSOCKS5Proxy(m_pClient,
+				new gloox::ConnectionTCPClient(m_pClient->logInstance(), pdata.strIP.toStdString(), pdata.nPort),
+                                m_pClient->logInstance(), m_pClient->server(), m_pClient->port());
+			
+			if(!pdata.strUser.isEmpty())
+				p->setProxyAuth(pdata.strUser.toStdString(), pdata.strPassword.toStdString());
+		}
+		
+		if(proxy != 0)
+			m_pClient->setConnectionImpl(proxy);
+		
+		m_pClient->connect();
+		
+		delete m_pClient;
 		
 		if(!m_bTerminating)
 			sleep(5);

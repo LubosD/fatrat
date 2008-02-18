@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QList>
 #include <QStringList>
+#include <QUuid>
 
 #ifndef WITH_JABBER
 #	error This file is not supposed to be included!
@@ -63,6 +64,7 @@ private:
 	bool m_bRestrictSelf, m_bRestrictPassword;
 	QString m_strRestrictPassword;
 	int m_nPriority;
+	QUuid m_proxy;
 	
 	gloox::Client* m_pClient;
 	bool m_bTerminating;
