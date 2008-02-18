@@ -81,7 +81,8 @@ void JabberService::applySettings()
 		else if(bChanged)
 		{
 			m_bTerminating = true;
-			m_pClient->disconnect();
+			if(m_pClient)
+				m_pClient->disconnect();
 			wait();
 			m_bTerminating = false;
 			start();
@@ -137,7 +138,9 @@ void JabberService::run()
 		
 		m_pClient->connect();
 		
-		delete m_pClient;
+		gloox::Client* c = m_pClient;
+		m_pClient = 0;
+		delete c;
 		
 		if(!m_bTerminating)
 			sleep(5);
