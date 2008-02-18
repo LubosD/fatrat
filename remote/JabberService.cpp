@@ -29,7 +29,8 @@ JabberService::~JabberService()
 	if(isRunning())
 	{
 		m_bTerminating = true;
-		m_pClient->disconnect();
+		if(m_pClient != 0)
+			m_pClient->disconnect();
 		wait();
 	}
 	
@@ -84,14 +85,15 @@ void JabberService::applySettings()
 			if(m_pClient)
 				m_pClient->disconnect();
 			wait();
-			m_bTerminating = false;
 			start();
 		}
 	}
 	else if(isRunning())
 	{
 		m_bTerminating = true;
-		m_pClient->disconnect();
+		if(m_pClient)
+			m_pClient->disconnect();
+		wait();
 	}
 }
 
@@ -145,6 +147,7 @@ void JabberService::run()
 		if(!m_bTerminating)
 			sleep(5);
 	}
+	m_bTerminating = false;
 }
 
 void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* session)
