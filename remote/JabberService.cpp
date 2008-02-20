@@ -81,11 +81,8 @@ void JabberService::applySettings()
 			start();
 		else if(bChanged)
 		{
-			m_bTerminating = true;
 			if(m_pClient)
 				m_pClient->disconnect();
-			wait();
-			start();
 		}
 	}
 	else if(isRunning())
@@ -105,7 +102,7 @@ void JabberService::run()
 		
 		m_pClient = new gloox::Client(jid, m_strPassword.toStdString());
 		m_pClient->registerMessageHandler(this);
-		//m_pClient->registerConnectionListener(this);
+		m_pClient->registerConnectionListener(this);
 		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
 		m_pClient->disco()->setIdentity("client", "bot");
 		m_pClient->disco()->setVersion("FatRat", VERSION);

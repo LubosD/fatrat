@@ -34,7 +34,7 @@ static const EngineEntry m_enginesUpload[] = {
 };
 
 Transfer::Transfer(bool local)
-	: m_state(Waiting), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
+	: m_state(Paused), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
 		  m_nDownLimitInt(0), m_nUpLimitInt(0), m_bLocal(local), m_bWorking(false),
 		  m_nRetryCount(0)
 {

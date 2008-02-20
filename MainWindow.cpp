@@ -768,9 +768,6 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 			
 			listTransfers << d;
 			
-			if(dlg.m_bPaused)
-				d->setState(Transfer::Paused);
-			
 			QString source, destination;
 			
 			source = uris[i].trimmed();
@@ -815,6 +812,12 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 				if(!Transfer::runProperties(this, dlg.m_mode, dlg.m_nClass, listTransfers))
 					throw RuntimeException();
 			}
+		}
+		
+		if(!dlg.m_bPaused)
+		{
+			foreach(Transfer* d, listTransfers)
+				d->setState(Transfer::Waiting);
 		}
 		
 		queue->add(listTransfers);
