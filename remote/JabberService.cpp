@@ -34,7 +34,7 @@ JabberService::~JabberService()
 		if(m_pClient != 0)
 			m_pClient->disconnect();
 		wait();
-		//terminate();
+		delete m_pClient;
 	}
 	
 	m_instance = 0;
@@ -93,6 +93,8 @@ void JabberService::applySettings()
 		if(m_pClient)
 			m_pClient->disconnect();
 		wait();
+		delete m_pClient;
+		m_pClient = 0;
 	}
 }
 
@@ -107,7 +109,7 @@ void JabberService::run()
 		m_pClient = new gloox::Client(jid, m_strPassword.toStdString());
 		m_pClient->registerMessageHandler(this);
 		m_pClient->registerConnectionListener(this);
-		m_pClient->rosterManager()->registerRosterListener(this);
+		//m_pClient->rosterManager()->registerRosterListener(this);
 		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
 		m_pClient->disco()->setIdentity("client", "bot");
 		m_pClient->disco()->setVersion("FatRat", VERSION);
@@ -142,12 +144,14 @@ void JabberService::run()
 		
 		m_pClient->connect();
 		
-		gloox::Client* c = m_pClient;
-		m_pClient = 0;
-		delete c;
-		
 		if(!m_bTerminating)
+		{
+			gloox::Client* c = m_pClient;
+			m_pClient = 0;
+			delete c;
+			
 			sleep(5);
+		}
 	}
 	m_bTerminating = false;
 }
@@ -218,6 +222,8 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 			conn->chatState->setChatState(gloox::ChatStateGone);
 			session->send( msg.toStdString() );
 			m_pClient->disposeMessageSession(session);
+			
+			Logger::global()->enterLogMessage("Jabber", tr("%1 logged out").arg(from.full().c_str()));
 	
 			m_connections.removeAll(*conn);
 		}

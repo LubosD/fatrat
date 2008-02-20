@@ -842,8 +842,6 @@ void TorrentWorker::doWork()
 		if((aaa = a.get()) == 0)
 			break;
 		
-		Logger::global()->enterLogMessage("BitTorrent", tr("Alert: %1").arg(aaa->msg().c_str()));
-		
 		if(IS_ALERT(torrent_alert))
 		{
 			TorrentDownload* d = getByHandle(alert->handle);
@@ -884,11 +882,16 @@ void TorrentWorker::doWork()
 				d->enterLogMessage(tr("Fast-resume data have been rejected: %1").arg(errmsg));
 			}
 		}
-		else if(IS_ALERT(peer_error_alert))
+		else
 		{
-			// TODO: what to do with this?
-			std::string ip = alert->ip.address().to_string();
-			qDebug() << "\tFor IP address" << ip.c_str() << alert->ip.port();
+			Logger::global()->enterLogMessage("BitTorrent", tr("Alert: %1").arg(aaa->msg().c_str()));
+			
+			if(IS_ALERT(peer_error_alert))
+			{
+				// TODO:
+				std::string ip = alert->ip.address().to_string();
+				qDebug() << "\tFor IP address" << ip.c_str() << alert->ip.port();
+			}
 		}
 	}
 #undef IS_ALERT
