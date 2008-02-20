@@ -15,10 +15,11 @@
 #include <gloox/chatstatehandler.h>
 #include <gloox/chatstatefilter.h>
 #include <gloox/connectionlistener.h>
+#include <gloox/rosterlistener.h>
 
 class Transfer;
 
-class JabberService : public QThread, public gloox::MessageHandler, public gloox::ConnectionListener, public gloox::ChatStateHandler
+class JabberService : public QThread, public gloox::MessageHandler, public gloox::ConnectionListener, public gloox::ChatStateHandler, public gloox::RosterListener
 {
 Q_OBJECT
 public:
@@ -29,9 +30,13 @@ public:
 	static std::string qstring2stdstring(QString str);
 	void applySettings();
 	
+	// QThread
 	virtual void run();
+	
+	// gloox::MessageHandler
 	virtual void handleMessage(gloox::Stanza* stanza, gloox::MessageSession* session = 0);
 	
+	// gloox::ConnectionListener
 	virtual void onConnect();
 	virtual void onDisconnect(gloox::ConnectionError e);
 	virtual void onResourceBindError(gloox::ResourceBindError error);
@@ -39,7 +44,22 @@ public:
 	virtual bool onTLSConnect(const gloox::CertInfo &info) { return true; }
 	virtual void onStreamEvent(gloox::StreamEvent event) {}
 	
+	// gloox::ChatStateHandler
 	virtual void handleChatState(const gloox::JID &from, gloox::ChatStateType state);
+	
+	// gloox::RosterListener
+	virtual void handleNonrosterPresence (gloox::Stanza *stanza) {}
+	virtual void handleRosterError (gloox::Stanza *stanza) {}
+	virtual void handleItemAdded (const gloox::JID &jid) {}
+	virtual void handleItemSubscribed (const gloox::JID &jid) {}
+	virtual void handleItemRemoved (const gloox::JID &jid) {}
+	virtual void handleItemUpdated (const gloox::JID &jid) {}
+	virtual void handleItemUnsubscribed (const gloox::JID &jid) {}
+	virtual void handleRoster (const gloox::Roster &roster) {}
+	virtual bool handleSubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return true; }
+	virtual bool handleUnsubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return true; }
+	virtual void handleRosterPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence presence, const std::string& msg) {}
+	virtual void handleSelfPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence presence, const std::string& msg) {}
 protected:
 	struct ConnectionInfo
 	{

@@ -277,19 +277,6 @@ void Transfer::updateGraph()
 	m_qSpeedData.enqueue(QPair<int,int>(down,up));
 }
 
-void Transfer::enterLogMessage(QString msg)
-{
-	QString text = QString("%1 %2 - %3")
-			.arg( QDate::currentDate().toString(Qt::ISODate) )
-			.arg( QTime::currentTime().toString(Qt::ISODate) )
-			.arg(msg);
-	emit logMessage(text);
-	if(!m_strLog.isEmpty())
-		m_strLog += '\n';
-	
-	m_strLog += text;
-}
-
 QString Transfer::getXMLProperty(const QDomNode& node, QString name)
 {
 	QDomNode n = node.firstChildElement(name);

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>737</width>
-    <height>502</height>
+    <height>520</height>
    </rect>
   </property>
   <property name="acceptDrops" >
@@ -56,7 +56,7 @@
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QLabel" name="label" >
@@ -356,16 +356,73 @@
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="QTextEdit" name="textTransferLog" >
-          <property name="verticalScrollBarPolicy" >
-           <enum>Qt::ScrollBarAlwaysOn</enum>
+         <widget class="QSplitter" name="splitter" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="readOnly" >
-           <bool>true</bool>
-          </property>
-          <property name="acceptRichText" >
-           <bool>false</bool>
-          </property>
+          <widget class="QWidget" name="" >
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_8" >
+              <property name="frameShape" >
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="text" >
+               <string>&lt;b>Transfer log</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="textTransferLog" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="verticalScrollBarPolicy" >
+               <enum>Qt::ScrollBarAlwaysOn</enum>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+              <property name="acceptRichText" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="" >
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_9" >
+              <property name="frameShape" >
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="text" >
+               <string>&lt;b>Global log</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="textGlobalLog" >
+              <property name="verticalScrollBarPolicy" >
+               <enum>Qt::ScrollBarAlwaysOn</enum>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+              <property name="acceptRichText" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>

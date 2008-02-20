@@ -6,7 +6,7 @@
 #include <QSystemTrayIcon>
 #include <QToolButton>
 #include "TransfersModel.h"
-#include "TransferLog.h"
+#include "LogManager.h"
 #include "DropBox.h"
 #include "MyTrayIcon.h"
 
@@ -103,7 +103,7 @@ private:
 	QLabel m_labelStatus;
 	QObject* m_pDetailsDisplay;
 	SpeedGraph* m_graph;
-	TransferLog* m_log;
+	LogManager* m_log;
 	DropBox* m_dropBox;
 	
 	friend class DropBox;

@@ -1,4 +1,5 @@
 #include "fatrat.h"
+#include "Logger.h"
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
 #include "RuntimeException.h"
@@ -30,6 +31,8 @@ extern QSettings* g_settings;
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
+
+static const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
 
 void* g_pGeoIP = 0;
 QLibrary g_geoIPLib;
@@ -117,7 +120,7 @@ void TorrentDownload::applySettings()
 		catch(...)
 		{
 			m_bDHT = false;
-			qDebug() << "Failed to start DHT!";
+			Logger::global()->enterLogMessage("BitTorrent", tr("Failed to start DHT!"));
 		}
 	}
 	else
@@ -331,8 +334,8 @@ bool TorrentDownload::storeTorrent(QString orig)
 	QString str = storedTorrentName();
 	QDir dir = QDir::home();
 	
-	dir.mkpath(".local/share/fatrat/torrents");
-	if(!dir.cd(".local/share/fatrat/torrents"))
+	dir.mkpath(TORRENT_FILE_STORAGE);
+	if(!dir.cd(TORRENT_FILE_STORAGE))
 		return false;
 	
 	str = dir.absoluteFilePath(str);
@@ -509,7 +512,7 @@ void TorrentDownload::load(const QDomNode& map)
 		QString str;
 		QDir dir = QDir::home();
 	
-		dir.cd(".local/share/fatrat/torrents");
+		dir.cd(TORRENT_FILE_STORAGE);
 		
 		str = getXMLProperty(map, "seedlimitratio");
 		if(!str.isEmpty())
@@ -839,7 +842,7 @@ void TorrentWorker::doWork()
 		if((aaa = a.get()) == 0)
 			break;
 		
-		qDebug() << "Libtorrent alert:" << QString::fromUtf8(aaa->msg().c_str());
+		Logger::global()->enterLogMessage("BitTorrent", tr("Alert: %1").arg(aaa->msg().c_str()));
 		
 		if(IS_ALERT(torrent_alert))
 		{

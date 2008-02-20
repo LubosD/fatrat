@@ -2,8 +2,10 @@
 #include "fatrat.h"
 #include "Queue.h"
 #include "RuntimeException.h"
+#include "Logger.h"
 
 #include <gloox/messagesession.h>
+#include <gloox/rostermanager.h>
 #include <gloox/disco.h>
 #include <gloox/connectionhttpproxy.h>
 #include <gloox/connectionsocks5proxy.h>
@@ -32,6 +34,7 @@ JabberService::~JabberService()
 		if(m_pClient != 0)
 			m_pClient->disconnect();
 		wait();
+		//terminate();
 	}
 	
 	m_instance = 0;
@@ -76,7 +79,6 @@ void JabberService::applySettings()
 	
 	if(g_settings->value("jabber/enabled", getSettingsDefault("jabber/enabled")).toBool())
 	{
-		qDebug() << "Jabber is enabled";
 		if(!isRunning())
 			start();
 		else if(bChanged)
@@ -100,9 +102,12 @@ void JabberService::run()
 	{
 		gloox::JID jid( (m_strJID + "/FatRat").toStdString());
 		
+		Logger::global()->enterLogMessage("Jabber", tr("Connecting..."));
+		
 		m_pClient = new gloox::Client(jid, m_strPassword.toStdString());
 		m_pClient->registerMessageHandler(this);
 		m_pClient->registerConnectionListener(this);
+		m_pClient->rosterManager()->registerRosterListener(this);
 		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
 		m_pClient->disco()->setIdentity("client", "bot");
 		m_pClient->disco()->setVersion("FatRat", VERSION);
@@ -430,6 +435,8 @@ JabberService::ConnectionInfo* JabberService::createConnection(gloox::MessageSes
 	info.nQueue = (g_queues.isEmpty()) ? -1 : 0;
 	info.chatState = new gloox::ChatStateFilter(session);
 	
+	Logger::global()->enterLogMessage("Jabber", tr("New chat session: %1").arg(info.strJID));
+	
 	info.chatState->registerChatStateHandler(this);
 	
 	m_connections << info;
@@ -467,10 +474,48 @@ void JabberService::handleChatState(const gloox::JID &from, gloox::ChatStateType
 
 void JabberService::onConnect()
 {
+	Logger::global()->enterLogMessage("Jabber", tr("Connected"));
 }
 
 void JabberService::onDisconnect(gloox::ConnectionError e)
 {
+	QString err = tr("Disconnected:") + ' ';
+	
+	switch(e)
+	{
+		case gloox::ConnStreamError:
+			err += tr("Stream error"); break;
+		case gloox::ConnStreamVersionError:
+			err += tr("Stream version error"); break;
+		case gloox::ConnStreamClosed:
+			err += tr("Stream closed"); break;
+		case gloox::ConnProxyAuthRequired:
+			err += tr("Proxy authentication required"); break;
+		case gloox::ConnProxyAuthFailed:
+			err += tr("Proxy authentication failed"); break;
+		case gloox::ConnProxyNoSupportedAuth:
+			err += tr("The proxy requires an unsupported auth mechanism"); break;
+		case gloox::ConnIoError:
+			err += tr("I/O error"); break;
+		case gloox::ConnParseError:
+			err += tr("XML parse error"); break;
+		case gloox::ConnConnectionRefused:
+			err += tr("Connection refused"); break;
+		case gloox::ConnDnsError:
+			err += tr("Failed to resolve the domain name"); break;
+		case gloox::ConnOutOfMemory:
+			err += tr("Out of memory"); break;
+		case gloox::ConnNoSupportedAuth:
+			err += tr("The server doesn't provide any supported authentication mechanism"); break;
+		case gloox::ConnAuthenticationFailed:
+			err += tr("Authentication failed"); break;
+		case gloox::ConnUserDisconnected:
+			err += tr("The user was disconnect"); break;
+		default:
+			err += tr("Other reason"); break;
+	}
+	
+	Logger::global()->enterLogMessage("Jabber", err);
 }
 
 void JabberService::onResourceBindError(gloox::ResourceBindError error)

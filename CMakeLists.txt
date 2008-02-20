@@ -83,6 +83,7 @@ set(fatrat_SRCS
 	StatsWidget.cpp
 	Transfer.cpp
 	TransfersModel.cpp
+	Logger.cpp
 
 	remote/GenericService.cpp
 	remote/HttpService.cpp
@@ -118,7 +119,7 @@ set(fatrat_MOC_HDRS
 	StatsWidget.h
 	ProxyDlg.h
 	SpeedLimitWidget.h
-	TransferLog.h
+	LogManager.h
 	SettingsGeneralForm.h
 	Transfer.h
 	SimpleEmail.h
@@ -136,6 +137,7 @@ set(fatrat_MOC_HDRS
 	WidgetHostDlg.h
 	UserAuthDlg.h
 	NewTransferDlg.h
+	Logger.h
 	
 	tools/HashDlg.h
 	tools/RapidTools.h

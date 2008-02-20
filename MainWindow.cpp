@@ -88,7 +88,7 @@ void MainWindow::setupUi()
 	
 	m_graph = new SpeedGraph(this);
 	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Speed graph"));
-	m_log = new TransferLog(this, textTransferLog);
+	m_log = new LogManager(this, textTransferLog, textGlobalLog);
 	
 	connectActions();
 }
@@ -310,7 +310,7 @@ void MainWindow::updateUi()
 		
 		tabMain->setTabEnabled(1, bSingle);	// transfer details
 		tabMain->setTabEnabled(2, bSingle);	// transfer graph
-		tabMain->setTabEnabled(3, bSingle);	// transfer log
+		//tabMain->setTabEnabled(3, bSingle);	// transfer log
 		
 		actionOpenFile->setEnabled(bSingle);
 		actionOpenDirectory->setEnabled(bSingle);
@@ -359,7 +359,7 @@ void MainWindow::updateUi()
 	{
 		tabMain->setTabEnabled(1,false); // transfer details
 		tabMain->setTabEnabled(2,false); // transfer graph
-		tabMain->setTabEnabled(3,false); // transfer log
+		//tabMain->setTabEnabled(3,false); // transfer log
 		
 		actionOpenFile->setEnabled(false);
 		actionOpenDirectory->setEnabled(false);

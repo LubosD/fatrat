@@ -7,6 +7,7 @@
 #include <QPair>
 #include <QSettings>
 #include <QDomNode>
+#include "Logger.h"
 
 struct EngineEntry;
 class QObject;
@@ -16,7 +17,7 @@ class QIcon;
 class QMenu;
 class QDialog;
 
-class Transfer : public QObject
+class Transfer : public Logger
 {
 Q_OBJECT
 public:
@@ -70,7 +71,6 @@ public:
 	virtual void fillContextMenu(QMenu&) { }
 	
 	// LOGGING
-	QString logContents() const { return m_strLog; }
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
 	
 	// COMMENT
@@ -103,13 +103,9 @@ public:
 signals:
 	void stateChanged(Transfer::State prev, Transfer::State now);
 	void modeChanged(Transfer::Mode prev, Transfer::Mode now);
-	
-	void logMessage(QString msg);
 public slots:
 	void updateGraph();
 	void retry();
-	// This function is supposed to be used by child classes
-	void enterLogMessage(QString msg);
 protected:
 	virtual void changeActive(bool nowActive) = 0;
 	virtual void setSpeedLimits(int down,int up) = 0;
