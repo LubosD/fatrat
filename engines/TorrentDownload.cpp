@@ -149,8 +149,37 @@ void TorrentDownload::applySettings()
 	m_session->set_settings(settings);
 	
 	libtorrent::pe_settings ps;
-	ps.in_enc_policy = ps.out_enc_policy = libtorrent::pe_settings::enabled;
-	ps.allowed_enc_level = libtorrent::pe_settings::both;
+	
+	switch(g_settings->value("torrent/enc_incoming", getSettingsDefault("torrent/enc_incoming")).toInt())
+	{
+	case 0:
+		ps.in_enc_policy = libtorrent::pe_settings::disabled; break;
+	case 1:
+		ps.in_enc_policy = libtorrent::pe_settings::enabled; break;
+	case 2:
+		ps.in_enc_policy = libtorrent::pe_settings::forced; break;
+	}
+	switch(g_settings->value("torrent/enc_outgoing", getSettingsDefault("torrent/enc_outgoing")).toInt())
+	{
+	case 0:
+		ps.out_enc_policy = libtorrent::pe_settings::disabled; break;
+	case 1:
+		ps.out_enc_policy = libtorrent::pe_settings::enabled; break;
+	case 2:
+		ps.out_enc_policy = libtorrent::pe_settings::forced; break;
+	}
+	
+	switch(g_settings->value("torrent/enc_level", getSettingsDefault("torrent/enc_level")).toInt())
+	{
+	case 0:
+		ps.allowed_enc_level = libtorrent::pe_settings::plaintext; break;
+	case 1:
+		ps.allowed_enc_level = libtorrent::pe_settings::rc4; break;
+	case 2:
+		ps.allowed_enc_level = libtorrent::pe_settings::both;
+	}
+	
+	ps.prefer_rc4 = g_settings->value("torrent/enc_rc4_prefer", getSettingsDefault("torrent/enc_rc4_prefer")).toBool();
 	m_session->set_pe_settings(ps);
 	
 	// Proxy settings

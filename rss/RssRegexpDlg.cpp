@@ -2,8 +2,8 @@
 #include "RssRegexpDlg.h"
 #include "Queue.h"
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QSettings>
+#include <QtDebug>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -14,7 +14,7 @@ RssRegexpDlg::RssRegexpDlg(QWidget* parent)
 {
 	setupUi(this);
 	
-	connect(pushRegexpTest, SIGNAL(clicked()), this, SLOT(test()));
+	connect(lineText, SIGNAL(textChanged(const QString&)), this, SLOT(test()));
 	connect(toolBrowse, SIGNAL(clicked()), this, SLOT(browse()));
 	
 	m_strTarget = g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
@@ -49,6 +49,8 @@ int RssRegexpDlg::exec()
 	lineExpression->setText(m_strExpression);
 	lineTarget->setText(m_strTarget);
 	
+	test();
+	
 	if((r = QDialog::exec()) == QDialog::Accepted)
 	{
 		m_strExpression = lineExpression->text();
@@ -71,8 +73,5 @@ void RssRegexpDlg::browse()
 void RssRegexpDlg::test()
 {
 	QRegExp r(lineExpression->text(), Qt::CaseInsensitive);
-	if(r.indexIn(lineText->text()) != -1)
-		QMessageBox::information(this, "FatRat", tr("Matched", "Regular expression"));
-	else
-		QMessageBox::warning(this, "FatRat", tr("Not matched", "Regular expression"));
+	labelMatch->setPixmap( (r.indexIn(lineText->text()) != -1) ? QPixmap(":/states/completed.png") : QPixmap(":/menu/delete.png") );
 }

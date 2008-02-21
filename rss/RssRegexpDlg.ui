@@ -74,14 +74,26 @@
        </widget>
       </item>
       <item row="0" column="1" >
-       <widget class="QLineEdit" name="lineText" />
-      </item>
-      <item row="0" column="2" >
-       <widget class="QPushButton" name="pushRegexpTest" >
-        <property name="text" >
-         <string>Test</string>
+       <widget class="QLabel" name="labelMatch" >
+        <property name="minimumSize" >
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="maximumSize" >
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="scaledContents" >
+         <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QLineEdit" name="lineText" />
       </item>
      </layout>
     </widget>
@@ -118,7 +130,6 @@
   <tabstop>lineTarget</tabstop>
   <tabstop>toolBrowse</tabstop>
   <tabstop>lineText</tabstop>
-  <tabstop>pushRegexpTest</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -130,12 +141,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>227</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
-     <y>274</y>
+     <y>258</y>
     </hint>
    </hints>
   </connection>
@@ -146,12 +157,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>295</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
-     <y>274</y>
+     <y>258</y>
     </hint>
    </hints>
   </connection>

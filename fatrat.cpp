@@ -228,6 +228,11 @@ void initSettingsDefaults()
 	g_mapDefaults["torrent/pex"] = true;
 	g_mapDefaults["torrent/maxfiles"] = 100;
 	g_mapDefaults["torrent/allocation"] = 0;
+	g_mapDefaults["torrent/enc_incoming"] = 1; // enabled
+	g_mapDefaults["torrent/enc_outgoing"] = 1; // enabled
+	g_mapDefaults["torrent/enc_level"] = 2; // both Plaintext and RC4
+	g_mapDefaults["torrent/enc_rc4_prefer"] = false;
+	
 	g_mapDefaults["remote/port"] = 2233;
 	
 	g_mapDefaults["network/speed_down"] = 1024*128;

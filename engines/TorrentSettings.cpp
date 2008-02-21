@@ -5,7 +5,14 @@ TorrentSettings::TorrentSettings(QWidget* w)
 {
 	setupUi(w);
 	
+	QStringList encs;
+	
+	encs << tr("Disabled") << tr("Enabled") << tr("Permit only encrypted");
+	
 	comboAllocation->addItems( QStringList() << tr("Full") << tr("Sparse") << tr("Compact") );
+	comboEncIncoming->addItems(encs);
+	comboEncOutgoing->addItems(encs);
+	comboEncLevel->addItems( QStringList() << tr("Plaintext") << tr("RC4") << tr("Both", "Both levels") );
 }
 
 void TorrentSettings::load()
@@ -23,6 +30,12 @@ void TorrentSettings::load()
 	checkDHT->setChecked(g_settings->value("torrent/dht", getSettingsDefault("torrent/dht")).toBool());
 	checkPEX->setChecked(g_settings->value("torrent/pex", getSettingsDefault("torrent/pex")).toBool());
 	comboAllocation->setCurrentIndex(g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt());
+	
+	comboEncIncoming->setCurrentIndex(g_settings->value("torrent/enc_incoming", getSettingsDefault("torrent/enc_incoming")).toInt());
+	comboEncOutgoing->setCurrentIndex(g_settings->value("torrent/enc_outgoing", getSettingsDefault("torrent/enc_outgoing")).toInt());
+	
+	comboEncLevel->setCurrentIndex(g_settings->value("torrent/enc_level", getSettingsDefault("torrent/enc_level")).toInt());
+	checkEncRC4Prefer->setChecked(g_settings->value("torrent/enc_rc4_prefer", getSettingsDefault("torrent/enc_rc4_prefer")).toBool());
 	
 	lineIP->setText(g_settings->value("torrent/external_ip").toString());
 	
@@ -97,6 +110,12 @@ void TorrentSettings::accepted()
 	g_settings->setValue("torrent/proxy_webseed", comboProxySeed->itemData(index).toString());
 	index = comboProxyPeer->currentIndex();
 	g_settings->setValue("torrent/proxy_peer", comboProxyPeer->itemData(index).toString());
+	
+	g_settings->setValue("torrent/enc_incoming", comboEncIncoming->currentIndex());
+	g_settings->setValue("torrent/enc_outgoing", comboEncOutgoing->currentIndex());
+	
+	g_settings->setValue("torrent/enc_level", comboEncLevel->currentIndex());
+	g_settings->setValue("torrent/enc_rc4_prefer", checkEncRC4Prefer->isChecked());
 	
 	TorrentDownload::applySettings();
 }
