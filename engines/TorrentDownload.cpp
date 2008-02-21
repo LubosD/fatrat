@@ -6,6 +6,7 @@
 #include "TorrentPiecesModel.h"
 #include "TorrentPeersModel.h"
 #include "TorrentFilesModel.h"
+#include "rss/RssFetcher.h"
 
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
@@ -31,6 +32,7 @@ extern QSettings* g_settings;
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
+RssFetcher* TorrentDownload::m_rssFetcher = 0;
 
 static const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
 
@@ -93,6 +95,8 @@ void TorrentDownload::globalInit()
 		
 		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
 	}
+	
+	m_rssFetcher = new RssFetcher;
 }
 
 void TorrentDownload::applySettings()
@@ -212,6 +216,8 @@ void TorrentDownload::globalExit()
 	
 	delete m_worker;
 	delete m_session;
+	
+	delete m_rssFetcher;
 	
 	if(g_pGeoIP != 0)
 		GeoIP_delete(g_pGeoIP);

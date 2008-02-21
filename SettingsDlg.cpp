@@ -9,6 +9,9 @@
 #ifdef WITH_JABBER
 #	include "remote/SettingsJabberForm.h"
 #endif
+#ifdef WITH_BITTORRENT
+#	include "rss/SettingsRssForm.h"
+#endif
 
 #include <QSettings>
 
@@ -38,6 +41,13 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 	
 	fillEngines( Transfer::engines(Transfer::Download) );
 	fillEngines( Transfer::engines(Transfer::Upload) );
+	
+#ifdef WITH_BITTORRENT
+	w = new QWidget(stackedWidget);
+	m_children << (WidgetHostChild*)(new SettingsRssForm(w, this));
+	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/rss.png"), tr("RSS"), listWidget) );
+	stackedWidget->addWidget(w);
+#endif
 	
 #ifdef WITH_JABBER
 	w = new QWidget(stackedWidget);

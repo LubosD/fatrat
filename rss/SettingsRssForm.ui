@@ -5,11 +5,157 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>411</width>
+    <height>316</height>
    </rect>
   </property>
+  <layout class="QGridLayout" >
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>RSS feeds</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item rowspan="4" row="0" column="0" >
+       <widget class="QListWidget" name="listFeeds" />
+      </item>
+      <item row="0" column="1" >
+       <widget class="QPushButton" name="pushFeedAdd" >
+        <property name="text" >
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QPushButton" name="pushFeedEdit" >
+        <property name="text" >
+         <string>Edit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QPushButton" name="pushFeedDelete" >
+        <property name="text" >
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>Regular expressions</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item rowspan="4" row="0" column="0" >
+       <widget class="QListWidget" name="listRegexps" />
+      </item>
+      <item row="0" column="1" >
+       <widget class="QPushButton" name="pushRegexpAdd" >
+        <property name="text" >
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QPushButton" name="pushRegexpEdit" >
+        <property name="text" >
+         <string>Edit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QPushButton" name="pushRegexpDelete" >
+        <property name="text" >
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>FatRat can automatically download new torrents from RSS feeds.</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
- <resources/>
- <connections/>
+ <tabstops>
+  <tabstop>listFeeds</tabstop>
+  <tabstop>pushFeedAdd</tabstop>
+  <tabstop>pushFeedEdit</tabstop>
+  <tabstop>pushFeedDelete</tabstop>
+  <tabstop>listRegexps</tabstop>
+  <tabstop>pushRegexpAdd</tabstop>
+  <tabstop>pushRegexpEdit</tabstop>
+  <tabstop>pushRegexpDelete</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../gfx/resources.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>listFeeds</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>pushFeedEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>190</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>329</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listRegexps</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>pushRegexpEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>164</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>340</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

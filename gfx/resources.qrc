@@ -251,6 +251,7 @@
         <file>jabber.png</file>
         <file>miscellaneous.png</file>
         <file>proxy.png</file>
+        <file>rss.png</file>
     </qresource>
     <qresource prefix="/menu" >
         <file>about.png</file>

@@ -1,8 +1,9 @@
-#ifndef _QUEUE_H
-#define _QUEUE_H
+#ifndef _FRQUEUE_H
+#define _FRQUEUE_H
 #include <QDomNode>
 #include <QReadWriteLock>
 #include <QList>
+#include <QUuid>
 #include "Transfer.h"
 
 class Queue : public QObject
@@ -24,6 +25,8 @@ public:
 	
 	void setName(QString name) { m_lock.lockForWrite(); m_strName=name; m_lock.unlock(); }
 	QString name() const { m_lock.lockForRead(); QString s=m_strName; m_lock.unlock(); return s; }
+	
+	QString uuid() const { return m_uuid.toString(); }
 	
 	bool upAsDown() const { return m_bUpAsDown; }
 	void setUpAsDown(bool v) { m_bUpAsDown=v; }
@@ -54,6 +57,7 @@ private:
 	QString m_strName;
 	int m_nDownLimit,m_nUpLimit,m_nDownTransferLimit,m_nUpTransferLimit;
 	bool m_bUpAsDown;
+	QUuid m_uuid;
 	mutable QReadWriteLock m_lock;
 public:
 	// statistics

@@ -18,6 +18,7 @@ Queue::Queue()
 	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1), m_bUpAsDown(false)
 {
 	memset(&m_stats, 0, sizeof m_stats);
+	m_uuid = QUuid::createUuid();
 }
 
 Queue::~Queue()
@@ -78,6 +79,7 @@ void Queue::loadQueues()
 				pQueue->m_nDownTransferLimit = n.attribute("dtranslimit").toInt();
 				pQueue->m_nUpTransferLimit = n.attribute("utranslimit").toInt();
 				pQueue->m_bUpAsDown = n.attribute("upasdown").toInt() != 0;
+				pQueue->m_uuid = QUuid( n.attribute("uuid", pQueue->m_uuid.toString()) );
 				
 				pQueue->loadQueue(n);
 				g_queues << pQueue;
@@ -117,6 +119,7 @@ void Queue::saveQueues()
 		elem.setAttribute("dtranslimit",QString::number(q->m_nDownTransferLimit));
 		elem.setAttribute("utranslimit",QString::number(q->m_nUpTransferLimit));
 		elem.setAttribute("upasdown",QString::number(q->m_bUpAsDown));
+		elem.setAttribute("uuid",q->m_uuid.toString());
 		
 		q->saveQueue(elem,doc);
 		root.appendChild(elem);

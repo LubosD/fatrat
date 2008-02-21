@@ -202,6 +202,8 @@ if(WITH_BITTORRENT)
 		engines/TorrentSettings.cpp
 		tools/TorrentSearch.cpp
 		rss/RssFetcher.cpp
+		rss/SettingsRssForm.cpp
+		rss/RssRegexpDlg.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -213,6 +215,9 @@ if(WITH_BITTORRENT)
 		engines/TorrentFilesModel.h
 		engines/TorrentSettings.h
 		rss/RssFetcher.h
+		rss/SettingsRssForm.h
+		rss/RssFeedDlg.h
+		rss/RssRegexpDlg.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
@@ -221,6 +226,8 @@ if(WITH_BITTORRENT)
 		engines/TorrentOptsWidget.ui
 		engines/SettingsTorrentForm.ui
 		rss/SettingsRssForm.ui
+		rss/RssFeedDlg.ui
+		rss/RssRegexpDlg.ui
 	)
 endif(WITH_BITTORRENT)
 
