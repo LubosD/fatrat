@@ -415,7 +415,7 @@
         <location filename="../engines/HttpFtpSettings.cpp" line="26"/>
         <source>None</source>
         <comment>No proxy</comment>
-        <translation>Žádný</translation>
+        <translation>Žádné</translation>
     </message>
 </context>
 <context>
@@ -1929,7 +1929,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_SettingsRssForm.h" line="144"/>
         <source>FatRat can automatically download new torrents from RSS feeds.</source>
-        <translation>FatRat může automaticky stahovat nový torrenty z RSS kanálů.</translation>
+        <translation>FatRat může automaticky stahovat nové torrenty z RSS kanálů.</translation>
     </message>
 </context>
 <context>
