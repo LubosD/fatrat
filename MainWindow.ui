@@ -360,10 +360,10 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <item>
-             <widget class="QLabel" name="label_8" >
+             <widget class="QLabel" name="labelTransferLog" >
               <property name="frameShape" >
                <enum>QFrame::StyledPanel</enum>
               </property>
@@ -393,7 +393,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QLabel" name="label_9" >

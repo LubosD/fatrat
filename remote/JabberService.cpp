@@ -17,6 +17,8 @@ extern QSettings* g_settings;
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
+const int SESSION_MINUTES = 10;
+
 JabberService* JabberService::m_instance = 0;
 
 JabberService::JabberService()
@@ -42,7 +44,7 @@ JabberService::~JabberService()
 
 void JabberService::applySettings()
 {
-	QString jid, password;
+	QString jid, password, resource;
 	QUuid proxy;
 	int priority;
 	bool bChanged = false;
@@ -51,7 +53,9 @@ void JabberService::applySettings()
 	password = g_settings->value("jabber/password").toString();
 	priority = g_settings->value("jabber/priority", getSettingsDefault("jabber/priority")).toInt();
 	proxy = g_settings->value("jabber/proxy").toString();
+	resource = g_settings->value("jabber/resource", getSettingsDefault("jabber/resource")).toString();
 	
+	m_bGrantAuth = g_settings->value("jabber/grant_auth", getSettingsDefault("jabber/grant_auth")).toBool();
 	m_bRestrictSelf = g_settings->value("jabber/restrict_self", getSettingsDefault("jabber/restrict_self")).toBool();
 	m_bRestrictPassword = g_settings->value("jabber/restrict_password_bool").toBool();
 	m_strRestrictPassword = g_settings->value("jabber/restrict_password").toString();
@@ -76,6 +80,11 @@ void JabberService::applySettings()
 		bChanged = true;
 		m_proxy = proxy;
 	}
+	if(resource != m_strResource)
+	{
+		bChanged = true;
+		m_strResource = resource;
+	}
 	
 	if(g_settings->value("jabber/enabled", getSettingsDefault("jabber/enabled")).toBool())
 	{
@@ -83,8 +92,12 @@ void JabberService::applySettings()
 			start();
 		else if(bChanged)
 		{
+			m_bTerminating = true;
 			if(m_pClient)
 				m_pClient->disconnect();
+			wait();
+			delete m_pClient;
+			start();
 		}
 	}
 	else if(isRunning())
@@ -102,14 +115,14 @@ void JabberService::run()
 {
 	while(!m_bTerminating)
 	{
-		gloox::JID jid( (m_strJID + "/FatRat").toStdString());
+		gloox::JID jid( (m_strJID + '/' + m_strResource).toStdString());
 		
 		Logger::global()->enterLogMessage("Jabber", tr("Connecting..."));
 		
 		m_pClient = new gloox::Client(jid, m_strPassword.toStdString());
 		m_pClient->registerMessageHandler(this);
 		m_pClient->registerConnectionListener(this);
-		//m_pClient->rosterManager()->registerRosterListener(this);
+		m_pClient->rosterManager()->registerRosterListener(this);
 		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
 		m_pClient->disco()->setIdentity("client", "bot");
 		m_pClient->disco()->setVersion("FatRat", VERSION);
@@ -163,7 +176,7 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 	bool bAuthed = conn != 0;
 	
 	gloox::JID from = stanza->from();
-	if(from.resource() == "FatRat")
+	if(from.resource() == m_strResource.toStdString())
 		return;
 	
 	if(!conn)
@@ -440,6 +453,7 @@ JabberService::ConnectionInfo* JabberService::createConnection(gloox::MessageSes
 	info.strThread = QString::fromUtf8( session->threadID().c_str() );
 	info.nQueue = (g_queues.isEmpty()) ? -1 : 0;
 	info.chatState = new gloox::ChatStateFilter(session);
+	info.lastActivity = QTime::currentTime();
 	
 	Logger::global()->enterLogMessage("Jabber", tr("New chat session: %1").arg(info.strJID));
 	
@@ -453,20 +467,30 @@ JabberService::ConnectionInfo* JabberService::getConnection(gloox::MessageSessio
 {
 	ConnectionInfo* rval = 0;
 	
-	if(session != 0)
+	if(!session)
+		return 0;
+	
+	QString remote = (stanza != 0) ? stanza->from().full().c_str() : session->target().full().c_str();
+	for(int i=0;i<m_connections.size();i++)
 	{
-		QString remote = (stanza != 0) ? stanza->from().full().c_str() : session->target().full().c_str();
-		for(int i=0;i<m_connections.size();i++)
+		qDebug() << "Processing" << remote;
+		if(m_connections[i].strJID != remote)
+			continue;
+
+		if(m_connections[i].strThread.toStdString() == session->threadID() || m_connections[i].strThread.isEmpty())
 		{
-			qDebug() << "Processing" << remote;
-			if(m_connections[i].strJID == remote)
+			const QTime currentTime = QTime::currentTime();
+			
+			if(m_connections[i].lastActivity.secsTo(currentTime) > SESSION_MINUTES*60)
 			{
-				if(m_connections[i].strThread.toStdString() == session->threadID() || m_connections[i].strThread.isEmpty())
-				{
-					rval = &m_connections[i];
-					rval->strThread = session->threadID().c_str();
-					break;
-				}
+				m_connections.removeAt(i--);
+			}
+			else
+			{
+				rval = &m_connections[i];
+				rval->lastActivity = currentTime;
+				rval->strThread = session->threadID().c_str();
+				break;
 			}
 		}
 	}
@@ -506,7 +530,7 @@ void JabberService::onDisconnect(gloox::ConnectionError e)
 		case gloox::ConnParseError:
 			err += tr("XML parse error"); break;
 		case gloox::ConnConnectionRefused:
-			err += tr("Connection refused"); break;
+			err += tr("Failed to connect"); break;
 		case gloox::ConnDnsError:
 			err += tr("Failed to resolve the domain name"); break;
 		case gloox::ConnOutOfMemory:

@@ -43,8 +43,8 @@ const char* (*GeoIP_country_name_by_addr)(void*, const char*);
 const char* (*GeoIP_country_code_by_addr)(void*, const char*);
 void (*GeoIP_delete)(void*);
 
-TorrentDownload::TorrentDownload()
-	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_pFileDownload(0)
+TorrentDownload::TorrentDownload(bool bAuto)
+	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_pFileDownload(0)
 		, m_pFileDownloadTemp(0)
 {
 	m_worker->addObject(this);
@@ -78,6 +78,8 @@ void TorrentDownload::globalInit()
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
 	m_session->set_severity_level(libtorrent::alert::warning);
 	
+	m_rssFetcher = new RssFetcher;
+	
 	applySettings();
 	
 	if(g_settings->value("torrent/pex", getSettingsDefault("torrent/pex")).toBool())
@@ -95,8 +97,6 @@ void TorrentDownload::globalInit()
 		
 		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
 	}
-	
-	m_rssFetcher = new RssFetcher;
 }
 
 void TorrentDownload::applySettings()
@@ -323,6 +323,9 @@ void TorrentDownload::init(QString source, QString target)
 		
 			m_worker->doWork();
 			storeTorrent(source);
+			
+			if(!m_bAuto)
+				RssFetcher::performManualCheck(name());
 		}
 		else
 		{
@@ -919,14 +922,14 @@ void TorrentWorker::doWork()
 		}
 		else
 		{
-			Logger::global()->enterLogMessage("BitTorrent", tr("Alert: %1").arg(aaa->msg().c_str()));
+			Logger::global()->enterLogMessage("BitTorrent", aaa->msg().c_str());
 			
-			if(IS_ALERT(peer_error_alert))
+			/*if(IS_ALERT(peer_error_alert))
 			{
 				// TODO:
 				std::string ip = alert->ip.address().to_string();
 				qDebug() << "\tFor IP address" << ip.c_str() << alert->ip.port();
-			}
+			}*/
 		}
 	}
 #undef IS_ALERT

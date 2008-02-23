@@ -5,6 +5,7 @@
 #include <QList>
 #include <QStringList>
 #include <QUuid>
+#include <QTime>
 
 #ifndef WITH_JABBER
 #	error This file is not supposed to be included!
@@ -56,8 +57,8 @@ public:
 	virtual void handleItemUpdated (const gloox::JID &jid) {}
 	virtual void handleItemUnsubscribed (const gloox::JID &jid) {}
 	virtual void handleRoster (const gloox::Roster &roster) {}
-	virtual bool handleSubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return true; }
-	virtual bool handleUnsubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return true; }
+	virtual bool handleSubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return m_bGrantAuth; }
+	virtual bool handleUnsubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return m_bGrantAuth; }
 	virtual void handleRosterPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence presence, const std::string& msg) {}
 	virtual void handleSelfPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence presence, const std::string& msg) {}
 protected:
@@ -66,6 +67,7 @@ protected:
 		QString strJID, strThread;
 		int nQueue;
 		gloox::ChatStateFilter* chatState;
+		QTime lastActivity;
 		
 		bool operator==(const ConnectionInfo& other) const
 		{
@@ -80,9 +82,10 @@ protected:
 	static QStringList parseCommand(QString input);
 	static QString transferInfo(Transfer* t);
 private:
-	QString m_strJID, m_strPassword;
+	QString m_strJID, m_strPassword, m_strResource;
 	bool m_bRestrictSelf, m_bRestrictPassword;
 	QString m_strRestrictPassword;
+	bool m_bGrantAuth;
 	int m_nPriority;
 	QUuid m_proxy;
 	

@@ -28,7 +28,7 @@ class TorrentDownload : public Transfer
 {
 Q_OBJECT
 public:
-	TorrentDownload();
+	TorrentDownload(bool bAuto = false);
 	virtual ~TorrentDownload();
 	
 	static Transfer* createInstance() { return new TorrentDownload; }
@@ -86,7 +86,7 @@ protected:
 	QString m_strError, m_strTarget;
 	qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<int> m_vecPriorities;
-	bool m_bHasHashCheck;
+	bool m_bHasHashCheck, m_bAuto;
 	
 	QHttp* m_pFileDownload;
 	QTemporaryFile* m_pFileDownloadTemp;
@@ -108,6 +108,7 @@ protected:
 	friend class TorrentFilesModel;
 	friend class TorrentProgressDelegate;
 	friend class TorrentOptsWidget;
+	friend class SettingsRssForm;
 };
 
 class TorrentWorker : public QObject

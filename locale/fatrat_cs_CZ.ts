@@ -415,7 +415,7 @@
         <location filename="../engines/HttpFtpSettings.cpp" line="26"/>
         <source>None</source>
         <comment>No proxy</comment>
-        <translation>Žádné</translation>
+        <translation>Žádný</translation>
     </message>
 </context>
 <context>
@@ -1825,7 +1825,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../remote/SettingsJabberForm.cpp" line="26"/>
         <source>None</source>
         <comment>No proxy</comment>
-        <translation>Žádné</translation>
+        <translation>Žádný</translation>
     </message>
     <message>
         <location filename="../ui_SettingsJabberForm.h" line="149"/>

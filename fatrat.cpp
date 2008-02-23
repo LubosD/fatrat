@@ -232,6 +232,8 @@ void initSettingsDefaults()
 	g_mapDefaults["torrent/enc_outgoing"] = 1; // enabled
 	g_mapDefaults["torrent/enc_level"] = 2; // both Plaintext and RC4
 	g_mapDefaults["torrent/enc_rc4_prefer"] = false;
+	g_mapDefaults["rss/enable"] = true;
+	g_mapDefaults["rss/interval"] = 15;
 	
 	g_mapDefaults["remote/port"] = 2233;
 	
@@ -244,6 +246,8 @@ void initSettingsDefaults()
 	g_mapDefaults["jabber/enable"] = false;
 	g_mapDefaults["jabber/restrict_self"] = true;
 	g_mapDefaults["jabber/priority"] = -1;
+	g_mapDefaults["jabber/resource"] = "FatRat";
+	g_mapDefaults["jabber/grant_auth"] = false;
 }
 
 QVariant getSettingsDefault(QString id)

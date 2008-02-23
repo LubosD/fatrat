@@ -8,10 +8,11 @@ class Logger : public QObject
 {
 Q_OBJECT
 public:
-	void enterLogMessage(QString msg);
-	void enterLogMessage(QString sender, QString msg);
 	QString logContents() const;
 	static Logger* global() { return &m_global; }
+public slots:
+	void enterLogMessage(QString msg);
+	void enterLogMessage(QString sender, QString msg);
 signals:
 	void logMessage(QString msg);
 private:

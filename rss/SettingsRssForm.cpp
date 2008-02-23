@@ -1,6 +1,12 @@
 #include "SettingsRssForm.h"
 #include "RssFeedDlg.h"
 #include "RssRegexpDlg.h"
+#include "fatrat.h"
+#include "engines/TorrentDownload.h"
+#include <QSettings>
+#include <QMap>
+
+extern QSettings* g_settings;
 
 SettingsRssForm::SettingsRssForm(QWidget* w, QObject* parent)
 	: QObject(parent)
@@ -24,20 +30,32 @@ void SettingsRssForm::load()
 	listFeeds->clear();
 	listRegexps->clear();
 	
+	QMap<QString, QString> map;
+	
 	RssFetcher::loadRegexps(m_regexps);
 	RssFetcher::loadFeeds(m_feeds);
 	
 	foreach(RssFeed feed, m_feeds)
+	{
 		listFeeds->addItem(feed.name);
+		map[feed.url] = feed.name;
+	}
 	
 	foreach(RssRegexp regexp, m_regexps)
-		listRegexps->addItem(regexp.regexp.pattern());
+		listRegexps->addItem(regexp.regexp.pattern() + " @ " + map[regexp.source]);
+	
+	checkEnable->setChecked(g_settings->value("rss/enable", getSettingsDefault("rss/enable")).toBool());
+	spinUpdateInterval->setValue(g_settings->value("rss/interval", getSettingsDefault("rss/interval")).toInt());
 }
 
 void SettingsRssForm::accepted()
 {
 	RssFetcher::saveRegexps(m_regexps);
 	RssFetcher::saveFeeds(m_feeds);
+	g_settings->setValue("rss/enable", checkEnable->isChecked());
+	g_settings->setValue("rss/interval", spinUpdateInterval->value());
+	
+	TorrentDownload::m_rssFetcher->applySettings();
 }
 
 void SettingsRssForm::feedAdd()
@@ -113,10 +131,16 @@ void SettingsRssForm::regexpAdd()
 		RssRegexp r;
 		r.source = dlg.m_strFeed;
 		r.target = dlg.m_strTarget;
-		r.regexp = QRegExp(dlg.m_strExpression);
+		r.regexp = QRegExp(dlg.m_strExpression, Qt::CaseInsensitive);
 		r.queueUUID = dlg.m_strQueue;
+		r.from = dlg.m_strTVSFrom;
+		r.to = dlg.m_strTVSTo;
+		r.tvs = dlg.m_tvs;
+		r.includeTrailers = dlg.m_bTVSTrailers;
+		r.includeRepacks = dlg.m_bTVSRepacks;
+		r.excludeManuals = dlg.m_bTVSNoManuals;
 		
-		listRegexps->addItem(dlg.m_strExpression);
+		listRegexps->addItem(dlg.m_strExpression + " @ " + dlg.m_strFeedName);
 		
 		m_regexps << r;
 	}
@@ -135,6 +159,12 @@ void SettingsRssForm::regexpEdit()
 	dlg.m_strTarget = m_regexps[ix].target;
 	dlg.m_strExpression = m_regexps[ix].regexp.pattern();
 	dlg.m_strQueue = m_regexps[ix].queueUUID;
+	dlg.m_strTVSFrom = m_regexps[ix].from;
+	dlg.m_strTVSTo = m_regexps[ix].to;
+	dlg.m_tvs = m_regexps[ix].tvs;
+	dlg.m_bTVSTrailers = m_regexps[ix].includeTrailers;
+	dlg.m_bTVSRepacks = m_regexps[ix].includeRepacks;
+	dlg.m_bTVSNoManuals = m_regexps[ix].excludeManuals;
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
@@ -142,8 +172,14 @@ void SettingsRssForm::regexpEdit()
 		m_regexps[ix].target = dlg.m_strTarget;
 		m_regexps[ix].regexp = QRegExp(dlg.m_strExpression, Qt::CaseInsensitive);
 		m_regexps[ix].queueUUID = dlg.m_strQueue;
+		m_regexps[ix].from = dlg.m_strTVSFrom;
+		m_regexps[ix].to = dlg.m_strTVSTo;
+		m_regexps[ix].tvs = dlg.m_tvs;
+		m_regexps[ix].includeTrailers = dlg.m_bTVSTrailers;
+		m_regexps[ix].includeRepacks = dlg.m_bTVSRepacks;
+		m_regexps[ix].excludeManuals = dlg.m_bTVSNoManuals;
 		
-		listRegexps->item(ix)->setText(dlg.m_strExpression);
+		listRegexps->item(ix)->setText(dlg.m_strExpression + " @ " + dlg.m_strFeedName);
 	}
 }
 

@@ -140,6 +140,7 @@ void QueueMgr::doWork()
 	{
 		m_nCycle = 0;
 		Queue::saveQueues();
+		g_settings->sync();
 	}
 }
 

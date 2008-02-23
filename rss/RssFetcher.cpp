@@ -17,9 +17,34 @@ extern QReadWriteLock g_queuesLock;
 RssFetcher::RssFetcher()
 	: m_bInItem(false), m_itemNextType(RssItem::None)
 {
-	m_timer.start(15*60*1000);
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-	refresh();
+	applySettings();
+}
+
+void RssFetcher::applySettings()
+{
+	enable(g_settings->value("rss/enable", getSettingsDefault("rss/enable")).toBool());
+}
+
+void RssFetcher::enable(bool bEnable)
+{
+	const int interval = g_settings->value("rss/interval", getSettingsDefault("rss/interval")).toInt();
+	bool bActive = m_timer.isActive();
+	
+	if(bActive != bEnable)
+	{
+		if(bEnable)
+		{
+			m_timer.start(interval*60*1000);
+			refresh();
+		}
+		else
+			m_timer.stop();
+	}
+	else if(bEnable)
+	{
+		m_timer.start(interval*60*1000);
+	}
 }
 
 void RssFetcher::loadFeeds(QList<RssFeed>& items)
@@ -119,6 +144,8 @@ void RssFetcher::processItems()
 		newprocessed << item.url;
 	}
 	
+	saveRegexps(regexps);
+	
 	g_settings->setValue("rss/processed", newprocessed);
 }
 
@@ -126,11 +153,29 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 {
 	for(int i=0;i<regexps.size();i++)
 	{
+		//qDebug() << "Title:" << item.title << "Regexp:" << regexps[i].regexp.pattern();
+		//qDebug() << "S1:" << item.source << "S2:" << regexps[i].source;
 		if(regexps[i].regexp.indexIn(item.title) != -1 && item.source == regexps[i].source)
 		{
+			if(regexps[i].tvs != RssRegexp::None)
+			{
+				QString epid = generateEpisodeName(regexps[i], item.title);
+				qDebug() << "Generated episode name:" << epid;
+				if(!epid.isEmpty())
+				{
+					if(regexps[i].epDone.contains(epid))
+						continue;
+					if(epid < regexps[i].from || epid > regexps[i].to)
+						continue;
+					regexps[i].epDone << epid;
+				}
+				else
+					continue;
+			}
+			
 			// add a transfer
 			Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new BitTorrent transfer: %1").arg(item.title));
-			Transfer* t = new TorrentDownload;
+			Transfer* t = new TorrentDownload(true);
 			
 			t->init(item.url, regexps[i].target);
 			t->setState(Transfer::Waiting);
@@ -170,6 +215,13 @@ void RssFetcher::loadRegexps(QList<RssRegexp>& items)
 		item.queueUUID = g_settings->value("queueUUID").toString();
 		item.source = g_settings->value("source").toString();
 		item.target = g_settings->value("target").toString();
+		item.tvs = RssRegexp::TVSType( g_settings->value("tvs").toInt() );
+		item.epDone = g_settings->value("epdone").toStringList();
+		item.from = g_settings->value("epfrom").toString();
+		item.to = g_settings->value("epto").toString();
+		item.includeTrailers = g_settings->value("includeTrailers").toBool();
+		item.includeRepacks = g_settings->value("includeRepacks").toBool();
+		item.excludeManuals = g_settings->value("excludeManuals").toBool();
 		item.queueIndex = -1;
 		
 		items << item;
@@ -192,6 +244,13 @@ void RssFetcher::saveRegexps(const QList<RssRegexp>& items)
 		g_settings->setValue("queueUUID", items[i].queueUUID);
 		g_settings->setValue("source", items[i].source);
 		g_settings->setValue("target", items[i].target);
+		g_settings->setValue("tvs", items[i].tvs);
+		g_settings->setValue("epdone", items[i].epDone);
+		g_settings->setValue("epfrom", items[i].from);
+		g_settings->setValue("epto", items[i].to);
+		g_settings->setValue("includeTrailers", items[i].includeTrailers);
+		g_settings->setValue("includeRepacks", items[i].includeRepacks);
+		g_settings->setValue("excludeManuals", items[i].excludeManuals);
 	}
 	
 	g_settings->endArray();
@@ -210,6 +269,78 @@ void RssFetcher::saveFeeds(const QList<RssFeed>& items)
 	}
 	
 	g_settings->endArray();
+}
+
+void RssFetcher::performManualCheck(QString torrentName)
+{
+	QList<RssRegexp> re;
+	bool bModified = false;
+	
+	loadRegexps(re);
+	
+	for(int i=0;i<re.size();i++)
+	{
+		if(!re[i].excludeManuals || re[i].regexp.indexIn(torrentName) < 0)
+			continue;
+		QString episode = generateEpisodeName(re[i], torrentName);
+		
+		if(!episode.isEmpty() && !re[i].epDone.contains(episode))
+		{
+			bModified = true;
+			re[i].epDone << episode;
+		}
+	}
+	
+	if(bModified)
+		saveRegexps(re);
+}
+
+QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName)
+{
+	QString rval;
+	if(match.tvs == RssRegexp::None)
+		return QString();
+	else if(match.tvs == RssRegexp::SeasonBased)
+	{
+		QRegExp matcher1("(\\d+)x(\\d+)"), matcher2("S(\\d+)E(\\d+)");
+		if(matcher1.indexIn(itemName) != -1)
+			rval = QString("S%1E%2").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt());
+		else if(matcher2.indexIn(itemName) != -1)
+			rval = QString("S%1E%2").arg(matcher2.cap(1).toInt()).arg(matcher2.cap(2).toInt());
+	}
+	else if(match.tvs == RssRegexp::EpisodeBased)
+	{
+		QRegExp matcher("\\d+");
+		if(matcher.indexIn(itemName) != -1)
+			rval = QString::number( matcher.cap(1).toInt() );
+	}
+	else if(match.tvs == RssRegexp::DateBased)
+	{
+		QRegExp matcher("(\\d+)[- ](\\d+)[- ](\\d+)");
+		if(matcher.lastIndexIn(itemName) != -1)
+			rval = QString("%1-%2-%3").arg(matcher.cap(1).toInt()).arg(matcher.cap(2).toInt()).arg(matcher.cap(3).toInt());
+	}
+	
+	if(!rval.isEmpty())
+	{
+		if(itemName.indexOf("trailer", -1, Qt::CaseInsensitive) != -1
+			|| itemName.indexOf("teaser", -1, Qt::CaseInsensitive) != -1)
+		{
+			if(match.includeTrailers)
+				rval += "|trailer";
+			else
+				rval.clear();
+		}
+		if(itemName.indexOf("repack", -1, Qt::CaseInsensitive) != -1)
+		{
+			if(match.includeRepacks)
+				rval += "|repack";
+			else
+				rval.clear();
+		}
+	}
+	
+	return rval;
 }
 
 bool RssFetcher::startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts)

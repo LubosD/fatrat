@@ -280,7 +280,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::updateUi()
 {
-	//refreshQueues();
 	QList<int> sel = getSelection();
 	Queue* q = getCurrentQueue();
 	
@@ -1013,7 +1012,7 @@ void MainWindow::refreshDetailsTab()
 	
 	if(ctrans.row() == -1)
 	{
-		doneQueue(q);
+		doneQueue(q, true, false);
 		tabMain->setCurrentIndex(0);
 		return;
 	}

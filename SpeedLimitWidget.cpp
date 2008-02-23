@@ -25,7 +25,7 @@ void SpeedLimitWidget::refresh()
 		int down,up;
 		q->speedLimits(down,up);
 		
-		g_wndMain->doneQueue(q);
+		g_wndMain->doneQueue(q, true, false);
 		
 		if(down > 0)
 			labelDown->setText(formatSize(down,true));

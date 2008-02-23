@@ -15,9 +15,11 @@ void SettingsJabberForm::load()
 	checkEnable->setChecked(g_settings->value("jabber/enabled", getSettingsDefault("jabber/enabled")).toBool());
 	lineJID->setText(g_settings->value("jabber/jid").toString());
 	linePassword->setText(g_settings->value("jabber/password").toString());
+	lineResource->setText(g_settings->value("jabber/resource", getSettingsDefault("jabber/resource")).toString());
 	checkRestrictSelf->setChecked(g_settings->value("jabber/restrict_self", getSettingsDefault("jabber/restrict_self")).toBool());
 	groupRestrictPassword->setChecked(g_settings->value("jabber/restrict_password_bool").toBool());
 	lineRestrictPassword->setText(g_settings->value("jabber/restrict_password").toString());
+	checkAutoAuth->setChecked(g_settings->value("jabber/grant_auth", getSettingsDefault("jabber/grant_auth")).toBool());
 	spinPriority->setValue(g_settings->value("jabber/priority", getSettingsDefault("jabber/priority")).toInt());
 	
 	QUuid uuid = g_settings->value("jabber/proxy").toString();
@@ -41,6 +43,8 @@ void SettingsJabberForm::accepted()
 	g_settings->setValue("jabber/restrict_password_bool", groupRestrictPassword->isChecked());
 	g_settings->setValue("jabber/restrict_password", lineRestrictPassword->text());
 	g_settings->setValue("jabber/priority", spinPriority->value());
+	g_settings->setValue("jabber/resource", lineResource->text());
+	g_settings->setValue("jabber/grant_auth", checkAutoAuth->isChecked());
 	
 	int index = comboProxy->currentIndex() - 1;
 	g_settings->setValue("jabber/proxy", (index >= 0) ? m_listProxy[index].uuid.toString() : "");
