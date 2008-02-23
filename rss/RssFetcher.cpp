@@ -298,29 +298,31 @@ void RssFetcher::performManualCheck(QString torrentName)
 QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName)
 {
 	QString rval;
+	QChar zero('0');
+	
 	if(match.tvs == RssRegexp::None)
 		return QString();
 	else if(match.tvs == RssRegexp::SeasonBased)
 	{
 		QRegExp matcher1("(\\d+)x(\\d+)"), matcher2("S(\\d+)E(\\d+)");
 		if(matcher1.indexIn(itemName) != -1)
-			rval = QString("S%1E%2").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt());
+			rval = QString("S%1E%2").arg(matcher1.cap(1).toInt(),2,10,zero).arg(matcher1.cap(2).toInt(),2,10,zero);
 		else if(matcher2.indexIn(itemName) != -1)
-			rval = QString("S%1E%2").arg(matcher2.cap(1).toInt()).arg(matcher2.cap(2).toInt());
+			rval = QString("S%1E%2").arg(matcher2.cap(1).toInt(),2,10,zero).arg(matcher2.cap(2).toInt(),2,10,zero);
 	}
 	else if(match.tvs == RssRegexp::EpisodeBased)
 	{
 		QRegExp matcher("\\d+");
 		if(matcher.indexIn(itemName) != -1)
-			rval = QString::number( matcher.cap(1).toInt() );
+			rval = QString("%1").arg( matcher.cap(1).toInt(), 4, 10, zero );
 	}
 	else if(match.tvs == RssRegexp::DateBased)
 	{
 		QRegExp matcher1("(\\d{4})[\\-\\. ](\\d\\d)[\\-\\. ](\\d\\d"), matcher2("(\\d\\d)[\\-\\. ](\\d\\d)[\\-\\. ](\\d{2,4})");
 		if(matcher1.lastIndexIn(itemName) != -1)
-			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt()).arg(matcher1.cap(3).toInt());
+			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt(),2,10,zero).arg(matcher1.cap(3).toInt(),2,10,zero);
 		else if(matcher2.lastIndexIn(itemName) != -1)
-			rval = QString("%1-%2-%3").arg(matcher2.cap(3).toInt()+2000).arg(matcher2.cap(2).toInt()).arg(matcher2.cap(1).toInt());
+			rval = QString("%1-%2-%3").arg(matcher2.cap(3).toInt()+2000).arg(matcher2.cap(2).toInt(),2,10,zero).arg(matcher2.cap(1).toInt(),2,10,zero);
 	}
 	
 	if(!rval.isEmpty())

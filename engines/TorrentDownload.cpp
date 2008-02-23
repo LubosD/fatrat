@@ -1156,16 +1156,16 @@ void TorrentDetails::fill()
 		if(time)
 		{
 			std::string created = boost::posix_time::to_simple_string(time.get());
-			labelCreationDate->setText(created.c_str());
+			lineCreationDate->setText(created.c_str());
 		}
-		labelPieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );
+		linePieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );
 		
 		QString comment = m_download->m_info->comment().c_str();
 		comment.replace('\n', "<br>");
 		textComment->setHtml(comment);
 		
 		lineCreator->setText(m_download->m_info->creator().c_str());
-		labelPrivate->setText( m_download->m_info->priv() ? tr("yes") : tr("no"));
+		linePrivate->setText( m_download->m_info->priv() ? tr("yes") : tr("no"));
 		
 		m_pFilesModel->fill();
 	}
@@ -1183,10 +1183,10 @@ void TorrentDetails::refresh()
 		boost::posix_time::time_duration& intv = m_download->m_status.announce_interval;
 		
 		if(m_download->m_status.distributed_copies != -1)
-			labelAvailability->setText(QString::number(m_download->m_status.distributed_copies));
+			lineAvailability->setText(QString::number(m_download->m_status.distributed_copies));
 		else
-			labelAvailability->setText("-");
-		labelTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
+			lineAvailability->setText("-");
+		lineTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
 				.arg(m_download->m_status.current_tracker.c_str())
 				.arg(next.hours()).arg(next.minutes(),2,10,QChar('0')).arg(next.seconds(),2,10,QChar('0'))
 				.arg(intv.hours()).arg(intv.minutes(),2,10,QChar('0')).arg(intv.seconds(),2,10,QChar('0')));
@@ -1217,10 +1217,10 @@ void TorrentDetails::refresh()
 			ratio = QString::fromUtf8("∞");
 		else
 			ratio = QString::number(double(u)/double(d));
-		labelRatio->setText(ratio);
+		lineRatio->setText(ratio);
 		
-		labelTotalDownload->setText(formatSize(d));
-		labelTotalUpload->setText(formatSize(u));
+		lineTotalDownload->setText(formatSize(d));
+		lineTotalUpload->setText(formatSize(u));
 		
 		// PIECES IN PROGRESS
 		m_pPiecesModel->refresh();

@@ -31,7 +31,14 @@
         </widget>
        </item>
        <item row="0" column="1" colspan="2" >
-        <widget class="QLabel" name="labelTotalDownload" />
+        <widget class="QLineEdit" name="lineTotalDownload" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="0" column="3" >
         <widget class="QLabel" name="label_10" >
@@ -41,7 +48,14 @@
         </widget>
        </item>
        <item row="0" column="4" colspan="2" >
-        <widget class="QLabel" name="labelTotalUpload" />
+        <widget class="QLineEdit" name="lineTotalUpload" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="1" column="0" colspan="6" >
         <widget class="QGroupBox" name="groupBox" >
@@ -119,15 +133,12 @@
         </widget>
        </item>
        <item row="3" column="2" >
-        <widget class="QLabel" name="labelTracker" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QLineEdit" name="lineTracker" >
+         <property name="frame" >
+          <bool>false</bool>
          </property>
-         <property name="text" >
-          <string/>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -139,9 +150,12 @@
         </widget>
        </item>
        <item row="3" column="5" >
-        <widget class="QLabel" name="labelPrivate" >
-         <property name="text" >
-          <string/>
+        <widget class="QLineEdit" name="linePrivate" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -159,15 +173,12 @@
         </widget>
        </item>
        <item row="4" column="2" >
-        <widget class="QLabel" name="labelAvailability" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QLineEdit" name="lineAvailability" >
+         <property name="frame" >
+          <bool>false</bool>
          </property>
-         <property name="text" >
-          <string/>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -179,9 +190,12 @@
         </widget>
        </item>
        <item row="4" column="5" >
-        <widget class="QLabel" name="labelRatio" >
-         <property name="text" >
-          <string/>
+        <widget class="QLineEdit" name="lineRatio" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -199,15 +213,12 @@
         </widget>
        </item>
        <item row="5" column="2" >
-        <widget class="QLabel" name="labelPieceLength" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QLineEdit" name="linePieceLength" >
+         <property name="frame" >
+          <bool>false</bool>
          </property>
-         <property name="text" >
-          <string/>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -253,10 +264,13 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="2" >
-        <widget class="QLabel" name="labelCreationDate" >
-         <property name="text" >
-          <string/>
+       <item row="6" column="2" colspan="4" >
+        <widget class="QLineEdit" name="lineCreationDate" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>

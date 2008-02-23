@@ -188,12 +188,6 @@
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="QLabel" name="label_3" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="text" >
            <string>&lt;b>Name:</string>
           </property>
@@ -201,12 +195,6 @@
         </item>
         <item row="0" column="1" >
          <widget class="QLineEdit" name="lineName" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="frame" >
            <bool>false</bool>
           </property>
@@ -217,38 +205,23 @@
         </item>
         <item row="0" column="2" >
          <widget class="QLabel" name="label_4" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="text" >
            <string>&lt;b>Progress:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="3" >
-         <widget class="QLabel" name="labelProgress" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Minimum" hsizetype="Maximum" >
-            <horstretch>2</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="scaledContents" >
+         <widget class="QLineEdit" name="lineProgress" >
+          <property name="frame" >
            <bool>false</bool>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="1" column="0" >
          <widget class="QLabel" name="label_7" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="text" >
            <string>&lt;b>Destination:&lt;/b></string>
           </property>
@@ -256,12 +229,6 @@
         </item>
         <item row="1" column="1" >
          <widget class="QLineEdit" name="lineDestination" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="frame" >
            <bool>false</bool>
           </property>
@@ -272,27 +239,18 @@
         </item>
         <item row="1" column="2" >
          <widget class="QLabel" name="label_5" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="text" >
            <string>&lt;b>Speed:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="3" >
-         <widget class="QLabel" name="labelSpeed" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Minimum" hsizetype="Maximum" >
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="scaledContents" >
+         <widget class="QLineEdit" name="lineSpeed" >
+          <property name="frame" >
            <bool>false</bool>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
           </property>
          </widget>
         </item>

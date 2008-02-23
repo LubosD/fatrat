@@ -1051,12 +1051,12 @@ void MainWindow::refreshDetailsTab()
 				progress += QString(tr(", %1 left")).arg( formatTime(totransfer/up) );
 		}
 		
-		labelSpeed->setText( speed );
+		lineSpeed->setText( speed );
 	}
 	else
-		labelSpeed->setText( QString() );
+		lineSpeed->setText( QString() );
 	
-	labelProgress->setText( progress );
+	lineProgress->setText( progress );
 	
 	doneQueue(q,true,false);
 }
