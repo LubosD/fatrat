@@ -316,9 +316,11 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 	}
 	else if(match.tvs == RssRegexp::DateBased)
 	{
-		QRegExp matcher("(\\d+)[- ](\\d+)[- ](\\d+)");
-		if(matcher.lastIndexIn(itemName) != -1)
-			rval = QString("%1-%2-%3").arg(matcher.cap(1).toInt()).arg(matcher.cap(2).toInt()).arg(matcher.cap(3).toInt());
+		QRegExp matcher1("(\\d{4})[-\\. ](\\d\\d)[-\\. ](\\d\\d"), matcher2("(\\d\\d)[-\\. ](\\d\\d)[-\\. ](\\d{2,4})");
+		if(matcher1.lastIndexIn(itemName) != -1)
+			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt()).arg(matcher1.cap(3).toInt());
+		else if(matcher2.lastIndexIn(itemName) != -1)
+			rval = QString("%1-%2-%3").arg(matcher2.cap(3).toInt()+2000).arg(matcher2.cap(2).toInt()).arg(matcher2.cap(1).toInt());
 	}
 	
 	if(!rval.isEmpty())
