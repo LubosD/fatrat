@@ -15,6 +15,7 @@ RssRegexpDlg::RssRegexpDlg(QWidget* parent)
 	setupUi(this);
 	
 	connect(lineText, SIGNAL(textChanged(const QString&)), this, SLOT(test()));
+	connect(lineExpression, SIGNAL(textChanged(const QString&)), this, SLOT(test()));
 	connect(toolBrowse, SIGNAL(clicked()), this, SLOT(browse()));
 	
 	connect(radioTVSNone, SIGNAL(toggled(bool)), this, SLOT(updateTVS()));
@@ -134,7 +135,7 @@ int RssRegexpDlg::exec()
 		else
 			m_tvs = RssRegexp::DateBased;
 		
-		m_strFeedName = comboQueue->currentText();
+		m_strFeedName = comboFeed->currentText();
 		m_bTVSRepacks = checkTVSRepacks->isChecked();
 		m_bTVSTrailers = checkTVSTrailers->isChecked();
 		m_bTVSNoManuals = checkTVSNoManuals->isChecked();
