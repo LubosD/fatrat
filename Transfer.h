@@ -6,6 +6,7 @@
 #include <QQueue>
 #include <QPair>
 #include <QSettings>
+#include <QTime>
 #include <QDomNode>
 #include "Logger.h"
 
@@ -43,6 +44,7 @@ public:
 	virtual void setState(State newState);
 	bool statePossible(State state) const;
 	int retryCount() const { return m_nRetryCount; }
+	qint64 timeRunning() const;
 	
 	// IDENTIFICATION AND INFORMATION
 	virtual QString myClass() const = 0;
@@ -117,6 +119,9 @@ protected:
 	int m_nDownLimit,m_nUpLimit;
 	int m_nDownLimitInt,m_nUpLimitInt;
 	bool m_bLocal, m_bWorking;
+	
+	qint64 m_nTimeRunning;
+	QTime m_timeStart;
 	
 	int m_nRetryCount;
 	

@@ -38,7 +38,7 @@ extern QSettings* g_settings;
 
 using namespace std;
 
-MainWindow::MainWindow(bool bStartHidden) : m_trayIcon(this), m_pDetailsDisplay(0)
+MainWindow::MainWindow(bool bStartHidden) : m_trayIcon(this), m_pDetailsDisplay(0), m_lastTransfer(0)
 {
 	setupUi();
 	restoreWindowState(bStartHidden && m_trayIcon.isVisible());
@@ -108,7 +108,7 @@ void MainWindow::connectActions()
 	connect(treeTransfers, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(transferItemContext(const QPoint&)));
 	
 	QItemSelectionModel* model = treeTransfers->selectionModel();
-	connect(model, SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)), this, SLOT(transferItemActivated()));
+	connect(model, SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)), this, SLOT(updateUi()));
 	
 	connect(actionNewTransfer, SIGNAL(triggered()), this, SLOT(addTransfer()));
 	connect(actionDeleteTransfer, SIGNAL(triggered()), this, SLOT(deleteTransfer()));
@@ -302,14 +302,22 @@ void MainWindow::updateUi()
 	}
 	
 	// transfer view
+	Transfer* d = 0;
+	int currentTab = tabMain->currentIndex();
+	
 	if(!sel.empty())
 	{
 		int rcount = m_modelTransfers->rowCount();
 		bool bSingle = sel.size() == 1;
 		
+		if(!bSingle && (currentTab == 1 || currentTab == 2))
+		{
+			tabMain->setCurrentIndex(0);
+			currentTab = 0;
+		}
+		
 		tabMain->setTabEnabled(1, bSingle);	// transfer details
 		tabMain->setTabEnabled(2, bSingle);	// transfer graph
-		//tabMain->setTabEnabled(3, bSingle);	// transfer log
 		
 		actionOpenFile->setEnabled(bSingle);
 		actionOpenDirectory->setEnabled(bSingle);
@@ -321,7 +329,7 @@ void MainWindow::updateUi()
 			
 			q->lock();
 			
-			Transfer* d = q->at(sel[0]);
+			d = q->at(sel[0]);
 			actionInfoBar->setChecked(InfoBar::getInfoBar(d) != 0);
 			
 			actionForcedResume->setEnabled(d->statePossible(Transfer::ForcedActive));
@@ -356,9 +364,14 @@ void MainWindow::updateUi()
 	}
 	else
 	{
+		if(currentTab == 1 || currentTab == 2)
+		{
+			tabMain->setCurrentIndex(0);
+			currentTab = 0;
+		}
+		
 		tabMain->setTabEnabled(1,false); // transfer details
 		tabMain->setTabEnabled(2,false); // transfer graph
-		//tabMain->setTabEnabled(3,false); // transfer log
 		
 		actionOpenFile->setEnabled(false);
 		actionOpenDirectory->setEnabled(false);
@@ -381,6 +394,12 @@ void MainWindow::updateUi()
 		m_log->setLogSource(0);
 	}
 	
+	if(d != m_lastTransfer)
+	{
+		m_lastTransfer = d;
+		transferItemActivated();
+	}
+	
 	actionNewTransfer->setEnabled(q != 0);
 	actionRemoveCompleted->setEnabled(q != 0);
 	
@@ -388,7 +407,7 @@ void MainWindow::updateUi()
 		doneQueue(q,true,false);
 	
 	m_modelTransfers->refresh();
-	if(tabMain->currentIndex() == 1)
+	if(currentTab == 1)
 		refreshDetailsTab();
 }
 
@@ -562,7 +581,7 @@ void MainWindow::queueItemContext(const QPoint&)
 
 void MainWindow::transferItemActivated()
 {
-	updateUi();
+	//updateUi();
 	
 	if(m_pDetailsDisplay)
 		m_pDetailsDisplay->deleteLater();
@@ -573,11 +592,12 @@ void MainWindow::transferItemActivated()
 void MainWindow::displayDestroyed()
 {
 	Queue* q = getCurrentQueue();
-	QModelIndex i = treeTransfers->currentIndex();
+	//QModelIndex i = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	Transfer* d = 0;
 	
-	if(q != 0)
-		d = q->at(i.row());
+	if(q != 0 && sel.size() == 1)
+		d = q->at(sel[0]);
 	
 	if(QWidget* w = stackedDetails->currentWidget())
 	{
@@ -622,6 +642,7 @@ void MainWindow::move(int i)
 		QItemSelectionModel* model = treeTransfers->selectionModel();
 		
 		int size = sel.size();
+		model->blockSignals(true);
 		model->clearSelection();
 		
 		switch(i)
@@ -666,6 +687,8 @@ void MainWindow::move(int i)
 				break;
 			}
 		}
+		
+		model->blockSignals(false);
 	}
 	
 	doneQueue(q,false);
@@ -1001,7 +1024,7 @@ void MainWindow::refreshDetailsTab()
 {
 	Queue* q;
 	Transfer* d;
-	QModelIndex ctrans = treeTransfers->currentIndex();
+	QList<int> sel = getSelection();
 	QString progress;
 	
 	if((q = getCurrentQueue()) == 0)
@@ -1010,14 +1033,14 @@ void MainWindow::refreshDetailsTab()
 		return;
 	}
 	
-	if(ctrans.row() == -1)
+	if(sel.size() != 1)
 	{
 		doneQueue(q, true, false);
 		tabMain->setCurrentIndex(0);
 		return;
 	}
 	
-	d = q->at(ctrans.row());
+	d = q->at(sel[0]);
 	
 	lineName->setText(d->name());
 	lineMessage->setText(d->message());
@@ -1057,6 +1080,7 @@ void MainWindow::refreshDetailsTab()
 		lineSpeed->setText( QString() );
 	
 	lineProgress->setText( progress );
+	lineRuntime->setText(formatTime(d->timeRunning()));
 	
 	doneQueue(q,true,false);
 }

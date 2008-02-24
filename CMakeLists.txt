@@ -177,6 +177,7 @@ set(fatrat_UIS
 	engines/HttpOptsWidget.ui
 	engines/HttpUrlOptsDlg.ui
 	engines/SettingsHttpForm.ui
+	engines/RapidshareOptsForm.ui
 )
 
 if(WITH_SFTP)

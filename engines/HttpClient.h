@@ -12,7 +12,7 @@ public:
 	void addHeaderValue(QString name, QString value) { m_header.addValue(name, value); }
 	
 	// uploads only
-	void setRequestBody(QByteArray data) { m_strBody = data; }
+	void setRequestBody(QByteArray hdr, QByteArray footer) { m_strHeader = hdr; m_strFooter = footer; }
 	QByteArray getResponseBody() const { return m_strResponse; }
 	
 	virtual void request(QString file, bool bUpload, int);
@@ -33,7 +33,7 @@ private:
 	QUrl m_url;
 	QHttpRequestHeader m_header;
 	Proxy m_proxyData;
-	QByteArray m_strBody, m_strResponse;
+	QByteArray m_strHeader, m_strFooter, m_strResponse;
 };
 
 #endif

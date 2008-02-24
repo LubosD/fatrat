@@ -105,6 +105,7 @@ private:
 	SpeedGraph* m_graph;
 	LogManager* m_log;
 	DropBox* m_dropBox;
+	Transfer* m_lastTransfer;
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;

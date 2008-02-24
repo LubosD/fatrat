@@ -339,8 +339,11 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 		{
 			if(match.includeRepacks)
 				rval += "|repack";
-			else
-				rval.clear();
+		}
+		if(itemName.indexOf("proper", -1, Qt::CaseInsensitive) != -1)
+		{
+			if(match.includeRepacks)
+				rval += "|proper";
 		}
 	}
 	

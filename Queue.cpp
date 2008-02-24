@@ -129,8 +129,11 @@ void Queue::saveQueues()
 	file.write(doc.toByteArray());
 	file.close();
 	
-	dir.remove("queues.xml");
-	dir.rename("queues.xml.new", "queues.xml");
+	if(dir.exists("queues.xml.new"))
+	{
+		dir.remove("queues.xml");
+		dir.rename("queues.xml.new", "queues.xml");
+	}
 }
 
 void Queue::loadQueue(const QDomNode& node)

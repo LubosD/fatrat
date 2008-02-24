@@ -37,7 +37,7 @@ void QueueMgr::doWork()
 	
 	foreach(Queue* q,g_queues)
 	{
-		int running = 0;
+		int runningd = 0, runningu = 0;
 		
 		int lim_down,lim_up;
 		int down,up;
@@ -82,7 +82,7 @@ void QueueMgr::doWork()
 					(*lim)--;
 					d->setState(Transfer::Active);
 					
-					running++;
+					((mode == Transfer::Download) ? runningd : runningu)++;
 				}
 				else
 					d->setState(Transfer::Waiting);
@@ -103,21 +103,18 @@ void QueueMgr::doWork()
 		
 		int downl = 0, upl = 0;
 		
-		if(running > 0 && (down || up))
+		
+		if(down && runningd)
 		{
-			// unused bandwidth
-			if(down)
-			{
-				downl = down/running;
-				if(running > 1)
-					downl += std::max(down-stats.down,0)/(running-1);
-			}
-			if(up)
-			{
-				upl = up/running;
-				if(running > 1)
-					upl += std::max(up-stats.up,0)/(running-1);
-			}
+			downl = down/runningd;
+			if(runningd > 1)
+				downl += std::max(down-stats.down,0)/(runningd-1);
+		}
+		if(up && runningu)
+		{
+			upl = up/runningu;
+			if(runningu > 1)
+				upl += std::max(up-stats.up,0)/(runningu-1);
 		}
 		
 		foreach(Transfer* d,q->m_transfers)

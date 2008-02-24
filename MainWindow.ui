@@ -186,14 +186,14 @@
         <iconset resource="gfx/resources.qrc" >:/menu/details.png</iconset>
        </attribute>
        <layout class="QGridLayout" >
-        <item row="0" column="0" >
+        <item row="0" column="0" colspan="2" >
          <widget class="QLabel" name="label_3" >
           <property name="text" >
            <string>&lt;b>Name:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1" >
+        <item row="0" column="2" >
          <widget class="QLineEdit" name="lineName" >
           <property name="frame" >
            <bool>false</bool>
@@ -203,14 +203,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2" >
+        <item row="0" column="3" >
          <widget class="QLabel" name="label_4" >
           <property name="text" >
            <string>&lt;b>Progress:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="3" >
+        <item row="0" column="4" colspan="3" >
          <widget class="QLineEdit" name="lineProgress" >
           <property name="frame" >
            <bool>false</bool>
@@ -220,14 +220,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0" >
+        <item row="1" column="0" colspan="2" >
          <widget class="QLabel" name="label_7" >
           <property name="text" >
            <string>&lt;b>Destination:&lt;/b></string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
+        <item row="1" column="2" >
          <widget class="QLineEdit" name="lineDestination" >
           <property name="frame" >
            <bool>false</bool>
@@ -237,14 +237,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2" >
+        <item row="1" column="3" >
          <widget class="QLabel" name="label_5" >
           <property name="text" >
            <string>&lt;b>Speed:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="3" >
+        <item row="1" column="4" colspan="3" >
          <widget class="QLineEdit" name="lineSpeed" >
           <property name="frame" >
            <bool>false</bool>
@@ -254,44 +254,57 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="4" >
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QLabel" name="label_6" >
-            <property name="text" >
-             <string>&lt;b>Message:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineMessage" >
-            <property name="frame" >
-             <bool>false</bool>
-            </property>
-            <property name="readOnly" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushGenericOptions" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip" >
-             <string>Transfer properties</string>
-            </property>
-            <property name="icon" >
-             <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_6" >
+          <property name="text" >
+           <string>&lt;b>Message:</string>
+          </property>
+         </widget>
         </item>
-        <item row="3" column="0" colspan="4" >
+        <item row="2" column="1" colspan="2" >
+         <widget class="QLineEdit" name="lineMessage" >
+          <property name="frame" >
+           <bool>false</bool>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3" colspan="2" >
+         <widget class="QLabel" name="label_8" >
+          <property name="text" >
+           <string>&lt;b>Running for:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5" >
+         <widget class="QLineEdit" name="lineRuntime" >
+          <property name="frame" >
+           <bool>false</bool>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6" >
+         <widget class="QPushButton" name="pushGenericOptions" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip" >
+           <string>Transfer properties</string>
+          </property>
+          <property name="icon" >
+           <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="7" >
          <widget class="QStackedWidget" name="stackedDetails" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >

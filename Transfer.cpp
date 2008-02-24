@@ -3,6 +3,7 @@
 #include "Transfer.h"
 #include "engines/FakeDownload.h"
 #include "engines/GeneralDownload.h"
+#include "engines/RapidshareUpload.h"
 
 #ifdef WITH_BITTORRENT
 #	include "engines/TorrentDownload.h"
@@ -30,13 +31,14 @@ static const EngineEntry m_enginesDownload[] = {
 
 static const EngineEntry m_enginesUpload[] = {
 	{ "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0, 0 },
+	{ "RapidshareUpload", "RapidShare.com upload", 0, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createSettingsWidget, RapidshareUpload::createMultipleOptionsWidget },
 	{ 0,0,0,0,0,0,0,0 }
 };
 
 Transfer::Transfer(bool local)
 	: m_state(Paused), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
 		  m_nDownLimitInt(0), m_nUpLimitInt(0), m_bLocal(local), m_bWorking(false),
-		  m_nRetryCount(0)
+		  m_nTimeRunning(0), m_nRetryCount(0)
 {
 	m_timer = new QTimer(this);
 	
@@ -206,7 +208,20 @@ void Transfer::setState(State newState)
 	{
 		m_bWorking = false;
 		changeActive(now);
+		
+		if(now)
+			m_timeStart = QTime::currentTime();
+		else
+			m_nTimeRunning += m_timeStart.secsTo(QTime::currentTime());
 	}
+}
+
+qint64 Transfer::timeRunning() const
+{
+	if(!isActive())
+		return m_nTimeRunning;
+	else
+		return m_nTimeRunning + m_timeStart.secsTo(QTime::currentTime());
 }
 
 Transfer::State Transfer::string2state(QString s)
@@ -246,6 +261,7 @@ void Transfer::load(const QDomNode& map)
 	down = getXMLProperty(map, "downlimit").toInt();
 	up = getXMLProperty(map, "uplimit").toInt();
 	m_strComment = getXMLProperty(map, "comment");
+	m_nTimeRunning = getXMLProperty(map, "timerunning").toLongLong();
 	
 	setUserSpeedLimits(down, up);
 }
@@ -256,6 +272,7 @@ void Transfer::save(QDomDocument& doc, QDomNode& node) const
 	setXMLProperty(doc, node, "downlimit", QString::number(m_nDownLimit));
 	setXMLProperty(doc, node, "uplimit", QString::number(m_nUpLimit));
 	setXMLProperty(doc, node, "comment", m_strComment);
+	setXMLProperty(doc, node, "timerunning", QString::number(timeRunning()));
 }
 
 void Transfer::setMode(Mode newMode)

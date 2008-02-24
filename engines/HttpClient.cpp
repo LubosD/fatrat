@@ -55,7 +55,7 @@ void HttpEngine::request(QString file, bool bUpload, int)
 {
 	if(LimitedSocket::open(file, bUpload))
 	{
-		// when we're uploading, it's full up to the class' user to add special request headers etc.
+		// when we're uploading, it's fully up to the class' user to add special request headers etc.
 		if(!bUpload)
 		{
 			m_nResume = m_file.pos();
@@ -66,11 +66,12 @@ void HttpEngine::request(QString file, bool bUpload, int)
 		}
 		else
 		{
-			if(m_nSegmentStart >= 0)
+			if(m_nSegmentStart < 0)
 				m_nToTransfer = m_file.size();
 			else
 				m_nToTransfer = m_nSegmentEnd - m_nSegmentStart;
-			m_header.addValue("Content-Length", QString::number(m_nToTransfer + m_strBody.size()));
+			m_header.addValue("Content-Length", QString::number(m_nToTransfer + m_strHeader.size() + m_strFooter.size()));
+			m_header.setRequest("POST", m_header.path());
 		}
 		
 		start();
@@ -138,7 +139,7 @@ void HttpEngine::run()
 		
 		m_pRemote->write(m_header.toString().toAscii());
 		m_pRemote->write("\r\n", 2);
-		m_pRemote->write(m_strBody);
+		m_pRemote->write(m_strHeader);
 		
 		if(!m_pRemote->waitForBytesWritten())
 			throw getErrorString(m_pRemote->error());
@@ -147,6 +148,10 @@ void HttpEngine::run()
 			return;
 		
 		performUpload();
+		m_pRemote->write(m_strFooter);
+		if(!m_pRemote->waitForBytesWritten())
+			throw getErrorString(m_pRemote->error());
+		
 		processServerResponse();
 	}
 	catch(const QString& text)
@@ -212,6 +217,7 @@ void HttpEngine::handleUploadHeaders(QHttpResponseHeader header)
 	qint64 clen = header.value("content-length").toLongLong();
 	while(m_strResponse.size() < clen)
 		m_strResponse += m_pRemote->read(1024);
+	emit finished(false);
 }
 
 void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
