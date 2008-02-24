@@ -18,6 +18,8 @@ RapidshareUpload::RapidshareUpload()
 	m_nDone = 0;
 	m_bIDJustChecked = false;
 	
+	m_mode = Upload;
+	
 	m_type = AccountType( g_settings->value("rapidshare/account").toInt() );
 	m_strUsername = g_settings->value("rapidshare/username").toString();
 	m_strPassword = g_settings->value("rapidshare/password").toString();
