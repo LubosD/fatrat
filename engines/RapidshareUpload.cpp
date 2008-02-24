@@ -172,15 +172,18 @@ void RapidshareUpload::beginNextChunk()
 
 void RapidshareUpload::postFinished(bool error)
 {
-	if(error)
+	if(error && isActive())
 	{
-		m_strMessage = m_engine->errorString();
 		setState(Failed);
 		
-		m_engine->destroy();
-		m_engine = 0;
+		if(m_engine)
+		{
+			m_strMessage = m_engine->errorString();
+			m_engine->destroy();
+			m_engine = 0;
+		}
 	}
-	else
+	if(!error)
 	{
 		m_nDone += qMin<qint64>(CHUNK_SIZE, m_nTotal - m_nDone);
 		
@@ -202,6 +205,8 @@ void RapidshareUpload::postFinished(bool error)
 			if(response.indexOf("Account found, but password is incorrect") != -1)
 				throw RuntimeException(tr("Invalid password"));
 			
+			if(response.startsWith("ERROR"))
+				throw RuntimeException(response);
 			if(!response.startsWith("COMPLETE") && !response.startsWith("CHUNK"))
 			{
 				int ix = reFileID.indexIn(response);
@@ -337,6 +342,7 @@ void RapidshareUpload::load(const QDomNode& map)
 	m_type = (AccountType) getXMLProperty(map, "account").toLongLong();
 	m_strUsername = getXMLProperty(map, "username");
 	m_strPassword = getXMLProperty(map, "password");
+	m_strServer = getXMLProperty(map, "server");
 	
 	Transfer::load(map);
 }
@@ -352,6 +358,7 @@ void RapidshareUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "account", QString::number(int(m_type)));
 	setXMLProperty(doc, map, "username", m_strUsername);
 	setXMLProperty(doc, map, "password", m_strPassword);
+	setXMLProperty(doc, map, "server", m_strServer);
 }
 
 WidgetHostChild* RapidshareUpload::createOptionsWidget(QWidget* w)
