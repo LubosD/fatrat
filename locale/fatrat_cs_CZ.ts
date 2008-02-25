@@ -1465,55 +1465,75 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareOptsForm</name>
     <message>
-        <location filename="../ui_RapidshareOptsForm.h" line="113"/>
+        <location filename="../ui_RapidshareOptsForm.h" line="160"/>
         <source>RapidShare.com</source>
         <translation>RapidShare.com</translation>
     </message>
     <message>
-        <location filename="../ui_RapidshareOptsForm.h" line="114"/>
+        <location filename="../ui_RapidshareOptsForm.h" line="161"/>
         <source>Default settings - used only for upload!</source>
         <translation>Výchozí nastavení - používáno pouze pro upload!</translation>
     </message>
     <message>
-        <location filename="../ui_RapidshareOptsForm.h" line="115"/>
+        <location filename="../ui_RapidshareOptsForm.h" line="162"/>
         <source>RS.com account type</source>
         <translation>Typ účtu RS.com</translation>
     </message>
     <message>
-        <location filename="../ui_RapidshareOptsForm.h" line="116"/>
+        <location filename="../ui_RapidshareOptsForm.h" line="163"/>
         <source>User name</source>
         <translation>Uživatelské jméno</translation>
     </message>
     <message>
-        <location filename="../ui_RapidshareOptsForm.h" line="117"/>
+        <location filename="../ui_RapidshareOptsForm.h" line="164"/>
         <source>Password</source>
         <translation>Heslo</translation>
     </message>
     <message>
-        <location filename="../ui_RapidshareOptsForm.h" line="118"/>
+        <location filename="../ui_RapidshareOptsForm.h" line="165"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
+    </message>
+    <message>
+        <location filename="../ui_RapidshareOptsForm.h" line="166"/>
+        <source>Save links to a file</source>
+        <translation>Ukládat odkazy do souboru</translation>
+    </message>
+    <message>
+        <location filename="../ui_RapidshareOptsForm.h" line="167"/>
+        <source>Download links</source>
+        <translation>Stahovací odkazy</translation>
+    </message>
+    <message>
+        <location filename="../ui_RapidshareOptsForm.h" line="170"/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location filename="../ui_RapidshareOptsForm.h" line="169"/>
+        <source>Kill links</source>
+        <translation>Mazací odkazy</translation>
     </message>
 </context>
 <context>
     <name>RapidshareOptsWidget</name>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="420"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="448"/>
         <source>No account</source>
         <translation>Žádný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="420"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="448"/>
         <source>Collector&apos;s account</source>
         <translation>Bezplatný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="420"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="448"/>
         <source>Premium account</source>
         <translation>Premium účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="450"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="482"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Žádné</translation>
@@ -1522,22 +1542,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareSettings</name>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="536"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="589"/>
         <source>No account</source>
         <translation>Žádný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="536"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="589"/>
         <source>Collector&apos;s account</source>
         <translation>Bezplatný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="536"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="589"/>
         <source>Premium account</source>
         <translation>Premium účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="558"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="615"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Žádné</translation>
@@ -1546,69 +1566,74 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareUpload</name>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="62"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="66"/>
         <source>You have to enter your account information</source>
         <translation>Musíte zadat informace o účtu</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="215"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="219"/>
         <source>This file is forbidden to be shared</source>
         <translation>Tento soubor je zakázáno sdílet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="218"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="222"/>
         <source>Invalid username</source>
         <translation>Chybné uživatelské jméno</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="221"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="225"/>
         <source>Invalid password</source>
         <translation>Chybné heslo</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="229"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="233"/>
         <source>Failed to find the file ID</source>
         <translation>Nepodařilo se najít ID souboru</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="234"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="238"/>
         <source>Failed to find the kill ID</source>
         <translation>Nepodařilo se najít ID pro odstranění</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="244"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="248"/>
         <source>Download link:</source>
         <translation>Odkaz pro stahování:</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="247"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="256"/>
         <source>Kill link:</source>
         <translation>Odkaz pro odstranění:</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="281"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="306"/>
         <source>Failed to get server ID</source>
         <translation>Nepodařilo se získat ID serveru</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="288"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="313"/>
         <source>Uploading to %1</source>
         <translation>Uploaduji na %1</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="295"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="320"/>
         <source>Failed to query resume information</source>
         <translation>Nepodařilo se získat informace o obnovení přenosu</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="315"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="340"/>
         <source>File ID %1 validated</source>
         <translation>ID souboru %1 ověřeno</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="102"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="106"/>
         <source>Maximum file size is 100 MB</source>
         <translation>Maximální velikost souboru je 100 MB</translation>
+    </message>
+    <message>
+        <location filename="../engines/RapidshareUpload.cpp" line="284"/>
+        <source>Cannot append to file &quot;%1&quot;</source>
+        <translation>Nemohu připisovat do souboru &quot;%1&quot;</translation>
     </message>
 </context>
 <context>

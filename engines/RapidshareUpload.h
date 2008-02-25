@@ -43,6 +43,8 @@ protected slots:
 	void queryDone(bool error);
 	void postFinished(bool error);
 protected:
+	void saveLink(QString file, QString link);
+	
 	enum AccountType { AccountNone = 0, AccountCollector, AccountPremium };
 	enum QueryType { QueryNone = 0, QueryFileInfo, QueryServerID };
 	
@@ -54,6 +56,7 @@ protected:
 	qint64 m_nFileID, m_nKillID, m_nDone; // for resume
 	bool m_bIDJustChecked;
 	QUuid m_proxy;
+	QString m_strLinksDownload, m_strLinksKill;
 	
 	HttpEngine* m_engine;
 	QHttp* m_http;
@@ -71,8 +74,12 @@ public:
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();
+	
+	static void browse(QLineEdit* target);
 protected slots:
 	void accTypeChanged(int now);
+	void browseDownload();
+	void browseKill();
 private:
 	void init(QWidget* me);
 	
@@ -90,6 +97,8 @@ public:
 	virtual bool accept();
 protected slots:
 	void accTypeChanged(int now);
+	void browseDownload();
+	void browseKill();
 };
 
 #endif

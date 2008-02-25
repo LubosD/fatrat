@@ -4,6 +4,7 @@
 #include <QBuffer>
 #include <QFileInfo>
 #include <QSettings>
+#include <QFileDialog>
 
 extern QSettings* g_settings;
 
@@ -23,6 +24,9 @@ RapidshareUpload::RapidshareUpload()
 	m_type = AccountType( g_settings->value("rapidshare/account").toInt() );
 	m_strUsername = g_settings->value("rapidshare/username").toString();
 	m_strPassword = g_settings->value("rapidshare/password").toString();
+	
+	m_strLinksDownload = g_settings->value("rapidshare/down_links").toString();
+	m_strLinksKill = g_settings->value("rapidshare/kill_links").toString();
 }
 
 RapidshareUpload::~RapidshareUpload()
@@ -240,11 +244,19 @@ void RapidshareUpload::postFinished(bool error)
 			
 			if(m_nDone == m_nTotal)
 			{
-				link = QString(" http://rapidshare.com/files/%1/%2").arg(m_nFileID).arg(m_strName);
-				enterLogMessage(tr("Download link:") + link);
+				link = QString("http://rapidshare.com/files/%1/%2").arg(m_nFileID).arg(m_strName);
+				enterLogMessage(tr("Download link:") + ' ' + link);
+				
+				if(!m_strLinksDownload.isEmpty())
+					saveLink(m_strLinksDownload, link);
 				
 				if(m_type == AccountNone)
-					enterLogMessage(tr("Kill link:") + link + QString("?killcode=%3").arg(m_nKillID));
+				{
+					link += QString("?killcode=%3").arg(m_nKillID);
+					enterLogMessage(tr("Kill link:") + ' ' + link);
+					if(!m_strLinksKill.isEmpty())
+						saveLink(m_strLinksKill, link);
+				}
 				
 				setState(Completed);
 			}
@@ -261,6 +273,19 @@ void RapidshareUpload::postFinished(bool error)
 			m_strMessage = e.what();
 			setState(Failed);
 		}
+	}
+}
+
+void RapidshareUpload::saveLink(QString filename, QString link)
+{
+	QFile file(filename);
+	if(!file.open(QIODevice::Append))
+	{
+		enterLogMessage(tr("Cannot append to file \"%1\"").arg(filename));
+	}
+	else
+	{
+		file.write( (link + '\n').toUtf8() );
 	}
 }
 
@@ -415,8 +440,11 @@ void RapidshareOptsWidget::init(QWidget* me)
 {
 	setupUi(me);
 	connect(comboAccount, SIGNAL(currentIndexChanged(int)), this, SLOT(accTypeChanged(int)));
+	connect(toolDownload, SIGNAL(clicked()), this, SLOT(browseDownload()));
+	connect(toolKill, SIGNAL(clicked()), this, SLOT(browseKill()));
 	
 	labelSettings->setVisible(false);
+	//groupLinks->setVisible(false);
 	comboAccount->addItems( QStringList() << tr("No account") << tr("Collector's account") << tr("Premium account") );
 }
 
@@ -428,12 +456,16 @@ void RapidshareOptsWidget::load()
 		acc = (int) m_upload->m_type;
 		lineUsername->setText(m_upload->m_strUsername);
 		linePassword->setText(m_upload->m_strPassword);
+		lineLinksDownload->setText(m_upload->m_strLinksDownload);
+		lineLinksKill->setText(m_upload->m_strLinksKill);
 	}
 	else
 	{
 		acc = g_settings->value("rapidshare/account").toInt();
 		lineUsername->setText(g_settings->value("rapidshare/username").toString());
 		linePassword->setText(g_settings->value("rapidshare/password").toString());
+		lineLinksDownload->setText(g_settings->value("rapidshare/down_links").toString());
+		lineLinksKill->setText(g_settings->value("rapidshare/kill_links").toString());
 	}
 	
 	comboAccount->setCurrentIndex(acc);
@@ -459,15 +491,34 @@ void RapidshareOptsWidget::load()
 	}
 }
 
+void RapidshareOptsWidget::browse(QLineEdit* target)
+{
+	QString _new = QFileDialog::getSaveFileName(getMainWindow(), "FatRat", target->text());
+	if(!_new.isEmpty())
+		target->setText(_new);
+}
+
+void RapidshareOptsWidget::browseDownload()
+{
+	browse(lineLinksDownload);
+}
+
+void RapidshareOptsWidget::browseKill()
+{
+	browse(lineLinksKill);
+}
+
 void RapidshareOptsWidget::accepted()
 {
 	QList<Transfer*> tl;
 	QUuid proxy = comboProxy->itemData(comboProxy->currentIndex()).toString();
-	QString user, pass;
+	QString user, pass, down, kill;
 	RapidshareUpload::AccountType acc = RapidshareUpload::AccountType( comboAccount->currentIndex() );
 	
 	user = lineUsername->text();
 	pass = linePassword->text();
+	down = lineLinksDownload->text();
+	kill = lineLinksKill->text();
 	
 	if(m_multi)
 		tl = *m_multi;
@@ -499,6 +550,8 @@ void RapidshareOptsWidget::accepted()
 			bChanged = true;
 			tu->m_proxy = proxy;
 		}
+		tu->m_strLinksDownload = down;
+		tu->m_strLinksKill = kill;
 		
 		if(bChanged)
 		{
@@ -535,6 +588,8 @@ RapidshareSettings::RapidshareSettings(QWidget* me)
 	setupUi(me);
 	comboAccount->addItems( QStringList() << tr("No account") << tr("Collector's account") << tr("Premium account") );
 	connect(comboAccount, SIGNAL(currentIndexChanged(int)), this, SLOT(accTypeChanged(int)));
+	connect(toolDownload, SIGNAL(clicked()), this, SLOT(browseDownload()));
+	connect(toolKill, SIGNAL(clicked()), this, SLOT(browseKill()));
 }
 
 void RapidshareSettings::accTypeChanged(int now)
@@ -551,6 +606,8 @@ void RapidshareSettings::load()
 	comboAccount->setCurrentIndex(acc);
 	lineUsername->setText(g_settings->value("rapidshare/username").toString());
 	linePassword->setText(g_settings->value("rapidshare/password").toString());
+	lineLinksDownload->setText(g_settings->value("rapidshare/down_links").toString());
+	lineLinksKill->setText(g_settings->value("rapidshare/kill_links").toString());
 	
 	accTypeChanged(acc);
 	
@@ -575,7 +632,20 @@ void RapidshareSettings::accepted()
 	g_settings->setValue("rapidshare/username", lineUsername->text());
 	g_settings->setValue("rapidshare/password", linePassword->text());
 	g_settings->setValue("rapidshare/proxy", comboProxy->itemData(comboProxy->currentIndex()).toString());
+	g_settings->setValue("rapidshare/down_links", lineLinksDownload->text());
+	g_settings->setValue("rapidshare/kill_links", lineLinksKill->text());
 }
+
+void RapidshareSettings::browseDownload()
+{
+	RapidshareOptsWidget::browse(lineLinksDownload);
+}
+
+void RapidshareSettings::browseKill()
+{
+	RapidshareOptsWidget::browse(lineLinksKill);
+}
+
 
 bool RapidshareSettings::accept()
 {
