@@ -152,10 +152,12 @@ void HttpEngine::run()
 		if(m_bAbort)
 			return;
 		
-		m_pRemote->write(m_strFooter);
-		if(!m_pRemote->waitForBytesWritten())
-			throw getErrorString(m_pRemote->error());
-		
+		if(!m_strFooter.isEmpty())
+		{
+			m_pRemote->write(m_strFooter);
+			if(!m_pRemote->waitForBytesWritten())
+				throw getErrorString(m_pRemote->error());
+		}
 		processServerResponse();
 	}
 	catch(const QString& text)
