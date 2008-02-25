@@ -6,6 +6,7 @@
 #include <QUuid>
 #include <QList>
 #include <QVariant>
+#include <QNetworkProxy>
 
 #define VERSION "SVN"
 
@@ -33,10 +34,11 @@ struct Proxy
 	enum ProxyType { ProxyNone=-1, ProxyHttp, ProxySocks5 } nType;
 	QUuid uuid;
 	
-	QString toString()
+	QString toString() const
 	{
 		return QString("%1 (%2)").arg(strName).arg( (nType==0) ? "HTTP" : "SOCKS 5");
 	}
+	operator QNetworkProxy() const;
 	
 	static QList<Proxy> loadProxys();
 	static Proxy getProxy(QUuid uuid);

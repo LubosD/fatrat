@@ -193,6 +193,8 @@ void TorrentSearch::search()
 				
 				connect(m_engines[i].http, SIGNAL(done(bool)), this, SLOT(searchDone(bool)));
 				
+				m_engines[i].http->setProxy(Proxy::getProxy(g_settings->value("torrent/proxy_tracker").toString()));
+				
 				if(!m_engines[i].postData.isEmpty())
 				{
 					QString postQuery;

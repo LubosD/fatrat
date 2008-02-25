@@ -389,12 +389,12 @@
         <translation>Nepodařilo se svázat soket</translation>
     </message>
     <message>
-        <location filename="../engines/HttpClient.cpp" line="237"/>
+        <location filename="../engines/HttpClient.cpp" line="241"/>
         <source>Resume not supported</source>
         <translation>Obnovení přenosu není podporováno</translation>
     </message>
     <message>
-        <location filename="../engines/HttpClient.cpp" line="240"/>
+        <location filename="../engines/HttpClient.cpp" line="244"/>
         <source>Segmentation not supported by server</source>
         <translation>Segmentace není podporována serverem</translation>
     </message>
@@ -1498,100 +1498,117 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareOptsWidget</name>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="393"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="420"/>
         <source>No account</source>
         <translation>Žádný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="393"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="420"/>
         <source>Collector&apos;s account</source>
         <translation>Bezplatný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="393"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="420"/>
         <source>Premium account</source>
         <translation>Premium účet</translation>
+    </message>
+    <message>
+        <location filename="../engines/RapidshareUpload.cpp" line="450"/>
+        <source>None</source>
+        <comment>No proxy</comment>
+        <translation>Žádné</translation>
     </message>
 </context>
 <context>
     <name>RapidshareSettings</name>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="475"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="536"/>
         <source>No account</source>
         <translation>Žádný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="475"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="536"/>
         <source>Collector&apos;s account</source>
         <translation>Bezplatný účet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="475"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="536"/>
         <source>Premium account</source>
         <translation>Premium účet</translation>
+    </message>
+    <message>
+        <location filename="../engines/RapidshareUpload.cpp" line="558"/>
+        <source>None</source>
+        <comment>No proxy</comment>
+        <translation>Žádné</translation>
     </message>
 </context>
 <context>
     <name>RapidshareUpload</name>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="60"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="62"/>
         <source>You have to enter your account information</source>
         <translation>Musíte zadat informace o účtu</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="195"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="215"/>
         <source>This file is forbidden to be shared</source>
         <translation>Tento soubor je zakázáno sdílet</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="198"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="218"/>
         <source>Invalid username</source>
         <translation>Chybné uživatelské jméno</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="201"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="221"/>
         <source>Invalid password</source>
         <translation>Chybné heslo</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="207"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="229"/>
         <source>Failed to find the file ID</source>
         <translation>Nepodařilo se najít ID souboru</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="212"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="234"/>
         <source>Failed to find the kill ID</source>
         <translation>Nepodařilo se najít ID pro odstranění</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="222"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="244"/>
         <source>Download link:</source>
         <translation>Odkaz pro stahování:</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="225"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="247"/>
         <source>Kill link:</source>
         <translation>Odkaz pro odstranění:</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="259"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="281"/>
         <source>Failed to get server ID</source>
         <translation>Nepodařilo se získat ID serveru</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="266"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="288"/>
         <source>Uploading to %1</source>
         <translation>Uploaduji na %1</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="273"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="295"/>
         <source>Failed to query resume information</source>
         <translation>Nepodařilo se získat informace o obnovení přenosu</translation>
     </message>
     <message>
-        <location filename="../engines/RapidshareUpload.cpp" line="293"/>
+        <location filename="../engines/RapidshareUpload.cpp" line="315"/>
         <source>File ID %1 validated</source>
         <translation>ID souboru %1 ověřeno</translation>
+    </message>
+    <message>
+        <location filename="../engines/RapidshareUpload.cpp" line="102"/>
+        <source>Maximum file size is 100 MB</source>
+        <translation>Maximální velikost souboru je 100 MB</translation>
     </message>
 </context>
 <context>
@@ -2814,12 +2831,12 @@ uploadnut následující objem</translation>
         <translation>Hledat</translation>
     </message>
     <message>
-        <location filename="../tools/TorrentSearch.cpp" line="233"/>
+        <location filename="../tools/TorrentSearch.cpp" line="235"/>
         <source>Please enable at least one search engine.</source>
         <translation>Prosím povolte alespoň jeden vyhledávací engine.</translation>
     </message>
     <message>
-        <location filename="../tools/TorrentSearch.cpp" line="372"/>
+        <location filename="../tools/TorrentSearch.cpp" line="374"/>
         <source>Stop searching</source>
         <translation>Zastavit hledání</translation>
     </message>

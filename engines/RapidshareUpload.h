@@ -53,6 +53,7 @@ protected:
 	QueryType m_query;
 	qint64 m_nFileID, m_nKillID, m_nDone; // for resume
 	bool m_bIDJustChecked;
+	QUuid m_proxy;
 	
 	HttpEngine* m_engine;
 	QHttp* m_http;
@@ -70,6 +71,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();
+protected slots:
+	void accTypeChanged(int now);
 private:
 	void init(QWidget* me);
 	
@@ -85,6 +88,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();
+protected slots:
+	void accTypeChanged(int now);
 };
 
 #endif

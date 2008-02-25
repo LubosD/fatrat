@@ -73,6 +73,8 @@ void RapidshareUpload::changeActive(bool nowActive)
 			m_buffer->open(QIODevice::ReadWrite);
 			
 			connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
+			
+			m_http->setProxy(Proxy::getProxy(m_proxy));
 			m_http->get("/cgi-bin/rsapi.cgi?sub=nextuploadserver_v1", m_buffer);
 		}
 		else
@@ -87,11 +89,20 @@ void RapidshareUpload::changeActive(bool nowActive)
 				m_buffer->open(QIODevice::ReadWrite);
 				
 				connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
+				
+				m_http->setProxy(Proxy::getProxy(m_proxy));
 				m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_nKillID), m_buffer);
 			}
 			else
 			{
 				m_nTotal = QFileInfo(m_strSource).size();
+				
+				if(m_nTotal > 100*1024*1024)
+				{
+					m_strMessage = tr("Maximum file size is 100 MB");
+					setState(Failed);
+					return;
+				}
 				
 				if(m_nDone < m_nTotal)
 					beginNextChunk();
@@ -158,11 +169,15 @@ void RapidshareUpload::beginNextChunk()
 			.arg(MIME_BOUNDARY).arg(m_strName);
 	
 	QString url = QString("http://%1/cgi-bin/%2.cgi").arg(m_strServer).arg(handler);
-	m_engine = new HttpEngine(QUrl(url), QUrl(), QUuid());
+	m_engine = new HttpEngine(QUrl(url), QUrl(), m_proxy);
 	
 	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(postFinished(bool)), Qt::QueuedConnection);
 	//connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
 	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
+	
+	int down, up;
+	internalSpeedLimits(down, up);
+	m_engine->setLimit(up);
 	
 	m_engine->addHeaderValue("Content-Type", QString("multipart/form-data; boundary=")+MIME_BOUNDARY);
 	m_engine->setSegment(m_nDone, m_nDone + qMin<qint64>(CHUNK_SIZE, m_nTotal - m_nDone));
@@ -343,6 +358,7 @@ void RapidshareUpload::load(const QDomNode& map)
 	m_strUsername = getXMLProperty(map, "username");
 	m_strPassword = getXMLProperty(map, "password");
 	m_strServer = getXMLProperty(map, "server");
+	m_proxy = getXMLProperty(map, "proxy");
 	
 	Transfer::load(map);
 }
@@ -359,6 +375,7 @@ void RapidshareUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "username", m_strUsername);
 	setXMLProperty(doc, map, "password", m_strPassword);
 	setXMLProperty(doc, map, "server", m_strServer);
+	setXMLProperty(doc, map, "proxy", m_proxy);
 }
 
 WidgetHostChild* RapidshareUpload::createOptionsWidget(QWidget* w)
@@ -397,6 +414,7 @@ RapidshareOptsWidget::RapidshareOptsWidget(QWidget* me, QList<Transfer*>* multi,
 void RapidshareOptsWidget::init(QWidget* me)
 {
 	setupUi(me);
+	connect(comboAccount, SIGNAL(currentIndexChanged(int)), this, SLOT(accTypeChanged(int)));
 	
 	labelSettings->setVisible(false);
 	comboAccount->addItems( QStringList() << tr("No account") << tr("Collector's account") << tr("Premium account") );
@@ -404,23 +422,52 @@ void RapidshareOptsWidget::init(QWidget* me)
 
 void RapidshareOptsWidget::load()
 {
+	int acc;
 	if(m_upload)
 	{
-		comboAccount->setCurrentIndex((int) m_upload->m_type);
+		acc = (int) m_upload->m_type;
 		lineUsername->setText(m_upload->m_strUsername);
 		linePassword->setText(m_upload->m_strPassword);
 	}
 	else
 	{
-		comboAccount->setCurrentIndex(g_settings->value("rapidshare/account").toInt());
+		acc = g_settings->value("rapidshare/account").toInt();
 		lineUsername->setText(g_settings->value("rapidshare/username").toString());
 		linePassword->setText(g_settings->value("rapidshare/password").toString());
+	}
+	
+	comboAccount->setCurrentIndex(acc);
+	accTypeChanged(acc);
+	
+	QUuid myproxy;
+	QList<Proxy> listProxy = Proxy::loadProxys();
+	
+	if(m_multi)
+		myproxy = g_settings->value("rapidshare/proxy").toString();
+	else
+		myproxy = m_upload->m_proxy;
+	
+	comboProxy->addItem(tr("None", "No proxy"));
+	
+	for(int i=0;i<listProxy.size();i++)
+	{
+		comboProxy->addItem(listProxy[i].toString());
+		comboProxy->setItemData(i+1, listProxy[i].uuid.toString());
+		
+		if(listProxy[i].uuid == myproxy)
+			comboProxy->setCurrentIndex(i+1);
 	}
 }
 
 void RapidshareOptsWidget::accepted()
 {
 	QList<Transfer*> tl;
+	QUuid proxy = comboProxy->itemData(comboProxy->currentIndex()).toString();
+	QString user, pass;
+	RapidshareUpload::AccountType acc = RapidshareUpload::AccountType( comboAccount->currentIndex() );
+	
+	user = lineUsername->text();
+	pass = linePassword->text();
 	
 	if(m_multi)
 		tl = *m_multi;
@@ -431,12 +478,6 @@ void RapidshareOptsWidget::accepted()
 	{
 		bool bChanged = false;
 		RapidshareUpload* tu = (RapidshareUpload*) t;
-		
-		QString user, pass;
-		RapidshareUpload::AccountType acc = RapidshareUpload::AccountType( comboAccount->currentIndex() );
-		
-		user = lineUsername->text();
-		pass = linePassword->text();
 		
 		if(user != tu->m_strUsername)
 		{
@@ -453,6 +494,11 @@ void RapidshareOptsWidget::accepted()
 			bChanged = true;
 			tu->m_type = acc;
 		}
+		if(proxy != tu->m_proxy)
+		{
+			bChanged = true;
+			tu->m_proxy = proxy;
+		}
 		
 		if(bChanged)
 		{
@@ -466,6 +512,12 @@ void RapidshareOptsWidget::accepted()
 			}
 		}
 	}
+}
+
+void RapidshareOptsWidget::accTypeChanged(int now)
+{
+	lineUsername->setEnabled(now != 0);
+	linePassword->setEnabled(now != 0);
 }
 
 bool RapidshareOptsWidget::accept()
@@ -482,13 +534,39 @@ RapidshareSettings::RapidshareSettings(QWidget* me)
 {
 	setupUi(me);
 	comboAccount->addItems( QStringList() << tr("No account") << tr("Collector's account") << tr("Premium account") );
+	connect(comboAccount, SIGNAL(currentIndexChanged(int)), this, SLOT(accTypeChanged(int)));
+}
+
+void RapidshareSettings::accTypeChanged(int now)
+{
+	lineUsername->setEnabled(now != 0);
+	linePassword->setEnabled(now != 0);
 }
 
 void RapidshareSettings::load()
 {
-	comboAccount->setCurrentIndex(g_settings->value("rapidshare/account").toInt());
+	QList<Proxy> listProxy = Proxy::loadProxys();
+	QString proxy;
+	int acc = g_settings->value("rapidshare/account").toInt();
+	comboAccount->setCurrentIndex(acc);
 	lineUsername->setText(g_settings->value("rapidshare/username").toString());
 	linePassword->setText(g_settings->value("rapidshare/password").toString());
+	
+	accTypeChanged(acc);
+	
+	comboProxy->clear();
+	comboProxy->addItem(tr("None", "No proxy"));
+	
+	proxy = g_settings->value("rapidshare/proxy").toString();
+	
+	for(int i=0;i<listProxy.size();i++)
+	{
+		comboProxy->addItem(listProxy[i].toString());
+		comboProxy->setItemData(i+1, listProxy[i].uuid.toString());
+		
+		if(listProxy[i].uuid == proxy)
+			comboProxy->setCurrentIndex(i+1);
+	}
 }
 
 void RapidshareSettings::accepted()
@@ -496,6 +574,7 @@ void RapidshareSettings::accepted()
 	g_settings->setValue("rapidshare/account", comboAccount->currentIndex());
 	g_settings->setValue("rapidshare/username", lineUsername->text());
 	g_settings->setValue("rapidshare/password", linePassword->text());
+	g_settings->setValue("rapidshare/proxy", comboProxy->itemData(comboProxy->currentIndex()).toString());
 }
 
 bool RapidshareSettings::accept()

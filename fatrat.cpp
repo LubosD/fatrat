@@ -370,6 +370,24 @@ Proxy::Proxy Proxy::getProxy(QUuid uuid)
 	return Proxy();
 }
 
+Proxy::operator QNetworkProxy() const
+{
+	QNetworkProxy p;
+	
+	if(nType == ProxyNone)
+		p.setType(QNetworkProxy::NoProxy);
+	else if(nType == ProxyNone)
+		p.setType(QNetworkProxy::HttpProxy);
+	else
+		p.setType(QNetworkProxy::Socks5Proxy);
+	
+	p.setHostName(strIP);
+	p.setUser(strUser);
+	p.setPassword(strUser);
+	
+	return p;
+}
+
 quint32 qntoh(quint32 source)
 {
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN

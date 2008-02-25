@@ -148,6 +148,10 @@ void HttpEngine::run()
 			return;
 		
 		performUpload();
+		
+		if(m_bAbort)
+			return;
+		
 		m_pRemote->write(m_strFooter);
 		if(!m_pRemote->waitForBytesWritten())
 			throw getErrorString(m_pRemote->error());
