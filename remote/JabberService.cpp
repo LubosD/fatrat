@@ -10,6 +10,8 @@
 #include <gloox/connectionhttpproxy.h>
 #include <gloox/connectionsocks5proxy.h>
 #include <gloox/connectiontcpclient.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <QSettings>
 #include <QtDebug>
 
@@ -505,6 +507,15 @@ void JabberService::handleChatState(const gloox::JID &from, gloox::ChatStateType
 void JabberService::onConnect()
 {
 	Logger::global()->enterLogMessage("Jabber", tr("Connected"));
+	
+	gloox::ConnectionTCPBase* base = dynamic_cast<gloox::ConnectionTCPBase*>(m_pClient->connectionImpl());
+	
+	if(base != 0)
+	{
+		int sock = base->socket();
+		int yes = 1;
+		setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof yes);
+	}
 }
 
 void JabberService::onDisconnect(gloox::ConnectionError e)

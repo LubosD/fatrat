@@ -322,7 +322,12 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 		if(matcher1.lastIndexIn(itemName) != -1)
 			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt(),2,10,zero).arg(matcher1.cap(3).toInt(),2,10,zero);
 		else if(matcher2.lastIndexIn(itemName) != -1)
-			rval = QString("%1-%2-%3").arg(matcher2.cap(3).toInt()+2000).arg(matcher2.cap(2).toInt(),2,10,zero).arg(matcher2.cap(1).toInt(),2,10,zero);
+		{
+			int year = matcher2.cap(3).toInt();
+			if(year < 100)
+				year += 2000;
+			rval = QString("%1-%2-%3").arg(year).arg(matcher2.cap(1).toInt(),2,10,zero).arg(matcher2.cap(2).toInt(),2,10,zero);
+		}
 	}
 	
 	if(!rval.isEmpty())
