@@ -8,7 +8,7 @@ class DbusImpl : public QObject
 Q_OBJECT
 public slots:
 	void addTransfers(QString uris);
-	void addTransfersNonInteractive(QString uris, QString target, QString className, QString classType, int queueID);
+	static void addTransfersNonInteractive(QString uris, QString target, QString className, int queueID);
 	QStringList getQueues();
 };
 

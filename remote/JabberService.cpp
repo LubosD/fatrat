@@ -3,6 +3,7 @@
 #include "Queue.h"
 #include "RuntimeException.h"
 #include "Logger.h"
+#include "dbus/DbusImpl.h"
 
 #include <gloox/messagesession.h>
 #include <gloox/rostermanager.h>
@@ -250,23 +251,64 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 	}
 }
 
-QStringList JabberService::parseCommand(QString input)
+QStringList JabberService::parseCommand(QString input, QString* extargs)
 {
 	QStringList list;
+	QString tmp;
 	
-	/*for(int i=0;i<input.size();i++)
+	int i;
+	bool bInStr = false, bInQ = false, bExtArgs = false;
+	
+	for(i=0;i<input.size();i++)
 	{
+		if(input[i] == '\n')
+		{
+			bExtArgs = true;
+			break;
+		}
 		
-	}*/
+		if(input[i] == '"')
+		{
+			bInQ = bInStr = true;
+			continue;
+		}
+		else if(input[i] != ' ')
+			bInStr = true;
+		
+		if(bInStr)
+		{
+			if((bInQ && input[i] == '"') || input[i] == ' ')
+			{
+				if(!tmp.isEmpty() || bInQ)
+				{
+					list << tmp;
+					tmp.clear();
+				}
+				bInStr = bInQ = false;
+			}
+			else
+			{
+				tmp += input[i];
+			}
+		}
+	}
 	
-	list = input.split(' ');
+	if(!tmp.isEmpty())
+		list << tmp;
+	if(bExtArgs && extargs != 0)
+	{
+		*extargs = input.mid(i+1);
+	}
+	
+	qDebug() << list;
 	
 	return list;
 }
 
 QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 {
-	QStringList args = parseCommand(cmd);
+	QString extargs;
+	QStringList args = parseCommand(cmd, &extargs);
 	QString response;
 	
 	try
@@ -279,7 +321,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 					"pauseall/resumeall - Pause/resume all transfers\n"
 					"pause/resume/delete - Pause/resume/delete specified transfers\n"
 					"logout/quit/exit - Log out\n"
-					"\nPass arguments like this: \"resume 1 3 5\", use indexes from the lists");
+					"\nPass arguments like this: \"resume 1 3 5\", use indexes from the lists\n\n"
+					"add/new - Add new transfers\n"
+					"This command needs special arguments. See more at http://fatrat.dolezel.info/doc/jabber.xhtml");
 		}
 		else if(args[0] == "qlist")
 		{
@@ -401,6 +445,22 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 					response += tr("\n#%1 Invalid transfer ID").arg(index);
 			}
 		}
+		else if(args[0] == "add" || args[0] == "new")
+		{
+			//validateQueue(conn);
+			if(extargs.isEmpty())
+				response = tr("Nothing to add");
+			else
+			{
+				if(args.size() < 2 || args[1].startsWith('/'))
+					args.insert(1, "auto");
+				
+				if(args.size() < 3)
+					args << g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
+				DbusImpl::addTransfersNonInteractive(extargs, args[2], args[1], conn->nQueue);
+				response = tr("OK.");
+			}
+		}
 		else
 		{
 			response = tr("Unknown command");
@@ -455,7 +515,7 @@ JabberService::ConnectionInfo* JabberService::createConnection(gloox::MessageSes
 	info.strThread = QString::fromUtf8( session->threadID().c_str() );
 	info.nQueue = (g_queues.isEmpty()) ? -1 : 0;
 	info.chatState = new gloox::ChatStateFilter(session);
-	info.lastActivity = QTime::currentTime();
+	info.lastActivity = QDateTime::currentDateTime();
 	
 	Logger::global()->enterLogMessage("Jabber", tr("New chat session: %1").arg(info.strJID));
 	
@@ -481,7 +541,7 @@ JabberService::ConnectionInfo* JabberService::getConnection(gloox::MessageSessio
 
 		if(m_connections[i].strThread.toStdString() == session->threadID() || m_connections[i].strThread.isEmpty())
 		{
-			const QTime currentTime = QTime::currentTime();
+			const QDateTime currentTime = QDateTime::currentDateTime();
 			
 			if(m_connections[i].lastActivity.secsTo(currentTime) > SESSION_MINUTES*60)
 			{

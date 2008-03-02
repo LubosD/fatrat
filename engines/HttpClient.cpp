@@ -263,7 +263,13 @@ void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 			int pos = disp.indexOf("filename=");
 			
 			if(pos != -1)
-				emit renamed(disp.mid(pos+9));
+			{
+				QString name = disp.mid(pos+9);
+				
+				if(name.startsWith('"') && name.endsWith('"'))
+					name = name.mid(1, name.size()-2);
+				emit renamed(name);
+			}
 		}
 		
 		dataCycle(bChunked);

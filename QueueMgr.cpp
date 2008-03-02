@@ -37,8 +37,6 @@ void QueueMgr::doWork()
 	
 	foreach(Queue* q,g_queues)
 	{
-		int runningd = 0, runningu = 0;
-		
 		int lim_down,lim_up;
 		int down,up;
 		
@@ -81,8 +79,6 @@ void QueueMgr::doWork()
 				{
 					(*lim)--;
 					d->setState(Transfer::Active);
-					
-					((mode == Transfer::Download) ? runningd : runningu)++;
 				}
 				else
 					d->setState(Transfer::Waiting);
@@ -102,19 +98,18 @@ void QueueMgr::doWork()
 		total[1] += stats.up;
 		
 		int downl = 0, upl = 0;
+		int size = q->size();
 		
-		
-		if(down && runningd)
+		if(size)
 		{
-			downl = down/runningd;
-			if(runningd > 1)
-				downl += std::max(down-stats.down,0)/(runningd-1);
-		}
-		if(up && runningu)
-		{
-			upl = up/runningu;
-			if(runningu > 1)
-				upl += std::max(up-stats.up,0)/(runningu-1);
+			downl = down/size;
+			upl = up/size;
+			
+			downl += std::max(down-stats.down,0)/size;
+			upl += std::max(up-stats.up,0)/size;
+			
+			downl = std::min(down, downl);
+			upl = std::min(up, upl);
 		}
 		
 		foreach(Transfer* d,q->m_transfers)

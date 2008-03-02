@@ -210,9 +210,9 @@ void Transfer::setState(State newState)
 		changeActive(now);
 		
 		if(now)
-			m_timeStart = QTime::currentTime();
+			m_timeStart = QDateTime::currentDateTime();
 		else
-			m_nTimeRunning += m_timeStart.secsTo(QTime::currentTime());
+			m_nTimeRunning += m_timeStart.secsTo(QDateTime::currentDateTime());
 	}
 }
 
@@ -221,7 +221,7 @@ qint64 Transfer::timeRunning() const
 	if(!isActive())
 		return m_nTimeRunning;
 	else
-		return m_nTimeRunning + m_timeStart.secsTo(QTime::currentTime());
+		return m_nTimeRunning + m_timeStart.secsTo(QDateTime::currentDateTime());
 }
 
 Transfer::State Transfer::string2state(QString s)

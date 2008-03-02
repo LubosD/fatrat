@@ -44,8 +44,6 @@ class FatratAdaptor: public QDBusAbstractAdaptor
 "      <arg direction=\"in\" type=\"s\" name=\"target\" />\n"
 "      <arg direction=\"in\" type=\"s\" name=\"className\" />\n"
 "      <!-- \"auto\" for auto-detection -->\n"
-"      <arg direction=\"in\" type=\"s\" name=\"classType\" />\n"
-"      <!-- \"download\" or \"upload\" -->\n"
 "      <arg direction=\"in\" type=\"i\" name=\"queueID\" />\n"
 "      <!-- an index, see getQueues -->\n"
 "    </method>\n"
@@ -58,7 +56,7 @@ public:
 public: // PROPERTIES
 public Q_SLOTS: // METHODS
     void addTransfers(const QString &uris);
-    void addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, const QString &classType, int queueID);
+    void addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, int queueID);
     QStringList getQueues();
 Q_SIGNALS: // SIGNALS
 };

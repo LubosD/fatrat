@@ -1182,10 +1182,18 @@ void TorrentDetails::refresh()
 		boost::posix_time::time_duration& next = m_download->m_status.next_announce;
 		boost::posix_time::time_duration& intv = m_download->m_status.announce_interval;
 		
+		// availability
+		QPalette palette = QApplication::palette(lineAvailability);
 		if(m_download->m_status.distributed_copies != -1)
+		{
+			if(m_download->m_status.distributed_copies < 1.0)
+				palette.setColor(palette.Text, Qt::red);
 			lineAvailability->setText(QString::number(m_download->m_status.distributed_copies));
+		}
 		else
 			lineAvailability->setText("-");
+		lineAvailability->setPalette(palette);
+		
 		lineTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
 				.arg(m_download->m_status.current_tracker.c_str())
 				.arg(next.hours()).arg(next.minutes(),2,10,QChar('0')).arg(next.seconds(),2,10,QChar('0'))

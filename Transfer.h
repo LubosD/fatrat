@@ -6,7 +6,7 @@
 #include <QQueue>
 #include <QPair>
 #include <QSettings>
-#include <QTime>
+#include <QDateTime>
 #include <QDomNode>
 #include "Logger.h"
 
@@ -121,7 +121,7 @@ protected:
 	bool m_bLocal, m_bWorking;
 	
 	qint64 m_nTimeRunning;
-	QTime m_timeStart;
+	QDateTime m_timeStart;
 	
 	int m_nRetryCount;
 	

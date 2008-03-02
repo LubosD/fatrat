@@ -16,7 +16,7 @@ void DbusImpl::addTransfers(QString uris)
 	wnd->addTransfer(uris);
 }
 
-void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, QString classType, int queueID)
+void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, int queueID)
 {
 	QReadLocker locker(&g_queuesLock);
 	
@@ -29,9 +29,6 @@ void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString 
 		
 		listUris = uris.split('\n');
 		
-		if(classType != "download" && classType != "upload")
-			throw RuntimeException("classType is invalid");
-		
 		if(queueID < 0 || queueID >= g_queues.size())
 			throw RuntimeException("queueID is out of range");
 	
@@ -40,9 +37,8 @@ void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString 
 		{
 			Transfer::BestEngine eng;
 			
-			if(classType == "download")
-				eng = Transfer::bestEngine(listUris[0], Transfer::Download);
-			else
+			eng = Transfer::bestEngine(listUris[0], Transfer::Download);
+			if(eng.nClass < 0)
 				eng = Transfer::bestEngine(target, Transfer::Upload);
 			
 			if(eng.nClass < 0)
@@ -54,28 +50,23 @@ void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString 
 		{
 			const EngineEntry* entries;
 			
-			if(classType == "download")
+			entries = Transfer::engines(Transfer::Download);
+			for(int i=0;entries[i].shortName;i++)
 			{
-				entries = Transfer::engines(Transfer::Download);
-				for(int i=0;entries[i].shortName;i++)
+				if(className == entries[i].shortName)
 				{
-					if(className == entries[i].shortName)
-					{
-						_class = &entries[i];
-						break;
-					}
+					_class = &entries[i];
+					break;
 				}
 			}
-			else
+			
+			entries = Transfer::engines(Transfer::Upload);
+			for(int i=0;entries[i].shortName;i++)
 			{
-				entries = Transfer::engines(Transfer::Upload);
-				for(int i=0;entries[i].shortName;i++)
+				if(className == entries[i].shortName)
 				{
-					if(className == entries[i].shortName)
-					{
-						_class = &entries[i];
-						break;
-					}
+					_class = &entries[i];
+					break;
 				}
 			}
 			

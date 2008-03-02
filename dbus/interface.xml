@@ -12,7 +12,6 @@
       <arg name="uris" type="s" direction="in"/> <!-- separated by EOL -->
       <arg name="target" type="s" direction="in"/> <!-- leave empty for the default -->
       <arg name="className" type="s" direction="in"/> <!-- "auto" for auto-detection -->
-      <arg name="classType" type="s" direction="in"/> <!-- "download" or "upload" -->
       <arg name="queueID" type="i" direction="in"/> <!-- an index, see getQueues -->
     </method>
   </interface>

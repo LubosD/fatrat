@@ -5,7 +5,7 @@
 #include <QList>
 #include <QStringList>
 #include <QUuid>
-#include <QTime>
+#include <QDateTime>
 
 #ifndef WITH_JABBER
 #	error This file is not supposed to be included!
@@ -67,7 +67,7 @@ protected:
 		QString strJID, strThread;
 		int nQueue;
 		gloox::ChatStateFilter* chatState;
-		QTime lastActivity;
+		QDateTime lastActivity;
 		
 		bool operator==(const ConnectionInfo& other) const
 		{
@@ -79,7 +79,7 @@ protected:
 	ConnectionInfo* createConnection(gloox::MessageSession* session);
 	QString processCommand(ConnectionInfo* conn, QString cmd);
 	void validateQueue(ConnectionInfo* conn);
-	static QStringList parseCommand(QString input);
+	static QStringList parseCommand(QString input, QString* extargs = 0);
 	static QString transferInfo(Transfer* t);
 private:
 	QString m_strJID, m_strPassword, m_strResource;

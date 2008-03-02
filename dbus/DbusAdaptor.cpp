@@ -39,10 +39,10 @@ void FatratAdaptor::addTransfers(const QString &uris)
     QMetaObject::invokeMethod(parent(), "addTransfers", Q_ARG(QString, uris));
 }
 
-void FatratAdaptor::addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, const QString &classType, int queueID)
+void FatratAdaptor::addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, int queueID)
 {
     // handle method call info.dolezel.fatrat.addTransfersNonInteractive
-    QMetaObject::invokeMethod(parent(), "addTransfersNonInteractive", Q_ARG(QString, uris), Q_ARG(QString, target), Q_ARG(QString, className), Q_ARG(QString, classType), Q_ARG(int, queueID));
+    QMetaObject::invokeMethod(parent(), "addTransfersNonInteractive", Q_ARG(QString, uris), Q_ARG(QString, target), Q_ARG(QString, className), Q_ARG(int, queueID));
 }
 
 QStringList FatratAdaptor::getQueues()

@@ -318,10 +318,12 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 	}
 	else if(match.tvs == RssRegexp::DateBased)
 	{
-		QRegExp matcher1("(\\d{4})[\\-\\. ](\\d\\d)[\\-\\. ](\\d\\d"), matcher2("(\\d\\d)[\\-\\. ](\\d\\d)[\\-\\. ](\\d{2,4})");
-		if(matcher1.lastIndexIn(itemName) != -1)
+		QRegExp matcher1("(\\d{4})[\\-\\. ](\\d\\d)[\\-\\. ](\\d\\d)"), matcher2("(\\d\\d)[\\-\\. ](\\d\\d)[\\-\\. ](\\d{2,4})");
+		if(matcher1.indexIn(itemName) != -1)
+		{
 			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(matcher1.cap(2).toInt(),2,10,zero).arg(matcher1.cap(3).toInt(),2,10,zero);
-		else if(matcher2.lastIndexIn(itemName) != -1)
+		}
+		else if(matcher2.indexIn(itemName) != -1)
 		{
 			int year = matcher2.cap(3).toInt();
 			if(year < 100)
