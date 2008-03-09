@@ -15,7 +15,7 @@ RapidshareUpload::RapidshareUpload()
 	: m_engine(0), m_http(0), m_buffer(0)
 {
 	m_query = QueryNone;
-	m_nFileID = m_nKillID = -1;
+	m_nFileID = -1;
 	m_nDone = 0;
 	m_bIDJustChecked = false;
 	
@@ -83,7 +83,7 @@ void RapidshareUpload::changeActive(bool nowActive)
 		}
 		else
 		{
-			if(m_nFileID > 0 && m_nKillID > 0 && !m_bIDJustChecked)
+			if(m_nFileID > 0 && !m_strKillID.isEmpty() && !m_bIDJustChecked)
 			{
 				// verify that the ID is still valid
 				m_query = QueryFileInfo;
@@ -95,10 +95,13 @@ void RapidshareUpload::changeActive(bool nowActive)
 				connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
 				
 				m_http->setProxy(Proxy::getProxy(m_proxy));
-				m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_nKillID), m_buffer);
+				m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), m_buffer);
 			}
 			else
 			{
+				if(!m_nFileID || m_strKillID.isEmpty())
+					m_nDone = 0;
+				
 				m_nTotal = QFileInfo(m_strSource).size();
 				
 				if(m_nTotal > 100*1024*1024)
@@ -138,11 +141,15 @@ void RapidshareUpload::beginNextChunk()
 	QString footer = QString("\r\n%1--\r\n").arg(MIME_BOUNDARY);
 	const char* handler;
 	
-	if(m_nFileID > 0 && m_nKillID > 0 && m_nDone > 0)
+	//qDebug() << "***FileID" << m_nFileID;
+	//qDebug() << "***KillID" << m_nKillID;
+	//qDebug() << "***Done" << m_nDone;
+	
+	if(m_nFileID > 0 && !m_strKillID.isEmpty() && m_nDone > 0)
 	{
 		header += QString("%1\r\nContent-Disposition: form-data; name=\"fileid\"\r\n\r\n%2\r\n"
 				"%1\r\nContent-Disposition: form-data; name=\"killcode\"\r\n\r\n%3\r\n")
-				.arg(MIME_BOUNDARY).arg(m_nFileID).arg(m_nKillID);
+				.arg(MIME_BOUNDARY).arg(m_nFileID).arg(m_strKillID);
 		handler = "uploadresume";
 	}
 	else
@@ -171,6 +178,8 @@ void RapidshareUpload::beginNextChunk()
 	
 	header += QString("%1\r\nContent-Disposition: form-data; name=\"filecontent\"; filename=\"%2\"\r\n\r\n")
 			.arg(MIME_BOUNDARY).arg(m_strName);
+	
+	qDebug() << header;
 	
 	QString url = QString("http://%1/cgi-bin/%2.cgi").arg(m_strServer).arg(handler);
 	m_engine = new HttpEngine(QUrl(url), QUrl(), m_proxy);
@@ -236,7 +245,7 @@ void RapidshareUpload::postFinished(bool error)
 				ix = reKillID.indexIn(response);
 				if(ix < 0)
 					throw RuntimeException(tr("Failed to find the kill ID"));
-				m_nKillID = reKillID.cap(1).toLongLong();
+				m_strKillID = reKillID.cap(1);
 			}
 			
 			m_engine->destroy();
@@ -252,7 +261,7 @@ void RapidshareUpload::postFinished(bool error)
 				
 				if(m_type == AccountNone)
 				{
-					link += QString("?killcode=%3").arg(m_nKillID);
+					link += QString("?killcode=%1").arg(m_strKillID);
 					enterLogMessage(tr("Kill link:") + ' ' + link);
 					if(!m_strLinksKill.isEmpty())
 						saveLink(m_strLinksKill, link);
@@ -333,7 +342,8 @@ void RapidshareUpload::queryDone(bool error)
 				// file ID invalid etc.
 				m_strMessage = line;
 				m_nDone = 0;
-				m_nFileID = m_nKillID = -1;
+				m_nFileID = -1;
+				m_strKillID.clear();
 				//setState(Failed);
 			}
 			else
@@ -352,6 +362,7 @@ void RapidshareUpload::queryDone(bool error)
 
 void RapidshareUpload::setSpeedLimits(int, int up)
 {
+	//qDebug() << "Speed:" << up;
 	if(m_engine)
 		m_engine->setLimit(up);
 }
@@ -378,7 +389,7 @@ void RapidshareUpload::load(const QDomNode& map)
 	setObject( getXMLProperty(map, "source") );
 	m_nDone = getXMLProperty(map, "done").toLongLong();
 	m_nFileID = getXMLProperty(map, "fileID").toLongLong();
-	m_nKillID = getXMLProperty(map, "killID").toLongLong();
+	m_strKillID = getXMLProperty(map, "killID");
 	m_type = (AccountType) getXMLProperty(map, "account").toLongLong();
 	m_strUsername = getXMLProperty(map, "username");
 	m_strPassword = getXMLProperty(map, "password");
@@ -395,7 +406,7 @@ void RapidshareUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "source", m_strSource);
 	setXMLProperty(doc, map, "done", QString::number(m_nDone));
 	setXMLProperty(doc, map, "fileID", QString::number(m_nFileID));
-	setXMLProperty(doc, map, "killID", QString::number(m_nKillID));
+	setXMLProperty(doc, map, "killID", m_strKillID);
 	setXMLProperty(doc, map, "account", QString::number(int(m_type)));
 	setXMLProperty(doc, map, "username", m_strUsername);
 	setXMLProperty(doc, map, "password", m_strPassword);
@@ -556,7 +567,8 @@ void RapidshareOptsWidget::accepted()
 		if(bChanged)
 		{
 			tu->m_nDone = 0;
-			tu->m_nFileID = tu->m_nKillID = -1;
+			tu->m_nFileID = -1;
+			tu->m_strKillID.clear();
 			
 			if(tu->isActive())
 			{

@@ -102,14 +102,42 @@ void QueueMgr::doWork()
 		
 		if(size)
 		{
-			downl = down/size;
+			/*downl = down/size;
 			upl = up/size;
 			
-			downl += std::max(down-stats.down,0)/size;
-			upl += std::max(up-stats.up,0)/size;
+			qDebug() << "UpL:" << up << "Up:" << stats.up;
+			qDebug() << "Upl 1:" << upl;
+			
+			downl += std::max(down-stats.down,0) /size;
+			upl += std::max(up-stats.up,0) /size;
+			
+			qDebug() << "Upl 2:" << upl;
+			qDebug() << "";
 			
 			downl = std::min(down, downl);
-			upl = std::min(up, upl);
+			upl = std::min(up, upl);*/
+			
+			if(down)
+			{
+				downl = down;
+				downl -= std::max(stats.down-down, 0);
+				downl = std::max(down/size, downl);
+			}
+			
+			if(up)
+			{
+				upl = up;
+				
+				qDebug() << "UpL:" << up << "Up:" << stats.up;
+				qDebug() << "Upl 1:" << upl;
+				
+				upl -= std::max(stats.up-up, 0);
+				
+				qDebug() << "Upl 2:" << upl;
+				qDebug() << "";
+				
+				upl = std::max(down/size, upl);
+			}
 		}
 		
 		foreach(Transfer* d,q->m_transfers)

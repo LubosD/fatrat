@@ -53,7 +53,8 @@ protected:
 	QString m_strUsername, m_strPassword, m_strServer;
 	AccountType m_type;
 	QueryType m_query;
-	qint64 m_nFileID, m_nKillID, m_nDone; // for resume
+	qint64 m_nFileID, m_nDone; // for resume
+	QString m_strKillID;
 	bool m_bIDJustChecked;
 	QUuid m_proxy;
 	QString m_strLinksDownload, m_strLinksKill;
