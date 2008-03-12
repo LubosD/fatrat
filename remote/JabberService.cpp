@@ -118,6 +118,8 @@ void JabberService::run()
 {
 	while(!m_bTerminating)
 	{
+		sleep(2);
+		
 		gloox::JID jid( (m_strJID + '/' + m_strResource).toStdString());
 		
 		Logger::global()->enterLogMessage("Jabber", tr("Connecting..."));
@@ -166,7 +168,7 @@ void JabberService::run()
 			m_pClient = 0;
 			delete c;
 			
-			sleep(5);
+			sleep(3);
 		}
 	}
 	m_bTerminating = false;
