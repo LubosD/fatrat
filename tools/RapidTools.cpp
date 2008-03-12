@@ -12,6 +12,7 @@ RapidTools::RapidTools()
 	
 	connect(pushCheck, SIGNAL(clicked()), this, SLOT(checkRShareLinks()));
 	connect(pushDownload, SIGNAL(clicked()), this, SLOT(downloadRShareLinks()));
+	connect(pushReset, SIGNAL(clicked()), this, SLOT(reserRShare()));
 	
 	connect(pushDecode, SIGNAL(clicked()), this, SLOT(decodeRSafeLinks()));
 	connect(pushDownload2, SIGNAL(clicked()), this, SLOT(downloadRSafeLinks()));
@@ -22,19 +23,26 @@ RapidTools::RapidTools()
 
 void RapidTools::checkRShareLinks()
 {
-	QStringList links;
-	QByteArray data = "urls=";
-	
 	m_strRShareWorking.clear();
-	links = textLinks->toPlainText().split('\n', QString::SkipEmptyParts);
+	m_listRSharePending = textLinks->toPlainText().split('\n', QString::SkipEmptyParts);
 	
-	if(!links.isEmpty())
+	if(!m_listRSharePending.isEmpty())
+	{
+		textLinks->clear();
+		doRShareCheck();
+	}
+}
+
+void RapidTools::doRShareCheck()
+{
+	if(!m_listRSharePending.isEmpty())
 	{
 		QRegExp re("http://rapidshare.com/files/(\\d+)/");
+		QByteArray data = "urls=";
 		
-		foreach(QString link, links)
+		while(data.size() < 9*1024 && !m_listRSharePending.isEmpty())
 		{
-			link = link.trimmed();
+			QString link = m_listRSharePending.takeFirst().trimmed();
 			if(re.indexIn(link) < 0)
 			{
 				QMessageBox::warning(this, "FatRat", tr("An invalid link has been encountered: %1").arg(link));
@@ -54,6 +62,11 @@ void RapidTools::checkRShareLinks()
 		
 		pushCheck->setDisabled(true);
 	}
+}
+
+void RapidTools::reserRShare()
+{
+	textLinks->setText(QString());
 }
 
 void RapidTools::downloadRShareLinks()
@@ -101,7 +114,7 @@ void RapidTools::doneRShare(bool error)
 			pos++;
 		}
 		
-		textLinks->setHtml(result);
+		textLinks->append(result);
 	}
 	
 	m_httpRShare->deleteLater();
@@ -110,7 +123,10 @@ void RapidTools::doneRShare(bool error)
 	m_httpRShare = 0;
 	m_mapRShare.clear();
 	
-	pushCheck->setEnabled(true);
+	if(m_listRSharePending.isEmpty())
+		pushCheck->setEnabled(true);
+	else if(!error)
+		doRShareCheck();
 }
 
 void RapidTools::decodeRSafeLinks()

@@ -16,6 +16,7 @@ public slots:
 	void checkRShareLinks();
 	void downloadRShareLinks();
 	void doneRShare(bool error);
+	void reserRShare();
 	
 	void decodeRSafeLinks();
 	void downloadRSafeLinks();
@@ -26,11 +27,14 @@ public slots:
 	void downloadRFLinks();
 	void doneRF(bool error);
 private:
+	void doRShareCheck();
+	
 	QHttp *m_httpRShare, *m_httpRSafe, *m_httpRF;
 	QBuffer *m_bufRShare, *m_bufRF;
 	
 	QMap<unsigned long, QString> m_mapRShare;
 	QString m_strRShareWorking;
+	QStringList m_listRSharePending;
 	
 	QMap<int, QString> m_listRSafeSrc;
 };
