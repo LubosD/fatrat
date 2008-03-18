@@ -6,10 +6,15 @@
 class DbusImpl : public QObject
 {
 Q_OBJECT
+public:
+	DbusImpl();
+	static DbusImpl* instance() { return m_instance; }
 public slots:
 	void addTransfers(QString uris);
-	static void addTransfersNonInteractive(QString uris, QString target, QString className, int queueID);
+	void addTransfersNonInteractive(QString uris, QString target, QString className, int queueID);
 	QStringList getQueues();
+private:
+	static DbusImpl* m_instance;
 };
 
 #endif

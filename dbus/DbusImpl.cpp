@@ -10,6 +10,13 @@
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
+DbusImpl* DbusImpl::m_instance = 0;
+
+DbusImpl::DbusImpl()
+{
+	m_instance = this;
+}
+
 void DbusImpl::addTransfers(QString uris)
 {
 	MainWindow* wnd = (MainWindow*) getMainWindow();

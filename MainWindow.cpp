@@ -1192,7 +1192,8 @@ void MainWindow::doneQueue(Queue* q, bool unlock, bool refresh)
 
 void MainWindow::transferItemContext(const QPoint&)
 {
-	if(treeTransfers->currentIndex().row() != -1)
+	QList<int> sel = getSelection();
+	if(!sel.isEmpty())
 	{
 		QMenu menu(treeTransfers);
 		
@@ -1212,15 +1213,15 @@ void MainWindow::transferItemContext(const QPoint&)
 		menu.addAction(actionBottom);
 		menu.addSeparator();
 		
-		QModelIndex ctrans = treeTransfers->currentIndex();
 		Queue* q = getCurrentQueue();
 		if(q != 0)
 		{
-			if(ctrans.row() >= 0)
+			if(sel.size() == 1)
 			{
-				Transfer* t = q->at(ctrans.row());
+				Transfer* t = q->at(sel[0]);
 				t->fillContextMenu(menu);
 			}
+			
 			doneQueue(q, true, false);
 		}
 		

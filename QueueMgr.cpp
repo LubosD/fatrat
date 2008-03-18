@@ -128,13 +128,13 @@ void QueueMgr::doWork()
 			{
 				upl = up;
 				
-				qDebug() << "UpL:" << up << "Up:" << stats.up;
-				qDebug() << "Upl 1:" << upl;
+				//qDebug() << "UpL:" << up << "Up:" << stats.up;
+				//qDebug() << "Upl 1:" << upl;
 				
 				upl -= std::max(stats.up-up, 0);
 				
-				qDebug() << "Upl 2:" << upl;
-				qDebug() << "";
+				//qDebug() << "Upl 2:" << upl;
+				//qDebug() << "";
 				
 				upl = std::max(down/size, upl);
 			}

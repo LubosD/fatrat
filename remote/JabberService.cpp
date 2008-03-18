@@ -422,7 +422,7 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 			
 			q->unlock();
 		}
-		else if(args[0] == "remove")
+		else if(args[0] == "remove" || args[0] == "delete")
 		{
 			validateQueue(conn);
 			QReadLocker locker(&g_queuesLock);
@@ -459,7 +459,10 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 				
 				if(args.size() < 3)
 					args << g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
-				DbusImpl::addTransfersNonInteractive(extargs, args[2], args[1], conn->nQueue);
+				QMetaObject::invokeMethod(DbusImpl::instance(), "addTransfersNonInteractive", Qt::QueuedConnection,
+						Q_ARG(QString, extargs), Q_ARG(QString, args[2]),
+						Q_ARG(QString, args[1]), Q_ARG(int, conn->nQueue));
+				//DbusImpl::addTransfersNonInteractive(extargs, args[2], args[1], conn->nQueue);
 				response = tr("OK.");
 			}
 		}

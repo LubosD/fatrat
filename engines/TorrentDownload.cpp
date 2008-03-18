@@ -344,17 +344,20 @@ void TorrentDownload::init(QString source, QString target)
 			
 			dir = m_pFileDownloadTemp->fileName();
 			name = dir.dirName();
-			qDebug() << "Downloading torrent to" << m_pFileDownloadTemp->fileName();
+			qDebug() << "Downloading" << source << "to" << m_pFileDownloadTemp->fileName();
 			dir.cdUp();
 			
 			QUrl url(source);
 			m_pFileDownload->setHost(url.host(), url.port(80));
-			connect(m_pFileDownload, SIGNAL(done(bool)), this, SLOT(torrentFileDone(bool)));
+			connect(m_pFileDownload, SIGNAL(done(bool)), this, SLOT(torrentFileDone(bool)), Qt::QueuedConnection);
 			
+			int id;
 			if(url.hasQuery())
-				m_pFileDownload->get(url.path() + '?' + url.encodedQuery(), m_pFileDownloadTemp);
+				id = m_pFileDownload->get(url.path() + '?' + url.encodedQuery(), m_pFileDownloadTemp);
 			else
-				m_pFileDownload->get(url.path(), m_pFileDownloadTemp);
+				id = m_pFileDownload->get(url.path(), m_pFileDownloadTemp);
+			
+			qDebug() << "Download has begun" << id;
 		}
 	}
 	catch(const libtorrent::invalid_encoding&)
@@ -399,6 +402,7 @@ QString TorrentDownload::storedTorrentName() const
 
 void TorrentDownload::torrentFileDone(bool error)
 {
+	qDebug() << "TorrentDownload::torrentFileDone";
 	if(error)
 	{
 		m_strError = tr("Failed to download the .torrent file");

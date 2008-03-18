@@ -15,7 +15,7 @@ public:
 	void generate(const std::vector<bool>& data);
 	void generate(const std::vector<int>& data);
 	
-	static QImage generate(const std::vector<bool>& data, int width, quint32* data, float sstart = 0, float send = 0);
+	static QImage generate(const std::vector<bool>& data, int width, quint32* buf, float sstart = 0, float send = 0);
 	static QImage generate(const std::vector<int>& data, int width, quint32* buf, float sstart = 0, float send = -1);
 	
 	void paintEvent(QPaintEvent* event);
