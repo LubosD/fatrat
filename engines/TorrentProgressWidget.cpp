@@ -1,5 +1,6 @@
 #include "TorrentProgressWidget.h"
 #include <QPainter>
+#include <algorithm>
 #include <QtDebug>
 
 TorrentProgressWidget::TorrentProgressWidget(QWidget* parent) : QWidget(parent)

@@ -516,7 +516,7 @@ QByteArray TorrentDownload::bencode_simple(libtorrent::entry e)
 {
 	std::vector<char> buffer;
 	libtorrent::bencode(std::back_inserter(buffer), e);
-	return QByteArray(buffer.data(), buffer.size());
+	return QByteArray(buffer.front(), buffer.size());
 }
 
 QString TorrentDownload::bencode(libtorrent::entry e)
