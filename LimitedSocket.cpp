@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <QTcpSocket>
+#include <QHostInfo>
 
 using namespace std;
 
@@ -317,14 +318,72 @@ void LimitedSocket::doClose(QTcpSocket** sock)
 	(*sock) = 0;
 }
 
-/*void LimitedSocket::reset()
+void LimitedSocket::connectToHost(QTcpSocket* socket, QString host, quint16 port)
 {
-	terminate();
-	delete m_pSocket;
-	m_pSocket = 0;
-	m_nTransfered = m_nToTransfer = 0;
-	m_stats.clear();
-	m_timer = QTime();
-	m_file.close();
-}*/
+	QList<QHostAddress> addr = performResolve(host);
+	
+	if(addr.isEmpty())
+		throw tr("No address to connect to");
+	
+	for(int i=0;i<addr.size();i++)
+	{
+		emit logMessage(tr("Connecting to %1").arg(addr[i].toString()));
+		socket->connectToHost(addr[i], port);
+		
+		if(socket->waitForConnected())
+			return;
+		else
+			statusMessage(socket->errorString());
+	}
+	
+	throw socket->errorString();
+}
 
+void LimitedSocket::connectToHost(QSslSocket* socket, QString host, quint16 port)
+{
+	QList<QHostAddress> addr = performResolve(host);
+	
+	if(addr.isEmpty())
+		throw tr("No address to connect to");
+	
+	for(int i=0;i<addr.size();i++)
+	{
+		emit logMessage(tr("Connecting to %1").arg(addr[i].toString()));
+		socket->connectToHostEncrypted(addr[i].toString(), port);
+		
+		if(socket->waitForConnected())
+			return;
+		else
+			statusMessage(socket->errorString());
+	}
+	
+	throw socket->errorString();
+}
+
+QList<QHostAddress> LimitedSocket::performResolve(QString host, bool bPreferIPv6)
+{
+	QHostInfo info = QHostInfo::fromName(host);
+	QList<QHostAddress> addresses, ip4, ip6;
+	
+	addresses = info.addresses();
+	
+	if(info.error() != QHostInfo::NoError)
+		throw info.errorString();
+	
+	foreach(QHostAddress addr, addresses)
+	{
+		if(addr.protocol() == QAbstractSocket::IPv6Protocol)
+			ip6 << addr;
+		else if(addr.protocol() == QAbstractSocket::IPv4Protocol)
+			ip4 << addr;
+	}
+	
+	addresses.clear();
+	
+	if(bPreferIPv6)
+		addresses << ip6 << ip4;
+	else
+		addresses << ip4 << ip6;
+	
+	return addresses;
+}

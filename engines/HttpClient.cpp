@@ -122,11 +122,15 @@ void HttpEngine::run()
 			}
 			
 			if(!bEncrypted)
-				normsock->connectToHost(m_url.host(),m_url.port(80));
+			{
+				//normsock->connectToHost(m_url.host(),m_url.port(80));
+				connectToHost(normsock, m_url.host(),m_url.port(80));
+			}
 			else
 			{
 				connect(sslsock, SIGNAL(sslErrors(const QList<QSslError> &)), sslsock, SLOT(ignoreSslErrors()));
-				sslsock->connectToHostEncrypted(m_url.host(),m_url.port(443));
+				//sslsock->connectToHostEncrypted(m_url.host(),m_url.port(443));
+				connectToHost(sslsock, m_url.host(), m_url.port(443));
 			}
 		}
 		

@@ -11,6 +11,7 @@
 #include <QTcpServer>
 #include "fatrat.h"
 #include <QFile>
+#include <QSslSocket>
 
 class LimitedSocket : public QThread
 {
@@ -32,6 +33,10 @@ public:
 	inline QString errorString() const { return m_strError; }
 	inline qulonglong total() const { return m_nToTransfer+m_nResume; }
 	inline void setSegment(qint64 from, qint64 to) { m_nSegmentStart=from; m_nSegmentEnd=to; }
+	
+	void connectToHost(QTcpSocket* socket, QString host, quint16 port);
+	void connectToHost(QSslSocket* socket, QString host, quint16 port);
+	static QList<QHostAddress> performResolve(QString host, bool bPreferIPv6 = true);
 	
 	virtual void request(QString file, bool bUpload, int flags) = 0;
 	virtual void setRemoteName(QString name) = 0;

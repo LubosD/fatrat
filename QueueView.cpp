@@ -34,7 +34,7 @@ bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction 
 			q->lockW();
 			
 			for(int i=0;i<transfers.size();i++)
-				objects << q->take(transfers[i]-i, false);
+				objects << q->take(transfers[i]-i, true);
 			
 			q->unlock();
 			

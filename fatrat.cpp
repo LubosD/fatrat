@@ -10,7 +10,6 @@
 #include <QVariant>
 #include <QMap>
 #include <QDir>
-#include <QHttpResponseHeader>
 
 #include <iostream>
 
@@ -19,6 +18,7 @@
 #include "Queue.h"
 #include "Transfer.h"
 #include "config.h"
+#include "RuntimeException.h"
 #include "dbus/DbusAdaptor.h"
 #include "dbus/DbusImpl.h"
 #include "remote/HttpService.h"
@@ -464,4 +464,3 @@ void recursiveRemove(QString what)
 {
 	new RecursiveRemove(what);
 }
-

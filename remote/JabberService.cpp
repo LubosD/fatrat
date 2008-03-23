@@ -459,11 +459,15 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 				
 				if(args.size() < 3)
 					args << g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
-				QMetaObject::invokeMethod(DbusImpl::instance(), "addTransfersNonInteractive", Qt::QueuedConnection,
+				
+				QMetaObject::invokeMethod(DbusImpl::instance(),
+						"addTransfersNonInteractive", Qt::QueuedConnection,
+						Q_RETURN_ARG(QString, response),
 						Q_ARG(QString, extargs), Q_ARG(QString, args[2]),
 						Q_ARG(QString, args[1]), Q_ARG(int, conn->nQueue));
-				//DbusImpl::addTransfersNonInteractive(extargs, args[2], args[1], conn->nQueue);
-				response = tr("OK.");
+				
+				if(response.isEmpty())
+					response = tr("OK.");
 			}
 		}
 		else

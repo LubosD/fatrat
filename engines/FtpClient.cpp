@@ -115,11 +115,11 @@ bool FtpEngine::passiveConnect()
 	quint16 port;
 	QString reply;
 	
-	writeLine("PASV\r\n");
-	if(readStatus(reply) != 227)
+	writeLine("EPSV\r\n");
+	if(readStatus(reply) != 229) // 227 = PORT
 		return false;
-	
-	int p,e;
+		
+	/*int p,e;
 	QStringList ipport;
 	
 	if((p = reply.indexOf('(') + 1) == 0)
@@ -132,7 +132,17 @@ bool FtpEngine::passiveConnect()
 		throw tr("Invalid server response");
 	
 	addr = QHostAddress(qntoh(ipport[0].toUInt() | ipport[1].toUInt()<<8 | ipport[2].toUInt()<<16 | ipport[3].toUInt()<<24));
-	port = ipport[4].toUShort()*0x0100 | ipport[5].toUShort();
+	port = ipport[4].toUShort()*0x0100 | ipport[5].toUShort();*/
+	
+	QRegExp re("\\|(\\d*)\\|([^\\|]*)\\|(\\d+)\\|");
+	if(re.indexIn(reply) < 0)
+		throw tr("Invalid server response");
+	
+	port = re.cap(3).toUShort();
+	if(!re.cap(2).isEmpty())
+		addr = re.cap(2);
+	else
+		addr = m_pSocketMain->peerAddress();
 	
 	m_pRemote = new QTcpSocket;
 	m_pRemote->connectToHost(addr,port);
@@ -153,7 +163,6 @@ bool FtpEngine::activeConnect(QTcpServer** server)
 {
 	QString ipport,reply;
 	QHostAddress local = m_pSocketMain->localAddress();
-	quint32 ip = local.toIPv4Address();
 	quint16 port;
 	
 	QTcpServer* srv;
@@ -163,7 +172,11 @@ bool FtpEngine::activeConnect(QTcpServer** server)
 	srv->setMaxPendingConnections(1);
 	port = srv->serverPort();
 	
-	writeLine(QString("PORT %1,%2,%3,%4,%5,%6\r\n").arg(ip>>24).arg((ip>>16)&0xff).arg((ip>>8)&0xff).arg(ip&0xff).arg(port>>8).arg(port&0xff));
+	//writeLine(QString("PORT %1,%2,%3,%4,%5,%6\r\n").arg(ip>>24).arg((ip>>16)&0xff).arg((ip>>8)&0xff).arg(ip&0xff).arg(port>>8).arg(port&0xff));
+	QString line;
+	line = QString("EPRT |%1|%2|%3|\n").arg(local.protocol() == QAbstractSocket::IPv4Protocol ? 1 : 2).arg(local.toString()).arg(port);
+	//line = QString("EPRT |||%1|\n").arg(port);
+	writeLine(line);
 	
 	if(readStatus(reply) != 200)
 		return false;
@@ -221,14 +234,16 @@ void FtpEngine::connectServer()
 		m_pSocketMain->setProxy(proxy);
 	}
 	
-	m_pSocketMain->connectToHost(m_url.host(), m_url.port(21));
+	/*m_pSocketMain->connectToHost(m_url.host(), m_url.port(21));
 	
 	emit statusMessage("Connecting");
 	if(!m_pSocketMain->waitForConnected())
 	{
 		qDebug() << "Failed to connect" << m_pSocketMain->errorString();
 		throw m_pSocketMain->errorString();
-	}
+	}*/
+	
+	connectToHost(m_pSocketMain, m_url.host(), m_url.port(21));
 	
 	if(readStatus(reply) != 220)
 		throw reply;
@@ -333,7 +348,7 @@ void FtpEngine::run()
 		switchToDirectory();
 
 econn: // FIXME: this all looks so wrong
-		emit statusMessage(tr("Establishing file connection"));
+		emit statusMessage(tr("Establishing a data connection"));
 		while(true)
 		{
 			bool bError = false;
@@ -348,7 +363,7 @@ econn: // FIXME: this all looks so wrong
 			if(bError)
 			{
 				if(switchedMode)
-					throw tr("Unable to establish the data connection");
+					throw tr("Unable to establish a data connection");
 				else if(m_proxyData.nType == Proxy::ProxyNone)
 				{
 					switchedMode = true;
@@ -387,7 +402,7 @@ econn: // FIXME: this all looks so wrong
 			if(!switchedMode)
 				goto econn;
 			else
-				throw tr("Unable to establish the data connection");
+				throw tr("Unable to establish a data connection");
 		}
 		
 		while(!m_bAbort && m_nTransfered < m_nToTransfer)

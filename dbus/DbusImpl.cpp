@@ -23,7 +23,7 @@ void DbusImpl::addTransfers(QString uris)
 	wnd->addTransfer(uris);
 }
 
-void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, int queueID)
+QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, int queueID)
 {
 	QReadLocker locker(&g_queuesLock);
 	
@@ -105,7 +105,9 @@ void DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString 
 	catch(const RuntimeException& e)
 	{
 		qDebug() << "DbusImpl::addTransfersNonInteractive():" << e.what();
+		return e.what();
 	}
+	return QString();
 }
 
 QStringList DbusImpl::getQueues()
