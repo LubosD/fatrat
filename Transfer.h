@@ -79,6 +79,10 @@ public:
 	QString comment() const { return m_strComment; }
 	void setComment(QString text) { m_strComment = text; }
 	
+	// AUTO ACTIONS
+	QString autoActionCommand(State state) const;
+	void setAutoActionCommand(State state, QString command);
+	
 	// GENERIC UTILITY FUNCTIONS
 	static State string2state(QString s);
 	static QString state2string(State s);
@@ -113,6 +117,7 @@ protected:
 	virtual void setSpeedLimits(int down,int up) = 0;
 	void setInternalSpeedLimits(int down,int up);
 	void setMode(Mode mode);
+	void fireCompleted();
 	
 	State m_state;
 	Mode m_mode;
@@ -125,7 +130,7 @@ protected:
 	
 	int m_nRetryCount;
 	
-	QString m_strLog, m_strComment;
+	QString m_strLog, m_strComment, m_strCommandCompleted;
 	
 	QTimer* m_timer;
 	QQueue<QPair<int,int> > m_qSpeedData;

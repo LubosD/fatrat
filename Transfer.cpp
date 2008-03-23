@@ -13,6 +13,7 @@
 #include <iostream>
 #include <QtDebug>
 #include <QMessageBox>
+#include <QProcess>
 
 Q_GLOBAL_STATIC(TransferNotifier, transferNotifier)
 
@@ -201,6 +202,9 @@ void Transfer::setState(State newState)
 	
 	enterLogMessage(tr("Changed state: %1 -> %2").arg(state2string(m_state)).arg(state2string(newState)));
 	
+	if(newState == Completed)
+		fireCompleted();
+	
 	m_state = newState;
 	now = isActive();
 	
@@ -263,6 +267,14 @@ void Transfer::load(const QDomNode& map)
 	m_strComment = getXMLProperty(map, "comment");
 	m_nTimeRunning = getXMLProperty(map, "timerunning").toLongLong();
 	
+	QDomElement n = map.firstChildElement("action");
+	while(!n.isNull())
+	{
+		if(n.attribute("state") == "Completed")
+			m_strCommandCompleted = n.firstChild().toText().data();
+		n = n.nextSiblingElement("action");
+	}
+	
 	setUserSpeedLimits(down, up);
 }
 
@@ -273,6 +285,13 @@ void Transfer::save(QDomDocument& doc, QDomNode& node) const
 	setXMLProperty(doc, node, "uplimit", QString::number(m_nUpLimit));
 	setXMLProperty(doc, node, "comment", m_strComment);
 	setXMLProperty(doc, node, "timerunning", QString::number(timeRunning()));
+	
+	QDomElement elem = doc.createElement("action");
+	QDomText text = doc.createTextNode(m_strCommandCompleted);
+	elem.setAttribute("state", "Completed");
+	elem.appendChild(text);
+	
+	node.appendChild(elem);
 }
 
 void Transfer::setMode(Mode newMode)
@@ -339,6 +358,52 @@ void Transfer::retry()
 {
 	m_nRetryCount++;
 	setState(Waiting);
+}
+
+void Transfer::fireCompleted()
+{
+	if(m_strCommandCompleted.isEmpty())
+		return;
+	
+	QString exec = m_strCommandCompleted;
+	for(int i=0;i<exec.size() - 1;)
+	{
+		if(exec[i++] != '%')
+			continue;
+		QChar t = exec[i];
+		QString text;
+		
+		if(t == QChar('N')) // transfer name
+			text = name();
+		else if(t == QChar('T')) // transfer type
+			text = myClass();
+		else if(t == QChar('D')) // destination directory
+			text = dataPath(false);
+		else if(t == QChar('P')) // data path
+			text = dataPath(true);
+		else
+			continue;
+		
+		exec.replace(i-1, 2, text);
+		i += text.size() - 1;
+	}
+	
+	qDebug() << "Executing" << exec;
+	
+	QProcess::startDetached(exec);
+}
+
+QString Transfer::autoActionCommand(State state) const
+{
+	if(state == Completed)
+		return m_strCommandCompleted;
+	return QString();
+}
+
+void Transfer::setAutoActionCommand(State state, QString command)
+{
+	if(state == Completed)
+		m_strCommandCompleted = command;
 }
 
 //////////////////

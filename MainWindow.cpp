@@ -23,6 +23,7 @@
 #include "SpeedGraph.h"
 #include "DropBox.h"
 #include "CommentForm.h"
+#include "AutoActionForm.h"
 #include "tools/HashDlg.h"
 #include "RuntimeException.h"
 #include "SpeedLimitWidget.h"
@@ -985,6 +986,7 @@ void MainWindow::transferOptions()
 		
 		widgetDetails = dlg.getNextChildHost(tr("Details"));
 		CommentForm* comment = new CommentForm (dlg.getNextChildHost(tr("Comment")), d);
+		AutoActionForm* aaction = new AutoActionForm (dlg.getNextChildHost(tr("Actions")), d);
 		
 		wgt->m_mode = d->primaryMode();
 		wgt->m_strURI = d->object();
@@ -1001,6 +1003,7 @@ void MainWindow::transferOptions()
 		else
 			dlg.removeChildHost(widgetDetails);
 		dlg.addChild(comment);
+		dlg.addChild(aaction);
 		
 		if(dlg.exec() == QDialog::Accepted)
 		{

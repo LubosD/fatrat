@@ -156,6 +156,7 @@ set(fatrat_MOC_HDRS
 
 set(fatrat_UIS
 	AboutDlg.ui
+	AutoActionForm.ui
 	CommentForm.ui
 	GenericOptsForm.ui
 	MainWindow.ui
