@@ -115,16 +115,29 @@ void TorrentDownload::applySettings()
 	
 	if(g_settings->value("torrent/dht", getSettingsDefault("torrent/dht")).toBool())
 	{
-		try
+		QByteArray state = g_settings->value("torrent/dht_state").toByteArray();
+		while(true)
 		{
-			m_session->start_dht(bdecode_simple(g_settings->value("torrent/dht_state").toByteArray()));
-			m_session->add_dht_router(std::pair<std::string, int>("router.bittorrent.com", 6881));
-			m_bDHT = true;
-		}
-		catch(...)
-		{
-			m_bDHT = false;
-			Logger::global()->enterLogMessage("BitTorrent", tr("Failed to start DHT!"));
+			try
+			{
+				m_session->start_dht(bdecode_simple(state));
+				m_session->add_dht_router(std::pair<std::string, int>("router.bittorrent.com", 6881));
+				m_bDHT = true;
+				
+				Logger::global()->enterLogMessage("BitTorrent", tr("DHT started"));
+			}
+			catch(const std::exception& e)
+			{
+				m_bDHT = false;
+				Logger::global()->enterLogMessage("BitTorrent", tr("Failed to start DHT!") + ' ' + e.what());
+				
+				if(!state.isEmpty())
+				{
+					state.clear();
+					continue;
+				}
+			}
+			break;
 		}
 	}
 	else
