@@ -84,6 +84,10 @@ void TorrentSettings::load()
 				comboProxyPeer->setCurrentIndex(index);
 		}
 	}
+	
+	checkUPNP->setChecked(g_settings->value("torrent/mapping_upnp", false).toBool());
+	checkNATPMP->setChecked(g_settings->value("torrent/mapping_natpmp", false).toBool());
+	checkLSD->setChecked(g_settings->value("torrent/mapping_lsd", false).toBool());
 }
 
 void TorrentSettings::accepted()
@@ -116,6 +120,10 @@ void TorrentSettings::accepted()
 	
 	g_settings->setValue("torrent/enc_level", comboEncLevel->currentIndex());
 	g_settings->setValue("torrent/enc_rc4_prefer", checkEncRC4Prefer->isChecked());
+	
+	g_settings->setValue("torrent/mapping_upnp", checkUPNP->isChecked());
+	g_settings->setValue("torrent/mapping_natpmp", checkNATPMP->isChecked());
+	g_settings->setValue("torrent/mapping_lsd", checkLSD->isChecked());
 	
 	TorrentDownload::applySettings();
 }

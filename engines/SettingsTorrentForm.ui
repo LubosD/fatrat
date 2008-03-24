@@ -347,6 +347,47 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="Portmapping" >
+      <attribute name="title" >
+       <string>Port mapping</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QCheckBox" name="checkUPNP" >
+         <property name="text" >
+          <string>Enable UPnP</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QCheckBox" name="checkNATPMP" >
+         <property name="text" >
+          <string>Enable NAT-PMP</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QCheckBox" name="checkLSD" >
+         <property name="text" >
+          <string>Enable LSD</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

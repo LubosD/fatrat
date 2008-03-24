@@ -60,7 +60,11 @@ TorrentDownload::~TorrentDownload()
 
 int TorrentDownload::acceptable(QString uri, bool)
 {
-	const bool istorrent = uri.endsWith(".torrent", Qt::CaseInsensitive);
+	bool istorrent = uri.endsWith(".torrent", Qt::CaseInsensitive);
+	
+	if(uri.startsWith("http://www.mininova.org/get/"))
+		istorrent = true;
+	
         if(uri.startsWith("http://") || uri.startsWith("ftp://"))
                 return (istorrent) ? 3 : 2;
 	if(istorrent)
@@ -101,6 +105,8 @@ void TorrentDownload::globalInit()
 
 void TorrentDownload::applySettings()
 {
+	static bool bUPnPActive = false, bNATPMPActive = false, bLSDActive = false;
+	bool bUPnP, bNATPMP, bLSD;
 	int lstart,lend;
 	libtorrent::session_settings settings;
 	
@@ -113,10 +119,39 @@ void TorrentDownload::applySettings()
 	if(m_session->listen_port() != lstart)
 		m_session->listen_on(std::pair<int,int>(lstart,lend));
 	
+	bUPnP = g_settings->value("torrent/mapping_upnp", false).toBool();
+	bNATPMP = g_settings->value("torrent/mapping_natpmp", false).toBool();
+	bLSD = g_settings->value("torrent/mapping_lsd", false).toBool();
+	
+	if(bUPnP != bUPnPActive)
+	{
+		if(bUPnP)
+			m_session->start_upnp();
+		else
+			m_session->stop_upnp();
+		bUPnPActive = bUPnP;
+	}
+	if(bNATPMP != bNATPMPActive)
+	{
+		if(bNATPMP)
+			m_session->start_natpmp();
+		else
+			m_session->stop_natpmp();
+		bNATPMPActive = bNATPMP;
+	}
+	if(bLSD != bLSDActive)
+	{
+		if(bLSD)
+			m_session->start_lsd();
+		else
+			m_session->stop_lsd();
+		bLSDActive = bLSD;
+	}
+	
 	if(g_settings->value("torrent/dht", getSettingsDefault("torrent/dht")).toBool())
 	{
 		QByteArray state = g_settings->value("torrent/dht_state").toByteArray();
-		while(true)
+		while(!m_bDHT)
 		{
 			try
 			{
@@ -136,8 +171,8 @@ void TorrentDownload::applySettings()
 					state.clear();
 					continue;
 				}
+				break;
 			}
-			break;
 		}
 	}
 	else
