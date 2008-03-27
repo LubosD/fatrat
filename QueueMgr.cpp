@@ -38,7 +38,7 @@ void QueueMgr::doWork()
 	foreach(Queue* q,g_queues)
 	{
 		int lim_down,lim_up;
-		int down,up;
+		int down,up, active = 0;
 		
 		Queue::Stats stats;
 		
@@ -82,6 +82,7 @@ void QueueMgr::doWork()
 				}
 				else
 					d->setState(Transfer::Waiting);
+				active++;
 			}
 			else if(state == Transfer::Completed && autoremove)
 			{
@@ -117,26 +118,28 @@ void QueueMgr::doWork()
 			downl = std::min(down, downl);
 			upl = std::min(up, upl);*/
 			
-			if(down)
+			if(down && active)
 			{
-				downl = down;
-				downl -= std::max(stats.down-down, 0);
-				downl = std::max(down/size, downl);
+				//downl = down;
+				downl = down/active + std::max(down-stats.down, 0);
+				downl = std::min(down, downl);
 			}
 			
-			if(up)
+			if(up && active)
 			{
-				upl = up;
+				//upl = up;
 				
-				//qDebug() << "UpL:" << up << "Up:" << stats.up;
 				//qDebug() << "Upl 1:" << upl;
 				
-				upl -= std::max(stats.up-up, 0);
+				//upl -= std::max(stats.up-up, 0);
 				
 				//qDebug() << "Upl 2:" << upl;
 				//qDebug() << "";
 				
-				upl = std::max(down/size, upl);
+				//upl = std::max(down/size, upl);
+				upl = up/active + std::max(up-stats.up, 0);
+				upl = std::min(up, upl);
+				qDebug() << "UpL:" << up << "Up:" << stats.up;
 			}
 		}
 		

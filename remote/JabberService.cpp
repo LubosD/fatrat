@@ -261,6 +261,10 @@ QStringList JabberService::parseCommand(QString input, QString* extargs)
 	int i;
 	bool bInStr = false, bInQ = false, bExtArgs = false;
 	
+	// for oversimplified mobile Jabber clients that don't provide any way of writing \n
+	// without sending the message
+	input.replace("\\n", "\n");
+	
 	for(i=0;i<input.size();i++)
 	{
 		if(input[i] == '\n')
@@ -449,7 +453,7 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 		}
 		else if(args[0] == "add" || args[0] == "new")
 		{
-			//validateQueue(conn);
+			validateQueue(conn);
 			if(extargs.isEmpty())
 				response = tr("Nothing to add");
 			else
@@ -462,12 +466,12 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 				
 				QMetaObject::invokeMethod(DbusImpl::instance(),
 						"addTransfersNonInteractive", Qt::QueuedConnection,
-						Q_RETURN_ARG(QString, response),
+						/*Q_RETURN_ARG(QString, response),*/
 						Q_ARG(QString, extargs), Q_ARG(QString, args[2]),
 						Q_ARG(QString, args[1]), Q_ARG(int, conn->nQueue));
 				
 				if(response.isEmpty())
-					response = tr("OK.");
+					response = tr("Command accepted, check the queue");
 			}
 		}
 		else
