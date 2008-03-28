@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QMimeData>
+#include <QUrl>
 #include <QtDebug>
 
 #include "TransfersModel.h"
@@ -287,14 +288,29 @@ Qt::ItemFlags TransfersModel::flags(const QModelIndex &index) const
 
 QMimeData* TransfersModel::mimeData(const QModelIndexList&) const
 {
+	QReadLocker l(&g_queuesLock);
 	QMimeData *mimeData = new QMimeData;
 	QByteArray encodedData;
+	QByteArray files;
 	QList<int> sel = g_wndMain->getSelection();
+	
+	Queue* q = g_queues[m_queue];
+	
+	q->lock();
+	foreach(int x, sel)
+	{
+		if(!files.isEmpty())
+			files += '\n';
+		files += "file://";
+		files += QUrl::toPercentEncoding(q->at(x)->dataPath(true).toUtf8());
+	}
+	q->unlock();
 
 	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	stream << m_queue << sel;
 	
 	mimeData->setData("application/x-fatrat-transfer", encodedData);
+	mimeData->setData("text/uri-list", files);
 	
 	return mimeData;
 }
