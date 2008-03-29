@@ -4,6 +4,7 @@
 #include "SettingsGeneralForm.h"
 #include "SettingsDropBoxForm.h"
 #include "SettingsNetworkForm.h"
+#include "SettingsQueueForm.h"
 #include "MainWindow.h"
 
 #ifdef WITH_JABBER
@@ -25,6 +26,11 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 	
 	m_children << (WidgetHostChild*)(new SettingsGeneralForm(w, this));
 	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/fatrat.png"), tr("Main"), listWidget) );
+	stackedWidget->addWidget(w);
+	
+	w = new QWidget(stackedWidget);
+	m_children << (WidgetHostChild*)(new SettingsQueueForm(w, this));
+	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/queue.png"), tr("Queue"), listWidget) );
 	stackedWidget->addWidget(w);
 	
 	w = new QWidget(stackedWidget);

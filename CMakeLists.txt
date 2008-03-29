@@ -76,7 +76,9 @@ set(fatrat_SRCS
 	QueueMgr.cpp
 	QueueView.cpp
 	SettingsDlg.cpp
+	SettingsGeneralForm.cpp
 	SettingsNetworkForm.cpp
+	SettingsQueueForm.cpp
 	SimpleEmail.cpp
 	SpeedGraph.cpp
 	SpeedLimitWidget.cpp
@@ -116,6 +118,7 @@ set(fatrat_MOC_HDRS
 	SpeedGraph.h
 	SettingsDropBoxForm.h
 	SettingsNetworkForm.h
+	SettingsQueueForm.h
 	StatsWidget.h
 	ProxyDlg.h
 	SpeedLimitWidget.h
@@ -167,6 +170,7 @@ set(fatrat_UIS
 	SettingsDropBoxForm.ui
 	SettingsGeneralForm.ui
 	SettingsNetworkForm.ui
+	SettingsQueueForm.ui
 	SpeedLimitWidget.ui
 	UserAuthDlg.ui
 	WidgetHostDlg.ui

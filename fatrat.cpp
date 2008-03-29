@@ -215,6 +215,8 @@ void initSettingsDefaults()
 	g_mapDefaults["emailrcpt"] = "root@localhost";
 	g_mapDefaults["graphminutes"] = 5;
 	g_mapDefaults["autoremove"] = false;
+	g_mapDefaults["transfer_dblclk"] = 0;
+	
 	g_mapDefaults["torrent/listen_start"] = 6881;
 	g_mapDefaults["torrent/listen_end"] = 6888;
 	

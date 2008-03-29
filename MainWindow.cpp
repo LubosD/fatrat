@@ -628,7 +628,23 @@ void MainWindow::displayDestroyed()
 
 void MainWindow::transferItemDoubleClicked(const QModelIndex&)
 {
-	tabMain->setCurrentIndex(1);
+	int op = g_settings->value("transfer_dblclk", getSettingsDefault("transfer_dblclk")).toInt();
+	
+	switch(op)
+	{
+	case 0:
+		tabMain->setCurrentIndex(1);
+		break;
+	case 1:
+		tabMain->setCurrentIndex(2);
+		break;
+	case 2:
+		transferOpenFile();
+		break;
+	case 3:
+		transferOpenDirectory();
+		break;
+	}
 }
 
 void MainWindow::move(int i)
