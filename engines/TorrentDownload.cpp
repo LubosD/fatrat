@@ -1,4 +1,5 @@
 #include "fatrat.h"
+#include "config.h"
 #include "Logger.h"
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
@@ -24,6 +25,7 @@
 #include <QLibrary>
 #include <QDir>
 #include <QUrl>
+#include <QFile>
 #include <QProcess>
 #include <QtDebug>
 
@@ -33,6 +35,7 @@ libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
 RssFetcher* TorrentDownload::m_rssFetcher = 0;
+QList<QRegExp> TorrentDownload::m_listBTLinks;
 
 static const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
 
@@ -60,11 +63,24 @@ TorrentDownload::~TorrentDownload()
 
 int TorrentDownload::acceptable(QString uri, bool)
 {
-	bool istorrent = uri.endsWith(".torrent", Qt::CaseInsensitive);
+	bool istorrent;
 	
-	if(uri.startsWith("http://www.mininova.org/get/"))
+	if(uri.endsWith(".torrent", Qt::CaseInsensitive))
 		istorrent = true;
-	
+	else
+	{
+		istorrent = false;
+		
+		for(int i=0;i<m_listBTLinks.size();i++)
+		{
+			if(m_listBTLinks[i].exactMatch(uri))
+			{
+				istorrent = true;
+				break;
+			}
+		}
+	}
+		
         if(uri.startsWith("http://") || uri.startsWith("ftp://"))
                 return (istorrent) ? 3 : 2;
 	if(istorrent)
@@ -100,6 +116,18 @@ void TorrentDownload::globalInit()
 		GeoIP_delete = (void(*)(void*)) g_geoIPLib.resolve("GeoIP_delete");
 		
 		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
+	}
+	
+	QFile file (DATA_LOCATION "/data/btlinks.txt");
+	if(file.open(QIODevice::ReadOnly))
+	{
+		while(!file.atEnd())
+		{
+			QByteArray line = file.readLine().trimmed();
+			if(line.isEmpty())
+				continue;
+			m_listBTLinks << QRegExp(line);
+		}
 	}
 }
 

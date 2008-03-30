@@ -1,2 +1,2 @@
-http://www.mininova.org/get/
-
+http://www.mininova.org/get/(\d+)
+http://www.bt-chat.com/download1.php?id=(\d+)

@@ -15,6 +15,7 @@
 #include <QMutex>
 #include <QHttp>
 #include <QTemporaryFile>
+#include <QRegExp>
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
@@ -100,6 +101,7 @@ protected:
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;
 	static RssFetcher* m_rssFetcher;
+	static QList<QRegExp> m_listBTLinks;
 	
 	friend class TorrentWorker;
 	friend class TorrentDetails;

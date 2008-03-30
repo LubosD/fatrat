@@ -278,6 +278,7 @@ endif(WITH_NLS)
 
 if(WITH_BITTORRENT)
 	install(FILES data/btsearch.xml DESTINATION share/fatrat/data)
+	install(FILES data/btlinks.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
 
 install(PROGRAMS fatrat DESTINATION bin)

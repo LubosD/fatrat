@@ -257,10 +257,10 @@ QVariant TransfersModel::data(const QModelIndex &index, int role) const
 				return *m_states[state];
 		}
 	}
-	else if(role == Qt::SizeHintRole)
+	/*else if(role == Qt::SizeHintRole)
 	{
-		return QSize(50, 50);
-	}
+		return QSize(50, 16);
+	}*/
 
 	return QVariant();
 }
@@ -302,7 +302,7 @@ QMimeData* TransfersModel::mimeData(const QModelIndexList&) const
 		if(!files.isEmpty())
 			files += '\n';
 		files += "file://";
-		files += QUrl::toPercentEncoding(q->at(x)->dataPath(true).toUtf8());
+		files += q->at(x)->dataPath(true).toUtf8();
 	}
 	q->unlock();
 
