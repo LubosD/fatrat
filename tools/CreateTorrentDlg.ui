@@ -1,0 +1,236 @@
+<ui version="4.0" >
+ <class>CreateTorrentDlg</class>
+ <widget class="QDialog" name="CreateTorrentDlg" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>396</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Create a torrent</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" colspan="5" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Data (a single file or a directory)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="4" >
+    <widget class="QLineEdit" name="lineData" />
+   </item>
+   <item row="1" column="4" >
+    <widget class="QToolButton" name="toolDataF" >
+     <property name="toolTip" >
+      <string>Browse files</string>
+     </property>
+     <property name="text" >
+      <string>F</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5" >
+    <widget class="QToolButton" name="toolDataD" >
+     <property name="toolTip" >
+      <string>Browse directories</string>
+     </property>
+     <property name="text" >
+      <string>D</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Piece size</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <widget class="QComboBox" name="comboPieceSize" />
+   </item>
+   <item row="2" column="3" colspan="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>Comment</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="5" >
+    <widget class="QLineEdit" name="lineComment" />
+   </item>
+   <item row="4" column="0" colspan="5" >
+    <widget class="QCheckBox" name="checkPrivate" >
+     <property name="text" >
+      <string>Private torrent (disable DHT)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="6" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>Trackers</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_5" >
+         <property name="text" >
+          <string>Private torrents need at least one tracker</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="ContextListWidget" name="listTrackers" >
+         <property name="resizeMode" >
+          <enum>QListView::Adjust</enum>
+         </property>
+         <property name="uniformItemSizes" >
+          <bool>true</bool>
+         </property>
+         <property name="selectionRectVisible" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>DHT nodes</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>Enter adresses in form &lt;code>address:port&lt;/code>, anything else will be disregarded</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="ContextListWidget" name="listNodes" />
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3" >
+      <attribute name="title" >
+       <string>Web seeds</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QListWidget" name="listWebSeeds" />
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="6" column="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="0" colspan="6" >
+    <widget class="QProgressBar" name="progressBar" >
+     <property name="value" >
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="6" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::NoButton</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ContextListWidget</class>
+   <extends>QListWidget</extends>
+   <header>tools/ContextListWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lineData</tabstop>
+  <tabstop>toolDataF</tabstop>
+  <tabstop>comboPieceSize</tabstop>
+  <tabstop>lineComment</tabstop>
+  <tabstop>checkPrivate</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>listTrackers</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../gfx/resources.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>CreateTorrentDlg</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>CreateTorrentDlg</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

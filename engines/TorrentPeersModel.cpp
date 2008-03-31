@@ -1,6 +1,7 @@
 #include "TorrentDownload.h"
 #include "TorrentPeersModel.h"
 #include "fatrat.h"
+#include <QIcon>
 #include <QtDebug>
 
 extern void* g_pGeoIP;

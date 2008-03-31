@@ -3,10 +3,12 @@
 
 struct AppTool
 {
-	const char* pszName;
+	AppTool(QString n, QWidget* (*pfn)()) : strName(n), pfnCreate(pfn)
+	{}
+	QString strName;
 	QWidget* (*pfnCreate)();
 };
 
-const AppTool* getAppTools();
+void initAppTools();
 
 #endif

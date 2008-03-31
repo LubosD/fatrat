@@ -102,6 +102,112 @@
     </message>
 </context>
 <context>
+    <name>ContextListWidget</name>
+    <message>
+        <location filename="../tools/ContextListWidget.cpp" line="8"/>
+        <source>Add</source>
+        <translation>Přidat</translation>
+    </message>
+    <message>
+        <location filename="../tools/ContextListWidget.cpp" line="11"/>
+        <source>Edit</source>
+        <translation>Upravit</translation>
+    </message>
+    <message>
+        <location filename="../tools/ContextListWidget.cpp" line="14"/>
+        <source>Delete</source>
+        <translation>Odstranit</translation>
+    </message>
+</context>
+<context>
+    <name>CreateTorrentDlg</name>
+    <message>
+        <location filename="../tools/CreateTorrentDlg.cpp" line="21"/>
+        <source>Create</source>
+        <translation>Vytvořit</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="204"/>
+        <source>Create a torrent</source>
+        <translation>Vytvořit torrent</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="205"/>
+        <source>Data (a single file or a directory)</source>
+        <translation>Data (jediný soubor nebo adresář)</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="210"/>
+        <source>Piece size</source>
+        <translation>Velikost kousku</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="212"/>
+        <source>Private torrent (disable DHT)</source>
+        <translation>Soukromý torrent (zakázat DHT)</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="211"/>
+        <source>Comment</source>
+        <translation>Komentář</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="214"/>
+        <source>Trackers</source>
+        <translation>Trackery</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="213"/>
+        <source>Private torrents need at least one tracker</source>
+        <translation>Soukromé torrenty potřebují alespoň jeden tracker</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="216"/>
+        <source>DHT nodes</source>
+        <translation>DHT uzly</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="217"/>
+        <source>Web seeds</source>
+        <translation>Web seedy</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="206"/>
+        <source>Browse files</source>
+        <translation>Procházet soubory</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="207"/>
+        <source>F</source>
+        <translation>F</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="208"/>
+        <source>Browse directories</source>
+        <translation>Procházet adresáře</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="209"/>
+        <source>D</source>
+        <translation>D</translation>
+    </message>
+    <message>
+        <location filename="../tools/CreateTorrentDlg.cpp" line="75"/>
+        <source>The data path is invalid.</source>
+        <translation>Cesta k datům je neplatná.</translation>
+    </message>
+    <message>
+        <location filename="../tools/CreateTorrentDlg.cpp" line="198"/>
+        <source>Torrents (*.torrent)</source>
+        <translation>Torrenty (*.torrent)</translation>
+    </message>
+    <message>
+        <location filename="../ui_CreateTorrentDlg.h" line="215"/>
+        <source>Enter adresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</source>
+        <translation>Zadejte adresu v podobě &lt;code&gt;adresa:port&lt;/code&gt;, vše ostatní bude ignorováno</translation>
+    </message>
+</context>
+<context>
     <name>FtpEngine</name>
     <message>
         <location filename="../engines/FtpClient.cpp" line="139"/>
@@ -852,25 +958,20 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
 <context>
     <name>MainTab</name>
     <message>
-        <location filename="../MainTab.cpp" line="125"/>
+        <location filename="../MainTab.cpp" line="131"/>
         <source>Close tab</source>
         <translation>Zavřít tab</translation>
     </message>
     <message>
-        <location filename="../MainTab.cpp" line="129"/>
+        <location filename="../MainTab.cpp" line="135"/>
         <source>Close all tabs</source>
         <translation>Zavřít všechny taby</translation>
-    </message>
-    <message>
-        <location filename="../MainTab.cpp" line="40"/>
-        <source>New %1</source>
-        <translation>Nový %1</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../ui_MainWindow.h" line="547"/>
+        <location filename="../ui_MainWindow.h" line="546"/>
         <source>Delete queue</source>
         <translation>Odstranit frontu</translation>
     </message>
@@ -885,7 +986,7 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="551"/>
+        <location filename="../ui_MainWindow.h" line="550"/>
         <source>Delete transfer</source>
         <translation>Odstranit přenos</translation>
     </message>
@@ -895,12 +996,12 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="585"/>
+        <location filename="../ui_MainWindow.h" line="584"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="584"/>
+        <location filename="../ui_MainWindow.h" line="583"/>
         <source>Transfer properties</source>
         <translation>Vlastnosti přenosu</translation>
     </message>
@@ -910,17 +1011,17 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>, zbývá %1</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="591"/>
+        <location filename="../ui_MainWindow.h" line="590"/>
         <source>FatRat</source>
         <translation>FatRat</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="575"/>
+        <location filename="../ui_MainWindow.h" line="574"/>
         <source>&lt;b&gt;Queues</source>
         <translation>&lt;b&gt;Fronty</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="576"/>
+        <location filename="../ui_MainWindow.h" line="575"/>
         <source>&lt;b&gt;Transfers</source>
         <translation>&lt;b&gt;Přenosy</translation>
     </message>
@@ -930,112 +1031,112 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Detaily přenosu</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="578"/>
+        <location filename="../ui_MainWindow.h" line="577"/>
         <source>&lt;b&gt;Name:</source>
         <translation>&lt;b&gt;Jméno:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="581"/>
+        <location filename="../ui_MainWindow.h" line="580"/>
         <source>&lt;b&gt;Speed:</source>
         <translation>&lt;b&gt;Rychlost:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="579"/>
+        <location filename="../ui_MainWindow.h" line="578"/>
         <source>&lt;b&gt;Progress:</source>
         <translation>&lt;b&gt;Průběh:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="582"/>
+        <location filename="../ui_MainWindow.h" line="581"/>
         <source>&lt;b&gt;Message:</source>
         <translation>&lt;b&gt;Zpráva:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="593"/>
+        <location filename="../ui_MainWindow.h" line="592"/>
         <source>Queue</source>
         <translation>Fronta</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="589"/>
+        <location filename="../ui_MainWindow.h" line="588"/>
         <source>Help</source>
         <translation>Nápověda</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="592"/>
+        <location filename="../ui_MainWindow.h" line="591"/>
         <source>Transfer</source>
         <translation>Přenos</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="590"/>
+        <location filename="../ui_MainWindow.h" line="589"/>
         <source>Settings</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="545"/>
+        <location filename="../ui_MainWindow.h" line="544"/>
         <source>Quit</source>
         <translation>Ukončit</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="546"/>
+        <location filename="../ui_MainWindow.h" line="545"/>
         <source>New queue</source>
         <translation>Nová fronta</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="550"/>
+        <location filename="../ui_MainWindow.h" line="549"/>
         <source>New transfer</source>
         <translation>Nový přenos</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="554"/>
+        <location filename="../ui_MainWindow.h" line="553"/>
         <source>Pause</source>
         <translation>Zastavit</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="555"/>
+        <location filename="../ui_MainWindow.h" line="554"/>
         <source>About</source>
         <translation>O programu</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="556"/>
+        <location filename="../ui_MainWindow.h" line="555"/>
         <source>Move to top</source>
         <translation>Přesunout na začátek</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="557"/>
+        <location filename="../ui_MainWindow.h" line="556"/>
         <source>Move up</source>
         <translation>Přesunout nahoru</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="558"/>
+        <location filename="../ui_MainWindow.h" line="557"/>
         <source>Move down</source>
         <translation>Přesunout dolů</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="559"/>
+        <location filename="../ui_MainWindow.h" line="558"/>
         <source>Move to bottom</source>
         <translation>Přesunout na konec</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="560"/>
+        <location filename="../ui_MainWindow.h" line="559"/>
         <source>Remove completed</source>
         <translation>Odstranit dokončené</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="561"/>
+        <location filename="../ui_MainWindow.h" line="560"/>
         <source>About Qt</source>
         <translation>O Qt</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="564"/>
+        <location filename="../ui_MainWindow.h" line="563"/>
         <source>Display info bar</source>
         <translation>Zobrazit info proužek</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="566"/>
+        <location filename="../ui_MainWindow.h" line="565"/>
         <source>Hide all info bars</source>
         <translation>Skrýt všechny info proužky</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="567"/>
+        <location filename="../ui_MainWindow.h" line="566"/>
         <source>Display main window</source>
         <translation>Zobrazit hlavní okno</translation>
     </message>
@@ -1050,27 +1151,27 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Přenos dokončen</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="552"/>
+        <location filename="../ui_MainWindow.h" line="551"/>
         <source>Start</source>
         <translation>Spustit</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="553"/>
+        <location filename="../ui_MainWindow.h" line="552"/>
         <source>Force start</source>
         <translation>Vynutit spuštění</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="548"/>
+        <location filename="../ui_MainWindow.h" line="547"/>
         <source>Start all</source>
         <translation>Spustit vše</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="549"/>
+        <location filename="../ui_MainWindow.h" line="548"/>
         <source>Pause all</source>
         <translation>Zastavit vše</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="570"/>
+        <location filename="../ui_MainWindow.h" line="569"/>
         <source>Display drop-box</source>
         <translation>Zobrazit drop-box</translation>
     </message>
@@ -1085,7 +1186,7 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Přenos souboru &quot;%1&quot; byl dokončen.</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="577"/>
+        <location filename="../ui_MainWindow.h" line="576"/>
         <source>Transfers</source>
         <translation>Přenosy</translation>
     </message>
@@ -1105,27 +1206,27 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Komentář</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="571"/>
+        <location filename="../ui_MainWindow.h" line="570"/>
         <source>Open</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="572"/>
+        <location filename="../ui_MainWindow.h" line="571"/>
         <source>Open directory</source>
         <translation>Otevřít adresář</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="569"/>
+        <location filename="../ui_MainWindow.h" line="568"/>
         <source>Properties...</source>
         <translation>Vlastnosti...</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="568"/>
+        <location filename="../ui_MainWindow.h" line="567"/>
         <source>Settings...</source>
         <translation>Nastavení...</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="573"/>
+        <location filename="../ui_MainWindow.h" line="572"/>
         <source>Compute hash...</source>
         <translation>Vypočítat hash...</translation>
     </message>
@@ -1145,7 +1246,7 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Opravdu chcete odstranit vybrané přenosy &lt;b&gt;včetně dat&lt;/b&gt;?</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="574"/>
+        <location filename="../ui_MainWindow.h" line="573"/>
         <source>Delete transfer including data</source>
         <translation>Odstranit přenos včetně dat</translation>
     </message>
@@ -1155,12 +1256,12 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Graf rychlosti</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="588"/>
+        <location filename="../ui_MainWindow.h" line="587"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="594"/>
+        <location filename="../ui_MainWindow.h" line="593"/>
         <source>Main toolbar</source>
         <translation>Hlavní panel nástrojů</translation>
     </message>
@@ -1175,22 +1276,22 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>dokončeno %1, celková velikost neznámá</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="580"/>
+        <location filename="../ui_MainWindow.h" line="579"/>
         <source>&lt;b&gt;Destination:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Cíl:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="586"/>
+        <location filename="../ui_MainWindow.h" line="585"/>
         <source>&lt;b&gt;Transfer log</source>
         <translation>&lt;b&gt;Log přenosu</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="587"/>
+        <location filename="../ui_MainWindow.h" line="586"/>
         <source>&lt;b&gt;Global log</source>
         <translation>&lt;b&gt;Globální log</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="583"/>
+        <location filename="../ui_MainWindow.h" line="582"/>
         <source>&lt;b&gt;Running for:</source>
         <translation>&lt;b&gt;Běží po dobu:</translation>
     </message>
@@ -1382,10 +1483,25 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Hlavní fronta</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="154"/>
+        <location filename="../fatrat.cpp" line="156"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>V systému je již běžící instance.Pokud chcete FatRat přesto spustit, předejte --force mezi argumenty.</translation>
+    </message>
+    <message>
+        <location filename="../AppTools.cpp" line="18"/>
+        <source>Torrent search</source>
+        <translation>Vyhledávání torrentů</translation>
+    </message>
+    <message>
+        <location filename="../AppTools.cpp" line="19"/>
+        <source>Create a torrent</source>
+        <translation>Vytvořit torrent</translation>
+    </message>
+    <message>
+        <location filename="../AppTools.cpp" line="21"/>
+        <source>RapidShare tools</source>
+        <translation>Nástroje pro RapidShare</translation>
     </message>
 </context>
 <context>
@@ -1434,7 +1550,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>QueueToolTip</name>
     <message>
-        <location filename="../tooltips/QueueToolTip.cpp" line="17"/>
+        <location filename="../tooltips/QueueToolTip.cpp" line="21"/>
         <source>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Active:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 down&lt;/td&gt;&lt;td&gt;%2 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Waiting:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 down&lt;/td&gt;&lt;td&gt;%4 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Speed:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 down&lt;/td&gt;&lt;td&gt;%6 up&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Aktivní:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 down&lt;/td&gt;&lt;td&gt;%2 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Čekající:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 down&lt;/td&gt;&lt;td&gt;%4 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Rychlost:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 down&lt;/td&gt;&lt;td&gt;%6 up&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -2287,129 +2403,134 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsTorrentForm</name>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="355"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="367"/>
         <source>BitTorrent</source>
         <translation>BitTorrent</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="356"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="368"/>
         <source>Listen port start</source>
         <translation>Naslouchací port (od)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="357"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="369"/>
         <source>Listen port end</source>
         <translation>Naslouchací port (do)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="364"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="376"/>
         <source>Enable distributed tracker (DHT)</source>
         <translation>Povolit distribuovaný tracker (DHT)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="365"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="377"/>
         <source>Enable uTorrent Peer Exchange</source>
         <translation>Povolit uTorrent Peer Exchange</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="361"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="373"/>
         <source>Maximum open files</source>
         <translation>Maximum otevřených souborů</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="359"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="371"/>
         <source>Maximum connections (global/per torrent)</source>
         <translation>Maximum spojení (globálně/na torrent)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="360"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="372"/>
         <source>Maximum uploads (global/per torrent)</source>
         <translation>Maximum uploadů (globálně/na torrent)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="362"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="374"/>
         <source>File allocation mode</source>
         <translation>Způsob alokace souborů</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="358"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="370"/>
         <source>Seed up to ratio (default value)</source>
         <translation>Seedovat do poměru (výchozí hodnota)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="363"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="375"/>
         <source>External IP</source>
         <translation>Vnější IP</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="372"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="385"/>
         <source>Tracker</source>
         <translation>Tracker</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="373"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="386"/>
         <source>Peer</source>
         <translation>Klientská spojení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="374"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="387"/>
         <source>Web seed</source>
         <translation>Distribuce přes web</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="366"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="379"/>
         <source>Main</source>
         <translation>Hlavní</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="371"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="384"/>
         <source>Encryption</source>
         <translation>Šifrování</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="367"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="380"/>
         <source>Encryption of incoming connections</source>
         <translation>Šifrování příchozích spojení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="368"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="381"/>
         <source>Encryption of outgoing connections</source>
         <translation>Šifrování odchozích spojení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="369"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="382"/>
         <source>Encryption levels</source>
         <translation>Úrovně šifrování</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="370"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="383"/>
         <source>Prefer RC4</source>
         <translation>Upřednostňovat RC4</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="375"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="388"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="379"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="392"/>
         <source>Port mapping</source>
         <translation>Mapování portů</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="376"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="389"/>
         <source>Enable UPnP</source>
         <translation>Povolit UPnP</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="377"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="390"/>
         <source>Enable NAT-PMP</source>
         <translation>Povolit NAT-PMP</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="378"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="391"/>
         <source>Enable LSD</source>
         <translation>Povolit LSD</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsTorrentForm.h" line="378"/>
+        <source>Clean up the .torrent storage</source>
+        <translation>Vyčistit úložiště .torrent souborů</translation>
     </message>
 </context>
 <context>
@@ -2474,52 +2595,52 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>TorrentDetails</name>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1104"/>
+        <location filename="../engines/TorrentDetails.cpp" line="49"/>
         <source>Priority</source>
         <translation>Priorita</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1220"/>
+        <location filename="../engines/TorrentDetails.cpp" line="165"/>
         <source>yes</source>
         <translation>ano</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1220"/>
+        <location filename="../engines/TorrentDetails.cpp" line="165"/>
         <source>no</source>
         <translation>ne</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1250"/>
+        <location filename="../engines/TorrentDetails.cpp" line="195"/>
         <source>%1 (refresh in %2:%3:%4, every %5:%6:%7)</source>
         <translation>%1 (obnovení za %2:%3:%4, každých %5:%6:%7)</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1106"/>
+        <location filename="../engines/TorrentDetails.cpp" line="51"/>
         <source>Do not download</source>
         <translation>Nestahovat</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1108"/>
+        <location filename="../engines/TorrentDetails.cpp" line="53"/>
         <source>Normal</source>
         <translation>Normální</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1110"/>
+        <location filename="../engines/TorrentDetails.cpp" line="55"/>
         <source>Increased</source>
         <translation>Zvýšená</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1112"/>
+        <location filename="../engines/TorrentDetails.cpp" line="57"/>
         <source>Maximum</source>
         <translation>Maximální</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1122"/>
+        <location filename="../engines/TorrentDetails.cpp" line="67"/>
         <source>Ban</source>
         <translation>Zabanovat</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1123"/>
+        <location filename="../engines/TorrentDetails.cpp" line="68"/>
         <source>Information</source>
         <translation>Informace</translation>
     </message>
@@ -2617,77 +2738,77 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>TorrentDownload</name>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="390"/>
+        <location filename="../engines/TorrentDownload.cpp" line="413"/>
         <source>Cannot create a temporary file</source>
         <translation>Nemohu vytvořit dočasný soubor</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="779"/>
+        <location filename="../engines/TorrentDownload.cpp" line="802"/>
         <source>Downloading .torrent file</source>
         <translation>Stahuji .torrent soubor</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="311"/>
+        <location filename="../engines/TorrentDownload.cpp" line="334"/>
         <source>Downloading the .torrent file...</source>
         <translation>Stahuji .torrent soubor...</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="456"/>
+        <location filename="../engines/TorrentDownload.cpp" line="479"/>
         <source>Failed to download the .torrent file</source>
         <translation>Nepodařilo se stáhnout .torrent soubor</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="490"/>
+        <location filename="../engines/TorrentDownload.cpp" line="513"/>
         <source>Cannot change storage!</source>
         <translation>Nemohu přemístit data!</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="786"/>
+        <location filename="../engines/TorrentDownload.cpp" line="809"/>
         <source>Queued for checking</source>
         <translation>Ve frontě pro kontrolu</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="789"/>
+        <location filename="../engines/TorrentDownload.cpp" line="812"/>
         <source>Checking files: %1%</source>
         <translation>Kontroluji soubory: %1%</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="792"/>
+        <location filename="../engines/TorrentDownload.cpp" line="815"/>
         <source>Connecting to tracker</source>
         <translation>Připojuji se k trackeru</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="816"/>
+        <location filename="../engines/TorrentDownload.cpp" line="839"/>
         <source>Allocating: %1%</source>
         <translation>Alokuji: %1%</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1045"/>
+        <location filename="../engines/TorrentDownload.cpp" line="1068"/>
         <source>Force announce</source>
         <translation>Vynutit oznámení</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="624"/>
+        <location filename="../engines/TorrentDownload.cpp" line="647"/>
         <source>Unable to open the file!</source>
         <translation>Nemohu otevřít soubor!</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="413"/>
+        <location filename="../engines/TorrentDownload.cpp" line="436"/>
         <source>The torrent file is invalid.</source>
         <translation>Soubor s torrentem je neplatný.</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1047"/>
+        <location filename="../engines/TorrentDownload.cpp" line="1070"/>
         <source>Recheck files</source>
         <translation>Překontrolovat soubory</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="167"/>
+        <location filename="../engines/TorrentDownload.cpp" line="190"/>
         <source>Failed to start DHT!</source>
         <translation>Nepodařilo se spustit DHT!</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="162"/>
+        <location filename="../engines/TorrentDownload.cpp" line="185"/>
         <source>DHT started</source>
         <translation>DHT spuštěno</translation>
     </message>
@@ -2743,12 +2864,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>TorrentOptsWidget</name>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1301"/>
+        <location filename="../engines/TorrentOptsWidget.cpp" line="10"/>
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1302"/>
+        <location filename="../engines/TorrentOptsWidget.cpp" line="11"/>
         <source>Size</source>
         <translation>Velikost</translation>
     </message>
@@ -2778,12 +2899,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Odebrat</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1331"/>
+        <location filename="../engines/TorrentOptsWidget.cpp" line="40"/>
         <source>The .torrent file cannot be downloaded or is invalid.</source>
         <translation>.torrent soubor nelze stáhnout nebo je neplatný.</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="1335"/>
+        <location filename="../engines/TorrentOptsWidget.cpp" line="44"/>
         <source>The .torrent is being downloaded, please wait.</source>
         <translation>Je stahován .torrent soubor, prosím vyčkejte.</translation>
     </message>
@@ -2813,72 +2934,72 @@ uploadnut následující objem</translation>
 <context>
     <name>TorrentPeersModel</name>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="16"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
         <source>IP address</source>
         <translation>IP adresa</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="16"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
         <source>Country</source>
         <translation>Země</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="16"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
         <source>Client</source>
         <translation>Klient</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
         <source>Download</source>
         <translation>Stahování</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
         <source>Upload</source>
         <translation>Upload</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="19"/>
         <source>Downloaded</source>
         <translation>Staženo</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="19"/>
         <source>Uploaded</source>
         <translation>Uploadnuto</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="19"/>
         <source>State</source>
         <translation>Stav</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="19"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="20"/>
         <source>Completed</source>
         <translation>Dokončeno</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="116"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="117"/>
         <source>Connecting</source>
         <translation>Připojování</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="118"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="119"/>
         <source>Handshaking</source>
         <translation>Handshaking</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="120"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="121"/>
         <source>Queued</source>
         <translation>Ve frontě</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
         <source>Source</source>
         <translation>Zdroj</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentPeersModel.cpp" line="17"/>
+        <location filename="../engines/TorrentPeersModel.cpp" line="18"/>
         <source>Encryption</source>
         <translation>Šifrování</translation>
     </message>
@@ -3003,106 +3124,116 @@ uploadnut následující objem</translation>
         <source>Download</source>
         <translation>Stáhnout</translation>
     </message>
+    <message>
+        <location filename="../tools/TorrentSearch.cpp" line="176"/>
+        <source>Torrent search</source>
+        <translation>Vyhledávání torrentů</translation>
+    </message>
 </context>
 <context>
     <name>TorrentSettings</name>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="12"/>
+        <location filename="../engines/TorrentSettings.cpp" line="16"/>
         <source>Sparse</source>
         <translation>Řídké soubory</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="12"/>
+        <location filename="../engines/TorrentSettings.cpp" line="16"/>
         <source>Full</source>
         <translation>Plný</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="12"/>
+        <location filename="../engines/TorrentSettings.cpp" line="16"/>
         <source>Compact</source>
         <translation>Kompaktní</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="48"/>
+        <location filename="../engines/TorrentSettings.cpp" line="54"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Žádný</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="10"/>
+        <location filename="../engines/TorrentSettings.cpp" line="14"/>
         <source>Disabled</source>
         <translation>Zakázáno</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="10"/>
+        <location filename="../engines/TorrentSettings.cpp" line="14"/>
         <source>Enabled</source>
         <translation>Povoleno</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="10"/>
+        <location filename="../engines/TorrentSettings.cpp" line="14"/>
         <source>Permit only encrypted</source>
         <translation>Povolit pouze šifrovaná</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="15"/>
+        <location filename="../engines/TorrentSettings.cpp" line="19"/>
         <source>Plaintext</source>
         <translation>Plaintext</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="15"/>
+        <location filename="../engines/TorrentSettings.cpp" line="19"/>
         <source>RC4</source>
         <translation>RC4</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentSettings.cpp" line="15"/>
+        <location filename="../engines/TorrentSettings.cpp" line="19"/>
         <source>Both</source>
         <comment>Both levels</comment>
         <translation>Obě</translation>
+    </message>
+    <message>
+        <location filename="../engines/TorrentSettings.cpp" line="172"/>
+        <source>Removed %1 files.</source>
+        <translation>Odstraněno %1 souborů.</translation>
     </message>
 </context>
 <context>
     <name>TorrentWorker</name>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="948"/>
+        <location filename="../engines/TorrentDownload.cpp" line="971"/>
         <source>File error: %1</source>
         <translation>Souborová chyba: %1</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="952"/>
+        <location filename="../engines/TorrentDownload.cpp" line="975"/>
         <source>Tracker announce: %1</source>
         <translation>Oznámení trackeru: %1</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="957"/>
+        <location filename="../engines/TorrentDownload.cpp" line="980"/>
         <source>Tracker failure: %1, %2 times in a row </source>
         <translation>Selhání trackeru: %1, %2 times in a row(sp)</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="961"/>
+        <location filename="../engines/TorrentDownload.cpp" line="984"/>
         <source>(error %1)</source>
         <translation>(chyba %1)</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="963"/>
+        <location filename="../engines/TorrentDownload.cpp" line="986"/>
         <source>(timeout)</source>
         <translation>(vypršel časový limit)</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="968"/>
+        <location filename="../engines/TorrentDownload.cpp" line="991"/>
         <source>Tracker warning: %1</source>
         <translation>Varování trackeru: %1</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="972"/>
+        <location filename="../engines/TorrentDownload.cpp" line="995"/>
         <source>Fast-resume data have been rejected: %1</source>
         <translation>Data pro rychlé obnovení byla odmítnuta: %1</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="882"/>
+        <location filename="../engines/TorrentDownload.cpp" line="905"/>
         <source>Torrent has been downloaded</source>
         <translation>Torrent byl stažen</translation>
     </message>
     <message>
-        <location filename="../engines/TorrentDownload.cpp" line="887"/>
+        <location filename="../engines/TorrentDownload.cpp" line="910"/>
         <source>Requested parts of the torrent have been downloaded</source>
         <translation>Vyžádané části torrentu byly staženy</translation>
     </message>

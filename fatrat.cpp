@@ -17,6 +17,7 @@
 #include "QueueMgr.h"
 #include "Queue.h"
 #include "Transfer.h"
+#include "AppTools.h"
 #include "config.h"
 #include "RuntimeException.h"
 #include "dbus/DbusAdaptor.h"
@@ -69,6 +70,7 @@ int main(int argc,char** argv)
 	initSettingsDefaults();
 	runEngines();
 	Queue::loadQueues();
+	initAppTools();
 	
 	qmgr = new QueueMgr;
 	qmgr->start();

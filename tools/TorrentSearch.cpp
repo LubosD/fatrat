@@ -173,7 +173,7 @@ void TorrentSearch::search()
 		if(expr.isEmpty())
 			return;
 		
-		emit changeTabTitle("BitTorrent search: " + expr);
+		emit changeTabTitle(tr("Torrent search") + ": " + expr);
 		
 		m_nActiveTotal = m_nActiveDone = 0;
 		

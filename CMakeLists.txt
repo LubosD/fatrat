@@ -199,14 +199,18 @@ endif(WITH_SFTP)
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
+		engines/TorrentDetails.cpp
 		engines/TorrentDownload.cpp
 		engines/TorrentFilesModel.cpp
+		engines/TorrentOptsWidget.cpp
 		engines/TorrentIPFilter.cpp
 		engines/TorrentPeersModel.cpp
 		engines/TorrentPiecesModel.cpp
 		engines/TorrentProgressWidget.cpp
 		engines/TorrentSettings.cpp
 		tools/TorrentSearch.cpp
+		tools/CreateTorrentDlg.cpp
+		tools/ContextListWidget.cpp
 		rss/RssFetcher.cpp
 		rss/SettingsRssForm.cpp
 		rss/RssRegexpDlg.cpp
@@ -214,8 +218,12 @@ if(WITH_BITTORRENT)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		tools/TorrentSearch.h
+		tools/CreateTorrentDlg.h
+		tools/ContextListWidget.h
+		engines/TorrentDetails.h
 		engines/TorrentPeersModel.h
 		engines/TorrentDownload.h
+		engines/TorrentOptsWidget.h
 		engines/TorrentProgressWidget.h
 		engines/TorrentPiecesModel.h
 		engines/TorrentFilesModel.h
@@ -228,6 +236,7 @@ if(WITH_BITTORRENT)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		tools/TorrentSearch.ui
+		tools/CreateTorrentDlg.ui
 		engines/TorrentDetailsForm.ui
 		engines/TorrentOptsWidget.ui
 		engines/SettingsTorrentForm.ui

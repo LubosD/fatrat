@@ -258,7 +258,6 @@
     <qresource prefix="/menu" >
         <file>about.png</file>
         <file>add.png</file>
-        <file>add_a_lot.png</file>
         <file>auth.png</file>
         <file>bottom.png</file>
         <file>configure.png</file>
@@ -271,6 +270,7 @@
         <file>log.png</file>
         <file>main_view.png</file>
         <file>network.png</file>
+        <file>newtool.png</file>
         <file>properties.png</file>
         <file>queue_add.png</file>
         <file>queue_remove.png</file>

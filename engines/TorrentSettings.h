@@ -15,6 +15,8 @@ public:
 	TorrentSettings(QWidget* w);
 	virtual void load();
 	virtual void accepted();
+public slots:
+	void cleanup();
 private:
 	QList<Proxy> m_listProxy;
 };

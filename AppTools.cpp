@@ -1,22 +1,22 @@
 #include "config.h"
 #include <QWidget>
+#include <QList>
 #include "AppTools.h"
 
 #ifdef WITH_BITTORRENT
 #	include "tools/TorrentSearch.h"
+#	include "tools/CreateTorrentDlg.h"
 #endif
 
 #include "tools/RapidTools.h"
 
-static const AppTool m_tools[] = {
-#ifdef WITH_BITTORRENT
-		{ "BitTorrent search", TorrentSearch::create },
-#endif
-		{ "RapidShare tools", RapidTools::create },
-		{ 0, 0 }
-};
+QList<AppTool> g_tools;
 
-const AppTool* getAppTools()
+void initAppTools()
 {
-	return m_tools;
+#ifdef WITH_BITTORRENT
+	g_tools << AppTool(QObject::tr("Torrent search"), TorrentSearch::create);
+	g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
+#endif
+	g_tools << AppTool(QObject::tr("RapidShare tools"), RapidTools::create);
 }

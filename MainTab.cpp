@@ -1,6 +1,8 @@
 #include "MainTab.h"
 #include "AppTools.h"
+#include <QDialog>
 
+extern QList<AppTool> g_tools;
 const int FIXED_TAB_COUNT = 4;
 
 MainTab::MainTab(QWidget* parent) : QTabWidget(parent)
@@ -31,13 +33,11 @@ void MainTab::currentTabChanged(int newTab)
 
 void MainTab::initAppTools(QMenu* tabOpenMenu)
 {
-	const AppTool* tools = getAppTools();
-	
-	for(int i=0;tools[i].pszName;i++)
+	for(int i=0;i<g_tools.size();i++)
 	{
 		QAction* action;
 		
-		action = tabOpenMenu->addAction(tr("New %1").arg(tools[i].pszName));
+		action = tabOpenMenu->addAction(QIcon(":/menu/newtool.png"), g_tools[i].strName);
 		action->setData(i);
 		
 		connect(action, SIGNAL(triggered()), this, SLOT(openAppTool()));
@@ -46,14 +46,20 @@ void MainTab::initAppTools(QMenu* tabOpenMenu)
 
 void MainTab::openAppTool()
 {
-	const AppTool* tools = getAppTools();
 	QAction* action = (QAction*) sender();
 	int tool = action->data().toInt();
-	QWidget* widget = tools[tool].pfnCreate();
+	QWidget* widget = g_tools[tool].pfnCreate();
 	
-	connect(widget, SIGNAL(changeTabTitle(QString)), this, SLOT(changeTabTitle(QString)));
-	
-	setCurrentIndex( addTab(widget, tools[tool].pszName) );
+	if(QDialog* dlg = dynamic_cast<QDialog*>(widget))
+	{
+		dlg->exec();
+		delete dlg;
+	}
+	else
+	{
+		connect(widget, SIGNAL(changeTabTitle(QString)), this, SLOT(changeTabTitle(QString)));
+		setCurrentIndex( addTab(widget, g_tools[tool].strName) );
+	}
 }
 
 void MainTab::changeTabTitle(QString newTitle)

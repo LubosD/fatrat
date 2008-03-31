@@ -8,8 +8,6 @@
 #endif
 
 #include "Transfer.h"
-#include "ui_TorrentDetailsForm.h"
-#include "ui_TorrentOptsWidget.h"
 #include "WidgetHostChild.h"
 #include <QTimer>
 #include <QMutex>
@@ -110,6 +108,7 @@ protected:
 	friend class TorrentFilesModel;
 	friend class TorrentProgressDelegate;
 	friend class TorrentOptsWidget;
+	friend class TorrentSettings;
 	friend class SettingsRssForm;
 };
 
@@ -129,72 +128,6 @@ private:
 	QTimer m_timer;
 	QMutex m_mutex;
 	QList<TorrentDownload*> m_objects;
-};
-
-class TorrentPiecesModel;
-class TorrentPeersModel;
-class TorrentFilesModel;
-
-class TorrentDetails : public QObject, Ui_TorrentDetailsForm
-{
-Q_OBJECT
-public:
-	TorrentDetails(QWidget* me, TorrentDownload* obj);
-	virtual ~TorrentDetails();
-	void fill(); // only constant data
-	void setPriority(int p);
-public slots:
-	void refresh();
-	void destroy();
-	void fileContext(const QPoint&);
-	void peerContext(const QPoint&);
-	
-	void setPriority0() { setPriority(0); }
-	void setPriority1() { setPriority(1); }
-	void setPriority4() { setPriority(4); }
-	void setPriority7() { setPriority(7); }
-	void openFile();
-	
-	void peerInfo();
-private:
-	TorrentDownload* m_download;
-	bool m_bFilled;
-	std::vector<bool> m_vecPieces;
-	TorrentPiecesModel* m_pPiecesModel;
-	TorrentPeersModel* m_pPeersModel;
-	TorrentFilesModel* m_pFilesModel;
-	
-	QList<int> m_selFiles;
-	QMenu *m_pMenuFiles, *m_pMenuPeers;
-};
-
-class TorrentOptsWidget : public QObject, public WidgetHostChild, Ui_TorrentOptsWidget
-{
-Q_OBJECT
-public:
-	TorrentOptsWidget(QWidget* me, TorrentDownload* parent);
-	
-	virtual void load();
-	virtual void accepted();
-	void startInvalid();
-	
-	static void recursiveCheck(QTreeWidgetItem* item, Qt::CheckState state);
-	static void recursiveUpdate(QTreeWidgetItem* item);
-	static qint64 recursiveUpdateDown(QTreeWidgetItem* item);
-public slots:
-	void addUrlSeed();
-	void addTracker();
-	void removeTracker();
-	void handleInvalid();
-	
-	void fileItemChanged(QTreeWidgetItem* item, int column);
-private:
-	TorrentDownload* m_download;
-	QList<QTreeWidgetItem*> m_files;
-	QStringList m_seeds;
-	std::vector<libtorrent::announce_entry> m_trackers;
-	bool m_bUpdating;
-	QTimer m_timer;
 };
 
 #endif
