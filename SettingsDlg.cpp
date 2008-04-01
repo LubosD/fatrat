@@ -10,9 +10,9 @@
 #ifdef WITH_JABBER
 #	include "remote/SettingsJabberForm.h"
 #endif
-#ifdef WITH_BITTORRENT
+//#ifdef WITH_BITTORRENT
 #	include "rss/SettingsRssForm.h"
-#endif
+//#endif
 
 #include <QSettings>
 
