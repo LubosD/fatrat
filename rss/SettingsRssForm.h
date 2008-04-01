@@ -1,13 +1,8 @@
 #ifndef SETTINGSRSSFORM_H
 #define SETTINGSRSSFORM_H
-#include "config.h"
 #include "ui_SettingsRssForm.h"
 #include "WidgetHostChild.h"
 #include <QObject>
-
-#ifndef WITH_BITTORRENT
-#	error This file is not supposed to be included!
-#endif
 
 #include "RssFetcher.h"
 

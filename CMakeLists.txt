@@ -90,6 +90,10 @@ set(fatrat_SRCS
 	remote/GenericService.cpp
 	remote/HttpService.cpp
 	remote/XmlService.cpp
+	
+	rss/RssFetcher.cpp
+	rss/SettingsRssForm.cpp
+	rss/RssRegexpDlg.cpp
 
 	tooltips/BaseToolTip.cpp
 	tooltips/QueueToolTip.cpp
@@ -152,6 +156,11 @@ set(fatrat_MOC_HDRS
 	engines/HttpClient.h
 	engines/FtpUpload.h
 	
+	rss/RssFetcher.h
+	rss/SettingsRssForm.h
+	rss/RssFeedDlg.h
+	rss/RssRegexpDlg.h
+	
 	tooltips/QueueToolTip.h
 	tooltips/TrayToolTip.h
 	tooltips/BaseToolTip.h
@@ -177,6 +186,10 @@ set(fatrat_UIS
 
 	tools/HashDlg.ui
 	tools/RapidTools.ui
+	
+	rss/SettingsRssForm.ui
+	rss/RssFeedDlg.ui
+	rss/RssRegexpDlg.ui
 
 	engines/FtpUploadOptsForm.ui
 	engines/HttpOptsWidget.ui
@@ -211,9 +224,6 @@ if(WITH_BITTORRENT)
 		tools/TorrentSearch.cpp
 		tools/CreateTorrentDlg.cpp
 		tools/ContextListWidget.cpp
-		rss/RssFetcher.cpp
-		rss/SettingsRssForm.cpp
-		rss/RssRegexpDlg.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -228,10 +238,6 @@ if(WITH_BITTORRENT)
 		engines/TorrentPiecesModel.h
 		engines/TorrentFilesModel.h
 		engines/TorrentSettings.h
-		rss/RssFetcher.h
-		rss/SettingsRssForm.h
-		rss/RssFeedDlg.h
-		rss/RssRegexpDlg.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
@@ -240,9 +246,6 @@ if(WITH_BITTORRENT)
 		engines/TorrentDetailsForm.ui
 		engines/TorrentOptsWidget.ui
 		engines/SettingsTorrentForm.ui
-		rss/SettingsRssForm.ui
-		rss/RssFeedDlg.ui
-		rss/RssRegexpDlg.ui
 	)
 endif(WITH_BITTORRENT)
 

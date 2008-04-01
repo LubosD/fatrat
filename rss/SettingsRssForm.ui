@@ -13,7 +13,7 @@
    <item row="0" column="0" colspan="4" >
     <widget class="QCheckBox" name="checkEnable" >
      <property name="text" >
-      <string>Automatically download new torrents from RSS feeds</string>
+      <string>Automatically download new stuff from RSS feeds</string>
      </property>
     </widget>
    </item>

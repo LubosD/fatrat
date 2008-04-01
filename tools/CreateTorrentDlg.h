@@ -34,7 +34,7 @@ public:
 	~HasherThread();
 	
 	virtual void run();
-	QString error() const { return m_strError; }
+	const QString& error() const { return m_strError; }
 	libtorrent::torrent_info* info() { return m_info; }
 signals:
 	void progress(int pos);

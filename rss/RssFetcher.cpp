@@ -1,7 +1,8 @@
+#include "fatrat.h"
 #include "RssFetcher.h"
 #include "Logger.h"
 #include "Queue.h"
-#include "engines/TorrentDownload.h"
+#include "Transfer.h"
 #include <QHttp>
 #include <QSettings>
 #include <QList>
@@ -174,12 +175,20 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 			}
 			
 			// add a transfer
-			Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new BitTorrent transfer: %1").arg(item.title));
-			Transfer* t = new TorrentDownload(true);
+			Transfer::BestEngine eng;
+			eng = Transfer::bestEngine(item.url, Transfer::Download);
 			
-			t->init(item.url, regexps[i].target);
-			t->setState(Transfer::Waiting);
-			g_queues[regexps[i].queueIndex]->add(t);
+			if(eng.nClass < 0)
+				Logger::global()->enterLogMessage("RSS", tr("Transfer wasn't accepted by any class: %1").arg(item.title));
+			else
+			{
+				Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1").arg(item.title));
+				Transfer* t = eng.engine->lpfnCreate();
+				
+				t->init(item.url, regexps[i].target);
+				t->setState(Transfer::Waiting);
+				g_queues[regexps[i].queueIndex]->add(t);
+			}
 		}
 	}
 }
