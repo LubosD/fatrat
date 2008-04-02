@@ -179,7 +179,7 @@ void CreateTorrentDlg::recurseDir(QList<QPair<QString, qint64> >& list, QString 
 			continue;
 		
 		if(flist[i].isDir())
-			recurseDir(list, prefix + flist[i].fileName() + '/', flist[i].absolutePath());
+			recurseDir(list, prefix + flist[i].fileName() + '/', flist[i].absoluteFilePath());
 		else
 			list << QPair<QString, qint64>(prefix + flist[i].fileName(), flist[i].size());
 	}
