@@ -103,8 +103,9 @@ int main(int argc,char** argv)
 #ifdef WITH_JABBER
 	delete JabberService::instance();
 #endif
-	
+#ifdef WITH_JAVAREMOTE
 	delete g_http;
+#endif
 	delete g_wndMain;
 	
 	Queue::saveQueues();
