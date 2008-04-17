@@ -35,7 +35,7 @@ using namespace std;
 
 MainWindow* g_wndMain = 0;
 QSettings* g_settings = 0;
-#ifdef WITH_JABBER
+#ifdef WITH_JAVAREMOTE
 HttpService* g_http = 0;
 #endif
 
