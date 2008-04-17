@@ -42,7 +42,13 @@ void SettingsRssForm::load()
 	}
 	
 	foreach(RssRegexp regexp, m_regexps)
-		listRegexps->addItem(regexp.regexp.pattern() + " @ " + map[regexp.source]);
+	{
+		QString patt = regexp.regexp.pattern();
+		if(!patt.isEmpty())
+			listRegexps->addItem(patt + " @ " + map[regexp.source]);
+		else
+			listRegexps->addItem(map[regexp.source]);
+	}
 	
 	checkEnable->setChecked(g_settings->value("rss/enable", getSettingsDefault("rss/enable")).toBool());
 	spinUpdateInterval->setValue(g_settings->value("rss/interval", getSettingsDefault("rss/interval")).toInt());
@@ -140,7 +146,10 @@ void SettingsRssForm::regexpAdd()
 		r.includeRepacks = dlg.m_bTVSRepacks;
 		r.excludeManuals = dlg.m_bTVSNoManuals;
 		
-		listRegexps->addItem(dlg.m_strExpression + " @ " + dlg.m_strFeedName);
+		if(!dlg.m_strExpression.isEmpty())
+			listRegexps->addItem(dlg.m_strExpression + " @ " + dlg.m_strFeedName);
+		else
+			listRegexps->addItem(dlg.m_strFeedName);
 		
 		m_regexps << r;
 	}

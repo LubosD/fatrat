@@ -15,6 +15,8 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	
 	comboDoubleClick->addItems(QStringList() << tr("Switches to transfer details") << tr("Switches to the graph")
 			<< tr("Opens the file") << tr("Opens the parent directory") );
+	
+	comboCloseCurrent->addItems(QStringList() << tr("switch to the next tab") << tr("switch to the previous active tab"));
 }
 
 void SettingsGeneralForm::load()
@@ -29,6 +31,7 @@ void SettingsGeneralForm::load()
 	spinGraphMinutes->setValue( g_settings->value("graphminutes", getSettingsDefault("graphminutes")).toInt() );
 	
 	comboDoubleClick->setCurrentIndex( g_settings->value("transfer_dblclk", getSettingsDefault("transfer_dblclk")).toInt() );
+	comboCloseCurrent->setCurrentIndex( g_settings->value("tab_onclose", getSettingsDefault("transfer_dblclk")).toInt() );
 }
 
 bool SettingsGeneralForm::accept()
@@ -58,6 +61,7 @@ void SettingsGeneralForm::accepted()
 	
 	g_settings->setValue("graphminutes", spinGraphMinutes->value());
 	g_settings->setValue("transfer_dblclk", comboDoubleClick->currentIndex());
+	g_settings->setValue("tab_onclose", comboCloseCurrent->currentIndex());
 }
 
 void SettingsGeneralForm::browse()

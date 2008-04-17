@@ -1,11 +1,14 @@
+#include "fatrat.h"
 #include "MainTab.h"
 #include "AppTools.h"
 #include <QDialog>
+#include <QSettings>
 
 extern QList<AppTool> g_tools;
+extern QSettings* g_settings;
 const int FIXED_TAB_COUNT = 4;
 
-MainTab::MainTab(QWidget* parent) : QTabWidget(parent)
+MainTab::MainTab(QWidget* parent) : QTabWidget(parent), m_lastIndex(0), m_lastIndexCur(0)
 {
 	m_toolTabClose = new QToolButton(this);
 	m_toolTabClose->setIcon(QIcon(":/menu/tab_remove.png"));
@@ -28,6 +31,8 @@ MainTab::MainTab(QWidget* parent) : QTabWidget(parent)
 
 void MainTab::currentTabChanged(int newTab)
 {
+	m_lastIndex = m_lastIndexCur;
+	m_lastIndexCur = newTab;
 	m_toolTabClose->setEnabled(newTab >= FIXED_TAB_COUNT);
 }
 
@@ -87,7 +92,14 @@ void MainTab::closeTab()
 		
 		if(m_index == currentIndex())
 		{
-			for(int i=m_index-1;i>=0;i--)
+			int start;
+			
+			if(g_settings->value("tab_onclose", getSettingsDefault("tab_onclose")).toInt() == 1)
+				start = m_lastIndex;
+			else
+				start = m_index - 1;
+			
+			for(int i=start;i>=0;i--)
 			{
 				if(isTabEnabled(i))
 				{

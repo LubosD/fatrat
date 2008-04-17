@@ -73,6 +73,8 @@ int TorrentDownload::acceptable(QString uri, bool)
 				istorrent = true;
 				break;
 			}
+			else
+				qDebug() << m_listBTLinks[i].pattern() << "not matched by" << uri;
 		}
 	}
 		
@@ -799,7 +801,7 @@ QString TorrentDownload::message() const
 	if(this->state() == Failed)
 		return m_strError;
 	else if(m_pFileDownload != 0)
-		return tr("Downloading .torrent file");
+		return tr("Downloading the .torrent file");
 	
 	if(!m_status.paused)
 	{
@@ -812,7 +814,7 @@ QString TorrentDownload::message() const
 			state = tr("Checking files: %1%").arg(m_status.progress*100.f);
 			break;
 		case libtorrent::torrent_status::connecting_to_tracker:
-			state = tr("Connecting to tracker");
+			state = tr("Connecting to the tracker");
 			state += " | ";
 		case libtorrent::torrent_status::seeding:
 		case libtorrent::torrent_status::downloading:
@@ -902,7 +904,7 @@ void TorrentWorker::doWork()
 				  d->m_status.state == libtorrent::torrent_status::seeding || d->m_handle.is_seed())
 				{
 					d->setMode(Transfer::Upload);
-					d->enterLogMessage(tr("Torrent has been downloaded"));
+					d->enterLogMessage(tr("The torrent has been downloaded"));
 					d->m_handle.set_ratio(0);
 				}
 				else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
@@ -914,7 +916,7 @@ void TorrentWorker::doWork()
 			}
 			if(d->mode() == Transfer::Upload)
 			{
-				if(d->m_status.total_wanted < d->m_status.total_wanted_done)
+				if(d->m_status.total_wanted_done < d->m_status.total_wanted)
 					d->setMode(Transfer::Download);
 				else if(d->state() != Transfer::ForcedActive)
 				{
@@ -992,7 +994,7 @@ void TorrentWorker::doWork()
 			}
 			else if(IS_ALERT_S(fastresume_rejected_alert))
 			{
-				d->enterLogMessage(tr("Fast-resume data have been rejected: %1").arg(errmsg));
+				d->enterLogMessage(tr("The fast-resume data have been rejected: %1").arg(errmsg));
 			}
 		}
 		else

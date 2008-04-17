@@ -65,10 +65,10 @@ void RssFetcher::loadFeeds(QList<RssFeed>& items)
 void RssFetcher::refresh()
 {
 	m_feeds.clear();
-	
 	loadFeeds(m_feeds);
-	
 	m_items.clear();
+	
+	m_bAllOK = true;
 	
 	for(int i=0;i<m_feeds.size();i++)
 	{
@@ -113,14 +113,20 @@ void RssFetcher::requestFinished(int id, bool error)
 		reader.setContentHandler(this);
 		
 		m_strCurrentSource = feed->url;
+		m_itemNext = RssItem();
 		
 		if(!reader.parse(&source))
+		{
 			Logger::global()->enterLogMessage("RSS", tr("Failed to parse the feed \"%1\"").arg(feed->name));
+			m_bAllOK = false;
+		}
 	}
 	else
 	{
 		Logger::global()->enterLogMessage("RSS", tr("Failed to fetch the feed \"%1\"").arg(feed->name));
+		m_bAllOK = false;
 	}
+		
 	
 	feed->request = -1;
 	
@@ -138,6 +144,9 @@ void RssFetcher::processItems()
 	
 	loadRegexps(regexps);
 	
+	if(!m_bAllOK)
+		newprocessed << processed;
+	
 	foreach(RssItem item, m_items)
 	{
 		if(!processed.contains(item.url))
@@ -154,14 +163,12 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 {
 	for(int i=0;i<regexps.size();i++)
 	{
-		//qDebug() << "Title:" << item.title << "Regexp:" << regexps[i].regexp.pattern();
-		//qDebug() << "S1:" << item.source << "S2:" << regexps[i].source;
 		if(regexps[i].regexp.indexIn(item.title) != -1 && item.source == regexps[i].source)
 		{
 			if(regexps[i].tvs != RssRegexp::None)
 			{
 				QString epid = generateEpisodeName(regexps[i], item.title);
-				qDebug() << "Generated episode name:" << epid;
+				qDebug() << "Generated episode name" << epid << "from" << item.title;
 				if(!epid.isEmpty())
 				{
 					if(regexps[i].epDone.contains(epid))
@@ -179,13 +186,14 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 			eng = Transfer::bestEngine(item.url, Transfer::Download);
 			
 			if(eng.nClass < 0)
-				Logger::global()->enterLogMessage("RSS", tr("Transfer wasn't accepted by any class: %1").arg(item.title));
+				Logger::global()->enterLogMessage("RSS", tr("The transfer wasn't accepted by any class: %1").arg(item.title));
 			else
 			{
 				Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1").arg(item.title));
 				Transfer* t = eng.engine->lpfnCreate();
 				
 				t->init(item.url, regexps[i].target);
+				t->setComment(item.descr);
 				t->setState(Transfer::Waiting);
 				g_queues[regexps[i].queueIndex]->add(t);
 			}

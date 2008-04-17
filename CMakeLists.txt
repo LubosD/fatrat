@@ -88,8 +88,6 @@ set(fatrat_SRCS
 	Logger.cpp
 
 	remote/GenericService.cpp
-	remote/HttpService.cpp
-	remote/XmlService.cpp
 	
 	rss/RssFetcher.cpp
 	rss/SettingsRssForm.cpp
@@ -266,6 +264,18 @@ if(WITH_JABBER)
 	)
 endif(WITH_JABBER)
 
+if(WITH_JAVAREMOTE)
+	set(fatrat_SRCS
+		${fatrat_SRCS}
+		remote/HttpService.cpp
+		remote/JavaService.cpp
+	)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		remote/HttpService.h
+	)
+endif(WITH_JAVAREMOTE)
+
 qt4_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
 
 set(fatrat_RCS
@@ -292,5 +302,12 @@ if(WITH_BITTORRENT)
 	install(FILES data/btsearch.xml DESTINATION share/fatrat/data)
 	install(FILES data/btlinks.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
+
+if(WITH_JAVAREMOTE)
+	install(FILES data/remote/fatratremote.jar DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/logo.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/index.html DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
+endif(WITH_JAVAREMOTE)
 
 install(PROGRAMS fatrat DESTINATION bin)

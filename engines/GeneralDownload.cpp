@@ -342,6 +342,13 @@ void GeneralDownload::redirected(QString newurl)
 		
 		if(scheme == "http" || scheme == "ftp" || scheme == "https")
 		{
+			if(m_bAutoName)
+			{
+				QString newname = QFileInfo(newurl).fileName();
+				if(!newname.isEmpty())
+					setTargetName(newname);
+			}
+			
 			if(scheme == "http" || scheme == "https")
 				startHttp(location, m_urlLast);
 			else

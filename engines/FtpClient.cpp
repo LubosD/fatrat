@@ -435,7 +435,7 @@ econn: // FIXME: this all looks so wrong
 		}
 	}
 	
-	delete server;
+	server->deleteLater();
 	
 	if(m_pRemote)
 		doClose(&m_pRemote);

@@ -16,26 +16,23 @@
    <string>FatRat</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="gfx/resources.qrc" >:/fatrat/fatrat.png</iconset>
+   <iconset resource="gfx/resources.qrc" >
+    <normaloff>:/fatrat/fatrat.png</normaloff>:/fatrat/fatrat.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>62</y>
+     <width>737</width>
+     <height>437</height>
+    </rect>
+   </property>
    <layout class="QGridLayout" >
-    <property name="leftMargin" >
+    <property name="margin" >
      <number>9</number>
     </property>
-    <property name="topMargin" >
-     <number>9</number>
-    </property>
-    <property name="rightMargin" >
-     <number>9</number>
-    </property>
-    <property name="bottomMargin" >
-     <number>9</number>
-    </property>
-    <property name="horizontalSpacing" >
-     <number>6</number>
-    </property>
-    <property name="verticalSpacing" >
+    <property name="spacing" >
      <number>6</number>
     </property>
     <item row="0" column="0" >
@@ -44,11 +41,20 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="tab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>715</width>
+         <height>389</height>
+        </rect>
+       </property>
        <attribute name="title" >
         <string>Transfers</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >:/menu/main_view.png</iconset>
+        <iconset resource="gfx/resources.qrc" >
+         <normaloff>:/menu/main_view.png</normaloff>:/menu/main_view.png</iconset>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
@@ -60,11 +66,17 @@
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QLabel" name="label" >
+              <property name="font" >
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="frameShape" >
                <enum>QFrame::StyledPanel</enum>
               </property>
               <property name="text" >
-               <string>&lt;b>Queues</string>
+               <string>Queues</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignCenter</set>
@@ -89,6 +101,9 @@
                <property name="dragDropMode" >
                 <enum>QAbstractItemView::DropOnly</enum>
                </property>
+               <property name="selectionBehavior" >
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
                <property name="spacing" >
                 <number>5</number>
                </property>
@@ -110,25 +125,22 @@
             <property name="spacing" >
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin" >
              <number>0</number>
             </property>
             <item>
              <widget class="QLabel" name="label_2" >
+              <property name="font" >
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="frameShape" >
                <enum>QFrame::StyledPanel</enum>
               </property>
               <property name="text" >
-               <string>&lt;b>Transfers</string>
+               <string>Transfers</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignCenter</set>
@@ -176,11 +188,20 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>715</width>
+         <height>389</height>
+        </rect>
+       </property>
        <attribute name="title" >
         <string>Details</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >:/menu/details.png</iconset>
+        <iconset resource="gfx/resources.qrc" >
+         <normaloff>:/menu/details.png</normaloff>:/menu/details.png</iconset>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" colspan="2" >
@@ -297,7 +318,8 @@
            <string>Transfer properties</string>
           </property>
           <property name="icon" >
-           <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+           <iconset resource="gfx/resources.qrc" >
+            <normaloff>:/menu/properties.png</normaloff>:/menu/properties.png</iconset>
           </property>
          </widget>
         </item>
@@ -309,18 +331,45 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <widget class="QWidget" name="page" />
-          <widget class="QWidget" name="page_2" />
+          <widget class="QWidget" name="page" >
+           <property name="geometry" >
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>697</width>
+             <height>294</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QWidget" name="page_2" >
+           <property name="geometry" >
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>100</width>
+             <height>30</height>
+            </rect>
+           </property>
+          </widget>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab_3" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>715</width>
+         <height>389</height>
+        </rect>
+       </property>
        <attribute name="title" >
         <string>Log</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >:/menu/log.png</iconset>
+        <iconset resource="gfx/resources.qrc" >
+         <normaloff>:/menu/log.png</normaloff>:/menu/log.png</iconset>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
@@ -332,11 +381,17 @@
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QLabel" name="labelTransferLog" >
+              <property name="font" >
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="frameShape" >
                <enum>QFrame::StyledPanel</enum>
               </property>
               <property name="text" >
-               <string>&lt;b>Transfer log</string>
+               <string>Transfer log</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignCenter</set>
@@ -365,11 +420,17 @@
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QLabel" name="label_9" >
+              <property name="font" >
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="frameShape" >
                <enum>QFrame::StyledPanel</enum>
               </property>
               <property name="text" >
-               <string>&lt;b>Global log</string>
+               <string>Global log</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignCenter</set>
@@ -473,8 +534,25 @@
    <addaction name="menuSettings" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QStatusBar" name="statusbar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>499</y>
+     <width>737</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QToolBar" name="toolBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>25</y>
+     <width>737</width>
+     <height>37</height>
+    </rect>
+   </property>
    <property name="windowTitle" >
     <string>Main toolbar</string>
    </property>
@@ -508,7 +586,8 @@
   </widget>
   <action name="actionQuit" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/exit.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/exit.png</normaloff>:/menu/exit.png</iconset>
    </property>
    <property name="text" >
     <string>Quit</string>
@@ -516,7 +595,8 @@
   </action>
   <action name="actionNewQueue" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/queue_add.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/queue_add.png</normaloff>:/menu/queue_add.png</iconset>
    </property>
    <property name="text" >
     <string>New queue</string>
@@ -524,7 +604,8 @@
   </action>
   <action name="actionDeleteQueue" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/queue_remove.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/queue_remove.png</normaloff>:/menu/queue_remove.png</iconset>
    </property>
    <property name="text" >
     <string>Delete queue</string>
@@ -542,7 +623,8 @@
   </action>
   <action name="actionNewTransfer" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/add.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/add.png</normaloff>:/menu/add.png</iconset>
    </property>
    <property name="text" >
     <string>New transfer</string>
@@ -550,7 +632,8 @@
   </action>
   <action name="actionDeleteTransfer" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/delete.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/delete.png</normaloff>:/menu/delete.png</iconset>
    </property>
    <property name="text" >
     <string>Delete transfer</string>
@@ -558,7 +641,8 @@
   </action>
   <action name="actionResume" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/states/active.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/states/active.png</normaloff>:/states/active.png</iconset>
    </property>
    <property name="text" >
     <string>Start</string>
@@ -566,7 +650,8 @@
   </action>
   <action name="actionForcedResume" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/states/forced_active.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/states/forced_active.png</normaloff>:/states/forced_active.png</iconset>
    </property>
    <property name="text" >
     <string>Force start</string>
@@ -574,7 +659,8 @@
   </action>
   <action name="actionPause" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/states/paused.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/states/paused.png</normaloff>:/states/paused.png</iconset>
    </property>
    <property name="text" >
     <string>Pause</string>
@@ -582,7 +668,8 @@
   </action>
   <action name="actionAbout" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/about.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/about.png</normaloff>:/menu/about.png</iconset>
    </property>
    <property name="text" >
     <string>About</string>
@@ -590,7 +677,8 @@
   </action>
   <action name="actionTop" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/top.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/top.png</normaloff>:/menu/top.png</iconset>
    </property>
    <property name="text" >
     <string>Move to top</string>
@@ -598,7 +686,8 @@
   </action>
   <action name="actionUp" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/up.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/up.png</normaloff>:/menu/up.png</iconset>
    </property>
    <property name="text" >
     <string>Move up</string>
@@ -606,7 +695,8 @@
   </action>
   <action name="actionDown" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/down.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/down.png</normaloff>:/menu/down.png</iconset>
    </property>
    <property name="text" >
     <string>Move down</string>
@@ -614,7 +704,8 @@
   </action>
   <action name="actionBottom" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/bottom.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/bottom.png</normaloff>:/menu/bottom.png</iconset>
    </property>
    <property name="text" >
     <string>Move to bottom</string>
@@ -622,7 +713,8 @@
   </action>
   <action name="actionRemoveCompleted" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/states/completed.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/states/completed.png</normaloff>:/states/completed.png</iconset>
    </property>
    <property name="text" >
     <string>Remove completed</string>
@@ -652,7 +744,8 @@
   </action>
   <action name="actionProperties" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/properties.png</normaloff>:/menu/properties.png</iconset>
    </property>
    <property name="text" >
     <string>Properties...</string>
@@ -676,7 +769,8 @@
   </action>
   <action name="actionSettings" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/configure.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/configure.png</normaloff>:/menu/configure.png</iconset>
    </property>
    <property name="text" >
     <string>Settings...</string>
@@ -684,7 +778,8 @@
   </action>
   <action name="actionQueueProperties" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/properties.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/properties.png</normaloff>:/menu/properties.png</iconset>
    </property>
    <property name="text" >
     <string>Properties...</string>
@@ -695,7 +790,8 @@
     <bool>true</bool>
    </property>
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/fatrat/dropbox.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/fatrat/dropbox.png</normaloff>:/fatrat/dropbox.png</iconset>
    </property>
    <property name="text" >
     <string>Display drop-box</string>
@@ -703,7 +799,8 @@
   </action>
   <action name="actionOpenFile" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/run.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/run.png</normaloff>:/menu/run.png</iconset>
    </property>
    <property name="text" >
     <string>Open</string>
@@ -711,7 +808,8 @@
   </action>
   <action name="actionOpenDirectory" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/directory.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/directory.png</normaloff>:/menu/directory.png</iconset>
    </property>
    <property name="text" >
     <string>Open directory</string>
@@ -724,7 +822,8 @@
   </action>
   <action name="actionDeleteTransferData" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >:/menu/delete_with_data.png</iconset>
+    <iconset resource="gfx/resources.qrc" >
+     <normaloff>:/menu/delete_with_data.png</normaloff>:/menu/delete_with_data.png</iconset>
    </property>
    <property name="text" >
     <string>Delete transfer including data</string>

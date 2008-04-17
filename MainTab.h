@@ -24,6 +24,7 @@ protected:
 	void mousePressEvent(QMouseEvent* event);
 	
 	int m_index;
+	int m_lastIndex, m_lastIndexCur;
 	QToolButton* m_toolTabClose;
 };
 

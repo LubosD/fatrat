@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>352</height>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -68,6 +68,14 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="page" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>478</width>
+        <height>320</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
        <item row="0" column="0" >
         <widget class="QLabel" name="label" >
@@ -82,15 +90,18 @@
        <item row="1" column="0" >
         <widget class="QLabel" name="label_2" >
          <property name="text" >
-          <string>&lt;font size=20>FatRat download manager</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignCenter</set>
+          <string>&lt;center>&lt;font size=20>FatRat download manager</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0" >
         <widget class="QLabel" name="labelVersion" >
+         <property name="font" >
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="alignment" >
           <set>Qt::AlignCenter</set>
          </property>
@@ -99,27 +110,26 @@
        <item row="3" column="0" >
         <widget class="QLabel" name="label_3" >
          <property name="text" >
-          <string>Copyright © 2006-2008 Luboš Doležel&lt;br>&lt;a href="http://fatrat.dolezel.info">http://fatrat.dolezel.info&lt;/a></string>
+          <string>&lt;center>Copyright © 2006-2008 Luboš Doležel&lt;br>&lt;a href="http://fatrat.dolezel.info">http://fatrat.dolezel.info&lt;/a></string>
          </property>
-         <property name="alignment" >
-          <set>Qt::AlignCenter</set>
+         <property name="textFormat" >
+          <enum>Qt::AutoText</enum>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
+       <property name="margin" >
         <number>0</number>
        </property>
        <item row="0" column="0" >
@@ -137,17 +147,16 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_3" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
+       <property name="margin" >
         <number>0</number>
        </property>
        <item row="0" column="0" >
@@ -156,17 +165,16 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_4" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
+       <property name="margin" >
         <number>0</number>
        </property>
        <item row="0" column="0" >
@@ -175,6 +183,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_5" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
        <item row="0" column="0" colspan="2" >
         <widget class="QLabel" name="label_4" >
@@ -218,7 +234,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>

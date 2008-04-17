@@ -63,6 +63,7 @@ private:
 	QTimer m_timer;
 	QList<RssFeed> m_feeds;
 	QList<RssItem> m_items;
+	bool m_bAllOK;
 	
 	// XML parsing
 	bool m_bInItem;

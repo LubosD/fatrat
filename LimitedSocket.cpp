@@ -314,7 +314,7 @@ void LimitedSocket::doClose(QTcpSocket** sock)
 	QAbstractSocket::SocketState state = (*sock)->state();
 	if(state == QAbstractSocket::ConnectedState || state == QAbstractSocket::ClosingState)
 		(*sock)->waitForDisconnected(5000);
-	delete (*sock);
+	(*sock)->deleteLater();
 	(*sock) = 0;
 }
 

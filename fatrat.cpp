@@ -22,7 +22,10 @@
 #include "RuntimeException.h"
 #include "dbus/DbusAdaptor.h"
 #include "dbus/DbusImpl.h"
-#include "remote/HttpService.h"
+
+#ifdef WITH_JAVAREMOTE
+#	include "remote/HttpService.h"
+#endif
 
 #ifdef WITH_JABBER
 #	include "remote/JabberService.h"
@@ -76,7 +79,10 @@ int main(int argc,char** argv)
 	qmgr->start();
 	
 	g_wndMain = new MainWindow(m_bStartHidden);
-	//g_http = new HttpService;
+	
+#ifdef WITH_JAVAREMOTE
+	g_http = new HttpService;
+#endif
 	
 	DbusImpl* impl = new DbusImpl;
 	new FatratAdaptor(impl);
@@ -218,6 +224,7 @@ void initSettingsDefaults()
 	g_mapDefaults["graphminutes"] = 5;
 	g_mapDefaults["autoremove"] = false;
 	g_mapDefaults["transfer_dblclk"] = 0;
+	g_mapDefaults["tab_onclose"] = 0;
 	
 	g_mapDefaults["torrent/listen_start"] = 6881;
 	g_mapDefaults["torrent/listen_end"] = 6888;

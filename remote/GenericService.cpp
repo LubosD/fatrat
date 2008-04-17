@@ -1,5 +1,6 @@
 #include "GenericService.h"
 #include <QTcpServer>
+#include <qatomic.h>
 
 GenericService::GenericService()
 	: m_bAbort(false)

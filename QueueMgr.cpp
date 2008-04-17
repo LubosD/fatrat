@@ -98,7 +98,7 @@ void QueueMgr::doWork()
 		total[0] += stats.down;
 		total[1] += stats.up;
 		
-		int downl = 0, upl = 0;
+//		int downl = 0, upl = 0;
 		int size = q->size();
 		
 		if(size)
@@ -118,11 +118,12 @@ void QueueMgr::doWork()
 			downl = std::min(down, downl);
 			upl = std::min(up, upl);*/
 			
-			if(down && active)
+			/*if(down && active)
 			{
 				//downl = down;
-				downl = down/active + std::max(down-stats.down, 0);
+				downl = down/active + std::max(down-stats.down, 0) * active;
 				downl = std::min(down, downl);
+				qDebug() << "Down:" << down << "DownS:" << stats.down << "DownL:" << downl;
 			}
 			
 			if(up && active)
@@ -137,16 +138,35 @@ void QueueMgr::doWork()
 				//qDebug() << "";
 				
 				//upl = std::max(down/size, upl);
-				upl = up/active + std::max(up-stats.up, 0);
+				upl = up/active + std::max(up-stats.up, 0) * active;
 				upl = std::min(up, upl);
-				qDebug() << "UpL:" << up << "Up:" << stats.up;
-			}
+				qDebug() << "Up:" << up << "UpS:" << stats.up << "UpL:" << upl;
+			}*/
 		}
 		
 		foreach(Transfer* d,q->m_transfers)
 		{
+			int downl = 0, upl = 0;
+			int ups, downs;
+			
 			if(d->isActive())
+			{
+				d->speeds(downs, ups);
+				if(down && active)
+				{
+					downl = down/active + std::max(down-stats.down+std::max(downs-downl,0), 0);
+					downl = std::min(down, downl);
+					qDebug() << "Down:" << down << "DownS:" << stats.down << "DownL:" << downl;
+				}
+				
+				if(up && active)
+				{
+					upl = up/active + std::max(up-stats.up+std::max(ups-upl, 0), 0) * active;
+					upl = std::min(up, upl);
+					qDebug() << "Up:" << up << "UpS:" << stats.up << "UpL:" << upl;
+				}
 				d->setInternalSpeedLimits(downl,upl);
+			}
 		}
 		
 		q->m_stats = stats;

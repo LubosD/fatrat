@@ -34,7 +34,7 @@ public:
 		tableMenu->verticalHeader()->hide();
 		tableMenu->setColumnWidth(0, 116);
 		
-		labelVersion->setText(tr("<b>Version %1</b>").arg(VERSION));
+		labelVersion->setText(tr("Version %1").arg(VERSION));
 		
 		loadFile(textLicense, "LICENSE.txt");
 		loadFile(textTranslators, "TRANSLATIONS.txt");
