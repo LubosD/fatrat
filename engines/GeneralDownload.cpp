@@ -306,9 +306,9 @@ void GeneralDownload::requestFinished(bool error)
 	
 	if(isActive() && m_engine == obj)
 	{
+		m_strMessage = ((LimitedSocket*) obj)->errorString();
 		if(error)
 		{
-			m_strMessage = ((LimitedSocket*) obj)->errorString();
 			enterLogMessage(tr("Transfer has failed: %1").arg(m_strMessage));
 			setState(Failed);
 		}
@@ -320,7 +320,6 @@ void GeneralDownload::requestFinished(bool error)
 				m_engine = 0;
 			}
 			
-			m_strMessage.clear();
 			enterLogMessage(tr("Transfer has been completed"));
 			setState(Completed);
 		}

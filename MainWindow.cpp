@@ -467,7 +467,7 @@ void MainWindow::refreshQueues()
 	
 	g_queuesLock.unlock();
 	
-	m_labelStatus.setText( QString(tr("Speed of the selected queue: %1 down, %2 up")).arg(formatSize(downq,true)).arg(formatSize(upq,true)) );
+	m_labelStatus.setText( QString(tr("Queue's speed: %1 down, %2 up")).arg(formatSize(downq,true)).arg(formatSize(upq,true)) );
 }
 
 void MainWindow::newQueue()

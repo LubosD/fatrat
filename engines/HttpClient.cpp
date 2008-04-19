@@ -284,6 +284,10 @@ void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 	case 301 ... 399: // redirect
 		emit redirected(header.value("location"));
 		break;
+	case 416: // Requested Range Not Satisfiable
+		m_strError = tr("Requested Range Not Satisfiable - the file has probably already been downloaded");
+		emit finished(false);
+		break;
 	default: // error
 		throw header.reasonPhrase();
 	}
