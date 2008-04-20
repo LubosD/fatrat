@@ -50,12 +50,16 @@ public:
 	void remove(int n, bool nolock = false);
 	void removeWithData(int n, bool nolock = false);
 	Transfer* take(int n, bool nolock = false);
+	
+	void autoLimits(int& down, int& up) const { down=m_nDownAuto; up=m_nUpAuto; }
+	void setAutoLimits(int down, int up);
 private:
 	void loadQueue(const QDomNode& node);
 	void saveQueue(QDomNode& node,QDomDocument& doc);
 	
 	QString m_strName;
 	int m_nDownLimit,m_nUpLimit,m_nDownTransferLimit,m_nUpTransferLimit;
+	int m_nDownAuto, m_nUpAuto;
 	bool m_bUpAsDown;
 	QUuid m_uuid;
 	mutable QReadWriteLock m_lock;

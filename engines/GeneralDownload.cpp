@@ -336,8 +336,8 @@ void GeneralDownload::redirected(QString newurl)
 		location.setUserInfo(m_urlLast.userInfo());
 		m_urlLast.setUserInfo(QString());
 		
-		qDebug() << "Redirected to: " << location << endl;
-		enterLogMessage(tr("We're being redirected to: %1").arg(location.toString()));
+		qDebug() << "Redirected to: " << m_urlLast << endl;
+		enterLogMessage(tr("We're being redirected to: %1").arg(m_urlLast.toString()));
 		
 		if(scheme == "http" || scheme == "ftp" || scheme == "https")
 		{

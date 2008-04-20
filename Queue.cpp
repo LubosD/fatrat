@@ -15,7 +15,8 @@ QList<Queue*> g_queues;
 QReadWriteLock g_queuesLock;
 
 Queue::Queue()
-	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1), m_bUpAsDown(false)
+	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1),
+	m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(false)
 {
 	memset(&m_stats, 0, sizeof m_stats);
 	m_uuid = QUuid::createUuid();
@@ -30,9 +31,7 @@ Queue::~Queue()
 void Queue::unloadQueues()
 {
 	qDebug() << "Queue::unloadQueues()";
-	//g_queuesLock.lockForWrite();
 	qDeleteAll(g_queues);
-	//g_queuesLock.unlock();
 }
 
 void Queue::loadQueues()
@@ -312,4 +311,18 @@ void Queue::removeWithData(int n, bool nolock)
 	
 	d->deleteLater();
 }
+
+void Queue::setAutoLimits(int down, int up)
+{
+	m_nDownAuto = down;
+	m_nUpAuto = up;
+	
+	foreach(Transfer* d, m_transfers)
+	{
+		if(!d->isActive())
+			continue;
+		d->setInternalSpeedLimits(down, up);
+	}
+}
+
 

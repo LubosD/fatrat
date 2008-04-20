@@ -136,6 +136,7 @@ protected:
 	QQueue<QPair<int,int> > m_qSpeedData;
 	
 	friend class QueueMgr;
+	friend class Queue;
 };
 
 class TransferNotifier : public QObject

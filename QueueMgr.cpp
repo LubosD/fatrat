@@ -82,7 +82,6 @@ void QueueMgr::doWork()
 				}
 				else
 					d->setState(Transfer::Waiting);
-				active++;
 			}
 			else if(state == Transfer::Completed && autoremove)
 			{
@@ -90,7 +89,10 @@ void QueueMgr::doWork()
 			}
 			
 			if(d->isActive())
+			{
 				( (mode == Transfer::Download) ? stats.active_d : stats.active_u) ++;
+				active++;
+			}
 			else if(d->state() == Transfer::Waiting)
 				( (mode == Transfer::Download) ? stats.waiting_d : stats.waiting_u) ++;
 		}
@@ -98,75 +100,62 @@ void QueueMgr::doWork()
 		total[0] += stats.down;
 		total[1] += stats.up;
 		
-//		int downl = 0, upl = 0;
 		int size = q->size();
 		
-		if(size)
+		if(size && active)
 		{
-			/*downl = down/size;
-			upl = up/size;
+			float avgd, avgu, supd, supu;
+			int curd, curu;
 			
-			qDebug() << "UpL:" << up << "Up:" << stats.up;
-			qDebug() << "Upl 1:" << upl;
+			q->autoLimits(curd, curu);
 			
-			downl += std::max(down-stats.down,0) /size;
-			upl += std::max(up-stats.up,0) /size;
-			
-			qDebug() << "Upl 2:" << upl;
-			qDebug() << "";
-			
-			downl = std::min(down, downl);
-			upl = std::min(up, upl);*/
-			
-			/*if(down && active)
+			if(!curd)
+				curd = down/active;
+			else if(down)
 			{
-				//downl = down;
-				downl = down/active + std::max(down-stats.down, 0) * active;
-				downl = std::min(down, downl);
-				qDebug() << "Down:" << down << "DownS:" << stats.down << "DownL:" << downl;
+				avgd = float(stats.down) / active;
+				supd = float(down) / active;
+				curd += (supd-avgd)/active;
 			}
+			else
+				curd = 0;
 			
-			if(up && active)
+			if(!curu)
+				curu = up/active;
+			else if(up)
 			{
-				//upl = up;
-				
-				//qDebug() << "Upl 1:" << upl;
-				
-				//upl -= std::max(stats.up-up, 0);
-				
-				//qDebug() << "Upl 2:" << upl;
-				//qDebug() << "";
-				
-				//upl = std::max(down/size, upl);
-				upl = up/active + std::max(up-stats.up, 0) * active;
-				upl = std::min(up, upl);
-				qDebug() << "Up:" << up << "UpS:" << stats.up << "UpL:" << upl;
-			}*/
-		}
-		
-		foreach(Transfer* d,q->m_transfers)
-		{
-			int downl = 0, upl = 0;
-			int ups, downs;
-			
-			if(d->isActive())
-			{
-				d->speeds(downs, ups);
-				if(down && active)
-				{
-					downl = down/active + std::max(down-stats.down+std::max(downs-downl,0), 0);
-					downl = std::min(down, downl);
-					qDebug() << "Down:" << down << "DownS:" << stats.down << "DownL:" << downl;
-				}
-				
-				if(up && active)
-				{
-					upl = up/active + std::max(up-stats.up+std::max(ups-upl, 0), 0) * active;
-					upl = std::min(up, upl);
-					qDebug() << "Up:" << up << "UpS:" << stats.up << "UpL:" << upl;
-				}
-				d->setInternalSpeedLimits(downl,upl);
+				avgu = float(stats.up) / active;
+				supu = float(up) / active;
+				//qDebug() << "avgu:" << avgu << "supu:" << supu << "->" << (supu-avgu)/active;
+				curu += (supu-avgu)/active;
 			}
+			else
+				curu = 0;
+			
+			if(curd)
+			{
+				if(curd < 1024)
+					curd = 1024;
+				else if(curd < down/active)
+					curd = down/active;
+			}
+			if(curd > down)
+				curd = down;
+			if(curu)
+			{
+				if(curu < 1024)
+					curu = 1024;
+				else if(curu < up/active)
+				{
+					//qDebug() << "Normalizing to" << (up/active) << "active being" << active;
+					curu = up/active;
+				}
+			}
+			if(curu > up)
+				curu = up;
+			
+			//qDebug() << "Setting" << curu;
+			q->setAutoLimits(curd, curu);
 		}
 		
 		q->m_stats = stats;

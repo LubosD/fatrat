@@ -5,7 +5,7 @@ class FakeDownload : public Transfer
 {
 public:
 	virtual void changeActive(bool) {}
-	virtual void speeds(int& down, int& up) const { down=up=1024; }
+	virtual void speeds(int& down, int& up) const { down=m_nDownLimitInt; up=m_nUpLimitInt; }
 	virtual qulonglong total() const { return 1024*1024; }
 	virtual qulonglong done() const { return 1024*512; }
 	virtual QString name() const { return m_strName; }
