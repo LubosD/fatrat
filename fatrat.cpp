@@ -22,6 +22,7 @@
 #include "RuntimeException.h"
 #include "dbus/DbusAdaptor.h"
 #include "dbus/DbusImpl.h"
+#include "rss/RssFetcher.h"
 
 #ifdef WITH_JAVAREMOTE
 #	include "remote/HttpService.h"
@@ -35,6 +36,7 @@ using namespace std;
 
 MainWindow* g_wndMain = 0;
 QSettings* g_settings = 0;
+RssFetcher* g_rssFetcher = 0;
 #ifdef WITH_JAVAREMOTE
 HttpService* g_http = 0;
 #endif
@@ -85,6 +87,7 @@ int main(int argc,char** argv)
 #ifdef WITH_JAVAREMOTE
 	g_http = new HttpService;
 #endif
+	g_rssFetcher = new RssFetcher;
 	
 	DbusImpl* impl = new DbusImpl;
 	new FatratAdaptor(impl);
@@ -108,6 +111,7 @@ int main(int argc,char** argv)
 #ifdef WITH_JAVAREMOTE
 	delete g_http;
 #endif
+	delete g_rssFetcher;
 	delete g_wndMain;
 	
 	Queue::saveQueues();

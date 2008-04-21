@@ -56,6 +56,10 @@ set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTXML TRUE)
 set(QT_USE_QTSVG TRUE)
 
+if(WITH_DOCUMENTATION)
+	set(QT_USE_QTASSISTANT TRUE)
+endif(WITH_DOCUMENTATION)
+
 set(QT_QTDBUS_LIBRARY QtDBus)
 
 include( ${QT_USE_FILE} )
@@ -309,5 +313,14 @@ if(WITH_JAVAREMOTE)
 	install(FILES data/remote/index.html DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
 endif(WITH_JAVAREMOTE)
+
+if(WITH_DOCUMENTATION)
+	install(FILES doc/fatrat.adp DESTINATION share/fatrat/doc)
+	install(FILES doc/icon.png DESTINATION share/fatrat/doc)
+	install(FILES doc/index.html DESTINATION share/fatrat/doc)
+	install(FILES doc/logo.png DESTINATION share/fatrat/doc)
+	install(FILES doc/jabber/jabber.png DESTINATION share/fatrat/doc/jabber)
+	install(FILES doc/jabber/index.html DESTINATION share/fatrat/doc/jabber)
+endif(WITH_DOCUMENTATION)
 
 install(PROGRAMS fatrat DESTINATION bin)

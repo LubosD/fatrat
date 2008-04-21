@@ -6,6 +6,7 @@
 #cmakedefine WITH_NLS
 #cmakedefine WITH_JABBER
 #cmakedefine WITH_JAVAREMOTE
+#cmakedefine WITH_DOCUMENTATION
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 
 #endif

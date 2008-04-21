@@ -2,11 +2,11 @@
 #include "RssFeedDlg.h"
 #include "RssRegexpDlg.h"
 #include "fatrat.h"
-#include "engines/TorrentDownload.h"
 #include <QSettings>
 #include <QMap>
 
 extern QSettings* g_settings;
+extern RssFetcher* g_rssFetcher;
 
 SettingsRssForm::SettingsRssForm(QWidget* w, QObject* parent)
 	: QObject(parent)
@@ -61,7 +61,7 @@ void SettingsRssForm::accepted()
 	g_settings->setValue("rss/enable", checkEnable->isChecked());
 	g_settings->setValue("rss/interval", spinUpdateInterval->value());
 	
-	TorrentDownload::m_rssFetcher->applySettings();
+	g_rssFetcher->applySettings();
 }
 
 void SettingsRssForm::feedAdd()

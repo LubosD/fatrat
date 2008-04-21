@@ -98,7 +98,6 @@ protected:
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;
-	static RssFetcher* m_rssFetcher;
 	static QList<QRegExp> m_listBTLinks;
 	
 	friend class TorrentWorker;

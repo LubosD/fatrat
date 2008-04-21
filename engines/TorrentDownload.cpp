@@ -29,7 +29,6 @@ extern QSettings* g_settings;
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
-RssFetcher* TorrentDownload::m_rssFetcher = 0;
 QList<QRegExp> TorrentDownload::m_listBTLinks;
 
 const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
@@ -94,8 +93,6 @@ void TorrentDownload::globalInit()
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
 	m_session->set_severity_level(libtorrent::alert::warning);
-	
-	m_rssFetcher = new RssFetcher;
 	
 	applySettings();
 	
@@ -318,8 +315,6 @@ void TorrentDownload::globalExit()
 	
 	delete m_worker;
 	delete m_session;
-	
-	delete m_rssFetcher;
 	
 	if(g_pGeoIP != 0)
 		GeoIP_delete(g_pGeoIP);
