@@ -529,7 +529,10 @@ void TorrentDownload::changeActive(bool nowActive)
 	if(m_handle.is_valid())
 	{
 		if(nowActive)
+		{
 			m_handle.resume();
+			m_handle.force_reannounce();
+		}
 		else
 		{
 			bEnableRecheck = true;
