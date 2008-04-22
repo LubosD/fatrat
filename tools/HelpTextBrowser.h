@@ -12,6 +12,7 @@ public:
 	QVariant loadResource(int type, const QUrl& name);
 private:
 	QHelpEngine* m_engine;
+	QUrl m_urlLast;
 };
 
 #endif

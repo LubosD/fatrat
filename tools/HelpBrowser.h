@@ -23,6 +23,9 @@ public:
 public slots:
 	void openPage(const QUrl& url);
 	void itemClicked(const QModelIndex& index);
+	void sourceChanged();
+signals:
+	void changeTabTitle(QString);
 private:
 	QHelpEngine* m_engine;
 };

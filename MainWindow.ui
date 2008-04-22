@@ -582,7 +582,6 @@
    <addaction name="actionNewQueue" />
    <addaction name="actionDeleteQueue" />
    <addaction name="separator" />
-   <addaction name="actionAbout" />
   </widget>
   <action name="actionQuit" >
    <property name="icon" >
@@ -667,10 +666,6 @@
    </property>
   </action>
   <action name="actionAbout" >
-   <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
-     <normaloff>:/menu/about.png</normaloff>:/menu/about.png</iconset>
-   </property>
    <property name="text" >
     <string>About</string>
    </property>

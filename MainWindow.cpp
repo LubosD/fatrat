@@ -96,7 +96,7 @@ void MainWindow::setupUi()
 	
 #ifdef WITH_DOCUMENTATION
 	QAction* action;
-	action = new QAction(tr("Help"), menuHelp);
+	action = new QAction(QIcon(":/menu/about.png"), tr("Help"), menuHelp);
 	menuHelp->insertAction(actionAboutQt, action);
 	menuHelp->insertSeparator(actionAboutQt);
 	connect(action, SIGNAL(triggered()), this, SLOT(showHelp()));
@@ -1424,6 +1424,7 @@ void MainWindow::showHelp()
 {
 #ifdef WITH_DOCUMENTATION
 	QWidget* w = new HelpBrowser;
+	connect(w, SIGNAL(changeTabTitle(QString)), tabMain, SLOT(changeTabTitle(QString)));
 	tabMain->setCurrentIndex( tabMain->addTab(w, QIcon(":/menu/about.png"), tr("Help")) );
 #endif
 }
