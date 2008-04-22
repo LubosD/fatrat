@@ -30,7 +30,6 @@
 #include "AppTools.h"
 #include "AboutDlg.h"
 
-#include <iostream>
 #include <stdexcept>
 
 extern QList<Queue*> g_queues;
@@ -90,6 +89,14 @@ void MainWindow::setupUi()
 	m_graph = new SpeedGraph(this);
 	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Speed graph"));
 	m_log = new LogManager(this, textTransferLog, textGlobalLog);
+	
+#ifdef WITH_DOCUMENTATION
+	QAction* action;
+	action = new QAction(tr("Help"), menuHelp);
+	menuHelp->insertAction(actionAboutQt, action);
+	menuHelp->insertSeparator(actionAboutQt);
+	connect(action, SIGNAL(triggered()), this, SLOT(showHelp()));
+#endif
 	
 	connectActions();
 }
@@ -799,7 +806,6 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 		
 		for(int i=0;i<uris.size();i++)
 		{
-			cout << "Class ID: " << dlg.m_nClass << endl;
 			Transfer* d = Transfer::createInstance(dlg.m_mode, dlg.m_nClass);
 			
 			if(d == 0)
@@ -984,7 +990,6 @@ void MainWindow::setTransfer(Transfer::State state)
 
 void MainWindow::transferOptions()
 {
-	cout << "Showing transfer properties\n";
 	WidgetHostDlg dlg(this);
 	
 	Queue* q = getCurrentQueue();
@@ -1301,8 +1306,6 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 	const bool popup = g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool();
 	const bool email = g_settings->value("sendemail", getSettingsDefault("sendemail")).toBool();
 	
-	cout << "MainWindow::downloadStateChanged()\n";
-	
 	if(!popup && !email)
 		return;
 	
@@ -1411,5 +1414,16 @@ void MainWindow::unhide()
 {
 	if(m_trayIcon.isVisible() && !actionDisplay->isChecked())
 		actionDisplay->toggle();
+}
+
+void MainWindow::showHelp()
+{
+	QProcess proc;
+	QStringList args;
+	
+	args << "-collectionFile";
+	args << DATA_LOCATION "/doc/fatrat.qhc";
+	
+	proc.startDetached("assistant", args);
 }
 

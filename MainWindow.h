@@ -79,6 +79,8 @@ public slots:
 	
 	void reconfigure();
 	void unhide();
+	
+	void showHelp();
 protected:
 	int getSelectedQueue();
 	static Queue* getQueue(int index, bool lock = true);

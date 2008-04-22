@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>Jabber</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<style type="text/css">
+pre, code { background-color: #eee }
+</style>
+
+</head>
+
+<table width="100%"><tr>
+	<td width="33%"><img src="jabber.png" alt="Jabber icon" /></td>
+	<td width="33%" align="center" valign="middle"><h2>Using Jabber</h2></td>
+	<td width="33%" align="right"><img src="../logo.png" alt="Logo" /></td>
+</tr></table>
+
+<p>
+Open a chat session with FatRat in your favorite Jabber application. If you've configured FatRat to ask for password, enter it sending a message like:
+</p>
+
+<pre>pass <i>secretpassword</i></pre>
+
+<p align="center"><img src="usage.png" alt="Example chat session" /></p>
+
+<p>By sending a <code>help</code> command, you can get a quick overview of available commands.</p>
+
+<h3>Moving between queues</h3>
+
+<p>The <code>qlist</code> command lets you retrieve the list of existing queues along with some basic information. Notice the <code>#<i>n</i></code> at the beginning of every line - this is the ID used to identify the queue - you can use this number to change the <i>current queue</i> - let's switch to the third queue:
+</p>
+
+<pre>qset <i>2</i></pre>
+
+<p>
+Unless there is no queue, the first queue is marked as active by default. Now, when we have the third queue selected, we can retrieve the list of existing transfers.
+</p>
+
+<pre>list</pre>
+
+<p>
+Now we can see another list of items marked with index numbers. These numbers are used for working with transfers.
+</p>
+
+<h3>Manipulating transfers</h3>
+
+<ul>
+<li><code>pause</code> - pause specified transfers</li>
+<li><code>resume</code> - resume specified transfers</li>
+<li><code>delete</code> - delete specified transfers (but retain their data)</li>
+</ul>
+
+<p>Multiple transfers can be manipulated at once:</p>
+
+<pre>pause <i>0 2 5</i></pre>
+
+<p>If we want to resume or pause all transfers, we can use the <code>pauseall</code> and <code>resumeall</code> commands.</p>
+
+<h3>Adding new transfers</h3>
+
+<p>The <code>add</code> command is the most complex one. Say we want to download two files, let FatRat autodetect the transfer type, and store the files to the default directory:</p>
+
+<pre>add
+http://server/file1.zip
+http://server/file2.zip</pre>
+
+<p>Now we want to add a BitTorrent transfer, but the URL is awkward enough not to be detected as a .torrent URL correctly.</p>
+
+<pre>add TorrentDownload
+http://server/gettorrent.php?id=12345</pre>
+
+<p>
+Look at <i>TorrentDownload</i> - this is the internal class name. As of now, these are the available class names:
+</p>
+
+<ul>
+<li><code>GeneralDownload</code> - HTTP(S), FTP and SFTP downloads</li>
+<li><code>TorrentDownload</code> - BitTorrent downloads</li>
+<li><code>FtpUpload</code> - FTP and SFTP uploads</li>
+<li><code>RapidshareUpload</code> - RapidShare.com uploads</li>
+</ul>
+
+<p>
+If we want to download files to a non-default directory or upload files (in which case it is obligatory!) we specify the destination path like this:
+</p>
+
+<pre>add TorrentDownload /var/tmp
+http://server/gettorrent.php?id=12345</pre>
+
+<p>Alternatively, we may omit the transfer class:</p>
+
+<pre>add /var/tmp
+http://server/file.torrent</pre>
+
+<p>Now, when we're done playing with FatRat, we can log out:</p>
+
+<pre>exit</pre>
+
+<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+
+</body>
+
+</html>

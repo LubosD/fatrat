@@ -1,5 +1,6 @@
 #include "TorrentOptsWidget.h"
 #include <QHeaderView>
+#include <iostream>
 
 TorrentOptsWidget::TorrentOptsWidget(QWidget* me, TorrentDownload* parent)
 	: m_download(parent), m_bUpdating(false)
@@ -151,6 +152,14 @@ void TorrentOptsWidget::accepted()
 		else if(!yes && prio)
 			prio = 0;
 	}
+	
+	for(std::vector<int>::const_iterator it = m_download->m_vecPriorities.begin();
+		   it != m_download->m_vecPriorities.end(); it++)
+	{
+		std::cout << *it << ' ';
+	}
+	std::cout << std::endl;
+	
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
 	
 	std::vector<std::string> seeds = m_download->m_info->url_seeds();

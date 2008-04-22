@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+	<namespace>info.dolezel.fatrat.1_0</namespace>
+	<virtualFolder>doc</virtualFolder>
+	<filterSection>
+		<toc>
+			<section title="FatRat" ref="index.html" icon="icon.png">
+				<section title="Jabber support" ref="jabber/index.html">
+					<section title="Settings" ref="jabber/settings.html" />
+					<section title="Usage" ref="jabber/usage.html" />
+				</section>
+			</section>
+		</toc>
+		<files>
+			<file>index.html</file>
+			<file>logo.png</file>
+			<file>icon.png</file>
+			<file>jabber/index.html</file>
+			<file>jabber/jabber.png</file>
+			<file>jabber/settings.png</file>
+			<file>jabber/settings.html</file>
+			<file>jabber/usage.png</file>
+			<file>jabber/usage.html</file>
+		</files>
+	</filterSection>
+</QtHelpProject>
