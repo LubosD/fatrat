@@ -224,7 +224,7 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 			
 			if(bAccepted)
 			{
-				msg = tr("Password accepted, send \"help\" for list of commands.");
+				msg = tr("Password accepted, send \"help\" for the list of commands.");
 				createConnection(session);
 			}
 			else

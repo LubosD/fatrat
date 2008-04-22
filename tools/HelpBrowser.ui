@@ -1,0 +1,35 @@
+<ui version="4.0" >
+ <class>HelpBrowser</class>
+ <widget class="QWidget" name="HelpBrowser" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>548</width>
+    <height>399</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Help</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" >
+   <item row="0" column="0" >
+    <widget class="QSplitter" name="splitter" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="HelpTextBrowser" name="textBrowser" />
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HelpTextBrowser</class>
+   <extends>QTextBrowser</extends>
+   <header>tools/HelpTextBrowser.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

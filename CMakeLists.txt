@@ -56,11 +56,13 @@ set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTXML TRUE)
 set(QT_USE_QTSVG TRUE)
 
+set(QT_ADDITIONAL_LIBS QtDBus)
+
 if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
+	set(QT_ADDITIONAL_LIBS ${QT_ADDITIONAL_LIBS}
+		QtHelp)
 endif(WITH_DOCUMENTATION)
-
-set(QT_QTDBUS_LIBRARY QtDBus)
 
 include( ${QT_USE_FILE} )
 add_definitions(${QT_DEFINITIONS})
@@ -280,6 +282,22 @@ if(WITH_JAVAREMOTE)
 	)
 endif(WITH_JAVAREMOTE)
 
+if(WITH_DOCUMENTATION)
+	set(fatrat_SRCS
+		${fatrat_SRCS}
+		tools/HelpBrowser.cpp
+		tools/HelpTextBrowser.cpp
+	)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		tools/HelpBrowser.h
+	)
+	set(fatrat_UIS
+		${fatrat_UIS}
+		tools/HelpBrowser.ui
+	)
+endif(WITH_DOCUMENTATION)
+
 qt4_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
 
 set(fatrat_RCS
@@ -292,7 +310,7 @@ qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_QTDBUS_LIBRARY})
+target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_ADDITIONAL_LIBS})
 
 install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt DESTINATION share/fatrat/data)
 install(FILES gfx/fatrat.png DESTINATION share/pixmaps)

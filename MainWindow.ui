@@ -794,7 +794,7 @@
      <normaloff>:/fatrat/dropbox.png</normaloff>:/fatrat/dropbox.png</iconset>
    </property>
    <property name="text" >
-    <string>Display drop-box</string>
+    <string>Display the drop-box</string>
    </property>
   </action>
   <action name="actionOpenFile" >

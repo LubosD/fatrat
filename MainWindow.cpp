@@ -30,6 +30,10 @@
 #include "AppTools.h"
 #include "AboutDlg.h"
 
+#ifdef WITH_DOCUMENTATION
+#	include "tools/HelpBrowser.h"
+#endif
+
 #include <stdexcept>
 
 extern QList<Queue*> g_queues;
@@ -1418,12 +1422,9 @@ void MainWindow::unhide()
 
 void MainWindow::showHelp()
 {
-	QProcess proc;
-	QStringList args;
-	
-	args << "-collectionFile";
-	args << DATA_LOCATION "/doc/fatrat.qhc";
-	
-	proc.startDetached("assistant", args);
+#ifdef WITH_DOCUMENTATION
+	QWidget* w = new HelpBrowser;
+	tabMain->setCurrentIndex( tabMain->addTab(w, QIcon(":/menu/about.png"), tr("Help")) );
+#endif
 }
 
