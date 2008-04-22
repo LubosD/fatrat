@@ -5,14 +5,17 @@
 	<filterSection>
 		<toc>
 			<section title="FatRat" ref="index.html" icon="icon.png">
-				<section title="Drop-box" ref="dropbox.html" />
+				<section title="Drop-box" ref="dropbox/index.html" />
 				<section title="Jabber support" ref="jabber/index.html">
 					<section title="Settings" ref="jabber/settings.html" />
 					<section title="Usage" ref="jabber/usage.html" />
 				</section>
 				<section title="RapidShare.com support" ref="rs.com/index.html">
-					
+					<section title="Downloads" ref="rs.com/download.html" />
+					<section title="Uploads" ref="rs.com/upload.html" />
+					<section title="Tools" ref="rs.com/tools.html" />
 				</section>
+				<section title="RSS integration" ref="rss/index.html" />
 			</section>
 		</toc>
 		<files>
@@ -27,13 +30,22 @@
 			<file>jabber/usage.png</file>
 			<file>jabber/usage.html</file>
 			
-			<file>dropbox.html</file>
-			<file>dropbox.png</file>
-			<file>dropbox-settings.png</file>
+			<file>dropbox/index.html</file>
+			<file>dropbox/dropbox.png</file>
+			<file>dropbox/dropbox-settings.png</file>
 			
 			<file>rs.com/index.html</file>
+			<file>rs.com/download.html</file>
+			<file>rs.com/upload.html</file>
+			<file>rs.com/tools.html</file>
 			<file>rs.com/rscom.png</file>
+			<file>rs.com/tools.png</file>
+			<file>rs.com/tools-menu.png</file>
 			<file>rs.com/settings.png</file>
+			<file>rs.com/settings2.png</file>
+			
+			<file>rss/index.html</file>
+			<file>rss/rss.png</file>
 		</files>
 	</filterSection>
 </QtHelpProject>
