@@ -29,6 +29,7 @@ HttpService::HttpService()
 
 void HttpService::incomingConnection(int sock)
 {
+	qDebug() << "incomingConnection()";
 	if(m_nThreads >= MAX_THREADS)
 	{
 		QTcpSocket socket;
@@ -63,6 +64,7 @@ void HttpThread::run()
 	{
 		char line[256];
 		
+		qDebug() << "readLine()";
 		qint64 read = sock.readLine(line, sizeof line);
 		
 		if(read < 0)
@@ -73,14 +75,23 @@ void HttpThread::run()
 				return;
 			}
 		}
+		else if(!read)
+		{
+			qDebug() << "waitForReadyRead()";
+			sock.waitForReadyRead();
+		}
 		else
 		{
 			QByteArray trimmed = QByteArray(line, read).trimmed();
+			qDebug() << trimmed;
 			if(trimmed.isEmpty())
 				break;
 			lines << trimmed;
 		}
 	}
+	
+	if(lines.isEmpty())
+		return;
 	
 	if(lines[0].startsWith("GET "))
 	{

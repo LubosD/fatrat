@@ -283,7 +283,7 @@ QStringList JabberService::parseCommand(QString input, QString* extargs)
 		
 		if(bInStr)
 		{
-			if((bInQ && input[i] == '"') || input[i] == ' ')
+			if((bInQ && input[i] == '"') || (!bInQ && input[i] == ' '))
 			{
 				if(!tmp.isEmpty() || bInQ)
 				{

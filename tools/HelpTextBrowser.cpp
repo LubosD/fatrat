@@ -16,7 +16,7 @@ void HelpTextBrowser::setEngine(QHelpEngine* engine)
 QVariant HelpTextBrowser::loadResource(int type, const QUrl& name)
 {
 	QUrl url(name);
-	qDebug() << "Loading" << url;
+	
 	if(name.scheme() == "http")
 	{
 		QMetaObject::invokeMethod(this, "setSource", Qt::QueuedConnection, Q_ARG(QUrl, m_urlLast));
