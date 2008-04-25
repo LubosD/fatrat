@@ -91,7 +91,7 @@ void RapidTools::doneRShare(bool error)
 		QString result;
 		
 		const QByteArray& data = m_bufRShare->data();
-		int pos = data.indexOf(")</script>");
+		int pos = 0;
 		
 		while(true)
 		{
