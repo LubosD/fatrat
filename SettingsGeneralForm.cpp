@@ -17,6 +17,8 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 			<< tr("Opens the file") << tr("Opens the parent directory") );
 	
 	comboCloseCurrent->addItems(QStringList() << tr("switch to the next tab") << tr("switch to the previous active tab"));
+	
+	comboLinkSeparator->addItems(QStringList() << tr("a newline") << tr("whitespace characters"));
 }
 
 void SettingsGeneralForm::load()
@@ -32,6 +34,7 @@ void SettingsGeneralForm::load()
 	
 	comboDoubleClick->setCurrentIndex( g_settings->value("transfer_dblclk", getSettingsDefault("transfer_dblclk")).toInt() );
 	comboCloseCurrent->setCurrentIndex( g_settings->value("tab_onclose", getSettingsDefault("transfer_dblclk")).toInt() );
+	comboLinkSeparator->setCurrentIndex( g_settings->value("link_separator", getSettingsDefault("link_separator")).toInt() );
 }
 
 bool SettingsGeneralForm::accept()
@@ -62,6 +65,7 @@ void SettingsGeneralForm::accepted()
 	g_settings->setValue("graphminutes", spinGraphMinutes->value());
 	g_settings->setValue("transfer_dblclk", comboDoubleClick->currentIndex());
 	g_settings->setValue("tab_onclose", comboCloseCurrent->currentIndex());
+	g_settings->setValue("link_separator", comboLinkSeparator->currentIndex());
 }
 
 void SettingsGeneralForm::browse()

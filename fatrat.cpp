@@ -232,6 +232,7 @@ void initSettingsDefaults()
 	g_mapDefaults["autoremove"] = false;
 	g_mapDefaults["transfer_dblclk"] = 0;
 	g_mapDefaults["tab_onclose"] = 0;
+	g_mapDefaults["link_separator"] = 0;
 	
 	g_mapDefaults["torrent/listen_start"] = 6881;
 	g_mapDefaults["torrent/listen_end"] = 6888;

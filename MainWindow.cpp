@@ -779,10 +779,19 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 	
 	try
 	{
-		QStringList uris = dlg.m_strURIs.split(/*QRegExp("\\s+")*/ '\n', QString::SkipEmptyParts);
+		QStringList uris;
+		int sep = g_settings->value("link_separator", getSettingsDefault("link_separator")).toInt();
+		
+		if(!sep)
+			uris = dlg.m_strURIs.split('\n', QString::SkipEmptyParts);
+		else
+			uris = dlg.m_strURIs.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		
 		if(uris.isEmpty())
 			return;
+
+		for(int i=0;i<uris.size();i++)
+			uris[i] = uris[i].trimmed();
 		
 		if(dlg.m_nClass == -1)
 		{

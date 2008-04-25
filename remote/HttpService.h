@@ -3,34 +3,44 @@
 #include "config.h"
 #include <QTcpServer>
 #include <QThread>
+#include <QMap>
+#include <QByteArray>
+#include <QFile>
+#include <ctime>
 
 #ifndef WITH_JAVAREMOTE
 #	error This file is not supposed to be included!
 #endif
 
-class HttpService : public QTcpServer
+class HttpService : public QThread
 {
 Q_OBJECT
 public:
 	HttpService();
-public slots:
-	void threadFinished();
-protected:
-	void incomingConnection(int sock);
+	~HttpService();
 	
-	//QTcpServer m_server;
-	int m_nThreads;
+	void setup();
+	static void throwErrno();
+	void run();
+	bool processClientRead(int fd);
+	bool processClientWrite(int fd);
 	
-	friend class HttpThread;
+	void freeClient(int fd, int ep);
+	
+	struct ClientData
+	{
+		ClientData() : file(0), lastData(time(0)) {}
+		QList<QByteArray> incoming;
+		QFile* file;
+		time_t lastData;
+	};
+	void serveClient(int fd);
+private:
+	int m_server;
+	bool m_bAbort;
+	
+	QMap<int, ClientData> m_clients;
 };
 
-class HttpThread : public QThread
-{
-public:
-	HttpThread(int sock);
-	void run();
-private:
-	int m_socket;
-};
 
 #endif
