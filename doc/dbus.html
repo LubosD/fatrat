@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>D-Bus Interface</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<style type="text/css">
+pre, code { background-color: #eee }
+</style>
+</head>
+
+<body>
+
+<table width="100%"><tr>
+	<td width="33%"></td>
+	<td width="33%" align="center" valign="middle"><h2>D-Bus Interface</h2></td>
+	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
+</tr></table>
+
+<p>
+The D-Bus interface is very simple at the moment. FatRat's interface name is <code>info.dolezel.fatrat</code> and the path used to access its methods is <code>/</code>. The simplest way to access its method could look like this:
+</p>
+
+<pre>qdbus info.dolezel.fatrat / methodName "argument1" "argument2"</pre>
+
+<p>
+<code>qdbus</code> is a tool shipped with Qt. The first method we'll have a look at is <code>addTransfers</code>. It accepts only one argument - a string containing links separated by an end-of-line. The user will be presented with a New transfers dialog. An example:
+</p>
+
+<pre>qdbus info.dolezel.fatrat / addTransfers "http://link1"</pre>
+
+<p>
+To get a list of queues, you can use the <code>getQueues</code> method. The call will return a list of strings.
+</p>
+
+<pre>qdbus info.dolezel.fatrat / getQueues</pre>
+
+<p>One can also need to add transfers without showing any dialogs. This is when <code>addTransfersNonInteractive</code> comes in handy.</p>
+
+<pre>qdbus info.dolezel.fatrat / addTransfersNonInteractive "links" "target" "className" "queueID"</pre>
+
+<ul>
+<li><code>links</code> - a list of links separated by a newline character</li>
+<li><code>target</code> - the destination directory / URL</li>
+<li><code>className</code> - the transfer type; refer to the <a href="jabber/usage.html#classes">Jabber documentation</a> to find out classes' names</li>
+<li><code>queueID</code> - an integer specifying the index of the queue, where the transfer(s) should be added. For the first queue use 0 (zero)</li>
+</ul>
+
+<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+</body>
+</html>

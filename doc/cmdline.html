@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>Command Line Interface</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<style type="text/css">
+pre, code { background-color: #eee }
+</style>
+</head>
+
+<body>
+
+<table width="100%"><tr>
+	<td width="33%"></td>
+	<td width="33%" align="center" valign="middle"><h2>Command Line Interface</h2></td>
+	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
+</tr></table>
+
+<p>
+FatRat normally uses D-Bus to check whether there already is a running instance. If you want to bypass this check, launch FatRat like this:
+</p>
+
+<pre>fatrat --force</pre>
+
+<p>
+If you want FatRat to hide its window on startup (into a tray icon), use the following command:
+</p>
+
+<pre>fatrat --hidden</pre>
+
+<p>
+To show a New transfers dialog with some links, pass them as additional arguments:
+</p>
+
+<pre>fatrat "http://link1" "http://link2"</pre>
+
+<p>
+A significant advantage of using this metod when compared to passing via D-Bus is that you don't need to have a running instance for this to work. FatRat will automatically create one if needed.
+</p>
+
+<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+</body>
+</html>
