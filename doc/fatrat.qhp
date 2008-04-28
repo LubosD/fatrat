@@ -23,7 +23,6 @@
 		<files>
 			<file>index.html</file>
 			<file>logo.png</file>
-			<file>icon.png</file>
 			<file>cmdline.html</file>
 			<file>dbus.html</file>
 			
@@ -50,6 +49,9 @@
 			
 			<file>rss/index.html</file>
 			<file>rss/rss.png</file>
+			<file>rss/rss_feed.png</file>
+			<file>rss/rss_regexp.png</file>
+			<file>rss/rss_tvshows.png</file>
 		</files>
 	</filterSection>
 </QtHelpProject>

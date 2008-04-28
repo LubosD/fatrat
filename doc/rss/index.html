@@ -12,6 +12,27 @@
 	<td width="33%" align="right"><img src="../logo.png" alt="Logo" /></td>
 </tr></table>
 
+<p>
+You can manage the RSS integration in <code>Settings - RSS</code>. Adding of RSS feeds is pretty straightforward. All you have to do is enter the feed's URL, give it a name and click OK.
+</p>
+
+<p align="center"><img src="rss_feed.png" alt="RSS feed" /></p>
+
+<p>
+The second step is to create a regular expression(s) (regexp) matching items from the feed you want to be downloaded. If you want to download everything that appears in the feed, leave the regexp field empty - since only partial match is required, this will match everything. You may want to create a new queue for automatized downloads and such queue may then be selected in this dialog as well.
+</p>
+
+<p align="center"><img src="rss_regexp.png" alt="RSS regexp" /></p>
+
+<p>
+The TV show support exists so that duplicate files aren't downloaded. Season based TV shows have episodes marked like <code>S01E12</code> or <code>1x12</code>. Episode based TV shows have no seasons, hence FatRat will regard the last found integer in episode's name as the episode number. Date based TV shows (like The Daily Show, for instance) have date in its name - examples: <code>2008-04-28</code>, <code>4/28/08</code>, etc.
+</p>
+
+<p align="center"><img src="rss_tvshows.png" alt="RSS TV shows" /></p>
+
+<p>
+The download repacks and download teasers/trailers checkboxes do exactly what they say. If you check the former, FatRat will download the same episode again if a repack pops up. As for BitTorrent downloads, manually added transfers may be checked and if a TV show's episode is detected, such episode will not be downloaded again when it appears in RSS.
+</p>
 
 <p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
 </body>
