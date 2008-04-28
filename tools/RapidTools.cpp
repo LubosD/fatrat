@@ -135,9 +135,11 @@ void RapidTools::decodeRSafeLinks()
 	
 	foreach(QString str, list)
 	{
-		if(str.startsWith("http://www.rapidsafe.net/"))
-			str[18] = 'v';
-		else if(!str.startsWith("http://www.rapidsave.net/"))
+		if(str.startsWith("http://www.rapidsave.net/"))
+			str[18] = 'f';
+		else if(str.startsWith("http://rapidsave.net/"))
+			str[14] = 'f';
+		else if(!str.startsWith("http://www.rapidsafe.net/"))
 		{
 			QMessageBox::warning(this, "FatRat", tr("An invalid link has been encountered: %1").arg(str));
 			return;
@@ -147,7 +149,7 @@ void RapidTools::decodeRSafeLinks()
 	textLinksDst->clear();
 	m_listRSafeSrc.clear();
 	
-	m_httpRSafe = new QHttp("www.rapidsave.net", 80, this);
+	m_httpRSafe = new QHttp("www.rapidsafe.net", 80, this);
 	
 	pushDecode->setDisabled(true);
 	
@@ -207,7 +209,6 @@ void RapidTools::doneRSafe(int r, bool error)
 	if(error)
 	{
 		QMessageBox::critical(this, "FatRat", tr("Server failed to process our query."));
-		m_httpRSafe->abort();
 	}
 	
 	delete buffer;
