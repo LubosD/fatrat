@@ -1,7 +1,9 @@
 #include "config.h"
 
 #include "Transfer.h"
-#include "engines/FakeDownload.h"
+#ifdef ENABLE_FAKEDOWNLOAD
+#	include "engines/FakeDownload.h"
+#endif
 #include "engines/GeneralDownload.h"
 #include "engines/RapidshareUpload.h"
 
@@ -22,7 +24,9 @@ using namespace std;
 extern QSettings* g_settings;
 
 static const EngineEntry m_enginesDownload[] = {
+#ifdef ENABLE_FAKEDOWNLOAD
 	{ "FakeDownload", "Fake engine", 0, 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 },
+#endif
 	{ "GeneralDownload", GENERALDOWNLOAD_DESCR, 0, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
 #ifdef WITH_BITTORRENT
 	{ "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, TorrentDownload::createSettingsWidget, 0 },
@@ -129,7 +133,7 @@ const EngineEntry* Transfer::engines(Mode type)
 
 Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 {
-	int curscore = -1;
+	int curscore = 0;
 	BestEngine best;
 	
 	if(type != Upload)
