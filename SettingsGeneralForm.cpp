@@ -13,8 +13,8 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	
 	connect(toolDestination, SIGNAL(pressed()), this, SLOT(browse()));
 	
-	comboDoubleClick->addItems(QStringList() << tr("Switches to transfer details") << tr("Switches to the graph")
-			<< tr("Opens the file") << tr("Opens the parent directory") );
+	comboDoubleClick->addItems(QStringList() << tr("switches to transfer details") << tr("switches to the graph")
+			<< tr("opens the file") << tr("opens the parent directory") );
 	
 	comboCloseCurrent->addItems(QStringList() << tr("switch to the next tab") << tr("switch to the previous active tab"));
 	

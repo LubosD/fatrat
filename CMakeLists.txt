@@ -92,6 +92,8 @@ set(fatrat_SRCS
 	Transfer.cpp
 	TransfersModel.cpp
 	Logger.cpp
+	#DataPoller.cpp
+	#TcpSocket.cpp
 
 	remote/GenericService.cpp
 	
@@ -149,6 +151,7 @@ set(fatrat_MOC_HDRS
 	UserAuthDlg.h
 	NewTransferDlg.h
 	Logger.h
+	#DataPoller.h
 	
 	tools/HashDlg.h
 	tools/RapidTools.h
@@ -333,6 +336,7 @@ if(WITH_JAVAREMOTE)
 endif(WITH_JAVAREMOTE)
 
 if(WITH_DOCUMENTATION)
+	execute_process(COMMAND doc/generate.sh)
 	install(FILES doc/fatrat.qhc DESTINATION share/fatrat/doc)
 	install(FILES doc/fatrat.qch DESTINATION share/fatrat/doc)
 endif(WITH_DOCUMENTATION)

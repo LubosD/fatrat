@@ -1,2 +1,4 @@
 #!/bin/sh
-exec qcollectiongenerator fatrat.qhcp -o fatrat.qhc
+echo -- Compiling documentation
+cd doc
+exec qcollectiongenerator fatrat.qhcp -o /fatrat.qhc

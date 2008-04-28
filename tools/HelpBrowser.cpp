@@ -10,6 +10,7 @@ HelpBrowser::HelpBrowser()
 	if(!m_engine->setupData())
 	{
 		QMessageBox::critical(this, tr("Help"), tr("Failed to load the documentation."));
+		deleteLater();
 		return;
 	}
 	
