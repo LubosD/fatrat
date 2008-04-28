@@ -11,8 +11,6 @@
 #include <QMap>
 #include <QDir>
 
-#include <iostream>
-
 #include "MainWindow.h"
 #include "QueueMgr.h"
 #include "Queue.h"
@@ -41,20 +39,23 @@ RssFetcher* g_rssFetcher = 0;
 HttpService* g_http = 0;
 #endif
 
+const char* USER_PROFILE_PATH = "/.local/share/fatrat";
+
 static QMap<QString, QVariant> g_mapDefaults;
 static void initSettingsDefaults();
 static void runEngines(bool init = true);
 static QString argsToArg(int argc,char** argv);
 static void processSession(QString arg);
+static QString getDataFileDir(QString dir, QString fileName);
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
+static QSettings* m_settingsDefaults = 0;
 
 int main(int argc,char** argv)
 {
 	QApplication app(argc, argv);
 	int rval;
-	QTranslator translator;
 	QueueMgr* qmgr;
 	QString arg = argsToArg(argc, argv);
 	
@@ -68,9 +69,13 @@ int main(int argc,char** argv)
 		processSession(arg);
 	
 #ifdef WITH_NLS
-	qDebug() << "Current locale" << QLocale::system().name();
-	translator.load(QString("fatrat_") + QLocale::system().name(), DATA_LOCATION "/lang");
-	app.installTranslator(&translator);
+	QTranslator translator;
+	{
+		QString fname = QString("fatrat_") + QLocale::system().name();
+		qDebug() << "Current locale" << QLocale::system().name();
+		translator.load(fname, getDataFileDir("/lang", fname));
+		app.installTranslator(&translator);
+	}
 #endif
 	
 	// Init download engines (let them load settings)
@@ -154,11 +159,11 @@ void processSession(QString arg)
 	
 	if(bus->isServiceRegistered("info.dolezel.fatrat"))
 	{
-		std::cout << "FatRat is already running\n";
+		qDebug() << "FatRat is already running";
 		
 		if(!arg.isEmpty())
 		{
-			std::cout << "Passing arguments to an existing instance.\n";
+			qDebug() << "Passing arguments to an existing instance.";
 			QDBusInterface iface("info.dolezel.fatrat", "/", "info.dolezel.fatrat", conn);
 			
 			iface.call("addTransfers", arg);
@@ -213,65 +218,19 @@ QWidget* getMainWindow()
 	return g_wndMain;
 }
 
-void initSettingsDefaults()
+void initSettingsDefaults() // move to QSettings
 {
-	g_mapDefaults["defaultdir"] = QDir::homePath();
-	g_mapDefaults["fileexec"] = "kfmclient exec";
-	g_mapDefaults["trayicon"] = true;
-	g_mapDefaults["hideminimize"] = false;
-	g_mapDefaults["hideclose"] = true;
-	g_mapDefaults["retrycount"] = 0;
-	g_mapDefaults["retryworking"] = true;
-	g_mapDefaults["showpopup"] = true;
-	g_mapDefaults["popuptime"] = 4;
-	g_mapDefaults["sendemail"] = false;
-	g_mapDefaults["smtpserver"] = "localhost";
-	g_mapDefaults["emailsender"] = "root@localhost";
-	g_mapDefaults["emailrcpt"] = "root@localhost";
-	g_mapDefaults["graphminutes"] = 5;
-	g_mapDefaults["autoremove"] = false;
-	g_mapDefaults["transfer_dblclk"] = 0;
-	g_mapDefaults["tab_onclose"] = 0;
-	g_mapDefaults["link_separator"] = 0;
-	
-	g_mapDefaults["torrent/listen_start"] = 6881;
-	g_mapDefaults["torrent/listen_end"] = 6888;
-	
-	g_mapDefaults["torrent/maxconnections"] = 200;
-	g_mapDefaults["torrent/maxuploads"] = 5;
-	
-	g_mapDefaults["torrent/maxconnections_loc"] = 200;
-	g_mapDefaults["torrent/maxuploads_loc"] = 5;
-	
-	g_mapDefaults["torrent/dht"] = true;
-	g_mapDefaults["torrent/pex"] = true;
-	g_mapDefaults["torrent/maxfiles"] = 100;
-	g_mapDefaults["torrent/allocation"] = 0;
-	g_mapDefaults["torrent/enc_incoming"] = 1; // enabled
-	g_mapDefaults["torrent/enc_outgoing"] = 1; // enabled
-	g_mapDefaults["torrent/enc_level"] = 2; // both Plaintext and RC4
-	g_mapDefaults["torrent/enc_rc4_prefer"] = false;
-	g_mapDefaults["rss/enable"] = true;
-	g_mapDefaults["rss/interval"] = 15;
-	
-	g_mapDefaults["remote/port"] = 2233;
-	
-	g_mapDefaults["network/speed_down"] = 1024*128;
-	g_mapDefaults["network/speed_up"] = 1024*128;
-	
-	g_mapDefaults["dropbox/unhide"] = false;
-	g_mapDefaults["dropbox/height"] = 100;
-	
-	g_mapDefaults["jabber/enable"] = false;
-	g_mapDefaults["jabber/restrict_self"] = true;
-	g_mapDefaults["jabber/priority"] = -1;
-	g_mapDefaults["jabber/resource"] = "FatRat";
-	g_mapDefaults["jabber/grant_auth"] = false;
+	QLatin1String df("/defaults.conf");
+	QString path = getDataFileDir("/data", df) + df;
+	m_settingsDefaults = new QSettings(path, QSettings::IniFormat, qApp);
 }
 
 QVariant getSettingsDefault(QString id)
 {
-	return g_mapDefaults.value(id);
+	if(id == "defaultdir")
+		return QDir::homePath();
+	else
+		return m_settingsDefaults->value(id);
 }
 
 QString formatSize(qulonglong size, bool persec)
@@ -407,20 +366,6 @@ Proxy::operator QNetworkProxy() const
 	return p;
 }
 
-quint32 qntoh(quint32 source)
-{
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN
-	return source;
-#else
-
-	return 0
-		   | ((source & 0x000000ff) << 24)
-		   | ((source & 0x0000ff00) << 8)
-		   | ((source & 0x00ff0000) >> 8)
-		   | ((source & 0xff000000) >> 24);
-#endif
-}
-
 /////////////////////////////////////////////////////////
 
 class RecursiveRemove : public QThread
@@ -483,3 +428,24 @@ void recursiveRemove(QString what)
 {
 	new RecursiveRemove(what);
 }
+
+bool openDataFile(QFile* file, QString filePath)
+{
+	file->setFileName(QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + filePath);
+	if(file->open(QIODevice::ReadOnly))
+		return true;
+	file->setFileName(QLatin1String(DATA_LOCATION) + filePath);
+	return file->open(QIODevice::ReadOnly);
+}
+
+QString getDataFileDir(QString dir, QString fileName)
+{
+	QString f = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + dir;
+	if(fileName[0] != '/')
+		fileName.prepend('/');
+	if(QFile::exists(f + fileName))
+		return f;
+	else
+		return QLatin1String(DATA_LOCATION) + dir;
+}
+

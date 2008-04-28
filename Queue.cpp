@@ -6,7 +6,6 @@
 #include <QDir>
 #include <QFile>
 #include <QDomDocument>
-#include <iostream>
 #include <QtDebug>
 
 using namespace std;
@@ -61,7 +60,7 @@ void Queue::loadQueues()
 		g_queuesLock.lockForWrite();
 		qDeleteAll(g_queues);
 		
-		cout << "Loading queues\n";
+		qDebug() << "Loading queues";
 		
 		QDomElement n = doc.documentElement().firstChildElement("queue");
 		while(!n.isNull())
@@ -148,8 +147,6 @@ void Queue::loadQueue(const QDomNode& node)
 		QMap<QString,QString> map;
 		Transfer* d;
 		
-		//cout << "Creating instance\n";
-		
 		d = Transfer::createInstance(n.attribute("class"));
 		
 		if(d != 0)
@@ -163,11 +160,10 @@ void Queue::loadQueue(const QDomNode& node)
 			}
 			*/
 			d->load(n);
-			//cout << "Loaded instance\n";
 			m_transfers << d;
 		}
 		else
-			cerr << "***ERROR*** Unable to createInstance '" << n.attribute("class").toAscii().constData() << "'\n";
+			qDebug() << "***ERROR*** Unable to createInstance " << n.attribute("class").toAscii();
 		
 		n = n.nextSiblingElement("download");
 	}

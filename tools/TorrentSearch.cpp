@@ -82,12 +82,8 @@ void TorrentSearch::loadEngines()
 {
 	QDomDocument doc;
 	QFile file;
-	QDir dir(DATA_LOCATION);
 	
-	dir.cd("data");
-	file.setFileName( dir.absoluteFilePath("btsearch.xml") );
-	
-	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
+	if(!openDataFile(&file, "/data/btsearch.xml") || !doc.setContent(&file))
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to load BitTorrent search engine information."));
 		return;

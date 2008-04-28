@@ -1,6 +1,5 @@
 #include "fatrat.h"
 #include "QueueMgr.h"
-#include <iostream>
 #include <QSettings>
 
 using namespace std;

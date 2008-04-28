@@ -78,8 +78,6 @@ int TransfersModel::rowCount(const QModelIndex &parent) const
 	{
 		g_queuesLock.lockForRead();
 		
-		//cout << "Parent isn't valid\n";
-		
 		if(m_queue < g_queues.size() && m_queue >= 0)
 			count = g_queues[m_queue]->size();
 		
@@ -317,8 +315,6 @@ QMimeData* TransfersModel::mimeData(const QModelIndexList&) const
 
 void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	//cout << "ProgressDelegate::paint()\n";
-	
 	if(index.column() == 1)
 	{
 		TransfersModel* model = (TransfersModel*) index.internalPointer();

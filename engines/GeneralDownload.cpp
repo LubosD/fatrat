@@ -11,14 +11,12 @@
 #	include "SftpClient.h"
 #endif
 
-#include <iostream>
 #include <QtDebug>
 #include <QThread>
 #include <QTcpSocket>
 #include <QSettings>
 #include <QMessageBox>
 #include <QMenu>
-#include <stdexcept>
 
 using namespace std;
 
@@ -301,7 +299,6 @@ void GeneralDownload::responseSizeReceived(qint64 totalsize)
 
 void GeneralDownload::requestFinished(bool error)
 {
-	cout << "GeneralDownload::requestFinished()\n";
 	void* obj = sender();
 	
 	if(isActive() && m_engine == obj)
@@ -482,8 +479,6 @@ HttpOptsWidget::HttpOptsWidget(QWidget* me,GeneralDownload* myobj) : QObject(me)
 
 void HttpOptsWidget::load()
 {
-	cout << "HttpOptsWidget::load()\n";
-	
 	lineFileName->setText(m_download->m_strFile);
 	
 	m_urls = m_download->m_urls;

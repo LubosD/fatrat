@@ -6,6 +6,7 @@
 #include <QUuid>
 #include <QList>
 #include <QVariant>
+#include <QFile>
 #include <QNetworkProxy>
 
 #define VERSION "SVN"
@@ -13,9 +14,9 @@
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
 QVariant getSettingsDefault(QString id);
-quint32 qntoh(quint32 source);
 QWidget* getMainWindow();
 void recursiveRemove(QString what);
+bool openDataFile(QFile* file, QString filePath);
 
 class Sleeper : public QThread
 {

@@ -1,9 +1,6 @@
 #include "config.h"
-
 #include "Transfer.h"
-#ifdef ENABLE_FAKEDOWNLOAD
-#	include "engines/FakeDownload.h"
-#endif
+
 #include "engines/GeneralDownload.h"
 #include "engines/RapidshareUpload.h"
 
@@ -11,8 +8,12 @@
 #	include "engines/TorrentDownload.h"
 #endif
 
+#ifdef ENABLE_FAKEDOWNLOAD
+#	include "engines/FakeDownload.h"
+#endif
+
 #include "engines/FtpUpload.h"
-#include <iostream>
+
 #include <QtDebug>
 #include <QMessageBox>
 #include <QProcess>

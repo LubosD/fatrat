@@ -14,7 +14,6 @@
 
 #include <fstream>
 #include <stdexcept>
-#include <iostream>
 
 #include <QIcon>
 #include <QMenu>
@@ -112,8 +111,8 @@ void TorrentDownload::globalInit()
 		g_pGeoIP = GeoIP_new(1 /*GEOIP_MEMORY_CACHE*/);
 	}
 	
-	QFile file (DATA_LOCATION "/data/btlinks.txt");
-	if(file.open(QIODevice::ReadOnly))
+	QFile file;
+	if(openDataFile(&file, "/data/btlinks.txt"))
 	{
 		while(!file.atEnd())
 		{
