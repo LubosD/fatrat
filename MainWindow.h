@@ -23,6 +23,7 @@ public:
 	void move(int i);
 	void changeAll(bool resume);
 	QList<int> getSelection();
+	void applySettings();
 public slots:
 	void about();
 	void showSettings();
@@ -99,7 +100,7 @@ protected:
 	void transferOpen(bool bOpenFile);
 	void initAppTools(QMenu* menu);
 private:
-	QTimer m_timer;
+	QTimer* m_timer;
 	MyTrayIcon m_trayIcon;
 	TransfersModel* m_modelTransfers;
 	QLabel m_labelStatus;

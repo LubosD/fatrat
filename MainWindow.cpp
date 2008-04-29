@@ -42,16 +42,12 @@ extern QSettings* g_settings;
 
 using namespace std;
 
-MainWindow::MainWindow(bool bStartHidden) : m_trayIcon(this), m_pDetailsDisplay(0), m_lastTransfer(0)
+MainWindow::MainWindow(bool bStartHidden) : m_timer(0), m_trayIcon(this), m_pDetailsDisplay(0), m_lastTransfer(0)
 {
 	setupUi();
 	restoreWindowState(bStartHidden && m_trayIcon.isVisible());
 	
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
-	connect(&m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
-	
-	m_timer.start(1000);
+	applySettings();
 	
 	refreshQueues();
 	if(g_queues.size())
@@ -1436,5 +1432,17 @@ void MainWindow::showHelp()
 	connect(w, SIGNAL(changeTabTitle(QString)), tabMain, SLOT(changeTabTitle(QString)));
 	tabMain->setCurrentIndex( tabMain->addTab(w, QIcon(":/menu/about.png"), tr("Help")) );
 #endif
+}
+
+void MainWindow::applySettings()
+{
+	delete m_timer;	
+	m_timer = new QTimer(this);
+	
+	m_timer->start(g_settings->value("gui_refresh", getSettingsDefault("gui_refresh")).toInt());
+	
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
+	connect(m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
 }
 

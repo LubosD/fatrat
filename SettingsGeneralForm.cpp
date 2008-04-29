@@ -1,5 +1,6 @@
 #include "SettingsGeneralForm.h"
 #include "fatrat.h"
+#include "MainWindow.h"
 #include <QSettings>
 #include <QDir>
 #include <QMessageBox>
@@ -35,6 +36,8 @@ void SettingsGeneralForm::load()
 	comboDoubleClick->setCurrentIndex( g_settings->value("transfer_dblclk", getSettingsDefault("transfer_dblclk")).toInt() );
 	comboCloseCurrent->setCurrentIndex( g_settings->value("tab_onclose", getSettingsDefault("transfer_dblclk")).toInt() );
 	comboLinkSeparator->setCurrentIndex( g_settings->value("link_separator", getSettingsDefault("link_separator")).toInt() );
+	
+	spinRefreshGUI->setValue( g_settings->value("gui_refresh", getSettingsDefault("gui_refresh")).toInt() / 1000);
 }
 
 bool SettingsGeneralForm::accept()
@@ -66,6 +69,10 @@ void SettingsGeneralForm::accepted()
 	g_settings->setValue("transfer_dblclk", comboDoubleClick->currentIndex());
 	g_settings->setValue("tab_onclose", comboCloseCurrent->currentIndex());
 	g_settings->setValue("link_separator", comboLinkSeparator->currentIndex());
+	
+	g_settings->setValue("gui_refresh", spinRefreshGUI->value()*1000);
+	
+	((MainWindow*) getMainWindow())->applySettings();
 }
 
 void SettingsGeneralForm::browse()

@@ -848,7 +848,7 @@ QString TorrentDownload::message() const
 
 TorrentWorker::TorrentWorker()
 {
-	m_timer.start(1000);
+	m_timer.start(g_settings->value("gui_refresh", getSettingsDefault("gui_refresh")).toInt());
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
 }
 

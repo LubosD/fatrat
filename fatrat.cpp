@@ -41,7 +41,6 @@ HttpService* g_http = 0;
 
 const char* USER_PROFILE_PATH = "/.local/share/fatrat";
 
-static QMap<QString, QVariant> g_mapDefaults;
 static void initSettingsDefaults();
 static void runEngines(bool init = true);
 static QString argsToArg(int argc,char** argv);
