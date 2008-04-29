@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>Configuration Files</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<style type="text/css">
+pre, code { background-color: #eee }
+</style>
+</head>
+
+<body>
+
+<table width="100%"><tr>
+	<td width="33%"></td>
+	<td width="33%" align="center" valign="middle"><h2>Configuration Files</h2></td>
+	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
+</tr></table>
+
+<p>
+FatRat's configuration files typically reside in <code>/usr/share/fatrat/data</code> (this location is hardcoded at compile time), along with some other data files. Any user may force FatRat to use his own config files by placing them into <code>~/.local/share/fatrat/data</code>.
+</p>
+
+<h3>btlinks.txt</h3>
+<p>
+When autodetecting link types, FatRat has to distinguish between ordinary HTTP links and links pointing to torrents. This is quite easy if the link ends with <code>.torrent</code>, however there are many websites that don't follow this scheme. Such websites have regular expressions in the <code>btlinks.txt</code> file - if an URL is <i>fully</i> matched by a regular expression from this file, it is regarded as a URL pointing to a torrent file.
+</p>
+
+<h3>btsearch.xml</h3>
+<p>
+This XML document contains information about torrent search engines. The following sample file should make the document's structure clear:
+</p>
+
+<pre>
+&lt;search&gt;
+	&lt;engine name="The Pirate Bay"&gt; <b>&lt;!-- Search engine's name --&gt;</b>
+	
+		<b>&lt;!-- The URL to be used for search queries; %1 will be replaced with the search phrase --&gt;</b>
+		&lt;param name="query"&gt;http://thepiratebay.org/search.php?q=%1&lt;/param&gt;
+		
+		<b>&lt;!-- A string that marks the beggining of search results --&gt;</b>
+		&lt;param name="beginning"&gt;&amp;lt;td class="vertTh"&amp;gt;&lt;/param&gt;
+		
+		<b>&lt;!-- A string that is used as a splitter between individual search results --&gt;</b>
+		&lt;param name="splitter"&gt;&amp;lt;/tr&amp;gt;&lt;/param&gt;
+		
+		<b>&lt;!-- A string that marks the end of search results --&gt;</b>
+		&lt;param name="ending"&gt;&amp;lt;/table&amp;gt;&lt;/param&gt;
+		
+		<b>&lt;!--
+			When the results have been cut out and split by the splitter,
+			regular expression matching is used to extract torrent's details.
+ 		--&gt;</b>
+		
+		<b>&lt;!-- A regular expression matching the name of a search result --&gt;</b>
+		&lt;regexp name="name" field="1"&gt;class="detLink" title="([^"]+)"&amp;gt;([^"]+)&amp;lt;/a&amp;gt;&lt;/regexp&gt;
+		
+		<b>&lt;!-- A regular expression matching the link pointing to the .torrent file --&gt;</b>
+		&lt;regexp name="link" match="1"&gt;&amp;lt;td&amp;gt;&amp;lt;a href="([^"]+)"&lt;/regexp&gt;
+		
+		<b>&lt;!--
+			If the query has to be sent using the POST method,
+			the following data will be used for the POST request.
+			
+			%1 will be replaced with the search phrase.
+		--&gt;</b>
+		&lt;param name="postdata"&gt;SearchString1=%1&amp;amp;SearchString=&amp;amp;search=Search&lt;/param&gt;
+		
+		<b>&lt;!--
+			A regular expression matching the torrent's size.
+			FatRat will automaically detect units (KB, MB etc.)
+		--&gt;</b>
+		&lt;regexp name="size"&gt;&amp;lt;td align="right"&amp;gt;([^"]+)&amp;lt;/td&amp;gt;&lt;/regexp&gt;
+		
+		<b>&lt;!-- A regular expression matching the number of peers seeding the torrent --&gt;</b>
+		&lt;regexp name="seeders" match="1"&gt;&amp;lt;td align="right"&amp;gt;([^"]+)&amp;lt;/td&amp;gt;&lt;/regexp&gt;
+		
+		<b>&lt;!-- A regular expression matching the number of peers downloading the torrent --&gt;</b>
+		&lt;regexp name="leechers" match="2"&gt;&amp;lt;td align="right"&amp;gt;([^"]+)&amp;lt;/td&amp;gt;&lt;/regexp&gt;
+		
+		<b>&lt;!--
+			Notice the <i>field</i> and <i>match</i> attributes. The <i>field</i> number specifies
+			which of the regular expression's subexpressions is the desired resulting string.
+			
+			The <i>match</i> number specifies which match of the expression is to be used.
+			1 is default, 2 means the second match will be used and so on.
+ 		--&gt;</b>
+	&lt;/engine&gt;
+&lt;/search&gt;
+</pre>
+
+<h3>defaults.conf</h3>
+<p>
+The default values of all sorts of configurable values are stored in this file. Generally, all of these values may be reconfigured via the GUI. Therefore it shouldn't be necessary to edit this file.
+</p>
+
+<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+</body>
+</html>

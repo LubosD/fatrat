@@ -18,6 +18,7 @@
 				<section title="RSS Integration" ref="rss/index.html" />
 				<section title="Command Line Interface" ref="cmdline.html" />
 				<section title="D-Bus Interface" ref="dbus.html" />
+				<section title="Configuration Files" ref="config.html" />
 			</section>
 		</toc>
 		<files>
@@ -25,6 +26,7 @@
 			<file>logo.png</file>
 			<file>cmdline.html</file>
 			<file>dbus.html</file>
+			<file>config.html</file>
 			
 			<file>jabber/index.html</file>
 			<file>jabber/jabber.png</file>
