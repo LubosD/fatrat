@@ -164,6 +164,7 @@ void RapidTools::decodeRSafeLinks()
 		r = m_httpRSafe->get(url.path(), buf);
 		
 		m_listRSafeSrc[r] = str;
+		m_mapRSafeBufs[r] = buf;
 	}
 }
 
@@ -179,7 +180,9 @@ void RapidTools::downloadRSafeLinks()
 
 void RapidTools::doneRSafe(int r, bool error)
 {
-	QBuffer* buffer = (QBuffer*) m_httpRSafe->currentDestinationDevice();
+	QBuffer* buffer = m_mapRSafeBufs[r];
+	if(!buffer)
+		return;
 	
 	if(!error)
 	{
@@ -211,6 +214,7 @@ void RapidTools::doneRSafe(int r, bool error)
 		QMessageBox::critical(this, "FatRat", tr("Server failed to process our query."));
 	}
 	
+	m_mapRSafeBufs.remove(r);
 	delete buffer;
 }
 

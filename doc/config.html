@@ -47,6 +47,14 @@ This XML document contains information about torrent search engines. The followi
 		&lt;param name="ending"&gt;&amp;lt;/table&amp;gt;&lt;/param&gt;
 		
 		<b>&lt;!--
+			If the query has to be sent using the POST method,
+			the following data will be used for the POST request.
+			
+			%1 will be replaced with the search phrase.
+		--&gt;</b>
+		&lt;param name="postdata"&gt;SearchString1=%1&amp;amp;SearchString=&amp;amp;search=Search&lt;/param&gt;
+		
+		<b>&lt;!--
 			When the results have been cut out and split by the splitter,
 			regular expression matching is used to extract torrent's details.
  		--&gt;</b>
@@ -56,14 +64,6 @@ This XML document contains information about torrent search engines. The followi
 		
 		<b>&lt;!-- A regular expression matching the link pointing to the .torrent file --&gt;</b>
 		&lt;regexp name="link" match="1"&gt;&amp;lt;td&amp;gt;&amp;lt;a href="([^"]+)"&lt;/regexp&gt;
-		
-		<b>&lt;!--
-			If the query has to be sent using the POST method,
-			the following data will be used for the POST request.
-			
-			%1 will be replaced with the search phrase.
-		--&gt;</b>
-		&lt;param name="postdata"&gt;SearchString1=%1&amp;amp;SearchString=&amp;amp;search=Search&lt;/param&gt;
 		
 		<b>&lt;!--
 			A regular expression matching the torrent's size.

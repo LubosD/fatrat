@@ -47,7 +47,7 @@
    <item row="1" column="4" >
     <widget class="QLabel" name="label_10" >
      <property name="text" >
-      <string>minutes</string>
+      <string comment="last X minutes" >minutes</string>
      </property>
     </widget>
    </item>
@@ -163,7 +163,7 @@
    <item row="2" column="4" >
     <widget class="QLabel" name="label_6" >
      <property name="text" >
-      <string>seconds</string>
+      <string comment="every X seconds" >seconds</string>
      </property>
     </widget>
    </item>

@@ -37,6 +37,7 @@ private:
 	QStringList m_listRSharePending;
 	
 	QMap<int, QString> m_listRSafeSrc;
+	QMap<int, QBuffer*> m_mapRSafeBufs;
 };
 
 #endif
