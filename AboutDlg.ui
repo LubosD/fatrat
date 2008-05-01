@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>380</height>
+    <height>381</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -73,7 +73,7 @@
         <x>0</x>
         <y>0</y>
         <width>478</width>
-        <height>320</height>
+        <height>321</height>
        </rect>
       </property>
       <layout class="QGridLayout" >
@@ -187,8 +187,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>100</width>
-        <height>30</height>
+        <width>478</width>
+        <height>321</height>
        </rect>
       </property>
       <layout class="QGridLayout" >
@@ -229,7 +229,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1" >
+       <item row="6" column="1" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -249,6 +249,16 @@
          </property>
          <property name="text" >
           <string>Jabber remote control</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" >
+        <widget class="QCheckBox" name="checkFeatureDocumentation" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="text" >
+          <string>Documentation</string>
          </property>
         </widget>
        </item>

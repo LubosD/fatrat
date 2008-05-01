@@ -9,9 +9,12 @@ extern QReadWriteLock g_queuesLock;
 
 QueueView::QueueView(QWidget* parent) : QTreeWidget(parent), m_status(0)
 {
-	QFile file;
-	if(openDataFile(&file, "/data/queueview.css"))
-		setStyleSheet(file.readAll());
+	if(getSettingsValue("css").toBool())
+	{
+		QFile file;
+		if(openDataFile(&file, "/data/css/queueview.css"))
+			setStyleSheet(file.readAll());
+	}
 }
 
 bool QueueView::dropMimeData(QTreeWidgetItem* parent, int index, const QMimeData* data, Qt::DropAction action)

@@ -52,6 +52,9 @@ public:
 #ifdef WITH_JABBER
 		checkFeatureJabber->setChecked(true);
 #endif
+#ifdef WITH_DOCUMENTATION
+		checkFeatureDocumentation->setChecked(true);
+#endif
 	}
 	static void loadFile(QTextEdit* edit, QString filename)
 	{

@@ -24,20 +24,21 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 
 void SettingsGeneralForm::load()
 {
-	lineDestination->setText( g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString() );
-	lineFileExec->setText( g_settings->value("fileexec", getSettingsDefault("fileexec")).toString() );
+	lineDestination->setText( getSettingsValue("defaultdir").toString() );
+	lineFileExec->setText( getSettingsValue("fileexec").toString() );
 	
-	checkTrayIcon->setChecked( g_settings->value("trayicon", getSettingsDefault("trayicon")).toBool() );
-	checkHideMinimize->setChecked( g_settings->value("hideminimize", getSettingsDefault("hideminimize")).toBool() );
-	checkHideClose->setChecked( g_settings->value("hideclose", getSettingsDefault("hideclose")).toBool() );
+	checkTrayIcon->setChecked( getSettingsValue("trayicon").toBool() );
+	checkHideMinimize->setChecked( getSettingsValue("hideminimize").toBool() );
+	checkHideClose->setChecked( getSettingsValue("hideclose").toBool() );
 	
-	spinGraphMinutes->setValue( g_settings->value("graphminutes", getSettingsDefault("graphminutes")).toInt() );
+	spinGraphMinutes->setValue( getSettingsValue("graphminutes").toInt() );
 	
-	comboDoubleClick->setCurrentIndex( g_settings->value("transfer_dblclk", getSettingsDefault("transfer_dblclk")).toInt() );
-	comboCloseCurrent->setCurrentIndex( g_settings->value("tab_onclose", getSettingsDefault("transfer_dblclk")).toInt() );
-	comboLinkSeparator->setCurrentIndex( g_settings->value("link_separator", getSettingsDefault("link_separator")).toInt() );
+	comboDoubleClick->setCurrentIndex( getSettingsValue("transfer_dblclk").toInt() );
+	comboCloseCurrent->setCurrentIndex( getSettingsValue("tab_onclose").toInt() );
+	comboLinkSeparator->setCurrentIndex( getSettingsValue("link_separator").toInt() );
 	
-	spinRefreshGUI->setValue( g_settings->value("gui_refresh", getSettingsDefault("gui_refresh")).toInt() / 1000);
+	spinRefreshGUI->setValue( getSettingsValue("gui_refresh").toInt() / 1000);
+	checkCSS->setChecked( getSettingsValue("css").toBool() );
 }
 
 bool SettingsGeneralForm::accept()
@@ -71,6 +72,7 @@ void SettingsGeneralForm::accepted()
 	g_settings->setValue("link_separator", comboLinkSeparator->currentIndex());
 	
 	g_settings->setValue("gui_refresh", spinRefreshGUI->value()*1000);
+	g_settings->setValue("css", checkCSS->isChecked());
 	
 	((MainWindow*) getMainWindow())->applySettings();
 }

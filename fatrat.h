@@ -14,6 +14,7 @@
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
 QVariant getSettingsDefault(QString id);
+QVariant getSettingsValue(QString id);
 QWidget* getMainWindow();
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);

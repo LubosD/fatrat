@@ -131,8 +131,8 @@ void TorrentDownload::applySettings()
 	int lstart,lend;
 	libtorrent::session_settings settings;
 	
-	lstart = g_settings->value("torrent/listen_start", getSettingsDefault("torrent/listen_start")).toInt();
-	lend = g_settings->value("torrent/listen_end", getSettingsDefault("torrent/listen_end")).toInt();
+	lstart = getSettingsValue("torrent/listen_start").toInt();
+	lend = getSettingsValue("torrent/listen_end").toInt();
 	
 	if(lend < lstart)
 		lend = lstart;
@@ -140,9 +140,9 @@ void TorrentDownload::applySettings()
 	if(m_session->listen_port() != lstart)
 		m_session->listen_on(std::pair<int,int>(lstart,lend));
 	
-	bUPnP = g_settings->value("torrent/mapping_upnp", false).toBool();
-	bNATPMP = g_settings->value("torrent/mapping_natpmp", false).toBool();
-	bLSD = g_settings->value("torrent/mapping_lsd", false).toBool();
+	bUPnP = getSettingsValue("torrent/mapping_upnp").toBool();
+	bNATPMP = getSettingsValue("torrent/mapping_natpmp").toBool();
+	bLSD = getSettingsValue("torrent/mapping_lsd").toBool();
 	
 	if(bUPnP != bUPnPActive)
 	{
@@ -169,7 +169,7 @@ void TorrentDownload::applySettings()
 		bLSDActive = bLSD;
 	}
 	
-	if(g_settings->value("torrent/dht", getSettingsDefault("torrent/dht")).toBool())
+	if(getSettingsValue("torrent/dht").toBool())
 	{
 		QByteArray state = g_settings->value("torrent/dht_state").toByteArray();
 		while(!m_bDHT)
@@ -199,10 +199,10 @@ void TorrentDownload::applySettings()
 	else
 		m_session->stop_dht();
 	
-	m_session->set_max_uploads(g_settings->value("torrent/maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
-	m_session->set_max_connections(g_settings->value("torrent/maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
+	m_session->set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
+	m_session->set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
 	
-	settings.file_pool_size = g_settings->value("torrent/maxfiles", getSettingsDefault("torrent/maxfiles")).toInt();
+	settings.file_pool_size = getSettingsValue("torrent/maxfiles").toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
 	settings.user_agent = "FatRat " VERSION;
 	//settings.max_out_request_queue = 300;
@@ -219,7 +219,7 @@ void TorrentDownload::applySettings()
 	
 	libtorrent::pe_settings ps;
 	
-	switch(g_settings->value("torrent/enc_incoming", getSettingsDefault("torrent/enc_incoming")).toInt())
+	switch(getSettingsValue("torrent/enc_incoming").toInt())
 	{
 	case 0:
 		ps.in_enc_policy = libtorrent::pe_settings::disabled; break;
@@ -228,7 +228,7 @@ void TorrentDownload::applySettings()
 	case 2:
 		ps.in_enc_policy = libtorrent::pe_settings::forced; break;
 	}
-	switch(g_settings->value("torrent/enc_outgoing", getSettingsDefault("torrent/enc_outgoing")).toInt())
+	switch(getSettingsValue("torrent/enc_outgoing").toInt())
 	{
 	case 0:
 		ps.out_enc_policy = libtorrent::pe_settings::disabled; break;
@@ -238,7 +238,7 @@ void TorrentDownload::applySettings()
 		ps.out_enc_policy = libtorrent::pe_settings::forced; break;
 	}
 	
-	switch(g_settings->value("torrent/enc_level", getSettingsDefault("torrent/enc_level")).toInt())
+	switch(getSettingsValue("torrent/enc_level").toInt())
 	{
 	case 0:
 		ps.allowed_enc_level = libtorrent::pe_settings::plaintext; break;
@@ -248,7 +248,7 @@ void TorrentDownload::applySettings()
 		ps.allowed_enc_level = libtorrent::pe_settings::both;
 	}
 	
-	ps.prefer_rc4 = g_settings->value("torrent/enc_rc4_prefer", getSettingsDefault("torrent/enc_rc4_prefer")).toBool();
+	ps.prefer_rc4 = getSettingsValue("torrent/enc_rc4_prefer").toBool();
 	m_session->set_pe_settings(ps);
 	
 	// Proxy settings
@@ -350,7 +350,7 @@ void TorrentDownload::init(QString source, QString target)
 {
 	m_strTarget = target;
 	
-	m_seedLimitRatio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
+	m_seedLimitRatio = getSettingsValue("torrent/maxratio").toDouble();
 	m_seedLimitUpload = 0;
 	
 	try
@@ -372,15 +372,15 @@ void TorrentDownload::init(QString source, QString target)
 			
 			m_info = new libtorrent::torrent_info( libtorrent::bdecode(p, p+data.size()) );
 			
-			storageMode = (libtorrent::storage_mode_t) g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt();
+			storageMode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
 			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), storageMode, !isActive());
 			
 			int limit;
 			
-			limit = g_settings->value("torrent/maxuploads_loc", getSettingsDefault("torrent/maxuploads_loc")).toInt();
+			limit = getSettingsValue("torrent/maxuploads_loc").toInt();
 			m_handle.set_max_uploads(limit ? limit : limit-1);
 			
-			limit = g_settings->value("torrent/maxconnections_loc", getSettingsDefault("torrent/maxconnections_loc")).toInt();
+			limit = getSettingsValue("torrent/maxconnections_loc").toInt();
 			m_handle.set_max_connections(limit ? limit : limit-1);
 			
 			m_bHasHashCheck = true;
@@ -630,7 +630,7 @@ void TorrentDownload::load(const QDomNode& map)
 		if(!str.isEmpty())
 			m_seedLimitRatio = str.toDouble();
 		else
-			m_seedLimitRatio = g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble();
+			m_seedLimitRatio = getSettingsValue("torrent/maxratio").toDouble();
 		
 		str = getXMLProperty(map, "seedlimitupload");
 		m_seedLimitUpload = str.toInt();
@@ -654,13 +654,13 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		libtorrent::storage_mode_t storageMode;
 		
-		storageMode = (libtorrent::storage_mode_t) g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt();
+		storageMode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
 		
 		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, storageMode, true);
 		
 		m_handle.set_ratio(1.2f);
-		m_handle.set_max_uploads(g_settings->value("maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
-		m_handle.set_max_connections(g_settings->value("maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
+		m_handle.set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
+		m_handle.set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
 		
 		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
 		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
@@ -848,7 +848,7 @@ QString TorrentDownload::message() const
 
 TorrentWorker::TorrentWorker()
 {
-	m_timer.start(g_settings->value("gui_refresh", getSettingsDefault("gui_refresh")).toInt());
+	m_timer.start(getSettingsValue("gui_refresh").toInt());
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
 }
 

@@ -97,7 +97,21 @@ void MainWindow::setupUi()
 #endif
 	
 	QHeaderView* hdr = treeQueues->header();
+	treeQueues->setColumnCount(1);
 	hdr->hide();
+	
+	if(getSettingsValue("css").toBool())
+	{
+		QFile file;
+		if(openDataFile(&file, "/data/css/label-headers.css"))
+		{
+			QByteArray data = file.readAll();
+			labelQueues->setStyleSheet(data);
+			labelTransfers->setStyleSheet(data);
+			labelTransferLog->setStyleSheet(data);
+			labelGlobalLog->setStyleSheet(data);
+		}
+	}
 	
 	connectActions();
 }

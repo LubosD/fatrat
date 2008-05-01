@@ -362,6 +362,7 @@ void TorrentSearch::searchDone(bool error)
 		}
 	}
 	
+	treeResults->setSortingEnabled(true);
 	updateUi();
 }
 

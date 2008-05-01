@@ -457,3 +457,9 @@ QString getDataFileDir(QString dir, QString fileName)
 		return QLatin1String(DATA_LOCATION) + dir;
 }
 
+QVariant getSettingsValue(QString id)
+{
+	return g_settings->value(id, getSettingsDefault(id));
+}
+
+

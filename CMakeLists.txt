@@ -315,7 +315,8 @@ ${fatrat_QRC_H})
 
 target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_ADDITIONAL_LIBS})
 
-install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt data/defaults.conf data/queueview.css DESTINATION share/fatrat/data)
+install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt data/defaults.conf DESTINATION share/fatrat/data)
+install(FILES data/css/queueview.css data/css/label-headers.css DESTINATION share/fatrat/data/css)
 install(FILES gfx/fatrat.png DESTINATION share/pixmaps)
 install(FILES data/fatrat.desktop DESTINATION share/applications)
 

@@ -58,10 +58,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3" colspan="2" >
+   <item row="3" column="3" colspan="3" >
     <widget class="QLineEdit" name="lineFileExec" />
    </item>
-   <item row="4" column="0" colspan="6" >
+   <item row="5" column="0" colspan="6" >
     <widget class="QGroupBox" name="checkTrayIcon" >
      <property name="title" >
       <string>Display the tray icon</string>
@@ -100,37 +100,37 @@
      </layout>
     </widget>
    </item>
-   <item row="5" column="0" >
+   <item row="6" column="0" >
     <widget class="QLabel" name="label_2" >
      <property name="text" >
       <string>A doubleclick on a transfer</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="5" >
+   <item row="6" column="1" colspan="5" >
     <widget class="QComboBox" name="comboDoubleClick" />
    </item>
-   <item row="6" column="0" colspan="2" >
+   <item row="7" column="0" colspan="2" >
     <widget class="QLabel" name="label_3" >
      <property name="text" >
       <string>When the current tab is closed</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="2" colspan="4" >
+   <item row="7" column="2" colspan="4" >
     <widget class="QComboBox" name="comboCloseCurrent" />
    </item>
-   <item row="7" column="0" colspan="2" >
+   <item row="8" column="0" colspan="2" >
     <widget class="QLabel" name="label_4" >
      <property name="text" >
       <string>Links in a list are separated by</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="2" colspan="4" >
+   <item row="8" column="2" colspan="4" >
     <widget class="QComboBox" name="comboLinkSeparator" />
    </item>
-   <item row="8" column="0" colspan="5" >
+   <item row="9" column="0" colspan="5" >
     <spacer>
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
@@ -164,6 +164,13 @@
     <widget class="QLabel" name="label_6" >
      <property name="text" >
       <string comment="every X seconds" >seconds</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" >
+    <widget class="QCheckBox" name="checkCSS" >
+     <property name="text" >
+      <string>Enable GUI CSS styling</string>
      </property>
     </widget>
    </item>
