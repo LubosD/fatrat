@@ -2,18 +2,24 @@
 #include "Queue.h"
 #include "MainWindow.h"
 #include "fatrat.h"
+#include <QtDebug>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
-QueueView::QueueView(QWidget* parent) : QListWidget(parent), m_status(0)
+QueueView::QueueView(QWidget* parent) : QTreeWidget(parent), m_status(0)
 {
+	QFile file;
+	if(openDataFile(&file, "/data/queueview.css"))
+		setStyleSheet(file.readAll());
 }
 
-bool QueueView::dropMimeData(int queueTo, const QMimeData* data, Qt::DropAction action)
+bool QueueView::dropMimeData(QTreeWidgetItem* parent, int index, const QMimeData* data, Qt::DropAction action)
 {
 	if(action == Qt::IgnoreAction)
 		return true;
+	
+	int queueTo = parent->treeWidget()->indexOfTopLevelItem(parent);
 
 	if(data->hasFormat("application/x-fatrat-transfer"))
 	{
@@ -61,7 +67,7 @@ QStringList QueueView::mimeTypes() const
 
 void QueueView::mouseMoveEvent(QMouseEvent* event)
 {
-	QListWidgetItem* item = itemAt(event->pos());
+	QTreeWidgetItem* item = itemAt(event->pos());
 	
 	if(!item)
 	{
@@ -73,7 +79,7 @@ void QueueView::mouseMoveEvent(QMouseEvent* event)
 	}
 	else
 	{
-		Queue* q = static_cast<Queue*>( item->data(Qt::UserRole).value<void*>() );
+		Queue* q = static_cast<Queue*>( item->data(0, Qt::UserRole).value<void*>() );
 		
 		if(!m_status || q != m_status->getQueue())
 		{
@@ -87,3 +93,9 @@ void QueueView::mouseMoveEvent(QMouseEvent* event)
 			m_status->show();
 	}
 }
+
+void QueueView::setCurrentRow(int row)
+{
+	setCurrentItem(topLevelItem(row));
+}
+

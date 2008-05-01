@@ -105,7 +105,6 @@ private:
 	TransfersModel* m_modelTransfers;
 	QLabel m_labelStatus;
 	QObject* m_pDetailsDisplay;
-	SpeedGraph* m_graph;
 	LogManager* m_log;
 	DropBox* m_dropBox;
 	Transfer* m_lastTransfer;

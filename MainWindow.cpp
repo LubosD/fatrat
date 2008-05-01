@@ -55,7 +55,7 @@ MainWindow::MainWindow(bool bStartHidden) : m_timer(0), m_trayIcon(this), m_pDet
 		int sel = g_settings->value("state/selqueue", -1).toInt();
 		if(sel < 0 || sel >= g_queues.size())
 			sel = 0;
-		listQueues->setCurrentRow(sel);
+		treeQueues->setCurrentRow(sel);
 		queueItemActivated();
 	}
 	
@@ -86,8 +86,6 @@ void MainWindow::setupUi()
 	
 	statusbar->addPermanentWidget(new SpeedLimitWidget(statusbar));
 	
-	m_graph = new SpeedGraph(this);
-	tabMain->insertTab(2, m_graph, QIcon(QString::fromUtf8(":/menu/network.png")), tr("Speed graph"));
 	m_log = new LogManager(this, textTransferLog, textGlobalLog);
 	
 #ifdef WITH_DOCUMENTATION
@@ -108,9 +106,11 @@ void MainWindow::connectActions()
 	connect(actionDeleteQueue, SIGNAL(triggered()), this, SLOT(deleteQueue()));
 	connect(actionQueueProperties, SIGNAL(triggered()), this, SLOT(queueItemProperties()));
 	
-	connect(listQueues, SIGNAL(itemSelectionChanged()), this, SLOT(queueItemActivated()));
-	connect(listQueues, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(queueItemProperties()));
-	connect(listQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
+	connect(treeQueues, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(queueItemActivated()));
+	connect(treeQueues, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(queueItemActivated()));
+	connect(treeQueues, SIGNAL(itemActivated(QTreeWidgetItem*,int)), this, SLOT(queueItemActivated()));
+	connect(treeQueues, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(queueItemProperties()));
+	connect(treeQueues, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(queueItemContext(const QPoint&)));
 	
 	connect(treeTransfers, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(transferItemDoubleClicked(const QModelIndex&)));
 	connect(treeTransfers, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(transferItemContext(const QPoint&)));
@@ -344,7 +344,7 @@ void MainWindow::updateUi()
 			actionResume->setEnabled(d->statePossible(Transfer::Active));
 			actionPause->setEnabled(d->statePossible(Transfer::Paused));
 			
-			m_graph->setRenderSource(d);
+			speedGraph->setRenderSource(d);
 			m_log->setLogSource(d);
 			
 			q->unlock();
@@ -398,7 +398,7 @@ void MainWindow::updateUi()
 		actionInfoBar->setEnabled(false);
 		actionProperties->setEnabled(false);
 		
-		m_graph->setRenderSource(0);
+		speedGraph->setRenderSource(0);
 		m_log->setLogSource(0);
 	}
 	
@@ -426,25 +426,25 @@ void MainWindow::refreshQueues()
 	int i;
 	for(i=0;i<g_queues.size();i++)
 	{
-		QListWidgetItem* item;
+		QTreeWidgetItem* item;
 		
-		if(i>=listQueues->count())
+		if(i>=treeQueues->topLevelItemCount())
 		{
-			item = new QListWidgetItem(g_queues[i]->name(), listQueues);
+			item = new QTreeWidgetItem(treeQueues, QStringList(g_queues[i]->name()));
 			item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled);
-			listQueues->addItem(item);
+			treeQueues->addTopLevelItem(item);
 		}
 		else
 		{
-			item = listQueues->item(i);
-			item->setText(g_queues[i]->name());
+			item = treeQueues->topLevelItem(i);
+			item->setText(0, g_queues[i]->name());
 		}
 		
-		item->setData(Qt::UserRole, qVariantFromValue((void*) g_queues[i]));
+		item->setData(0, Qt::UserRole, qVariantFromValue((void*) g_queues[i]));
 	}
 	
-	while(i<listQueues->count())
-		qDebug() << "Removing item" << i << listQueues->takeItem(i);
+	while(i<treeQueues->topLevelItemCount())
+		qDebug() << "Removing item" << i << treeQueues->takeTopLevelItem(i);
 	
 	int upt = 0, downt = 0;
 	int upq = 0, downq = 0;
@@ -563,7 +563,7 @@ void MainWindow::queueItemProperties()
 		else
 			q->setTransferLimits();
 		q->setUpAsDown(dlg.m_bUpAsDown);
-		listQueues->currentItem()->setText(dlg.m_strName);
+		treeQueues->currentItem()->setText(0, dlg.m_strName);
 		
 		Queue::saveQueues();
 	}
@@ -575,7 +575,7 @@ void MainWindow::queueItemContext(const QPoint&)
 {
 	if(getSelectedQueue() != -1)
 	{
-		QMenu menu(listQueues);
+		QMenu menu(treeQueues);
 		
 		menu.addAction(actionResumeAll);
 		menu.addAction(actionStopAll);
@@ -1180,12 +1180,15 @@ void MainWindow::changeAll(bool resume)
 
 int MainWindow::getSelectedQueue()
 {
-	QModelIndexList list = listQueues->selectionModel()->selectedRows();
+	QModelIndexList list = treeQueues->selectionModel()->selectedRows();
 	
 	if(list.isEmpty())
 		return -1;
 	else
+	{
+		qDebug() << "Current row is" << list[0].row();
 		return list[0].row();
+	}
 }
 
 Queue* MainWindow::getQueue(int index, bool lock)

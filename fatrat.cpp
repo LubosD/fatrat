@@ -430,11 +430,20 @@ void recursiveRemove(QString what)
 
 bool openDataFile(QFile* file, QString filePath)
 {
+	if(filePath[0] != '/')
+		filePath.prepend('/');
+	
 	file->setFileName(QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + filePath);
 	if(file->open(QIODevice::ReadOnly))
 		return true;
 	file->setFileName(QLatin1String(DATA_LOCATION) + filePath);
-	return file->open(QIODevice::ReadOnly);
+	if(!file->open(QIODevice::ReadOnly))
+	{
+		Logger::global()->enterLogMessage(QObject::tr("Unable to load a data file:") + ' ' + filePath);
+		return false;
+	}
+	else
+		return true;
 }
 
 QString getDataFileDir(QString dir, QString fileName)

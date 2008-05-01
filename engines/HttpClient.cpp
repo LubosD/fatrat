@@ -151,6 +151,7 @@ void HttpEngine::run()
 		if(m_bAbort)
 			return;
 		
+		statusMessage(tr("Sending data"));
 		performUpload();
 		
 		if(m_bAbort)
@@ -162,6 +163,8 @@ void HttpEngine::run()
 			if(!m_pRemote->waitForBytesWritten())
 				throw getErrorString(m_pRemote->error());
 		}
+		
+		statusMessage(tr("Receiving data"));
 		processServerResponse();
 	}
 	catch(const QString& text)

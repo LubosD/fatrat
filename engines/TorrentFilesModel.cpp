@@ -49,7 +49,15 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 		switch(index.column())
 		{
 			case 0:
-				return QString::fromUtf8(m_files[i].path.string().c_str());
+			{
+				QString name = QString::fromUtf8(m_files[i].path.string().c_str());
+				int p = name.indexOf('/');
+				
+				if(p != -1)
+					name = QLatin1String("[...]") + name.mid(p);
+				
+				return name;
+			}
 			case 1:
 				return formatSize(m_files[i].size);
 			case 2:

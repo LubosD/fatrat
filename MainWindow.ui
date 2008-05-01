@@ -56,69 +56,77 @@
         <iconset resource="gfx/resources.qrc" >
          <normaloff>:/menu/main_view.png</normaloff>:/menu/main_view.png</iconset>
        </attribute>
-       <layout class="QGridLayout" >
+       <layout class="QGridLayout" name="gridLayout_2" >
         <item row="0" column="0" >
          <widget class="QSplitter" name="splitterQueues" >
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="layoutWidget" >
-           <layout class="QVBoxLayout" >
-            <item>
-             <widget class="QLabel" name="label" >
-              <property name="font" >
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="frameShape" >
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="text" >
-               <string>Queues</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSplitter" name="splitterStats" >
-              <property name="orientation" >
-               <enum>Qt::Vertical</enum>
-              </property>
-              <widget class="QueueView" name="listQueues" >
+          <widget class="QSplitter" name="splitterStats" >
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <widget class="QWidget" name="" >
+            <layout class="QVBoxLayout" name="verticalLayout" >
+             <item>
+              <widget class="QLabel" name="label" >
+               <property name="font" >
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="frameShape" >
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text" >
+                <string>Queues</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QueueView" name="treeQueues" >
                <property name="mouseTracking" >
                 <bool>true</bool>
                </property>
-               <property name="contextMenuPolicy" >
-                <enum>Qt::CustomContextMenu</enum>
-               </property>
-               <property name="dragDropOverwriteMode" >
+               <property name="acceptDrops" >
                 <bool>true</bool>
                </property>
                <property name="dragDropMode" >
                 <enum>QAbstractItemView::DropOnly</enum>
                </property>
-               <property name="selectionBehavior" >
-                <enum>QAbstractItemView::SelectRows</enum>
+               <property name="rootIsDecorated" >
+                <bool>false</bool>
                </property>
-               <property name="spacing" >
-                <number>5</number>
-               </property>
-               <property name="uniformItemSizes" >
+               <property name="uniformRowHeights" >
                 <bool>true</bool>
                </property>
-              </widget>
-              <widget class="StatsWidget" native="1" name="widgetStats" >
-               <property name="autoFillBackground" >
+               <property name="itemsExpandable" >
+                <bool>false</bool>
+               </property>
+               <property name="headerHidden" >
                 <bool>true</bool>
                </property>
+               <property name="expandsOnDoubleClick" >
+                <bool>false</bool>
+               </property>
+               <column>
+                <property name="text" >
+                 <string>1</string>
+                </property>
+               </column>
               </widget>
-             </widget>
-            </item>
-           </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="StatsWidget" native="1" name="widgetStats" >
+            <property name="autoFillBackground" >
+             <bool>false</bool>
+            </property>
+           </widget>
           </widget>
           <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
@@ -352,6 +360,26 @@
            </property>
           </widget>
          </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="" >
+       <attribute name="title" >
+        <string>Speed graph</string>
+       </attribute>
+       <attribute name="icon" >
+        <iconset resource="gfx/resources.qrc" >
+         <normaloff>:/menu/network.png</normaloff>:/menu/network.png</iconset>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="SpeedGraph" native="1" name="speedGraph" />
         </item>
        </layout>
       </widget>
@@ -827,11 +855,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QueueView</class>
-   <extends>QListWidget</extends>
-   <header>QueueView.h</header>
-  </customwidget>
-  <customwidget>
    <class>MainTab</class>
    <extends>QTabWidget</extends>
    <header>MainTab.h</header>
@@ -847,6 +870,17 @@
    <extends>QWidget</extends>
    <header>StatsWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SpeedGraph</class>
+   <extends>QWidget</extends>
+   <header>SpeedGraph.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QueueView</class>
+   <extends>QTreeWidget</extends>
+   <header>QueueView.h</header>
   </customwidget>
  </customwidgets>
  <resources>
