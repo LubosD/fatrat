@@ -96,6 +96,9 @@ void MainWindow::setupUi()
 	connect(action, SIGNAL(triggered()), this, SLOT(showHelp()));
 #endif
 	
+	QHeaderView* hdr = treeQueues->header();
+	hdr->hide();
+	
 	connectActions();
 }
 
@@ -1185,10 +1188,7 @@ int MainWindow::getSelectedQueue()
 	if(list.isEmpty())
 		return -1;
 	else
-	{
-		qDebug() << "Current row is" << list[0].row();
 		return list[0].row();
-	}
 }
 
 Queue* MainWindow::getQueue(int index, bool lock)
