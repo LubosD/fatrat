@@ -6,6 +6,10 @@
 #include <QBuffer>
 #include <QFile>
 #include <QtDebug>
+
+#include <cstdlib>
+#include <ctime>
+
 #include "MainWindow.h"
 #include "fatrat.h"
 
@@ -13,7 +17,13 @@ const char* YOUTUBE_URL_REGEXP = "http://youtube\\.com/watch\\?v=([0-9A-Za-z_-]+
 const char* YOUTUBE_URL_T = ", \"t\": \"([^\"]+)\"";
 const char* YOUTUBE_TITLE = "<title>YouTube - ([^<]+)</title>";
 
-static const VideoFetcher::Fetcher m_fetchers[] = { { "YouTube", YOUTUBE_URL_REGEXP, VideoFetcher::decodeYouTube } };
+const char* STREAMCZ_URL_REGEXP = "http://(\\w+\\.)?stream.cz/.*";
+const char* STREAMCZ_OBJNAME = "filename=([^&]+)&";
+
+static const VideoFetcher::Fetcher m_fetchers[] = {
+	{ "YouTube", YOUTUBE_URL_REGEXP, &VideoFetcher::decodeYouTube },
+	{ "Stream.cz", STREAMCZ_URL_REGEXP, &VideoFetcher::decodeStreamCZ },
+};
 
 VideoFetcher::VideoFetcher() : m_nextType(-1)
 {
@@ -45,6 +55,7 @@ void VideoFetcher::decode()
 	m_videos = text.split('\n');
 	
 	m_unsupp.clear();
+	textDecoded->setPlainText(QString());
 	pushDecode->setDisabled(true);
 	
 	doNext();
@@ -152,7 +163,7 @@ void VideoFetcher::downloadDone(bool error)
 		m_err << m_now;
 	else
 	{
-		QString decoded = m_fetchers[m_nextType].lpfn(m_buffer->data(), m_now);
+		QString decoded = ((*this).*m_fetchers[m_nextType].lpfn)(m_buffer->data(), m_now);
 		if(!decoded.isEmpty())
 			textDecoded->append(decoded);
 		else
@@ -166,12 +177,7 @@ QString VideoFetcher::decodeYouTube(QByteArray data, QString url)
 {
 	QRegExp re(YOUTUBE_URL_T);
 	if(re.indexIn(data) < 0)
-	{
-		QFile dump("dump.txt");
-		dump.open(QIODevice::WriteOnly);
-		dump.write(data);
 		return QString();
-	}
 	
 	QString id, title, t;
 	int p = url.indexOf("v=");
@@ -194,4 +200,15 @@ QString VideoFetcher::decodeYouTube(QByteArray data, QString url)
 	
 	return QString("http://www.youtube.com/get_video?video_id=%1&t=%2#__filename=%3").arg(id).arg(t).arg(title);
 }
+
+QString VideoFetcher::decodeStreamCZ(QByteArray data, QString url)
+{
+	QRegExp re(STREAMCZ_OBJNAME);
+	if(re.indexIn(data) < 0)
+		return QString();
+	
+	srand(time(0));
+	return QString("http://video.stream.cz/redir?id=%1&client=%2#__filename=%1").arg(re.cap(1)).arg(qint64(rand())*rand());
+}
+
 

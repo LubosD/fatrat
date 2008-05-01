@@ -12,7 +12,8 @@ public:
 	VideoFetcher();
 	static QWidget* create() { return new VideoFetcher; }
 	
-	static QString decodeYouTube(QByteArray data, QString url);
+	QString decodeYouTube(QByteArray data, QString url);
+	QString decodeStreamCZ(QByteArray data, QString url);
 public slots:
 	void openLink(const QString& link);
 	void decode();
@@ -33,7 +34,7 @@ public:
 	{
 		const char* name;
 		const char* re;
-		QString (*lpfn)(QByteArray data, QString url);
+		QString (VideoFetcher::*lpfn)(QByteArray data, QString url);
 	};
 };
 
