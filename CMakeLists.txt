@@ -116,6 +116,7 @@ set(fatrat_SRCS
 	dbus/DbusImpl.cpp
 	tools/HashDlg.cpp
 	tools/RapidTools.cpp
+	tools/VideoFetcher.cpp
 )
 
 set(fatrat_MOC_HDRS
@@ -155,6 +156,7 @@ set(fatrat_MOC_HDRS
 	
 	tools/HashDlg.h
 	tools/RapidTools.h
+	tools/VideoFetcher.h
 	
 	engines/HttpFtpSettings.h
 	engines/RapidshareUpload.h
@@ -193,6 +195,7 @@ set(fatrat_UIS
 
 	tools/HashDlg.ui
 	tools/RapidTools.ui
+	tools/VideoFetcher.ui
 	
 	rss/SettingsRssForm.ui
 	rss/RssFeedDlg.ui

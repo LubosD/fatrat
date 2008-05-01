@@ -90,7 +90,7 @@
        <item row="1" column="0" >
         <widget class="QLabel" name="label_2" >
          <property name="text" >
-          <string>&lt;center>&lt;font size=20>FatRat download manager</string>
+          <string>&lt;center>&lt;font size=+5>FatRat download manager</string>
          </property>
         </widget>
        </item>
@@ -114,6 +114,9 @@
          </property>
          <property name="textFormat" >
           <enum>Qt::AutoText</enum>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -194,8 +197,14 @@
       <layout class="QGridLayout" >
        <item row="0" column="0" colspan="2" >
         <widget class="QLabel" name="label_4" >
+         <property name="font" >
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text" >
-          <string>&lt;b>Features enabled at compile time:</string>
+          <string>Features enabled at compile time:</string>
          </property>
         </widget>
        </item>

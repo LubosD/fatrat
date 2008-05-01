@@ -57,6 +57,17 @@ void GeneralDownload::init(QString uri,QString dest)
 {
 	UrlObject obj;
 	
+	int hash = uri.lastIndexOf("#__filename=");
+	if(hash != -1)
+	{
+		QString name = QUrl::fromPercentEncoding(uri.mid(hash+12).toUtf8());
+		m_strFile = name;
+		uri.resize(hash);
+	}
+	hash = uri.indexOf('#');
+	if(hash != -1)
+		uri.resize(hash);
+	
 	obj.url = uri;
 	
 	if(obj.url.userInfo().isEmpty())

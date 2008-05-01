@@ -9,6 +9,7 @@
 #endif
 
 #include "tools/RapidTools.h"
+#include "tools/VideoFetcher.h"
 
 QList<AppTool> g_tools;
 
@@ -19,4 +20,5 @@ void initAppTools()
 	g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
 #endif
 	g_tools << AppTool(QObject::tr("RapidShare tools"), RapidTools::create);
+	g_tools << AppTool(QObject::tr("Video fetcher"), VideoFetcher::create);
 }
