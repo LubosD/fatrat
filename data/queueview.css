@@ -6,6 +6,7 @@ QTreeView::item {
 border: 1px solid #d9d9d9;
 border-top-color: transparent;
 border-bottom-color: transparent;
+height: 2.5em;
 }
 
 QTreeView::item:hover {
