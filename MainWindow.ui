@@ -107,12 +107,6 @@
                <property name="itemsExpandable" >
                 <bool>false</bool>
                </property>
-               <property name="headerHidden" >
-                <bool>true</bool>
-               </property>
-               <property name="expandsOnDoubleClick" >
-                <bool>false</bool>
-               </property>
                <column>
                 <property name="text" >
                  <string>1</string>
