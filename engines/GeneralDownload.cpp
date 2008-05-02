@@ -342,10 +342,13 @@ void GeneralDownload::redirected(QString newurl)
 		QString scheme = location.scheme();
 		
 		location.setUserInfo(m_urlLast.userInfo());
-		m_urlLast.setUserInfo(QString());
 		
-		qDebug() << "Redirected to: " << m_urlLast << endl;
-		enterLogMessage(tr("We're being redirected to: %1").arg(m_urlLast.toString()));
+		{
+			QUrl tmploc = location;
+			tmploc.setUserInfo(QString());
+			qDebug() << "Redirected to: " << tmploc << endl;
+			enterLogMessage(tr("We're being redirected to: %1").arg(tmploc.toString()));
+		}
 		
 		if(scheme == "http" || scheme == "ftp" || scheme == "https")
 		{

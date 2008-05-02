@@ -13,16 +13,7 @@
    <string>BitTorrent</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="leftMargin" >
-    <number>0</number>
-   </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin" >
     <number>0</number>
    </property>
    <item row="0" column="0" >
@@ -31,25 +22,24 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>434</width>
+        <height>326</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Main</string>
       </attribute>
-      <layout class="QGridLayout" >
+      <layout class="QGridLayout" name="gridLayout" >
        <item row="0" column="0" colspan="4" >
         <layout class="QHBoxLayout" >
          <property name="spacing" >
           <number>6</number>
          </property>
-         <property name="leftMargin" >
-          <number>0</number>
-         </property>
-         <property name="topMargin" >
-          <number>0</number>
-         </property>
-         <property name="rightMargin" >
-          <number>0</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin" >
           <number>0</number>
          </property>
          <item>
@@ -230,7 +220,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>141</width>
            <height>21</height>
@@ -239,9 +229,9 @@
         </spacer>
        </item>
        <item row="10" column="0" colspan="2" >
-        <widget class="QPushButton" name="pushCleanup" >
+        <widget class="QLabel" name="labelCleanup" >
          <property name="text" >
-          <string>Clean up the .torrent storage</string>
+          <string>&lt;a href="cleanup">Clean up the .torrent storage&lt;/a></string>
          </property>
         </widget>
        </item>
@@ -250,7 +240,7 @@
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>181</width>
            <height>20</height>
@@ -261,6 +251,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>434</width>
+        <height>326</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Encryption</string>
       </attribute>
@@ -307,7 +305,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>131</height>
@@ -318,6 +316,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>434</width>
+        <height>326</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Proxy</string>
       </attribute>
@@ -357,7 +363,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -368,6 +374,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="Portmapping" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>434</width>
+        <height>326</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Port mapping</string>
       </attribute>
@@ -398,7 +412,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>

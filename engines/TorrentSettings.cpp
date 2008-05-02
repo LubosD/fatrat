@@ -2,8 +2,10 @@
 #include "TorrentDownload.h"
 #include <QDir>
 #include <QMessageBox>
+#include <QSettings>
 
 extern const char* TORRENT_FILE_STORAGE;
+extern QSettings* g_settings;
 
 TorrentSettings::TorrentSettings(QWidget* w)
 {
@@ -18,32 +20,32 @@ TorrentSettings::TorrentSettings(QWidget* w)
 	comboEncOutgoing->addItems(encs);
 	comboEncLevel->addItems( QStringList() << tr("Plaintext") << tr("RC4") << tr("Both", "Both levels") );
 	
-	connect(pushCleanup, SIGNAL(clicked()), this, SLOT(cleanup()));
+	connect(labelCleanup, SIGNAL(linkActivated(const QString&)), this, SLOT(cleanup()));
 }
 
 void TorrentSettings::load()
 {
-	spinListenStart->setValue(g_settings->value("torrent/listen_start", getSettingsDefault("torrent/listen_start")).toInt());
-	spinListenEnd->setValue(g_settings->value("torrent/listen_end", getSettingsDefault("torrent/listen_end")).toInt());
-	spinRatio->setValue(g_settings->value("torrent/maxratio", getSettingsDefault("torrent/maxratio")).toDouble());
+	spinListenStart->setValue(getSettingsValue("torrent/listen_start").toInt());
+	spinListenEnd->setValue(getSettingsValue("torrent/listen_end").toInt());
+	spinRatio->setValue(getSettingsValue("torrent/maxratio").toDouble());
 	
-	spinConnections->setValue(g_settings->value("torrent/maxconnections", getSettingsDefault("torrent/maxconnections")).toInt());
-	spinUploads->setValue(g_settings->value("torrent/maxuploads", getSettingsDefault("torrent/maxuploads")).toInt());
-	spinConnectionsLocal->setValue(g_settings->value("torrent/maxconnections_loc", getSettingsDefault("torrent/maxconnections_loc")).toInt());
-	spinUploadsLocal->setValue(g_settings->value("torrent/maxuploads_loc", getSettingsDefault("torrent/maxuploads_loc")).toInt());
+	spinConnections->setValue(getSettingsValue("torrent/maxconnections").toInt());
+	spinUploads->setValue(getSettingsValue("torrent/maxuploads").toInt());
+	spinConnectionsLocal->setValue(getSettingsValue("torrent/maxconnections_loc").toInt());
+	spinUploadsLocal->setValue(getSettingsValue("torrent/maxuploads_loc").toInt());
 	
-	spinFiles->setValue(g_settings->value("torrent/maxfiles", getSettingsDefault("torrent/maxfiles")).toInt());
-	checkDHT->setChecked(g_settings->value("torrent/dht", getSettingsDefault("torrent/dht")).toBool());
-	checkPEX->setChecked(g_settings->value("torrent/pex", getSettingsDefault("torrent/pex")).toBool());
-	comboAllocation->setCurrentIndex(g_settings->value("torrent/allocation", getSettingsDefault("torrent/allocation")).toInt());
+	spinFiles->setValue(getSettingsValue("torrent/maxfiles").toInt());
+	checkDHT->setChecked(getSettingsValue("torrent/dht").toBool());
+	checkPEX->setChecked(getSettingsValue("torrent/pex").toBool());
+	comboAllocation->setCurrentIndex(getSettingsValue("torrent/allocation").toInt());
 	
-	comboEncIncoming->setCurrentIndex(g_settings->value("torrent/enc_incoming", getSettingsDefault("torrent/enc_incoming")).toInt());
-	comboEncOutgoing->setCurrentIndex(g_settings->value("torrent/enc_outgoing", getSettingsDefault("torrent/enc_outgoing")).toInt());
+	comboEncIncoming->setCurrentIndex(getSettingsValue("torrent/enc_incoming").toInt());
+	comboEncOutgoing->setCurrentIndex(getSettingsValue("torrent/enc_outgoing").toInt());
 	
-	comboEncLevel->setCurrentIndex(g_settings->value("torrent/enc_level", getSettingsDefault("torrent/enc_level")).toInt());
-	checkEncRC4Prefer->setChecked(g_settings->value("torrent/enc_rc4_prefer", getSettingsDefault("torrent/enc_rc4_prefer")).toBool());
+	comboEncLevel->setCurrentIndex(getSettingsValue("torrent/enc_level").toInt());
+	checkEncRC4Prefer->setChecked(getSettingsValue("torrent/enc_rc4_prefer").toBool());
 	
-	lineIP->setText(g_settings->value("torrent/external_ip").toString());
+	lineIP->setText(getSettingsValue("torrent/external_ip").toString());
 	
 	comboProxyTracker->clear();
 	comboProxyPeer->clear();
@@ -57,9 +59,9 @@ void TorrentSettings::load()
 	
 	QUuid tracker, seed, peer;
 	
-	tracker = g_settings->value("torrent/proxy_tracker").toString();
-	seed = g_settings->value("torrent/proxy_webseed").toString();
-	peer = g_settings->value("torrent/proxy_peer").toString();
+	tracker = getSettingsValue("torrent/proxy_tracker").toString();
+	seed = getSettingsValue("torrent/proxy_webseed").toString();
+	peer = getSettingsValue("torrent/proxy_peer").toString();
 	
 	for(int i=0;i<m_listProxy.size();i++)
 	{
@@ -91,9 +93,9 @@ void TorrentSettings::load()
 		}
 	}
 	
-	checkUPNP->setChecked(g_settings->value("torrent/mapping_upnp", false).toBool());
-	checkNATPMP->setChecked(g_settings->value("torrent/mapping_natpmp", false).toBool());
-	checkLSD->setChecked(g_settings->value("torrent/mapping_lsd", false).toBool());
+	checkUPNP->setChecked(getSettingsValue("torrent/mapping_upnp").toBool());
+	checkNATPMP->setChecked(getSettingsValue("torrent/mapping_natpmp").toBool());
+	checkLSD->setChecked(getSettingsValue("torrent/mapping_lsd").toBool());
 }
 
 void TorrentSettings::accepted()
