@@ -160,8 +160,6 @@ void MainWindow::connectActions()
 	connect(actionOpenFile, SIGNAL(triggered()), this, SLOT(transferOpenFile()));
 	connect(actionOpenDirectory, SIGNAL(triggered()), this, SLOT(transferOpenDirectory()));
 	
-	connect(actionComputeHash, SIGNAL(triggered()), this, SLOT(computeHash()));
-	
 	connect(pushGenericOptions, SIGNAL(clicked()), this, SLOT(transferOptions()));
 	connect(tabMain, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
 	
@@ -1422,11 +1420,6 @@ void MainWindow::transferOpenDirectory()
 void MainWindow::transferOpenFile()
 {
 	transferOpen(true);
-}
-
-void MainWindow::computeHash()
-{
-	HashDlg(this).exec();
 }
 
 void MainWindow::reconfigure()

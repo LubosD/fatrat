@@ -517,8 +517,6 @@
     <addaction name="actionDropBox" />
     <addaction name="actionHideAllInfoBars" />
     <addaction name="separator" />
-    <addaction name="actionComputeHash" />
-    <addaction name="separator" />
     <addaction name="actionQuit" />
    </widget>
    <widget class="QMenu" name="menuTransfer" >

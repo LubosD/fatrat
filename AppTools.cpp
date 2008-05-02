@@ -10,6 +10,7 @@
 
 #include "tools/RapidTools.h"
 #include "tools/VideoFetcher.h"
+#include "tools/HashDlg.h"
 
 QList<AppTool> g_tools;
 
@@ -21,4 +22,5 @@ void initAppTools()
 #endif
 	g_tools << AppTool(QObject::tr("RapidShare tools"), RapidTools::create);
 	g_tools << AppTool(QObject::tr("Video fetcher"), VideoFetcher::create);
+	g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);
 }

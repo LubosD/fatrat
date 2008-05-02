@@ -72,8 +72,6 @@ public slots:
 	
 	void displayDestroyed();
 	
-	void computeHash();
-	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 	void downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now);

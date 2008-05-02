@@ -100,6 +100,7 @@ set(fatrat_SRCS
 	rss/RssFetcher.cpp
 	rss/SettingsRssForm.cpp
 	rss/RssRegexpDlg.cpp
+	rss/RssDownloadedDlg.cpp
 
 	tooltips/BaseToolTip.cpp
 	tooltips/QueueToolTip.cpp
@@ -169,6 +170,7 @@ set(fatrat_MOC_HDRS
 	rss/SettingsRssForm.h
 	rss/RssFeedDlg.h
 	rss/RssRegexpDlg.h
+	rss/RssDownloadedDlg.h
 	
 	tooltips/QueueToolTip.h
 	tooltips/TrayToolTip.h
@@ -200,6 +202,8 @@ set(fatrat_UIS
 	rss/SettingsRssForm.ui
 	rss/RssFeedDlg.ui
 	rss/RssRegexpDlg.ui
+	rss/RssDownloadedDlg.ui
+	rss/RssEpisodeNameDlg.ui
 
 	engines/FtpUploadOptsForm.ui
 	engines/HttpOptsWidget.ui

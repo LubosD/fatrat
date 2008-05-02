@@ -134,24 +134,14 @@ void SettingsRssForm::regexpAdd()
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
-		RssRegexp r;
-		r.source = dlg.m_strFeed;
-		r.target = dlg.m_strTarget;
-		r.regexp = QRegExp(dlg.m_strExpression, Qt::CaseInsensitive);
-		r.queueUUID = dlg.m_strQueue;
-		r.from = dlg.m_strTVSFrom;
-		r.to = dlg.m_strTVSTo;
-		r.tvs = dlg.m_tvs;
-		r.includeTrailers = dlg.m_bTVSTrailers;
-		r.includeRepacks = dlg.m_bTVSRepacks;
-		r.excludeManuals = dlg.m_bTVSNoManuals;
+		QString expr = dlg.m_regexp.regexp.pattern();
 		
-		if(!dlg.m_strExpression.isEmpty())
-			listRegexps->addItem(dlg.m_strExpression + " @ " + dlg.m_strFeedName);
+		if(!expr.isEmpty())
+			listRegexps->addItem(expr + " @ " + dlg.m_strFeedName);
 		else
 			listRegexps->addItem(dlg.m_strFeedName);
 		
-		m_regexps << r;
+		m_regexps << dlg.m_regexp;
 	}
 }
 
@@ -164,31 +154,17 @@ void SettingsRssForm::regexpEdit()
 	
 	RssRegexpDlg dlg(listFeeds->parentWidget());
 	dlg.m_feeds = m_feeds;
-	dlg.m_strFeed = m_regexps[ix].source;
-	dlg.m_strTarget = m_regexps[ix].target;
-	dlg.m_strExpression = m_regexps[ix].regexp.pattern();
-	dlg.m_strQueue = m_regexps[ix].queueUUID;
-	dlg.m_strTVSFrom = m_regexps[ix].from;
-	dlg.m_strTVSTo = m_regexps[ix].to;
-	dlg.m_tvs = m_regexps[ix].tvs;
-	dlg.m_bTVSTrailers = m_regexps[ix].includeTrailers;
-	dlg.m_bTVSRepacks = m_regexps[ix].includeRepacks;
-	dlg.m_bTVSNoManuals = m_regexps[ix].excludeManuals;
+	dlg.m_regexp = m_regexps[ix];
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
-		m_regexps[ix].source = dlg.m_strFeed;
-		m_regexps[ix].target = dlg.m_strTarget;
-		m_regexps[ix].regexp = QRegExp(dlg.m_strExpression, Qt::CaseInsensitive);
-		m_regexps[ix].queueUUID = dlg.m_strQueue;
-		m_regexps[ix].from = dlg.m_strTVSFrom;
-		m_regexps[ix].to = dlg.m_strTVSTo;
-		m_regexps[ix].tvs = dlg.m_tvs;
-		m_regexps[ix].includeTrailers = dlg.m_bTVSTrailers;
-		m_regexps[ix].includeRepacks = dlg.m_bTVSRepacks;
-		m_regexps[ix].excludeManuals = dlg.m_bTVSNoManuals;
+		m_regexps[ix] = dlg.m_regexp;
+		QString expr = dlg.m_regexp.regexp.pattern();
 		
-		listRegexps->item(ix)->setText(dlg.m_strExpression + " @ " + dlg.m_strFeedName);
+		if(!expr.isEmpty())
+			listRegexps->item(ix)->setText(expr + " @ " + dlg.m_strFeedName);
+		else
+			listRegexps->item(ix)->setText(dlg.m_strFeedName);
 	}
 }
 

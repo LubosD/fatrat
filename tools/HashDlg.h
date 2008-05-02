@@ -30,6 +30,7 @@ public:
 	HashDlg(QWidget* parent = 0, QString file = QString());
 	~HashDlg();
 	
+	static QWidget* create() { return new HashDlg; }
 private slots:
 	void browse();
 	void compute();

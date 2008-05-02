@@ -1,5 +1,6 @@
 #include "fatrat.h"
 #include "RssRegexpDlg.h"
+#include "RssDownloadedDlg.h"
 #include "Queue.h"
 #include <QFileDialog>
 #include <QSettings>
@@ -7,12 +8,13 @@
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
-extern QSettings* g_settings;
 
 RssRegexpDlg::RssRegexpDlg(QWidget* parent)
-: QDialog(parent), m_tvs(RssRegexp::None)
+: QDialog(parent)
 {
 	setupUi(this);
+	
+	m_regexp.tvs = RssRegexp::None;
 	
 	connect(lineText, SIGNAL(textChanged(const QString&)), this, SLOT(test()));
 	connect(lineExpression, SIGNAL(textChanged(const QString&)), this, SLOT(test()));
@@ -23,8 +25,13 @@ RssRegexpDlg::RssRegexpDlg(QWidget* parent)
 	connect(radioTVSEpisode, SIGNAL(toggled(bool)), this, SLOT(updateTVS()));
 	connect(radioTVSDate, SIGNAL(toggled(bool)), this, SLOT(updateTVS()));
 	
-	m_bTVSRepacks = true;
-	m_strTarget = g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
+	connect(labelManage, SIGNAL(linkActivated(const QString&)), this, SLOT(linkClicked(const QString&)));
+	
+	m_regexp.includeRepacks = true;
+	m_regexp.excludeManuals = true;
+	m_regexp.includeTrailers = false;
+	
+	m_regexp.target = getSettingsValue("defaultdir").toString();
 }
 
 void RssRegexpDlg::updateTVS()
@@ -65,6 +72,23 @@ void RssRegexpDlg::updateTVS()
 	lineTVSTo->setText(to);
 }
 
+void RssRegexpDlg::linkClicked(const QString& link)
+{
+	if(link != "manageDownloaded" || radioTVSNone->isChecked())
+		return;
+	
+	const char* mask = "";
+	if(radioTVSSeason->isChecked())
+		mask = "S99E99";
+	else if(radioTVSEpisode->isChecked())
+		mask = "9999";
+	else if(radioTVSDate->isChecked())
+		mask = "9999-99-99";
+	
+	RssDownloadedDlg dlg(&m_regexp.epDone, mask, this);
+	dlg.exec();
+}
+
 int RssRegexpDlg::exec()
 {
 	int r;
@@ -77,7 +101,7 @@ int RssRegexpDlg::exec()
 		comboFeed->addItem(m_feeds[i].name);
 		comboFeed->setItemData(i, m_feeds[i].url);
 		
-		if(m_feeds[i].url == m_strFeed)
+		if(m_feeds[i].url == m_regexp.source)
 			comboFeed->setCurrentIndex(i);
 	}
 	
@@ -87,15 +111,15 @@ int RssRegexpDlg::exec()
 	{
 		comboQueue->addItem(g_queues[i]->name());
 		comboQueue->setItemData(i, g_queues[i]->uuid());
-		if(g_queues[i]->uuid() == m_strQueue)
+		if(g_queues[i]->uuid() == m_regexp.queueUUID)
 			comboQueue->setCurrentIndex(i);
 	}
 	g_queuesLock.unlock();
 	
-	lineExpression->setText(m_strExpression);
-	lineTarget->setText(m_strTarget);
+	lineExpression->setText(m_regexp.regexp.pattern());
+	lineTarget->setText(m_regexp.target);
 	
-	switch(m_tvs)
+	switch(m_regexp.tvs)
 	{
 	case RssRegexp::None:
 		radioTVSNone->setChecked(true); break;
@@ -107,38 +131,38 @@ int RssRegexpDlg::exec()
 		radioTVSDate->setChecked(true); break;
 	}
 	
-	lineTVSFrom->setText(m_strTVSFrom);
-	lineTVSTo->setText(m_strTVSTo);
-	checkTVSRepacks->setChecked(m_bTVSRepacks);
-	checkTVSTrailers->setChecked(m_bTVSTrailers);
-	checkTVSNoManuals->setChecked(m_bTVSNoManuals);
+	lineTVSFrom->setText(m_regexp.from);
+	lineTVSTo->setText(m_regexp.to);
+	checkTVSRepacks->setChecked(m_regexp.includeRepacks);
+	checkTVSTrailers->setChecked(m_regexp.includeTrailers);
+	checkTVSNoManuals->setChecked(m_regexp.excludeManuals);
 	
 	test();
 	
 	if((r = QDialog::exec()) == QDialog::Accepted)
 	{
-		m_strExpression = lineExpression->text();
-		m_strTarget = lineTarget->text();
+		m_regexp.regexp = QRegExp(lineExpression->text(), Qt::CaseInsensitive);
+		m_regexp.target = lineTarget->text();
 		
-		m_strQueue = comboQueue->itemData(comboQueue->currentIndex()).toString();
-		m_strFeed = comboFeed->itemData(comboFeed->currentIndex()).toString();
+		m_regexp.queueUUID = comboQueue->itemData(comboQueue->currentIndex()).toString();
+		m_regexp.source = comboFeed->itemData(comboFeed->currentIndex()).toString();
 		
-		m_strTVSFrom = lineTVSFrom->text();
-		m_strTVSTo = lineTVSTo->text();
+		m_regexp.from = lineTVSFrom->text();
+		m_regexp.to = lineTVSTo->text();
 		
 		if(radioTVSNone->isChecked())
-			m_tvs = RssRegexp::None;
+			m_regexp.tvs = RssRegexp::None;
 		else if(radioTVSSeason->isChecked())
-			m_tvs = RssRegexp::SeasonBased;
+			m_regexp.tvs = RssRegexp::SeasonBased;
 		else if(radioTVSEpisode->isChecked())
-			m_tvs = RssRegexp::EpisodeBased;
+			m_regexp.tvs = RssRegexp::EpisodeBased;
 		else
-			m_tvs = RssRegexp::DateBased;
+			m_regexp.tvs = RssRegexp::DateBased;
 		
 		m_strFeedName = comboFeed->currentText();
-		m_bTVSRepacks = checkTVSRepacks->isChecked();
-		m_bTVSTrailers = checkTVSTrailers->isChecked();
-		m_bTVSNoManuals = checkTVSNoManuals->isChecked();
+		m_regexp.includeRepacks = checkTVSRepacks->isChecked();
+		m_regexp.includeTrailers = checkTVSTrailers->isChecked();
+		m_regexp.excludeManuals = checkTVSNoManuals->isChecked();
 	}
 	
 	return r;

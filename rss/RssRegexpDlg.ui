@@ -19,6 +19,14 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>382</width>
+        <height>197</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Main</string>
       </attribute>
@@ -111,10 +119,18 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>382</width>
+        <height>197</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>TV show support</string>
       </attribute>
-      <layout class="QGridLayout" >
+      <layout class="QGridLayout" name="gridLayout" >
        <item row="0" column="0" colspan="2" >
         <widget class="QRadioButton" name="radioTVSNone" >
          <property name="text" >
@@ -184,6 +200,13 @@
          </property>
         </widget>
        </item>
+       <item row="5" column="0" colspan="4" >
+        <widget class="QLabel" name="labelManage" >
+         <property name="text" >
+          <string>&lt;a href="manageDownloaded">Manage the list of  downoaded episodes</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -193,7 +216,7 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>272</width>
        <height>41</height>
@@ -207,7 +230,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
