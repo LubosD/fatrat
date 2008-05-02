@@ -13,7 +13,7 @@
 #include "MainWindow.h"
 #include "fatrat.h"
 
-const char* YOUTUBE_URL_REGEXP = "http://youtube\\.com/watch\\?v=([0-9A-Za-z_-]+).*";
+const char* YOUTUBE_URL_REGEXP = "http://(www\\.)?youtube\\.com/watch\\?v=([0-9A-Za-z_-]+).*";
 const char* YOUTUBE_URL_T = ", \"t\": \"([^\"]+)\"";
 const char* YOUTUBE_TITLE = "<title>YouTube - ([^<]+)</title>";
 
