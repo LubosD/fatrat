@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="cs">
+<defaultcodec></defaultcodec>
 <context>
     <name>AboutDlg</name>
     <message>
@@ -1591,7 +1592,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../AppTools.cpp" line="25"/>
         <source>File hasher</source>
-        <translation>Vypočíat hash souboru</translation>
+        <translation>Vypočítat hash souboru</translation>
     </message>
 </context>
 <context>
