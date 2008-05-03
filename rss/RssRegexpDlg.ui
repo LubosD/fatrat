@@ -203,7 +203,7 @@
        <item row="5" column="0" colspan="4" >
         <widget class="QLabel" name="labelManage" >
          <property name="text" >
-          <string>&lt;a href="manageDownloaded">Manage the list of  downoaded episodes</string>
+          <string>&lt;a href="manageDownloaded">Manage the list of downloaded episodes&lt;/a></string>
          </property>
         </widget>
        </item>

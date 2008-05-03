@@ -854,16 +854,14 @@ TorrentWorker::TorrentWorker()
 
 void TorrentWorker::addObject(TorrentDownload* d)
 {
-	m_mutex.lock();
+	QMutexLocker l(&m_mutex);
 	m_objects << d;
-	m_mutex.unlock();
 }
 
 void TorrentWorker::removeObject(TorrentDownload* d)
 {
-	m_mutex.lock();
+	QMutexLocker l(&m_mutex);
 	m_objects.removeAll(d);
-	m_mutex.unlock();
 }
 
 TorrentDownload* TorrentWorker::getByHandle(libtorrent::torrent_handle handle) const
@@ -878,7 +876,7 @@ TorrentDownload* TorrentWorker::getByHandle(libtorrent::torrent_handle handle) c
 
 void TorrentWorker::doWork()
 {
-	m_mutex.lock();
+	QMutexLocker l(&m_mutex);
 	
 	// libtorrent bug workaround
 	foreach(TorrentDownload* d, m_objects)
@@ -894,7 +892,7 @@ void TorrentWorker::doWork()
 		const std::vector<bool>* prog = d->m_status.pieces;
 		int len = d->m_info->piece_length();
 		
-		for(int i=0;i<prog->size();i++)
+		for(size_t i=0;i<prog->size();i++)
 		{
 			if(prio[i])
 			{
@@ -973,8 +971,6 @@ void TorrentWorker::doWork()
 				d->setSpeedLimits(sdown, sup);
 		}
 	}
-	
-	m_mutex.unlock();
 
 #define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(aaa)
 #define IS_ALERT_S(type) dynamic_cast<libtorrent::type*>(aaa) != 0

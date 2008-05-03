@@ -173,8 +173,9 @@ void VideoFetcher::downloadDone(bool error)
 	doNext();
 }
 
-QString VideoFetcher::decodeYouTube(QByteArray data, QString url)
+QString VideoFetcher::decodeYouTube(QByteArray _data, QString url)
 {
+	QString data = QString::fromUtf8(_data.constData());
 	QRegExp re(YOUTUBE_URL_T);
 	if(re.indexIn(data) < 0)
 		return QString();

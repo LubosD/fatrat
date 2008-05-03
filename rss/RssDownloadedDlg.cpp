@@ -30,7 +30,7 @@ int RssDownloadedDlg::exec()
 
 void RssDownloadedDlg::add()
 {
-	QDialog dlg;
+	QDialog dlg(this);
 	Ui_RssEpisodeNameDlg ui;
 	
 	ui.setupUi(&dlg);
