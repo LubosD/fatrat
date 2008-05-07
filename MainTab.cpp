@@ -1,11 +1,10 @@
-#include "fatrat.h"
+#include "Settings.h"
 #include "MainTab.h"
 #include "AppTools.h"
 #include <QDialog>
 #include <QSettings>
 
 extern QList<AppTool> g_tools;
-extern QSettings* g_settings;
 const int FIXED_TAB_COUNT = 4;
 
 MainTab::MainTab(QWidget* parent) : QTabWidget(parent), m_lastIndex(0), m_lastIndexCur(0)
@@ -94,7 +93,7 @@ void MainTab::closeTab()
 		{
 			int start;
 			
-			if(g_settings->value("tab_onclose", getSettingsDefault("tab_onclose")).toInt() == 1)
+			if(getSettingsValue("tab_onclose").toInt() == 1)
 				start = m_lastIndex;
 			else
 				start = m_index - 1;

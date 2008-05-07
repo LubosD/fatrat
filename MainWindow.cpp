@@ -1,5 +1,6 @@
 #include "config.h"
 #include "fatrat.h"
+#include "Settings.h"
 
 #include <QHeaderView>
 #include <QMessageBox>

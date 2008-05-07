@@ -1,5 +1,6 @@
 #include "SettingsJabberForm.h"
 #include "JabberService.h"
+#include "Settings.h"
 #include <QSettings>
 
 extern QSettings* g_settings;
@@ -12,17 +13,17 @@ SettingsJabberForm::SettingsJabberForm(QWidget* w, QObject* parent)
 
 void SettingsJabberForm::load()
 {
-	checkEnable->setChecked(g_settings->value("jabber/enabled", getSettingsDefault("jabber/enabled")).toBool());
-	lineJID->setText(g_settings->value("jabber/jid").toString());
-	linePassword->setText(g_settings->value("jabber/password").toString());
-	lineResource->setText(g_settings->value("jabber/resource", getSettingsDefault("jabber/resource")).toString());
-	checkRestrictSelf->setChecked(g_settings->value("jabber/restrict_self", getSettingsDefault("jabber/restrict_self")).toBool());
-	groupRestrictPassword->setChecked(g_settings->value("jabber/restrict_password_bool").toBool());
-	lineRestrictPassword->setText(g_settings->value("jabber/restrict_password").toString());
-	checkAutoAuth->setChecked(g_settings->value("jabber/grant_auth", getSettingsDefault("jabber/grant_auth")).toBool());
-	spinPriority->setValue(g_settings->value("jabber/priority", getSettingsDefault("jabber/priority")).toInt());
+	checkEnable->setChecked(getSettingsValue("jabber/enabled").toBool());
+	lineJID->setText(getSettingsValue("jabber/jid").toString());
+	linePassword->setText(getSettingsValue("jabber/password").toString());
+	lineResource->setText(getSettingsValue("jabber/resource").toString());
+	checkRestrictSelf->setChecked(getSettingsValue("jabber/restrict_self").toBool());
+	groupRestrictPassword->setChecked(getSettingsValue("jabber/restrict_password_bool").toBool());
+	lineRestrictPassword->setText(getSettingsValue("jabber/restrict_password").toString());
+	checkAutoAuth->setChecked(getSettingsValue("jabber/grant_auth").toBool());
+	spinPriority->setValue(getSettingsValue("jabber/priority").toInt());
 	
-	QUuid uuid = g_settings->value("jabber/proxy").toString();
+	QUuid uuid = getSettingsValue("jabber/proxy").toString();
 	m_listProxy = Proxy::loadProxys();
 	
 	comboProxy->addItem(tr("None", "No proxy"));

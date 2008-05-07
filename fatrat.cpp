@@ -6,16 +6,20 @@
 #include <QTranslator>
 #include <QLocale>
 #include <QtDebug>
-#include <QSettings>
 #include <QVariant>
+#include <QSettings>
 #include <QMap>
 #include <QDir>
+
+#include <dlfcn.h>
+#include <cstdlib>
 
 #include "MainWindow.h"
 #include "QueueMgr.h"
 #include "Queue.h"
 #include "Transfer.h"
 #include "AppTools.h"
+#include "Settings.h"
 #include "config.h"
 #include "RuntimeException.h"
 #include "dbus/DbusAdaptor.h"
@@ -33,23 +37,25 @@
 using namespace std;
 
 MainWindow* g_wndMain = 0;
-QSettings* g_settings = 0;
 RssFetcher* g_rssFetcher = 0;
 #ifdef WITH_JAVAREMOTE
 HttpService* g_http = 0;
 #endif
 
+extern QVector<EngineEntry> g_enginesDownload;
+extern QVector<EngineEntry> g_enginesUpload;
+extern QSettings* g_settings;
+
 const char* USER_PROFILE_PATH = "/.local/share/fatrat";
 
-static void initSettingsDefaults();
 static void runEngines(bool init = true);
 static QString argsToArg(int argc,char** argv);
 static void processSession(QString arg);
-static QString getDataFileDir(QString dir, QString fileName);
+static void loadPlugins();
+static void loadPlugins(const char* dir);
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
-static QSettings* m_settingsDefaults = 0;
 
 int main(int argc,char** argv)
 {
@@ -61,8 +67,6 @@ int main(int argc,char** argv)
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
-	
-	g_settings = new QSettings;
 	
 	if(!m_bForceNewInstance)
 		processSession(arg);
@@ -79,6 +83,9 @@ int main(int argc,char** argv)
 	
 	// Init download engines (let them load settings)
 	initSettingsDefaults();
+	initSettingsPages();
+	loadPlugins();
+	initTransferClasses();
 	runEngines();
 	Queue::loadQueues();
 	initAppTools();
@@ -125,7 +132,7 @@ int main(int argc,char** argv)
 	runEngines(false);
 	
 	delete qmgr;
-	delete g_settings;
+	exitSettings();
 	
 	return rval;
 }
@@ -179,35 +186,31 @@ void processSession(QString arg)
 
 static void runEngines(bool init)
 {
-	const EngineEntry* engines;
-	
-	engines = Transfer::engines(Transfer::Download);
-	for(int i=0;engines[i].shortName;i++)
+	for(int i=0;i<g_enginesDownload.size();i++)
 	{
 		if(init)
 		{
-			if(engines[i].lpfnInit)
-				engines[i].lpfnInit();
+			if(g_enginesDownload[i].lpfnInit)
+				g_enginesDownload[i].lpfnInit();
 		}
 		else
 		{
-			if(engines[i].lpfnExit)
-				engines[i].lpfnExit();
+			if(g_enginesDownload[i].lpfnExit)
+				g_enginesDownload[i].lpfnExit();
 		}
 	}
 	
-	engines = Transfer::engines(Transfer::Upload);
-	for(int i=0;engines[i].shortName;i++)
+	for(int i=0;i<g_enginesUpload.size();i++)
 	{
 		if(init)
 		{
-			if(engines[i].lpfnInit)
-				engines[i].lpfnInit();
+			if(g_enginesUpload[i].lpfnInit)
+				g_enginesUpload[i].lpfnInit();
 		}
 		else
 		{
-			if(engines[i].lpfnExit)
-				engines[i].lpfnExit();
+			if(g_enginesUpload[i].lpfnExit)
+				g_enginesUpload[i].lpfnExit();
 		}
 	}
 }
@@ -215,21 +218,6 @@ static void runEngines(bool init)
 QWidget* getMainWindow()
 {
 	return g_wndMain;
-}
-
-void initSettingsDefaults() // move to QSettings
-{
-	QLatin1String df("/defaults.conf");
-	QString path = getDataFileDir("/data", df) + df;
-	m_settingsDefaults = new QSettings(path, QSettings::IniFormat, qApp);
-}
-
-QVariant getSettingsDefault(QString id)
-{
-	if(id == "defaultdir")
-		return QDir::homePath();
-	else
-		return m_settingsDefaults->value(id);
 }
 
 QString formatSize(qulonglong size, bool persec)
@@ -457,9 +445,27 @@ QString getDataFileDir(QString dir, QString fileName)
 		return QLatin1String(DATA_LOCATION) + dir;
 }
 
-QVariant getSettingsValue(QString id)
+void loadPlugins()
 {
-	return g_settings->value(id, getSettingsDefault(id));
+	loadPlugins(PLUGIN_LOCATION);
+	
+	if(const char* p = getenv("PLUGIN_PATH"))
+		loadPlugins(p);
 }
 
+void loadPlugins(const char* p)
+{
+	QDir dir(p);
+	QStringList plugins = dir.entryList(QStringList("*.so"));
+	
+	foreach(QString pl, plugins)
+	{
+		QByteArray p = dir.filePath(pl).toUtf8();
+		qDebug() << "dlopen" << p;
+		if(dlopen(p.constData(), RTLD_NOW))
+			Logger::global()->enterLogMessage(QObject::tr("Loaded a plugin:") + ' ' + pl);
+		else
+			Logger::global()->enterLogMessage(QObject::tr("Failed to load a plugin: %1: %2").arg(pl).arg(dlerror()));
+	}
+}
 

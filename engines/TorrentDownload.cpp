@@ -1,6 +1,7 @@
 #include "fatrat.h"
 #include "config.h"
 #include "Logger.h"
+#include "Settings.h"
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
 #include "TorrentDetails.h"
@@ -122,6 +123,13 @@ void TorrentDownload::globalInit()
 			m_listBTLinks << QRegExp(line);
 		}
 	}
+	
+	SettingsItem si;
+	
+	si.icon = QIcon(":/fatrat/bittorrent.png");
+	si.lpfnCreate = TorrentSettings::create;
+	
+	addSettingsPage(si);
 }
 
 void TorrentDownload::applySettings()
@@ -1037,12 +1045,6 @@ void TorrentWorker::doWork()
 	}
 #undef IS_ALERT
 #undef IS_ALERT_S
-}
-
-WidgetHostChild* TorrentDownload::createSettingsWidget(QWidget* w,QIcon& i)
-{
-	i = QIcon(":/fatrat/bittorrent.png");
-	return new TorrentSettings(w);
 }
 
 void TorrentDownload::forceReannounce()

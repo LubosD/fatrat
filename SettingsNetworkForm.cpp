@@ -1,5 +1,6 @@
 #include "SettingsNetworkForm.h"
 #include "ProxyDlg.h"
+#include "Settings.h"
 #include <QSettings>
 #include <QMessageBox>
 
@@ -16,8 +17,8 @@ SettingsNetworkForm::SettingsNetworkForm(QWidget* w, QObject* parent) : QObject(
 
 void SettingsNetworkForm::load()
 {
-	spinDown->setValue( g_settings->value("network/speed_down", getSettingsDefault("network/speed_down")).toInt() / 1024 );
-	spinUp->setValue( g_settings->value("network/speed_up", getSettingsDefault("network/speed_up")).toInt() / 1024 );
+	spinDown->setValue( getSettingsValue("network/speed_down").toInt() / 1024 );
+	spinUp->setValue( getSettingsValue("network/speed_up").toInt() / 1024 );
 	
 	m_listProxy = Proxy::loadProxys();
 	

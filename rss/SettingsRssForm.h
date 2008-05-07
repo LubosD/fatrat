@@ -13,6 +13,7 @@ public:
 	SettingsRssForm(QWidget* w, QObject* parent);
 	virtual void load();
 	virtual void accepted();
+	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsRssForm(w, parent); }
 protected slots:
 	void feedAdd();
 	void feedEdit();

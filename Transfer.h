@@ -159,9 +159,10 @@ struct EngineEntry
 	void (*lpfnExit)();
 	Transfer* (*lpfnCreate)();
 	int (*lpfnAcceptable)(QString, bool);
-	WidgetHostChild* (*lpfnSettings)(QWidget*,QIcon&); // global settings
 	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
 };
 
+void initTransferClasses();
+void addTransferClass(const EngineEntry& e, Transfer::Mode m);
 
 #endif

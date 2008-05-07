@@ -1,15 +1,8 @@
 #ifndef _GENERALDOWNLOAD_H
 #define _GENERALDOWNLOAD_H
 
-#include "config.h"
-
-#ifdef WITH_SFTP
-#	define GENERALDOWNLOAD_DESCR "HTTP(S)/FTP/SFTP download"
-#else
-#	define GENERALDOWNLOAD_DESCR "HTTP(S)/FTP download"
-#endif
-
-#include "Transfer.h"
+#include "fatrat/Transfer.h"
+#include "fatrat/LimitedSocket.h"
 #include <QUrl>
 #include <QDir>
 #include <QFile>
@@ -17,13 +10,10 @@
 #include <QHttp>
 #include <QPair>
 #include <QTime>
+#include <QMap>
 #include <QReadWriteLock>
 #include <QDialog>
-#include "LimitedSocket.h"
-#include "ui_HttpOptsWidget.h"
-#include "ui_HttpUrlOptsDlg.h"
-#include "WidgetHostChild.h"
-#include "fatrat.h"
+#include <QUuid>
 
 class GeneralDownload : public Transfer
 {
@@ -53,15 +43,17 @@ public:
 	virtual void fillContextMenu(QMenu& menu);
 	
 	// global download options
-	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon&);
+	//static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon&);
 	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
 	
 	static int acceptable(QString uri, bool);
 	static Transfer* createInstance() { return new GeneralDownload; }
+	static void globalInit();
 	
 	QString filePath() const { return m_dir.filePath(name()); }
 	void setTargetName(QString strName);
 	
+	static const char* getDescription();
 private slots:
 	void requestFinished(bool error);
 	void responseSizeReceived(qint64 totalsize);
@@ -96,42 +88,10 @@ protected:
 	};
 	QList<UrlObject> m_urls;
 	int m_nUrl;
+	QMap<QString, QString> m_cookies;
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;
-};
-
-class HttpOptsWidget : public QObject, public WidgetHostChild, Ui_HttpOptsWidget
-{
-Q_OBJECT
-public:
-	HttpOptsWidget(QWidget* me,GeneralDownload* myobj);
-	virtual void load();
-	virtual void accepted();
-	virtual bool accept();
-public slots:
-	void addUrl();
-	void editUrl();
-	void deleteUrl();
-private:
-	GeneralDownload* m_download;
-	QList<GeneralDownload::UrlObject> m_urls;
-};
-
-class HttpUrlOptsDlg : public QDialog, Ui_HttpUrlOptsDlg
-{
-Q_OBJECT
-public:
-	HttpUrlOptsDlg(QWidget* parent, QList<Transfer*>* multi = 0);
-	void init();
-	int exec();
-	void runMultiUpdate();
-	virtual void accept();
-	
-	QString m_strURL, m_strReferrer, m_strUser, m_strPassword, m_strBindAddress;
-	FtpMode m_ftpMode;
-	QUuid m_proxy;
-	QList<Transfer*>* m_multi;
 };
 
 #endif

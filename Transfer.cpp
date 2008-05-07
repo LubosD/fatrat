@@ -1,5 +1,6 @@
 #include "config.h"
 #include "Transfer.h"
+#include "Settings.h"
 
 #include "engines/GeneralDownload.h"
 #include "engines/RapidshareUpload.h"
@@ -18,28 +19,46 @@
 #include <QMessageBox>
 #include <QProcess>
 
-Q_GLOBAL_STATIC(TransferNotifier, transferNotifier)
+Q_GLOBAL_STATIC(TransferNotifier, transferNotifier);
 
-using namespace std;
+QVector<EngineEntry> g_enginesDownload;
+QVector<EngineEntry> g_enginesUpload;
 
-extern QSettings* g_settings;
-
-static const EngineEntry m_enginesDownload[] = {
+void initTransferClasses()
+{
 #ifdef ENABLE_FAKEDOWNLOAD
-	{ "FakeDownload", "Fake engine", 0, 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 },
+	{ // couldn't look more lazy and lame
+		EngineEntry e = { "FakeDownload", "Fake engine", 0, 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 };
+		g_enginesDownload << e;
+	}
 #endif
-	{ "GeneralDownload", GENERALDOWNLOAD_DESCR, 0, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createSettingsWidget, GeneralDownload::createMultipleOptionsWidget },
+	{
+		EngineEntry e = { "GeneralDownload", GeneralDownload::getDescription(), GeneralDownload::globalInit, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createMultipleOptionsWidget };
+		g_enginesDownload << e;
+	}
 #ifdef WITH_BITTORRENT
-	{ "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, TorrentDownload::createSettingsWidget, 0 },
+	{
+		EngineEntry e = { "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, 0 };
+		g_enginesDownload << e;
+	}
 #endif
-	{ 0,0,0,0,0,0,0,0 }
-};
+	{
+		EngineEntry e = { "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0 };
+		g_enginesUpload << e;
+	}
+	{
+		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createMultipleOptionsWidget };
+		g_enginesUpload << e;
+	}
+}
 
-static const EngineEntry m_enginesUpload[] = {
-	{ "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0, 0 },
-	{ "RapidshareUpload", "RapidShare.com upload", 0, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createSettingsWidget, RapidshareUpload::createMultipleOptionsWidget },
-	{ 0,0,0,0,0,0,0,0 }
-};
+void addTransferClass(const EngineEntry& e, Transfer::Mode m)
+{
+	if(m == Transfer::Download)
+		g_enginesDownload << e;
+	else if(m == Transfer::Upload)
+		g_enginesUpload << e;
+}
 
 Transfer::Transfer(bool local)
 	: m_state(Paused), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
@@ -86,15 +105,15 @@ bool Transfer::isActive() const
 
 Transfer* Transfer::createInstance(QString className)
 {
-	for(size_t i=0;i<sizeof(m_enginesDownload)/sizeof(m_enginesDownload[0]);i++)
+	for(int i=0;i<g_enginesDownload.size();i++)
 	{
-		if(className == m_enginesDownload[i].shortName)
-			return m_enginesDownload[i].lpfnCreate();
+		if(className == g_enginesDownload[i].shortName)
+			return g_enginesDownload[i].lpfnCreate();
 	}
-	for(size_t i=0;i<sizeof(m_enginesUpload)/sizeof(m_enginesUpload[0]);i++)
+	for(int i=0;i<g_enginesUpload.size();i++)
 	{
-		if(className == m_enginesUpload[i].shortName)
-			return m_enginesUpload[i].lpfnCreate();
+		if(className == g_enginesUpload[i].shortName)
+			return g_enginesUpload[i].lpfnCreate();
 	}
 	
 	return 0;
@@ -129,7 +148,7 @@ bool Transfer::runProperties(QWidget* parent, Mode mode, int classID, QList<Tran
 
 const EngineEntry* Transfer::engines(Mode type)
 {
-	return (type == Download) ? m_enginesDownload : m_enginesUpload;
+	return (type == Download) ? g_enginesDownload.constData() : g_enginesUpload.constData();
 }
 
 Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
@@ -139,17 +158,17 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 	
 	if(type != Upload)
 	{
-		for(int i=0;m_enginesDownload[i].shortName;i++)
+		for(int i=0;i<g_enginesDownload.size();i++)
 		{
 			int n;
 			
-			n = m_enginesDownload[i].lpfnAcceptable(uri, type == ModeInvalid);
+			n = g_enginesDownload[i].lpfnAcceptable(uri, type == ModeInvalid);
 			
 			if(n > curscore)
 			{
 				curscore = n;
 				
-				best.engine = &m_enginesDownload[i];
+				best.engine = &g_enginesDownload[i];
 				best.nClass = i;
 				best.type = Download;
 			}
@@ -157,17 +176,17 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 	}
 	if(type != Download)
 	{
-		for(int i=0;m_enginesUpload[i].shortName;i++)
+		for(int i=0;i<g_enginesUpload.size();i++)
 		{
 			int n;
 			
-			n = m_enginesUpload[i].lpfnAcceptable(uri, type == ModeInvalid);
+			n = g_enginesUpload[i].lpfnAcceptable(uri, type == ModeInvalid);
 			
 			if(n > curscore)
 			{
 				curscore = n;
 				
-				best.engine = &m_enginesUpload[i];
+				best.engine = &g_enginesUpload[i];
 				best.nClass = i;
 				best.type = Upload;
 			}
@@ -313,7 +332,7 @@ void Transfer::updateGraph()
 	
 	speeds(down,up);
 	
-	if(m_qSpeedData.size() >= g_settings->value("graphminutes",int(5)).toInt()*60)
+	if(m_qSpeedData.size() >= getSettingsValue("graphminutes").toInt()*60)
 		m_qSpeedData.dequeue();
 	m_qSpeedData.enqueue(QPair<int,int>(down,up));
 }

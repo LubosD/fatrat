@@ -1,5 +1,6 @@
 #include "TorrentSettings.h"
 #include "TorrentDownload.h"
+#include "Settings.h"
 #include <QDir>
 #include <QMessageBox>
 #include <QSettings>
@@ -7,7 +8,7 @@
 extern const char* TORRENT_FILE_STORAGE;
 extern QSettings* g_settings;
 
-TorrentSettings::TorrentSettings(QWidget* w)
+TorrentSettings::TorrentSettings(QWidget* w, QObject* p) : QObject(p)
 {
 	setupUi(w);
 	

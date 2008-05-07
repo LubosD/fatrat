@@ -13,6 +13,7 @@ public:
 	RapidshareUpload();
 	virtual ~RapidshareUpload();
 	
+	static void globalInit();
 	static Transfer* createInstance() { return new RapidshareUpload; }
 	static int acceptable(QString url, bool);
 	
@@ -35,7 +36,6 @@ public:
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
 	
-	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon&);
 	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
 	
 	void beginNextChunk();
@@ -92,7 +92,8 @@ class RapidshareSettings : public QObject, public WidgetHostChild, Ui_Rapidshare
 {
 Q_OBJECT
 public:
-	RapidshareSettings(QWidget* me);
+	RapidshareSettings(QWidget* me, QObject* parent);
+	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new RapidshareSettings(me, parent); }
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();

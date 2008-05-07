@@ -1,6 +1,7 @@
 #include "RapidshareUpload.h"
 #include "RuntimeException.h"
 #include "WidgetHostDlg.h"
+#include "Settings.h"
 #include <QBuffer>
 #include <QFileInfo>
 #include <QSettings>
@@ -33,6 +34,16 @@ RapidshareUpload::~RapidshareUpload()
 {
 	if(m_engine)
 		m_engine->destroy();
+}
+
+void RapidshareUpload::globalInit()
+{
+	SettingsItem si;
+	
+	si.icon = QIcon(":/fatrat/rscom.png");
+	si.lpfnCreate = RapidshareSettings::create;
+	
+	addSettingsPage(si);
 }
 
 int RapidshareUpload::acceptable(QString url, bool)
@@ -419,12 +430,6 @@ WidgetHostChild* RapidshareUpload::createOptionsWidget(QWidget* w)
 	return new RapidshareOptsWidget(w, this);
 }
 
-WidgetHostChild* RapidshareUpload::createSettingsWidget(QWidget* w,QIcon& icon)
-{
-	icon = QIcon(":/fatrat/rscom.png");
-	return new RapidshareSettings(w);
-}
-
 QDialog* RapidshareUpload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)
 {
 	WidgetHostDlg* host = new WidgetHostDlg(parent);
@@ -595,7 +600,8 @@ bool RapidshareOptsWidget::accept()
 
 ///////////////////////////////////////////////
 
-RapidshareSettings::RapidshareSettings(QWidget* me)
+RapidshareSettings::RapidshareSettings(QWidget* me, QObject* p)
+	: QObject(p)
 {
 	setupUi(me);
 	comboAccount->addItems( QStringList() << tr("No account") << tr("Collector's account") << tr("Premium account") );

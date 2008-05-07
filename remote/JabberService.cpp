@@ -3,6 +3,7 @@
 #include "Queue.h"
 #include "RuntimeException.h"
 #include "Logger.h"
+#include "Settings.h"
 #include "dbus/DbusImpl.h"
 
 #include <gloox/messagesession.h>
@@ -52,16 +53,16 @@ void JabberService::applySettings()
 	int priority;
 	bool bChanged = false;
 	
-	jid = g_settings->value("jabber/jid").toString();
-	password = g_settings->value("jabber/password").toString();
-	priority = g_settings->value("jabber/priority", getSettingsDefault("jabber/priority")).toInt();
-	proxy = g_settings->value("jabber/proxy").toString();
-	resource = g_settings->value("jabber/resource", getSettingsDefault("jabber/resource")).toString();
+	jid = getSettingsValue("jabber/jid").toString();
+	password = getSettingsValue("jabber/password").toString();
+	priority = getSettingsValue("jabber/priority").toInt();
+	proxy = getSettingsValue("jabber/proxy").toString();
+	resource = getSettingsValue("jabber/resource").toString();
 	
-	m_bGrantAuth = g_settings->value("jabber/grant_auth", getSettingsDefault("jabber/grant_auth")).toBool();
-	m_bRestrictSelf = g_settings->value("jabber/restrict_self", getSettingsDefault("jabber/restrict_self")).toBool();
-	m_bRestrictPassword = g_settings->value("jabber/restrict_password_bool").toBool();
-	m_strRestrictPassword = g_settings->value("jabber/restrict_password").toString();
+	m_bGrantAuth = getSettingsValue("jabber/grant_auth").toBool();
+	m_bRestrictSelf = getSettingsValue("jabber/restrict_self").toBool();
+	m_bRestrictPassword = getSettingsValue("jabber/restrict_password_bool").toBool();
+	m_strRestrictPassword = getSettingsValue("jabber/restrict_password").toString();
 	
 	if(jid != m_strJID)
 	{
@@ -89,7 +90,7 @@ void JabberService::applySettings()
 		m_strResource = resource;
 	}
 	
-	if(g_settings->value("jabber/enabled", getSettingsDefault("jabber/enabled")).toBool())
+	if(getSettingsValue("jabber/enabled").toBool())
 	{
 		if(!isRunning())
 			start();

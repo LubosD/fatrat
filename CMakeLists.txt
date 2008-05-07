@@ -92,6 +92,7 @@ set(fatrat_SRCS
 	Transfer.cpp
 	TransfersModel.cpp
 	Logger.cpp
+	Settings.cpp
 	#DataPoller.cpp
 	#TcpSocket.cpp
 
@@ -109,6 +110,7 @@ set(fatrat_SRCS
 	engines/FtpClient.cpp
 	engines/FtpUpload.cpp
 	engines/GeneralDownload.cpp
+	engines/GeneralDownloadForms.cpp
 	engines/HttpClient.cpp
 	engines/HttpFtpSettings.cpp
 	engines/RapidshareUpload.cpp
@@ -163,6 +165,7 @@ set(fatrat_MOC_HDRS
 	engines/RapidshareUpload.h
 	engines/FtpClient.h
 	engines/GeneralDownload.h
+	engines/GeneralDownloadForms.h
 	engines/HttpClient.h
 	engines/FtpUpload.h
 	
@@ -320,12 +323,28 @@ qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_ADDITIONAL_LIBS})
+target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+
+set(fatrat_DEV_HEADERS
+	fatrat.h
+	AppTools.h
+	Transfer.h
+	WidgetHostChild.h
+	WidgetHostDlg.h
+	LimitedSocket.h
+	Queue.h
+	Logger.h
+	RuntimeException.h
+	Settings.h
+	)
 
 install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt data/defaults.conf DESTINATION share/fatrat/data)
 install(FILES data/css/queueview.css data/css/label-headers.css DESTINATION share/fatrat/data/css)
 install(FILES gfx/fatrat.png DESTINATION share/pixmaps)
 install(FILES data/fatrat.desktop DESTINATION share/applications)
+
+install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
+install(FILES engines/GeneralDownload.h DESTINATION include/fatrat/engines)
 
 if(WITH_NLS)
 	install(FILES locale/fatrat_cs_CZ.qm DESTINATION share/fatrat/lang)

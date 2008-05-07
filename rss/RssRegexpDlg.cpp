@@ -1,4 +1,4 @@
-#include "fatrat.h"
+#include "Settings.h"
 #include "RssRegexpDlg.h"
 #include "RssDownloadedDlg.h"
 #include "Queue.h"

@@ -17,6 +17,7 @@ public:
 	SettingsJabberForm(QWidget* w, QObject* parent);
 	virtual void load();
 	virtual void accepted();
+	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsJabberForm(w, parent); }
 private:
 	QList<Proxy> m_listProxy;
 };

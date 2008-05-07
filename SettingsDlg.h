@@ -2,6 +2,7 @@
 #define _SETTINGSDLG_H
 #include <QDialog>
 #include <QList>
+#include <QVector>
 
 #include "ui_SettingsDlg.h"
 #include "Transfer.h"
@@ -17,8 +18,6 @@ public:
 	int exec();
 public slots:
 	void buttonClicked(QAbstractButton* btn);
-protected:
-	void fillEngines(const EngineEntry* engines);
 private:
 	QList<WidgetHostChild*> m_children;
 };

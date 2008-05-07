@@ -1,66 +1,29 @@
 #include "config.h"
-
+#include "fatrat.h"
 #include "SettingsDlg.h"
-#include "SettingsGeneralForm.h"
-#include "SettingsDropBoxForm.h"
-#include "SettingsNetworkForm.h"
-#include "SettingsQueueForm.h"
+#include "Settings.h"
 #include "MainWindow.h"
-
-#ifdef WITH_JABBER
-#	include "remote/SettingsJabberForm.h"
-#endif
-//#ifdef WITH_BITTORRENT
-#	include "rss/SettingsRssForm.h"
-//#endif
 
 #include <QSettings>
 
 extern QSettings* g_settings;
+extern QVector<EngineEntry> g_enginesDownload;
+extern QVector<EngineEntry> g_enginesUpload;
+extern QVector<SettingsItem> g_settingsPages;
 
 SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 {
 	setupUi(this);
 	
-	QWidget* w = new QWidget(stackedWidget);
+	QWidget* w;
 	
-	m_children << (WidgetHostChild*)(new SettingsGeneralForm(w, this));
-	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/fatrat.png"), tr("Main"), listWidget) );
-	stackedWidget->addWidget(w);
-	
-	w = new QWidget(stackedWidget);
-	m_children << (WidgetHostChild*)(new SettingsQueueForm(w, this));
-	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/queue.png"), tr("Queue"), listWidget) );
-	stackedWidget->addWidget(w);
-	
-	w = new QWidget(stackedWidget);
-	m_children << (WidgetHostChild*)(new SettingsDropBoxForm(w, this));
-	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/miscellaneous.png"), tr("Drop-box"), listWidget) );
-	stackedWidget->addWidget(w);
-	
-	w = new QWidget(stackedWidget);
-	m_children << (WidgetHostChild*)(new SettingsNetworkForm(w, this));
-	listWidget->addItem( new QListWidgetItem(QIcon(":/menu/network.png"), tr("Network"), listWidget) );
-	stackedWidget->addWidget(w);
-	
-	listWidget->setCurrentRow(0);
-	
-	fillEngines( Transfer::engines(Transfer::Download) );
-	fillEngines( Transfer::engines(Transfer::Upload) );
-	
-//#ifdef WITH_BITTORRENT
-	w = new QWidget(stackedWidget);
-	m_children << (WidgetHostChild*)(new SettingsRssForm(w, this));
-	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/rss.png"), tr("RSS"), listWidget) );
-	stackedWidget->addWidget(w);
-//#endif
-	
-#ifdef WITH_JABBER
-	w = new QWidget(stackedWidget);
-	m_children << (WidgetHostChild*)(new SettingsJabberForm(w, this));
-	listWidget->addItem( new QListWidgetItem(QIcon(":/fatrat/jabber.png"), tr("Jabber"), listWidget) );
-	stackedWidget->addWidget(w);
-#endif
+	for(int i=0;i<g_settingsPages.size();i++)
+	{
+		w = new QWidget(stackedWidget);
+		m_children << g_settingsPages[i].lpfnCreate(w, this);
+		stackedWidget->addWidget(w);
+		listWidget->addItem( new QListWidgetItem(g_settingsPages[i].icon, w->windowTitle(), listWidget) );
+	}
 	
 	connect(buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
 }
@@ -121,31 +84,5 @@ void SettingsDlg::buttonClicked(QAbstractButton* btn)
 			w->load();
 		
 		static_cast<MainWindow*>(getMainWindow())->reconfigure();
-	}
-}
-
-void SettingsDlg::fillEngines(const EngineEntry* engines)
-{
-	for(int i=0;engines[i].shortName;i++)
-	{
-		if(engines[i].lpfnSettings)
-		{
-			QIcon icon;
-			QWidget* w = new QWidget(stackedWidget);
-			WidgetHostChild* c = engines[i].lpfnSettings(w,icon);
-			
-			if(c == 0)
-			{
-				// omfg
-				delete w;
-				continue;
-			}
-			else
-			{
-				stackedWidget->addWidget(w);
-				listWidget->addItem( new QListWidgetItem(icon, w->windowTitle(), listWidget) );
-				m_children << c;
-			}
-		}
 	}
 }

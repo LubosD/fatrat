@@ -1,5 +1,7 @@
 #ifndef APPTOOLS_H
 #define APPTOOLS_H
+#include <QWidget>
+#include <QString>
 
 struct AppTool
 {
@@ -10,5 +12,6 @@ struct AppTool
 };
 
 void initAppTools();
+void addAppTool(const AppTool& tool);
 
 #endif

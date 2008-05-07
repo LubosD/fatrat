@@ -1,4 +1,4 @@
-#include "fatrat.h"
+#include "Settings.h"
 #include "RssFetcher.h"
 #include "Logger.h"
 #include "Queue.h"
@@ -24,12 +24,12 @@ RssFetcher::RssFetcher()
 
 void RssFetcher::applySettings()
 {
-	enable(g_settings->value("rss/enable", getSettingsDefault("rss/enable")).toBool());
+	enable(getSettingsValue("rss/enable").toBool());
 }
 
 void RssFetcher::enable(bool bEnable)
 {
-	const int interval = g_settings->value("rss/interval", getSettingsDefault("rss/interval")).toInt();
+	const int interval = getSettingsValue("rss/interval").toInt();
 	bool bActive = m_timer.isActive();
 	
 	if(bActive != bEnable)

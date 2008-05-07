@@ -5,7 +5,8 @@
 
 extern QSettings* g_settings;
 
-HttpFtpSettings::HttpFtpSettings(QWidget* w)
+HttpFtpSettings::HttpFtpSettings(QWidget* w, QObject* parent)
+	: QObject(parent)
 {
 	setupUi(w);
 	

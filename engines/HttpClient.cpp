@@ -61,7 +61,7 @@ void HttpEngine::request(QString file, bool bUpload, int)
 			m_nResume = m_file.pos();
 			if(m_nSegmentEnd >= 0)
 				m_header.addValue("Range", QString("bytes=%1-%2").arg(m_nResume).arg(m_nSegmentEnd));
-			else
+			else //if(m_nResume)
 				m_header.addValue("Range", QString("bytes=%1-").arg(m_nResume));
 		}
 		else
@@ -73,6 +73,18 @@ void HttpEngine::request(QString file, bool bUpload, int)
 			m_header.addValue("Content-Length", QString::number(m_nToTransfer + m_strHeader.size() + m_strFooter.size()));
 			m_header.setRequest("POST", m_header.path());
 		}
+		
+		QString cookies;
+		for(QMap<QString,QString>::const_iterator it = m_mapCookies.constBegin(); it != m_mapCookies.constEnd(); it++)
+		{
+			if(!cookies.isEmpty())
+				cookies += "; ";
+			cookies += it.key();
+			cookies += '=';
+			cookies += it.value();
+		}
+		if(!cookies.isEmpty())
+			m_header.addValue("Cookie", cookies);
 		
 		start();
 	}
@@ -235,6 +247,28 @@ void HttpEngine::handleUploadHeaders(QHttpResponseHeader header)
 
 void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 {
+	QList<QPair<QString,QString> > cs = header.values();
+	for(int i=0;i<cs.size();i++)
+	{
+		if(cs[i].first.compare("set-cookie", Qt::CaseInsensitive))
+			continue;
+			
+		QString& c = cs[i].second;
+		int p = c.indexOf(';');
+			
+		if(p < 0)
+			continue;
+		c.resize(p);
+			
+		p = c.indexOf('=');
+		if(p < 0)
+			continue;
+		
+		qDebug() << c;
+			
+		m_mapCookies[c.mid(0, p)] = c.mid(p+1);
+	}
+	
 	switch(header.statusCode())
 	{
 	case 200:
@@ -285,6 +319,7 @@ void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 		break;
 	}
 	case 301 ... 399: // redirect
+		::sleep(1);
 		emit redirected(header.value("location"));
 		break;
 	case 416: // Requested Range Not Satisfiable

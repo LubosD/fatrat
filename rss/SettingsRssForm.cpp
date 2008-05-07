@@ -2,6 +2,7 @@
 #include "RssFeedDlg.h"
 #include "RssRegexpDlg.h"
 #include "fatrat.h"
+#include "Settings.h"
 #include <QSettings>
 #include <QMap>
 
@@ -50,8 +51,8 @@ void SettingsRssForm::load()
 			listRegexps->addItem(map[regexp.source]);
 	}
 	
-	checkEnable->setChecked(g_settings->value("rss/enable", getSettingsDefault("rss/enable")).toBool());
-	spinUpdateInterval->setValue(g_settings->value("rss/interval", getSettingsDefault("rss/interval")).toInt());
+	checkEnable->setChecked(getSettingsValue("rss/enable").toBool());
+	spinUpdateInterval->setValue(getSettingsValue("rss/interval").toInt());
 }
 
 void SettingsRssForm::accepted()

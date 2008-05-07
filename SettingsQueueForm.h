@@ -11,6 +11,7 @@ public:
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();
+	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsQueueForm(w, parent); }
 public slots:
 };
 

@@ -1,5 +1,5 @@
 #include "NewTransferDlg.h"
-#include "fatrat.h"
+#include "Settings.h"
 #include "Queue.h"
 #include "UserAuthDlg.h"
 #include <QFileDialog>
@@ -12,6 +12,8 @@
 extern QSettings* g_settings;
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
+extern QVector<EngineEntry> g_enginesDownload;
+extern QVector<EngineEntry> g_enginesUpload;
 
 NewTransferDlg::NewTransferDlg(QWidget* parent)
 : QDialog(parent), m_bDetails(false), m_bPaused(false), m_nDownLimit(0),
@@ -31,17 +33,15 @@ NewTransferDlg::NewTransferDlg(QWidget* parent)
 	connect(toolAuth, SIGNAL(clicked()), this, SLOT(authData()));
 	connect(toolAuth2, SIGNAL(clicked()), this, SLOT(authData()));
 	
-	const EngineEntry* entries = Transfer::engines(Transfer::Download);
 	comboClass->addItem(tr("Auto detect"));
 	
-	for(int i=0;entries[i].shortName;i++)
-		comboClass->addItem(entries[i].longName);
+	for(int i=0;i<g_enginesDownload.size();i++)
+		comboClass->addItem(g_enginesDownload[i].longName);
 	
-	entries = Transfer::engines(Transfer::Upload);
 	comboClass2->addItem(tr("Auto detect"));
 	
-	for(int i=0;entries[i].shortName;i++)
-		comboClass2->addItem(entries[i].longName);
+	for(int i=0;i<g_enginesUpload.size();i++)
+		comboClass2->addItem(g_enginesUpload[i].longName);
 	
 	QMenu* menu = new QMenu(toolAddSpecial);
 	QAction* act;
@@ -133,13 +133,9 @@ void NewTransferDlg::load()
 	
 	{
 		bool bFound = false;
-		const EngineEntry* entries;
-		
-		entries = Transfer::engines(Transfer::Download);
-		
-		for(int i=0;entries[i].shortName;i++)
+		for(int i=0;i<g_enginesDownload.size();i++)
 		{
-			if(m_strClass == entries[i].shortName)
+			if(m_strClass == g_enginesDownload[i].shortName)
 			{
 				comboClass->setCurrentIndex(i+1);
 				bFound = true;
@@ -149,11 +145,9 @@ void NewTransferDlg::load()
 		
 		if(!bFound)
 		{
-			entries = Transfer::engines(Transfer::Upload);
-		
-			for(int i=0;entries[i].shortName;i++)
+			for(int i=0;i<g_enginesDownload.size();i++)
 			{
-				if(m_strClass == entries[i].shortName)
+				if(m_strClass == g_enginesDownload[i].shortName)
 				{
 					comboClass2->setCurrentIndex(i+1);
 					break;

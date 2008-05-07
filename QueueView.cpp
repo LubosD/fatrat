@@ -1,8 +1,10 @@
 #include "QueueView.h"
 #include "Queue.h"
 #include "MainWindow.h"
+#include "Settings.h"
 #include "fatrat.h"
 #include <QtDebug>
+#include <QFile>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;

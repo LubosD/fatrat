@@ -24,3 +24,8 @@ void initAppTools()
 	g_tools << AppTool(QObject::tr("Video fetcher"), VideoFetcher::create);
 	g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);
 }
+
+void addAppTool(const AppTool& tool)
+{
+	g_tools << tool;
+}

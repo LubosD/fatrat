@@ -9,9 +9,10 @@ class HttpFtpSettings : public QObject, public WidgetHostChild, Ui_SettingsHttpF
 {
 Q_OBJECT
 public:
-	HttpFtpSettings(QWidget* w);
+	HttpFtpSettings(QWidget* w, QObject* parent);
 	virtual void load();
 	virtual void accepted();
+	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new HttpFtpSettings(w, parent); }
 public slots:
 	void authAdd();
 	void authEdit();

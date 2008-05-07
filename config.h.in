@@ -7,7 +7,10 @@
 #cmakedefine WITH_JABBER
 #cmakedefine WITH_JAVAREMOTE
 #cmakedefine WITH_DOCUMENTATION
+
 #cmakedefine ENABLE_FAKEDOWNLOAD
+
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
+#define PLUGIN_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/fatrat/plugins"
 
 #endif

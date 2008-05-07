@@ -1,6 +1,7 @@
 #include "SettingsGeneralForm.h"
-#include "fatrat.h"
+#include "Settings.h"
 #include "MainWindow.h"
+#include "fatrat.h"
 #include <QSettings>
 #include <QDir>
 #include <QMessageBox>

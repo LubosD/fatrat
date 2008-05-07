@@ -9,6 +9,8 @@
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
+extern QVector<EngineEntry> g_enginesDownload;
+extern QVector<EngineEntry> g_enginesUpload;
 
 DbusImpl* DbusImpl::m_instance = 0;
 
@@ -55,24 +57,20 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 		}
 		else
 		{
-			const EngineEntry* entries;
-			
-			entries = Transfer::engines(Transfer::Download);
-			for(int i=0;entries[i].shortName;i++)
+			for(int i=0;i<g_enginesDownload.size();i++)
 			{
-				if(className == entries[i].shortName)
+				if(className == g_enginesDownload[i].shortName)
 				{
-					_class = &entries[i];
+					_class = &g_enginesDownload[i];
 					break;
 				}
 			}
 			
-			entries = Transfer::engines(Transfer::Upload);
-			for(int i=0;entries[i].shortName;i++)
+			for(int i=0;i<g_enginesUpload.size();i++)
 			{
-				if(className == entries[i].shortName)
+				if(className == g_enginesUpload[i].shortName)
 				{
-					_class = &entries[i];
+					_class = &g_enginesUpload[i];
 					break;
 				}
 			}

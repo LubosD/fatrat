@@ -2,6 +2,7 @@
 #define HTTPCLIENT_H
 #include <QTcpSocket>
 #include <QHttpRequestHeader>
+#include <QMap>
 #include "LimitedSocket.h"
 
 class HttpEngine : public LimitedSocket
@@ -19,6 +20,8 @@ public:
 	virtual void run();
 	virtual void setRemoteName(QString) { }
 	virtual QIODevice* getRemote() { return m_pRemote; }
+	
+	QMap<QString, QString>& getCookies() { return m_mapCookies; }
 signals:
 	void redirected(QString newurl);
 	void renamed(QString dispName);
@@ -34,6 +37,7 @@ private:
 	QHttpRequestHeader m_header;
 	Proxy m_proxyData;
 	QByteArray m_strHeader, m_strFooter, m_strResponse;
+	QMap<QString, QString> m_mapCookies;
 };
 
 #endif

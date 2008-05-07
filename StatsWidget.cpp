@@ -1,13 +1,11 @@
 #include "StatsWidget.h"
 #include "NetIface.h"
 #include "QueueMgr.h"
-#include "fatrat.h"
+#include "Settings.h"
 #include <QPainter>
 #include <QPaintEvent>
 #include <QSettings>
 #include <QtDebug>
-
-extern QSettings* g_settings;
 
 const int SPACE = 15;
 
@@ -52,8 +50,8 @@ void StatsWidget::paintEvent(QPaintEvent* event)
 		qint64 myup = QueueMgr::instance()->totalUp();
 		qint64 globdown = m_globDown - m_globDownPrev;
 		qint64 globup = m_globUp - m_globUpPrev;
-		const int maxdown = g_settings->value("network/speed_down", getSettingsDefault("network/speed_down")).toInt();
-		const int maxup = g_settings->value("network/speed_up", getSettingsDefault("network/speed_up")).toInt();
+		const int maxdown = getSettingsValue("network/speed_down").toInt();
+		const int maxup = getSettingsValue("network/speed_up").toInt();
 		
 		globdown = qMin<qint64>(globdown, maxdown);
 		globup = qMin<qint64>(globup, maxup);

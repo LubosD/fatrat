@@ -2,7 +2,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QSystemTrayIcon>
-#include "fatrat.h"
+#include "Settings.h"
 
 extern QSettings* g_settings;
 
@@ -13,17 +13,17 @@ SettingsQueueForm::SettingsQueueForm(QWidget* w, QObject* parent) : QObject(pare
 
 void SettingsQueueForm::load()
 {
-	spinRetry->setValue( g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt() );
-	checkRetryWorking->setChecked( g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool() );
-	checkPopup->setChecked( g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool() );
-	spinPopup->setValue( g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt() );
-	checkEmail->setChecked( g_settings->value("sendemail", getSettingsDefault("sendemail")).toBool() );
-	lineSmtp->setText( g_settings->value("smtpserver", getSettingsDefault("smtpserver")).toString() );
-	lineSender->setText( g_settings->value("emailsender", getSettingsDefault("emailsender")).toString() );
-	lineRecipient->setText( g_settings->value("emailrcpt", getSettingsDefault("emailrcpt")).toString() );
+	spinRetry->setValue( getSettingsValue("retrycount").toInt() );
+	checkRetryWorking->setChecked( getSettingsValue("retryworking").toBool() );
+	checkPopup->setChecked( getSettingsValue("showpopup").toBool() );
+	spinPopup->setValue( getSettingsValue("popuptime").toInt() );
+	checkEmail->setChecked( getSettingsValue("sendemail").toBool() );
+	lineSmtp->setText( getSettingsValue("smtpserver").toString() );
+	lineSender->setText( getSettingsValue("emailsender").toString() );
+	lineRecipient->setText( getSettingsValue("emailrcpt").toString() );
 	
 	checkPopup->setEnabled(QSystemTrayIcon::supportsMessages());
-	checkAutoRemove->setChecked( g_settings->value("autoremove", getSettingsDefault("autoremove")).toBool() );
+	checkAutoRemove->setChecked( getSettingsValue("autoremove").toBool() );
 }
 
 void SettingsQueueForm::accepted()

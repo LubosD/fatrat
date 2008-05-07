@@ -2,6 +2,7 @@
 #define SETTINGSDROPBOXFORM_H
 
 #include "fatrat.h"
+#include "Settings.h"
 #include "WidgetHostChild.h"
 #include "ui_SettingsDropBoxForm.h"
 #include <QSettings>
@@ -19,14 +20,18 @@ public:
 	
 	virtual void load()
 	{
-		checkUnhide->setChecked( g_settings->value("dropbox/unhide", getSettingsDefault("dropbox/unhide")).toBool() );
-		spinHeight->setValue( g_settings->value("dropbox/height", getSettingsDefault("dropbox/height")).toInt() );
+		checkUnhide->setChecked( getSettingsValue("dropbox/unhide").toBool() );
+		spinHeight->setValue( getSettingsValue("dropbox/height").toInt() );
 	}
 	
 	virtual void accepted()
 	{
 		g_settings->setValue("dropbox/unhide", checkUnhide->isChecked());
 		g_settings->setValue("dropbox/height", spinHeight->value());
+	}
+	static WidgetHostChild* create(QWidget* me, QObject* parent)
+	{
+		return new SettingsDropBoxForm(me, parent);
 	}
 };
 

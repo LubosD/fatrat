@@ -11,6 +11,7 @@ public:
 	SettingsNetworkForm(QWidget* w, QObject* parent);
 	virtual void load();
 	virtual void accepted();
+	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsNetworkForm(w, parent); }
 public slots:
 	void proxyAdd();
 	void proxyEdit();

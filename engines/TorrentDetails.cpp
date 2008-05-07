@@ -2,14 +2,13 @@
 #include "TorrentPiecesModel.h"
 #include "TorrentPeersModel.h"
 #include "TorrentFilesModel.h"
+#include "Settings.h"
 #include <QHeaderView>
 #include <QMenu>
 #include <QProcess>
 #include <QMessageBox>
 #include <QSettings>
 #include <boost/date_time/posix_time/posix_time.hpp>
-
-extern QSettings* g_settings;
 
 TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	: m_download(obj), m_bFilled(false)
@@ -96,7 +95,7 @@ void TorrentDetails::openFile()
 	QString path = m_download->dataPath(false) + relative;
 	
 	QString command = QString("%1 \"%2\"")
-			.arg(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString())
+			.arg(getSettingsValue("fileexec").toString())
 			.arg(path);
 	QProcess::startDetached(command);
 }

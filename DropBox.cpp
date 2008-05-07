@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QPainter>
 #include "MainWindow.h"
-#include "fatrat.h"
+#include "Settings.h"
 #include <QtDebug>
 
 extern MainWindow* g_wndMain;

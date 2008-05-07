@@ -9,7 +9,8 @@ class TorrentSettings : public QObject, public WidgetHostChild, Ui_SettingsTorre
 {
 Q_OBJECT
 public:
-	TorrentSettings(QWidget* w);
+	TorrentSettings(QWidget* w, QObject* p);
+	static WidgetHostChild* create(QWidget* w, QObject* p) { return new TorrentSettings(w, p); }
 	virtual void load();
 	virtual void accepted();
 public slots:
