@@ -1,8 +1,8 @@
 #ifndef _GENERALDOWNLOAD_H
 #define _GENERALDOWNLOAD_H
 
-#include "fatrat/Transfer.h"
-#include "fatrat/LimitedSocket.h"
+#include "Transfer.h"
+#include "LimitedSocket.h"
 #include <QUrl>
 #include <QDir>
 #include <QFile>

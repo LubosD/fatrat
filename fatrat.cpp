@@ -41,6 +41,7 @@ RssFetcher* g_rssFetcher = 0;
 #ifdef WITH_JAVAREMOTE
 HttpService* g_http = 0;
 #endif
+QList<PluginInfo> g_plugins;
 
 extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
@@ -462,8 +463,23 @@ void loadPlugins(const char* p)
 	{
 		QByteArray p = dir.filePath(pl).toUtf8();
 		qDebug() << "dlopen" << p;
-		if(dlopen(p.constData(), RTLD_NOW))
+		if(void* l = dlopen(p.constData(), RTLD_NOW))
+		{
 			Logger::global()->enterLogMessage(QObject::tr("Loaded a plugin:") + ' ' + pl);
+			
+			PluginInfo (*info)() = (PluginInfo(*)()) dlsym(l, "getInfo");
+			if(info != 0)
+			{
+				PluginInfo i = info();
+				g_plugins << i;
+				
+				if(strcmp(i.version, VERSION))
+				{
+					qDebug() << "WARNING! Version conflict." << pl << "is" << i.version << "but FatRat is" << VERSION;
+					Logger::global()->enterLogMessage(QObject::tr("WARNING: the plugin is incompatible:") + ' ' + pl);
+				}
+			}
+		}
 		else
 			Logger::global()->enterLogMessage(QObject::tr("Failed to load a plugin: %1: %2").arg(pl).arg(dlerror()));
 	}

@@ -66,7 +66,7 @@ endif(WITH_DOCUMENTATION)
 
 include( ${QT_USE_FILE} )
 add_definitions(${QT_DEFINITIONS})
-include_directories(./ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
+include_directories(./ ../ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
 
 set(fatrat_SRCS
 	AppTools.cpp

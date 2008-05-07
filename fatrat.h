@@ -51,6 +51,12 @@ struct Auth
 	static QList<Auth> loadAuths();
 };
 
+struct PluginInfo
+{
+	const char* version;
+	QString name, author, website;
+};
+
 enum FtpMode { FtpActive = 0, FtpPassive };
 
 #endif
