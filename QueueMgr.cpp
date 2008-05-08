@@ -14,18 +14,13 @@ QueueMgr* QueueMgr::m_instance = 0;
 QueueMgr::QueueMgr() : m_nCycle(0), m_down(0), m_up(0)
 {
 	m_instance = this;
-}
-
-void QueueMgr::run()
-{
-	m_timer = new QTimer;
+	
+	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(doWork()), Qt::DirectConnection);
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(transferStateChanged(Transfer*,Transfer::State,Transfer::State)));
 	
 	m_timer->start(1000);
-	exec();
-	delete m_timer;
 }
 
 void QueueMgr::doWork()
@@ -193,8 +188,7 @@ void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::Stat
 
 void QueueMgr::exit()
 {
-	quit();
-	wait();
+	delete m_timer;
 	
 	g_queuesLock.lockForRead();
 	foreach(Queue* q,g_queues)

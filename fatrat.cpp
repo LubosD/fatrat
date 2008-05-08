@@ -92,7 +92,7 @@ int main(int argc,char** argv)
 	initAppTools();
 	
 	qmgr = new QueueMgr;
-	qmgr->start();
+	//qmgr->start();
 	
 	g_wndMain = new MainWindow(m_bStartHidden);
 	

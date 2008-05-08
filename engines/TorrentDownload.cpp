@@ -533,7 +533,7 @@ void TorrentDownload::changeActive(bool nowActive)
 		if(nowActive)
 		{
 			m_handle.resume();
-			m_handle.force_reannounce();
+			QTimer::singleShot(3000, this, SLOT(forceReannounce()));
 		}
 		else
 		{

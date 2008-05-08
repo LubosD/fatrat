@@ -5,12 +5,11 @@
 #include "Queue.h"
 #include <QSettings>
 
-class QueueMgr : public QThread
+class QueueMgr : public QObject
 {
 Q_OBJECT
 public:
 	QueueMgr();
-	virtual void run();
 	void exit();
 	
 	static QueueMgr* instance() { return m_instance; }
