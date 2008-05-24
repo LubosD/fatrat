@@ -15,6 +15,7 @@ void addSettingsPage(const SettingsItem& i);
 
 QVariant getSettingsDefault(QString id);
 QVariant getSettingsValue(QString id);
+void setSettingsValue(QString id, QVariant value);
 
 void initSettingsDefaults();
 void exitSettings();

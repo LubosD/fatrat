@@ -1,6 +1,7 @@
 #include "RapidTools.h"
 #include "MainWindow.h"
 #include "fatrat.h"
+#include "Settings.h"
 #include <QUrl>
 #include <QMessageBox>
 #include <QtDebug>
@@ -19,6 +20,13 @@ RapidTools::RapidTools()
 	
 	connect(pushExtract, SIGNAL(clicked()), this, SLOT(extractRFLinks()));
 	connect(pushDownloadFolder, SIGNAL(clicked()), this, SLOT(downloadRFLinks()));
+	
+	checkIgnoreInvalid->setChecked(getSettingsValue("rstools/ignore_invalid").toBool());
+}
+
+RapidTools::~RapidTools()
+{
+	setSettingsValue("rstools/ignore_invalid", checkIgnoreInvalid->isChecked());
 }
 
 void RapidTools::checkRShareLinks()
@@ -28,25 +36,31 @@ void RapidTools::checkRShareLinks()
 	
 	if(!m_listRSharePending.isEmpty())
 	{
-		textLinks->clear();
-		doRShareCheck();
+		if(doRShareCheck())
+			textLinks->clear();
 	}
 }
 
-void RapidTools::doRShareCheck()
+bool RapidTools::doRShareCheck()
 {
 	if(!m_listRSharePending.isEmpty())
 	{
 		QRegExp re("http://rapidshare.com/files/(\\d+)/");
 		QByteArray data = "urls=";
+		bool skipInvalid = checkIgnoreInvalid->isChecked();
 		
 		while(data.size() < 9*1024 && !m_listRSharePending.isEmpty())
 		{
 			QString link = m_listRSharePending.takeFirst().trimmed();
 			if(re.indexIn(link) < 0)
 			{
-				QMessageBox::warning(this, "FatRat", tr("An invalid link has been encountered: %1").arg(link));
-				return;
+				if(!skipInvalid)
+				{
+					QMessageBox::warning(this, "FatRat", tr("An invalid link has been encountered: %1").arg(link));
+					return false;
+				}
+				else
+					continue;
 			}
 			
 			m_mapRShare[re.cap(1).toULong()] = link;
@@ -62,6 +76,7 @@ void RapidTools::doRShareCheck()
 		
 		pushCheck->setDisabled(true);
 	}
+	return true;
 }
 
 void RapidTools::reserRShare()

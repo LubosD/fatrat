@@ -11,6 +11,7 @@ class RapidTools : public QWidget, Ui_RapidTools
 Q_OBJECT
 public:
 	RapidTools();
+	~RapidTools();
 	static QWidget* create() { return new RapidTools; }
 public slots:
 	void checkRShareLinks();
@@ -27,7 +28,7 @@ public slots:
 	void downloadRFLinks();
 	void doneRF(bool error);
 private:
-	void doRShareCheck();
+	bool doRShareCheck();
 	
 	QHttp *m_httpRShare, *m_httpRSafe, *m_httpRF;
 	QBuffer *m_bufRShare, *m_bufRF;

@@ -68,6 +68,11 @@ QVariant getSettingsValue(QString id)
 	return g_settings->value(id, getSettingsDefault(id));
 }
 
+void setSettingsValue(QString id, QVariant value)
+{
+	g_settings->setValue(id, value);
+}
+
 void initSettingsDefaults()
 {
 	g_settings = new QSettings;

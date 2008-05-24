@@ -19,6 +19,14 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>476</width>
+        <height>390</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Verify RS.com links</string>
       </attribute>
@@ -30,7 +38,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="4" >
+       <item row="1" column="0" colspan="5" >
         <widget class="QTextEdit" name="textLinks" >
          <property name="acceptRichText" >
           <bool>false</bool>
@@ -58,12 +66,12 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="3" >
+       <item row="2" column="4" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>111</width>
            <height>27</height>
@@ -71,9 +79,24 @@
          </property>
         </spacer>
        </item>
+       <item row="2" column="3" >
+        <widget class="QCheckBox" name="checkIgnoreInvalid" >
+         <property name="text" >
+          <string>Ignore invalid</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Decode RapidSafe links</string>
       </attribute>
@@ -128,7 +151,7 @@
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>251</width>
            <height>20</height>
@@ -139,6 +162,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Extract files from a RS.com folder</string>
       </attribute>
@@ -188,7 +219,7 @@
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>40</width>
            <height>20</height>
