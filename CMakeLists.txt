@@ -344,10 +344,10 @@ install(FILES gfx/fatrat.png DESTINATION share/pixmaps)
 install(FILES data/fatrat.desktop DESTINATION share/applications)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
-install(FILES engines/GeneralDownload.h DESTINATION include/fatrat/engines)
+install(FILES engines/GeneralDownload.h engines/HttpClient.h DESTINATION include/fatrat/engines)
 
 if(WITH_NLS)
-	install(FILES locale/fatrat_cs_CZ.qm DESTINATION share/fatrat/lang)
+	install(FILES locale/fatrat_cs_CZ.qm locale/fatrat_tr_TR.qm DESTINATION share/fatrat/lang)
 endif(WITH_NLS)
 
 if(WITH_BITTORRENT)

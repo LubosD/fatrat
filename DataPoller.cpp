@@ -149,7 +149,7 @@ int DataPoller::processRead(TransferInfo& info)
 	if(info.speedLimit)
 	{
 		thisLimit = (tv.tv_sec-info.lastProcess.tv_sec)*info.speedLimit;
-		thisLimit += qint64(tv.tv_usec-info.lastProcess.tv_usec)*info.speedLimit/1000000;
+		thisLimit += qint64(tv.tv_usec-info.lastProcess.tv_usec)*double(info.speedLimit)/1000000;
 	}
 	
 	while((thisCall < thisLimit || !thisLimit) && (info.toTransfer > 0 || info.toTransfer < 0))
