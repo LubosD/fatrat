@@ -15,6 +15,7 @@ public:
 	void accept();
 	void accepted();
 	void load();
+	void addLinks(QString links);
 private slots:
 	void browse();
 	void browse2();

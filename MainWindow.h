@@ -11,6 +11,7 @@
 #include "MyTrayIcon.h"
 
 class SpeedGraph;
+class NewTransferDlg;
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -106,6 +107,7 @@ private:
 	LogManager* m_log;
 	DropBox* m_dropBox;
 	Transfer* m_lastTransfer;
+	NewTransferDlg* m_dlgNewTransfer;
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;

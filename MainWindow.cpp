@@ -43,7 +43,8 @@ extern QSettings* g_settings;
 
 using namespace std;
 
-MainWindow::MainWindow(bool bStartHidden) : m_timer(0), m_trayIcon(this), m_pDetailsDisplay(0), m_lastTransfer(0)
+MainWindow::MainWindow(bool bStartHidden)
+	: m_timer(0), m_trayIcon(this), m_pDetailsDisplay(0), m_lastTransfer(0), m_dlgNewTransfer(0)
 {
 	setupUi();
 	restoreWindowState(bStartHidden && m_trayIcon.isVisible());
@@ -757,20 +758,30 @@ void MainWindow::moveToBottom()
 
 void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className, int qSel)
 {
-	NewTransferDlg dlg(this);
 	Queue* queue = 0;
-	QList<Transfer*> listTransfers;
 	
+	if(m_dlgNewTransfer)
+	{
+		m_dlgNewTransfer->addLinks(uri);
+		return;
+	}
 	if(qSel < 0)
 	{
 		qSel = getSelectedQueue();
 		if(qSel < 0)
-			return;
+		{
+			if(g_queues.size())
+				qSel = 0;
+			else
+				return;
+		}
 	}
 	
-	dlg.setWindowTitle(tr("New transfer"));
-	dlg.m_nQueue = qSel;
-	dlg.m_strURIs = uri;
+	m_dlgNewTransfer = new NewTransferDlg(this);
+	
+	m_dlgNewTransfer->setWindowTitle(tr("New transfer"));
+	m_dlgNewTransfer->m_nQueue = qSel;
+	m_dlgNewTransfer->m_strURIs = uri;
 	
 	if(!uri.isEmpty() && className.isEmpty())
 	{
@@ -778,42 +789,43 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 		Transfer::BestEngine eng = Transfer::bestEngine(l[0], mode);
 		
 		if(eng.type != Transfer::ModeInvalid)
-			dlg.m_mode = eng.type;
+			m_dlgNewTransfer->m_mode = eng.type;
 	}
 	else
 	{
-		dlg.m_mode = mode;
-		dlg.m_strClass = className;
+		m_dlgNewTransfer->m_mode = mode;
+		m_dlgNewTransfer->m_strClass = className;
 	}
 	
-	if(dlg.exec() != QDialog::Accepted)
-		return;
-	
+	QList<Transfer*> listTransfers;
 	try
 	{
 		QStringList uris;
 		int sep = g_settings->value("link_separator", getSettingsDefault("link_separator")).toInt();
 		
+		if(m_dlgNewTransfer->exec() != QDialog::Accepted)
+			throw RuntimeException();
+		
 		if(!sep)
-			uris = dlg.m_strURIs.split('\n', QString::SkipEmptyParts);
+			uris = m_dlgNewTransfer->m_strURIs.split('\n', QString::SkipEmptyParts);
 		else
-			uris = dlg.m_strURIs.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+			uris = m_dlgNewTransfer->m_strURIs.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		
 		if(uris.isEmpty())
-			return;
+			throw RuntimeException();
 
 		for(int i=0;i<uris.size();i++)
 			uris[i] = uris[i].trimmed();
 		
-		if(dlg.m_nClass == -1)
+		if(m_dlgNewTransfer->m_nClass == -1)
 		{
 			// autodetection
 			Transfer::BestEngine eng;
 			
-			if(dlg.m_mode == Transfer::Download)
+			if(m_dlgNewTransfer->m_mode == Transfer::Download)
 				eng = Transfer::bestEngine(uris[0], Transfer::Download);
 			else
-				eng = Transfer::bestEngine(dlg.m_strDestination, Transfer::Upload);
+				eng = Transfer::bestEngine(m_dlgNewTransfer->m_strDestination, Transfer::Upload);
 			
 			if(eng.nClass < 0)
 			{
@@ -821,17 +833,17 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 				return;
 			}
 			else
-				dlg.m_nClass = eng.nClass;
+				m_dlgNewTransfer->m_nClass = eng.nClass;
 		}
 		
-		queue = getQueue(dlg.m_nQueue, false);
+		queue = getQueue(m_dlgNewTransfer->m_nQueue, false);
 		
 		if(!queue)
 			throw RuntimeException(tr("Internal error."));
 		
 		for(int i=0;i<uris.size();i++)
 		{
-			Transfer* d = Transfer::createInstance(dlg.m_mode, dlg.m_nClass);
+			Transfer* d = Transfer::createInstance(m_dlgNewTransfer->m_mode, m_dlgNewTransfer->m_nClass);
 			
 			if(d == 0)
 				throw RuntimeException(tr("Failed to create a class instance."));
@@ -841,33 +853,33 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 			QString source, destination;
 			
 			source = uris[i].trimmed();
-			destination = dlg.m_strDestination;
+			destination = m_dlgNewTransfer->m_strDestination;
 			
-			if(!dlg.m_auth.strUser.isEmpty())
+			if(!m_dlgNewTransfer->m_auth.strUser.isEmpty())
 			{
-				QString& obj = (dlg.m_mode == Transfer::Download) ? source : destination;
+				QString& obj = (m_dlgNewTransfer->m_mode == Transfer::Download) ? source : destination;
 				
 				QUrl url = obj;
 				if(url.userInfo().isEmpty())
 				{
-					url.setUserName(dlg.m_auth.strUser);
-					url.setPassword(dlg.m_auth.strPassword);
+					url.setUserName(m_dlgNewTransfer->m_auth.strUser);
+					url.setPassword(m_dlgNewTransfer->m_auth.strPassword);
 				}
 				obj = url.toString();
 			}
 			
 			d->init(source, destination);
-			d->setUserSpeedLimits(dlg.m_nDownLimit,dlg.m_nUpLimit);
+			d->setUserSpeedLimits(m_dlgNewTransfer->m_nDownLimit,m_dlgNewTransfer->m_nUpLimit);
 		}
 		
 		// show the transfer details dialog
-		if(dlg.m_bDetails)
+		if(m_dlgNewTransfer->m_bDetails)
 		{
 			// show a typical transfer propeties dialog
 			if(listTransfers.size() == 1)
 			{
 				WidgetHostDlg dlg(this);
-				dlg.setWindowTitle(tr("Transfer details"));
+				m_dlgNewTransfer->setWindowTitle(tr("Transfer details"));
 				
 				if(WidgetHostChild* q = listTransfers[0]->createOptionsWidget(dlg.getChildHost()))
 				{
@@ -879,12 +891,12 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 			}
 			else // show a dialog designed for multiple
 			{
-				if(!Transfer::runProperties(this, dlg.m_mode, dlg.m_nClass, listTransfers))
+				if(!Transfer::runProperties(this, m_dlgNewTransfer->m_mode, m_dlgNewTransfer->m_nClass, listTransfers))
 					throw RuntimeException();
 			}
 		}
 		
-		if(!dlg.m_bPaused)
+		if(!m_dlgNewTransfer->m_bPaused)
 		{
 			foreach(Transfer* d, listTransfers)
 				d->setState(Transfer::Waiting);
@@ -898,6 +910,9 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 		if(!e.what().isEmpty())
 			QMessageBox::critical(this, tr("Error"), e.what());
 	}
+	
+	delete m_dlgNewTransfer;
+	m_dlgNewTransfer = 0;
 	
 	if(queue != 0)
 		doneQueue(queue,false);

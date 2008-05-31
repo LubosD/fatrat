@@ -121,6 +121,15 @@ void NewTransferDlg::accepted()
 	m_nQueue = comboQueue->currentIndex();
 }
 
+void NewTransferDlg::addLinks(QString links)
+{
+	m_mode = radioDownload->isChecked() ? Transfer::Download : Transfer::Upload;
+	if(m_mode == Transfer::Download)
+		textURIs->append(links);
+	else
+		textFiles->append(links);
+}
+
 void NewTransferDlg::load()
 {
 	/*if(!m_strClass.isEmpty())
