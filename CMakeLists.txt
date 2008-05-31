@@ -1,5 +1,9 @@
 project(fatrat)
 
+ADD_CUSTOM_TARGET(uninstall
+	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
+	)
+
 cmake_minimum_required(VERSION 2.4.0)
 find_package(Qt4 REQUIRED)
 
