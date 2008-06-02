@@ -43,11 +43,12 @@
       <bool>false</bool>
      </property>
      <property name="rowCount" >
-      <number>5</number>
+      <number>6</number>
      </property>
      <property name="columnCount" >
       <number>1</number>
      </property>
+     <row/>
      <row/>
      <row/>
      <row/>
@@ -268,6 +269,23 @@
          </property>
          <property name="text" >
           <string>Documentation</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_6" >
+      <layout class="QGridLayout" name="gridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QTextBrowser" name="textPlugins" >
+         <property name="openExternalLinks" >
+          <bool>true</bool>
+         </property>
+         <property name="openLinks" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>

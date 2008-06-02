@@ -41,7 +41,7 @@ RssFetcher* g_rssFetcher = 0;
 #ifdef WITH_JAVAREMOTE
 HttpService* g_http = 0;
 #endif
-QList<PluginInfo> g_plugins;
+QMap<QString,PluginInfo> g_plugins;
 
 extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
@@ -471,7 +471,7 @@ void loadPlugins(const char* p)
 			if(info != 0)
 			{
 				PluginInfo i = info();
-				g_plugins << i;
+				g_plugins[pl] = i;
 				
 				if(strcmp(i.version, VERSION))
 				{
