@@ -40,6 +40,7 @@ protected:
 	void updateUi();
 	void loadEngines();
 	void parseResults(Engine* e);
+	QString completeUrl(QString url, QString complete);
 	
 	static QList<QByteArray> splitArray(const QByteArray& src, QString sep);
 signals:
@@ -49,6 +50,8 @@ public slots:
 	void searchDone(bool error);
 	void download();
 	void setSearchFocus();
+	void resultsContext(const QPoint&);
+	void openDetails();
 private:
 	QList<Engine> m_engines;
 	bool m_bSearching;
@@ -63,6 +66,7 @@ public:
 	void parseSize(QString in);
 	
 	QString m_strLink; // torrent download link
+	QString m_strInfo; // info URL
 	qint64 m_nSize; // torrent's data size
 private:
 	bool operator<(const QTreeWidgetItem& other) const;

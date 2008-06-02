@@ -4,7 +4,11 @@ ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
 	)
 
-cmake_minimum_required(VERSION 2.4.0)
+cmake_minimum_required(VERSION 2.6.0)
+if(COMMAND cmake_policy)
+	cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
 find_package(Qt4 REQUIRED)
 
 set(CMAKE_MODULE_PATH cmake_modules)
@@ -19,6 +23,8 @@ if(WITH_BITTORRENT)
 	else(LIBTORRENT_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent")
 	endif(LIBTORRENT_FOUND)
+	
+	set(QT_USE_QTWEBKIT TRUE)
 endif(WITH_BITTORRENT)
 
 if(WITH_SFTP)
@@ -54,18 +60,16 @@ endif(CMAKE_BUILD_TYPE MATCHES Debug)
 CONFIGURE_FILE(config.h.in config.h)
 
 #QT4_ADD_DBUS_INTERFACE (fatrat_SRCS dbus/interface.xml dbusinterface)
-#set(QT_USE_QTDBUS TRUE)
 
+set(QT_USE_QTDBUS TRUE)
 set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTXML TRUE)
 set(QT_USE_QTSVG TRUE)
 
-set(QT_ADDITIONAL_LIBS QtDBus)
-
 if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
-	set(QT_ADDITIONAL_LIBS ${QT_ADDITIONAL_LIBS}
-		QtHelp)
+	#set(QT_ADDITIONAL_LIBS ${QT_ADDITIONAL_LIBS}
+	#	QtHelp)
 endif(WITH_DOCUMENTATION)
 
 include( ${QT_USE_FILE} )
@@ -243,12 +247,14 @@ if(WITH_BITTORRENT)
 		engines/TorrentProgressWidget.cpp
 		engines/TorrentSettings.cpp
 		tools/TorrentSearch.cpp
+		tools/TorrentWebView.cpp
 		tools/CreateTorrentDlg.cpp
 		tools/ContextListWidget.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		tools/TorrentSearch.h
+		tools/TorrentWebView.h
 		tools/CreateTorrentDlg.h
 		tools/ContextListWidget.h
 		engines/TorrentDetails.h
@@ -263,6 +269,7 @@ if(WITH_BITTORRENT)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		tools/TorrentSearch.ui
+		tools/TorrentWebView.ui
 		tools/CreateTorrentDlg.ui
 		engines/TorrentDetailsForm.ui
 		engines/TorrentOptsWidget.ui
