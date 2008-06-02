@@ -65,6 +65,9 @@ This XML document contains information about torrent search engines. The followi
 		<b>&lt;!-- A regular expression matching the link pointing to the .torrent file --&gt;</b>
 		&lt;regexp name="link" match="1"&gt;&amp;lt;td&amp;gt;&amp;lt;a href="([^"]+)"&lt;/regexp&gt;
 		
+		<b>&lt;!-- A regular expression matching the link pointing to the details page --&gt;</b>
+		&lt;regexp name="info" match="2"&gt;&amp;lt;td&amp;gt;&amp;lt;a href="([^"]+)"&lt;/regexp&gt;
+		
 		<b>&lt;!--
 			A regular expression matching the torrent's size.
 			FatRat will automaically detect units (KB, MB etc.)

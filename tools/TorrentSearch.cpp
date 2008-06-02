@@ -23,6 +23,8 @@
 
 extern QSettings* g_settings;
 
+static const char* BTSEARCH_DATA = "/data/btsearch.xml";
+
 TorrentSearch::TorrentSearch()
 	: m_bSearching(false)
 {
@@ -86,7 +88,7 @@ void TorrentSearch::loadEngines()
 	QDomDocument doc;
 	QFile file;
 	
-	if(!openDataFile(&file, "/data/btsearch.xml") || !doc.setContent(&file))
+	if(!openDataFile(&file, BTSEARCH_DATA) || !doc.setContent(&file))
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to load BitTorrent search engine information."));
 		return;
@@ -425,13 +427,16 @@ void TorrentSearch::resultsContext(const QPoint&)
 {
 	QMenu menu(treeResults);
 	QAction* act;
+	QList<QTreeWidgetItem *> items = treeResults->selectedItems();
+	
+	if(items.isEmpty())
+		return;
 	
 	act = menu.addAction(tr("Download"));
 	connect(act, SIGNAL(triggered()), this, SLOT(download()));
 	
 	act = menu.addAction(tr("Open details page"));
 	
-	QList<QTreeWidgetItem *> items = treeResults->selectedItems();
 	act->setDisabled(items.size() > 1 || static_cast<SearchTreeWidgetItem*>(items[0])->m_strInfo.isEmpty());
 	connect(act, SIGNAL(triggered()), this, SLOT(openDetails()));
 	
