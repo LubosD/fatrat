@@ -30,11 +30,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="url" >
-      <url>
-       <string>about:blank</string>
-      </url>
-     </property>
     </widget>
    </item>
    <item>

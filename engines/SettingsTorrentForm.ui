@@ -422,6 +422,44 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_4" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>434</width>
+        <height>326</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Torrent search</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_15" >
+         <property name="text" >
+          <string>Open pages with details</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QComboBox" name="comboDetailsMode" />
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <spacer name="verticalSpacer" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>275</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

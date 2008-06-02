@@ -40,6 +40,7 @@ TorrentSettings::TorrentSettings(QWidget* w, QObject* p) : QObject(p)
 	comboEncIncoming->addItems(encs);
 	comboEncOutgoing->addItems(encs);
 	comboEncLevel->addItems( QStringList() << tr("Plaintext") << tr("RC4") << tr("Both", "Both levels") );
+	comboDetailsMode->addItems( QStringList() << tr("in a new tab") << tr("in an external browser") );
 	
 	connect(labelCleanup, SIGNAL(linkActivated(const QString&)), this, SLOT(cleanup()));
 }
@@ -117,6 +118,8 @@ void TorrentSettings::load()
 	checkUPNP->setChecked(getSettingsValue("torrent/mapping_upnp").toBool());
 	checkNATPMP->setChecked(getSettingsValue("torrent/mapping_natpmp").toBool());
 	checkLSD->setChecked(getSettingsValue("torrent/mapping_lsd").toBool());
+	
+	comboDetailsMode->setCurrentIndex(getSettingsValue("torrent/details_mode").toInt());
 }
 
 void TorrentSettings::accepted()
@@ -153,6 +156,8 @@ void TorrentSettings::accepted()
 	g_settings->setValue("torrent/mapping_upnp", checkUPNP->isChecked());
 	g_settings->setValue("torrent/mapping_natpmp", checkNATPMP->isChecked());
 	g_settings->setValue("torrent/mapping_lsd", checkLSD->isChecked());
+	
+	g_settings->setValue("torrent/details_mode", comboDetailsMode->currentIndex());
 	
 	TorrentDownload::applySettings();
 }

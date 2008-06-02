@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TorrentSearch.h"
 #include "RuntimeException.h"
 #include "fatrat.h"
+#include "Settings.h"
 #include "MainWindow.h"
 #include "TorrentWebView.h"
 #include <QDir>
@@ -35,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMap>
 #include <QRegExp>
 #include <QTextDocument>
+#include <QDesktopServices>
 #include <QHeaderView>
 #include <QTimer>
 #include <QSettings>
@@ -58,7 +60,7 @@ TorrentSearch::TorrentSearch()
 	
 	loadEngines();
 	
-	g_settings->beginGroup("torrent_search");
+	g_settings->beginGroup("torrent/torrent_search");
 	
 	foreach(Engine e, m_engines)
 	{
@@ -87,7 +89,7 @@ TorrentSearch::TorrentSearch()
 
 TorrentSearch::~TorrentSearch()
 {
-	g_settings->beginGroup("torrent_search");
+	g_settings->beginGroup("torrent/torrent_search");
 	
 	for(int i=0;i<listEngines->count();i++)
 	{
@@ -471,16 +473,23 @@ void TorrentSearch::openDetails()
 	if(items.size() != 1)
 		return;
 	
-	MainWindow* wnd = static_cast<MainWindow*>(getMainWindow());
-	TorrentWebView* w = new TorrentWebView(wnd->tabMain);
-	connect(w, SIGNAL(changeTabTitle(QString)), wnd->tabMain, SLOT(changeTabTitle(QString)));
-	wnd->tabMain->setCurrentIndex( wnd->tabMain->addTab(w, QIcon(), tr("Torrent details")) );
-	
 	url = static_cast<SearchTreeWidgetItem*>(items[0])->m_strInfo;
 	
-	qDebug() << "Navigating to" << url;
-	
-	w->browser->load(url);
+	if(getSettingsValue("torrent/details_mode") == 0)
+	{
+		MainWindow* wnd = static_cast<MainWindow*>(getMainWindow());
+		TorrentWebView* w = new TorrentWebView(wnd->tabMain);
+		connect(w, SIGNAL(changeTabTitle(QString)), wnd->tabMain, SLOT(changeTabTitle(QString)));
+		wnd->tabMain->setCurrentIndex( wnd->tabMain->addTab(w, QIcon(), tr("Torrent details")) );
+		
+		qDebug() << "Navigating to" << url;
+		
+		w->browser->load(url);
+	}
+	else
+	{
+		QDesktopServices::openUrl(url);
+	}
 }
 
 /////////////////////////////////
