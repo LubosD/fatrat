@@ -64,7 +64,7 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0),
 		m_header.addValue("Authorization", QString("Basic %1").arg( QString(user_info.toUtf8().toBase64()) ));
 	
 	if(referrer.isValid())
-		m_header.addValue("Referrer", referrer.toString());
+		m_header.addValue("Referer", referrer.toString());
 	
 	m_header.addValue("Host", host);
 	m_header.addValue("User-Agent", "FatRat/" VERSION);
@@ -174,7 +174,8 @@ void HttpEngine::run()
 			return;
 		
 		m_pRemote->write(m_header.toString().toAscii());
-		m_pRemote->write("\r\n", 2);
+		if(m_strHeader.isEmpty())
+			m_pRemote->write("\r\n", 2);
 		m_pRemote->write(m_strHeader);
 		
 		if(!m_pRemote->waitForBytesWritten())
@@ -256,12 +257,17 @@ void HttpEngine::performUpload()
 
 void HttpEngine::handleUploadHeaders(QHttpResponseHeader header)
 {
-	if(header.statusCode() != 200)
+	int code = header.statusCode();
+	if(code >= 400)
 		throw header.reasonPhrase();
+	
+	if(code >= 300 && code < 400)
+		emit redirected(header.value("location"));
 	
 	qint64 clen = header.value("content-length").toLongLong();
 	while(m_strResponse.size() < clen)
 		m_strResponse += m_pRemote->read(1024);
+	
 	emit finished(false);
 }
 
