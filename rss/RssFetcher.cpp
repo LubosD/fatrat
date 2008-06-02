@@ -387,7 +387,7 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 		}
 		else if(matcher3.indexIn(itemName) != -1)
 		{
-			const char* months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+			const char* months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 			int month = 0;
 			int year = matcher3.cap(3).toInt();
 			if(year < 100)
@@ -396,7 +396,10 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 			QString m = matcher3.cap(2);
 			for(int i=0;i<12;i++)
 			{
-				if(m.compare(months[i], Qt::CaseInsensitive) == 0)
+				QString sshort = months[i];
+				sshort.resize(3);
+				
+				if(!m.compare(months[i], Qt::CaseInsensitive) || !m.compare(sshort, Qt::CaseInsensitive))
 				{
 					month = i+1;
 					break;
