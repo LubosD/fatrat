@@ -356,6 +356,7 @@ void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 			opts.progress = int( model->m_lastData[row].fProgress*10 );
 			opts.rect = option.rect;
 			opts.textVisible = true;
+			opts.state = QStyle::State_Enabled;
 			
 			QApplication::style()->drawControl(QStyle::CE_ProgressBar, &opts, painter);
 			
