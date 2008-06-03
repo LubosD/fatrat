@@ -115,15 +115,14 @@ void RapidTools::downloadRShareLinks()
 
 void RapidTools::doneRShare(bool error)
 {
+	QString result;
 	if(error)
 	{
 		QMessageBox::critical(this, "FatRat", tr("Server failed to process our query."));
 	}
 	else
 	{
-		QRegExp re("<font color=\"([^\"]+)\">File (\\d+) ");
-		
-		QString result;
+		QRegExp re("<a href=\"http://rapidshare.com/files/(\\d+)/[^\"]+\" target=\"_blank\">File to load</a>");
 		
 		const QByteArray& data = m_bufRShare->data();
 		int pos = 0;
@@ -135,27 +134,30 @@ void RapidTools::doneRShare(bool error)
 			if(pos < 0)
 				break;
 			
-			QString url = m_mapRShare[re.cap(2).toULong()];
+			unsigned long id = re.cap(1).toULong();
+			QString url = m_mapRShare[id];
+			m_mapRShare.remove(id);
 			
-			if(re.cap(1) == "green")
-			{
-				result += QString("<font color=green>%1</font><br>").arg(url);
-				m_strRShareWorking += url + '\n';
-			}
-			else
-			{
-				result += QString("<font color=red>%1</font><br>").arg(url);
-			}
+			result += QString("<font color=green>%1</font><br>").arg(url);
+			m_strRShareWorking += url + '\n';
+			
 			pos++;
 		}
-		
-		textLinks->append(result);
 	}
 	
 	m_httpRShare->deleteLater();
 	
 	m_bufRShare = 0;
 	m_httpRShare = 0;
+	
+	for(QMap<unsigned long,QString>::const_iterator it = m_mapRShare.constBegin();
+		   it != m_mapRShare.constEnd(); it++)
+	{
+		result += QString("<font color=red>%1</font><br>").arg(it.value());
+	}
+	
+	if(!result.isEmpty())
+		textLinks->append(result);
 	m_mapRShare.clear();
 	
 	if(m_listRSharePending.isEmpty())

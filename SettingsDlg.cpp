@@ -35,15 +35,15 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 {
 	setupUi(this);
 	
-	QWidget* w;
-	
 	for(int i=0;i<g_settingsPages.size();i++)
 	{
-		w = new QWidget(stackedWidget);
+		QWidget* w = new QWidget(stackedWidget);
 		m_children << g_settingsPages[i].lpfnCreate(w, this);
 		stackedWidget->addWidget(w);
 		listWidget->addItem( new QListWidgetItem(g_settingsPages[i].icon, w->windowTitle(), listWidget) );
 	}
+	
+	listWidget->setCurrentRow(0);
 	
 	connect(buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
 }

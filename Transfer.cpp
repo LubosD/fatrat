@@ -182,6 +182,9 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 		{
 			int n;
 			
+			if(!g_enginesUpload[i].lpfnAcceptable)
+				continue;
+			
 			n = g_enginesDownload[i].lpfnAcceptable(uri, type == ModeInvalid);
 			
 			if(n > curscore)
@@ -199,6 +202,9 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 		for(int i=0;i<g_enginesUpload.size();i++)
 		{
 			int n;
+			
+			if(!g_enginesUpload[i].lpfnAcceptable)
+				continue;
 			
 			n = g_enginesUpload[i].lpfnAcceptable(uri, type == ModeInvalid);
 			
