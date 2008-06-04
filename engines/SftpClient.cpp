@@ -90,7 +90,7 @@ qint64 SftpEngine::querySize(LIBSSH2_SFTP* sftp, QByteArray file)
 	LIBSSH2_SFTP_ATTRIBUTES attr;
 	int res = 0;
 	
-	res = libssh2_sftp_stat(sftp, file.constData(), &attr);
+	res = libssh2_sftp_stat(sftp, (char*) file.constData(), &attr);
 	
 	if(res < 0)
 		return 0;
