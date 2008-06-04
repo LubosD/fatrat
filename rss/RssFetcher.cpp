@@ -356,7 +356,7 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 	else if(match.tvs == RssRegexp::DateBased)
 	{
 		QRegExp matcher1("(\\d{4})[\\-\\. ](\\d\\d)[\\-\\. ](\\d\\d)"), matcher2("(\\d\\d)[\\-\\. ](\\d\\d)[\\-\\. ](\\d{2,4})"),
-				 matcher3("(\\d\\d?)[\\-\\. ](\\w{3})[\\-\\. ](\\d{2,4})");
+				 matcher3("(\\d\\d?)[\\-\\. ](\\w{3,})[\\-\\. ](\\d{2,4})");
 		if(matcher1.indexIn(itemName) != -1)
 		{
 			// Some Americans are complete idiots when it comes to writing dates
@@ -476,12 +476,15 @@ bool RssFetcher::endElement(const QString& namespaceURI, const QString& localNam
 
 bool RssFetcher::characters(const QString& ch)
 {
-	if(m_itemNextType == RssItem::Descr)
-		m_itemNext.descr += ch;
-	else if(m_itemNextType == RssItem::Title)
-		m_itemNext.title += ch;
-	else if(m_itemNextType == RssItem::Url)
-		m_itemNext.url += ch;
+	if(m_bInItem)
+	{
+		if(m_itemNextType == RssItem::Descr)
+			m_itemNext.descr += ch;
+		else if(m_itemNextType == RssItem::Title)
+			m_itemNext.title += ch;
+		else if(m_itemNextType == RssItem::Url)
+			m_itemNext.url += ch;
+	}
 	
 	return true;
 }
