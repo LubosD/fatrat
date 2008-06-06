@@ -18,28 +18,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef SETTINGSWEBFORM_H
+#define SETTINGSWEBFORM_H
 #include <QObject>
-#include <QString>
-#include <QReadWriteLock>
+#include "fatrat.h"
+#include "config.h"
+#include "WidgetHostChild.h"
+#include "ui_SettingsWebForm.h"
 
-class Logger : public QObject
+#ifndef WITH_REMOTE
+#	error This file is not supposed to be included!
+#endif
+
+class SettingsWebForm : public QObject, public WidgetHostChild, Ui_SettingsWebForm
 {
-Q_OBJECT
 public:
-	Q_INVOKABLE QString logContents() const;
-	Q_PROPERTY(QString logContents READ logContents)
-	static Logger* global() { return &m_global; }
-public slots:
-	void enterLogMessage(QString msg);
-	void enterLogMessage(QString sender, QString msg);
-signals:
-	void logMessage(QString msg);
-private:
-	QString m_strLog;
-	mutable QReadWriteLock m_lock;
-	static Logger m_global;
+	SettingsWebForm(QWidget* w, QObject* parent);
+	virtual void load();
+	virtual void accepted();
+	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsWebForm(w, parent); }
 };
 
 #endif

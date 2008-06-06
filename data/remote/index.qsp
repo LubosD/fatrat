@@ -1,0 +1,99 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FatRat web interface</title>
+<link rel="icon" href="/favicon.png" type="image/png"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/>
+</head>
+<body>
+
+<p><img src="logo.png" alt="FatRat logo"/></p>
+
+<form method="get" action="">
+<p>
+	Queue: <select name="queue" onchange="javascript:this.form.submit()">
+	<?
+		if(GET.queue == undefined && QUEUES.length != 0)
+			GET.queue = 0;
+		
+		for(i=0;i<QUEUES.length;i++)
+		{
+			print('<option value="'+i+'" ');
+			if(GET.queue == i)
+				print('selected="selected"');
+			print('>'+QUEUES[i].name+'</option>');
+		}
+	?>
+	</select>
+	<input type="submit" value="Switch"/>
+</p>
+</form>
+
+<table class="transfers">
+<thead>
+<tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m">Speed</td><td class="m">Time left</td><td>Message</td></tr>
+</thead>
+
+<tbody>
+
+<?
+	if(GET.queue == undefined)
+	{
+		print("No queue");
+		return;
+	}
+	
+	var queue = QUEUES[GET.queue];
+	for(i=0;i<queue.size;i++)
+	{
+		var transfer = queue.at(i);
+		print('<tr>');
+		
+		print('<td>');
+		print('<img src="states/' + transfer.state.toLowerCase() + '.png" alt="' + transfer.state + '"/> ');
+ 		print(transfer.name + '</td>');
+		
+		if(transfer.total > 0)
+		{
+			var progress = 100*transfer.done/transfer.total;
+			progress = Math.round(progress*10)/10;
+			
+			print('<td class="m">'+progress+'%</td>');
+			print('<td class="m">'+formatSize(transfer.total, false)+'</td>');
+		}
+		else
+		{
+			print('<td class="m">?</td><td class="m">?</td>');
+		}
+		
+		var speed_text = '', speed = transfer.speed();
+		if(speed.down > 0)
+			speed_text = formatSize(speed.down, true)+ ' <i>down</i>';
+		if(speed.up > 0)
+		{
+			if(speed_text.length)
+				speed_text = speed_text + ' | ';
+			speed_text = speed_text + formatSize(speed.up, true)+ ' <i>up</i>';
+		}
+		print('<td class="m">' + speed_text + '</td>');
+		
+		print('<td class="m">'+transfer.timeLeft()+'</td>'); // time left
+		print('<td>'+transfer.message+'</td>');
+		
+		print('</tr>');
+	}
+?>
+
+</tbody>
+
+</table>
+
+<hr/>
+
+<p style="text-align: center; font-size: 9px"><b><a href="http://fatrat.dolezel.info">FatRat</a></b> is Copyright © 2006-2008 Luboš Doležel</p>
+
+</body>
+</html>

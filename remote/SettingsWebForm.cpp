@@ -18,28 +18,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef LOGGER_H
-#define LOGGER_H
-#include <QObject>
-#include <QString>
-#include <QReadWriteLock>
+#include "SettingsWebForm.h"
+#include "Settings.h"
+#include "HttpService.h"
 
-class Logger : public QObject
+SettingsWebForm::SettingsWebForm(QWidget* w, QObject* parent)
+	: QObject(parent)
 {
-Q_OBJECT
-public:
-	Q_INVOKABLE QString logContents() const;
-	Q_PROPERTY(QString logContents READ logContents)
-	static Logger* global() { return &m_global; }
-public slots:
-	void enterLogMessage(QString msg);
-	void enterLogMessage(QString sender, QString msg);
-signals:
-	void logMessage(QString msg);
-private:
-	QString m_strLog;
-	mutable QReadWriteLock m_lock;
-	static Logger m_global;
-};
+	setupUi(w);
+}
 
-#endif
+void SettingsWebForm::load()
+{
+	checkEnable->setChecked(getSettingsValue("remote/enable").toBool());
+	spinPort->setValue(getSettingsValue("remote/port").toInt());
+	linePassword->setText(getSettingsValue("remote/password").toString());
+}
+
+void SettingsWebForm::accepted()
+{
+	setSettingsValue("remote/enable", checkEnable->isChecked());
+	setSettingsValue("remote/port", spinPort->value());
+	setSettingsValue("remote/password", linePassword->text());
+	
+	HttpService::instance()->applySettings();
+}

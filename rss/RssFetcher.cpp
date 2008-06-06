@@ -35,11 +35,19 @@ extern QSettings* g_settings;
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
+RssFetcher* RssFetcher::m_instance = 0;
+
 RssFetcher::RssFetcher()
 	: m_bInItem(false), m_itemNextType(RssItem::None)
 {
+	m_instance = this;
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
 	applySettings();
+}
+
+RssFetcher::~RssFetcher()
+{
+	m_instance = 0;
 }
 
 void RssFetcher::applySettings()

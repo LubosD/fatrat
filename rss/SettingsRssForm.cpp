@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMap>
 
 extern QSettings* g_settings;
-extern RssFetcher* g_rssFetcher;
 
 SettingsRssForm::SettingsRssForm(QWidget* w, QObject* parent)
 	: QObject(parent)
@@ -82,7 +81,7 @@ void SettingsRssForm::accepted()
 	g_settings->setValue("rss/enable", checkEnable->isChecked());
 	g_settings->setValue("rss/interval", spinUpdateInterval->value());
 	
-	g_rssFetcher->applySettings();
+	RssFetcher::instance()->applySettings();
 }
 
 void SettingsRssForm::feedAdd()

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="cs">
+<defaultcodec></defaultcodec>
 <context>
     <name>AboutDlg</name>
     <message>
@@ -217,7 +218,12 @@
     </message>
 </context>
 <context>
-    <name>FtpEngine</name>
+    <name>FtpClient</name>
+    <message>
+        <location filename="../engines/FtpClient.cpp" line="127"/>
+        <source>Failed to open file</source>
+        <translation>Nepodařilo se otevřít soubor</translation>
+    </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="159"/>
         <source>Invalid server response</source>
@@ -227,21 +233,6 @@
         <location filename="../engines/FtpClient.cpp" line="220"/>
         <source>Logging in</source>
         <translation>Přihlašuji se</translation>
-    </message>
-    <message>
-        <location filename="../engines/FtpClient.cpp" line="314"/>
-        <source>Requesting file</source>
-        <translation>Požaduji soubor</translation>
-    </message>
-    <message>
-        <location filename="../engines/FtpClient.cpp" line="478"/>
-        <source>Timeout</source>
-        <translation>Vypršel časový limit</translation>
-    </message>
-    <message>
-        <location filename="../engines/FtpClient.cpp" line="491"/>
-        <source>Connection to the server lost</source>
-        <translation>Spojení k serveru ztraceno</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="277"/>
@@ -254,14 +245,14 @@
         <translation>Přecházím do adresáře</translation>
     </message>
     <message>
+        <location filename="../engines/FtpClient.cpp" line="314"/>
+        <source>Requesting file</source>
+        <translation>Požaduji soubor</translation>
+    </message>
+    <message>
         <location filename="../engines/FtpClient.cpp" line="327"/>
         <source>Appending file</source>
         <translation>Připojuji soubor</translation>
-    </message>
-    <message>
-        <location filename="../engines/FtpClient.cpp" line="127"/>
-        <source>Failed to open file</source>
-        <translation>Nepodařilo se otevřít soubor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="371"/>
@@ -272,6 +263,16 @@
         <location filename="../engines/FtpClient.cpp" line="425"/>
         <source>Unable to establish a data connection</source>
         <translation>Nelze vytvořit souborové spojení</translation>
+    </message>
+    <message>
+        <location filename="../engines/FtpClient.cpp" line="478"/>
+        <source>Timeout</source>
+        <translation>Vypršel časový limit</translation>
+    </message>
+    <message>
+        <location filename="../engines/FtpClient.cpp" line="491"/>
+        <source>Connection to the server lost</source>
+        <translation>Spojení k serveru ztraceno</translation>
     </message>
 </context>
 <context>
@@ -567,11 +568,21 @@
     </message>
 </context>
 <context>
-    <name>HttpEngine</name>
+    <name>HttpClient</name>
     <message>
         <location filename="../engines/HttpClient.cpp" line="127"/>
         <source>Failed to bind socket</source>
         <translation>Nepodařilo se svázat soket</translation>
+    </message>
+    <message>
+        <location filename="../engines/HttpClient.cpp" line="187"/>
+        <source>Sending data</source>
+        <translation>Odesílám data</translation>
+    </message>
+    <message>
+        <location filename="../engines/HttpClient.cpp" line="200"/>
+        <source>Receiving data</source>
+        <translation>Přijímám data</translation>
     </message>
     <message>
         <location filename="../engines/HttpClient.cpp" line="310"/>
@@ -587,16 +598,6 @@
         <location filename="../engines/HttpClient.cpp" line="352"/>
         <source>Requested Range Not Satisfiable - the file has probably already been downloaded</source>
         <translation>Requested Range Not Satisfiable - soubor už byl pravděpodobně stažen</translation>
-    </message>
-    <message>
-        <location filename="../engines/HttpClient.cpp" line="187"/>
-        <source>Sending data</source>
-        <translation>Odesílám data</translation>
-    </message>
-    <message>
-        <location filename="../engines/HttpClient.cpp" line="200"/>
-        <source>Receiving data</source>
-        <translation>Přijímám data</translation>
     </message>
 </context>
 <context>
@@ -634,6 +635,14 @@
         <location filename="../ui_HttpOptsWidget.h" line="106"/>
         <source>URLs</source>
         <translation>URL</translation>
+    </message>
+</context>
+<context>
+    <name>HttpService</name>
+    <message>
+        <location filename="../remote/HttpService.cpp" line="152"/>
+        <source>Listening on port %1</source>
+        <translation>Naslouchám na portu %1</translation>
     </message>
 </context>
 <context>
@@ -1525,7 +1534,7 @@ Tento přikaz vyžaduje speciální argumenty. Více na http://fatrat.dolezel.in
         <translation>Hlavní fronta</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="201"/>
+        <location filename="../fatrat.cpp" line="197"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>V systému je již běžící instance.Pokud chcete FatRat přesto spustit, předejte --force mezi argumenty.</translation>
@@ -1546,7 +1555,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Nástroje pro RapidShare</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="451"/>
+        <location filename="../fatrat.cpp" line="447"/>
         <source>Unable to load a data file:</source>
         <translation>Nemohu načíst datový soubor:</translation>
     </message>
@@ -1561,17 +1570,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Vypočítat hash souboru</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="488"/>
+        <location filename="../fatrat.cpp" line="484"/>
         <source>Loaded a plugin:</source>
         <translation>Načten plugin:</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="499"/>
+        <location filename="../fatrat.cpp" line="495"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation>VAROVÁNÍ: plugin je nekompatibilní:</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="504"/>
+        <location filename="../fatrat.cpp" line="500"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation>Nepodařilo se načíst plugin: %1: %2</translation>
     </message>
@@ -1622,7 +1631,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>QueueToolTip</name>
     <message>
-        <location filename="../tooltips/QueueToolTip.cpp" line="41"/>
+        <location filename="../tooltips/QueueToolTip.cpp" line="42"/>
         <source>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Active:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 down&lt;/td&gt;&lt;td&gt;%2 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Waiting:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 down&lt;/td&gt;&lt;td&gt;%4 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Speed:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 down&lt;/td&gt;&lt;td&gt;%6 up&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Aktivní:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 down&lt;/td&gt;&lt;td&gt;%2 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Čekající:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 down&lt;/td&gt;&lt;td&gt;%4 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Rychlost:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 down&lt;/td&gt;&lt;td&gt;%6 up&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -1630,12 +1639,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidTools</name>
     <message>
-        <location filename="../tools/RapidTools.cpp" line="269"/>
+        <location filename="../tools/RapidTools.cpp" line="271"/>
         <source>An invalid link has been encountered: %1</source>
         <translation>Byl nalezen neplatný odkaz: %1</translation>
     </message>
     <message>
-        <location filename="../tools/RapidTools.cpp" line="303"/>
+        <location filename="../tools/RapidTools.cpp" line="305"/>
         <source>Server failed to process our query.</source>
         <translation>Server nedokázal zpracovat požadavek.</translation>
     </message>
@@ -1949,22 +1958,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RssFetcher</name>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="140"/>
+        <location filename="../rss/RssFetcher.cpp" line="148"/>
         <source>Failed to parse the feed &quot;%1&quot;</source>
         <translation>Selhalo parsování kanálu &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="146"/>
+        <location filename="../rss/RssFetcher.cpp" line="154"/>
         <source>Failed to fetch the feed &quot;%1&quot;</source>
         <translation>Nepodařilo se stáhnout kanál &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="212"/>
+        <location filename="../rss/RssFetcher.cpp" line="220"/>
         <source>Automatically adding a new transfer: %1</source>
         <translation>Automaticky přidávám nový přenos: %1</translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="209"/>
+        <location filename="../rss/RssFetcher.cpp" line="217"/>
         <source>The transfer wasn&apos;t accepted by any class: %1</source>
         <translation>Přenos nebyl přijat žádnou třídou: %1</translation>
     </message>
@@ -2083,12 +2092,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsDlg</name>
     <message>
-        <location filename="../ui_SettingsDlg.h" line="101"/>
+        <location filename="../ui_SettingsDlg.h" line="104"/>
         <source>Settings</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsDlg.h" line="102"/>
+        <location filename="../ui_SettingsDlg.h" line="105"/>
         <source>Some changes may require restart to take effect.</source>
         <translation>Po některých změnách bude potřeba restart, aby se projevily.</translation>
     </message>
@@ -2678,6 +2687,29 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../ui_SettingsTorrentForm.h" line="427"/>
         <source>Open pages with details</source>
         <translation>Otevírat stránky s detaily</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsWebForm</name>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="85"/>
+        <source>Web interface</source>
+        <translation>Webové rozhraní</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="86"/>
+        <source>Enable remote web control</source>
+        <translation>Povolit vzdálené řízení přes web</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="87"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="88"/>
+        <source>Password</source>
+        <translation>Heslo</translation>
     </message>
 </context>
 <context>
@@ -3421,12 +3453,12 @@ uploadnut následující objem</translation>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../Transfer.cpp" line="247"/>
+        <location filename="../Transfer.cpp" line="258"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Změněn stav: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location filename="../Transfer.cpp" line="154"/>
+        <location filename="../Transfer.cpp" line="159"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation>Tento typ přenosu nemá žádné pokročilé vlastnosti k nastavování.</translation>
     </message>

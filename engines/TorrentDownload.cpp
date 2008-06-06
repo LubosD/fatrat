@@ -63,7 +63,7 @@ void (*GeoIP_delete)(void*);
 
 TorrentDownload::TorrentDownload(bool bAuto)
 	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_pFileDownload(0)
-		, m_pFileDownloadTemp(0), m_totalWanted(1), m_totalWantedDone(0)
+		, m_pFileDownloadTemp(0)
 {
 	m_worker->addObject(this);
 }
@@ -586,7 +586,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 qulonglong TorrentDownload::done() const
 {
 	if(m_handle.is_valid())
-		return qMax<qint64>(0, /*m_status.total_wanted_done*/ m_totalWantedDone);
+		return qMax<qint64>(0, m_status.total_wanted_done);
 	else
 		return 0;
 }
@@ -594,7 +594,7 @@ qulonglong TorrentDownload::done() const
 qulonglong TorrentDownload::total() const
 {
 	if(m_handle.is_valid())
-		return /*m_status.total_wanted*/ m_totalWanted;
+		return m_status.total_wanted;
 	else
 		return 0;
 }
@@ -909,7 +909,7 @@ void TorrentWorker::doWork()
 	QMutexLocker l(&m_mutex);
 	
 	// libtorrent bug workaround
-	foreach(TorrentDownload* d, m_objects)
+	/*foreach(TorrentDownload* d, m_objects)
 	{
 		if(!d->m_handle.is_valid())
 			continue;
@@ -937,14 +937,14 @@ void TorrentWorker::doWork()
 		
 		d->m_totalWanted = wanted;
 		d->m_totalWantedDone = done;
-	}
+	}*/
 	
 	foreach(TorrentDownload* d, m_objects)
 	{
 		if(!d->m_handle.is_valid())
 			continue;
 		
-		//d->m_status = d->m_handle.status();
+		d->m_status = d->m_handle.status();
 		
 		if(d->m_bHasHashCheck && d->m_status.state != libtorrent::torrent_status::checking_files && d->m_status.state != libtorrent::torrent_status::queued_for_checking)
 		{
@@ -963,8 +963,8 @@ void TorrentWorker::doWork()
 					d->enterLogMessage(tr("The torrent has been downloaded"));
 					d->m_handle.set_ratio(0);
 				}
-				//else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
-				else if(d->m_totalWanted == d->m_totalWantedDone)
+				else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
+				//else if(d->m_totalWanted == d->m_totalWantedDone)
 				{
 					d->enterLogMessage(tr("Requested parts of the torrent have been downloaded"));
 					d->setMode(Transfer::Upload);
@@ -973,8 +973,8 @@ void TorrentWorker::doWork()
 			}
 			if(d->mode() == Transfer::Upload)
 			{
-				//if(d->m_status.total_wanted_done < d->m_status.total_wanted)
-				if(d->m_totalWantedDone < d->m_totalWanted)
+				if(d->m_status.total_wanted_done < d->m_status.total_wanted)
+				//if(d->m_totalWantedDone < d->m_totalWanted)
 					d->setMode(Transfer::Download);
 				else if(d->state() != Transfer::ForcedActive)
 				{

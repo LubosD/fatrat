@@ -95,6 +95,11 @@ Transfer::~Transfer()
 {
 }
 
+Transfer::State Transfer::state() const
+{
+	return m_state;
+}
+
 void Transfer::setUserSpeedLimits(int down,int up)
 {
 	m_nDownLimitInt = m_nDownLimit = down;
@@ -454,6 +459,16 @@ void Transfer::setAutoActionCommand(State state, QString command)
 {
 	if(state == Completed)
 		m_strCommandCompleted = command;
+}
+
+QString Transfer::stateString() const
+{
+	return state2string(state());
+}
+
+void Transfer::setStateString(QString s)
+{
+	setState(string2state(s));
 }
 
 //////////////////

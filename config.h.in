@@ -5,7 +5,7 @@
 #cmakedefine WITH_SFTP
 #cmakedefine WITH_NLS
 #cmakedefine WITH_JABBER
-#cmakedefine WITH_JAVAREMOTE
+#cmakedefine WITH_REMOTE
 #cmakedefine WITH_DOCUMENTATION
 
 #cmakedefine ENABLE_FAKEDOWNLOAD

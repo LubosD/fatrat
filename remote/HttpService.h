@@ -21,16 +21,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef HTTPSERVICE_H
 #define HTTPSERVICE_H
 #include "config.h"
+#include "engines/OutputBuffer.h"
 #include <QTcpServer>
 #include <QThread>
 #include <QMap>
 #include <QByteArray>
+#include <QVariantMap>
 #include <QFile>
 #include <ctime>
 
-#ifndef WITH_JAVAREMOTE
+#ifndef WITH_REMOTE
 #	error This file is not supposed to be included!
 #endif
+
+struct ClientData
+{
+	ClientData() : file(0), buffer(0), lastData(time(0)) {}
+	
+	// incoming lines
+	QList<QByteArray> incoming;
+	
+	// file to send
+	QFile* file;
+	
+	// script output to send
+	OutputBuffer* buffer;
+	
+	// last reception/send
+	time_t lastData;
+};
+
+class QScriptEngine;
 
 class HttpService : public QThread
 {
@@ -38,6 +59,8 @@ Q_OBJECT
 public:
 	HttpService();
 	~HttpService();
+	static HttpService* instance() { return m_instance; }
+	void applySettings();
 	
 	void setup();
 	static void throwErrno();
@@ -47,15 +70,14 @@ public:
 	
 	void freeClient(int fd, int ep);
 	
-	struct ClientData
-	{
-		ClientData() : file(0), lastData(time(0)) {}
-		QList<QByteArray> incoming;
-		QFile* file;
-		time_t lastData;
-	};
 	void serveClient(int fd);
+	static void interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString);
+	static QVariantMap processQueryString(QByteArray queryString);
+	static QByteArray handleException(QScriptEngine* engine);
+	static int countLines(const QByteArray& ar, int left);
+	static bool authenitcate(const QList<QByteArray>& data);
 private:
+	static HttpService* m_instance;
 	int m_server;
 	bool m_bAbort;
 	

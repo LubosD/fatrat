@@ -214,7 +214,7 @@
     </message>
 </context>
 <context>
-    <name>FtpEngine</name>
+    <name>FtpClient</name>
     <message>
         <location filename="../engines/FtpClient.cpp" line="127"/>
         <source>Failed to open file</source>
@@ -564,7 +564,7 @@
     </message>
 </context>
 <context>
-    <name>HttpEngine</name>
+    <name>HttpClient</name>
     <message>
         <location filename="../engines/HttpClient.cpp" line="127"/>
         <source>Failed to bind socket</source>
@@ -630,6 +630,14 @@
     <message>
         <location filename="../ui_HttpOptsWidget.h" line="107"/>
         <source>Target file name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HttpService</name>
+    <message>
+        <location filename="../remote/HttpService.cpp" line="152"/>
+        <source>Listening on port %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1515,13 +1523,13 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="201"/>
+        <location filename="../fatrat.cpp" line="197"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="451"/>
+        <location filename="../fatrat.cpp" line="447"/>
         <source>Unable to load a data file:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1541,17 +1549,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="488"/>
+        <location filename="../fatrat.cpp" line="484"/>
         <source>Loaded a plugin:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="499"/>
+        <location filename="../fatrat.cpp" line="495"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="504"/>
+        <location filename="../fatrat.cpp" line="500"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1602,7 +1610,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>QueueToolTip</name>
     <message>
-        <location filename="../tooltips/QueueToolTip.cpp" line="41"/>
+        <location filename="../tooltips/QueueToolTip.cpp" line="42"/>
         <source>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Active:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 down&lt;/td&gt;&lt;td&gt;%2 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Waiting:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 down&lt;/td&gt;&lt;td&gt;%4 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Speed:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 down&lt;/td&gt;&lt;td&gt;%6 up&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1610,12 +1618,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidTools</name>
     <message>
-        <location filename="../tools/RapidTools.cpp" line="269"/>
+        <location filename="../tools/RapidTools.cpp" line="271"/>
         <source>An invalid link has been encountered: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/RapidTools.cpp" line="303"/>
+        <location filename="../tools/RapidTools.cpp" line="305"/>
         <source>Server failed to process our query.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1929,22 +1937,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RssFetcher</name>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="140"/>
+        <location filename="../rss/RssFetcher.cpp" line="148"/>
         <source>Failed to parse the feed &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="146"/>
+        <location filename="../rss/RssFetcher.cpp" line="154"/>
         <source>Failed to fetch the feed &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="209"/>
+        <location filename="../rss/RssFetcher.cpp" line="217"/>
         <source>The transfer wasn&apos;t accepted by any class: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="212"/>
+        <location filename="../rss/RssFetcher.cpp" line="220"/>
         <source>Automatically adding a new transfer: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2063,12 +2071,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsDlg</name>
     <message>
-        <location filename="../ui_SettingsDlg.h" line="101"/>
+        <location filename="../ui_SettingsDlg.h" line="104"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsDlg.h" line="102"/>
+        <location filename="../ui_SettingsDlg.h" line="105"/>
         <source>Some changes may require restart to take effect.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2657,6 +2665,29 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_SettingsTorrentForm.h" line="427"/>
         <source>Open pages with details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SettingsWebForm</name>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="85"/>
+        <source>Web interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="86"/>
+        <source>Enable remote web control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="87"/>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="88"/>
+        <source>Password</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3400,12 +3431,12 @@ of data has been uploaded</source>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../Transfer.cpp" line="154"/>
+        <location filename="../Transfer.cpp" line="159"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Transfer.cpp" line="247"/>
+        <location filename="../Transfer.cpp" line="258"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>

@@ -552,7 +552,7 @@ void MainWindow::deleteQueue()
 	   tr("Do you really want to delete the active queue?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 	{
 		g_queuesLock.lockForWrite();
-		g_queues.removeAt(queue);
+		delete g_queues.takeAt(queue);
 		g_queuesLock.unlock();
 		
 		Queue::saveQueues();

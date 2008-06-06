@@ -21,14 +21,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "config.h"
 
 #include "HttpService.h"
+#include "Settings.h"
+#include "RuntimeException.h"
+#include "SettingsWebForm.h"
+#include "Queue.h"
+#include "fatrat.h"
+#include "Logger.h"
+
 #include <QSettings>
 #include <QtDebug>
 #include <QStringList>
 #include <QFile>
+#include <QUrl>
 #include <QTcpSocket>
-//#include "JavaService.h"
-#include "RuntimeException.h"
-#include "fatrat.h"
+#include <QScriptEngine>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
@@ -38,30 +45,63 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include <errno.h>
 
+extern QList<Queue*> g_queues;
+extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
+
 static const int SOCKET_TIMEOUT = 10;
+
+HttpService* HttpService::m_instance = 0;
 
 #define HTTP_HEADERS "Server: FatRat/" VERSION "\r\n"
 
 HttpService::HttpService()
-	: m_bAbort(false)
 {
-	try
-	{
-		setup();
-		start();
-	}
-	catch(const RuntimeException& e)
-	{
-		qDebug() << e.what();
-	}
+	m_instance = this;
+	applySettings();
+	
+	SettingsItem si;
+	si.lpfnCreate = SettingsWebForm::create;
+	si.icon = QIcon(":/fatrat/webinterface.png");
+	
+	addSettingsPage(si);
 }
 
 HttpService::~HttpService()
 {
-	m_bAbort = true;
-	wait();
-	close(m_server);
+	m_instance = 0;
+	if(isRunning())
+	{
+		m_bAbort = true;
+		wait();
+		close(m_server);
+	}
+}
+
+void HttpService::applySettings()
+{
+	bool enable = getSettingsValue("remote/enable").toBool();
+	if(enable && !isRunning())
+	{
+		try
+		{
+			m_bAbort = false;
+			setup();
+			start();
+		}
+		catch(const RuntimeException& e)
+		{
+			qDebug() << e.what();
+			Logger::global()->enterLogMessage("HttpService", e.what());
+		}
+	}
+	else if(!enable && isRunning())
+	{
+		m_bAbort = true;
+		wait();
+		close(m_server);
+		m_server = 0;
+	}
 }
 
 void HttpService::setup()
@@ -69,7 +109,7 @@ void HttpService::setup()
 	quint16 port;
 	bool bIPv6 = true;
 	
-	port = g_settings->value("remote/port", getSettingsDefault("remote/port")).toUInt();
+	port = getSettingsValue("remote/port").toUInt();
 	
 	if((m_server = socket(PF_INET6, SOCK_STREAM, 0)) < 0)
 	{
@@ -108,6 +148,8 @@ void HttpService::setup()
 	
 	if(listen(m_server, 10) < 0)
 		throwErrno();
+	
+	Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(port));
 }
 
 void HttpService::throwErrno()
@@ -196,6 +238,7 @@ void HttpService::freeClient(int fd, int ep)
 {
 	ClientData& data = m_clients[fd];
 	delete data.file;
+	delete data.buffer;
 	epoll_ctl(ep, EPOLL_CTL_DEL, fd, 0);
 	close(fd);
 }
@@ -264,37 +307,65 @@ bool HttpService::processClientRead(int fd)
 bool HttpService::processClientWrite(int fd)
 {
 	ClientData& data = m_clients[fd];
+	time(&data.lastData);
 	
-	if(!data.file)
-		return true;
-	
-	if(!data.file->atEnd() && data.file->isOpen())
+	if(data.file)
 	{
-		QByteArray buf = data.file->read(8*1024);
-		
-		return write(fd, buf.constData(), buf.size()) == buf.size();
+		if(!data.file->atEnd() && data.file->isOpen())
+		{
+			QByteArray buf = data.file->read(8*1024);
+			
+			return write(fd, buf.constData(), buf.size()) == buf.size();
+		}
 	}
+	else if(data.buffer && !data.buffer->isEmpty())
+	{
+		QByteArray ar;
+		unsigned long bytes = 8*1024;
+		
+		ar.resize(bytes);
+		data.buffer->getData(ar.data(), &bytes);
+		
+		return write(fd, ar.constData(), bytes) == int(bytes);
+	}
+	
 	return true;
+}
+
+bool HttpService::authenitcate(const QList<QByteArray>& data)
+{
+	for(int i=0;i<data.size();i++)
+	{
+		if(!strncasecmp(data[i].constData(), "Authorization: Basic ", 21))
+		{
+			QList<QByteArray> auth = QByteArray::fromBase64(data[i].mid(21)).split(':');
+			if(auth.size() != 2)
+				return false;
+			
+			return auth[1] == getSettingsValue("remote/password").toString().toUtf8();
+		}
+	}
+	return false;
 }
 
 void HttpService::serveClient(int fd)
 {
-	bool bSendBody;
-	QString fileName;
+	bool bAuthFail = false;
+	QByteArray fileName, queryString;
 	ClientData& data = m_clients[fd];
 	
 	if(data.incoming[0].startsWith("GET "))
 	{
-		bSendBody = true;
+		//bSendBody = true;
 		int end = data.incoming[0].lastIndexOf(' ');
 		fileName = data.incoming[0].mid(4, end-4);
 	}
-	else if(data.incoming[0].startsWith("HEAD "))
+	/*else if(data.incoming[0].startsWith("HEAD "))
 	{
 		bSendBody = false;
 		int end = data.incoming[0].lastIndexOf(' ');
 		fileName = data.incoming[0].mid(5, end-5);
-	}
+	}*/
 	
 	if(fileName.isEmpty() || fileName.indexOf("..") >= 0)
 	{
@@ -303,30 +374,303 @@ void HttpService::serveClient(int fd)
 		return;
 	}
 	
+	int q = fileName.indexOf('?');
+	if(q != -1)
+	{
+		queryString = fileName.mid(q+1);
+		fileName.resize(q);
+	}
+	
 	if(fileName == "/")
 		fileName = "/index.html";
 	
 	fileName.prepend(DATA_LOCATION "/data/remote");
 	
-	qDebug() << "Opening" << fileName;
-	
-	data.file = new QFile(fileName);
-	data.file->open(QIODevice::ReadOnly);
-	
-	char buffer[4096];
-	
-	if(data.file->isOpen())
+	qint64 fileSize = -1;
+	if(!fileName.endsWith(".qsp"))
 	{
-		qint64 fileSize = data.file->size();
-		sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS "Content-Length: %lld\r\n\r\n", fileSize);
+		qDebug() << "Opening" << fileName;
+		
+		data.file = new QFile(fileName);
+		
+		if(data.file->open(QIODevice::ReadOnly))
+			fileSize = data.file->size();
 	}
 	else
 	{
-		strcpy(buffer, "HTTP/1.0 404 Not Found\r\n" HTTP_HEADERS "\r\n");
+		if(authenitcate(data.incoming))
+		{
+			QFile file(fileName);
+			if(file.open(QIODevice::ReadOnly))
+			{
+				data.buffer = new OutputBuffer;
+				
+				qDebug() << "Executing" << fileName;
+				interpretScript(&file, data.buffer, queryString);
+				fileSize = data.buffer->size();
+			}
+		}
+		else
+			bAuthFail = true;
 	}
+	
+	char buffer[4096];
+	if(bAuthFail)
+	{
+		strcpy(buffer, "HTTP/1.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FatRat web interface\""
+				"\r\nContent-Length: 16\r\n" HTTP_HEADERS "\r\n401 Unauthorized");
+	}
+	else if(fileSize != -1)
+	{
+		sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS "Content-Length: %lld\r\n"
+				"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n", fileSize);
+	}
+	else
+		strcpy(buffer, "HTTP/1.0 404 Not Found\r\nContent-Length: 13\r\n" HTTP_HEADERS "\r\n404 Not Found");
 	
 	qDebug() << buffer;
 	write(fd, buffer, strlen(buffer));
 	
 	processClientWrite(fd);
 }
+
+QVariantMap HttpService::processQueryString(QByteArray queryString)
+{
+	QVariantMap map;
+	QStringList s = QUrl::fromPercentEncoding(queryString).split('&');
+	foreach(QString e, s)
+	{
+		int p = e.indexOf('=');
+		if(p < 0)
+			continue;
+		map[e.left(p)] = e.mid(p+1);
+	}
+	return map;
+}
+
+QScriptValue pagePrintFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	QString result;
+	for(int i = 0; i < context->argumentCount(); i++)
+	{
+		if(i > 0)
+			result.append(' ');
+		result.append(context->argument(i).toString());
+	}
+
+	QScriptValue calleeData = context->callee().data();
+	OutputBuffer* buffer = qobject_cast<OutputBuffer*>(calleeData.toQObject());
+	QByteArray b = result.toUtf8();
+	
+	buffer->putData(b.constData(), b.size());
+
+	return engine->undefinedValue();
+}
+
+QScriptValue formatSizeFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	qulonglong size;
+	bool persec;
+	
+	if(context->argumentCount() != 2)
+	{
+		context->throwError("formatSize(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	
+	size = context->argument(0).toNumber();
+	persec = context->argument(1).toBoolean();
+	
+	return engine->toScriptValue(formatSize(size, persec));
+}
+
+QScriptValue formatTimeFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	qulonglong secs;
+	
+	if(context->argumentCount() != 1)
+	{
+		context->throwError("formatTime(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	
+	secs = context->argument(0).toNumber();
+	
+	return engine->toScriptValue(formatTime(secs));
+}
+
+QScriptValue transferSpeedFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 0)
+	{
+		context->throwError("Transfer.speed(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	Transfer* t = (Transfer*) context->thisObject().toQObject();
+	int down, up;
+	t->speeds(down, up);
+	
+	QScriptValue v = engine->newObject();
+	v.setProperty("down", engine->toScriptValue(down));
+	v.setProperty("up", engine->toScriptValue(up));
+	
+	return v;
+}
+
+QScriptValue transferTimeLeftFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 0)
+	{
+		context->throwError("Transfer.speed(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	
+	Transfer* t = (Transfer*) context->thisObject().toQObject();
+	Transfer::Mode mode = t->primaryMode();
+	QString time;
+	int down,up;
+	qint64 total, done;
+	
+	t->speeds(down,up);
+	total = t->total();
+	done = t->done();
+	
+	if(total)
+	{
+		if(mode == Transfer::Download && down)
+			time = formatTime((total-done)/down);
+		else if(mode == Transfer::Upload && up)
+			time = formatTime((total-done)/up);
+	}
+	
+	return engine->toScriptValue(time);
+}
+
+Q_DECLARE_METATYPE(Queue*)
+QScriptValue queueToScriptValue(QScriptEngine *engine, Queue* const &in)
+{
+	return engine->newQObject(in);
+}
+
+void queueFromScriptValue(const QScriptValue &object, Queue* &out)
+{
+	out = qobject_cast<Queue*>(object.toQObject());
+}
+
+Q_DECLARE_METATYPE(Transfer*)
+QScriptValue transferToScriptValue(QScriptEngine *engine, Transfer* const &in)
+{
+	QScriptValue retval = engine->newQObject(in);
+	retval.setProperty("speed", engine->newFunction(transferSpeedFunction));
+	retval.setProperty("timeLeft", engine->newFunction(transferTimeLeftFunction));
+	
+	return retval;
+}
+
+void transferFromScriptValue(const QScriptValue &object, Transfer* &out)
+{
+	out = qobject_cast<Transfer*>(object.toQObject());
+}
+
+void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString)
+{
+	QScriptEngine engine;
+	QByteArray in;
+	QScriptValue fun;
+	QVariantMap gets = processQueryString(queryString);
+	
+	g_queuesLock.lockForWrite();
+	in = input->readAll();
+	
+	engine.globalObject().setProperty("GET", engine.toScriptValue(gets));
+	
+	QScriptValue queues = engine.newArray(g_queues.size());
+	for(int i=0;i<g_queues.size();i++)
+		queues.setProperty(i, engine.newQObject(g_queues[i]));
+	engine.globalObject().setProperty("QUEUES", queues);
+	
+	fun = engine.newFunction(pagePrintFunction);
+	fun.setData(engine.newQObject(output));
+	engine.globalObject().setProperty("print", fun);
+	
+	fun = engine.newFunction(formatSizeFunction);
+	engine.globalObject().setProperty("formatSize", fun);
+	
+	fun = engine.newFunction(formatTimeFunction);
+	engine.globalObject().setProperty("formatTime", fun);
+	
+	qScriptRegisterMetaType(&engine, queueToScriptValue, queueFromScriptValue);
+	qScriptRegisterMetaType(&engine, transferToScriptValue, transferFromScriptValue);
+	
+	int p = 0;
+	while(true)
+	{
+		int e,next = in.indexOf("<?", p);
+		int line;
+		
+		output->putData(in.constData()+p, (next>=0) ? next-p : in.size()-p);
+		if(next < 0)
+			break;
+		
+		line = countLines(in, next) + 1;
+		next += 2;
+		
+		e = in.indexOf("?>", next);
+		if(e < 0)
+			break;
+		p = e+2;
+		
+		engine.evaluate(in.mid(next, e-next), input->fileName(), line);
+		if(engine.hasUncaughtException())
+		{
+			QByteArray errmsg = handleException(&engine);
+			output->putData(errmsg.constData(), errmsg.size());
+		}
+	}
+	
+	queues = engine.globalObject().property("QUEUES");
+	for(int i=g_queues.size();i>=0;i--)
+	{
+		QScriptValue v = queues.property(i);
+		if(v.isNull() || v.isUndefined())
+		{
+			// destroy the queue
+			delete g_queues.takeAt(i);
+		}
+	}
+	g_queuesLock.unlock();
+}
+
+QByteArray HttpService::handleException(QScriptEngine* engine)
+{
+	QByteArray errmsg = "<div style=\"color: red; border: 1px solid red\"><p><b>QtScript runtime exception:</b> <code>";
+	errmsg += engine->uncaughtException().toString().toUtf8();
+	errmsg += "</code>";
+	
+	int line = engine->uncaughtExceptionLineNumber();
+	if(line != -1)
+	{
+		errmsg += " on line ";
+		errmsg += QByteArray::number(line);
+	}
+	
+	errmsg += "</p><p>Backtrace:</p><pre>";
+	errmsg += engine->uncaughtExceptionBacktrace().join("\n");
+	errmsg += "</pre></div>";
+	
+	return errmsg;
+}
+
+int HttpService::countLines(const QByteArray& ar, int left)
+{
+	int lines = 0, p = 0;
+	while(true)
+	{
+		p = ar.indexOf('\n', p+1);
+		if(p > left || p < 0)
+			break;
+		lines++;
+	}
+	return lines;
+}
+

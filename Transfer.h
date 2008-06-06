@@ -40,7 +40,7 @@ class QDialog;
 
 class Transfer : public Logger
 {
-Q_OBJECT
+	Q_OBJECT
 public:
 	Transfer(bool local = false);
 	virtual ~Transfer();
@@ -55,33 +55,47 @@ public:
 	
 	// For Upload-oriented classes: target = local file
 	// For Download-oriented classes: target = local directory
-	virtual void setObject(QString object) = 0;
-	virtual QString object() const = 0;
+	Q_INVOKABLE virtual void setObject(QString object) = 0;
+	Q_INVOKABLE virtual QString object() const = 0;
+	Q_PROPERTY(QString object WRITE setObject READ object)
 	
 	// TRANSFER STATES
-	bool isActive() const;
-	State state() const { return m_state; }
+	Q_INVOKABLE bool isActive() const;
+	Q_PROPERTY(bool active READ isActive)
+	
+	State state() const;
 	virtual void setState(State newState);
+	Q_INVOKABLE QString stateString() const;
+	Q_INVOKABLE void setStateString(QString s);
+	Q_PROPERTY(QString state READ stateString WRITE setStateString)
+	
 	bool statePossible(State state) const;
 	int retryCount() const { return m_nRetryCount; }
 	qint64 timeRunning() const;
 	
 	// IDENTIFICATION AND INFORMATION
-	virtual QString myClass() const = 0;
-	virtual QString name() const = 0;
-	virtual QString message() const { return QString(); }
-	Mode mode() const { return m_mode; }
-	virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
+	Q_INVOKABLE virtual QString myClass() const = 0;
+	Q_PROPERTY(QString myClass READ myClass)
+	Q_INVOKABLE virtual QString name() const = 0;
+	Q_PROPERTY(QString name READ name)
+	Q_INVOKABLE virtual QString message() const { return QString(); }
+	Q_PROPERTY(QString message READ message)
+	Q_INVOKABLE Mode mode() const { return m_mode; }
+	Q_PROPERTY(Mode mode READ mode)
+	Q_INVOKABLE virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
+	Q_PROPERTY(Mode primaryMode READ primaryMode)
 	virtual QString dataPath(bool bDirect) const;
 	
 	// TRANSFER SPEED AND SPEED LIMITS
 	virtual void speeds(int& down, int& up) const = 0;
-	void setUserSpeedLimits(int down,int up);
+	Q_INVOKABLE void setUserSpeedLimits(int down,int up);
 	void userSpeedLimits(int& down,int& up) const { down=m_nDownLimit; up=m_nUpLimit; }
 	
 	// TRANSFER SIZE
-	virtual qulonglong total() const = 0;
-	virtual qulonglong done() const = 0;
+	Q_INVOKABLE virtual qulonglong total() const = 0;
+	Q_PROPERTY(qulonglong total READ total)
+	Q_INVOKABLE virtual qulonglong done() const = 0;
+	Q_PROPERTY(qulonglong done READ done)
 	
 	// SERIALIZATION
 	virtual void load(const QDomNode& map);
@@ -96,8 +110,9 @@ public:
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
 	
 	// COMMENT
-	QString comment() const { return m_strComment; }
-	void setComment(QString text) { m_strComment = text; }
+	Q_INVOKABLE QString comment() const { return m_strComment; }
+	Q_INVOKABLE void setComment(QString text) { m_strComment = text; }
+	Q_PROPERTY(QString comment WRITE setComment READ comment)
 	
 	// AUTO ACTIONS
 	QString autoActionCommand(State state) const;

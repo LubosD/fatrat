@@ -217,61 +217,61 @@
     </message>
 </context>
 <context>
-    <name>FtpEngine</name>
+    <name>FtpClient</name>
     <message>
         <location filename="../engines/FtpClient.cpp" line="127"/>
         <source>Failed to open file</source>
-        <translation>Dosya açma başarısız</translation>
+        <translation type="unfinished">Dosya açma başarısız</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="159"/>
         <source>Invalid server response</source>
-        <translation>Geçersiz sunucu yanıtı</translation>
+        <translation type="unfinished">Geçersiz sunucu yanıtı</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="220"/>
         <source>Logging in</source>
-        <translation>Oturum açılıyor</translation>
+        <translation type="unfinished">Oturum açılıyor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="277"/>
         <source>Querying file size</source>
-        <translation>Dosya boyutu sorgulanıyor</translation>
+        <translation type="unfinished">Dosya boyutu sorgulanıyor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="305"/>
         <source>Switching directory</source>
-        <translation>Dizin değiştiriliyor</translation>
+        <translation type="unfinished">Dizin değiştiriliyor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="314"/>
         <source>Requesting file</source>
-        <translation>Dosya talep ediliyor</translation>
+        <translation type="unfinished">Dosya talep ediliyor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="327"/>
         <source>Appending file</source>
-        <translation>Dosya ekleniyor</translation>
+        <translation type="unfinished">Dosya ekleniyor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="371"/>
         <source>Establishing a data connection</source>
-        <translation>Data bağlantısı kuruluyor</translation>
+        <translation type="unfinished">Data bağlantısı kuruluyor</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="425"/>
         <source>Unable to establish a data connection</source>
-        <translation>Data bağlantısı kurulamadı</translation>
+        <translation type="unfinished">Data bağlantısı kurulamadı</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="478"/>
         <source>Timeout</source>
-        <translation>Zaman aşımı</translation>
+        <translation type="unfinished">Zaman aşımı</translation>
     </message>
     <message>
         <location filename="../engines/FtpClient.cpp" line="491"/>
         <source>Connection to the server lost</source>
-        <translation>Sunucuyla bağlantı koptu</translation>
+        <translation type="unfinished">Sunucuyla bağlantı koptu</translation>
     </message>
 </context>
 <context>
@@ -567,36 +567,36 @@
     </message>
 </context>
 <context>
-    <name>HttpEngine</name>
+    <name>HttpClient</name>
     <message>
         <location filename="../engines/HttpClient.cpp" line="127"/>
         <source>Failed to bind socket</source>
-        <translation>Soketi bağlama başarısız</translation>
+        <translation type="unfinished">Soketi bağlama başarısız</translation>
     </message>
     <message>
         <location filename="../engines/HttpClient.cpp" line="187"/>
         <source>Sending data</source>
-        <translation>Data yollanıyor</translation>
+        <translation type="unfinished">Data yollanıyor</translation>
     </message>
     <message>
         <location filename="../engines/HttpClient.cpp" line="200"/>
         <source>Receiving data</source>
-        <translation>Data alınıyor</translation>
+        <translation type="unfinished">Data alınıyor</translation>
     </message>
     <message>
         <location filename="../engines/HttpClient.cpp" line="310"/>
         <source>Resume not supported</source>
-        <translation>Sürdürme desteklenmiyor</translation>
+        <translation type="unfinished">Sürdürme desteklenmiyor</translation>
     </message>
     <message>
         <location filename="../engines/HttpClient.cpp" line="313"/>
         <source>Segmentation not supported by server</source>
-        <translation>Segmentasyon sunucu tarafından desteklenmiyor</translation>
+        <translation type="unfinished">Segmentasyon sunucu tarafından desteklenmiyor</translation>
     </message>
     <message>
         <location filename="../engines/HttpClient.cpp" line="352"/>
         <source>Requested Range Not Satisfiable - the file has probably already been downloaded</source>
-        <translation>İstenen Aralık Sağlanamaz - dosya muhtemelen daha önce indirilmiş</translation>
+        <translation type="unfinished">İstenen Aralık Sağlanamaz - dosya muhtemelen daha önce indirilmiş</translation>
     </message>
 </context>
 <context>
@@ -634,6 +634,14 @@
         <location filename="../ui_HttpOptsWidget.h" line="107"/>
         <source>Target file name:</source>
         <translation>Hedef dosya adı: </translation>
+    </message>
+</context>
+<context>
+    <name>HttpService</name>
+    <message>
+        <location filename="../remote/HttpService.cpp" line="152"/>
+        <source>Listening on port %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1536,13 +1544,13 @@ Bu komut özel argümanlar gerektirir. Daha fazla bilgi için bu adrese bakın h
         <translation>RapidShare araçları</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="201"/>
+        <location filename="../fatrat.cpp" line="197"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Halihazırda çalışan bir örnek var. Yine de Fatrat&apos;i başlatmak istiyorsanız, komut satırı argümanlarına --force ekleyin.</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="451"/>
+        <location filename="../fatrat.cpp" line="447"/>
         <source>Unable to load a data file:</source>
         <translation>Data dosyası yüklenemedi</translation>
     </message>
@@ -1562,17 +1570,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Dosya hash hesaplayıcısı</translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="488"/>
+        <location filename="../fatrat.cpp" line="484"/>
         <source>Loaded a plugin:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="499"/>
+        <location filename="../fatrat.cpp" line="495"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fatrat.cpp" line="504"/>
+        <location filename="../fatrat.cpp" line="500"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1623,7 +1631,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>QueueToolTip</name>
     <message>
-        <location filename="../tooltips/QueueToolTip.cpp" line="41"/>
+        <location filename="../tooltips/QueueToolTip.cpp" line="42"/>
         <source>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Active:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 down&lt;/td&gt;&lt;td&gt;%2 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Waiting:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 down&lt;/td&gt;&lt;td&gt;%4 up&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Speed:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 down&lt;/td&gt;&lt;td&gt;%6 up&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table cellspacing=4&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=green&gt;Aktif:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%1 indirme&lt;/td&gt;&lt;td&gt;%2 gönderme&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=red&gt;Bekliyor:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%3 indirme&lt;/td&gt;&lt;td&gt;%4 gönderme&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;font color=blue&gt;Hız:&lt;/font&gt;&lt;/td&gt;&lt;td&gt;%5 indirme&lt;/td&gt;&lt;td&gt;%6 gönderme&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -1631,12 +1639,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidTools</name>
     <message>
-        <location filename="../tools/RapidTools.cpp" line="269"/>
+        <location filename="../tools/RapidTools.cpp" line="271"/>
         <source>An invalid link has been encountered: %1</source>
         <translation>Geçersiz bir linke rastlandı: %1</translation>
     </message>
     <message>
-        <location filename="../tools/RapidTools.cpp" line="303"/>
+        <location filename="../tools/RapidTools.cpp" line="305"/>
         <source>Server failed to process our query.</source>
         <translation>Sunucu sorgumuzu işlemekte başarısız oldu</translation>
     </message>
@@ -1950,22 +1958,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RssFetcher</name>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="140"/>
+        <location filename="../rss/RssFetcher.cpp" line="148"/>
         <source>Failed to parse the feed &quot;%1&quot;</source>
         <translation>&quot;%1&quot; beslemesi işlenemedi</translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="146"/>
+        <location filename="../rss/RssFetcher.cpp" line="154"/>
         <source>Failed to fetch the feed &quot;%1&quot;</source>
         <translation>&quot;%1&quot; beslemesi alınamadı</translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="209"/>
+        <location filename="../rss/RssFetcher.cpp" line="217"/>
         <source>The transfer wasn&apos;t accepted by any class: %1</source>
         <translation>Transfer hiçbir tür tarafından kabul edilmedi: %1</translation>
     </message>
     <message>
-        <location filename="../rss/RssFetcher.cpp" line="212"/>
+        <location filename="../rss/RssFetcher.cpp" line="220"/>
         <source>Automatically adding a new transfer: %1</source>
         <translation>Otomatik olarak yeni bir transfer ekleniyor: %1</translation>
     </message>
@@ -2084,12 +2092,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsDlg</name>
     <message>
-        <location filename="../ui_SettingsDlg.h" line="101"/>
+        <location filename="../ui_SettingsDlg.h" line="104"/>
         <source>Settings</source>
         <translation>Ayarlar</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsDlg.h" line="102"/>
+        <location filename="../ui_SettingsDlg.h" line="105"/>
         <source>Some changes may require restart to take effect.</source>
         <translation>Bazı değişikliklerin etkinleşmesi için yeniden 
 başlatmanız gerekebilir.</translation>
@@ -2680,6 +2688,29 @@ başlatmanız gerekebilir.</translation>
         <location filename="../ui_SettingsTorrentForm.h" line="427"/>
         <source>Open pages with details</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SettingsWebForm</name>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="85"/>
+        <source>Web interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="86"/>
+        <source>Enable remote web control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="87"/>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsWebForm.h" line="88"/>
+        <source>Password</source>
+        <translation type="unfinished">Şifre</translation>
     </message>
 </context>
 <context>
@@ -3422,12 +3453,12 @@ of data has been uploaded</source>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../Transfer.cpp" line="154"/>
+        <location filename="../Transfer.cpp" line="159"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation>Bu transfer türünün ayarlanacak gelişmiş ayarları yok.</translation>
     </message>
     <message>
-        <location filename="../Transfer.cpp" line="247"/>
+        <location filename="../Transfer.cpp" line="258"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Durum değiştirildi: %1 -&gt; %2</translation>
     </message>

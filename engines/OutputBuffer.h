@@ -20,14 +20,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef OUTPUTBUFFER_H
 #define OUTPUTBUFFER_H
+#include <QObject>
 
-class OutputBuffer
+class OutputBuffer : public QObject
 {
+Q_OBJECT
 public:
 	OutputBuffer();
 	~OutputBuffer();
 	void putData(const char* data, unsigned long bytes);
 	void getData(char* data, unsigned long* bytes);
+	bool isEmpty() const { return !m_bytes; }
+	unsigned long size() const { return m_bytes; }
 private:
 	char* m_buffer;
 	unsigned long m_bytes;

@@ -68,9 +68,10 @@ set(QT_USE_QTSVG TRUE)
 
 if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
-	#set(QT_ADDITIONAL_LIBS ${QT_ADDITIONAL_LIBS}
-	#	QtHelp)
 endif(WITH_DOCUMENTATION)
+if(WITH_REMOTE)
+	set(QT_USE_QTSCRIPT TRUE)
+endif(WITH_REMOTE)
 
 include( ${QT_USE_FILE} )
 add_definitions(${QT_DEFINITIONS})
@@ -173,6 +174,7 @@ set(fatrat_MOC_HDRS
 	# experimental
 	engines/DataPoller.h
 	engines/HttpEngine.h
+	engines/OutputBuffer.h
 	
 	tools/HashDlg.h
 	tools/RapidTools.h
@@ -303,17 +305,22 @@ if(WITH_JABBER)
 	)
 endif(WITH_JABBER)
 
-if(WITH_JAVAREMOTE)
+if(WITH_REMOTE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		remote/HttpService.cpp
 		remote/JavaService.cpp
+		remote/SettingsWebForm.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		remote/HttpService.h
 	)
-endif(WITH_JAVAREMOTE)
+	set(fatrat_UIS
+		${fatrat_UIS}
+		remote/SettingsWebForm.ui
+	)
+endif(WITH_REMOTE)
 
 if(WITH_DOCUMENTATION)
 	set(fatrat_SRCS
@@ -375,12 +382,20 @@ if(WITH_BITTORRENT)
 	install(FILES data/btlinks.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
 
-if(WITH_JAVAREMOTE)
+if(WITH_REMOTE)
 	install(FILES data/remote/fatratremote.jar DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/logo.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/java.html DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/index.html DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/index.qsp DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
-endif(WITH_JAVAREMOTE)
+	install(FILES data/remote/states/active.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/completed.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/forcedactive.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/paused.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/waiting.png DESTINATION share/fatrat/data/remote/states)
+endif(WITH_REMOTE)
 
 if(WITH_DOCUMENTATION)
 	execute_process(COMMAND doc/generate.sh)

@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dbus/DbusImpl.h"
 #include "rss/RssFetcher.h"
 
-#ifdef WITH_JAVAREMOTE
+#ifdef WITH_REMOTE
 #	include "remote/HttpService.h"
 #endif
 
@@ -57,10 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using namespace std;
 
 MainWindow* g_wndMain = 0;
-RssFetcher* g_rssFetcher = 0;
-#ifdef WITH_JAVAREMOTE
-HttpService* g_http = 0;
-#endif
 QMap<QString,PluginInfo> g_plugins;
 
 extern QVector<EngineEntry> g_enginesDownload;
@@ -116,10 +112,10 @@ int main(int argc,char** argv)
 	
 	g_wndMain = new MainWindow(m_bStartHidden);
 	
-#ifdef WITH_JAVAREMOTE
-	g_http = new HttpService;
+#ifdef WITH_REMOTE
+	new HttpService;
 #endif
-	g_rssFetcher = new RssFetcher;
+	new RssFetcher;
 	
 	DbusImpl* impl = new DbusImpl;
 	new FatratAdaptor(impl);
@@ -140,10 +136,10 @@ int main(int argc,char** argv)
 #ifdef WITH_JABBER
 	delete JabberService::instance();
 #endif
-#ifdef WITH_JAVAREMOTE
-	delete g_http;
+#ifdef WITH_REMOTE
+	delete HttpService::instance();
 #endif
-	delete g_rssFetcher;
+	delete RssFetcher::instance();
 	delete g_wndMain;
 	
 	Queue::saveQueues();

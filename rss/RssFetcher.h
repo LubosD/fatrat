@@ -56,6 +56,9 @@ class RssFetcher : public QObject, public QXmlDefaultHandler
 Q_OBJECT
 public:
 	RssFetcher();
+	~RssFetcher();
+	static RssFetcher* instance() { return m_instance; }
+	
 	bool startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts);
 	bool endElement(const QString& namespaceURI, const QString& localName, const QString& qName);
 	bool characters(const QString& ch);
@@ -80,6 +83,8 @@ public slots:
 	void refresh();
 	void requestFinished(int id, bool error);
 private:
+	static RssFetcher* m_instance;
+	
 	QTimer m_timer;
 	QList<RssFeed> m_feeds;
 	QList<RssItem> m_items;

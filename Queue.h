@@ -37,28 +37,31 @@ public:
 	static void saveQueues();
 	static void unloadQueues();
 	
-	void setSpeedLimits(int down,int up) { m_nDownLimit=down; m_nUpLimit=up; }
-	void speedLimits(int& down, int& up) const { down=m_nDownLimit; up=m_nUpLimit; }
+	Q_INVOKABLE void setSpeedLimits(int down,int up) { m_nDownLimit=down; m_nUpLimit=up; }
+	Q_INVOKABLE void speedLimits(int& down, int& up) const { down=m_nDownLimit; up=m_nUpLimit; }
 	
-	void setTransferLimits(int down = -1,int up = -1) { m_nDownTransferLimit=down; m_nUpTransferLimit=up; }
-	void transferLimits(int& down,int& up) const { down=m_nDownTransferLimit; up=m_nUpTransferLimit; }
+	Q_INVOKABLE void setTransferLimits(int down = -1,int up = -1) { m_nDownTransferLimit=down; m_nUpTransferLimit=up; }
+	Q_INVOKABLE void transferLimits(int& down,int& up) const { down=m_nDownTransferLimit; up=m_nUpTransferLimit; }
 	
-	void setName(QString name) { m_lock.lockForWrite(); m_strName=name; m_lock.unlock(); }
-	QString name() const { m_lock.lockForRead(); QString s=m_strName; m_lock.unlock(); return s; }
+	Q_INVOKABLE void setName(QString name) { m_lock.lockForWrite(); m_strName=name; m_lock.unlock(); }
+	Q_INVOKABLE QString name() const { m_lock.lockForRead(); QString s=m_strName; m_lock.unlock(); return s; }
+	Q_PROPERTY(QString name READ name WRITE setName)
 	
 	QString uuid() const { return m_uuid.toString(); }
 	
 	bool upAsDown() const { return m_bUpAsDown; }
 	void setUpAsDown(bool v) { m_bUpAsDown=v; }
 	
-	int size();
+	Q_INVOKABLE int size();
+	Q_PROPERTY(int size READ size)
 	
 	void lock() { m_lock.lockForRead(); }
 	void lockW() { m_lock.lockForWrite(); }
 	void unlock() { m_lock.unlock(); }
-	Transfer* at(int r);
 	
-	void add(Transfer* d);
+	Q_INVOKABLE Transfer* at(int r);
+	
+	Q_INVOKABLE void add(Transfer* d);
 	void add(QList<Transfer*> d);
 	
 	int moveDown(int n);
