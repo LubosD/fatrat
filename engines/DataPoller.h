@@ -29,10 +29,13 @@ struct TransferInfo;
 struct TransferStats;
 class SocketInterface;
 
-static const int ERR_CONNECTION_LOST = -1;
-static const int ERR_CONNECTION_ERR = -2;
-static const int ERR_CONNECTION_TIMEOUT = -3;
-static const int ERR_CONNECTION_ABORT = -4;
+enum
+{
+	ERR_CONNECTION_ABORT = -4,
+	ERR_CONNECTION_TIMEOUT,
+	ERR_CONNECTION_ERR,
+	ERR_CONNECTION_LOST
+};
 
 class DataPoller : public QThread
 {
@@ -44,12 +47,14 @@ public:
 	
 	void addSocket(SocketInterface* iface);
 	void removeSocket(SocketInterface* iface);
-	int processRead(TransferInfo& info);
-	int processWrite(TransferInfo& info);
 	void getSpeed(SocketInterface* iface, qint64& down, qint64& up) const;
-	static void updateStats(TransferStats& stats, qint64 usecs);
 	
 	static DataPoller* instance() { return m_instance; }
+protected:
+	void processRead(TransferInfo& info);
+	void processWrite(TransferInfo& info);
+	void updateStats(const timeval& now, int msecs);
+	static void updateStats(TransferStats& stats, int msecs);
 private:
 	int m_epoll;
 	char* m_buffer;
@@ -65,16 +70,18 @@ class SocketInterface
 public:
 	virtual int socket() const = 0;
 	virtual void speedLimit(int& down, int& up) const { down = up = 0; }
-	virtual bool putData(const char* data, unsigned long bytes) { return true; }
-	virtual bool getData(char* data, unsigned long* bytes) { *bytes = 0; return true; }
+	virtual bool putData(const char* data, unsigned long bytes) = 0;
+	virtual bool getData(char* data, unsigned long* bytes) = 0;
 	virtual void error(int error) = 0;
 };
 
 struct TransferStats
 {
 	TransferStats();
+	bool hasNextProcess() const;
+	bool nextProcessDue(const timeval& now) const;
 	
-	timeval lastProcess; // last reception/send
+	timeval nextProcess; // next reception/send
 	qint64 transferred, transferredPrev;
 	QList<QPair<int, qint64> > speedData; // msec, bytes
 	qint64 speed;
@@ -85,8 +92,8 @@ struct TransferInfo
 	SocketInterface* interface;
 	
 	// internal
+	timeval lastProcess;
 	TransferStats downloadStats, uploadStats;
-	
 	QByteArray leftover;
 };
 

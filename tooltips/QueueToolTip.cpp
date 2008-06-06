@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 QueueToolTip::QueueToolTip(QWidget* parent, Queue* queue)
 	: BaseToolTip(queue, parent), m_queue(queue)
 {
+	refresh();
 }
 
 void QueueToolTip::refresh()

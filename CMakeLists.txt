@@ -102,8 +102,11 @@ set(fatrat_SRCS
 	TransfersModel.cpp
 	Logger.cpp
 	Settings.cpp
-	DataPoller.cpp
-	#TcpSocket.cpp
+	
+	# experimental
+	engines/DataPoller.cpp
+	engines/HttpEngine.cpp
+	engines/LineFeeder.cpp
 
 	remote/GenericService.cpp
 	
@@ -164,7 +167,10 @@ set(fatrat_MOC_HDRS
 	UserAuthDlg.h
 	NewTransferDlg.h
 	Logger.h
-	DataPoller.h
+	
+	# experimental
+	engines/DataPoller.h
+	engines/HttpEngine.h
 	
 	tools/HashDlg.h
 	tools/RapidTools.h
