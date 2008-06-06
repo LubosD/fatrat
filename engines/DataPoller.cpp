@@ -25,41 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <fcntl.h>
 
 static const int MAX_SPEED_SAMPLES = 5;
-static const int SOCKET_TIMEOUT = 15;
+static const int SOCKET_TIMEOUT = 15; // timeout ∊ <SOCKET_TIMEOUT, SOCKET_TIMEOUT+1)
 static const int BUFFER_SIZE = 4096;
-static const qint64 MILLION = 1000000LL;
 
 DataPoller* DataPoller::m_instance = 0;
-
-TransferStats::TransferStats() : transferred(0), transferredPrev(0), speed(0)
-{
-	memset(&nextProcess, 0, sizeof nextProcess);
-}
-
-bool operator<(const timeval& t1, const timeval& t2)
-{
-	if(t1.tv_sec < t2.tv_sec)
-		return true;
-	else if(t1.tv_sec > t2.tv_sec)
-		return false;
-	else
-		return t1.tv_usec < t2.tv_usec;
-}
-
-int operator-(const timeval& t1, const timeval& t2)
-{
-	return (t1.tv_sec-t2.tv_sec)*1000 + (t1.tv_usec-t2.tv_usec)/1000;
-}
-
-bool TransferStats::hasNextProcess() const
-{
-	return nextProcess.tv_sec || nextProcess.tv_usec;
-}
-
-bool TransferStats::nextProcessDue(const timeval& now) const
-{
-	return (nextProcess < now) && hasNextProcess();
-}
 
 DataPoller::DataPoller() : m_bAbort(false)
 {
@@ -81,51 +50,14 @@ DataPoller::~DataPoller()
 void DataPoller::run()
 {
 	timeval lastT, nowT;
+	int wait = 500; // 500ms at max, so that socket timeouts are detected
 	
 	gettimeofday(&lastT, 0);
 	
 	while(!m_bAbort)
 	{
 		epoll_event events[20];
-		int wait = 500, num;
-		
-		gettimeofday(&nowT, 0);
-		
-		// run planned reads/writes
-		for(QMap<int, TransferInfo>::iterator it = m_sockets.begin(); it != m_sockets.end();)
-		{
-			try
-			{
-				if(it->downloadStats.nextProcessDue(nowT))
-					processRead(it.value());
-				if(it->uploadStats.nextProcessDue(nowT))
-					processWrite(it.value());
-				it++;
-			}
-			catch(int errn)
-			{
-				epoll_ctl(m_epoll, EPOLL_CTL_DEL, it->interface->socket(), 0);
-				it->interface->error(errn);
-				it = m_sockets.erase(it);
-			}
-		}
-		
-		// plan next reads/writes
-		for(QMap<int, TransferInfo>::const_iterator it = m_sockets.constBegin(); it != m_sockets.constEnd(); it++)
-		{
-			if(it->downloadStats.hasNextProcess())
-			{
-				int diff = it->downloadStats.nextProcess - nowT;
-				if(diff < wait)
-					wait = diff;
-			}
-			if(it->uploadStats.hasNextProcess())
-			{
-				int diff = it->uploadStats.nextProcess - nowT;
-				if(diff < wait)
-					wait = diff;
-			}
-		}
+		int num;
 		
 		// wait for the next planned operation or socket event
 		num = epoll_wait(m_epoll, events, sizeof(events) / sizeof(events[0]), wait);
@@ -133,7 +65,7 @@ void DataPoller::run()
 		
 		for(int i=0;i<num;i++)
 		{
-			TransferInfo& info = m_sockets[events[num].data.fd];
+			SocketInterface* iface = m_sockets[events[num].data.fd];
 			
 			try
 			{
@@ -141,21 +73,52 @@ void DataPoller::run()
 					throw ERR_CONNECTION_ERR;
 				else if(events[i].events & EPOLLHUP)
 					throw ERR_CONNECTION_LOST;
-				else if(events[i].events & EPOLLIN &&
-					(info.downloadStats.nextProcessDue(nowT) || !info.downloadStats.hasNextProcess()))
-				{
-					processRead(info);
-				}
-				else if(events[i].events & EPOLLOUT &&
-					(info.uploadStats.nextProcessDue(nowT) || !info.uploadStats.hasNextProcess()))
-				{
-					processWrite(info);
-				}
+				else if(events[i].events & EPOLLIN && !iface->m_downloadStats.hasNextProcess())
+					processRead(iface);
+				else if(events[i].events & EPOLLOUT && !iface->m_uploadStats.hasNextProcess())
+					processWrite(iface);
 			}
 			catch(int errn)
 			{
-				removeSocket(info.interface);
-				info.interface->error(errn);
+				removeSocket(iface);
+				iface->error(errn);
+			}
+		}
+		
+		// run planned reads/writes
+		for(QMap<int, SocketInterface*>::iterator it = m_sockets.begin(); it != m_sockets.end();)
+		{
+			try
+			{
+				if(it.value()->m_downloadStats.nextProcessDue(nowT))
+					processRead(it.value());
+				if(it.value()->m_uploadStats.nextProcessDue(nowT))
+					processWrite(it.value());
+				it++;
+			}
+			catch(int errn)
+			{
+				epoll_ctl(m_epoll, EPOLL_CTL_DEL, it.value()->socket(), 0);
+				it.value()->error(errn);
+				it = m_sockets.erase(it);
+			}
+		}
+		
+		// plan next reads/writes
+		wait = 500; // 500ms at max, so that socket timeouts are detected
+		for(QMap<int, SocketInterface*>::const_iterator it = m_sockets.constBegin(); it != m_sockets.constEnd(); it++)
+		{
+			if(it.value()->m_downloadStats.hasNextProcess())
+			{
+				int diff = it.value()->m_downloadStats.nextProcess - nowT;
+				if(diff < wait)
+					wait = diff;
+			}
+			if(it.value()->m_uploadStats.hasNextProcess())
+			{
+				int diff = it.value()->m_uploadStats.nextProcess - nowT;
+				if(diff < wait)
+					wait = diff;
 			}
 		}
 		
@@ -171,15 +134,15 @@ void DataPoller::run()
 
 void DataPoller::updateStats(const timeval& nowT, int msecs)
 {
-	for(QMap<int, TransferInfo>::iterator it = m_sockets.begin(); it != m_sockets.end();)
+	for(QMap<int, SocketInterface*>::iterator it = m_sockets.begin(); it != m_sockets.end();)
 	{
-		updateStats(it->downloadStats, msecs);
-		updateStats(it->uploadStats, msecs);
+		updateStats(it.value()->m_downloadStats, msecs);
+		updateStats(it.value()->m_uploadStats, msecs);
 		
-		if(nowT.tv_sec - it->lastProcess.tv_sec > SOCKET_TIMEOUT)
+		if(nowT.tv_sec - it.value()->m_lastProcess.tv_sec > SOCKET_TIMEOUT)
 		{
-			epoll_ctl(m_epoll, EPOLL_CTL_DEL, it->interface->socket(), 0);
-			it->interface->error(ERR_CONNECTION_TIMEOUT);
+			epoll_ctl(m_epoll, EPOLL_CTL_DEL, it.value()->socket(), 0);
+			it.value()->error(ERR_CONNECTION_TIMEOUT);
 			it = m_sockets.erase(it);
 		}
 		else
@@ -211,17 +174,12 @@ void DataPoller::updateStats(TransferStats& stats, int msecs)
 	stats.transferredPrev = stats.transferred;
 }
 
-void DataPoller::getSpeed(SocketInterface* iface, qint64& down, qint64& up) const
-{
-	down = m_sockets[iface->socket()].downloadStats.speed;
-	up = m_sockets[iface->socket()].uploadStats.speed;
-}
-
 void DataPoller::addSocket(SocketInterface* iface)
 {
 	int socket = iface->socket();
-	TransferInfo& info = m_sockets[socket];
 	epoll_event ev;
+	
+	m_sockets[socket] = iface;
 	
 	ev.data.fd = socket;
 	
@@ -231,7 +189,6 @@ void DataPoller::addSocket(SocketInterface* iface)
 	ev.events = EPOLLHUP | EPOLLERR | EPOLLOUT | EPOLLIN;
 	
 	epoll_ctl(m_epoll, EPOLL_CTL_ADD, socket, &ev);
-	info.interface = iface;
 }
 
 void DataPoller::removeSocket(SocketInterface* iface)
@@ -242,25 +199,19 @@ void DataPoller::removeSocket(SocketInterface* iface)
 	epoll_ctl(m_epoll, EPOLL_CTL_DEL, sock, 0);
 }
 
-void DataPoller::processRead(TransferInfo& info)
+void DataPoller::processRead(SocketInterface* iface)
 {
 	qint64 thisCall = 0, thisLimit = 0;
-	timeval tv;
-	
-	gettimeofday(&tv, 0);
-	
 	int downL, upL;
-	info.interface->speedLimit(downL, upL);
+	
+	iface->speedLimit(downL, upL);
+	
 	if(downL)
-	{
-		//thisLimit = (tv.tv_sec-info.downloadStats.lastProcess.tv_sec)*downL;
-		//thisLimit += qint64(tv.tv_usec-info.downloadStats.lastProcess.tv_usec)*double(downL)/MILLION;
 		thisLimit = downL / 2;
-	}
 	
 	while(thisCall < thisLimit || !thisLimit)
 	{
-		ssize_t r = read(info.interface->socket(), m_buffer, qMin<ssize_t>(BUFFER_SIZE, thisLimit - thisCall));
+		ssize_t r = read(iface->socket(), m_buffer, qMin<ssize_t>(BUFFER_SIZE, thisLimit - thisCall));
 		
 		if(r < 0)
 		{
@@ -272,64 +223,61 @@ void DataPoller::processRead(TransferInfo& info)
 		else if(r == 0)
 			throw ERR_CONNECTION_LOST;
 		
-		if(!info.interface->putData(m_buffer, r))
+		if(!iface->putData(m_buffer, r))
 			throw ERR_CONNECTION_ABORT;
 		
-		info.downloadStats.transferred += r;
+		iface->m_downloadStats.transferred += r;
 		thisCall += r;
 	}
 	
-	gettimeofday(&info.lastProcess, 0);
+	gettimeofday(&iface->m_lastProcess, 0);
 	if(!thisCall || !thisLimit)
-		memset(&info.downloadStats.nextProcess, 0, sizeof(timeval));
+		memset(&iface->m_downloadStats.nextProcess, 0, sizeof(timeval));
 	else if(thisLimit)
 	{
 		unsigned long msec = thisCall * 1000 / downL;
-		info.downloadStats.nextProcess = info.lastProcess;
-		info.downloadStats.nextProcess.tv_usec += msec*1000;
-		info.downloadStats.nextProcess.tv_sec += info.downloadStats.nextProcess.tv_usec / 1000;
-		info.downloadStats.nextProcess.tv_usec %= MILLION;
+		iface->m_downloadStats.nextProcess = iface->m_lastProcess;
+		iface->m_downloadStats.nextProcess.tv_usec += msec*1000;
+		iface->m_downloadStats.nextProcess.tv_sec += iface->m_downloadStats.nextProcess.tv_usec / 1000;
+		iface->m_downloadStats.nextProcess.tv_usec %= 1000000LL;
 	}
 }
 
-void DataPoller::processWrite(TransferInfo& info)
+void DataPoller::processWrite(SocketInterface* iface)
 {
 	qint64 thisCall = 0, thisLimit = 0;
-	timeval tv;
-	
-	gettimeofday(&tv, 0);
-	
 	int downL, upL;
-	info.interface->speedLimit(downL, upL);
+	
+	iface->speedLimit(downL, upL);
+	
 	if(downL)
-	{
-		//thisLimit = (tv.tv_sec-info.uploadStats.lastProcess.tv_sec)*upL;
-		//thisLimit += qint64(tv.tv_usec-info.uploadStats.lastProcess.tv_usec)*double(upL)/MILLION;
 		thisLimit = upL / 2;
-	}
 	
 	while(thisCall < thisLimit || !thisLimit)
 	{
 		unsigned long bytes = qMin<unsigned long>(BUFFER_SIZE, thisLimit - thisCall);
 		
-		if(info.leftover.isEmpty())
+		if(iface->m_leftover.isEmpty())
 		{
-			if(!info.interface->getData(m_buffer, &bytes))
+			if(!iface->getData(m_buffer, &bytes))
 				throw ERR_CONNECTION_ABORT;
 		}
 		else
 		{
-			bytes = qMin<ssize_t>(bytes, info.leftover.size());
-			memcpy(m_buffer, info.leftover.constData(), bytes);
-			info.leftover = info.leftover.mid(bytes);
+			bytes = qMin<ssize_t>(bytes, iface->m_leftover.size());
+			memcpy(m_buffer, iface->m_leftover.constData(), bytes);
+			iface->m_leftover = iface->m_leftover.mid(bytes);
 		}
 		
-		int r = write(info.interface->socket(), m_buffer, bytes);
+		if(!bytes)
+			break;
+		
+		int r = write(iface->socket(), m_buffer, bytes);
 		if(r < 0)
 		{
 			if(errno == EAGAIN)
 			{
-				info.leftover = QByteArray(m_buffer, bytes);
+				iface->m_leftover = QByteArray(m_buffer, bytes);
 				break;
 			}
 			else
@@ -339,23 +287,23 @@ void DataPoller::processWrite(TransferInfo& info)
 			throw ERR_CONNECTION_LOST;
 		else if(r < int(bytes))
 		{
-			info.leftover = QByteArray(m_buffer+r, bytes-r);
+			iface->m_leftover = QByteArray(m_buffer+r, bytes-r);
 			break;
 		}
 		
-		info.uploadStats.transferred += bytes;
+		iface->m_uploadStats.transferred += bytes;
 		thisCall += bytes;
 	}
 	
-	gettimeofday(&info.lastProcess, 0);
+	gettimeofday(&iface->m_lastProcess, 0);
 	if(!thisCall || !thisLimit)
-		memset(&info.uploadStats.nextProcess, 0, sizeof(timeval));
+		memset(&iface->m_uploadStats.nextProcess, 0, sizeof(timeval));
 	else if(thisLimit)
 	{
 		unsigned long msec = thisCall * 1000 / downL;
-		info.uploadStats.nextProcess = info.lastProcess;
-		info.uploadStats.nextProcess.tv_usec += msec*1000;
-		info.uploadStats.nextProcess.tv_sec += info.uploadStats.nextProcess.tv_usec / 1000;
-		info.uploadStats.nextProcess.tv_usec %= MILLION;
+		iface->m_uploadStats.nextProcess = iface->m_lastProcess;
+		iface->m_uploadStats.nextProcess.tv_usec += msec*1000;
+		iface->m_uploadStats.nextProcess.tv_sec += iface->m_uploadStats.nextProcess.tv_usec / 1000;
+		iface->m_uploadStats.nextProcess.tv_usec %= 1000000LL;
 	}
 }

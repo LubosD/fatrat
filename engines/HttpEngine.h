@@ -21,18 +21,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef HTTPENGINE_H
 #define HTTPENGINE_H
 #include "DataPoller.h"
+#include "OutputBuffer.h"
 #include <QString>
 #include <QFile>
 #include <QUrl>
 #include <QHostInfo>
 #include <QHttpRequestHeader>
 
-class HttpEngine2 : public QObject, public SocketInterface
+class HttpEngine : public QObject, public SocketInterface
 {
 Q_OBJECT
 public:
-	HttpEngine2();
-	~HttpEngine2();
+	HttpEngine();
+	~HttpEngine();
 	
 	void get(QUrl url, QString file, QString referrer = QString(), qint64 from = 0, qint64 to = -1);
 	void setSpeedLimit(int down, int up);
@@ -54,6 +55,7 @@ private:
 	HttpState m_state;
 	
 	QHttpRequestHeader m_request;
+	OutputBuffer m_outputBuffer; // for HTTP headers
 };
 
 #endif

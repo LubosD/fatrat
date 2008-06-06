@@ -79,7 +79,7 @@ protected:
 	QUuid m_proxy;
 	QString m_strLinksDownload, m_strLinksKill;
 	
-	HttpEngine* m_engine;
+	HttpClient* m_engine;
 	QHttp* m_http;
 	QBuffer* m_buffer;
 	

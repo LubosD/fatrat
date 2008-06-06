@@ -25,11 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMap>
 #include "LimitedSocket.h"
 
-class HttpEngine : public LimitedSocket
+class HttpClient : public LimitedSocket
 {
 Q_OBJECT
 public:
-	HttpEngine(QUrl url, QUrl referrer, QUuid proxy);
+	HttpClient(QUrl url, QUrl referrer, QUuid proxy);
 	void addHeaderValue(QString name, QString value) { m_header.addValue(name, value); }
 	
 	// uploads only

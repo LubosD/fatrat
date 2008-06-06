@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QNetworkProxy>
 #include <QSslSocket>
 
-HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0), m_url(url)
+HttpClient::HttpClient(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0), m_url(url)
 {
 	QString user_info;
 	QString query, host;
@@ -71,7 +71,7 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0),
 	m_header.addValue("Connection", "close");
 }
 
-void HttpEngine::request(QString file, bool bUpload, int)
+void HttpClient::request(QString file, bool bUpload, int)
 {
 	if(LimitedSocket::open(file, bUpload))
 	{
@@ -112,7 +112,7 @@ void HttpEngine::request(QString file, bool bUpload, int)
 		emit finished(true);
 }
 
-void HttpEngine::run()
+void HttpClient::run()
 {
 	try
 	{
@@ -212,7 +212,7 @@ void HttpEngine::run()
 		doClose(&m_pRemote);
 }
 
-void HttpEngine::processServerResponse()
+void HttpClient::processServerResponse()
 {
 	QByteArray response;
 	
@@ -239,7 +239,7 @@ void HttpEngine::processServerResponse()
 		handleUploadHeaders(header);
 }
 
-void HttpEngine::performUpload()
+void HttpClient::performUpload()
 {
 	if(!m_bUpload)
 		return;
@@ -255,7 +255,7 @@ void HttpEngine::performUpload()
 	}
 }
 
-void HttpEngine::handleUploadHeaders(QHttpResponseHeader header)
+void HttpClient::handleUploadHeaders(QHttpResponseHeader header)
 {
 	int code = header.statusCode();
 	if(code >= 400)
@@ -271,7 +271,7 @@ void HttpEngine::handleUploadHeaders(QHttpResponseHeader header)
 	emit finished(false);
 }
 
-void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
+void HttpClient::handleDownloadHeaders(QHttpResponseHeader header)
 {
 	QList<QPair<QString,QString> > cs = header.values();
 	for(int i=0;i<cs.size();i++)
@@ -357,7 +357,7 @@ void HttpEngine::handleDownloadHeaders(QHttpResponseHeader header)
 	}
 }
 
-void HttpEngine::dataCycle(bool bChunked)
+void HttpClient::dataCycle(bool bChunked)
 {
 	bool bOK = true;
 	do

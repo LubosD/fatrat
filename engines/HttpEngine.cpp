@@ -24,17 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sys/types.h>
 #include <sys/socket.h>
 
-HttpEngine2::HttpEngine2()
+HttpEngine::HttpEngine()
 	: m_limitDown(0), m_limitUp(0), m_socket(0), m_state(StateNone)
 {
 	
 }
 
-HttpEngine2::~HttpEngine2()
+HttpEngine::~HttpEngine()
 {
 }
 
-void HttpEngine2::get(QUrl url, QString file, QString referrer, qint64 from, qint64 to)
+void HttpEngine::get(QUrl url, QString file, QString referrer, qint64 from, qint64 to)
 {
 	QString host, query;
 	m_url = url;
@@ -68,7 +68,7 @@ void HttpEngine2::get(QUrl url, QString file, QString referrer, qint64 from, qin
 	QHostInfo::lookupHost(url.host(), this, SLOT(domainResolved(QHostInfo)));
 }
 
-void HttpEngine2::domainResolved(QHostInfo info)
+void HttpEngine::domainResolved(QHostInfo info)
 {
 	QList<QHostAddress> addresses, ip4, ip6;
 	
@@ -91,36 +91,39 @@ void HttpEngine2::domainResolved(QHostInfo info)
 	if(addresses.isEmpty())
 		;
 	
+	QByteArray headers = m_request.toString().toUtf8();
+	m_outputBuffer.putData(headers.constData(), headers.size());
+	
 	// Let's try the first IP address
 	m_state = StateConnecting;
 }
 
-void HttpEngine2::setSpeedLimit(int down, int up)
+void HttpEngine::setSpeedLimit(int down, int up)
 {
 	m_limitDown = down;
 	m_limitUp = up;
 }
 
-int HttpEngine2::socket() const
+int HttpEngine::socket() const
 {
 	return m_socket;
 }
 
-void HttpEngine2::speedLimit(int& down, int& up) const
+void HttpEngine::speedLimit(int& down, int& up) const
 {
 	down = m_limitDown;
 	up = m_limitUp;
 }
 
-bool HttpEngine2::putData(const char* data, unsigned long bytes)
+bool HttpEngine::putData(const char* data, unsigned long bytes)
 {
 }
 
-bool HttpEngine2::getData(char* data, unsigned long* bytes)
+bool HttpEngine::getData(char* data, unsigned long* bytes)
 {
 }
 
-void HttpEngine2::error(int error)
+void HttpEngine::error(int error)
 {
 }
 

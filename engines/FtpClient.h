@@ -23,12 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QTcpSocket>
 #include "LimitedSocket.h"
 
-class FtpEngine : public LimitedSocket
+class FtpClient : public LimitedSocket
 {
 Q_OBJECT
 public:
 	enum FtpFlags { FtpActive = 1, FtpPassive = 2};
-	FtpEngine(QUrl url, QUuid proxy);
+	FtpClient(QUrl url, QUuid proxy);
 	virtual void setRemoteName(QString name) { m_strName = name; }
 	virtual void request(QString file, bool bUpload, int flags);
 	virtual void run();

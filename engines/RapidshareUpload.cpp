@@ -213,7 +213,7 @@ void RapidshareUpload::beginNextChunk()
 	qDebug() << header;
 	
 	QString url = QString("http://%1/cgi-bin/%2.cgi").arg(m_strServer).arg(handler);
-	m_engine = new HttpEngine(QUrl(url), QUrl(), m_proxy);
+	m_engine = new HttpClient(QUrl(url), QUrl(), m_proxy);
 	
 	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(postFinished(bool)), Qt::QueuedConnection);
 	//connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));

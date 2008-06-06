@@ -107,6 +107,8 @@ set(fatrat_SRCS
 	engines/DataPoller.cpp
 	engines/HttpEngine.cpp
 	engines/LineFeeder.cpp
+	engines/OutputBuffer.cpp
+	engines/SocketInterface.cpp
 
 	remote/GenericService.cpp
 	

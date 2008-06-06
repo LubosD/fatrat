@@ -310,8 +310,8 @@ void GeneralDownload::startHttp(QUrl url, QUrl referrer)
 	qDebug() << "GeneralDownload::startHttp" << url;
 	
 	m_urlLast = url;
-	HttpEngine* engine;
-	m_engine = engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
+	HttpClient* engine;
+	m_engine = engine = new HttpClient(url, referrer, m_urls[m_nUrl].proxy);
 	
 	connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
 	connect(m_engine, SIGNAL(renamed(QString)), this, SLOT(renamed(QString)));
@@ -327,11 +327,11 @@ void GeneralDownload::startFtp(QUrl url)
 	qDebug() << "GeneralDownload::startFtp" << url;
 	
 	m_urlLast = url;
-	m_engine = new FtpEngine(url, m_urls[m_nUrl].proxy);
+	m_engine = new FtpClient(url, m_urls[m_nUrl].proxy);
 	
 	connectSignals();
 	
-	m_engine->request(filePath(), false, (m_urls[m_nUrl].ftpMode == FtpActive ? FtpEngine::FtpActive : FtpEngine::FtpPassive));
+	m_engine->request(filePath(), false, (m_urls[m_nUrl].ftpMode == FtpActive ? FtpClient::FtpActive : FtpClient::FtpPassive));
 }
 
 void GeneralDownload::startSftp(QUrl url)
@@ -392,7 +392,7 @@ void GeneralDownload::redirected(QString newurl)
 		
 		location.setUserInfo(m_urlLast.userInfo());
 		
-		m_cookies = static_cast<HttpEngine*>(m_engine)->getCookies();
+		m_cookies = static_cast<HttpClient*>(m_engine)->getCookies();
 		
 		{
 			QUrl tmploc = location;

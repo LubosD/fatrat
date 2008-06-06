@@ -69,7 +69,7 @@ void ActivePortAllocator::listenerDestroyed(QObject* obj)
 	m_mutex.unlock();
 }
 
-FtpEngine::FtpEngine(QUrl url, QUuid proxyUuid) : m_pRemote(0), m_pSocketMain(0)
+FtpClient::FtpClient(QUrl url, QUuid proxyUuid) : m_pRemote(0), m_pSocketMain(0)
 {
 	m_strUser = url.userName();
 	m_strPassword = url.password();
@@ -95,7 +95,7 @@ FtpEngine::FtpEngine(QUrl url, QUuid proxyUuid) : m_pRemote(0), m_pSocketMain(0)
 	}
 }
 
-void FtpEngine::request(QString file, bool bUpload, int flags)
+void FtpClient::request(QString file, bool bUpload, int flags)
 {
 	if(LimitedSocket::open(file, bUpload))
 	{
@@ -129,7 +129,7 @@ void FtpEngine::request(QString file, bool bUpload, int flags)
 	}
 }
 
-bool FtpEngine::passiveConnect()
+bool FtpClient::passiveConnect()
 {
 	QHostAddress addr;
 	quint16 port;
@@ -179,7 +179,7 @@ bool FtpEngine::passiveConnect()
 		return true;
 }
 
-bool FtpEngine::activeConnect(QTcpServer** server)
+bool FtpClient::activeConnect(QTcpServer** server)
 {
 	QString ipport,reply;
 	QHostAddress local = m_pSocketMain->localAddress();
@@ -204,7 +204,7 @@ bool FtpEngine::activeConnect(QTcpServer** server)
 	return true;
 }
 
-bool FtpEngine::activeConnectFin(QTcpServer* server)
+bool FtpClient::activeConnectFin(QTcpServer* server)
 {
 	if(!server->waitForNewConnection(10000))
 		return false;
@@ -212,7 +212,7 @@ bool FtpEngine::activeConnectFin(QTcpServer* server)
 	return true;
 }
 
-void FtpEngine::login()
+void FtpClient::login()
 {
 	int code;
 	QString reply;
@@ -232,7 +232,7 @@ void FtpEngine::login()
 	}
 }
 
-void FtpEngine::connectServer()
+void FtpClient::connectServer()
 {
 	QString reply;
 	
@@ -269,7 +269,7 @@ void FtpEngine::connectServer()
 		throw reply;
 }
 
-qint64 FtpEngine::querySize()
+qint64 FtpClient::querySize()
 {
 	QString reply;
 	qulonglong size;
@@ -285,7 +285,7 @@ qint64 FtpEngine::querySize()
 	return size;
 }
 
-void FtpEngine::switchToDirectory()
+void FtpClient::switchToDirectory()
 {
 	QString reply, dir;
 	
@@ -308,7 +308,7 @@ void FtpEngine::switchToDirectory()
 		throw reply;
 }
 
-void FtpEngine::requestFile()
+void FtpClient::requestFile()
 {
 	QString reply;
 	emit statusMessage(tr("Requesting file"));
@@ -321,7 +321,7 @@ void FtpEngine::requestFile()
 	qDebug() << "RequestFile end";
 }
 
-void FtpEngine::appendFile()
+void FtpClient::appendFile()
 {
 	QString reply;
 	emit statusMessage(tr("Appending file"));
@@ -332,7 +332,7 @@ void FtpEngine::appendFile()
 		throw reply;
 }
 
-void FtpEngine::switchToBinary()
+void FtpClient::switchToBinary()
 {
 	QString reply;
 	writeLine("TYPE I\r\n");
@@ -340,7 +340,7 @@ void FtpEngine::switchToBinary()
 		throw reply;
 }
 
-void FtpEngine::setResume()
+void FtpClient::setResume()
 {
 	if(!m_nResume)
 		return;
@@ -351,7 +351,7 @@ void FtpEngine::setResume()
 		throw reply;
 }
 
-void FtpEngine::run()
+void FtpClient::run()
 {
 	QTcpServer* server = 0;
 	try
@@ -463,7 +463,7 @@ econn: // FIXME: this all looks so wrong
 		doClose(&m_pSocketMain);
 }
 
-void FtpEngine::writeLine(QString line)
+void FtpClient::writeLine(QString line)
 {
 	qDebug() << "writeLine()" << line;
 	
@@ -478,7 +478,7 @@ void FtpEngine::writeLine(QString line)
 		throw tr("Timeout");
 }
 
-int FtpEngine::readStatus(QString& cline)
+int FtpClient::readStatus(QString& cline)
 {
 	while(!m_bAbort)
 	{

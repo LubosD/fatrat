@@ -113,7 +113,7 @@ void FtpUpload::changeActive(bool nowActive)
 		m_strMessage = QString();
 		
 		if(m_strTarget.scheme() == "ftp")
-			m_engine = new FtpEngine(m_strTarget, m_proxy);
+			m_engine = new FtpClient(m_strTarget, m_proxy);
 #ifdef WITH_SFTP
 		else if(m_strTarget.scheme() == "sftp")
 			m_engine = new SftpEngine(m_strTarget);
@@ -128,7 +128,7 @@ void FtpUpload::changeActive(bool nowActive)
 		connect(m_engine, SIGNAL(finished(bool)), this, SLOT(finished(bool)));
 		connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
 		m_engine->setRemoteName(m_strName);
-		m_engine->request(m_strSource, true, (m_mode == FtpActive) ? FtpEngine::FtpActive : FtpEngine::FtpPassive);
+		m_engine->request(m_strSource, true, (m_mode == FtpActive) ? FtpClient::FtpActive : FtpClient::FtpPassive);
 	}
 	else if(m_engine != 0)
 	{
