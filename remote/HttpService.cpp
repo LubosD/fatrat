@@ -483,7 +483,7 @@ void HttpService::serveClient(int fd)
 		fileName.resize(q);
 	}
 	
-	if(fileName.isEmpty() || fileName.indexOf("..") >= 0)
+	if(fileName.isEmpty() || fileName.indexOf("/..") != -1)
 	{
 		const char* msg = "HTTP/1.0 400 Bad Request\r\n" HTTP_HEADERS "\r\n";
 		write(fd, msg, strlen(msg));
@@ -547,13 +547,18 @@ void HttpService::serveClient(int fd)
 		
 		try
 		{
-			QReadLocker locker(&g_queuesLock);
+			if(!authenitcate(rq.lines))
+			{
+				bAuthFail = true;
+				throw 0;
+			}
 			
+			QReadLocker locker(&g_queuesLock);
 			q = gets["queue"].toInt();
 			t = gets["transfer"].toInt();
 			path = gets["path"];
 			
-			if(path.indexOf("..") != -1)
+			if(path.indexOf("/..") != -1)
 				throw 0;
 			
 			if(q < 0 || q >= g_queues.size() || t < 0)
@@ -796,7 +801,7 @@ QScriptValue fileInfoFunction(QScriptContext* context, QScriptEngine* engine)
 	}
 	
 	file = context->argument(0).toString();
-	if(file.indexOf("..") != -1)
+	if(file.indexOf("/..") != -1)
 	{
 		context->throwError("fileInfo(): security alert");
 		return engine->undefinedValue();
@@ -824,7 +829,7 @@ QScriptValue listDirectoryFunction(QScriptContext* context, QScriptEngine* engin
 	}
 	
 	dir = context->argument(0).toString();
-	if(dir.indexOf("..") != -1)
+	if(dir.indexOf("/..") != -1)
 	{
 		context->throwError("listDirectory(): security alert");
 		return engine->undefinedValue();
@@ -834,7 +839,8 @@ QScriptValue listDirectoryFunction(QScriptContext* context, QScriptEngine* engin
 	if(!ddir.exists())
 		return QScriptValue(engine, QScriptValue::NullValue);
 	
-	return engine->toScriptValue(ddir.entryList());
+	QStringList ct = ddir.entryList(QDir::NoDotAndDotDot|QDir::Files|QDir::Dirs);
+	return engine->toScriptValue(ct);
 }
 
 QScriptValue transferSpeedFunction(QScriptContext* context, QScriptEngine* engine)

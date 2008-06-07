@@ -10,16 +10,12 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <link rel="stylesheet" type="text/css" href="/style.css"/>
 <script type="text/javascript">
 //<![CDATA[
-	function graph(q, t)
+	function newwin(url)
 	{
-		window.open('/generate/graph.png?'+q+';'+t, 'graph', 'width=660,height=500,toolbar=0');
+		window.open(url, 'popup', 'width=660,height=500,toolbar=0');
 		return false;
 	}
-	function details(q, t)
-	{
-		window.open('/details.qsp?queue='+q+'&transfer='+t, 'details', 'width=400,height=400,toolbar=0');
-		return false;
-	}
+	
 	function addTransfer(q)
 	{
 		window.open('/add_transfer.qsp?queue='+q, 'add_transfer', 'width=400,height=400,toolbar=0');
@@ -54,10 +50,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <form method="post" action="?<? print(QUERY_STRING); ?>">
 
 <p class="toolbar">
-	<button type="button" onclick="javascript:addTransfer(<? print(GET.queue); ?>)" title="New transfer"><img src="/add.png" alt="New transfer"/></button>
+	<button type="button" onclick="javascript:newwin('/add_transfer.qsp?queue='+<? print(GET.queue); ?>)" title="New transfer"><img src="/add.png" alt="New transfer"/></button>
 	<img src="/sep.png" alt="separator"/>
 	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
-	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and its data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
+	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<img src="/sep.png" alt="separator"/>
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
 	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
@@ -119,12 +115,12 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		var transfer = queue.at(i);
 
 		print('<tr><td>');
-		print(' <span class="ralign"><a onclick="javascript:return graph('+GET.queue+','+i+')" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a> ');
+		print(' <span class="ralign"><a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a> ');
 		
 		var info = fileInfo(transfer.dataPath);
 		if(info.directory)
 		{
-			print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+i+'&amp;path=/"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
+			print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+i+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
 		}
 		else
 		{
@@ -133,7 +129,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		
 		print('</span> <img src="/states/' + transfer.state.toLowerCase() + '.png" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" name="transfer['+i+']" value="true"/> ');
-		print('<a onclick="javascript:return details('+GET.queue+','+i+')" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a>');
+		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a>');
 		print('</td>');
 		
 		var progress;

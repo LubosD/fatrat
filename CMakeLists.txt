@@ -69,9 +69,9 @@ set(QT_USE_QTSVG TRUE)
 if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
 endif(WITH_DOCUMENTATION)
-if(WITH_REMOTE)
+if(WITH_WEBINTERFACE)
 	set(QT_USE_QTSCRIPT TRUE)
-endif(WITH_REMOTE)
+endif(WITH_WEBINTERFACE)
 
 include( ${QT_USE_FILE} )
 add_definitions(${QT_DEFINITIONS})
@@ -305,7 +305,7 @@ if(WITH_JABBER)
 	)
 endif(WITH_JABBER)
 
-if(WITH_REMOTE)
+if(WITH_WEBINTERFACE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		remote/HttpService.cpp
@@ -319,7 +319,7 @@ if(WITH_REMOTE)
 		${fatrat_UIS}
 		remote/SettingsWebForm.ui
 	)
-endif(WITH_REMOTE)
+endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
 	set(fatrat_SRCS
@@ -381,7 +381,7 @@ if(WITH_BITTORRENT)
 	install(FILES data/btlinks.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
 
-if(WITH_REMOTE)
+if(WITH_WEBINTERFACE)
 	install(FILES data/remote/sep.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/logo.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/reload.png DESTINATION share/fatrat/data/remote)
@@ -394,6 +394,7 @@ if(WITH_REMOTE)
 	
 	install(FILES data/remote/index.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/details.qsp DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/browse.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/add_transfer.qsp DESTINATION share/fatrat/data/remote)
 	
 	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
@@ -403,7 +404,7 @@ if(WITH_REMOTE)
 	install(FILES data/remote/states/forcedactive.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/paused.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/waiting.png DESTINATION share/fatrat/data/remote/states)
-endif(WITH_REMOTE)
+endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
 	execute_process(COMMAND doc/generate.sh)

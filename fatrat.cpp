@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dbus/DbusImpl.h"
 #include "rss/RssFetcher.h"
 
-#ifdef WITH_REMOTE
+#ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
 #endif
 
@@ -112,7 +112,7 @@ int main(int argc,char** argv)
 	
 	g_wndMain = new MainWindow(m_bStartHidden);
 	
-#ifdef WITH_REMOTE
+#ifdef WITH_WEBINTERFACE
 	new HttpService;
 #endif
 	new RssFetcher;

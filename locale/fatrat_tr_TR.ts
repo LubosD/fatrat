@@ -28,42 +28,42 @@
         <translation>Sürüm %1</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="268"/>
+        <location filename="../ui_AboutDlg.h" line="276"/>
         <source>About FatRat</source>
         <translation>Fatrat Hakkında</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="272"/>
+        <location filename="../ui_AboutDlg.h" line="280"/>
         <source>Native Language Support</source>
         <translation>Yerel Dil Desteği</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="273"/>
+        <location filename="../ui_AboutDlg.h" line="281"/>
         <source>SFTP</source>
         <translation>SFTP</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="274"/>
+        <location filename="../ui_AboutDlg.h" line="282"/>
         <source>BitTorrent</source>
         <translation>BitTorrent</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="275"/>
+        <location filename="../ui_AboutDlg.h" line="283"/>
         <source>Jabber remote control</source>
         <translation>Jabber  ile uzaktan yönetim</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="276"/>
+        <location filename="../ui_AboutDlg.h" line="284"/>
         <source>Documentation</source>
         <translation>Dokümantasyon</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="269"/>
+        <location filename="../ui_AboutDlg.h" line="277"/>
         <source>&lt;center&gt;&lt;font size=+5&gt;FatRat download manager</source>
         <translation>&lt;center&gt;&lt;font size=+5&gt;Fatrat indirme yöneticisi</translation>
     </message>
     <message>
-        <location filename="../ui_AboutDlg.h" line="271"/>
+        <location filename="../ui_AboutDlg.h" line="279"/>
         <source>Features enabled at compile time:</source>
         <translation>Derleme esnasında etkinleştirilen özellikler</translation>
     </message>
@@ -73,8 +73,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../ui_AboutDlg.h" line="270"/>
+        <location filename="../ui_AboutDlg.h" line="278"/>
         <source>&lt;center&gt;Copyright © 2006-2008 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_AboutDlg.h" line="285"/>
+        <source>Web interface</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -639,7 +644,7 @@
 <context>
     <name>HttpService</name>
     <message>
-        <location filename="../remote/HttpService.cpp" line="152"/>
+        <location filename="../remote/HttpService.cpp" line="161"/>
         <source>Listening on port %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2693,22 +2698,22 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>SettingsWebForm</name>
     <message>
-        <location filename="../ui_SettingsWebForm.h" line="85"/>
+        <location filename="../ui_SettingsWebForm.h" line="90"/>
         <source>Web interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsWebForm.h" line="86"/>
+        <location filename="../ui_SettingsWebForm.h" line="91"/>
         <source>Enable remote web control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsWebForm.h" line="87"/>
+        <location filename="../ui_SettingsWebForm.h" line="92"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsWebForm.h" line="88"/>
+        <location filename="../ui_SettingsWebForm.h" line="93"/>
         <source>Password</source>
         <translation type="unfinished">Şifre</translation>
     </message>
@@ -2734,27 +2739,27 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>SpeedGraph</name>
     <message>
-        <location filename="../SpeedGraph.cpp" line="52"/>
+        <location filename="../SpeedGraph.cpp" line="51"/>
         <source>Save as...</source>
         <translation>Farklı kaydet...</translation>
     </message>
     <message>
-        <location filename="../SpeedGraph.cpp" line="160"/>
+        <location filename="../SpeedGraph.cpp" line="157"/>
         <source>%1 mins ago</source>
         <translation>%1 dakika önce</translation>
     </message>
     <message>
-        <location filename="../SpeedGraph.cpp" line="164"/>
+        <location filename="../SpeedGraph.cpp" line="161"/>
         <source>Download</source>
         <translation>İndirme</translation>
     </message>
     <message>
-        <location filename="../SpeedGraph.cpp" line="165"/>
+        <location filename="../SpeedGraph.cpp" line="162"/>
         <source>Upload</source>
         <translation>Gönderme</translation>
     </message>
     <message>
-        <location filename="../SpeedGraph.cpp" line="181"/>
+        <location filename="../SpeedGraph.cpp" line="178"/>
         <source>NO DATA</source>
         <translation>DATA YOK</translation>
     </message>

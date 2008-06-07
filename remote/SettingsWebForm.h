@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "WidgetHostChild.h"
 #include "ui_SettingsWebForm.h"
 
-#ifndef WITH_REMOTE
+#ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
 

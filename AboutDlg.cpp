@@ -70,6 +70,9 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 #ifdef WITH_DOCUMENTATION
 	checkFeatureDocumentation->setChecked(true);
 #endif
+#ifdef WITH_WEBINTERFACE
+	checkFeatureWebInterface->setChecked(true);
+#endif
 	
 	processPlugins();
 }
