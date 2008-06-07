@@ -19,13 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "SpeedGraph.h"
+#include "Settings.h"
 #include "fatrat.h"
 #include <QtDebug>
 #include <QSettings>
 #include <QMenu>
 #include <QFileDialog>
-
-extern QSettings* g_settings;
 
 SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_transfer(0)
 {
@@ -60,7 +59,7 @@ void SpeedGraph::saveScreenshot()
 {
 	QString file;
 	QImage image(size(), QImage::Format_RGB32);
-	draw(&image);
+	draw(m_transfer, size(), &image);
 	
 	file = QFileDialog::getSaveFileName(this, "FatRat", QString(), "*.png");
 	
@@ -72,12 +71,12 @@ void SpeedGraph::saveScreenshot()
 	}
 }
 
-void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
+void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPaintEvent* event)
 {
 	int top = 0;
 	QQueue<QPair<int,int> > data;
 	QPainter painter(device);
-	int seconds = g_settings->value("graphminutes",int(5)).toInt()*60;
+	int seconds = getSettingsValue("graphminutes").toInt()*60;
 	
 	painter.setRenderHint(QPainter::Antialiasing);
 	
@@ -87,16 +86,15 @@ void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
 		painter.fillRect(event->rect(), QBrush(Qt::white));
 	}
 	else
-		painter.fillRect(QRect(QPoint(0, 0), size()), QBrush(Qt::white));
+		painter.fillRect(QRect(QPoint(0, 0), size), QBrush(Qt::white));
 	
-	if(!m_transfer)
+	if(!transfer)
 	{
-		drawNoData(painter);
-		painter.end();
+		drawNoData(size, painter);
 		return;
 	}
 	
-	data = m_transfer->speedData();
+	data = transfer->speedData();
 	
 	for(int i=0;i<data.size();i++)
 	{
@@ -104,14 +102,13 @@ void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
 	}
 	if(!top || data.size()<2)
 	{
-		drawNoData(painter);
-		painter.end();
+		drawNoData(size, painter);
 		return;
 	}
 	
 	top = std::max(top/10*11,10*1024);
-	const int height = this->height();
-	const int width = this->width();
+	const int height = size.height();
+	const int width = size.width();
 	
 	painter.setPen(QPen(Qt::gray, 1.0, Qt::DashLine));
 	for(int i=1;i<10;i++)
@@ -167,10 +164,10 @@ void SpeedGraph::draw(QPaintDevice* device, QPaintEvent* event)
 
 void SpeedGraph::paintEvent(QPaintEvent* event)
 {
-	draw(this, event);
+	draw(m_transfer, size(), this, event);
 }
 
-void SpeedGraph::drawNoData(QPainter& painter)
+void SpeedGraph::drawNoData(QSize size, QPainter& painter)
 {
 	QFont font = painter.font();
 	
@@ -178,5 +175,5 @@ void SpeedGraph::drawNoData(QPainter& painter)
 	
 	painter.setFont(font);
 	painter.setPen(Qt::gray);
-	painter.drawText(contentsRect(), Qt::AlignHCenter | Qt::AlignVCenter, tr("NO DATA"));
+	painter.drawText(QRect(QPoint(0,0), size), Qt::AlignHCenter | Qt::AlignVCenter, tr("NO DATA"));
 }

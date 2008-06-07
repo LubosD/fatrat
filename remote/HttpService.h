@@ -34,11 +34,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #	error This file is not supposed to be included!
 #endif
 
+struct HttpRequest
+{
+	HttpRequest() : contentLength(0) { }
+	
+	QList<QByteArray> lines;
+	QByteArray postData;
+	long contentLength; // remaining length to read
+};
 struct ClientData
 {
 	ClientData() : file(0), buffer(0), lastData(time(0)) {}
 	
+	QList<HttpRequest> requests;
 	// incoming lines
+	//QByteArray incoming;
 	QList<QByteArray> incoming;
 	
 	// file to send
@@ -52,6 +62,7 @@ struct ClientData
 };
 
 class QScriptEngine;
+class QScriptValue;
 
 class HttpService : public QThread
 {
@@ -65,21 +76,29 @@ public:
 	void setup();
 	static void throwErrno();
 	void run();
-	bool processClientRead(int fd);
-	bool processClientWrite(int fd);
 	
-	void freeClient(int fd, int ep);
-	
-	void serveClient(int fd);
-	static void interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString);
-	static QVariantMap processQueryString(QByteArray queryString);
-	static QByteArray handleException(QScriptEngine* engine);
+	QScriptValue processQueryString(QByteArray queryString);
 	static int countLines(const QByteArray& ar, int left);
 	static bool authenitcate(const QList<QByteArray>& data);
+	
+	static long contentLength(const QList<QByteArray>& data);
+	
+	static QByteArray progressBar(QByteArray queryString);
+	static QByteArray graph(QString queryString);
+	static QString urlDecode(QByteArray arr);
+private:
+	void interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString, QByteArray postData);
+	QByteArray handleException();
+	bool processClientRead(int fd);
+	bool processClientWrite(int fd);
+	void freeClient(int fd, int ep);
+	void serveClient(int fd);
+	void initScriptEngine();
 private:
 	static HttpService* m_instance;
 	int m_server;
 	bool m_bAbort;
+	QScriptEngine* m_engine;
 	
 	QMap<int, ClientData> m_clients;
 };

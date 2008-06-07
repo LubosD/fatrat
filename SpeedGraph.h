@@ -32,14 +32,14 @@ Q_OBJECT
 public:
 	SpeedGraph(QWidget* parent);
 	void setRenderSource(Transfer* t);
+	static void draw(Transfer* transfer, QSize size, QPaintDevice* device, QPaintEvent* event = 0);
 public slots:
 	void setNull() { setRenderSource(0); }
 	void saveScreenshot();
 protected:
 	virtual void paintEvent(QPaintEvent* event);
 	virtual void contextMenuEvent(QContextMenuEvent* event);
-	void draw(QPaintDevice* device, QPaintEvent* event = 0);
-	void drawNoData(QPainter& painter);
+	static void drawNoData(QSize size, QPainter& painter);
 	
 	Transfer* m_transfer;
 	QTimer* m_timer;

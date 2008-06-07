@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Settings.h"
 #include "RuntimeException.h"
 #include "SettingsWebForm.h"
+#include "SpeedGraph.h"
 #include "Queue.h"
 #include "fatrat.h"
 #include "Logger.h"
@@ -34,12 +35,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QFile>
 #include <QUrl>
 #include <QTcpSocket>
+#include <QBuffer>
+#include <QImage>
+#include <QPainter>
+#include <QFileInfo>
 #include <QScriptEngine>
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <netinet/in.h>
+#include <cstdlib>
+#include <locale.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -58,6 +65,7 @@ HttpService* HttpService::m_instance = 0;
 HttpService::HttpService()
 {
 	m_instance = this;
+	initScriptEngine();
 	applySettings();
 	
 	SettingsItem si;
@@ -243,6 +251,16 @@ void HttpService::freeClient(int fd, int ep)
 	close(fd);
 }
 
+long HttpService::contentLength(const QList<QByteArray>& data)
+{
+	for(int i=0;i<data.size();i++)
+	{
+		if(!strncasecmp(data[i].constData(), "Content-Length: ", 16))
+			return atol(data[i].constData()+16);
+	}
+	return 0;
+}
+
 bool HttpService::processClientRead(int fd)
 {
 	char buffer[4096];
@@ -265,42 +283,69 @@ bool HttpService::processClientRead(int fd)
 		char* start = buffer;
 		time(&data.lastData);
 		
-		if(data.incoming.isEmpty())
-			data.incoming << QByteArray();
-		
+		// parse lines
 		while(bytes)
 		{
-			char* p = (char*) memchr(start, '\n', bytes);
-			
-			if(!p)
+			// processing POST data
+			if(!data.requests.isEmpty() && data.requests.back().contentLength)
 			{
-				data.incoming.back() += QByteArray(start, bytes);
-				bytes = 0;
+				HttpRequest& rq = data.requests.back();
+				long cp = qMin<long>(rq.contentLength, bytes);
+				
+				rq.postData += QByteArray(start, cp);
+				rq.contentLength -= cp;
+				
+				bytes -= cp;
+				start += cp;
 			}
-			else
+			else // processing HTTP headers
 			{
-				ssize_t now = p-start+1;
+				if(data.incoming.isEmpty())
+					data.incoming << QByteArray();
 				
-				data.incoming.back() += QByteArray(start, p-start+1);
-				data.incoming << QByteArray();
+				char* p = (char*) memchr(start, '\n', bytes);
 				
-				bytes -= now;
-				start = p + 1;
+				if(!p)
+				{
+					data.incoming.back() += QByteArray(start, bytes);
+					bytes = 0;
+				}
+				else
+				{
+					ssize_t now = p-start+1;
+					
+					data.incoming.back() += QByteArray(start, p-start+1);
+					bytes -= now;
+					start = p + 1;
+					
+					if(data.incoming.back() == "\r\n") // end of the request
+					{
+						HttpRequest rq;
+						
+						rq.lines = data.incoming;
+						rq.contentLength = contentLength(rq.lines);
+						
+						data.incoming.clear();
+						data.requests << rq;
+					}
+					else
+						data.incoming << QByteArray();
+				}
 			}
 		}
 	}
 	
-	for(int i=0;i<data.incoming.size();i++)
+	for(int i=0;i<data.requests.size();)
 	{
-		if(data.incoming[i] == "\r\n")
+		if(!data.requests[i].contentLength)
 		{
 			serveClient(fd);
-			while(i >= 0)
-				data.incoming.removeAt(i--);
-			i = 0;
+			data.requests.removeAt(i);
 		}
+		else
+			break;
 	}
-		
+	
 	return true;
 }
 
@@ -348,24 +393,87 @@ bool HttpService::authenitcate(const QList<QByteArray>& data)
 	return false;
 }
 
+QByteArray HttpService::progressBar(QByteArray queryString)
+{
+	QBuffer buf;
+	QImage image(QSize(150, 20), QImage::Format_RGB32);
+	QPainter painter;
+	float pct = 0;
+	
+	if(queryString != "?")
+		pct = atof(queryString.constData()) / 100.f;
+	
+	painter.begin(&image);
+	painter.fillRect(0, 0, 150, 20, QBrush(Qt::white));
+	painter.drawRect(0, 0, 149, 19);
+	painter.fillRect(1, 1, 148*pct, 18, QColor(52,131,187));
+	painter.drawText(QRect(0, 0, 150, 20), Qt::AlignCenter, queryString);
+	painter.end();
+	
+	image.save(&buf, "PNG");
+	return buf.data();
+}
+
+QByteArray HttpService::graph(QString queryString)
+{
+	QBuffer buf;
+	QImage image(QSize(640, 480), QImage::Format_RGB32);
+	QStringList args = queryString.split(';');
+	
+	if(args.size() != 2)
+		return QByteArray();
+	
+	QReadLocker locker(&g_queuesLock);
+	int qn, tn;
+	Queue* q;
+	Transfer* t;
+	
+	qn = args[0].toInt();
+	tn = args[1].toInt();
+	
+	if(qn < 0 || qn >= g_queues.size())
+		return QByteArray();
+	
+	q = g_queues[qn];
+	q->lock();
+	
+	if(tn < 0 || tn >= q->size())
+	{
+		q->unlock();
+		return QByteArray();
+	}
+	
+	t = q->at(tn);
+	SpeedGraph::draw(t, QSize(640, 480), &image);
+	
+	q->unlock();
+	
+	image.save(&buf, "PNG");
+	return buf.data();
+}
+
 void HttpService::serveClient(int fd)
 {
-	bool bAuthFail = false;
-	QByteArray fileName, queryString;
+	bool bHead, bGet, bPost, bAuthFail = false; // send 401
+	qint64 fileSize = -1;
+	QDateTime modTime;
+	QByteArray fileName, queryString, postData;
 	ClientData& data = m_clients[fd];
+	HttpRequest& rq = data.requests[0];
+	QList<QByteArray> firstLine = rq.lines[0].split(' ');
 	
-	if(data.incoming[0].startsWith("GET "))
+	bHead = firstLine[0] == "HEAD";
+	bGet = firstLine[0] == "GET";
+	bPost = firstLine[0] == "POST";
+	
+	qDebug() << postData;
+	if(bGet || bHead || bPost)
 	{
-		//bSendBody = true;
-		int end = data.incoming[0].lastIndexOf(' ');
-		fileName = data.incoming[0].mid(4, end-4);
+		if(firstLine.size() >= 2)
+			fileName = firstLine[1];
+		if(bPost)
+			postData = rq.postData;
 	}
-	/*else if(data.incoming[0].startsWith("HEAD "))
-	{
-		bSendBody = false;
-		int end = data.incoming[0].lastIndexOf(' ');
-		fileName = data.incoming[0].mid(5, end-5);
-	}*/
 	
 	if(fileName.isEmpty() || fileName.indexOf("..") >= 0)
 	{
@@ -382,23 +490,13 @@ void HttpService::serveClient(int fd)
 	}
 	
 	if(fileName == "/")
-		fileName = "/index.html";
+		fileName = "/index.qsp";
 	
-	fileName.prepend(DATA_LOCATION "/data/remote");
-	
-	qint64 fileSize = -1;
-	if(!fileName.endsWith(".qsp"))
+	if(fileName.endsWith(".qsp"))
 	{
-		qDebug() << "Opening" << fileName;
+		fileName.prepend(DATA_LOCATION "/data/remote");
 		
-		data.file = new QFile(fileName);
-		
-		if(data.file->open(QIODevice::ReadOnly))
-			fileSize = data.file->size();
-	}
-	else
-	{
-		if(authenitcate(data.incoming))
+		if(authenitcate(rq.lines))
 		{
 			QFile file(fileName);
 			if(file.open(QIODevice::ReadOnly))
@@ -406,12 +504,55 @@ void HttpService::serveClient(int fd)
 				data.buffer = new OutputBuffer;
 				
 				qDebug() << "Executing" << fileName;
-				interpretScript(&file, data.buffer, queryString);
+				interpretScript(&file, data.buffer, queryString, postData);
 				fileSize = data.buffer->size();
 			}
 		}
-		else
+		else if(!bHead)
 			bAuthFail = true;
+	}
+	else if(fileName.startsWith("/generate/"))
+	{
+		if(!bHead)
+		{
+			QByteArray png;
+			QString q = urlDecode(queryString);
+			data.buffer = new OutputBuffer;
+			
+			if(fileName.endsWith("/progress.png"))
+				png = progressBar(q.toLatin1());
+			else if(fileName.endsWith("/graph.png"))
+				png = graph(q);
+			else
+			{
+				delete data.buffer;
+				data.buffer = 0;
+			}
+			
+			if(data.buffer)
+			{
+				data.buffer->putData(png.constData(), png.size());
+				fileSize = data.buffer->size();
+			}
+		}
+	}
+	else
+	{
+		fileName.prepend(DATA_LOCATION "/data/remote");
+		qDebug() << "Opening" << fileName;
+		
+		QFileInfo info(fileName);
+		if(info.exists())
+		{
+			modTime = info.lastModified();
+			fileSize = info.size();
+			
+			if(!bHead)
+			{
+				data.file = new QFile(fileName);
+				data.file->open(QIODevice::ReadOnly);
+			}
+		}
 	}
 	
 	char buffer[4096];
@@ -420,10 +561,36 @@ void HttpService::serveClient(int fd)
 		strcpy(buffer, "HTTP/1.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FatRat web interface\""
 				"\r\nContent-Length: 16\r\n" HTTP_HEADERS "\r\n401 Unauthorized");
 	}
+	else if(bHead && fileSize < 0)
+	{
+		strcpy(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
+				"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n");
+	}
 	else if(fileSize != -1)
 	{
-		sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS "Content-Length: %lld\r\n"
-				"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n", fileSize);
+		sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS "Content-Length: %lld\r\n", fileSize);
+		
+		if(!modTime.isNull())
+		{
+			char time[100];
+			time_t t = modTime.toTime_t();
+			struct tm tt;
+			char locale[20];
+			
+			gmtime_r(&t, &tt);
+			strcpy(locale, setlocale(LC_TIME, 0));
+			setlocale(LC_TIME, "C");
+			
+			strftime(time, sizeof(time), "Last-Modified: %a, %d %b %Y %T %Z\r\n", &tt);
+			
+			setlocale(LC_TIME, locale);
+			strcat(buffer, time);
+		}
+		else
+		{
+			strcat(buffer, "Cache-Control: no-cache\r\nPragma: no-cache\r\n");
+		}
+		strcat(buffer, "\r\n");
 	}
 	else
 		strcpy(buffer, "HTTP/1.0 404 Not Found\r\nContent-Length: 13\r\n" HTTP_HEADERS "\r\n404 Not Found");
@@ -434,18 +601,57 @@ void HttpService::serveClient(int fd)
 	processClientWrite(fd);
 }
 
-QVariantMap HttpService::processQueryString(QByteArray queryString)
+QScriptValue HttpService::processQueryString(QByteArray queryString)
 {
-	QVariantMap map;
-	QStringList s = QUrl::fromPercentEncoding(queryString).split('&');
+	QScriptValue retval = m_engine->newObject();
+	QStringList s = urlDecode(queryString).split('&');
 	foreach(QString e, s)
 	{
 		int p = e.indexOf('=');
 		if(p < 0)
 			continue;
-		map[e.left(p)] = e.mid(p+1);
+		
+		QString name = e.left(p);
+		QScriptValue value = m_engine->toScriptValue(e.mid(p+1));
+		QRegExp reArray("(\\w+)\\[(\\d+)\\]");
+		//QRegExp reObject("(\\w+)\\.(\\w+)");
+		
+		name.replace('.', '_');
+		
+		if(reArray.exactMatch(name))
+		{
+			QScriptValue v = retval.property(reArray.cap(1));
+			if(v.isUndefined() || !v.isArray())
+			{
+				v = m_engine->newArray();
+				v.setProperty(reArray.cap(2).toInt(), value);
+				retval.setProperty(reArray.cap(1), v);
+			}
+			else
+				v.setProperty(reArray.cap(2).toInt(), value);
+		}
+		/*else if(reObject.exactMatch(name))
+		{
+			QScriptValue v = retval.property(reArray.cap(1));
+			if(v.isUndefined() || !v.isArray())
+			{
+				v = m_engine->newObject();
+				v.setProperty(reArray.cap(2), value);
+				retval.setProperty(reArray.cap(1), v);
+			}
+			else
+				v.setProperty(reArray.cap(2), value);
+		}*/
+		else
+			retval.setProperty(name, value);
 	}
-	return map;
+	return retval;
+}
+
+QString HttpService::urlDecode(QByteArray arr)
+{
+	arr.replace('+', ' ');
+	return QUrl::fromPercentEncoding(arr);
 }
 
 QScriptValue pagePrintFunction(QScriptContext* context, QScriptEngine* engine)
@@ -517,6 +723,42 @@ QScriptValue transferSpeedFunction(QScriptContext* context, QScriptEngine* engin
 	return v;
 }
 
+QScriptValue transferSpeedLimitsFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 0)
+	{
+		context->throwError("Transfer.speedLimits(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	Transfer* t = (Transfer*) context->thisObject().toQObject();
+	int down, up;
+	t->userSpeedLimits(down, up);
+	
+	QScriptValue v = engine->newObject();
+	v.setProperty("down", engine->toScriptValue(down));
+	v.setProperty("up", engine->toScriptValue(up));
+	
+	return v;
+}
+
+QScriptValue queueSpeedLimitsFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 0)
+	{
+		context->throwError("Queue.speedLimits(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	Queue* t = (Queue*) context->thisObject().toQObject();
+	int down, up;
+	t->speedLimits(down, up);
+	
+	QScriptValue v = engine->newObject();
+	v.setProperty("down", engine->toScriptValue(down));
+	v.setProperty("up", engine->toScriptValue(up));
+	
+	return v;
+}
+
 QScriptValue transferTimeLeftFunction(QScriptContext* context, QScriptEngine* engine)
 {
 	if(context->argumentCount() != 0)
@@ -546,15 +788,14 @@ QScriptValue transferTimeLeftFunction(QScriptContext* context, QScriptEngine* en
 	return engine->toScriptValue(time);
 }
 
-Q_DECLARE_METATYPE(Queue*)
-QScriptValue queueToScriptValue(QScriptEngine *engine, Queue* const &in)
+Q_DECLARE_METATYPE(Transfer::Mode)
+QScriptValue tmodeToScriptValue(QScriptEngine *engine, Transfer::Mode const &in)
 {
-	return engine->newQObject(in);
+	return engine->toScriptValue(int(in));
 }
-
-void queueFromScriptValue(const QScriptValue &object, Queue* &out)
+void tmodeFromScriptValue(const QScriptValue &object, Transfer::Mode &out)
 {
-	out = qobject_cast<Queue*>(object.toQObject());
+	out = Transfer::Mode(object.toInt32());
 }
 
 Q_DECLARE_METATYPE(Transfer*)
@@ -562,6 +803,7 @@ QScriptValue transferToScriptValue(QScriptEngine *engine, Transfer* const &in)
 {
 	QScriptValue retval = engine->newQObject(in);
 	retval.setProperty("speed", engine->newFunction(transferSpeedFunction));
+	retval.setProperty("speedLimits", engine->newFunction(transferSpeedLimitsFunction));
 	retval.setProperty("timeLeft", engine->newFunction(transferTimeLeftFunction));
 	
 	return retval;
@@ -572,35 +814,50 @@ void transferFromScriptValue(const QScriptValue &object, Transfer* &out)
 	out = qobject_cast<Transfer*>(object.toQObject());
 }
 
-void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString)
+void HttpService::initScriptEngine()
 {
-	QScriptEngine engine;
+	QScriptValue fun;
+	
+	m_engine = new QScriptEngine(this);
+	
+	fun = m_engine->newFunction(formatSizeFunction);
+	m_engine->globalObject().setProperty("formatSize", fun);
+	
+	fun = m_engine->newFunction(formatTimeFunction);
+	m_engine->globalObject().setProperty("formatTime", fun);
+	
+	//qScriptRegisterMetaType(m_engine, queueToScriptValue, queueFromScriptValue);
+	qScriptRegisterMetaType(m_engine, transferToScriptValue, transferFromScriptValue);
+	qScriptRegisterMetaType(m_engine, tmodeToScriptValue, tmodeFromScriptValue);
+}
+
+void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString, QByteArray postData)
+{
 	QByteArray in;
 	QScriptValue fun;
-	QVariantMap gets = processQueryString(queryString);
 	
 	g_queuesLock.lockForWrite();
 	in = input->readAll();
 	
-	engine.globalObject().setProperty("GET", engine.toScriptValue(gets));
+	m_engine->pushContext();
 	
-	QScriptValue queues = engine.newArray(g_queues.size());
+	m_engine->globalObject().setProperty("GET", processQueryString(queryString));
+	m_engine->globalObject().setProperty("POST", processQueryString(postData));
+	m_engine->globalObject().setProperty("QUERY_STRING", m_engine->toScriptValue(queryString));
+	
+	fun = m_engine->newFunction(pagePrintFunction);
+	fun.setData(m_engine->newQObject(output));
+	m_engine->globalObject().setProperty("print", fun);
+	
+	QScriptValue queues = m_engine->newArray(g_queues.size());
+	fun = m_engine->newFunction(queueSpeedLimitsFunction);
 	for(int i=0;i<g_queues.size();i++)
-		queues.setProperty(i, engine.newQObject(g_queues[i]));
-	engine.globalObject().setProperty("QUEUES", queues);
-	
-	fun = engine.newFunction(pagePrintFunction);
-	fun.setData(engine.newQObject(output));
-	engine.globalObject().setProperty("print", fun);
-	
-	fun = engine.newFunction(formatSizeFunction);
-	engine.globalObject().setProperty("formatSize", fun);
-	
-	fun = engine.newFunction(formatTimeFunction);
-	engine.globalObject().setProperty("formatTime", fun);
-	
-	qScriptRegisterMetaType(&engine, queueToScriptValue, queueFromScriptValue);
-	qScriptRegisterMetaType(&engine, transferToScriptValue, transferFromScriptValue);
+	{
+		QScriptValue val = m_engine->newQObject(g_queues[i]);
+		val.setProperty("speedLimits", fun);
+		queues.setProperty(i, val);
+	}
+	m_engine->globalObject().setProperty("QUEUES", queues);
 	
 	int p = 0;
 	while(true)
@@ -620,15 +877,15 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 			break;
 		p = e+2;
 		
-		engine.evaluate(in.mid(next, e-next), input->fileName(), line);
-		if(engine.hasUncaughtException())
+		m_engine->evaluate(in.mid(next, e-next), input->fileName(), line);
+		if(m_engine->hasUncaughtException())
 		{
-			QByteArray errmsg = handleException(&engine);
+			QByteArray errmsg = handleException();
 			output->putData(errmsg.constData(), errmsg.size());
 		}
 	}
 	
-	queues = engine.globalObject().property("QUEUES");
+	queues = m_engine->globalObject().property("QUEUES");
 	for(int i=g_queues.size();i>=0;i--)
 	{
 		QScriptValue v = queues.property(i);
@@ -639,15 +896,17 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 		}
 	}
 	g_queuesLock.unlock();
+	
+	m_engine->popContext();
 }
 
-QByteArray HttpService::handleException(QScriptEngine* engine)
+QByteArray HttpService::handleException()
 {
 	QByteArray errmsg = "<div style=\"color: red; border: 1px solid red\"><p><b>QtScript runtime exception:</b> <code>";
-	errmsg += engine->uncaughtException().toString().toUtf8();
+	errmsg += m_engine->uncaughtException().toString().toUtf8();
 	errmsg += "</code>";
 	
-	int line = engine->uncaughtExceptionLineNumber();
+	int line = m_engine->uncaughtExceptionLineNumber();
 	if(line != -1)
 	{
 		errmsg += " on line ";
@@ -655,7 +914,7 @@ QByteArray HttpService::handleException(QScriptEngine* engine)
 	}
 	
 	errmsg += "</p><p>Backtrace:</p><pre>";
-	errmsg += engine->uncaughtExceptionBacktrace().join("\n");
+	errmsg += m_engine->uncaughtExceptionBacktrace().join("\n");
 	errmsg += "</pre></div>";
 	
 	return errmsg;

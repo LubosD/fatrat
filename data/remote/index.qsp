@@ -2,14 +2,29 @@
 PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>FatRat web interface</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
+<script type="text/javascript">
+//<![CDATA[
+	function graph(q, t)
+	{
+		window.open('/generate/graph.png?'+q+';'+t, 'graph', 'width=660,height=500,toolbar=0');
+		return false;
+	}
+	function details(q, t)
+	{
+		window.open('/details.qsp?queue='+q+'&transfer='+t, 'details', 'width=400,height=400,toolbar=0');
+		return false;
+	}
+//]]>
+</script>
 </head>
-<body>
 
+<body>
 <p><img src="logo.png" alt="FatRat logo"/></p>
 
 <form method="get" action="">
@@ -32,13 +47,26 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </p>
 </form>
 
+<form method="post" action="?<? print(QUERY_STRING); ?>">
+
+<p class="toolbar">
+	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
+	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and its data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
+	<img src="/sep.png" alt="separator"/>
+	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
+	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
+	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>
+	<img src="/sep.png" alt="separator"/>
+	<button type="submit" title="Reload"><img src="/reload.png" alt="Reload"/></button>
+	
+</p>
+
 <table class="transfers">
 <thead>
 <tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m">Speed</td><td class="m">Time left</td><td>Message</td></tr>
 </thead>
 
 <tbody>
-
 <?
 	if(GET.queue == undefined)
 	{
@@ -47,26 +75,61 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	}
 	
 	var queue = QUEUES[GET.queue];
+	if(POST.queueLimits != undefined)
+		queue.setSpeedLimits(POST.downLimit*1024, POST.upLimit*1024);
+	if(POST.setState && POST.transfer)
+	{
+		for(i=0;i<queue.size;i++)
+		{
+			if(!POST.transfer[i])
+				continue;
+
+			if(POST.setState == 'Active')
+			{
+				if(!queue.at(i).active)
+				{
+					queue.at(i).state = 'Waiting';
+					continue;
+				}
+			}
+			queue.at(i).state = POST.setState;
+		}
+	}
+	if(POST.remove && POST.transfer)
+	{
+		for(i=0;i<queue.size;i++)
+		{
+			if(!POST.transfer[i])
+				continue;
+			if(POST.remove == 'delete_data')
+				queue.removeWithData(i, true);
+			else
+				queue.remove(i, true);
+		}
+	}
+	
 	for(i=0;i<queue.size;i++)
 	{
 		var transfer = queue.at(i);
-		print('<tr>');
+
+		print('<tr><td>');
+		print(' <img src="/states/' + transfer.state.toLowerCase() + '.png" alt="' + transfer.state + '"/> ');
+		print(' <input type="checkbox" name="transfer['+i+']" value="true"/> ');
+		print('<a onclick="javascript:return details('+GET.queue+','+i+')" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a>');
+		print(' <a onclick="javascript:return graph('+GET.queue+','+i+')" href="/generate/graph.png?'+GET.queue+';'+i+'"><img class="ralign" src="/graph_icon.gif" title="Graph" alt="Graph"/></a></td>');
 		
-		print('<td>');
-		print('<img src="states/' + transfer.state.toLowerCase() + '.png" alt="' + transfer.state + '"/> ');
- 		print(transfer.name + '</td>');
-		
+		var progress;
 		if(transfer.total > 0)
 		{
-			var progress = 100*transfer.done/transfer.total;
+			progress = 100*transfer.done/transfer.total;
 			progress = Math.round(progress*10)/10;
 			
-			print('<td class="m">'+progress+'%</td>');
+			print('<td class="m"><img src="/generate/progress.png?'+progress+'%25" alt="'+progress+'%"/></td>');
 			print('<td class="m">'+formatSize(transfer.total, false)+'</td>');
 		}
 		else
 		{
-			print('<td class="m">?</td><td class="m">?</td>');
+			print('<td class="m"><img src="/generate/progress.png?%3F" alt="?"/></td><td class="m">?</td>');
 		}
 		
 		var speed_text = '', speed = transfer.speed();
@@ -81,15 +144,29 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		print('<td class="m">' + speed_text + '</td>');
 		
 		print('<td class="m">'+transfer.timeLeft()+'</td>'); // time left
-		print('<td>'+transfer.message+'</td>');
-		
-		print('</tr>');
+		print('<td>'+transfer.message+'</td></tr>');
 	}
 ?>
 
 </tbody>
-
 </table>
+</form>
+
+<form method="post" action="?<? print(QUERY_STRING); ?>">
+
+<?
+	var sl = null;
+	if(queue != undefined)
+		sl = queue.speedLimits();
+?>
+
+<p style="text-align: right">Queue speed limit:
+		<span class="speedspan"><input type="text" size="4" name="downLimit" value="<? if(sl) print(sl.down/1024); ?>"/> kB/s down</span>
+		
+		<span class="speedspan"><input type="text" size="4" name="upLimit" value="<? if(sl) print(sl.up/1024); ?>"/> kB/s up</span>
+		<input type="submit" name="queueLimits" value="Set"/>
+</p>
+</form>
 
 <hr/>
 

@@ -81,7 +81,7 @@ public:
 	Q_INVOKABLE virtual QString message() const { return QString(); }
 	Q_PROPERTY(QString message READ message)
 	Q_INVOKABLE Mode mode() const { return m_mode; }
-	Q_PROPERTY(Mode mode READ mode)
+	Q_PROPERTY(Transfer::Mode mode READ mode)
 	Q_INVOKABLE virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
 	Q_PROPERTY(Mode primaryMode READ primaryMode)
 	virtual QString dataPath(bool bDirect) const;

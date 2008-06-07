@@ -1,0 +1,62 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FatRat - transfer details</title>
+<link rel="icon" href="/favicon.png" type="image/png"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/>
+</head>
+<body>
+
+<?
+	var transfer = QUEUES[GET.queue].at(GET.transfer);
+	
+	if(POST.save != undefined)
+	{
+		if(transfer.object != POST.object)
+			transfer.object = POST.object;
+		transfer.setUserSpeedLimits(POST.downLimit*1024, POST.upLimit*1024);
+		transfer.comment = POST.comment;
+	}
+?>
+
+<p style="text-align: center"><b>Transfer details</b></p>
+
+<form method="post" action="?<? print(QUERY_STRING);?>">
+
+<table class="transfers">
+<tr><td>Name</td><td><? print(transfer.name) ?></td></tr>
+<tr>
+	<td><? if(transfer.mode == 1) print('Destination'); else print('Source'); ?></td>
+	<td><input type="text" name="object" value="<? print(transfer.object) ?>"/></td>
+</tr>
+<tr>
+	<td>Max. download speed</td>
+	<td>
+		<? var speed = transfer.speedLimits(); ?>
+		<input type="text" size="4" name="downLimit" value="<? print(speed.down/1024); ?>"/> kB/s
+	</td>
+</tr>
+<tr>
+	<td>Max. upload speed</td>
+	<td>
+		<input type="text" size="4" name="upLimit" value="<? print(speed.up/1024); ?>"/> kB/s
+	</td>
+</tr>
+<tr>
+	<td>Comment</td>
+	<td>
+		<textarea name="comment" rows="10" style="width: 100%"><? print(transfer.comment); ?></textarea>
+	</tr>
+</tr>
+</table>
+
+<p style="text-align: center">
+	<input type="submit" name="save" value="Save"/>
+	<input type="button" value="Close" onclick="javascript:window.close()"/>
+</p>
+</form>
+
+</body></html>

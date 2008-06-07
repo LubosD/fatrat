@@ -1,7 +1,7 @@
-body { font-family: sans-serif }
+body { font-family: sans-serif; font-size: small }
 
 table.transfers {
-	width: 99%;
+	width: 100%;
 	border-width: 1px;
 	border-spacing: 2px;
 	border-style: outset;
@@ -11,13 +11,12 @@ table.transfers {
 table.transfers thead td {
 	font-weight: bold;
 	border-width: 1px;
-	padding: 3px;
 	border-style: groove;
 	border-color: #808080;
 }
 table.transfers td {
+	padding: 1px 3px 0px 3px;
 	border-width: 1px;
-	padding: 3px;
 	border-style: groove;
 	border-color: #808080;
 }
@@ -27,9 +26,24 @@ table.transfers tr:nth-child(even)
 	background-color: #ddd;
 }
 
+.speedspan { border: 1px solid grey; padding: 5px; }
+
+.toolbar { border: 1px solid grey; background-color: #eee; padding: 4px; }
+
 td.m { text-align: center }
 
 a, a:link, a:visited { color: blue; text-decoration: underline; }
-a:hover { color: red; }
+a:hover { color: red }
+
+table.transfers a, table.transfers a:link, table.transfers a:visited { color: black; text-decoration: none; }
+table.transfers a:hover { color: red }
 
 img { border: 0px }
+
+hr {
+	border-color: transparent;
+	border-top-color: #808080;
+}
+
+.ralign { float: right }
+
