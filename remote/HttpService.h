@@ -77,7 +77,9 @@ public:
 	static void throwErrno();
 	void run();
 	
-	QScriptValue processQueryString(QByteArray queryString);
+	QScriptValue convertQueryString(const QMap<QString,QString>& queryString);
+	QMap<QString,QString> processQueryString(QByteArray queryString);
+	
 	static int countLines(const QByteArray& ar, int left);
 	static bool authenitcate(const QList<QByteArray>& data);
 	

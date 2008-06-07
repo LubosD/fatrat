@@ -84,7 +84,8 @@ public:
 	Q_PROPERTY(Transfer::Mode mode READ mode)
 	Q_INVOKABLE virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
 	Q_PROPERTY(Mode primaryMode READ primaryMode)
-	virtual QString dataPath(bool bDirect) const;
+	Q_INVOKABLE virtual QString dataPath(bool bDirect = true) const;
+	Q_PROPERTY(QString dataPath READ dataPath)
 	
 	// TRANSFER SPEED AND SPEED LIMITS
 	virtual void speeds(int& down, int& up) const = 0;

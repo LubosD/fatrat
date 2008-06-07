@@ -30,7 +30,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <tr><td>Name</td><td><? print(transfer.name) ?></td></tr>
 <tr>
 	<td><? if(transfer.mode == 1) print('Destination'); else print('Source'); ?></td>
-	<td><input type="text" name="object" value="<? print(transfer.object) ?>"/></td>
+	<td><input type="text" name="object" style="width: 100%" value="<? print(transfer.object) ?>"/></td>
 </tr>
 <tr>
 	<td>Max. download speed</td>
@@ -48,13 +48,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <tr>
 	<td>Comment</td>
 	<td>
-		<textarea name="comment" rows="10" style="width: 100%"><? print(transfer.comment); ?></textarea>
+		<textarea name="comment" rows="10" cols="10" style="width: 100%"><? print(transfer.comment); ?></textarea>
 	</tr>
 </tr>
 </table>
 
 <p style="text-align: center">
-	<input type="submit" name="save" value="Save"/>
+	<input type="submit" name="save" value="Apply"/>
 	<input type="button" value="Close" onclick="javascript:window.close()"/>
 </p>
 </form>

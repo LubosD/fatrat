@@ -309,7 +309,6 @@ if(WITH_REMOTE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		remote/HttpService.cpp
-		remote/JavaService.cpp
 		remote/SettingsWebForm.cpp
 	)
 	set(fatrat_MOC_HDRS
@@ -386,13 +385,19 @@ if(WITH_REMOTE)
 	install(FILES data/remote/sep.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/logo.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/reload.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/browse.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/add.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/delete.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/delete_with_data.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/graph_icon.gif DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/down.png DESTINATION share/fatrat/data/remote)
+	
 	install(FILES data/remote/index.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/details.qsp DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/add_transfer.qsp DESTINATION share/fatrat/data/remote)
+	
 	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/graph_icon.gif DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/states/active.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/completed.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/forcedactive.png DESTINATION share/fatrat/data/remote/states)
