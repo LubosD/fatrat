@@ -8,7 +8,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat web interface</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
-<script type="text/javascript" src="/index.js"/>
+<script type="text/javascript" src="/index.js"></script>
 </head>
 
 <body onload="javascript: loadRefresh();">
@@ -37,17 +37,6 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <form method="post" id="mainform" action="?<? print(QUERY_STRING); ?>">
 
 <p class="toolbar">
-	<button type="button" onclick="javascript:newwin('/add_transfer.qsp?queue='+<? print(GET.queue); ?>)" title="New transfer"><img src="/add.png" alt="New transfer"/></button>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
-	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
-	<img src="/sep.png" alt="separator"/>
-	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
-	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
-	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<button type="submit" title="Reload"><img src="/reload.png" alt="Reload"/></button>
-	
 	<span class="ralign" title="Will not reload if any checkboxes are checked">
 		Reload every
 		<select id="refresh" onchange="javascript:refreshChange()">
@@ -58,6 +47,17 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 			<option value="60">minute</option>
 		</select>
 	</span>
+	
+	<button type="button" onclick="javascript:newwin('/add_transfer.qsp?queue='+<? print(GET.queue); ?>)" title="New transfer"><img src="/add.png" alt="New transfer"/></button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
+	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
+	<img src="/sep.png" alt="separator"/>
+	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
+	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
+	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<button type="submit" title="Reload"><img src="/reload.png" alt="Reload"/></button>
 </p>
 
 <table class="transfers">
