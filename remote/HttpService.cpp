@@ -398,6 +398,7 @@ QByteArray HttpService::progressBar(QByteArray queryString)
 {
 	QBuffer buf;
 	QImage image(QSize(150, 20), QImage::Format_RGB32);
+	QImage pg(":/other/progressbar.png");
 	QPainter painter;
 	float pct = 0;
 	
@@ -406,8 +407,16 @@ QByteArray HttpService::progressBar(QByteArray queryString)
 	
 	painter.begin(&image);
 	painter.fillRect(0, 0, 150, 20, QBrush(Qt::white));
+	int pts = 150*pct;
+	
+	for(int done=0;done<pts;)
+	{
+		int w = qMin<int>(pts-done, pg.width());
+		painter.drawImage(QRect(done, 0, w, 20), pg, QRect(0, 0, w, 20));
+		done += w;
+	}
+	
 	painter.drawRect(0, 0, 149, 19);
-	painter.fillRect(1, 1, 148*pct, 18, QColor(52,131,187));
 	painter.drawText(QRect(0, 0, 150, 20), Qt::AlignCenter, queryString);
 	painter.end();
 	
@@ -483,7 +492,7 @@ void HttpService::serveClient(int fd)
 		fileName.resize(q);
 	}
 	
-	if(fileName.isEmpty() || fileName.indexOf("/..") != -1)
+	if(fileName.isEmpty() || fileName.indexOf("/..") != -1 || fileName.indexOf("../") != -1)
 	{
 		const char* msg = "HTTP/1.0 400 Bad Request\r\n" HTTP_HEADERS "\r\n";
 		write(fd, msg, strlen(msg));
@@ -558,7 +567,7 @@ void HttpService::serveClient(int fd)
 			t = gets["transfer"].toInt();
 			path = gets["path"];
 			
-			if(path.indexOf("/..") != -1)
+			if(path.indexOf("/..") != -1 || path.indexOf("../") != -1)
 				throw 0;
 			
 			if(q < 0 || q >= g_queues.size() || t < 0)
@@ -801,7 +810,7 @@ QScriptValue fileInfoFunction(QScriptContext* context, QScriptEngine* engine)
 	}
 	
 	file = context->argument(0).toString();
-	if(file.indexOf("/..") != -1)
+	if(file.indexOf("/..") != -1 || file.indexOf("../") != -1)
 	{
 		context->throwError("fileInfo(): security alert");
 		return engine->undefinedValue();
@@ -829,7 +838,7 @@ QScriptValue listDirectoryFunction(QScriptContext* context, QScriptEngine* engin
 	}
 	
 	dir = context->argument(0).toString();
-	if(dir.indexOf("/..") != -1)
+	if(dir.indexOf("/..") != -1 || dir.indexOf("../") != -1)
 	{
 		context->throwError("listDirectory(): security alert");
 		return engine->undefinedValue();

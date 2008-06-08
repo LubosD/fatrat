@@ -382,7 +382,6 @@ if(WITH_BITTORRENT)
 endif(WITH_BITTORRENT)
 
 if(WITH_WEBINTERFACE)
-	install(FILES data/remote/sep.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/logo.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/reload.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/browse.png DESTINATION share/fatrat/data/remote)
@@ -392,6 +391,10 @@ if(WITH_WEBINTERFACE)
 	install(FILES data/remote/graph_icon.gif DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/down.png DESTINATION share/fatrat/data/remote)
 	
+	install(FILES data/remote/download.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/upload.png DESTINATION share/fatrat/data/remote)
+	
+	install(FILES data/remote/index.js DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/index.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/details.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/browse.qsp DESTINATION share/fatrat/data/remote)
@@ -399,11 +402,18 @@ if(WITH_WEBINTERFACE)
 	
 	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
+	
 	install(FILES data/remote/states/active.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/completed.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/forcedactive.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/paused.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/waiting.png DESTINATION share/fatrat/data/remote/states)
+	
+	install(FILES data/remote/states/active_upload.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/completed_upload.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/forcedactive_upload.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/paused_upload.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/waiting_upload.png DESTINATION share/fatrat/data/remote/states)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)

@@ -4,7 +4,7 @@ table.transfers {
 	width: 100%;
 	border-width: 1px;
 	border-spacing: 2px;
-	border-style: outset;
+	border-style: solid;
 	border-color: #808080;
 	border-collapse: collapse;
 }
@@ -28,7 +28,7 @@ table.transfers tr:nth-child(even)
 
 .speedspan { border: 1px solid grey; padding: 5px; }
 
-.toolbar { border: 1px solid grey; background-color: #eee; padding: 4px; }
+.toolbar { border: 1px solid #808080; background-color: #eee; padding: 4px; }
 
 td.m { text-align: center }
 

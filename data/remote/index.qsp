@@ -8,23 +8,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat web interface</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
-<script type="text/javascript">
-//<![CDATA[
-	function newwin(url)
-	{
-		window.open(url, 'popup', 'width=660,height=500,toolbar=0');
-		return false;
-	}
-	
-	function addTransfer(q)
-	{
-		window.open('/add_transfer.qsp?queue='+q, 'add_transfer', 'width=400,height=400,toolbar=0');
-	}
-//]]>
-</script>
+<script type="text/javascript" src="/index.js"/>
 </head>
 
-<body>
+<body onload="javascript: loadRefresh();">
 <p><img src="logo.png" alt="FatRat logo"/></p>
 
 <form method="get" action="">
@@ -47,29 +34,53 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </p>
 </form>
 
-<form method="post" action="?<? print(QUERY_STRING); ?>">
+<form method="post" id="mainform" action="?<? print(QUERY_STRING); ?>">
 
 <p class="toolbar">
 	<button type="button" onclick="javascript:newwin('/add_transfer.qsp?queue='+<? print(GET.queue); ?>)" title="New transfer"><img src="/add.png" alt="New transfer"/></button>
-	<img src="/sep.png" alt="separator"/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
 	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<img src="/sep.png" alt="separator"/>
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
 	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
 	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>
-	<img src="/sep.png" alt="separator"/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" title="Reload"><img src="/reload.png" alt="Reload"/></button>
 	
+	<span class="ralign" title="Will not reload if any checkboxes are checked">
+		Reload every
+		<select id="refresh" onchange="javascript:refreshChange()">
+			<option value="0">never</option>
+			<option value="5">5 seconds</option>
+			<option value="10">10 seconds</option>
+			<option value="30">30 seconds</option>
+			<option value="60">minute</option>
+		</select>
+	</span>
 </p>
 
 <table class="transfers">
 <thead>
-<tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m">Speed</td><td class="m">Time left</td><td>Message</td></tr>
+<tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m">Speed <img src="/download.png" alt="down"/></td><td class="m">Speed <img src="/upload.png" alt="up"/></td><td class="m">Time left</td><td>Message</td></tr>
 </thead>
 
 <tbody>
 <?
+	function stateSuffix(transfer)
+	{
+		if(transfer.mode == 1)
+			return '';
+		
+		if(transfer.primaryMode == 1)
+		{
+			if(transfer.state == 'Completed')
+				return '';
+		}
+		
+		return '_upload';
+	}
+	
 	if(GET.queue == undefined)
 	{
 		print("No queue");
@@ -113,9 +124,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	for(i=0;i<queue.size;i++)
 	{
 		var transfer = queue.at(i);
-
-		print('<tr><td>');
-		print(' <span class="ralign"><a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a> ');
+		
+		print('<tr><td><span class="ralign"><a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a> ');
 		
 		var info = fileInfo(transfer.dataPath);
 		if(info.directory)
@@ -127,10 +137,9 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 			print(' <a href="/download?queue='+GET.queue+'&amp;transfer='+i+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
 		}
 		
-		print('</span> <img src="/states/' + transfer.state.toLowerCase() + '.png" alt="' + transfer.state + '"/> ');
+		print('</span> <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" name="transfer['+i+']" value="true"/> ');
-		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a>');
-		print('</td>');
+		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a></td>');
 		
 		var progress;
 		if(transfer.total > 0)
@@ -146,16 +155,16 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 			print('<td class="m"><img src="/generate/progress.png?%3F" alt="?"/></td><td class="m">?</td>');
 		}
 		
-		var speed_text = '', speed = transfer.speed();
+		speed = transfer.speed();
+		text = '';
 		if(speed.down > 0)
-			speed_text = formatSize(speed.down, true)+ ' <i>down</i>';
+			text = formatSize(speed.down, true);
+		print('<td class="m">'+text+'</td>');
+		text = '';
+		
 		if(speed.up > 0)
-		{
-			if(speed_text.length)
-				speed_text = speed_text + ' | ';
-			speed_text = speed_text + formatSize(speed.up, true)+ ' <i>up</i>';
-		}
-		print('<td class="m">' + speed_text + '</td>');
+			text = formatSize(speed.up, true);
+		print('<td class="m">'+text+'</td>');
 		
 		print('<td class="m">'+transfer.timeLeft()+'</td>'); // time left
 		print('<td>'+transfer.message+'</td></tr>');

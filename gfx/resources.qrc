@@ -242,6 +242,9 @@
     <file>flags/zm.gif</file>
     <file>flags/zw.gif</file>
   </qresource>
+  <qresource prefix="/other" >
+    <file>progressbar.png</file>
+  </qresource>
   <qresource prefix="/fatrat" >
     <file>webinterface.png</file>
     <file>bittorrent.png</file>
