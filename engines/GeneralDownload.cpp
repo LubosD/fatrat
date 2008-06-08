@@ -288,6 +288,9 @@ void GeneralDownload::changeActive(bool nowActive)
 	}
 	else
 	{
+		if(state() != Failed)
+			m_strMessage.clear();
+		
 		m_cookies.clear();
 		if(m_engine)
 		{

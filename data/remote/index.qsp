@@ -18,6 +18,12 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <p>
 	Queue: <select name="queue" onchange="javascript:this.form.submit()">
 	<?
+		function escapeAmpersand(text)
+		{
+			text = new String(text);
+			return text.split('&').join('&amp;');
+		}
+		
 		if(GET.queue == undefined && QUEUES.length != 0)
 			GET.queue = 0;
 		
@@ -34,7 +40,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </p>
 </form>
 
-<form method="post" id="mainform" action="?<? print(QUERY_STRING); ?>">
+<form method="post" id="mainform" action="?<? print(escapeAmpersand(QUERY_STRING)); ?>">
 
 <p class="toolbar">
 	<span class="ralign" title="Will not reload if any checkboxes are checked">
@@ -52,6 +58,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
 	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
+	<button type="submit" name="cleanup" value="cleanup" title="Remove completed"><img src="/states/completed.png" alt="Remove completed"/></button>
 	<img src="/sep.png" alt="separator"/>
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
 	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
@@ -92,7 +99,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		queue.setSpeedLimits(POST.downLimit*1024, POST.upLimit*1024);
 	if(POST.setState && POST.transfer)
 	{
-		for(i=0;i<queue.size;i++)
+		for(i=queue.size-1;i>=0;i--)
 		{
 			if(!POST.transfer[i])
 				continue;
@@ -110,7 +117,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	}
 	if(POST.remove && POST.transfer)
 	{
-		for(i=0;i<queue.size;i++)
+		for(i=queue.size-1;i>=0;i--)
 		{
 			if(!POST.transfer[i])
 				continue;
@@ -120,24 +127,36 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 				queue.remove(i, true);
 		}
 	}
+	if(POST.cleanup)
+	{
+		for(i=queue.size-1;i>=0;i--)
+		{
+			if(queue.at(i).state == 'Completed')
+				queue.remove(i, true);
+		}
+	}
 	
 	for(i=0;i<queue.size;i++)
 	{
 		var transfer = queue.at(i);
 		
-		print('<tr><td><span class="ralign"><a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a> ');
-		
+		print('<tr><td><span class="ralign">');
 		var info = fileInfo(transfer.dataPath);
-		if(info.directory)
+		if(info)
 		{
-			print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+i+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
-		}
-		else
-		{
-			print(' <a href="/download?queue='+GET.queue+'&amp;transfer='+i+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
+			if(info.directory)
+			{
+				print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+i+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
+			}
+			else
+			{
+				print(' <a href="/download?queue='+GET.queue+'&amp;transfer='+i+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
+			}
 		}
 		
-		print('</span> <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" alt="' + transfer.state + '"/> ');
+		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a></span>');
+		
+		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" name="transfer['+i+']" value="true"/> ');
 		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a></td>');
 		

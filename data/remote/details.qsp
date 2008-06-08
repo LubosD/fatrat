@@ -20,11 +20,17 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		transfer.setUserSpeedLimits(POST.downLimit*1024, POST.upLimit*1024);
 		transfer.comment = POST.comment;
 	}
+	
+	function escapeAmpersand(text)
+	{
+		text = new String(text);
+		return text.split('&').join('&amp;');
+	}
 ?>
 
 <p style="text-align: center"><b>Transfer details</b></p>
 
-<form method="post" action="?<? print(QUERY_STRING);?>">
+<form method="post" action="?<? print(escapeAmpersand(QUERY_STRING));?>">
 
 <table class="transfers">
 <tr><td>Name</td><td><? print(transfer.name) ?></td></tr>
@@ -49,7 +55,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<td>Comment</td>
 	<td>
 		<textarea name="comment" rows="10" cols="10" style="width: 100%"><? print(transfer.comment); ?></textarea>
-	</tr>
+	</td>
 </tr>
 </table>
 
