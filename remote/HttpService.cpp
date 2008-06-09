@@ -996,7 +996,7 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 	
 	m_engine->globalObject().setProperty("GET", convertQueryString(processQueryString(queryString)));
 	m_engine->globalObject().setProperty("POST", convertQueryString(processQueryString(postData)));
-	m_engine->globalObject().setProperty("QUERY_STRING", m_engine->toScriptValue(queryString));
+	m_engine->globalObject().setProperty("QUERY_STRING", m_engine->toScriptValue(QString(queryString)));
 	
 	fun = m_engine->newFunction(pagePrintFunction);
 	fun.setData(m_engine->newQObject(output));

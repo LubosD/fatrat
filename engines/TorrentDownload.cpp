@@ -554,7 +554,7 @@ void TorrentDownload::changeActive(bool nowActive)
 		if(nowActive)
 		{
 			m_handle.resume();
-			QTimer::singleShot(3000, this, SLOT(forceReannounce()));
+			QTimer::singleShot(10000, this, SLOT(forceReannounce()));
 		}
 		else
 		{
@@ -1074,7 +1074,8 @@ void TorrentDownload::forceReannounce()
 	if(!m_handle.is_valid())
 		return;
 	
-	if(m_status.state == libtorrent::torrent_status::seeding || m_status.state == libtorrent::torrent_status::downloading)
+	qDebug() << "TorrentDownload::forceReannounce()";
+	if(isActive())
 		m_handle.force_reannounce();
 	else
 		m_handle.scrape_tracker();

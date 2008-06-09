@@ -42,6 +42,9 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <form method="post" id="mainform" action="?<? print(escapeAmpersand(QUERY_STRING)); ?>">
 
+<noscript>
+	<p><a href="/add_transfer.qsp?queue=<? print(GET.queue); ?>">Add transfer</a></p>
+</noscript>
 <p class="toolbar">
 	<span class="ralign" title="Will not reload if any checkboxes are checked">
 		Reload every
@@ -54,8 +57,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		</select>
 	</span>
 	
-	<button type="button" onclick="javascript:newwin('/add_transfer.qsp?queue='+<? print(GET.queue); ?>)" title="New transfer"><img src="/add.png" alt="New transfer"/></button>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<script type="text/javascript"><!--
+		document.write('<button type="button" onclick="javascript:newwin(\'/add_transfer.qsp?queue=<? print(GET.queue); ?>\')" title="New transfer"><img src="/add.png" alt="New transfer"/></button>');
+		document.write('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+	//--></script>
+	
 	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
 	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<button type="submit" name="cleanup" value="cleanup" title="Remove completed"><img src="/states/completed.png" alt="Remove completed"/></button>
@@ -63,6 +69,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
 	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
 	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<button type="submit" name="move" value="top" title="Move to the top"><img src="/move/top.png" alt="Move to the top"/></button>
+	<button type="submit" name="move" value="up" title="Move up"><img src="/move/up.png" alt="Move up"/></button>
+	<button type="submit" name="move" value="down" title="Move down"><img src="/move/down.png" alt="Move down"/></button>
+	<button type="submit" name="move" value="bottom" title="Move to the bottom"><img src="/move/bottom.png" alt="Move to the bottom"/></button>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" title="Reload"><img src="/reload.png" alt="Reload"/></button>
 </p>
@@ -140,7 +151,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	{
 		var transfer = queue.at(i);
 		
-		print('<tr><td><span class="ralign">');
+		print('<tr id="transfer'+i+'_tr"><td><span class="ralign">');
 		var info = fileInfo(transfer.dataPath);
 		if(info)
 		{
@@ -154,10 +165,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 			}
 		}
 		
-		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph_icon.gif" title="Graph" alt="Graph"/></a></span>');
+		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
 		
 		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" alt="' + transfer.state + '"/> ');
-		print(' <input type="checkbox" name="transfer['+i+']" value="true"/> ');
+		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="true"/> ');
 		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a></td>');
 		
 		var progress;
@@ -194,7 +205,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </table>
 </form>
 
-<form method="post" action="?<? print(QUERY_STRING); ?>">
+<form method="post" action="?<? print(escapeAmpersand(QUERY_STRING)); ?>">
 
 <?
 	var sl = null;
@@ -202,11 +213,15 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		sl = queue.speedLimits();
 ?>
 
-<p style="text-align: right">Queue speed limit:
+<p>
+	<span class="ralign">Queue speed limit:
 		<span class="speedspan"><input type="text" size="4" name="downLimit" value="<? if(sl) print(sl.down/1024); ?>"/> kB/s down</span>
 		
 		<span class="speedspan"><input type="text" size="4" name="upLimit" value="<? if(sl) print(sl.up/1024); ?>"/> kB/s up</span>
 		<input type="submit" name="queueLimits" value="Set"/>
+	</span>
+	<input type="button" value="Check all" onclick="javascript: checkAll(true);"/>
+	<input type="button" value="Uncheck all" onclick="javascript: checkAll(false);"/>
 </p>
 </form>
 

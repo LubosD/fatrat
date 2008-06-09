@@ -4,9 +4,27 @@ function newwin(url)
 	return false;
 }
 
-function addTransfer(q)
+function checkTransfer(checkbox)
 {
-	window.open('/add_transfer.qsp?queue='+q, 'add_transfer', 'width=400,height=400,toolbar=0');
+	checked = checkbox.checked;
+	tr = document.getElementById(checkbox.id+'_tr');
+	if(checked)
+		tr.setAttribute('style', 'background-color: #99f');
+	else
+		tr.setAttribute('style', '');
+}
+
+function checkAll(check)
+{
+	for(i=0;;i++)
+	{
+		id = 'transfer'+i;
+		obj = document.getElementById(id);
+		if(!obj)
+			break;
+		obj.checked = check;
+		checkTransfer(obj);
+	}
 }
 
 function readCookie(name)

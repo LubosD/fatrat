@@ -388,7 +388,7 @@ if(WITH_WEBINTERFACE)
 	install(FILES data/remote/add.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/delete.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/delete_with_data.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/graph_icon.gif DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/graph.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/down.png DESTINATION share/fatrat/data/remote)
 	
 	install(FILES data/remote/download.png DESTINATION share/fatrat/data/remote)
@@ -402,6 +402,11 @@ if(WITH_WEBINTERFACE)
 	
 	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
+	
+	install(FILES data/remote/move/top.png DESTINATION share/fatrat/data/remote/move)
+	install(FILES data/remote/move/up.png DESTINATION share/fatrat/data/remote/move)
+	install(FILES data/remote/move/down.png DESTINATION share/fatrat/data/remote/move)
+	install(FILES data/remote/move/bottom.png DESTINATION share/fatrat/data/remote/move)
 	
 	install(FILES data/remote/states/active.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/completed.png DESTINATION share/fatrat/data/remote/states)
