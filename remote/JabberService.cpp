@@ -240,7 +240,11 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 			bool bAccepted = m_bRestrictPassword;
 			
 			if(m_bRestrictSelf)
+			{
 				bAccepted &= from.bare() == m_strJID.toStdString();
+				if(!bAccepted)
+					Logger::global()->enterLogMessage("Jabber", tr("Refusing login for %1 (I am %2)").arg(QString::fromStdString(from.bare())).arg(m_strJID));
+			}
 			bAccepted &= m_strRestrictPassword == message.mid(5);
 			
 			if(bAccepted)
