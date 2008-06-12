@@ -1,6 +1,7 @@
 body, button, input, select { font-family: sans-serif; /*font-size: small*/ }
 
 table.transfers {
+	font-size: small;
 	width: 100%;
 	border-width: 1px;
 	border-spacing: 2px;

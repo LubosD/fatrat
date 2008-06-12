@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QList>
 #include <QVariant>
 #include <QFile>
+#include <QIcon>
 #include <QNetworkProxy>
 
 #define VERSION "SVN"
@@ -76,6 +77,18 @@ struct PluginInfo
 	const char* version;
 	QString name, author, website;
 };
+
+class Transfer;
+class Queue;
+
+struct MenuAction
+{
+	QIcon icon;
+	QString strName;
+	void (*lpfnTriggered)(Transfer* t, Queue* q);
+};
+
+void addMenuAction(const MenuAction& action);
 
 enum FtpMode { FtpActive = 0, FtpPassive };
 

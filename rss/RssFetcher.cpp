@@ -196,7 +196,7 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 			if(regexps[i].tvs != RssRegexp::None)
 			{
 				QString epid = generateEpisodeName(regexps[i], item.title);
-				qDebug() << "Generated episode name" << epid << "from" << item.title;
+				qDebug() << "Generated an episode name" << epid << "from" << item.title;
 				if(!epid.isEmpty())
 				{
 					if(regexps[i].epDone.contains(epid))

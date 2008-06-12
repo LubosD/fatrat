@@ -16,7 +16,13 @@
    <item row="0" column="0" colspan="2" >
     <widget class="QLabel" name="labelSettings" >
      <property name="text" >
-      <string>Default settings - used only for upload!</string>
+      <string>Default settings - &lt;b>&lt;font color="red">used only for upload!&lt;/font>&lt;/b> For download see the HTTP/FTP section.</string>
+     </property>
+     <property name="scaledContents" >
+      <bool>false</bool>
+     </property>
+     <property name="wordWrap" >
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -119,7 +125,7 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>16</width>
        <height>21</height>

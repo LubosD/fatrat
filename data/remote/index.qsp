@@ -14,19 +14,20 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <body onload="javascript: loadRefresh();">
 <p><img src="logo.png" alt="FatRat logo"/></p>
 
+<?
+if(GET.queue == undefined && QUEUES.length != 0)
+	GET.queue = 0;
+function escapeAmpersand(text)
+{
+	text = new String(text);
+	return text.split('&').join('&amp;');
+}
+?>
+
 <form method="get" action="">
-<p>
+<p class="toolbar">
 	Queue: <select name="queue" onchange="javascript:this.form.submit()">
 	<?
-		function escapeAmpersand(text)
-		{
-			text = new String(text);
-			return text.split('&').join('&amp;');
-		}
-		
-		if(GET.queue == undefined && QUEUES.length != 0)
-			GET.queue = 0;
-		
 		for(i=0;i<QUEUES.length;i++)
 		{
 			print('<option value="'+i+'" ');
@@ -36,7 +37,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		}
 	?>
 	</select>
-	<input type="submit" value="Switch"/>
+	<input type="submit" id="sumbit_queue" value="Switch"/>
+	<script type="text/javascript"><!--
+	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden');
+	document.write('');
+	--></script>
 </p>
 </form>
 
@@ -98,6 +103,15 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		
 		return '_upload';
 	}
+	function shorten(text)
+	{
+		LIMIT = 60;
+		text = new String(text);
+		if(text.length > LIMIT)
+			return text.substring(0, LIMIT-3) + '...';
+		else
+			return text;
+	}
 	
 	if(GET.queue == undefined)
 	{
@@ -146,6 +160,43 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 				queue.remove(i, true);
 		}
 	}
+	if(POST.move && POST.transfer)
+	{
+		if(POST.move == 'top')
+		{
+			var x = 0;
+			for(i=queue.size-1;i>=0;i--)
+			{
+				if(POST.transfer[i])
+					queue.moveToTop(i+x++);
+			}
+		}
+		else if(POST.move == 'up')
+		{
+			for(i=0;i<queue.size;i++)
+			{
+				if(POST.transfer[i])
+					queue.moveUp(i);
+			}
+		}
+		else if(POST.move == 'down')
+		{
+			for(i=queue.size-1;i>=0;i--)
+			{
+				if(POST.transfer[i])
+					queue.moveDown(i);
+			}
+		}
+		else if(POST.move == 'bottom')
+		{
+			var x = 0;
+			for(i=0;i<queue.size;i++)
+			{
+				if(POST.transfer[i])
+					queue.moveToBottom(i-x++)
+			}
+		}
+	}
 	
 	for(i=0;i<queue.size;i++)
 	{
@@ -169,7 +220,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		
 		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="true"/> ');
-		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + transfer.name + '</a></td>');
+		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + shorten(transfer.name) + '</a></td>');
 		
 		var progress;
 		if(transfer.total > 0)
@@ -216,7 +267,6 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <p>
 	<span class="ralign">Queue speed limit:
 		<span class="speedspan"><input type="text" size="4" name="downLimit" value="<? if(sl) print(sl.down/1024); ?>"/> kB/s down</span>
-		
 		<span class="speedspan"><input type="text" size="4" name="upLimit" value="<? if(sl) print(sl.up/1024); ?>"/> kB/s up</span>
 		<input type="submit" name="queueLimits" value="Set"/>
 	</span>
@@ -227,7 +277,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <hr/>
 
-<p style="text-align: center; font-size: 9px"><b><a href="http://fatrat.dolezel.info">FatRat</a></b> is Copyright © 2006-2008 Luboš Doležel</p>
+<p style="text-align: center; font-size: x-small"><b><a href="http://fatrat.dolezel.info">FatRat</a></b> is Copyright © 2006-2008 Luboš Doležel</p>
 
 </body>
 </html>

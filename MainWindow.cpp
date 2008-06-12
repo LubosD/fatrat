@@ -61,6 +61,8 @@ extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 
+static QList<MenuAction> m_menuActions;
+
 using namespace std;
 
 MainWindow::MainWindow(bool bStartHidden)
@@ -709,7 +711,7 @@ void MainWindow::move(int i)
 		switch(i)
 		{
 			case 0:
-			{	
+			{
 				for(int j=0;j<size;j++)
 				{
 					q->moveToTop(sel[size-j-1]+j);
@@ -1310,6 +1312,17 @@ void MainWindow::transferItemContext(const QPoint&)
 		}
 		
 		menu.addSeparator();
+		
+		if(!m_menuActions.isEmpty())
+		{
+			m_menuActionObjects.clear();
+			foreach(MenuAction act, m_menuActions)
+			{
+				m_menuActionObjects << menu.addAction(act.icon, act.strName, this, SLOT(menuActionTriggered()));
+			}
+			menu.addSeparator();
+		}
+		
 		menu.addAction(actionInfoBar);
 		menu.addSeparator();
 		menu.addAction(actionProperties);
@@ -1492,3 +1505,27 @@ void MainWindow::applySettings()
 	connect(m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
 }
 
+void MainWindow::menuActionTriggered()
+{
+	QAction* action = static_cast<QAction*>(sender());
+	int i = m_menuActionObjects.indexOf(action);
+	
+	if(i < 0)
+		return;
+	
+	Queue* q = getCurrentQueue();
+	if(q != 0 && m_menuActions[i].lpfnTriggered)
+	{
+		QModelIndex ctrans = treeTransfers->currentIndex();
+		Transfer* t = q->at(ctrans.row());
+		
+		m_menuActions[i].lpfnTriggered(t, q);
+		
+		doneQueue(q, true, false);
+	}
+}
+
+void addMenuAction(const MenuAction& action)
+{
+	m_menuActions << action;
+}

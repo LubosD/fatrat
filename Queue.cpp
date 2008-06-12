@@ -31,11 +31,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using namespace std;
 
 QList<Queue*> g_queues;
-QReadWriteLock g_queuesLock;
+QReadWriteLock g_queuesLock(QReadWriteLock::Recursive);
 
 Queue::Queue()
 	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1),
-	m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(false)
+	m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(false), m_lock(QReadWriteLock::Recursive)
 {
 	memset(&m_stats, 0, sizeof m_stats);
 	m_uuid = QUuid::createUuid();

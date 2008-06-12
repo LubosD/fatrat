@@ -49,8 +49,9 @@ public:
 	
 	QString uuid() const { return m_uuid.toString(); }
 	
-	bool upAsDown() const { return m_bUpAsDown; }
-	void setUpAsDown(bool v) { m_bUpAsDown=v; }
+	Q_INVOKABLE bool upAsDown() const { return m_bUpAsDown; }
+	Q_INVOKABLE void setUpAsDown(bool v) { m_bUpAsDown=v; }
+	Q_PROPERTY(bool upAsDown READ upAsDown WRITE setUpAsDown)
 	
 	Q_INVOKABLE int size();
 	Q_PROPERTY(int size READ size)
@@ -64,11 +65,11 @@ public:
 	Q_INVOKABLE void add(Transfer* d);
 	void add(QList<Transfer*> d);
 	
-	int moveDown(int n);
-	int moveUp(int n);
-	void moveToTop(int n);
-	void moveToBottom(int n);
-	void moveToPos(int from, int to);
+	Q_INVOKABLE int moveDown(int n);
+	Q_INVOKABLE int moveUp(int n);
+	Q_INVOKABLE void moveToTop(int n);
+	Q_INVOKABLE void moveToBottom(int n);
+	Q_INVOKABLE void moveToPos(int from, int to);
 	
 	Q_INVOKABLE void remove(int n, bool nolock = false);
 	Q_INVOKABLE void removeWithData(int n, bool nolock = false);

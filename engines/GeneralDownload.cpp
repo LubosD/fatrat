@@ -137,6 +137,7 @@ void GeneralDownload::init(QString uri,QString dest)
 	obj.ftpMode = FtpPassive;
 	
 	m_dir = dest;
+	m_dir.mkpath(".");
 	
 	QString scheme = obj.url.scheme();
 	if(scheme != "http" && scheme != "ftp" && scheme != "sftp" && scheme != "https")

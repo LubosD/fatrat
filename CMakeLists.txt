@@ -363,6 +363,14 @@ set(fatrat_DEV_HEADERS
 	RuntimeException.h
 	Settings.h
 	)
+set(fatrat_DEV_HEADERS_ENGINES
+	engines/GeneralDownload.h
+	engines/HttpClient.h
+	engines/HttpEngine.h
+	engines/DataPoller.h
+	engines/SocketInterface.h
+	engines/OutputBuffer.h
+	)
 
 install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt data/defaults.conf DESTINATION share/fatrat/data)
 install(FILES data/css/queueview.css data/css/label-headers.css DESTINATION share/fatrat/data/css)
@@ -370,7 +378,7 @@ install(FILES gfx/fatrat.png DESTINATION share/pixmaps)
 install(FILES data/fatrat.desktop DESTINATION share/applications)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
-install(FILES engines/GeneralDownload.h engines/HttpClient.h DESTINATION include/fatrat/engines)
+install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
 
 if(WITH_NLS)
 	install(FILES locale/fatrat_cs_CZ.qm locale/fatrat_tr_TR.qm DESTINATION share/fatrat/lang)
@@ -407,6 +415,10 @@ if(WITH_WEBINTERFACE)
 	install(FILES data/remote/move/up.png DESTINATION share/fatrat/data/remote/move)
 	install(FILES data/remote/move/down.png DESTINATION share/fatrat/data/remote/move)
 	install(FILES data/remote/move/bottom.png DESTINATION share/fatrat/data/remote/move)
+	
+	install(FILES data/remote/queue/add.png DESTINATION share/fatrat/data/remote/queue)
+	install(FILES data/remote/queue/remove.png DESTINATION share/fatrat/data/remote/queue)
+	install(FILES data/remote/queue/properties.png DESTINATION share/fatrat/data/remote/queue)
 	
 	install(FILES data/remote/states/active.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/completed.png DESTINATION share/fatrat/data/remote/states)

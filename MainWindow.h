@@ -92,6 +92,7 @@ public slots:
 	void transferOpenDirectory();
 	
 	void displayDestroyed();
+	void menuActionTriggered();
 	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);
@@ -128,6 +129,8 @@ private:
 	DropBox* m_dropBox;
 	Transfer* m_lastTransfer;
 	NewTransferDlg* m_dlgNewTransfer;
+	
+	QList<QAction*> m_menuActionObjects;
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;
