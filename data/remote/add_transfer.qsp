@@ -1,0 +1,55 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FatRat - transfer details</title>
+<link rel="icon" href="/favicon.png" type="image/png"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/>
+</head>
+<body>
+
+<p style="text-align: center"><b>New transfer</b></p>
+
+<form method="post" action="?<? print(QUERY_STRING); ?>">
+
+<table class="transfers">
+<tr>
+	<td>Links</td>
+	<td><textarea name="links" rows="10" cols="10" style="width: 100%"></textarea></td>
+</tr>
+<tr>
+	<td>Transfer type</td>
+	<td>
+		<select name="type" style="width: 100%">
+			<option value="auto" selected="selected">Auto detect</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td>Destination</td>
+	<td><input type="text" style="width: 100%" name="destination"/></td>
+</tr>
+<tr>
+	<td>Max. download speed</td>
+	<td><input type="text" size="4" name="downLimit"/> kB/s</td>
+</tr>
+<tr>
+	<td>Max. upload speed</td>
+	<td><input type="text" size="4" name="upLimit"/> kB/s</td>
+</tr>
+<tr>
+	<td></td>
+	<td><input type="checkbox" name="paused" id="paused"/><label for="paused">Add paused</label></td>
+</tr>
+</table>
+
+<p style="text-align: center">
+	<input type="submit" name="add" value="OK"/>
+	<input type="button" value="Close" onclick="javascript:window.close()"/>
+</p>
+
+</form>
+
+</body></html>
