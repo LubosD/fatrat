@@ -91,9 +91,10 @@ int NewTransferDlg::exec()
 	return result;
 }
 
+/*
 void NewTransferDlg::accept()
 {
-	/*
+	
 	if(radioDownload->isChecked())
 	{
 		if((!m_bNewTransfer || !textURIs->toPlainText().isEmpty()) && !comboDestination->currentText().isEmpty())
@@ -108,8 +109,10 @@ void NewTransferDlg::accept()
 	}
 	else
 		QDialog::accept();
-	*/
+	
 }
+*/
+
 void NewTransferDlg::accepted()
 {
 	m_mode = radioDownload->isChecked() ? Transfer::Download : Transfer::Upload;

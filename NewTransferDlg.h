@@ -32,7 +32,6 @@ Q_OBJECT
 public:
 	NewTransferDlg(QWidget* parent);
 	int exec();
-	void accept();
 	void accepted();
 	void load();
 	void addLinks(QString links);
