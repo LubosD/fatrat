@@ -396,7 +396,7 @@ void GeneralDownload::redirected(QString newurl)
 		
 		location.setUserInfo(m_urlLast.userInfo());
 		
-		m_cookies = static_cast<HttpClient*>(m_engine)->getCookies();
+		//m_cookies = static_cast<HttpClient*>(m_engine)->getCookies();
 		
 		{
 			QUrl tmploc = location;

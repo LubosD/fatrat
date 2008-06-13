@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 struct AppTool
 {
+	AppTool() {}
 	AppTool(QString n, QWidget* (*pfn)()) : strName(n), pfnCreate(pfn)
 	{}
 	QString strName;

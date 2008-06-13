@@ -101,8 +101,8 @@ int main(int argc,char** argv)
 	// Init download engines (let them load settings)
 	initSettingsDefaults();
 	initSettingsPages();
-	loadPlugins();
 	initTransferClasses();
+	loadPlugins();
 	runEngines();
 	Queue::loadQueues();
 	initAppTools();
