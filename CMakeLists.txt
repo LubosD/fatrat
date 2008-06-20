@@ -12,6 +12,16 @@ endif(COMMAND cmake_policy)
 find_package(Qt4 REQUIRED)
 
 set(CMAKE_MODULE_PATH cmake_modules)
+include_directories(src)
+
+if(WITH_EVERYTHING)
+	set(WITH_BITTORRENT ON)
+	set(WITH_SFTP ON)
+	set(WITH_JABBER ON)
+	set(WITH_NLS ON)
+	set(WITH_DOCUMENTATION ON)
+	set(WITH_WEBINTERFACE ON)
+endif(WITH_EVERYTHING)
 
 if(WITH_BITTORRENT)
 	set(libtorrent_DIR ${CMAKE_MODULE_PATH})
@@ -78,262 +88,262 @@ add_definitions(${QT_DEFINITIONS})
 include_directories(./ ../ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
 
 set(fatrat_SRCS
-	AboutDlg.cpp
-	AppTools.cpp
-	DropBox.cpp
-	fatrat.cpp
-	InfoBar.cpp
-	LimitedSocket.cpp
-	MainTab.cpp
-	MainWindow.cpp
-	NetIface.cpp
-	NewTransferDlg.cpp
-	Queue.cpp
-	QueueMgr.cpp
-	QueueView.cpp
-	SettingsDlg.cpp
-	SettingsGeneralForm.cpp
-	SettingsNetworkForm.cpp
-	SettingsQueueForm.cpp
-	SimpleEmail.cpp
-	SpeedGraph.cpp
-	SpeedLimitWidget.cpp
-	StatsWidget.cpp
-	Transfer.cpp
-	TransfersModel.cpp
-	Logger.cpp
-	Settings.cpp
+	src/AboutDlg.cpp
+	src/AppTools.cpp
+	src/DropBox.cpp
+	src/fatrat.cpp
+	src/InfoBar.cpp
+	src/LimitedSocket.cpp
+	src/MainTab.cpp
+	src/MainWindow.cpp
+	src/NetIface.cpp
+	src/NewTransferDlg.cpp
+	src/Queue.cpp
+	src/QueueMgr.cpp
+	src/QueueView.cpp
+	src/SettingsDlg.cpp
+	src/SettingsGeneralForm.cpp
+	src/SettingsNetworkForm.cpp
+	src/SettingsQueueForm.cpp
+	src/SimpleEmail.cpp
+	src/SpeedGraph.cpp
+	src/SpeedLimitWidget.cpp
+	src/StatsWidget.cpp
+	src/Transfer.cpp
+	src/TransfersModel.cpp
+	src/Logger.cpp
+	src/Settings.cpp
 	
 	# experimental
-	engines/DataPoller.cpp
-	engines/HttpEngine.cpp
-	engines/LineFeeder.cpp
-	engines/OutputBuffer.cpp
-	engines/SocketInterface.cpp
+	src/engines/DataPoller.cpp
+	src/engines/HttpEngine.cpp
+	src/engines/LineFeeder.cpp
+	src/engines/OutputBuffer.cpp
+	src/engines/SocketInterface.cpp
 
-	remote/GenericService.cpp
+	src/remote/GenericService.cpp
 	
-	rss/RssFetcher.cpp
-	rss/SettingsRssForm.cpp
-	rss/RssRegexpDlg.cpp
-	rss/RssDownloadedDlg.cpp
+	src/rss/RssFetcher.cpp
+	src/rss/SettingsRssForm.cpp
+	src/rss/RssRegexpDlg.cpp
+	src/rss/RssDownloadedDlg.cpp
 
-	tooltips/BaseToolTip.cpp
-	tooltips/QueueToolTip.cpp
-	tooltips/TrayToolTip.cpp
+	src/tooltips/BaseToolTip.cpp
+	src/tooltips/QueueToolTip.cpp
+	src/tooltips/TrayToolTip.cpp
 
-	engines/FtpClient.cpp
-	engines/FtpUpload.cpp
-	engines/GeneralDownload.cpp
-	engines/GeneralDownloadForms.cpp
-	engines/HttpClient.cpp
-	engines/HttpFtpSettings.cpp
-	engines/RapidshareUpload.cpp
+	src/engines/FtpClient.cpp
+	src/engines/FtpUpload.cpp
+	src/engines/GeneralDownload.cpp
+	src/engines/GeneralDownloadForms.cpp
+	src/engines/HttpClient.cpp
+	src/engines/HttpFtpSettings.cpp
+	src/engines/RapidshareUpload.cpp
 
-	dbus/DbusAdaptor.cpp
-	dbus/DbusImpl.cpp
-	tools/HashDlg.cpp
-	tools/RapidTools.cpp
-	tools/VideoFetcher.cpp
+	src/dbus/DbusAdaptor.cpp
+	src/dbus/DbusImpl.cpp
+	src/tools/HashDlg.cpp
+	src/tools/RapidTools.cpp
+	src/tools/VideoFetcher.cpp
 )
 
 set(fatrat_MOC_HDRS
-	dbus/DbusAdaptor.h
-	dbus/DbusImpl.h
+	src/dbus/DbusAdaptor.h
+	src/dbus/DbusImpl.h
 	
-	TransfersModel.h
-	QueueDlg.h
-	QueueMgr.h
-	SpeedGraph.h
-	SettingsDropBoxForm.h
-	SettingsNetworkForm.h
-	SettingsQueueForm.h
-	StatsWidget.h
-	ProxyDlg.h
-	SpeedLimitWidget.h
-	LogManager.h
-	SettingsGeneralForm.h
-	Transfer.h
-	SimpleEmail.h
-	LimitedSocket.h
-	QueueView.h
-	MainWindow.h
-	AboutDlg.h
-	SettingsDlg.h
-	TransfersView.h
-	Queue.h
-	MainTab.h
-	DropBox.h
-	InfoBar.h
-	GenericOptsForm.h
-	WidgetHostDlg.h
-	UserAuthDlg.h
-	NewTransferDlg.h
-	Logger.h
+	src/TransfersModel.h
+	src/QueueDlg.h
+	src/QueueMgr.h
+	src/SpeedGraph.h
+	src/SettingsDropBoxForm.h
+	src/SettingsNetworkForm.h
+	src/SettingsQueueForm.h
+	src/StatsWidget.h
+	src/ProxyDlg.h
+	src/SpeedLimitWidget.h
+	src/LogManager.h
+	src/SettingsGeneralForm.h
+	src/Transfer.h
+	src/SimpleEmail.h
+	src/LimitedSocket.h
+	src/QueueView.h
+	src/MainWindow.h
+	src/AboutDlg.h
+	src/SettingsDlg.h
+	src/TransfersView.h
+	src/Queue.h
+	src/MainTab.h
+	src/DropBox.h
+	src/InfoBar.h
+	src/GenericOptsForm.h
+	src/WidgetHostDlg.h
+	src/UserAuthDlg.h
+	src/NewTransferDlg.h
+	src/Logger.h
 	
 	# experimental
-	engines/DataPoller.h
-	engines/HttpEngine.h
-	engines/OutputBuffer.h
+	src/engines/DataPoller.h
+	src/engines/HttpEngine.h
+	src/engines/OutputBuffer.h
 	
-	tools/HashDlg.h
-	tools/RapidTools.h
-	tools/VideoFetcher.h
+	src/tools/HashDlg.h
+	src/tools/RapidTools.h
+	src/tools/VideoFetcher.h
 	
-	engines/HttpFtpSettings.h
-	engines/RapidshareUpload.h
-	engines/FtpClient.h
-	engines/GeneralDownload.h
-	engines/GeneralDownloadForms.h
-	engines/HttpClient.h
-	engines/FtpUpload.h
+	src/engines/HttpFtpSettings.h
+	src/engines/RapidshareUpload.h
+	src/engines/FtpClient.h
+	src/engines/GeneralDownload.h
+	src/engines/GeneralDownloadForms.h
+	src/engines/HttpClient.h
+	src/engines/FtpUpload.h
 	
-	rss/RssFetcher.h
-	rss/SettingsRssForm.h
-	rss/RssFeedDlg.h
-	rss/RssRegexpDlg.h
-	rss/RssDownloadedDlg.h
+	src/rss/RssFetcher.h
+	src/rss/SettingsRssForm.h
+	src/rss/RssFeedDlg.h
+	src/rss/RssRegexpDlg.h
+	src/rss/RssDownloadedDlg.h
 	
-	tooltips/QueueToolTip.h
-	tooltips/TrayToolTip.h
-	tooltips/BaseToolTip.h
+	src/tooltips/QueueToolTip.h
+	src/tooltips/TrayToolTip.h
+	src/tooltips/BaseToolTip.h
 )
 
 set(fatrat_UIS
-	AboutDlg.ui
-	AutoActionForm.ui
-	CommentForm.ui
-	GenericOptsForm.ui
-	MainWindow.ui
-	NewTransferDlg.ui
-	ProxyDlg.ui
-	QueueDlg.ui
-	SettingsDlg.ui
-	SettingsDropBoxForm.ui
-	SettingsGeneralForm.ui
-	SettingsNetworkForm.ui
-	SettingsQueueForm.ui
-	SpeedLimitWidget.ui
-	UserAuthDlg.ui
-	WidgetHostDlg.ui
+	src/AboutDlg.ui
+	src/AutoActionForm.ui
+	src/CommentForm.ui
+	src/GenericOptsForm.ui
+	src/MainWindow.ui
+	src/NewTransferDlg.ui
+	src/ProxyDlg.ui
+	src/QueueDlg.ui
+	src/SettingsDlg.ui
+	src/SettingsDropBoxForm.ui
+	src/SettingsGeneralForm.ui
+	src/SettingsNetworkForm.ui
+	src/SettingsQueueForm.ui
+	src/SpeedLimitWidget.ui
+	src/UserAuthDlg.ui
+	src/WidgetHostDlg.ui
 
-	tools/HashDlg.ui
-	tools/RapidTools.ui
-	tools/VideoFetcher.ui
+	src/tools/HashDlg.ui
+	src/tools/RapidTools.ui
+	src/tools/VideoFetcher.ui
 	
-	rss/SettingsRssForm.ui
-	rss/RssFeedDlg.ui
-	rss/RssRegexpDlg.ui
-	rss/RssDownloadedDlg.ui
-	rss/RssEpisodeNameDlg.ui
+	src/rss/SettingsRssForm.ui
+	src/rss/RssFeedDlg.ui
+	src/rss/RssRegexpDlg.ui
+	src/rss/RssDownloadedDlg.ui
+	src/rss/RssEpisodeNameDlg.ui
 
-	engines/FtpUploadOptsForm.ui
-	engines/HttpOptsWidget.ui
-	engines/HttpUrlOptsDlg.ui
-	engines/SettingsHttpForm.ui
-	engines/RapidshareOptsForm.ui
+	src/engines/FtpUploadOptsForm.ui
+	src/engines/HttpOptsWidget.ui
+	src/engines/HttpUrlOptsDlg.ui
+	src/engines/SettingsHttpForm.ui
+	src/engines/RapidshareOptsForm.ui
 )
 
 if(WITH_SFTP)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		engines/SftpClient.cpp
+		src/engines/SftpClient.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		engines/SftpClient.h
+		src/engines/SftpClient.h
 	)
 endif(WITH_SFTP)
 
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		engines/TorrentDetails.cpp
-		engines/TorrentDownload.cpp
-		engines/TorrentFilesModel.cpp
-		engines/TorrentOptsWidget.cpp
-		engines/TorrentIPFilter.cpp
-		engines/TorrentPeersModel.cpp
-		engines/TorrentPiecesModel.cpp
-		engines/TorrentProgressWidget.cpp
-		engines/TorrentSettings.cpp
-		tools/TorrentSearch.cpp
-		tools/TorrentWebView.cpp
-		tools/CreateTorrentDlg.cpp
-		tools/ContextListWidget.cpp
+		src/engines/TorrentDetails.cpp
+		src/engines/TorrentDownload.cpp
+		src/engines/TorrentFilesModel.cpp
+		src/engines/TorrentOptsWidget.cpp
+		src/engines/TorrentIPFilter.cpp
+		src/engines/TorrentPeersModel.cpp
+		src/engines/TorrentPiecesModel.cpp
+		src/engines/TorrentProgressWidget.cpp
+		src/engines/TorrentSettings.cpp
+		src/tools/TorrentSearch.cpp
+		src/tools/TorrentWebView.cpp
+		src/tools/CreateTorrentDlg.cpp
+		src/tools/ContextListWidget.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		tools/TorrentSearch.h
-		tools/TorrentWebView.h
-		tools/CreateTorrentDlg.h
-		tools/ContextListWidget.h
-		engines/TorrentDetails.h
-		engines/TorrentPeersModel.h
-		engines/TorrentDownload.h
-		engines/TorrentOptsWidget.h
-		engines/TorrentProgressWidget.h
-		engines/TorrentPiecesModel.h
-		engines/TorrentFilesModel.h
-		engines/TorrentSettings.h
+		src/tools/TorrentSearch.h
+		src/tools/TorrentWebView.h
+		src/tools/CreateTorrentDlg.h
+		src/tools/ContextListWidget.h
+		src/engines/TorrentDetails.h
+		src/engines/TorrentPeersModel.h
+		src/engines/TorrentDownload.h
+		src/engines/TorrentOptsWidget.h
+		src/engines/TorrentProgressWidget.h
+		src/engines/TorrentPiecesModel.h
+		src/engines/TorrentFilesModel.h
+		src/engines/TorrentSettings.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
-		tools/TorrentSearch.ui
-		tools/TorrentWebView.ui
-		tools/CreateTorrentDlg.ui
-		engines/TorrentDetailsForm.ui
-		engines/TorrentOptsWidget.ui
-		engines/SettingsTorrentForm.ui
+		src/tools/TorrentSearch.ui
+		src/tools/TorrentWebView.ui
+		src/tools/CreateTorrentDlg.ui
+		src/engines/TorrentDetailsForm.ui
+		src/engines/TorrentOptsWidget.ui
+		src/engines/SettingsTorrentForm.ui
 	)
 endif(WITH_BITTORRENT)
 
 if(WITH_JABBER)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		remote/JabberService.cpp
-		remote/SettingsJabberForm.cpp
+		src/remote/JabberService.cpp
+		src/remote/SettingsJabberForm.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		remote/JabberService.h
-		remote/SettingsJabberForm.h
+		src/remote/JabberService.h
+		src/remote/SettingsJabberForm.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
-		remote/SettingsJabberForm.ui
+		src/remote/SettingsJabberForm.ui
 	)
 endif(WITH_JABBER)
 
 if(WITH_WEBINTERFACE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		remote/HttpService.cpp
-		remote/SettingsWebForm.cpp
+		src/remote/HttpService.cpp
+		src/remote/SettingsWebForm.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		remote/HttpService.h
+		src/remote/HttpService.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
-		remote/SettingsWebForm.ui
+		src/remote/SettingsWebForm.ui
 	)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		tools/HelpBrowser.cpp
-		tools/HelpTextBrowser.cpp
+		src/tools/HelpBrowser.cpp
+		src/tools/HelpTextBrowser.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		tools/HelpBrowser.h
+		src/tools/HelpBrowser.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
-		tools/HelpBrowser.ui
+		src/tools/HelpBrowser.ui
 	)
 endif(WITH_DOCUMENTATION)
 
@@ -352,24 +362,24 @@ ${fatrat_QRC_H})
 target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
-	fatrat.h
-	AppTools.h
-	Transfer.h
-	WidgetHostChild.h
-	WidgetHostDlg.h
-	LimitedSocket.h
-	Queue.h
-	Logger.h
-	RuntimeException.h
-	Settings.h
+	src/fatrat.h
+	src/AppTools.h
+	src/Transfer.h
+	src/WidgetHostChild.h
+	src/WidgetHostDlg.h
+	src/LimitedSocket.h
+	src/Queue.h
+	src/Logger.h
+	src/RuntimeException.h
+	src/Settings.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
-	engines/GeneralDownload.h
-	engines/HttpClient.h
-	engines/HttpEngine.h
-	engines/DataPoller.h
-	engines/SocketInterface.h
-	engines/OutputBuffer.h
+	src/engines/GeneralDownload.h
+	src/engines/HttpClient.h
+	src/engines/HttpEngine.h
+	src/engines/DataPoller.h
+	src/engines/SocketInterface.h
+	src/engines/OutputBuffer.h
 	)
 
 install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt data/defaults.conf DESTINATION share/fatrat/data)

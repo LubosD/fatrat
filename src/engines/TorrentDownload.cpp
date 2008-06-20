@@ -1074,11 +1074,16 @@ void TorrentDownload::forceReannounce()
 	if(!m_handle.is_valid())
 		return;
 	
-	qDebug() << "TorrentDownload::forceReannounce()";
 	if(isActive())
+	{
+		qDebug() << "TorrentDownload::forceReannounce(): announce";
 		m_handle.force_reannounce();
+	}
 	else
+	{
+		qDebug() << "TorrentDownload::forceReannounce(): scrape";
 		m_handle.scrape_tracker();
+	}
 }
 
 void TorrentDownload::forceRecheck()

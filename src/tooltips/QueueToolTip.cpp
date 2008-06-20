@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "QueueToolTip.h"
 #include "fatrat.h"
+#include <cstdlib>
 
 QueueToolTip::QueueToolTip(QWidget* parent, Queue* queue)
 	: BaseToolTip(queue, parent), m_queue(queue)
@@ -29,10 +30,14 @@ QueueToolTip::QueueToolTip(QWidget* parent, Queue* queue)
 
 void QueueToolTip::refresh()
 {
+	if(!isVisible())
+		return;
+	
 	QString text;
 	const Queue::Stats& stats = m_queue->m_stats;
+	QPoint diff = QCursor::pos() - pos() + QPoint(25, 25);
 	
-	if((QCursor::pos() - pos()).manhattanLength() > 60)
+	if(abs(diff.x()) > 5 || abs(diff.y()) > 5)
 		hide();
 	else
 	{

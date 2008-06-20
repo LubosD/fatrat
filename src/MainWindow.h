@@ -45,6 +45,7 @@ public:
 	void changeAll(bool resume);
 	QList<int> getSelection();
 	void applySettings();
+	void loadCSS();
 public slots:
 	void about();
 	void showSettings();
@@ -99,7 +100,7 @@ public slots:
 	void downloadModeChanged(Transfer* d, Transfer::State prev, Transfer::State now);
 	
 	void reconfigure();
-	void unhide();
+	void showWindow(bool);
 	
 	void showHelp();
 protected:

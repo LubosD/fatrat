@@ -116,12 +116,8 @@ void JabberService::applySettings()
 			start();
 		else if(bChanged)
 		{
-			m_bTerminating = true;
 			if(m_pClient)
 				m_pClient->disconnect();
-			wait();
-			delete m_pClient;
-			start();
 		}
 	}
 	else if(isRunning())
@@ -273,7 +269,8 @@ void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* 
 		else
 		{
 			msg = processCommand(conn, message);
-			session->send( qstring2stdstring(msg) );
+			if(!msg.isEmpty())
+				session->send( qstring2stdstring(msg) );
 		}
 	}
 }
@@ -341,6 +338,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 	QString extargs;
 	QStringList args = parseCommand(cmd, &extargs);
 	QString response;
+	
+	if(args.isEmpty())
+		return response;
 	
 	try
 	{

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 static const int MAX_SPEED_SAMPLES = 5;
 static const int SOCKET_TIMEOUT = 15; // timeout ∊ <SOCKET_TIMEOUT, SOCKET_TIMEOUT+1)
 static const int BUFFER_SIZE = 4096;
+static const int MAX_EVENTS = 30;
 
 DataPoller* DataPoller::m_instance = 0;
 
@@ -56,11 +57,11 @@ void DataPoller::run()
 	
 	while(!m_bAbort)
 	{
-		epoll_event events[20];
+		epoll_event events[MAX_EVENTS];
 		int num;
 		
 		// wait for the next planned operation or socket event
-		num = epoll_wait(m_epoll, events, sizeof(events) / sizeof(events[0]), wait);
+		num = epoll_wait(m_epoll, events, MAX_EVENTS, wait);
 		gettimeofday(&nowT, 0);
 		
 		for(int i=0;i<num;i++)

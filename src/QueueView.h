@@ -35,6 +35,8 @@ public:
 	QStringList mimeTypes() const;
 	void mouseMoveEvent(QMouseEvent* event);
 	void setCurrentRow(int row);
+protected slots:
+	void tooltipDestroyed(QObject* obj);
 private:
 	QueueToolTip* m_status;
 };

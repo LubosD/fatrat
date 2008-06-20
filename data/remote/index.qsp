@@ -70,7 +70,6 @@ function escapeAmpersand(text)
 	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
 	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<button type="submit" name="cleanup" value="cleanup" title="Remove completed"><img src="/states/completed.png" alt="Remove completed"/></button>
-	<img src="/sep.png" alt="separator"/>
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
 	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
 	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>

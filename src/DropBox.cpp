@@ -99,6 +99,6 @@ void DropBox::dragEnterEvent(QDragEnterEvent *event)
 void DropBox::dropEvent(QDropEvent *event)
 {
 	if(m_bUnhide)
-		g_wndMain->unhide();
+		g_wndMain->showWindow(true);
 	g_wndMain->dropEvent(event);
 }

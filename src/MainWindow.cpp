@@ -125,19 +125,22 @@ void MainWindow::setupUi()
 	hdr->hide();
 	
 	if(getSettingsValue("css").toBool())
-	{
-		QFile file;
-		if(openDataFile(&file, "/data/css/label-headers.css"))
-		{
-			QByteArray data = file.readAll();
-			labelQueues->setStyleSheet(data);
-			labelTransfers->setStyleSheet(data);
-			labelTransferLog->setStyleSheet(data);
-			labelGlobalLog->setStyleSheet(data);
-		}
-	}
+		loadCSS();
 	
 	connectActions();
+}
+
+void MainWindow::loadCSS()
+{
+	QFile file;
+	if(openDataFile(&file, "/data/css/label-headers.css"))
+	{
+		QByteArray data = file.readAll();
+		labelQueues->setStyleSheet(data);
+		labelTransfers->setStyleSheet(data);
+		labelTransferLog->setStyleSheet(data);
+		labelGlobalLog->setStyleSheet(data);
+	}
 }
 
 void MainWindow::connectActions()
@@ -178,7 +181,7 @@ void MainWindow::connectActions()
 	connect(actionDropBox, SIGNAL(toggled(bool)), m_dropBox, SLOT(setVisible(bool)));
 	connect(actionInfoBar, SIGNAL(toggled(bool)), this, SLOT(toggleInfoBar(bool)));
 	connect(actionProperties, SIGNAL(triggered()), this, SLOT(transferOptions()));
-	connect(actionDisplay, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+	connect(actionDisplay, SIGNAL(toggled(bool)), this, SLOT(showWindow(bool)));
 	connect(actionHideAllInfoBars, SIGNAL(triggered()),this, SLOT(hideAllInfoBars()));
 	
 	connect(actionOpenFile, SIGNAL(triggered()), this, SLOT(transferOpenFile()));
@@ -820,6 +823,8 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 	}
 	
 	QList<Transfer*> listTransfers;
+	
+show_dialog:
 	try
 	{
 		QStringList uris;
@@ -850,10 +855,7 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 				eng = Transfer::bestEngine(m_dlgNewTransfer->m_strDestination, Transfer::Upload);
 			
 			if(eng.nClass < 0)
-			{
-				QMessageBox::critical(this, tr("Error"), tr("Couldn't autodetect transfer type."));
-				return;
-			}
+				throw RuntimeException(tr("Couldn't autodetect transfer type."));
 			else
 				m_dlgNewTransfer->m_nClass = eng.nClass;
 		}
@@ -930,7 +932,10 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 	{
 		qDeleteAll(listTransfers);
 		if(!e.what().isEmpty())
+		{
 			QMessageBox::critical(this, tr("Error"), e.what());
+			goto show_dialog;
+		}
 	}
 	
 	delete m_dlgNewTransfer;
@@ -1478,10 +1483,16 @@ void MainWindow::reconfigure()
 		m_dropBox->reconfigure();
 }
 
-void MainWindow::unhide()
+void MainWindow::showWindow(bool show)
 {
-	if(m_trayIcon.isVisible() && !actionDisplay->isChecked())
-		actionDisplay->toggle();
+	if(show)
+	{
+		updateUi();
+		refreshQueues();
+		widgetStats->refresh();
+	}
+	setVisible(show);
+	actionDisplay->setChecked(show);
 }
 
 void MainWindow::showHelp()

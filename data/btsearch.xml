@@ -5,7 +5,7 @@
 		<param name="splitter">&lt;/tr&gt;</param>
 		<param name="ending">&lt;/table&gt;</param>
 		
-		<regexp name="name" field="1">class="detLink" title="([^"]+)"&gt;([^"]+)&lt;/a&gt;</regexp>
+		<regexp name="name">class="detLink" title="[^"]+"&gt;([^"]+)&lt;/a&gt;</regexp>
 		<regexp name="link" match="1">&lt;td&gt;&lt;a href="([^"]+)"</regexp>
 		<regexp name="info">&lt;a href="([^"]+)" class="detLink"</regexp>
 		<regexp name="size">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
@@ -18,12 +18,12 @@
 		<param name="splitter">&lt;/tr&gt;</param>
 		<param name="ending">&lt;/table&gt;</param>
 		
-		<regexp name="name" field="1">&lt;a href="/tor/([^"]+)"&gt;([^"]+)&lt;/a&gt;</regexp>
+		<regexp name="name">&lt;a href="/tor/[^"]+"&gt;([^"]+)&lt;/a&gt;</regexp>
 		<regexp name="info">&lt;a href="(/tor/\d+)"&gt;([^&lt;]+)&lt;/a&gt;</regexp>
 		<regexp name="link">&lt;a href="([^"]+)" class="dl"</regexp>
 		<regexp name="size">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
-		<regexp name="seeders" field="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
-		<regexp name="leechers" field="1" match="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
+		<regexp name="seeders">&lt;span class="."&gt;([^"]+)&lt;/span&gt;</regexp>
+		<regexp name="leechers" match="1">&lt;span class="."&gt;([^"]+)&lt;/span&gt;</regexp>
 	</engine>
 	<engine name="BtJunkie">
 		<param name="query">http://btjunkie.org/search?q=%1</param>
@@ -71,7 +71,7 @@
 		<param name="splitter">&lt;tr class="torrent_</param>
 		<param name="ending">Download our toolbar!</param>
 		
-		<regexp name="name" field="1">&lt;a href="/torrents/([^"]+)"&gt;([^\n]+)</regexp>
+		<regexp name="name">&lt;a href="/torrents/[^"]+"&gt;([^\n]+)</regexp>
 		<regexp name="link">&lt;a rel="nofollow" href="([^"]+)"</regexp>
 		<regexp name="info">&lt;a href="(/torrents/[^"]+)"</regexp>
 		<regexp name="size" match="1">&lt;td&gt;([^&lt;]+)</regexp>
