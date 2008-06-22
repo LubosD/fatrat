@@ -41,12 +41,13 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	comboCloseCurrent->addItems(QStringList() << tr("switch to the next tab") << tr("switch to the previous active tab"));
 	
 	comboLinkSeparator->addItems(QStringList() << tr("a newline") << tr("whitespace characters"));
+	comboFileExec->addItems(QStringList() << "kfmclient exec" << "gnome-open");
 }
 
 void SettingsGeneralForm::load()
 {
 	lineDestination->setText( getSettingsValue("defaultdir").toString() );
-	lineFileExec->setText( getSettingsValue("fileexec").toString() );
+	comboFileExec->setEditText( getSettingsValue("fileexec").toString() );
 	
 	checkTrayIcon->setChecked( getSettingsValue("trayicon").toBool() );
 	checkHideMinimize->setChecked( getSettingsValue("hideminimize").toBool() );
@@ -81,7 +82,7 @@ bool SettingsGeneralForm::accept()
 void SettingsGeneralForm::accepted()
 {
 	g_settings->setValue("defaultdir", lineDestination->text());
-	g_settings->setValue("execfile", lineFileExec->text());
+	g_settings->setValue("execfile", comboFileExec->currentText());
 	
 	g_settings->setValue("trayicon", checkTrayIcon->isChecked());
 	g_settings->setValue("hideminimize", checkHideMinimize->isChecked());

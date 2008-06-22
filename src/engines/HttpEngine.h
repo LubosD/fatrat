@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define HTTPENGINE_H
 #include "DataPoller.h"
 #include "OutputBuffer.h"
+#include "LineFeeder.h"
 #include <QString>
 #include <QFile>
 #include <QUrl>
@@ -35,6 +36,8 @@ public:
 	HttpEngine();
 	~HttpEngine();
 	
+	void clear();
+	
 	void get(QUrl url, QString file, QString referrer = QString(), qint64 from = 0, qint64 to = -1);
 	void setSpeedLimit(int down, int up);
 	
@@ -43,6 +46,9 @@ public:
 	virtual bool putData(const char* data, unsigned long bytes);
 	virtual bool getData(char* data, unsigned long* bytes);
 	virtual void error(int error);
+protected:
+	void reportError(QString error);
+	void processResponse(QHttpResponseHeader& hdr);
 public slots:
 	void domainResolved(QHostInfo info);
 private:
@@ -54,8 +60,15 @@ private:
 	enum HttpState { StateConnecting, StateRequesting, StateSending, StatePending, StateReceiving, StateNone };
 	HttpState m_state;
 	
+	enum HttpMode { ModeGet, ModePost };
+	HttpMode m_mode;
+	
 	QHttpRequestHeader m_request;
+	QString m_strResponse;
 	OutputBuffer m_outputBuffer; // for HTTP headers
+	LineFeeder m_lineFeeder;
+	
+	QList<QHostAddress> m_addresses;
 };
 
 #endif

@@ -183,10 +183,6 @@ void DataPoller::addSocket(SocketInterface* iface)
 	m_sockets[socket] = iface;
 	
 	ev.data.fd = socket;
-	
-	int arg = fcntl(socket, F_GETFL);
-	fcntl(socket, F_SETFL, arg | O_NONBLOCK);
-	
 	ev.events = EPOLLHUP | EPOLLERR | EPOLLOUT | EPOLLIN;
 	
 	epoll_ctl(m_epoll, EPOLL_CTL_ADD, socket, &ev);

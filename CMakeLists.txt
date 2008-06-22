@@ -61,6 +61,14 @@ if(WITH_JABBER)
 	endif(GLOOX_FOUND)
 endif(WITH_JABBER)
 
+if(WITH_CURL)
+	find_package(CURL REQUIRED)
+	
+	if(CURL_FOUND)
+		include_directories(${CURL_INCLUDE_DIRS})
+	endif(CURL_FOUND)
+endif(WITH_CURL)
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
 	ADD_DEFINITIONS(-DDEBUG)
@@ -113,15 +121,13 @@ set(fatrat_SRCS
 	src/TransfersModel.cpp
 	src/Logger.cpp
 	src/Settings.cpp
+	src/engines/OutputBuffer.cpp
 	
 	# experimental
-	src/engines/DataPoller.cpp
-	src/engines/HttpEngine.cpp
-	src/engines/LineFeeder.cpp
-	src/engines/OutputBuffer.cpp
-	src/engines/SocketInterface.cpp
-
-	src/remote/GenericService.cpp
+	#src/engines/DataPoller.cpp
+	#src/engines/HttpEngine.cpp
+	#src/engines/LineFeeder.cpp
+	#src/engines/SocketInterface.cpp
 	
 	src/rss/RssFetcher.cpp
 	src/rss/SettingsRssForm.cpp
@@ -180,11 +186,11 @@ set(fatrat_MOC_HDRS
 	src/UserAuthDlg.h
 	src/NewTransferDlg.h
 	src/Logger.h
+	src/engines/OutputBuffer.h
 	
 	# experimental
-	src/engines/DataPoller.h
-	src/engines/HttpEngine.h
-	src/engines/OutputBuffer.h
+	#src/engines/DataPoller.h
+	#src/engines/HttpEngine.h
 	
 	src/tools/HashDlg.h
 	src/tools/RapidTools.h
@@ -254,6 +260,19 @@ if(WITH_SFTP)
 		src/engines/SftpClient.h
 	)
 endif(WITH_SFTP)
+
+if(WITH_CURL)
+	set(fatrat_SRCS
+		${fatrat_SRCS}
+		src/engines/CurlDownload.cpp
+		src/engines/CurlPoller.cpp
+		src/engines/CurlUser.cpp
+	)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		src/engines/CurlDownload.h
+	)
+endif(WITH_CURL)
 
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
@@ -359,7 +378,7 @@ qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
 	src/fatrat.h

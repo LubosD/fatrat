@@ -20,24 +20,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "fatrat.h"
 #include "HttpEngine.h"
+#include "DataPoller.h"
 #include "RuntimeException.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 
 HttpEngine::HttpEngine()
-	: m_limitDown(0), m_limitUp(0), m_socket(0), m_state(StateNone)
+	: m_limitDown(0), m_limitUp(0), m_state(StateNone)
 {
 	
 }
 
 HttpEngine::~HttpEngine()
 {
+	clear();
+}
+
+void HttpEngine::clear()
+{
+	DataPoller::instance()->removeSocket(this);
+	SocketInterface::clear();
+	m_strResponse.clear();
+	if(m_file.isOpen())
+		m_file.close();
 }
 
 void HttpEngine::get(QUrl url, QString file, QString referrer, qint64 from, qint64 to)
 {
 	QString host, query;
 	m_url = url;
+	
+	clear();
 	
 	m_file.setFileName(file);
 	if(!m_file.open(QIODevice::WriteOnly))
@@ -52,6 +65,7 @@ void HttpEngine::get(QUrl url, QString file, QString referrer, qint64 from, qint
 	if(query.isEmpty())
 		query = "/";
 	
+	m_mode = ModeGet;
 	m_request.setRequest("GET", query);
 	
 	if(url.port(80) != 80)
@@ -70,14 +84,14 @@ void HttpEngine::get(QUrl url, QString file, QString referrer, qint64 from, qint
 
 void HttpEngine::domainResolved(QHostInfo info)
 {
-	QList<QHostAddress> addresses, ip4, ip6;
+	QList<QHostAddress> ip4, ip6;
 	
 	if(info.error() != QHostInfo::NoError)
-		;
+		reportError(tr("Cannot resolve the domain name:")+' '+info.errorString());
 	
-	addresses = info.addresses();
+	m_addresses = info.addresses();
 	
-	foreach(QHostAddress addr, addresses)
+	foreach(QHostAddress addr, m_addresses)
 	{
 		if(addr.protocol() == QAbstractSocket::IPv6Protocol)
 			ip6 << addr;
@@ -85,17 +99,20 @@ void HttpEngine::domainResolved(QHostInfo info)
 			ip4 << addr;
 	}
 	
-	addresses.clear();
-	addresses << ip6 << ip4;
+	m_addresses.clear();
+	m_addresses << ip6 << ip4;
 	
-	if(addresses.isEmpty())
-		;
+	if(m_addresses.isEmpty())
+		reportError(tr("The domain name cannot be resolved to any addresses"));
 	
 	QByteArray headers = m_request.toString().toUtf8();
 	m_outputBuffer.putData(headers.constData(), headers.size());
 	
 	// Let's try the first IP address
 	m_state = StateConnecting;
+	connectTo(m_addresses.front(), m_url.port(80));
+	m_addresses.pop_front();
+	DataPoller::instance()->addSocket(this);
 }
 
 void HttpEngine::setSpeedLimit(int down, int up)
@@ -117,13 +134,109 @@ void HttpEngine::speedLimit(int& down, int& up) const
 
 bool HttpEngine::putData(const char* data, unsigned long bytes)
 {
+	if(m_state == StateReceiving) // response body
+	{
+		
+	}
+	else if(m_state != StateNone) // HTTP headers
+	{
+		m_lineFeeder.feed(data, bytes);
+		
+		QByteArray line;
+		while(m_lineFeeder.getLine(&line))
+		{
+			if(line.isEmpty())
+			{
+				m_state = StateReceiving;
+				break;
+			}
+			
+			m_strResponse += line + "\r\n";
+		}
+		
+		if(m_state == StateReceiving)
+		{
+			QHttpResponseHeader hdr(m_strResponse);
+			QByteArray residue;
+			
+			m_strResponse.clear();
+			
+			processResponse(hdr);
+			residue = m_lineFeeder.residue();
+			
+			if(!residue.isEmpty())
+				this->putData(residue.constData(), residue.size());
+		}
+	}
+	
+	return true;
 }
 
 bool HttpEngine::getData(char* data, unsigned long* bytes)
 {
+	if(m_state == StateConnecting)
+	{
+		// We're now connected
+		m_state = StateRequesting;
+	}
+	
+	if(m_state == StateRequesting)
+	{
+		if(!m_outputBuffer.isEmpty()) // send more HTTP headers
+			m_outputBuffer.getData(data, bytes);
+		else
+		{
+			if(m_mode == ModeGet)
+			{
+				m_state = StatePending;
+				*bytes = 0;
+			}
+			else
+				m_state = StateSending;
+		}
+	}
+	
+	if(m_state == StateSending)
+	{
+		// TODO: the POST data
+	}
+	
+	return true;
+}
+
+void HttpEngine::processResponse(QHttpResponseHeader& hdr)
+{
+	switch(hdr.statusCode())
+	{
+	case 200 ... 299:
+		// everything went fine
+		break;
+	case 300 ... 399:
+		// redirect
+		break;
+	default:
+		;// errors
+	}
 }
 
 void HttpEngine::error(int error)
 {
+	if(m_state == StateConnecting)
+	{
+		if(!m_addresses.isEmpty())
+		{
+			connectTo(m_addresses.front(), m_url.port(80));
+			m_addresses.pop_front();
+			DataPoller::instance()->addSocket(this);
+		}
+		else
+		{
+			reportError(tr("Couldn't connect to the server"));
+		}
+	}
 }
 
+void HttpEngine::reportError(QString error)
+{
+	// TODO
+}

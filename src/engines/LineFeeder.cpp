@@ -35,7 +35,7 @@ LineFeeder::~LineFeeder()
 	delete [] m_buffer;
 }
 
-void LineFeeder::feed(char* data, unsigned long bytes)
+void LineFeeder::feed(const char* data, unsigned long bytes)
 {
 	if(bytes + m_bytes > BUFFER_SIZE)
 	{

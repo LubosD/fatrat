@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QList>
 #include <QPair>
 #include <QByteArray>
+#include <QHostAddress>
 
 struct TransferStats
 {
@@ -41,20 +42,26 @@ class SocketInterface
 {
 public:
 	SocketInterface();
+	virtual ~SocketInterface();
 	
-	virtual int socket() const = 0;
+	void clear();
+	
+	void connectTo(QHostAddress addr, unsigned short port);
 	virtual void speedLimit(int& down, int& up) const { down = up = 0; }
 	virtual bool putData(const char* data, unsigned long bytes) = 0;
 	virtual bool getData(char* data, unsigned long* bytes) = 0;
 	virtual void error(int error) = 0;
 	
 	void getSpeed(int& down, int& up) const;
+	void setBlocking(bool blocking = false);
+	int socket() { return m_socket; }
 protected:
 	void setWantWrite();
 	
 	timeval m_lastProcess;
 	TransferStats m_downloadStats, m_uploadStats;
 	QByteArray m_leftover;
+	int m_socket;
 	
 	friend class DataPoller;
 };

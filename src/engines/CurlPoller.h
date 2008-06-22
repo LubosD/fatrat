@@ -18,42 +18,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "GenericService.h"
-#include <QTcpServer>
-#include <qatomic.h>
 
-GenericService::GenericService()
-	: m_bAbort(false)
-{
-}
+#ifndef CURL_POLLER
+#define CURL_POLLER
+#include <QThread>
+#include <QMutex>
+#include <QMap>
+#include <curl/curl.h>
+#include "CurlUser.h"
 
-GenericService::~GenericService()
+class CurlPoller : public QThread
 {
-	m_bAbort = true;
-	wait();
-}
-
-void GenericService::run()
-{
-	QTcpServer server;
+public:
+	CurlPoller();
+	~CurlPoller();
 	
-	if(!server.listen(QHostAddress::Any, m_nPort))
-	{
-		qDebug() << "Failed to listen on the port" << m_nPort;
-		return;
-	}
+	void addTransfer(CurlUser* obj);
+	void removeTransfer(CurlUser* obj);
 	
-	while(!m_bAbort)
-	{
-		if(server.waitForNewConnection(1000))
-		{
-			QTcpSocket* client = server.nextPendingConnection();
-			
-			processClient(client);
-			
-			client->flush();
-			client->close();
-			delete client;
-		}
-	}
-}
+	void run();
+	
+	static CurlPoller* instance() { return m_instance; }
+protected:
+	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
+private:
+	static CurlPoller* m_instance;
+	bool m_bAbort;
+	CURLM* m_curlm;
+	int m_epoll;
+	
+	QMap<CURL*, CurlUser*> m_users;
+	QMutex m_usersLock;
+};
+
+#endif

@@ -27,7 +27,9 @@ class LineFeeder
 public:
 	LineFeeder();
 	~LineFeeder();
-	void feed(char* data, unsigned long bytes);
+	void feed(const char* data, unsigned long bytes);
+	
+	// removes the (CR)LF
 	bool getLine(QByteArray* line);
 	QByteArray residue();
 private:
