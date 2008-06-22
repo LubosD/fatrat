@@ -48,6 +48,7 @@ private:
 	int m_epoll;
 	
 	QMap<CURL*, CurlUser*> m_users;
+	QMap<int, CurlUser*> m_sockets;
 	QMutex m_usersLock;
 };
 

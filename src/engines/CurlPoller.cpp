@@ -20,13 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 #include "CurlPoller.h"
+#include <QtDebug>
 #include <sys/epoll.h>
 #include <errno.h>
 
 CurlPoller* CurlPoller::m_instance = 0;
 
 CurlPoller::CurlPoller()
-	: m_bAbort(false)
+	: m_bAbort(false), m_usersLock(QMutex::Recursive)
 {
 	if(m_instance)
 		abort();
@@ -65,10 +66,14 @@ void CurlPoller::run()
 		
 		curl_multi_timeout(m_curlm, &timeout);
 		
-		nfds = epoll_wait(m_epoll, events, 10, timeout);
+		if(timeout <= 0)
+			timeout = 500;
+		//qDebug() << "CURL timeout:" << timeout;
+		nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), timeout);
 		
 		if(!nfds)
-			curl_multi_perform(m_curlm, &dummy);
+			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
+			//curl_multi_perform(m_curlm, &dummy);
 		
 		for(int i=0;i<nfds;i++)
 		{
@@ -101,7 +106,7 @@ void CurlPoller::run()
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
 	epoll_event event;
-	event.events = EPOLLERR | EPOLLHUP;
+	event.events = EPOLLERR | EPOLLHUP | EPOLLET;
 	event.data.fd = s;
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)
@@ -110,9 +115,18 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 		event.events |= EPOLLOUT;
 	
 	if(action == CURL_POLL_REMOVE)
+	{
+		qDebug() << "CurlPoller::socket_callback - remove";
+		
+		This->m_sockets.remove(s);
 		epoll_ctl(This->m_epoll, EPOLL_CTL_DEL, s, 0);
+	}
 	else
 	{
+		qDebug() << "CurlPoller::socket_callback - add/mod";
+		
+		This->m_sockets[s] = This->m_users[easy];
+		
 		if(epoll_ctl(This->m_epoll, EPOLL_CTL_ADD, s, &event))
 		{
 			if(errno == EEXIST)
@@ -132,6 +146,8 @@ void CurlPoller::addTransfer(CurlUser* obj)
 {
 	QMutexLocker locker(&m_usersLock);
 	
+	qDebug() << "CurlPoller::addTransfer" << obj;
+	
 	CURL* handle = obj->curlHandle();
 	m_users[handle] = obj;
 	curl_multi_add_handle(m_curlm, handle);
@@ -140,6 +156,8 @@ void CurlPoller::addTransfer(CurlUser* obj)
 void CurlPoller::removeTransfer(CurlUser* obj)
 {
 	QMutexLocker locker(&m_usersLock);
+	
+	qDebug() << "CurlPoller::removeTransfer" << obj;
 	
 	CURL* handle = obj->curlHandle();
 	curl_multi_remove_handle(m_curlm, handle);

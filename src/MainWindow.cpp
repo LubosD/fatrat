@@ -828,7 +828,7 @@ show_dialog:
 	try
 	{
 		QStringList uris;
-		int sep = g_settings->value("link_separator", getSettingsDefault("link_separator")).toInt();
+		int sep = getSettingsValue("link_separator").toInt();
 		
 		if(m_dlgNewTransfer->exec() != QDialog::Accepted)
 			throw RuntimeException();

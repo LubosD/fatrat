@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define CURLUSER_H
 #include <curl/curl.h>
 #include <sys/time.h>
+#include <QReadWriteLock>
 #include <QList>
 #include <QPair>
 
@@ -39,7 +40,10 @@ protected:
 	virtual bool writeData(const char* buffer, size_t bytes);
 	
 	void resetStatistics();
-	void speed(int& down, int& up);
+	void speeds(int& down, int& up) const;
+	
+	bool shouldRead() const;
+	bool shouldWrite() const;
 	
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
@@ -51,6 +55,7 @@ private:
 	timeval m_lastDown, m_lastUp;
 	
 	QPair<long, long> m_accumDown, m_accumUp;
+	mutable QReadWriteLock m_statsMutex;
 	
 	friend class CurlPoller;
 };

@@ -7,6 +7,7 @@
 #cmakedefine WITH_JABBER
 #cmakedefine WITH_WEBINTERFACE
 #cmakedefine WITH_DOCUMENTATION
+#cmakedefine WITH_CURL
 
 #cmakedefine ENABLE_FAKEDOWNLOAD
 

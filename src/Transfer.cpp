@@ -33,6 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #	include "engines/FakeDownload.h"
 #endif
 
+#ifdef WITH_CURL
+#	include "engines/CurlDownload.h"
+#endif
+
 #include "engines/FtpUpload.h"
 
 #include <QtDebug>
@@ -62,6 +66,11 @@ void initTransferClasses()
 		g_enginesDownload << e;
 	}
 #endif
+	{
+		EngineEntry e = { "CurlDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance,
+			CurlDownload::acceptable, 0 };
+		g_enginesDownload << e;
+	}
 	{
 		EngineEntry e = { "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0 };
 		g_enginesUpload << e;
@@ -187,7 +196,7 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 		{
 			int n;
 			
-			if(!g_enginesUpload[i].lpfnAcceptable)
+			if(!g_enginesDownload[i].lpfnAcceptable)
 				continue;
 			
 			n = g_enginesDownload[i].lpfnAcceptable(uri, type == ModeInvalid);

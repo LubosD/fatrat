@@ -45,6 +45,8 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 		gettimeofday(&This->m_lastUp, 0);
 	else
 	{
+		QWriteLocker l(&This->m_statsMutex);
+		
 		timeval tvNow;
 		gettimeofday(&tvNow, 0);
 		
@@ -76,6 +78,8 @@ size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, Curl
 		gettimeofday(&This->m_lastDown, 0);
 	else
 	{
+		QWriteLocker l(&This->m_statsMutex);
+		
 		timeval tvNow;
 		gettimeofday(&tvNow, 0);
 		
@@ -131,8 +135,18 @@ bool CurlUser::isNull(const timeval& t)
 	return !t.tv_sec && !t.tv_usec;
 }
 
-void CurlUser::speed(int& down, int& up)
+void CurlUser::speeds(int& down, int& up) const
 {
+	QReadLocker l(&m_statsMutex);
+	
 	down = computeSpeed(m_statsDown);
 	up = computeSpeed(m_statsUp);
+}
+
+bool CurlUser::shouldRead() const
+{
+}
+
+bool CurlUser::shouldWrite() const
+{
 }

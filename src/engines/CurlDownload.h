@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Transfer.h"
 #include "fatrat.h"
 #include "CurlUser.h"
+#include <QHash>
 #include <QUuid>
 #include <QFile>
 #include <QDir>
@@ -51,6 +52,8 @@ public:
 	
 	static int acceptable(QString uri, bool);
 	static Transfer* createInstance() { return new CurlDownload; }
+	static void globalInit();
+	static void globalExit();
 protected:
 	virtual CURL* curlHandle();
 	virtual void speedLimits(int& down, int& up);
@@ -65,6 +68,7 @@ private:
 	void setTargetName(QString newFileName);
 	void fillContextMenu(QMenu& menu);
 	QString filePath() const;
+	void processHeaders();
 	
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
@@ -76,6 +80,7 @@ private:
 	QString m_strFile, m_strMessage;
 	QFile m_file;
 	bool m_bAutoName;
+	QHash<QByteArray, QByteArray> m_headers;
 	
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	
