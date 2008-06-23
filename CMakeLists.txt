@@ -4,7 +4,7 @@ ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
 	)
 
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)

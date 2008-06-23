@@ -66,11 +66,13 @@ void initTransferClasses()
 		g_enginesDownload << e;
 	}
 #endif
+#ifdef WITH_CURL
 	{
 		EngineEntry e = { "CurlDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance,
 			CurlDownload::acceptable, 0 };
 		g_enginesDownload << e;
 	}
+#endif
 	{
 		EngineEntry e = { "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0 };
 		g_enginesUpload << e;

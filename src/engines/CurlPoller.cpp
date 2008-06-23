@@ -127,11 +127,11 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 		
 		This->m_sockets[s] = This->m_users[easy];
 		
-		if(epoll_ctl(This->m_epoll, EPOLL_CTL_ADD, s, &event))
+		if(epoll_ctl(This->m_epoll, EPOLL_CTL_MOD, s, &event))
 		{
-			if(errno == EEXIST)
+			if(errno == ENOENT)
 			{
-				if(epoll_ctl(This->m_epoll, EPOLL_CTL_MOD, s, &event))
+				if(epoll_ctl(This->m_epoll, EPOLL_CTL_ADD, s, &event))
 					return errno;
 			}
 			else
