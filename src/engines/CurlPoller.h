@@ -41,6 +41,7 @@ public:
 	static CurlPoller* instance() { return m_instance; }
 protected:
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
+	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
 private:
 	static CurlPoller* m_instance;
 	bool m_bAbort;
@@ -48,7 +49,7 @@ private:
 	int m_epoll;
 	
 	QMap<CURL*, CurlUser*> m_users;
-	QMap<int, CurlUser*> m_sockets;
+	QMap<int, QPair<int,CurlUser*> > m_sockets;
 	QMutex m_usersLock;
 };
 

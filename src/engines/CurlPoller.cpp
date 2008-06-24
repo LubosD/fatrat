@@ -56,23 +56,36 @@ CurlPoller::~CurlPoller()
 	close(m_epoll);
 }
 
+bool operator<(const timeval& t1, const timeval& t2)
+{
+	if(t1.tv_sec < t2.tv_sec)
+		return true;
+	else if(t1.tv_sec > t2.tv_sec)
+		return false;
+	else
+		return t1.tv_usec < t2.tv_usec;
+}
+
 void CurlPoller::run()
 {
+	long timeout = 0, curl_timeout;
+	
+	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
+	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, &curl_timeout);
+	
 	while(!m_bAbort)
 	{
 		epoll_event events[20];
 		int nfds, dummy;
-		long timeout;
 		
-		curl_multi_timeout(m_curlm, &timeout);
-		
-		if(timeout <= 0)
-			timeout = 500;
 		//qDebug() << "CURL timeout:" << timeout;
 		nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), timeout);
 		
 		if(!nfds)
+		{
+			qDebug() << "curl_multi_socket_action() - CURL_SOCKET_TIMEOUT";
 			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
+		}
 			//curl_multi_perform(m_curlm, &dummy);
 		
 		for(int i=0;i<nfds;i++)
@@ -89,6 +102,65 @@ void CurlPoller::run()
 			curl_multi_socket_action(m_curlm, events[i].data.fd, mask, &dummy);
 		}
 		
+		timeval tvNow;
+		gettimeofday(&tvNow, 0);
+		
+		timeout = curl_timeout;
+		if(timeout <= 0 || timeout > 500)
+			timeout = 500;
+		
+		for(QMap<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		{
+			int mask = 0;
+			if(it.value().second->hasNextReadTime())
+			{
+				if(it.value().second->nextReadTime() < tvNow)
+					mask |= CURL_CSELECT_IN;
+			}
+			if(it.value().second->hasNextWriteTime())
+			{
+				if(it.value().second->nextWriteTime() < tvNow)
+					mask |= CURL_CSELECT_OUT;
+			}
+			
+			if(mask)
+				curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
+		}
+		for(QMap<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		{
+			int msec = 0;
+			
+			if(it.value().second->hasNextReadTime())
+			{
+				timeval tv = it.value().second->nextReadTime();
+				msec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
+			}
+			if(it.value().second->hasNextWriteTime())
+			{
+				int mmsec;
+				timeval tv = it.value().second->nextWriteTime();
+				mmsec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
+				
+				if(mmsec < msec)
+					msec = mmsec;
+			}
+			
+			if(msec > 0)
+			{
+				if(msec < timeout)
+					timeout = msec;
+			}
+			else
+			{
+				epoll_event event;
+				event.events = it.value().first;
+				event.data.fd = it.key();
+				
+				// re-enable the socket
+				epoll_ctl(m_epoll, EPOLL_CTL_MOD, event.data.fd, &event);
+			}
+		}
+		
 		QMutexLocker locker(&m_usersLock);
 		while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
 		{
@@ -103,10 +175,16 @@ void CurlPoller::run()
 	}
 }
 
+int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
+{
+	*timeout = newtimeout;
+	return 0;
+}
+
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
 	epoll_event event;
-	event.events = EPOLLERR | EPOLLHUP | EPOLLET;
+	event.events = /*EPOLLERR | EPOLLHUP |*/ EPOLLONESHOT;
 	event.data.fd = s;
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)
@@ -125,7 +203,7 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 	{
 		qDebug() << "CurlPoller::socket_callback - add/mod";
 		
-		This->m_sockets[s] = This->m_users[easy];
+		This->m_sockets[s] = QPair<int,CurlUser*>(event.events, This->m_users[easy]);
 		
 		if(epoll_ctl(This->m_epoll, EPOLL_CTL_MOD, s, &event))
 		{

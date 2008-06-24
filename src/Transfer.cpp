@@ -482,6 +482,10 @@ void Transfer::setStateString(QString s)
 	setState(string2state(s));
 }
 
+void Transfer::setSpeedLimits(int down,int up)
+{
+}
+
 //////////////////
 
 TransferNotifier::TransferNotifier()

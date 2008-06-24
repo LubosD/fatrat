@@ -242,6 +242,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
 		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
 		curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
+		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD);
 		
 		// BUG (CRASH) WORKAROUND
 		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
@@ -255,6 +258,7 @@ void CurlDownload::changeActive(bool bActive)
 		CurlPoller::instance()->removeTransfer(this);
 		curl_easy_cleanup(m_curl);
 		m_curl = 0;
+		m_nStart = 0;
 		m_file.close();
 	}
 }
@@ -278,11 +282,11 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 
 size_t CurlDownload::process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This)
 {
-	QByteArray line = QByteArray(ptr, size*nmemb).trimmed().toLower();
+	QByteArray line = QByteArray(ptr, size*nmemb).trimmed();
 	int pos = line.indexOf(": ");
 	
 	if(pos != -1)
-		This->m_headers[line.left(pos)] = line.mid(pos+2);
+		This->m_headers[line.left(pos).toLower()] = line.mid(pos+2);
 	if(line.isEmpty())
 		This->processHeaders();
 	
@@ -320,6 +324,7 @@ int CurlDownload::curl_debug_callback(CURL*, curl_infotype type, char* text, siz
 	if(type != CURLINFO_DATA_IN && type != CURLINFO_DATA_OUT)
 	{
 		QByteArray line = QByteArray(text, bytes).trimmed();
+		qDebug() << "CURL debug:" << line;
 		if(!line.isEmpty())
 			This->enterLogMessage(line);
 	}
@@ -355,10 +360,6 @@ void CurlDownload::speeds(int& down, int& up) const
 	CurlUser::speeds(down, up);
 }
 
-void CurlDownload::setSpeedLimits(int down, int)
-{
-}
-
 qulonglong CurlDownload::total() const
 {
 	return m_nTotal;
@@ -366,7 +367,15 @@ qulonglong CurlDownload::total() const
 
 qulonglong CurlDownload::done() const
 {
-	return QFileInfo(m_dir.filePath(name())).size();
+	if(!isActive())
+	{
+		if(m_nStart)
+			return m_nStart;
+		else
+			return m_nStart = QFileInfo(m_dir.filePath(name())).size();
+	}
+	else
+		return m_file.pos();
 }
 
 void CurlDownload::load(const QDomNode& map)
@@ -473,6 +482,11 @@ void CurlDownload::computeHash()
 QString CurlDownload::filePath() const
 {
 	return m_dir.filePath(name());
+}
+
+void CurlDownload::setSpeedLimits(int down, int)
+{
+	m_down.max = down;
 }
 
 /*

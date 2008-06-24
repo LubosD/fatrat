@@ -140,16 +140,6 @@ bool TransferStats::nextProcessDue(const timeval& now) const
 	return (nextProcess < now) && hasNextProcess();
 }
 
-bool operator<(const timeval& t1, const timeval& t2)
-{
-	if(t1.tv_sec < t2.tv_sec)
-		return true;
-	else if(t1.tv_sec > t2.tv_sec)
-		return false;
-	else
-		return t1.tv_usec < t2.tv_usec;
-}
-
 int operator-(const timeval& t1, const timeval& t2)
 {
 	return (t1.tv_sec-t2.tv_sec)*1000 + (t1.tv_usec-t2.tv_usec)/1000;

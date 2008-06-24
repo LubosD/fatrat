@@ -31,6 +31,7 @@ class CurlUser
 {
 public:
 	CurlUser();
+	virtual ~CurlUser();
 protected:
 	virtual CURL* curlHandle() = 0;
 	virtual void speedLimits(int& down, int& up) = 0;
@@ -42,19 +43,29 @@ protected:
 	void resetStatistics();
 	void speeds(int& down, int& up) const;
 	
-	bool shouldRead() const;
-	bool shouldWrite() const;
+	bool hasNextReadTime() const;
+	bool hasNextWriteTime() const;
+	timeval nextReadTime() const;
+	timeval nextWriteTime() const;
 	
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
+	
+	struct SpeedData
+	{
+		QList<QPair<long,long> > stats;
+		timeval last, next;
+		QPair<long, long> accum;
+		int max;
+	};
+	
 private:
 	static int computeSpeed(const QList<QPair<long,long> >& data);
+	static void timeProcess(SpeedData& data, size_t bytes);
 	static bool isNull(const timeval& t);
+protected:
+	SpeedData m_down, m_up;
 private:
-	QList<QPair<long,long> > m_statsDown, m_statsUp;
-	timeval m_lastDown, m_lastUp;
-	
-	QPair<long, long> m_accumDown, m_accumUp;
 	mutable QReadWriteLock m_statsMutex;
 	
 	friend class CurlPoller;

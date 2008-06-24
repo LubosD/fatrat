@@ -19,12 +19,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "CurlUser.h"
+#include <QtDebug>
 
 static const int MAX_STATS = 5;
 
 CurlUser::CurlUser()
 {
+	m_down.max = m_up.max = 0;
+	memset(&m_down.next, 0, sizeof m_down.next);
+	memset(&m_up.next, 0, sizeof m_up.next);
 	resetStatistics();
+}
+
+CurlUser::~CurlUser()
+{
 }
 
 size_t CurlUser::readData(char* buffer, size_t maxData)
@@ -41,31 +49,9 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 {
 	size_t bytes = This->readData(ptr, size*nmemb);
 	
-	if(isNull(This->m_lastDown))
-		gettimeofday(&This->m_lastUp, 0);
-	else
-	{
-		QWriteLocker l(&This->m_statsMutex);
-		
-		timeval tvNow;
-		gettimeofday(&tvNow, 0);
-		
-		long msec = (tvNow.tv_sec-This->m_lastUp.tv_sec)*1000L + (tvNow.tv_usec-This->m_lastUp.tv_usec)/1000L;
-		This->m_accumUp.first += msec;
-		This->m_accumUp.second += bytes;
-		
-		if(This->m_accumUp.first > 1000)
-		{
-			This->m_statsUp << This->m_accumUp;
-			
-			if(This->m_statsUp.size() > MAX_STATS)
-				This->m_statsUp.pop_front();
-			
-			This->m_accumUp = QPair<long,long>(0,0);
-		}
-		
-		This->m_lastUp = tvNow;
-	}
+	This->m_statsMutex.lockForWrite();
+	timeProcess(This->m_up, size*nmemb);
+	This->m_statsMutex.unlock();
 	
 	return bytes;
 }
@@ -74,44 +60,61 @@ size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, Curl
 {
 	bool ok = This->writeData(ptr, size*nmemb);
 	
-	if(isNull(This->m_lastDown))
-		gettimeofday(&This->m_lastDown, 0);
-	else
-	{
-		QWriteLocker l(&This->m_statsMutex);
-		
-		timeval tvNow;
-		gettimeofday(&tvNow, 0);
-		
-		long msec = (tvNow.tv_sec-This->m_lastDown.tv_sec)*1000L + (tvNow.tv_usec-This->m_lastDown.tv_usec)/1000L;
-		This->m_accumDown.first += msec;
-		This->m_accumDown.second += size*nmemb;
-		
-		if(This->m_accumDown.first > 1000)
-		{
-			This->m_statsDown << This->m_accumDown;
-			
-			if(This->m_statsDown.size() > MAX_STATS)
-				This->m_statsDown.pop_front();
-			
-			This->m_accumDown = QPair<long,long>(0,0);
-		}
-		
-		This->m_lastDown = tvNow;
-	}
+	This->m_statsMutex.lockForWrite();
+	timeProcess(This->m_down, size*nmemb);
+	This->m_statsMutex.unlock();
 	
 	return ok ? size*nmemb : 0;
 }
 
+void CurlUser::timeProcess(SpeedData& data, size_t bytes)
+{
+	if(isNull(data.last))
+		gettimeofday(&data.last, 0);
+	else
+	{
+		timeval tvNow;
+		gettimeofday(&tvNow, 0);
+		
+		long msec = (tvNow.tv_sec-data.last.tv_sec)*1000L + (tvNow.tv_usec-data.last.tv_usec)/1000L;
+		data.accum.first += msec;
+		data.accum.second += bytes;
+		
+		if(data.accum.first > 1000)
+		{
+			data.stats << data.accum;
+			
+			if(data.stats.size() > MAX_STATS)
+				data.stats.pop_front();
+			
+			data.accum = QPair<long,long>(0,0);
+		}
+		
+		memset(&data.next, 0, sizeof data.next);
+		if(data.max > 0)
+		{
+			long delta = bytes*1000/data.max*2 - msec;
+			if(delta > 0)
+			{
+				data.next = tvNow;
+				data.next.tv_sec += delta/1000;
+				data.next.tv_usec += (delta%1000)*1000;
+			}
+		}
+		
+		data.last = tvNow;
+	}
+}
+
 void CurlUser::resetStatistics()
 {
-	m_statsDown.clear();
-	m_statsUp.clear();
+	m_down.stats.clear();
+	m_up.stats.clear();
 	
-	m_accumUp = m_accumDown = QPair<long,long>(0,0);
+	m_down.accum = m_up.accum = QPair<long,long>(0,0);
 	
-	memset(&m_lastDown, 0, sizeof(m_lastDown));
-	memset(&m_lastUp, 0, sizeof(m_lastUp));
+	memset(&m_down.last, 0, sizeof(m_down.last));
+	memset(&m_up.last, 0, sizeof(m_up.last));
 }
 
 int CurlUser::computeSpeed(const QList<QPair<long,long> >& data)
@@ -139,14 +142,26 @@ void CurlUser::speeds(int& down, int& up) const
 {
 	QReadLocker l(&m_statsMutex);
 	
-	down = computeSpeed(m_statsDown);
-	up = computeSpeed(m_statsUp);
+	down = computeSpeed(m_down.stats);
+	up = computeSpeed(m_up.stats);
 }
 
-bool CurlUser::shouldRead() const
+bool CurlUser::hasNextReadTime() const
 {
+	return !isNull(m_down.next);
 }
 
-bool CurlUser::shouldWrite() const
+bool CurlUser::hasNextWriteTime() const
 {
+	return !isNull(m_up.next);
+}
+
+timeval CurlUser::nextReadTime() const
+{
+	return m_down.next;
+}
+
+timeval CurlUser::nextWriteTime() const
+{
+	return m_up.next;
 }

@@ -150,7 +150,7 @@ public slots:
 	void retry();
 protected:
 	virtual void changeActive(bool nowActive) = 0;
-	virtual void setSpeedLimits(int down,int up) = 0;
+	virtual void setSpeedLimits(int down,int up);
 	void setInternalSpeedLimits(int down,int up);
 	void setMode(Mode mode);
 	void fireCompleted();

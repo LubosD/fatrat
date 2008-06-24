@@ -44,11 +44,11 @@ public:
 	virtual QString message() const { return m_strMessage; }
 	virtual QString name() const;
 	virtual void speeds(int& down, int& up) const;
-	virtual void setSpeedLimits(int down, int);
 	virtual qulonglong total() const;
 	virtual qulonglong done() const;
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
+	virtual void setSpeedLimits(int down, int up);
 	
 	static int acceptable(QString uri, bool);
 	static Transfer* createInstance() { return new CurlDownload; }
@@ -75,7 +75,8 @@ private:
 private:
 	CURL* m_curl;
 	QDir m_dir;
-	qulonglong m_nTotal, m_nStart;
+	qulonglong m_nTotal;
+	mutable qulonglong m_nStart;
 	
 	QString m_strFile, m_strMessage;
 	QFile m_file;
