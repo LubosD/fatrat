@@ -32,6 +32,15 @@ class CurlUser
 public:
 	CurlUser();
 	virtual ~CurlUser();
+	
+	void speeds(int& down, int& up) const;
+	
+	bool hasNextReadTime() const;
+	bool hasNextWriteTime() const;
+	timeval nextReadTime() const;
+	timeval nextWriteTime() const;
+	
+	bool performsLimiting() const;
 protected:
 	virtual CURL* curlHandle() = 0;
 	virtual void speedLimits(int& down, int& up) = 0;
@@ -41,13 +50,6 @@ protected:
 	virtual bool writeData(const char* buffer, size_t bytes);
 	
 	void resetStatistics();
-	void speeds(int& down, int& up) const;
-	
-	bool hasNextReadTime() const;
-	bool hasNextWriteTime() const;
-	timeval nextReadTime() const;
-	timeval nextWriteTime() const;
-	
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
 	

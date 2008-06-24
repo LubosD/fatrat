@@ -78,7 +78,6 @@ void CurlPoller::run()
 		epoll_event events[20];
 		int nfds, dummy;
 		
-		//qDebug() << "CURL timeout:" << timeout;
 		nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), timeout);
 		
 		if(!nfds)
@@ -86,7 +85,6 @@ void CurlPoller::run()
 			qDebug() << "curl_multi_socket_action() - CURL_SOCKET_TIMEOUT";
 			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 		}
-			//curl_multi_perform(m_curlm, &dummy);
 		
 		for(int i=0;i<nfds;i++)
 		{
@@ -105,9 +103,10 @@ void CurlPoller::run()
 		timeval tvNow;
 		gettimeofday(&tvNow, 0);
 		
-		timeout = curl_timeout;
-		if(timeout <= 0 || timeout > 500)
+		if(curl_timeout <= 0 || curl_timeout > 500)
 			timeout = 500;
+		else
+			timeout = curl_timeout;
 		
 		for(QMap<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
@@ -150,15 +149,9 @@ void CurlPoller::run()
 				if(msec < timeout)
 					timeout = msec;
 			}
-			else
-			{
-				epoll_event event;
-				event.events = it.value().first;
-				event.data.fd = it.key();
-				
-				// re-enable the socket
-				epoll_ctl(m_epoll, EPOLL_CTL_MOD, event.data.fd, &event);
-			}
+			
+			if(bool(it.value().first & EPOLLONESHOT) != it.value().second->performsLimiting())
+				toggleOneShot(it.key(), it.value().first);
 		}
 		
 		QMutexLocker locker(&m_usersLock);
@@ -175,6 +168,18 @@ void CurlPoller::run()
 	}
 }
 
+void CurlPoller::toggleOneShot(int socket, int& events)
+{
+	epoll_event event;
+	
+	events ^= EPOLLONESHOT;
+	
+	event.events = events;
+	event.data.fd = socket;
+	
+	epoll_ctl(m_epoll, EPOLL_CTL_MOD, socket, &event);
+}
+
 int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
 {
 	*timeout = newtimeout;
@@ -184,7 +189,7 @@ int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
 	epoll_event event;
-	event.events = /*EPOLLERR | EPOLLHUP |*/ EPOLLONESHOT;
+	event.events = 0;
 	event.data.fd = s;
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)

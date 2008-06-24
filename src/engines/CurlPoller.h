@@ -40,6 +40,7 @@ public:
 	
 	static CurlPoller* instance() { return m_instance; }
 protected:
+	void toggleOneShot(int socket, int& events);
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
 	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
 private:

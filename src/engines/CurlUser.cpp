@@ -26,8 +26,6 @@ static const int MAX_STATS = 5;
 CurlUser::CurlUser()
 {
 	m_down.max = m_up.max = 0;
-	memset(&m_down.next, 0, sizeof m_down.next);
-	memset(&m_up.next, 0, sizeof m_up.next);
 	resetStatistics();
 }
 
@@ -115,6 +113,9 @@ void CurlUser::resetStatistics()
 	
 	memset(&m_down.last, 0, sizeof(m_down.last));
 	memset(&m_up.last, 0, sizeof(m_up.last));
+	
+	memset(&m_down.next, 0, sizeof m_down.next);
+	memset(&m_up.next, 0, sizeof m_up.next);
 }
 
 int CurlUser::computeSpeed(const QList<QPair<long,long> >& data)
@@ -164,4 +165,9 @@ timeval CurlUser::nextReadTime() const
 timeval CurlUser::nextWriteTime() const
 {
 	return m_up.next;
+}
+
+bool CurlUser::performsLimiting() const
+{
+	return m_up.max || m_down.max;
 }
