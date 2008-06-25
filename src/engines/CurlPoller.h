@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QThread>
 #include <QMutex>
 #include <QMap>
+#include <QHash>
 #include <curl/curl.h>
 #include "CurlUser.h"
 
@@ -40,7 +41,7 @@ public:
 	
 	static CurlPoller* instance() { return m_instance; }
 protected:
-	void toggleOneShot(int socket, int& events);
+	void epollEnable(int socket, int events);
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
 	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
 private:
@@ -50,7 +51,7 @@ private:
 	int m_epoll;
 	
 	QMap<CURL*, CurlUser*> m_users;
-	QMap<int, QPair<int,CurlUser*> > m_sockets;
+	QHash<int, QPair<int,CurlUser*> > m_sockets;
 	QMutex m_usersLock;
 };
 

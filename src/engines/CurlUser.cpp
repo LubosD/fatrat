@@ -91,9 +91,11 @@ void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 		memset(&data.next, 0, sizeof data.next);
 		if(data.max > 0)
 		{
-			long delta = bytes*1000/data.max*2 - msec;
+			long delta = bytes*1000/data.max - msec/2;
+			
 			if(delta > 0)
 			{
+				delta *= 2;
 				data.next = tvNow;
 				data.next.tv_sec += delta/1000;
 				data.next.tv_usec += (delta%1000)*1000;

@@ -41,7 +41,7 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	comboCloseCurrent->addItems(QStringList() << tr("switch to the next tab") << tr("switch to the previous active tab"));
 	
 	comboLinkSeparator->addItems(QStringList() << tr("a newline") << tr("whitespace characters"));
-	comboFileExec->addItems(QStringList() << "kfmclient exec" << "gnome-open");
+	comboFileExec->addItems(QStringList() << "xdg-open" << "kfmclient exec" << "gnome-open");
 }
 
 void SettingsGeneralForm::load()

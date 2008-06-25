@@ -89,6 +89,7 @@ void CurlPoller::run()
 		for(int i=0;i<nfds;i++)
 		{
 			int mask = 0;
+			int fd = events[i].data.fd;
 			
 			if(events[i].events & EPOLLIN)
 				mask |= CURL_CSELECT_IN;
@@ -97,7 +98,7 @@ void CurlPoller::run()
 			if(events[i].events & (EPOLLERR | EPOLLHUP))
 				mask |= CURL_CSELECT_ERR;
 			
-			curl_multi_socket_action(m_curlm, events[i].data.fd, mask, &dummy);
+			curl_multi_socket_action(m_curlm, fd, mask, &dummy);
 		}
 		
 		timeval tvNow;
@@ -108,7 +109,7 @@ void CurlPoller::run()
 		else
 			timeout = curl_timeout;
 		
-		for(QMap<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int mask = 0;
 			if(it.value().second->hasNextReadTime())
@@ -125,7 +126,7 @@ void CurlPoller::run()
 			if(mask)
 				curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
 		}
-		for(QMap<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int msec = 0;
 			
@@ -149,9 +150,14 @@ void CurlPoller::run()
 				if(msec < timeout)
 					timeout = msec;
 			}
-			
-			if(bool(it.value().first & EPOLLONESHOT) != it.value().second->performsLimiting())
-				toggleOneShot(it.key(), it.value().first);
+			else
+			{
+				if(it.value().second->performsLimiting())
+					it.value().first |= EPOLLONESHOT;
+				else if(it.value().first & EPOLLONESHOT)
+					it.value().first ^= EPOLLONESHOT;
+				epollEnable(it.key(), it.value().first);
+			}
 		}
 		
 		QMutexLocker locker(&m_usersLock);
@@ -168,11 +174,9 @@ void CurlPoller::run()
 	}
 }
 
-void CurlPoller::toggleOneShot(int socket, int& events)
+void CurlPoller::epollEnable(int socket, int events)
 {
 	epoll_event event;
-	
-	events ^= EPOLLONESHOT;
 	
 	event.events = events;
 	event.data.fd = socket;
@@ -189,7 +193,7 @@ int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
 	epoll_event event;
-	event.events = 0;
+	event.events = EPOLLONESHOT;
 	event.data.fd = s;
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)

@@ -346,7 +346,7 @@ void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 		
 		if(row < model->m_lastData.size())
 		{
-			if(model->m_lastData[row].fProgress)
+			if(model->m_lastData[row].size != "?")
 				opts.text = QString("%1%").arg(model->m_lastData[row].fProgress, 0, 'f', 1);
 			else
 				opts.text = "?";
