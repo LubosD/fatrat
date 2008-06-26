@@ -82,7 +82,6 @@ void CurlPoller::run()
 		
 		if(!nfds)
 		{
-			qDebug() << "curl_multi_socket_action() - CURL_SOCKET_TIMEOUT";
 			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 		}
 		

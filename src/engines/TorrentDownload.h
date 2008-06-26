@@ -89,6 +89,8 @@ public:
 	
 	qint64 totalDownload() const { return m_nPrevDownload + m_status.total_payload_download; }
 	qint64 totalUpload() const { return m_nPrevUpload + m_status.total_payload_upload; }
+public slots:
+	void downloadTorrent(QString source);
 private:
 	void createDefaultPriorityList();
 	bool storeTorrent(QString orig);

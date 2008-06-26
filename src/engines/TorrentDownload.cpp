@@ -425,35 +425,13 @@ void TorrentDownload::init(QString source, QString target)
 		}
 		else
 		{
-			QString error,name;
-			QDir dir;
-			
-			m_pFileDownload = new QHttp(this);
-			m_pFileDownloadTemp = new QTemporaryFile(m_pFileDownload);
-			
-			if(!m_pFileDownloadTemp->open())
+			if(QThread::currentThread() != QApplication::instance()->thread())
 			{
-				delete m_pFileDownload;
-				m_pFileDownload = 0;
-				throw RuntimeException(tr("Cannot create a temporary file"));
+				moveToThread(QApplication::instance()->thread());
+				QMetaObject::invokeMethod(this, "downloadTorrent", Qt::QueuedConnection, Q_ARG(QString, source));
 			}
-			
-			dir = m_pFileDownloadTemp->fileName();
-			name = dir.dirName();
-			qDebug() << "Downloading" << source << "to" << m_pFileDownloadTemp->fileName();
-			dir.cdUp();
-			
-			QUrl url(source);
-			m_pFileDownload->setHost(url.host(), url.port(80));
-			connect(m_pFileDownload, SIGNAL(done(bool)), this, SLOT(torrentFileDone(bool)), Qt::QueuedConnection);
-			
-			int id;
-			if(url.hasQuery())
-				id = m_pFileDownload->get(url.path() + '?' + url.encodedQuery(), m_pFileDownloadTemp);
 			else
-				id = m_pFileDownload->get(url.path(), m_pFileDownloadTemp);
-			
-			qDebug() << "Download has begun" << id;
+				downloadTorrent(source);
 		}
 	}
 	catch(const libtorrent::invalid_encoding&)
@@ -464,6 +442,41 @@ void TorrentDownload::init(QString source, QString target)
 	{
 		throw RuntimeException(e.what());
 	}
+}
+
+void TorrentDownload::downloadTorrent(QString source)
+{
+	QString error,name;
+	QDir dir;
+	
+	qDebug() << "downloadTorrent()";
+	
+	m_pFileDownload = new QHttp(this);
+	m_pFileDownloadTemp = new QTemporaryFile(m_pFileDownload);
+	
+	if(!m_pFileDownloadTemp->open())
+	{
+		delete m_pFileDownload;
+		m_pFileDownload = 0;
+		m_strError = tr("Cannot create a temporary file");
+		setState(Failed);
+		return;
+	}
+	
+	dir = m_pFileDownloadTemp->fileName();
+	name = dir.dirName();
+	
+	dir.cdUp();
+	
+	QUrl url(source);
+	m_pFileDownload->setHost(url.host(), url.port(80));
+	connect(m_pFileDownload, SIGNAL(done(bool)), this, SLOT(torrentFileDone(bool)), Qt::QueuedConnection);
+	
+	int id;
+	if(url.hasQuery())
+		id = m_pFileDownload->get(url.path() + '?' + url.encodedQuery(), m_pFileDownloadTemp);
+	else
+		id = m_pFileDownload->get(url.path(), m_pFileDownloadTemp);
 }
 
 bool TorrentDownload::storeTorrent(QString orig)

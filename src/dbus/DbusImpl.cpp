@@ -140,3 +140,36 @@ QStringList DbusImpl::getQueues()
 	return result;
 }
 
+void DbusImpl::addTransfersNonInteractive2(QString uris, QString target, QString className, int queueID, QString* resp)
+{
+	QString r = addTransfersNonInteractive(uris, target, className, queueID);
+	
+	if(r.isEmpty())
+		r = "OK";
+	*resp = r;
+}
+
+// This is a one big workaround for a bug far far from here
+// 1) Qt cannot handle return values via Qt::QueuedConnection ->
+// 2) QHttp doesn't work when used outside the main thread ->
+// 3) TorrentDownload cannot download a torrent ->
+// 4) We cannot used a non-queued connection ->
+// 5) Hack it around like this
+
+QString DbusImpl::addTransfers(QString uris, QString target, QString className, int queueID)
+{
+	QString response;
+	QMetaObject::invokeMethod(this,
+			"addTransfersNonInteractive2", Qt::QueuedConnection,
+			Q_ARG(QString, uris), Q_ARG(QString, target),
+			Q_ARG(QString, className), Q_ARG(int, queueID), Q_ARG(QString*, &response));
+	
+	while(response.isEmpty())
+		Sleeper::msleep(100);
+	Sleeper::msleep(100);
+	if(response == "OK")
+		return QString();
+	else
+		return response;
+}
+

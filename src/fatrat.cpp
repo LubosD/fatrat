@@ -107,6 +107,8 @@ int main(int argc,char** argv)
 	Queue::loadQueues();
 	initAppTools();
 	
+	qRegisterMetaType<QString*>("QString*");
+	
 	qmgr = new QueueMgr;
 	//qmgr->start();
 	

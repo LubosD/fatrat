@@ -395,9 +395,6 @@ set(fatrat_DEV_HEADERS
 set(fatrat_DEV_HEADERS_ENGINES
 	src/engines/GeneralDownload.h
 	src/engines/HttpClient.h
-	src/engines/HttpEngine.h
-	src/engines/DataPoller.h
-	src/engines/SocketInterface.h
 	src/engines/OutputBuffer.h
 	)
 
@@ -436,6 +433,7 @@ if(WITH_WEBINTERFACE)
 	install(FILES data/remote/details.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/browse.qsp DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/add_transfer.qsp DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/add_transfer2.qsp DESTINATION share/fatrat/data/remote)
 	
 	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)

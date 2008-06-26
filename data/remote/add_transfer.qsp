@@ -12,7 +12,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <p style="text-align: center"><b>New transfer</b></p>
 
-<form method="post" action="?<? print(QUERY_STRING); ?>">
+<form method="post" action="/add_transfer2.qsp">
 
 <table class="transfers">
 <tr>
@@ -23,27 +23,33 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<td>Transfer type</td>
 	<td>
 		<select name="type" style="width: 100%">
-			<option value="auto" selected="selected">Auto detect</option>
+			<option value="-1" selected="selected">Auto detect</option>
+			<?
+				for(i=0;i<ENGINES.length;i++)
+					print('<option value="'+i+'">'+ENGINES[i]+'</option>');
+			?>
 		</select>
 	</td>
 </tr>
 <tr>
 	<td>Destination</td>
-	<td><input type="text" style="width: 100%" name="destination"/></td>
+	<td><input type="text" style="width: 100%" name="destination" value="<? print(getSettingsValue('defaultdir')); ?>"/></td>
 </tr>
 <tr>
 	<td>Max. download speed</td>
-	<td><input type="text" size="4" name="downLimit"/> kB/s</td>
+	<td><input type="text" size="4" name="downLimit" value="0"/> kB/s</td>
 </tr>
 <tr>
 	<td>Max. upload speed</td>
-	<td><input type="text" size="4" name="upLimit"/> kB/s</td>
+	<td><input type="text" size="4" name="upLimit" value="0"/> kB/s</td>
 </tr>
 <tr>
 	<td></td>
-	<td><input type="checkbox" name="paused" id="paused"/><label for="paused">Add paused</label></td>
+	<td><input type="checkbox" name="paused" id="paused" value="true"/><label for="paused">Add paused</label></td>
 </tr>
 </table>
+
+<input type="hidden" name="queue" value="<? print(GET.queue) ?>"/>
 
 <p style="text-align: center">
 	<input type="submit" name="add" value="OK"/>

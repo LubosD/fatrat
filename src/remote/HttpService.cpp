@@ -25,9 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "RuntimeException.h"
 #include "SettingsWebForm.h"
 #include "SpeedGraph.h"
+#include "Transfer.h"
 #include "Queue.h"
 #include "fatrat.h"
 #include "Logger.h"
+#include "dbus/DbusImpl.h"
 
 #include <QSettings>
 #include <QtDebug>
@@ -56,6 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
+extern QVector<EngineEntry> g_enginesDownload;
 
 static const int SOCKET_TIMEOUT = 10;
 
@@ -935,6 +938,84 @@ QScriptValue transferTimeLeftFunction(QScriptContext* context, QScriptEngine* en
 	return engine->toScriptValue(time);
 }
 
+QScriptValue getSettingsValueFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 1)
+	{
+		context->throwError("getSettingsValue(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	
+	QVariant r = getSettingsValue(context->argument(0).toString());
+	return engine->toScriptValue(r);
+}
+
+QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 4)
+	{
+		context->throwError("addTransfers(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	
+	QString uris = context->argument(0).toString();
+	QString target = context->argument(1).toString();
+	int classIndex = context->argument(2).toInt32();
+	int queueIndex = context->argument(3).toInt32();
+	
+	QList<Transfer*> listTransfers;
+	try
+	{
+		QStringList listUris;
+		
+		if(uris.isEmpty())
+			throw RuntimeException("No URIs were passed");
+		
+		listUris = uris.split('\n');
+		
+		if(queueIndex < 0 || queueIndex >= g_queues.size())
+			throw RuntimeException("queueID is out of range");
+		
+		foreach(QString uri, listUris)
+		{
+			const EngineEntry* _class = 0;
+			if(classIndex < 0)
+			{
+				Transfer::BestEngine eng;
+				
+				eng = Transfer::bestEngine(uri, Transfer::Download);
+				
+				if(eng.nClass < 0)
+					throw RuntimeException("The URI wasn't accepted by any class: "+uri);
+				else
+					_class = eng.engine;
+			}
+			else
+				_class = &g_enginesDownload[classIndex];
+		
+			Transfer* t = _class->lpfnCreate();
+			
+			if(!t)
+				throw RuntimeException("Failed to create an instance of the chosen class");
+			
+			listTransfers << t;
+			t->init(uri, target);
+		}
+		
+		g_queues[queueIndex]->add(listTransfers);
+	}
+	catch(const RuntimeException& e)
+	{
+		qDeleteAll(listTransfers);
+		return engine->toScriptValue(e.what());
+	}
+	
+	QScriptValue transfers = engine->newArray(listTransfers.size());
+	for(int i=0;i<listTransfers.size();i++)
+		transfers.setProperty(i, engine->newQObject(listTransfers[i]));
+	return transfers;
+}
+
 Q_DECLARE_METATYPE(Transfer::Mode)
 QScriptValue tmodeToScriptValue(QScriptEngine *engine, Transfer::Mode const &in)
 {
@@ -978,6 +1059,17 @@ void HttpService::initScriptEngine()
 	
 	fun = m_engine->newFunction(fileInfoFunction);
 	m_engine->globalObject().setProperty("fileInfo", fun);
+	
+	fun = m_engine->newFunction(getSettingsValueFunction);
+	m_engine->globalObject().setProperty("getSettingsValue", fun);
+	
+	fun = m_engine->newFunction(addTransfersFunction);
+	m_engine->globalObject().setProperty("addTransfers", fun);
+	
+	QScriptValue engines = m_engine->newArray(g_enginesDownload.size());
+	for(int i=0;i<g_enginesDownload.size();i++)
+		engines.setProperty(i, m_engine->toScriptValue(QString(g_enginesDownload[i].longName)));
+	m_engine->globalObject().setProperty("ENGINES", engines);
 	
 	//qScriptRegisterMetaType(m_engine, queueToScriptValue, queueFromScriptValue);
 	qScriptRegisterMetaType(m_engine, transferToScriptValue, transferFromScriptValue);

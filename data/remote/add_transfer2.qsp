@@ -1,0 +1,47 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FatRat - transfer details</title>
+<link rel="icon" href="/favicon.png" type="image/png"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/>
+</head>
+<body>
+
+<p style="text-align: center"><b>New transfer</b></p>
+
+<?
+result = addTransfers(POST.links, POST.destination, POST.type, POST.queue);
+
+if(!Array.prototype.isPrototypeOf(result))
+{
+	// error
+	print('<p style="color: red">'+result+'</p>');
+	error = true;
+}
+else
+{
+	for(i=0;i<result.length;i++)
+	{
+		if(POST.downLimit > 0 || POST.upLimit > 0)
+			result[i].setUserSpeedLimits(POST.downLimit*1024, POST.upLimit*1024);
+		if(!POST.paused)
+			result[i].state = 'Waiting';
+	}
+	print('<p style="color: green">Operation successful, '+result.length+' transfer(s) added.</p>');
+	error = false;
+}
+?>
+
+<p style="text-align: center">
+	<?
+	if(error)
+		print('<input type="button" value="Go back" onclick="javascript:history.go(-1)"/>');
+	else
+		print('<input type="button" value="Close" onclick="javascript:window.close()"/>');
+	?>
+</p>
+
+</body></html>

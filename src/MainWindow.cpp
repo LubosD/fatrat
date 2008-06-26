@@ -844,22 +844,6 @@ show_dialog:
 		for(int i=0;i<uris.size();i++)
 			uris[i] = uris[i].trimmed();
 		
-		if(m_dlgNewTransfer->m_nClass == -1)
-		{
-			// autodetection
-			Transfer::BestEngine eng;
-			
-			if(m_dlgNewTransfer->m_mode == Transfer::Download)
-				eng = Transfer::bestEngine(uris[0], Transfer::Download);
-			else
-				eng = Transfer::bestEngine(m_dlgNewTransfer->m_strDestination, Transfer::Upload);
-			
-			if(eng.nClass < 0)
-				throw RuntimeException(tr("Couldn't autodetect transfer type."));
-			else
-				m_dlgNewTransfer->m_nClass = eng.nClass;
-		}
-		
 		queue = getQueue(m_dlgNewTransfer->m_nQueue, false);
 		
 		if(!queue)
@@ -867,7 +851,25 @@ show_dialog:
 		
 		for(int i=0;i<uris.size();i++)
 		{
-			Transfer* d = Transfer::createInstance(m_dlgNewTransfer->m_mode, m_dlgNewTransfer->m_nClass);
+			Transfer* d;
+			
+			if(m_dlgNewTransfer->m_nClass == -1)
+			{
+				// autodetection
+				Transfer::BestEngine eng;
+				
+				if(m_dlgNewTransfer->m_mode == Transfer::Download)
+					eng = Transfer::bestEngine(uris[i], Transfer::Download);
+				else
+					eng = Transfer::bestEngine(m_dlgNewTransfer->m_strDestination, Transfer::Upload);
+				
+				if(eng.nClass < 0)
+					throw RuntimeException(tr("Couldn't autodetect transfer type for \"%1\"").arg(uris[i]));
+				else
+					m_dlgNewTransfer->m_nClass = eng.nClass;
+			}
+			
+			d = Transfer::createInstance(m_dlgNewTransfer->m_mode, m_dlgNewTransfer->m_nClass);
 			
 			if(d == 0)
 				throw RuntimeException(tr("Failed to create a class instance."));

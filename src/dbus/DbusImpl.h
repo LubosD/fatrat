@@ -32,7 +32,13 @@ public:
 public slots:
 	void addTransfers(QString uris);
 	QString addTransfersNonInteractive(QString uris, QString target, QString className, int queueID);
+	
+	// workaround for QHttp Qt bug - receiving side
+	void addTransfersNonInteractive2(QString uris, QString target, QString className, int queueID, QString* resp);
 	QStringList getQueues();
+public:
+	// workaround for QHttp Qt bug - emiting side
+	QString addTransfers(QString uris, QString target, QString className, int queueID);
 private:
 	static DbusImpl* m_instance;
 };
