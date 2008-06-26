@@ -9,14 +9,53 @@ function checkTransfer(checkbox)
 	checked = checkbox.checked;
 	tr = document.getElementById(checkbox.id+'_tr');
 	if(checked)
-		tr.setAttribute('style', 'background-color: #99f');
+		tr.setAttribute('style', 'background-color: #265381; color: white');
 	else
 		tr.setAttribute('style', '');
+	
+	tds = tr.getElementsByTagName('a');
+	
+	for(i=0;i<tds.length;i++)
+	{
+		if(checked)
+			tds[i].style.color = 'white';
+		else
+			tds[i].style.color = 'black';
+	}
+	if(window.getSelection)
+		window.getSelection().removeAllRanges();
+}
+
+function clickedTransfer(event,ix)
+{
+	tname = event.target.tagName.toLowerCase();
+	if(tname != 'td' && tname != 'tr')
+		return;
+	
+	if(!event.ctrlKey)
+	{
+		for(var i=0;;i++)
+		{
+			checkbox = document.getElementById('transfer'+i);
+			if(!checkbox)
+				break;
+			
+			if(checkbox.checked)
+			{
+				checkbox.checked = false;
+				checkTransfer(checkbox);
+			}
+		}
+	}
+	
+	checkbox = document.getElementById('transfer'+ix);
+	checkbox.checked = !checkbox.checked;
+	checkTransfer(checkbox);
 }
 
 function checkAll(check)
 {
-	for(i=0;;i++)
+	for(var i=0;;i++)
 	{
 		id = 'transfer'+i;
 		obj = document.getElementById(id);
@@ -32,7 +71,7 @@ function readCookie(name)
 	var items = document.cookie.split(';');
 	var name_is = name + "=";
 	
-	for(i=0;i<items.length;i++)
+	for(var i=0;i<items.length;i++)
 	{
 		var item = items[i];
 		while(item.charAt(0)==' ')
@@ -58,7 +97,7 @@ function doRefresh()
 {
 	inputs = document.getElementsByTagName('input');
 	
-	for(i=0;i<inputs.length;i++)
+	for(var i=0;i<inputs.length;i++)
 	{
 		if(inputs[i].type != 'checkbox')
 			continue;

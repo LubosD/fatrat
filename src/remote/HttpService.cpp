@@ -971,7 +971,10 @@ QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine
 		if(uris.isEmpty())
 			throw RuntimeException("No URIs were passed");
 		
-		listUris = uris.split('\n');
+		if(!getSettingsValue("link_separator").toInt())
+			listUris = uris.split('\n', QString::SkipEmptyParts);
+		else
+			listUris = uris.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		
 		if(queueIndex < 0 || queueIndex >= g_queues.size())
 			throw RuntimeException("queueID is out of range");

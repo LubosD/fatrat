@@ -424,6 +424,7 @@ if(WITH_WEBINTERFACE)
 	install(FILES data/remote/delete_with_data.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/graph.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/down.png DESTINATION share/fatrat/data/remote)
+	install(FILES data/remote/header.png DESTINATION share/fatrat/data/remote)
 	
 	install(FILES data/remote/download.png DESTINATION share/fatrat/data/remote)
 	install(FILES data/remote/upload.png DESTINATION share/fatrat/data/remote)

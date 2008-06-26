@@ -11,9 +11,9 @@ table.transfers {
 }
 table.transfers thead td {
 	font-weight: bold;
-	border-width: 1px;
-	border-style: groove;
-	border-color: #808080;
+	background: url(header.png);
+	background-repeat: repeat-x;
+	min-height: 16px;
 }
 table.transfers td {
 	padding: 1px 3px 0px 3px;

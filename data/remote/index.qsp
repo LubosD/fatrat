@@ -201,7 +201,7 @@ function escapeAmpersand(text)
 	{
 		var transfer = queue.at(i);
 		
-		print('<tr id="transfer'+i+'_tr"><td><span class="ralign">');
+		print('<tr id="transfer'+i+'_tr" onclick="javascript:clickedTransfer(event,'+i+')"><td><span class="ralign">');
 		var info = fileInfo(transfer.dataPath);
 		if(info)
 		{

@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "MainWindow.h"
 #include "fatrat.h"
 #include "RuntimeException.h"
+#include "Settings.h"
+#include <QRegExp>
 #include <QReadWriteLock>
 #include <QtDBus/QtDBus>
 #include <QtDebug>
@@ -56,7 +58,10 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 		if(uris.isEmpty())
 			throw RuntimeException("No URIs were passed");
 		
-		listUris = uris.split('\n');
+		if(!getSettingsValue("link_separator").toInt())
+			listUris = uris.split('\n', QString::SkipEmptyParts);
+		else
+			listUris = uris.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		
 		if(queueID < 0 || queueID >= g_queues.size())
 			throw RuntimeException("queueID is out of range");
