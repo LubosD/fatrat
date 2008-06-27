@@ -28,6 +28,7 @@ table.transfers tr:nth-child(even)
 }
 
 .speedspan { border: 1px solid grey; padding: 5px; }
+.stateicon { padding-left: 3px }
 
 .toolbar { border: 1px solid #808080; background-color: #eee; padding: 4px; }
 

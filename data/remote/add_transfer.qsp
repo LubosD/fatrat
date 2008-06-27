@@ -16,6 +16,22 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <table class="transfers">
 <tr>
+	<td>Queue</td>
+	<td>
+		<select name="queue" style="width: 100%">
+		<?
+		for(i=0;i<QUEUES.length;i++)
+		{
+			print('<option value="'+i+'" ');
+			if(GET.queue == i)
+				print('selected="selected"');
+			print('>'+QUEUES[i].name+'</option>');
+		}
+		?>
+		</select>
+	</td>
+</tr>
+<tr>
 	<td>Links</td>
 	<td><textarea name="links" rows="10" cols="10" style="width: 100%"></textarea></td>
 </tr>
@@ -48,8 +64,6 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<td><input type="checkbox" name="paused" id="paused" value="true"/><label for="paused">Add paused</label></td>
 </tr>
 </table>
-
-<input type="hidden" name="queue" value="<? print(GET.queue) ?>"/>
 
 <p style="text-align: center">
 	<input type="submit" name="add" value="OK"/>

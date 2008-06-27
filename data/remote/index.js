@@ -20,7 +20,7 @@ function checkTransfer(checkbox)
 		if(checked)
 			tds[i].style.color = 'white';
 		else
-			tds[i].style.color = 'black';
+			tds[i].style.color = '';
 	}
 	if(window.getSelection)
 		window.getSelection().removeAllRanges();
@@ -57,6 +57,11 @@ function loadSelection()
 	{
 		clickedTransfer(null, transfers[i]);
 	}
+}
+
+function resetSavedSelection()
+{
+	document.cookie = 'selection=';
 }
 
 function resetSelection()
@@ -172,11 +177,24 @@ function loadRefresh()
 	}
 }
 
+function setAutoResets()
+{
+	tbar = document.getElementById('toolbar');
+	btns = tbar.getElementsByTagName('button');
+	
+	for(var i=0;i<btns.length;i++)
+	{
+		if(btns[i].id != "btn_add" && btns[i].id != "btn_reload")
+			btns[i].onclick = resetSavedSelection;
+	}
+}
+
 function init()
 {
 	hideCheckboxes();
 	loadRefresh();
 	loadSelection();
+	setAutoResets();
 	
 	var html = document.getElementsByTagName("html")[0];
 	html.onclick = bodyClick;

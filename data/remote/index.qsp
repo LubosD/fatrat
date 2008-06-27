@@ -40,9 +40,8 @@ function escapeAmpersand(text)
 	<input type="submit" id="sumbit_queue" value="Switch"/>
 	<script type="text/javascript"><!--
 	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden');
-	document.write('');
 	var QUEUE = <? print(GET.queue); ?>;
-	--></script>
+	//--></script>
 </p>
 </form>
 
@@ -51,7 +50,7 @@ function escapeAmpersand(text)
 <noscript>
 	<p><a href="/add_transfer.qsp?queue=<? print(GET.queue); ?>">Add transfer</a></p>
 </noscript>
-<p class="toolbar">
+<p class="toolbar" id="toolbar">
 	<span class="ralign" title="Will not reload if any checkboxes are checked">
 		Reload every
 		<select id="refresh" onchange="javascript:refreshChange()">
@@ -64,13 +63,13 @@ function escapeAmpersand(text)
 	</span>
 	
 	<script type="text/javascript"><!--
-		document.write('<button type="button" onclick="javascript:newwin(\'/add_transfer.qsp?queue=<? print(GET.queue); ?>\')" title="New transfer"><img src="/add.png" alt="New transfer"/></button>');
-		document.write('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+		document.write('<button type="button" id="btn_add" onclick="javascript:newwin(\'/add_transfer.qsp?queue=<? print(GET.queue); ?>\')" title="New transfer"><img src="/add.png" alt="New transfer"/></button>');
 	//--></script>
 	
 	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
 	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<button type="submit" name="cleanup" value="cleanup" title="Remove completed"><img src="/states/completed.png" alt="Remove completed"/></button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
 	<button type="submit" name="setState" value="ForcedActive" title="Force resume"><img src="/states/forcedactive.png" alt="Force resume"/></button>
 	<button type="submit" name="setState" value="Paused" title="Pause"><img src="/states/paused.png" alt="Pause"/></button>
@@ -80,7 +79,7 @@ function escapeAmpersand(text)
 	<button type="submit" name="move" value="down" title="Move down"><img src="/move/down.png" alt="Move down"/></button>
 	<button type="submit" name="move" value="bottom" title="Move to the bottom"><img src="/move/bottom.png" alt="Move to the bottom"/></button>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<button type="submit" title="Reload"><img src="/reload.png" alt="Reload"/></button>
+	<button type="submit" title="Reload" id="btn_reload"><img src="/reload.png" alt="Reload"/></button>
 </p>
 
 <table class="transfers">
@@ -218,7 +217,7 @@ function escapeAmpersand(text)
 		
 		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
 		
-		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" alt="' + transfer.state + '"/> ');
+		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" class="stateicon" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="true"/> ');
 		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + shorten(transfer.name) + '</a></td>');
 		
