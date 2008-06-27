@@ -24,33 +24,82 @@ function checkTransfer(checkbox)
 	}
 	if(window.getSelection)
 		window.getSelection().removeAllRanges();
+	saveSelection();
+}
+
+function saveSelection()
+{
+	var selection = QUEUE+'-';
+	for(var i=0;;i++)
+	{
+		checkbox = document.getElementById('transfer'+i);
+		if(!checkbox)
+			break;
+		
+		if(checkbox.checked)
+			selection += i + '-';
+	}
+	
+	document.cookie = 'selection='+selection;
+}
+
+function loadSelection()
+{
+	state = readCookie('selection');
+	if(!state)
+		return;
+	transfers = state.split('-');
+	
+	if(transfers[0] != QUEUE)
+		return;
+	
+	for(var i=1;i<transfers.length;i++)
+	{
+		clickedTransfer(null, transfers[i]);
+	}
+}
+
+function resetSelection()
+{
+	for(var i=0;;i++)
+	{
+		checkbox = document.getElementById('transfer'+i);
+		if(!checkbox)
+			break;
+		
+		if(checkbox.checked)
+		{
+			checkbox.checked = false;
+			checkTransfer(checkbox);
+		}
+	}
 }
 
 function clickedTransfer(event,ix)
 {
-	tname = event.target.tagName.toLowerCase();
-	if(tname != 'td' && tname != 'tr')
-		return;
-	
-	if(!event.ctrlKey)
+	if(event)
 	{
-		for(var i=0;;i++)
-		{
-			checkbox = document.getElementById('transfer'+i);
-			if(!checkbox)
-				break;
-			
-			if(checkbox.checked)
-			{
-				checkbox.checked = false;
-				checkTransfer(checkbox);
-			}
-		}
+		tname = event.target.tagName.toLowerCase();
+		if(tname != 'td' && tname != 'tr')
+			return;
+		
+		if(!event.ctrlKey)
+			resetSelection();
 	}
 	
 	checkbox = document.getElementById('transfer'+ix);
-	checkbox.checked = !checkbox.checked;
-	checkTransfer(checkbox);
+	if(checkbox)
+	{
+		checkbox.checked = !checkbox.checked;
+		checkTransfer(checkbox);
+	}
+}
+
+function bodyClick(event)
+{
+	tname = event.target.tagName.toLowerCase();
+	if(tname == 'body' || tname == 'p' || tname == 'html' || tname == 'form')
+		resetSelection();
 }
 
 function checkAll(check)
@@ -63,6 +112,18 @@ function checkAll(check)
 			break;
 		obj.checked = check;
 		checkTransfer(obj);
+	}
+}
+
+function hideCheckboxes()
+{
+	for(var i=0;;i++)
+	{
+		id = 'transfer'+i;
+		obj = document.getElementById(id);
+		if(!obj)
+			break;
+		obj.setAttribute('style', 'visibility: hidden; width: 0px; padding: 0px; margin: 0px');
 	}
 }
 
@@ -93,18 +154,9 @@ function refreshChange()
 		rid = setInterval("doRefresh()", opt.value*1000);
 	document.cookie = 'refresh_int='+opt.value;
 }
+
 function doRefresh()
 {
-	inputs = document.getElementsByTagName('input');
-	
-	for(var i=0;i<inputs.length;i++)
-	{
-		if(inputs[i].type != 'checkbox')
-			continue;
-		if(inputs[i].checked)
-			return;
-	}
-	
 	mform = document.getElementById('mainform');
 	mform.submit();
 }
@@ -119,3 +171,14 @@ function loadRefresh()
 		refreshChange();
 	}
 }
+
+function init()
+{
+	hideCheckboxes();
+	loadRefresh();
+	loadSelection();
+	
+	var html = document.getElementsByTagName("html")[0];
+	html.onclick = bodyClick;
+}
+

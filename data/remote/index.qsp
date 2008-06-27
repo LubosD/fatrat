@@ -11,7 +11,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <script type="text/javascript" src="/index.js"></script>
 </head>
 
-<body onload="javascript: loadRefresh();">
+<body onload="javascript: init();">
 <p><img src="logo.png" alt="FatRat logo"/></p>
 
 <?
@@ -41,6 +41,7 @@ function escapeAmpersand(text)
 	<script type="text/javascript"><!--
 	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden');
 	document.write('');
+	var QUEUE = <? print(GET.queue); ?>;
 	--></script>
 </p>
 </form>
