@@ -43,7 +43,6 @@ public:
 	bool performsLimiting() const;
 protected:
 	virtual CURL* curlHandle() = 0;
-	virtual void speedLimits(int& down, int& up) = 0;
 	virtual void transferDone(CURLcode result) = 0;
 	
 	virtual size_t readData(char* buffer, size_t maxData);

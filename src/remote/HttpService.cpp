@@ -362,7 +362,7 @@ bool HttpService::processClientWrite(int fd)
 	{
 		if(!data.file->atEnd() && data.file->isOpen())
 		{
-			QByteArray buf = data.file->read(8*1024);
+			QByteArray buf = data.file->read(2*1024);
 			
 			return write(fd, buf.constData(), buf.size()) == buf.size();
 		}
@@ -375,7 +375,11 @@ bool HttpService::processClientWrite(int fd)
 		ar.resize(bytes);
 		data.buffer->getData(ar.data(), &bytes);
 		
-		return write(fd, ar.constData(), bytes) == int(bytes);
+		int written = write(fd, ar.constData(), bytes);
+		if(written <= 0)
+			return false;
+		else if(written < int(bytes))
+			data.buffer->putBack(ar.constData()+written, bytes-written);
 	}
 	
 	return true;
@@ -544,6 +548,7 @@ void HttpService::serveClient(int fd)
 			
 			if(data.buffer)
 			{
+				qDebug() << "Storing" << png.size() << "bytes";
 				data.buffer->putData(png.constData(), png.size());
 				fileSize = data.buffer->size();
 			}

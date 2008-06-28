@@ -56,7 +56,6 @@ public:
 	static void globalExit();
 protected:
 	virtual CURL* curlHandle();
-	virtual void speedLimits(int& down, int& up);
 	virtual bool writeData(const char* buffer, size_t bytes);
 	virtual void transferDone(CURLcode result);
 private slots:

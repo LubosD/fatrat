@@ -66,8 +66,8 @@ function escapeAmpersand(text)
 		document.write('<button type="button" id="btn_add" onclick="javascript:newwin(\'/add_transfer.qsp?queue=<? print(GET.queue); ?>\')" title="New transfer"><img src="/add.png" alt="New transfer"/></button>');
 	//--></script>
 	
-	<button type="submit" name="remove" value="delete" title="Delete" onclick="javascript:return confirm('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
-	<button type="submit" name="remove" value="delete_data" title="Delete including data" onclick="javascript:return confirm('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
+	<button type="submit" name="remove" id="btn_delete" value="delete" title="Delete" onclick="javascript:return confirmOp('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
+	<button type="submit" name="remove" id="btn_delete" value="delete_data" title="Delete including data" onclick="javascript:return confirmOp('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<button type="submit" name="cleanup" value="cleanup" title="Remove completed"><img src="/states/completed.png" alt="Remove completed"/></button>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
@@ -203,6 +203,7 @@ function escapeAmpersand(text)
 		
 		print('<tr id="transfer'+i+'_tr" onclick="javascript:clickedTransfer(event,'+i+')"><td><span class="ralign">');
 		var info = fileInfo(transfer.dataPath);
+		
 		if(info)
 		{
 			if(info.directory)

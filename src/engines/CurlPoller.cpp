@@ -82,6 +82,7 @@ void CurlPoller::run()
 		
 		if(!nfds)
 		{
+			//qDebug() << "No events";
 			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 		}
 		
@@ -97,6 +98,7 @@ void CurlPoller::run()
 			if(events[i].events & (EPOLLERR | EPOLLHUP))
 				mask |= CURL_CSELECT_ERR;
 			
+			//qDebug() << "Events:" << mask;
 			curl_multi_socket_action(m_curlm, fd, mask, &dummy);
 		}
 		
@@ -127,7 +129,7 @@ void CurlPoller::run()
 		}
 		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
-			int msec = 0;
+			int msec = -1;
 			
 			if(it.value().second->hasNextReadTime())
 			{
@@ -140,7 +142,7 @@ void CurlPoller::run()
 				timeval tv = it.value().second->nextWriteTime();
 				mmsec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
 				
-				if(mmsec < msec)
+				if(mmsec < msec || msec < 0)
 					msec = mmsec;
 			}
 			

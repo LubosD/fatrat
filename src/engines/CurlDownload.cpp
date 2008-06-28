@@ -35,8 +35,8 @@ CurlDownload::CurlDownload()
 
 CurlDownload::~CurlDownload()
 {
-	if(m_curl)
-		curl_easy_cleanup(m_curl);
+	if(isActive())
+		changeActive(false);
 }
 
 void CurlDownload::init(QString uri, QString dest)
@@ -154,12 +154,7 @@ CURL* CurlDownload::curlHandle()
 	return m_curl;
 }
 
-void CurlDownload::speedLimits(int& down, int& up)
-{
-	internalSpeedLimits(down, up);
-}
-
-static int anti_crash_fun() { return 0; }
+int anti_crash_fun() { return 0; }
 
 void CurlDownload::changeActive(bool bActive)
 {
@@ -245,6 +240,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD);
+		
+		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 10);
+		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
 		
 		// BUG (CRASH) WORKAROUND
 		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help

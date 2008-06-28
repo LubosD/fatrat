@@ -265,12 +265,14 @@ if(WITH_CURL)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		src/engines/CurlDownload.cpp
+		src/engines/CurlUpload.cpp
 		src/engines/CurlPoller.cpp
 		src/engines/CurlUser.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/CurlDownload.h
+		src/engines/CurlUpload.h
 	)
 endif(WITH_CURL)
 

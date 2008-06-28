@@ -184,7 +184,7 @@ function setAutoResets()
 	
 	for(var i=0;i<btns.length;i++)
 	{
-		if(btns[i].id != "btn_add" && btns[i].id != "btn_reload")
+		if(btns[i].id != "btn_add" && btns[i].id != "btn_delete" && btns[i].id != "btn_reload")
 			btns[i].onclick = resetSavedSelection;
 	}
 }
@@ -198,5 +198,15 @@ function init()
 	
 	var html = document.getElementsByTagName("html")[0];
 	html.onclick = bodyClick;
+}
+
+function confirmOp(msg)
+{
+	if(confirm(msg))
+	{
+		resetSavedSelection();
+		return true;
+	}
+	return false;
 }
 

@@ -96,6 +96,7 @@ void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 			if(delta > 0)
 			{
 				delta *= 2;
+				//qDebug() << "Sleeping for" << delta;
 				data.next = tvNow;
 				data.next.tv_sec += delta/1000;
 				data.next.tv_usec += (delta%1000)*1000;

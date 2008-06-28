@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef WITH_CURL
 #	include "engines/CurlDownload.h"
+#	include "engines/CurlUpload.h"
 #endif
 
 #include "engines/FtpUpload.h"
@@ -68,9 +69,12 @@ void initTransferClasses()
 #endif
 #ifdef WITH_CURL
 	{
-		EngineEntry e = { "CurlDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance,
-			CurlDownload::acceptable, 0 };
+		EngineEntry e = { "CurlDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance, CurlDownload::acceptable, 0 };
 		g_enginesDownload << e;
+	}
+	{
+		EngineEntry e = { "CurlUpload", "CURL FTP(S)/SFTP upload", 0, 0, CurlUpload::createInstance, CurlUpload::acceptable, 0 };
+		g_enginesUpload << e;
 	}
 #endif
 	{

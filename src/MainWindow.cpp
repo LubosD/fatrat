@@ -844,11 +844,6 @@ show_dialog:
 		for(int i=0;i<uris.size();i++)
 			uris[i] = uris[i].trimmed();
 		
-		queue = getQueue(m_dlgNewTransfer->m_nQueue, false);
-		
-		if(!queue)
-			throw RuntimeException(tr("Internal error."));
-		
 		for(int i=0;i<uris.size();i++)
 		{
 			Transfer* d;
@@ -927,6 +922,11 @@ show_dialog:
 			foreach(Transfer* d, listTransfers)
 				d->setState(Transfer::Waiting);
 		}
+		
+		queue = getQueue(m_dlgNewTransfer->m_nQueue, false);
+		
+		if(!queue)
+			throw RuntimeException(tr("Internal error."));
 		
 		queue->add(listTransfers);
 	}

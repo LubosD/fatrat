@@ -57,12 +57,15 @@ void TrayToolTip::regMove()
 
 void TrayToolTip::refresh()
 {
-	updateData();
-	
-	if(QApplication::widgetAt(QCursor::pos()) != m_object)
-		hide();
-	else
-		redraw();
+	if(isVisible())
+	{
+		updateData();
+		
+		if(QApplication::widgetAt(QCursor::pos()) != m_object)
+			hide();
+		else
+			redraw();
+	}
 }
 
 void TrayToolTip::updateData()
