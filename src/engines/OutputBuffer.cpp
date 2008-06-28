@@ -40,6 +40,14 @@ void OutputBuffer::putData(const char* data, unsigned long bytes)
 	m_bytes += bytes;
 }
 
+void OutputBuffer::putBack(const char* data, unsigned long bytes)
+{
+	m_buffer = (char*) realloc(m_buffer, m_bytes+bytes);
+	memmove(m_buffer+bytes, m_buffer, m_bytes);
+	memcpy(m_buffer, data, bytes);
+	m_bytes += bytes;
+}
+
 void OutputBuffer::getData(char* data, unsigned long* bytes)
 {
 	*bytes = std::min<unsigned long>(*bytes, m_bytes);

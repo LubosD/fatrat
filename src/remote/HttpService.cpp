@@ -471,6 +471,7 @@ QByteArray HttpService::graph(QString queryString)
 
 void HttpService::serveClient(int fd)
 {
+	char buffer[4096];
 	bool bHead, bGet, bPost, bAuthFail = false; // send 401
 	qint64 fileSize = -1;
 	QDateTime modTime;
@@ -499,194 +500,199 @@ void HttpService::serveClient(int fd)
 		fileName.resize(q);
 	}
 	
-	if(fileName.isEmpty() || fileName.indexOf("/..") != -1 || fileName.indexOf("../") != -1)
+	try
 	{
-		const char* msg = "HTTP/1.0 400 Bad Request\r\n" HTTP_HEADERS "\r\n";
-		write(fd, msg, strlen(msg));
-		return;
-	}
-	
-	if(fileName == "/")
-		fileName = "/index.qsp";
-	
-	if(fileName.endsWith(".qsp"))
-	{
-		fileName.prepend(DATA_LOCATION "/data/remote");
-		
-		if(authenitcate(rq.lines))
+		if(fileName.isEmpty() || fileName.indexOf("/..") != -1 || fileName.indexOf("../") != -1)
 		{
-			QFile file(fileName);
-			if(file.open(QIODevice::ReadOnly))
-			{
-				data.buffer = new OutputBuffer;
-				
-				qDebug() << "Executing" << fileName;
-				interpretScript(&file, data.buffer, queryString, postData);
-				fileSize = data.buffer->size();
-			}
+			const char* msg = "HTTP/1.0 400 Bad Request\r\n" HTTP_HEADERS "\r\n";
+			write(fd, msg, strlen(msg));
+			return;
 		}
-		else if(!bHead)
-			bAuthFail = true;
-	}
-	else if(fileName.startsWith("/generate/"))
-	{
-		if(!bHead)
-		{
-			QByteArray png;
-			QString q = urlDecode(queryString);
-			data.buffer = new OutputBuffer;
-			
-			if(fileName.endsWith("/progress.png"))
-				png = progressBar(q.toLatin1());
-			else if(fileName.endsWith("/graph.png"))
-				png = graph(q);
-			else
-			{
-				delete data.buffer;
-				data.buffer = 0;
-			}
-			
-			if(data.buffer)
-			{
-				qDebug() << "Storing" << png.size() << "bytes";
-				data.buffer->putData(png.constData(), png.size());
-				fileSize = data.buffer->size();
-			}
-		}
-	}
-	else if(fileName == "/download")
-	{
-		QMap<QString,QString> gets = processQueryString(queryString);
-		int q, t;
-		QString path;
-		Queue* qo = 0;
-		Transfer* to = 0;
 		
-		try
+		if(fileName == "/")
+			fileName = "/index.qsp";
+		
+		if(fileName.endsWith(".qsp"))
 		{
-			if(!authenitcate(rq.lines))
+			fileName.prepend(DATA_LOCATION "/data/remote");
+			
+			if(authenitcate(rq.lines))
 			{
+				QFile file(fileName);
+				if(file.open(QIODevice::ReadOnly))
+				{
+					data.buffer = new OutputBuffer;
+					
+					qDebug() << "Executing" << fileName;
+					interpretScript(&file, data.buffer, queryString, postData);
+					fileSize = data.buffer->size();
+				}
+			}
+			else if(!bHead)
 				bAuthFail = true;
-				throw 0;
-			}
-			
-			QReadLocker locker(&g_queuesLock);
-			q = gets["queue"].toInt();
-			t = gets["transfer"].toInt();
-			path = gets["path"];
-			
-			if(path.indexOf("/..") != -1 || path.indexOf("../") != -1)
-				throw 0;
-			
-			if(q < 0 || q >= g_queues.size() || t < 0)
-				throw 0;
-			
-			qo = g_queues[q];
-			qo->lock();
-			
-			if(t >= qo->size())
-				throw 0;
-			to = qo->at(t);
-			
-			path.prepend(to->dataPath(true));
-			
-			QFileInfo info(path);
-			if(!info.exists())
-				throw 0;
-			
-			modTime = info.lastModified();
-			fileSize = info.size();
 		}
-		catch(...)
+		else if(fileName.startsWith("/generate/"))
 		{
-			path.clear();
-		}
-		
-		if(qo)
-			qo->unlock();
-		
-		if(!path.isEmpty() && !bHead)
-		{
-			int last = path.lastIndexOf('/');
-			if(last != -1)
-			{
-				disposition = path.mid(last+1).toUtf8();
-				if(disposition.size() > 100)
-					disposition.resize(100);
-			}
-			
-			data.file = new QFile(path);
-			data.file->open(QIODevice::ReadOnly);
-		}
-	}
-	else
-	{
-		fileName.prepend(DATA_LOCATION "/data/remote");
-		qDebug() << "Opening" << fileName;
-		
-		QFileInfo info(fileName);
-		if(info.exists())
-		{
-			modTime = info.lastModified();
-			fileSize = info.size();
-			
 			if(!bHead)
 			{
-				data.file = new QFile(fileName);
+				QByteArray png;
+				QString q = urlDecode(queryString);
+				data.buffer = new OutputBuffer;
+				
+				if(fileName.endsWith("/progress.png"))
+					png = progressBar(q.toLatin1());
+				else if(fileName.endsWith("/graph.png"))
+					png = graph(q);
+				else
+				{
+					delete data.buffer;
+					data.buffer = 0;
+				}
+				
+				if(data.buffer)
+				{
+					qDebug() << "Storing" << png.size() << "bytes";
+					data.buffer->putData(png.constData(), png.size());
+					fileSize = data.buffer->size();
+				}
+			}
+		}
+		else if(fileName == "/download")
+		{
+			QMap<QString,QString> gets = processQueryString(queryString);
+			int q, t;
+			QString path;
+			Queue* qo = 0;
+			Transfer* to = 0;
+			
+			try
+			{
+				if(!authenitcate(rq.lines))
+				{
+					bAuthFail = true;
+					throw 0;
+				}
+				
+				QReadLocker locker(&g_queuesLock);
+				q = gets["queue"].toInt();
+				t = gets["transfer"].toInt();
+				path = gets["path"];
+				
+				if(path.indexOf("/..") != -1 || path.indexOf("../") != -1)
+					throw 0;
+				
+				if(q < 0 || q >= g_queues.size() || t < 0)
+					throw 0;
+				
+				qo = g_queues[q];
+				qo->lock();
+				
+				if(t >= qo->size())
+					throw 0;
+				to = qo->at(t);
+				
+				path.prepend(to->dataPath(true));
+				
+				QFileInfo info(path);
+				if(!info.exists())
+					throw 0;
+				
+				modTime = info.lastModified();
+				fileSize = info.size();
+			}
+			catch(...)
+			{
+				path.clear();
+			}
+			
+			if(qo)
+				qo->unlock();
+			
+			if(!path.isEmpty() && !bHead)
+			{
+				int last = path.lastIndexOf('/');
+				if(last != -1)
+				{
+					disposition = path.mid(last+1).toUtf8();
+					if(disposition.size() > 100)
+						disposition.resize(100);
+				}
+				
+				data.file = new QFile(path);
 				data.file->open(QIODevice::ReadOnly);
 			}
 		}
-	}
-	
-	char buffer[4096];
-	if(bAuthFail)
-	{
-		strcpy(buffer, "HTTP/1.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FatRat web interface\""
-				"\r\nContent-Length: 16\r\n" HTTP_HEADERS "\r\n401 Unauthorized");
-	}
-	else if(bHead && fileSize < 0)
-	{
-		strcpy(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
-				"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n");
-	}
-	else if(fileSize != -1)
-	{
-		sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS "Content-Length: %lld\r\n", fileSize);
-		
-		if(!modTime.isNull())
-		{
-			char time[100];
-			time_t t = modTime.toTime_t();
-			struct tm tt;
-			char locale[20];
-			
-			gmtime_r(&t, &tt);
-			strcpy(locale, setlocale(LC_TIME, 0));
-			setlocale(LC_TIME, "C");
-			
-			strftime(time, sizeof(time), "Last-Modified: %a, %d %b %Y %T %Z\r\n", &tt);
-			
-			setlocale(LC_TIME, locale);
-			strcat(buffer, time);
-		}
 		else
 		{
-			strcat(buffer, "Cache-Control: no-cache\r\nPragma: no-cache\r\n");
+			fileName.prepend(DATA_LOCATION "/data/remote");
+			qDebug() << "Opening" << fileName;
+			
+			QFileInfo info(fileName);
+			if(info.exists())
+			{
+				modTime = info.lastModified();
+				fileSize = info.size();
+				
+				if(!bHead)
+				{
+					data.file = new QFile(fileName);
+					data.file->open(QIODevice::ReadOnly);
+				}
+			}
+			else
+				throw "404 Not Found";
 		}
 		
-		if(!disposition.isEmpty())
+		if(bAuthFail)
 		{
-			char disp[200];
-			sprintf(disp, "Content-Disposition: attachment; filename=\"%s\"\r\n", disposition.constData());
-			strcat(buffer, disp);
+			strcpy(buffer, "HTTP/1.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FatRat web interface\""
+					"\r\nContent-Length: 16\r\n" HTTP_HEADERS "\r\n401 Unauthorized");
 		}
-		
-		strcat(buffer, "\r\n");
+		else if(bHead && fileSize < 0)
+		{
+			strcpy(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
+					"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n");
+		}
+		else if(fileSize != -1)
+		{
+			sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS "Content-Length: %lld\r\n", fileSize);
+			
+			if(!modTime.isNull())
+			{
+				char time[100];
+				time_t t = modTime.toTime_t();
+				struct tm tt;
+				char locale[20];
+				
+				gmtime_r(&t, &tt);
+				strcpy(locale, setlocale(LC_TIME, 0));
+				setlocale(LC_TIME, "C");
+				
+				strftime(time, sizeof(time), "Last-Modified: %a, %d %b %Y %T %Z\r\n", &tt);
+				
+				setlocale(LC_TIME, locale);
+				strcat(buffer, time);
+			}
+			else
+			{
+				strcat(buffer, "Cache-Control: no-cache\r\nPragma: no-cache\r\n");
+			}
+			
+			if(!disposition.isEmpty())
+			{
+				char disp[200];
+				sprintf(disp, "Content-Disposition: attachment; filename=\"%s\"\r\n", disposition.constData());
+				strcat(buffer, disp);
+			}
+			
+			strcat(buffer, "\r\n");
+		}
 	}
-	else
-		strcpy(buffer, "HTTP/1.0 404 Not Found\r\nContent-Length: 13\r\n" HTTP_HEADERS "\r\n404 Not Found");
+	catch(const char* errorMsg)
+	{
+		sprintf(buffer, "HTTP/1.0 %s\r\nContent-Length: %ld\r\n%s\r\n%s", errorMsg, strlen(errorMsg), HTTP_HEADERS, errorMsg);
+	}
 	
-	qDebug() << buffer;
 	write(fd, buffer, strlen(buffer));
 	
 	processClientWrite(fd);

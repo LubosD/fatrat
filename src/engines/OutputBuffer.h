@@ -30,6 +30,7 @@ public:
 	~OutputBuffer();
 	void putData(const char* data, unsigned long bytes);
 	void getData(char* data, unsigned long* bytes);
+	void putBack(const char* data, unsigned long bytes);
 	bool isEmpty() const { return !m_bytes; }
 	unsigned long size() const { return m_bytes; }
 private:
