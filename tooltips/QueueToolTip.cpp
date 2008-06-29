@@ -8,6 +8,9 @@ QueueToolTip::QueueToolTip(QWidget* parent, Queue* queue)
 
 void QueueToolTip::refresh()
 {
+	if(!isVisible())
+		return;
+	
 	QString text;
 	const Queue::Stats& stats = m_queue->m_stats;
 	

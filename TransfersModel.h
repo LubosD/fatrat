@@ -47,6 +47,7 @@ private:
 		Transfer::State state;
 		QString name, speed, timeLeft, message, progress, size;
 		Transfer::Mode mode, primaryMode;
+		float fProgress;
 		
 		inline bool operator!=(const RowData& d2)
 		{

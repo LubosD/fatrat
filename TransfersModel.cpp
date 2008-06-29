@@ -91,10 +91,13 @@ TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
 {
 	RowData newData;
 	
+	const qint64 total = t->total();
+	
 	newData.state = t->state();
 	newData.name = t->name();
-	newData.progress = (t->total()) ? QString("%1%").arg(100.0/t->total()*t->done(), 0, 'f', 1) : QString();
-	newData.size = (t->total()) ? formatSize(t->total()) : QString("?");
+	newData.fProgress = (total) ? 100.0/t->total()*t->done() : 0;
+	newData.progress = (total) ? QString("%1%").arg(newData.fProgress, 0, 'f', 1) : QString();
+	newData.size = (total) ? formatSize(t->total()) : QString("?");
 	
 	if(t->isActive())
 	{
@@ -319,37 +322,25 @@ void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 	{
 		TransfersModel* model = (TransfersModel*) index.internalPointer();
 		QStyleOptionProgressBarV2 opts;
+		const int row = index.row();
 		
-		g_queuesLock.lockForRead();
-		if(model->m_queue < g_queues.size())
+		if(row < model->m_lastData.size())
 		{
-			Transfer* d;
-			Queue* q = g_queues[model->m_queue];
-			q->lock();
-			
-			d = q->at(index.row());
-			if(!d)
-			{
-				q->unlock();
-				return;
-			}
-			
-			if(d->total())
-				opts.text = QString("%1%").arg(100.0/d->total()*d->done(), 0, 'f', 1);
+			if(model->m_lastData[row].fProgress)
+				opts.text = QString("%1%").arg(model->m_lastData[row].fProgress, 0, 'f', 1);
 			else
 				opts.text = "?";
 			
 			opts.maximum = 1000;
 			opts.minimum = 0;
-			opts.progress = int( 1000.0/d->total()*d->done() );
+			opts.progress = int( model->m_lastData[row].fProgress*10 );
 			opts.rect = option.rect;
 			opts.textVisible = true;
+			opts.state = QStyle::State_Enabled;
 			
 			QApplication::style()->drawControl(QStyle::CE_ProgressBar, &opts, painter);
 			
-			q->unlock();
 		}
-		g_queuesLock.unlock();
 	}
 	else
 		QItemDelegate::paint(painter, option, index);

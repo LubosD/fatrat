@@ -40,6 +40,7 @@ protected:
 	void updateUi();
 	void loadEngines();
 	void parseResults(Engine* e);
+	QString completeUrl(QString url, QString complete);
 	
 	static QList<QByteArray> splitArray(const QByteArray& src, QString sep);
 signals:

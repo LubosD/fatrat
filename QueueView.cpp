@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "fatrat.h"
 #include <QtDebug>
+#include <QFile>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -89,12 +90,19 @@ void QueueView::mouseMoveEvent(QMouseEvent* event)
 			if(m_status)
 				m_status->deleteLater();
 			m_status = new QueueToolTip(getMainWindow(), q);
+			connect(m_status, SIGNAL(destroyed(QObject*)), this, SLOT(tooltipDestroyed(QObject*)));
 		}
 		
 		m_status->move(mapToGlobal(event->pos()) + QPoint(25, 25));
 		if(!m_status->isVisible())
 			m_status->show();
 	}
+}
+
+void QueueView::tooltipDestroyed(QObject* obj)
+{
+	if(m_status == obj)
+		m_status = 0;
 }
 
 void QueueView::setCurrentRow(int row)

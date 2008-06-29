@@ -36,6 +36,9 @@ InfoBar::~InfoBar()
 
 void InfoBar::refresh()
 {
+	if(!m_download)
+		return;
+	
 	qulonglong done = m_download->done(), total = m_download->total();
 	QString pc, speed, time = "- - -";
 	QString name = m_download->name();
@@ -103,6 +106,7 @@ void InfoBar::mouseMoveEvent(QMouseEvent* event)
 
 void InfoBar::downloadDestroyed(QObject*)
 {
+	m_download = 0;
 	close();
 	deleteLater();
 }

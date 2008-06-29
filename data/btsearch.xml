@@ -7,6 +7,7 @@
 		
 		<regexp name="name" field="1">class="detLink" title="([^"]+)"&gt;([^"]+)&lt;/a&gt;</regexp>
 		<regexp name="link" match="1">&lt;td&gt;&lt;a href="([^"]+)"</regexp>
+		<regexp name="info">&lt;a href="([^"]+)" class="detLink"</regexp>
 		<regexp name="size">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
 		<regexp name="seeders" match="1">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="2">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
@@ -18,6 +19,7 @@
 		<param name="ending">&lt;/table&gt;</param>
 		
 		<regexp name="name" field="1">&lt;a href="/tor/([^"]+)"&gt;([^"]+)&lt;/a&gt;</regexp>
+		<regexp name="info">&lt;a href="(/tor/\d+)"&gt;([^&lt;]+)&lt;/a&gt;</regexp>
 		<regexp name="link">&lt;a href="([^"]+)" class="dl"</regexp>
 		<regexp name="size">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
 		<regexp name="seeders" field="1">&lt;span class="(.)"&gt;([^"]+)&lt;/span&gt;</regexp>
@@ -26,27 +28,28 @@
 	<engine name="BtJunkie">
 		<param name="query">http://btjunkie.org/search?q=%1</param>
 		<param name="beginning">class="tab_results"&gt;</param>
-		<param name="splitter">&lt;/table&gt;</param>
+		<param name="splitter">&lt;/tr&gt;&lt;tr bgcolor="#FFFFFF"&gt;</param>
 		<param name="ending">&lt;tr class="row_footer"&gt;</param>
 		
-		<regexp name="name">class="BlckUnd"&gt;([^\n]+)</regexp>
+		<regexp name="name">class="BlckUnd"&gt;([^;]+)</regexp>
 		<regexp name="link">&lt;a href="([^"]+)" rel="nofollow"&gt;&lt;img src="/images/down.gif"</regexp>
-		<regexp name="size">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="info">&lt;a href="([^"]+)" class="BlckUnd"&gt;</regexp>
+		<regexp name="size">&lt;th width="10%" align="center"&gt;&lt;font color="#808080" style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
 		<regexp name="seeders" match="2">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
 		<regexp name="leechers" match="3">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
 	</engine>
-	<engine name="LinuxTorrents">
-		<param name="query">http://linuxtracker.org/torrents-search.php?search=%1</param>
-		<param name="beginning">Upped By</param>
-		<param name="splitter">&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;</param>
-		<param name="ending">&lt;p align="center"&gt;</param>
+	<engine name="LinuxTracker">
+		<param name="query">http://linuxtracker.org/index.php?page=torrents&amp;search=%1&amp;category=0&amp;active=1</param>
+		<param name="beginning">Cat.</param>
+		<param name="splitter">&lt;/tr&gt;</param>
+		<param name="ending">Back To Top</param>
 		
-		<regexp name="name">hit=1"&gt;&lt;b&gt;([^&lt;]+)</regexp>
-		<regexp name="link">&lt;tr&gt;&lt;td&gt;&lt;a href="([^"]+)"</regexp>
-		<regexp name="size">face=Verdana&gt;([^&lt;]+)&lt;/td&gt;</regexp>
-		<regexp name="seeders" match="1">face=Verdana&gt;([^\n]+)</regexp>
-		<regexp name="leechers" match="2">face=Verdana&gt;([^\n]+)</regexp>
+		<regexp name="name">title="View details: ([^"]+)"&gt;</regexp>
+		<regexp name="link">&lt;a href="(download.php\?id=[^"]+)"</regexp>
+		<regexp name="info">&lt;a href="(index.php\?page=torrent-details[^"]+)"</regexp>
+		<regexp name="size"></regexp>
+		<regexp name="seeders">Click here to view peers details"&gt;(\d+)&lt;/a&gt;</regexp>
+		<regexp name="leechers" match="1">Click here to view peers details"&gt;(\d+)&lt;/a&gt;</regexp>
 	</engine>
 	<!--<engine name="CZTorrent">
 		<param name="query">http://tracker.cztorrent.net/torrents.php?search=%1&amp;category=0&amp;active=0&amp;v2=1</param>
@@ -63,26 +66,27 @@
 		<regexp name="leechers" field="1" match="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
 	</engine>-->
 	<engine name="TorrentReactor">
-		<param name="query">http://www.torrentreactor.net/search.php?search=&amp;words=%1&amp;cid=0</param>
-		<param name="beginning">&lt;th&gt;Seeds&lt;/th&gt;</param>
-		<param name="splitter">&lt;/tr&gt;
-&lt;tr&gt;</param>
-		<param name="ending">If you like TorrentReactor.Net</param>
+		<param name="query">http://www.torrentreactor.net/search/%1</param>
+		<param name="beginning">Torrentreactor search results:</param>
+		<param name="splitter">&lt;tr class="torrent_</param>
+		<param name="ending">Download our toolbar!</param>
 		
-		<regexp name="name" field="1">&lt;a href="([^"]+)"&gt;([^&lt;]+)&lt;</regexp>
+		<regexp name="name" field="1">&lt;a href="/torrents/([^"]+)"&gt;([^\n]+)</regexp>
 		<regexp name="link">&lt;a rel="nofollow" href="([^"]+)"</regexp>
-		<regexp name="size" match="2">&lt;td&gt;([^&lt;]+)</regexp>
-		<regexp name="seeders" match="3">&lt;td&gt;([^&lt;]+)</regexp>
-		<regexp name="leechers" match="4">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="info">&lt;a href="(/torrents/[^"]+)"</regexp>
+		<regexp name="size" match="1">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="seeders" match="2">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="leechers" match="3">&lt;td&gt;([^&lt;]+)</regexp>
 	</engine>
 	<engine name="BitTorrentMonster">
-		<param name="query">http://btmon.com/torrent/%1</param>
-		<param name="beginning">&lt;tr onmouseover="this.className='hl_row'" onmouseout="this.className=''"&gt;</param>
+		<param name="query">http://www.btmon.com/torrent/%1</param>
+		<param name="beginning">Words statistics</param>
 		<param name="splitter">&lt;tr onmouseover="this.className='hl_row'" onmouseout="this.className=''"&gt;</param>
-		<param name="ending">&lt;table class="pages" align="center"&gt;&lt;tr&gt;</param>
+		<param name="ending">Pages(</param>
 		
 		<regexp name="name">&lt;div class="long_word"&gt;([^&lt;]+)&lt;/div&gt;</regexp>
 		<regexp name="link" match="1">&lt;a href="([^"]+)"</regexp>
+		<regexp name="info">&lt;a class="toolLinks" href="([^"]+)"&gt;</regexp>
 		<regexp name="size">&lt;td align="right" nowrap="nowrap"&gt;([^&lt;]+)&lt;/td&gt;</regexp>
 		<regexp name="seeders">&lt;td align="center"&gt;&lt;strong&gt;([0-9]+)&lt;/strong&gt;&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="1">&lt;td align="center"&gt;([0-9]+)&lt;/td&gt;</regexp>
@@ -95,7 +99,8 @@
 		<param name="postdata">SearchString1=%1&amp;SearchString=&amp;search=Search</param>
 		
 		<regexp name="name">&lt;font color='#cd4141'&gt;([^&lt;]+)&lt;/font&gt;</regexp>
-		<regexp name="link">&lt;b&gt;&lt;a href='([^']+)' onClick=</regexp>
+		<regexp name="link">&lt;a href='(http://www.mininova.org/tor/\d+)'&gt;</regexp>
+		<regexp name="info">&lt;a href='(http://eztv.it/index.php\?main=show&amp;id=\d+)'&gt;</regexp>
 		<regexp name="size" match="0">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
 		<regexp name="seeders" match="1">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="2">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>

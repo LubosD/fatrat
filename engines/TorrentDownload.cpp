@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QUrl>
 #include <QFile>
+#include <QVector>
 #include <QtDebug>
 
 extern QSettings* g_settings;
@@ -586,7 +587,8 @@ QByteArray TorrentDownload::bencode_simple(libtorrent::entry e)
 {
 	std::vector<char> buffer;
 	libtorrent::bencode(std::back_inserter(buffer), e);
-	return QByteArray(buffer.data(), buffer.size());
+	QVector<char> buf2 = QVector<char>::fromStdVector(buffer);
+	return QByteArray(buf2.data(), buf2.size());
 }
 
 QString TorrentDownload::bencode(libtorrent::entry e)
