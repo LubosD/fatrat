@@ -293,7 +293,7 @@ void CurlUpload::transferDone(CURLcode result)
 	if(!isActive())
 		return;
 	
-	if(result == CURLE_OK)
+	if(result == CURLE_OK || done() == total())
 		setState(Completed);
 	else
 	{
