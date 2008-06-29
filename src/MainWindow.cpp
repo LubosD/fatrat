@@ -1493,7 +1493,12 @@ void MainWindow::showWindow(bool show)
 		refreshQueues();
 		widgetStats->refresh();
 	}
-	setVisible(show);
+	
+	if(show)
+		showNormal();
+	else
+		hide();
+	
 	actionDisplay->setChecked(show);
 }
 

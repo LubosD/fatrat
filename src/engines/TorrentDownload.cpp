@@ -99,7 +99,7 @@ int TorrentDownload::acceptable(QString uri, bool)
 	}
 		
         if(uri.startsWith("http://") || uri.startsWith("ftp://"))
-                return (istorrent) ? 3 : 2;
+                return (istorrent) ? 3 : 1;
 	if(istorrent)
 	{
 		if(uri[0] == '/' || uri.startsWith("file://"))

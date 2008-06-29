@@ -81,20 +81,20 @@ bool SettingsGeneralForm::accept()
 }
 void SettingsGeneralForm::accepted()
 {
-	g_settings->setValue("defaultdir", lineDestination->text());
-	g_settings->setValue("execfile", comboFileExec->currentText());
+	setSettingsValue("defaultdir", lineDestination->text());
+	setSettingsValue("fileexec", comboFileExec->currentText());
 	
-	g_settings->setValue("trayicon", checkTrayIcon->isChecked());
-	g_settings->setValue("hideminimize", checkHideMinimize->isChecked());
-	g_settings->setValue("hideclose", checkHideClose->isChecked());
+	setSettingsValue("trayicon", checkTrayIcon->isChecked());
+	setSettingsValue("hideminimize", checkHideMinimize->isChecked());
+	setSettingsValue("hideclose", checkHideClose->isChecked());
 	
-	g_settings->setValue("graphminutes", spinGraphMinutes->value());
-	g_settings->setValue("transfer_dblclk", comboDoubleClick->currentIndex());
-	g_settings->setValue("tab_onclose", comboCloseCurrent->currentIndex());
-	g_settings->setValue("link_separator", comboLinkSeparator->currentIndex());
+	setSettingsValue("graphminutes", spinGraphMinutes->value());
+	setSettingsValue("transfer_dblclk", comboDoubleClick->currentIndex());
+	setSettingsValue("tab_onclose", comboCloseCurrent->currentIndex());
+	setSettingsValue("link_separator", comboLinkSeparator->currentIndex());
 	
-	g_settings->setValue("gui_refresh", spinRefreshGUI->value()*1000);
-	g_settings->setValue("css", checkCSS->isChecked());
+	setSettingsValue("gui_refresh", spinRefreshGUI->value()*1000);
+	setSettingsValue("css", checkCSS->isChecked());
 	
 	((MainWindow*) getMainWindow())->applySettings();
 }

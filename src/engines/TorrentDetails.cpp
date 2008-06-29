@@ -112,7 +112,11 @@ void TorrentDetails::openFile()
 	int i = m_selFiles[0];
 	
 	QString relative = m_download->m_info->file_at(i).path.string().c_str();
-	QString path = m_download->dataPath(false) + relative;
+	QString path = m_download->dataPath(false);
+	
+	if(!path.endsWith('/'))
+		path += '/';
+	path += relative;
 	
 	QString command = QString("%1 \"%2\"")
 			.arg(getSettingsValue("fileexec").toString())

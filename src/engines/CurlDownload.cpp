@@ -108,7 +108,10 @@ int CurlDownload::acceptable(QString uri, bool)
 	if(scheme != "http" && scheme != "ftp" && scheme != "https" && scheme != "sftp")
 		return 0;
 	else
+	{
+		qDebug() << "CurlDownload::acceptable: 2";
 		return 2;
+	}
 }
 
 void CurlDownload::globalInit()
