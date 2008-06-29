@@ -49,6 +49,7 @@ public slots:
 	void about();
 	void showSettings();
 	void saveWindowState();
+	void showWindow(bool bShow);
 	
 	void updateUi();
 	void newQueue();

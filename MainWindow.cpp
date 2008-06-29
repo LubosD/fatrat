@@ -175,7 +175,7 @@ void MainWindow::connectActions()
 	connect(actionDropBox, SIGNAL(toggled(bool)), m_dropBox, SLOT(setVisible(bool)));
 	connect(actionInfoBar, SIGNAL(toggled(bool)), this, SLOT(toggleInfoBar(bool)));
 	connect(actionProperties, SIGNAL(triggered()), this, SLOT(transferOptions()));
-	connect(actionDisplay, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+	connect(actionDisplay, SIGNAL(toggled(bool)), this, SLOT(showWindow(bool)));
 	connect(actionHideAllInfoBars, SIGNAL(triggered()),this, SLOT(hideAllInfoBars()));
 	
 	connect(actionOpenFile, SIGNAL(triggered()), this, SLOT(transferOpenFile()));
@@ -1475,5 +1475,14 @@ void MainWindow::applySettings()
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
 	connect(m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
+}
+
+void MainWindow::showWindow(bool bShow)
+{
+	if(bShow)
+		showNormal();
+	else
+		hide();
+	actionDisplay->setChecked(bShow);
 }
 
