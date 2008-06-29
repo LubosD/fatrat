@@ -16,7 +16,6 @@ include_directories(src)
 
 if(WITH_EVERYTHING)
 	set(WITH_BITTORRENT ON)
-	set(WITH_SFTP ON)
 	set(WITH_JABBER ON)
 	set(WITH_NLS ON)
 	set(WITH_DOCUMENTATION ON)
@@ -37,18 +36,6 @@ if(WITH_BITTORRENT)
 	
 	set(QT_USE_QTWEBKIT TRUE)
 endif(WITH_BITTORRENT)
-
-if(WITH_SFTP)
-	set(libssh2_DIR ${CMAKE_MODULE_PATH})
-	find_package(libssh2 REQUIRED)
-	
-	if(LIBSSH2_FOUND)
-		message(STATUS "libssh2 found OK")
-		include_directories(${LIBSSH2_INCLUDE_DIRS})
-	else(LIBSSH2_FOUND)
-		message(FATAL_ERROR "No libssh2")
-	endif(LIBSSH2_FOUND)
-endif(WITH_SFTP)
 
 if(WITH_JABBER)
 	set(gloox_DIR ${CMAKE_MODULE_PATH})
@@ -250,17 +237,6 @@ set(fatrat_UIS
 	src/engines/SettingsHttpForm.ui
 	src/engines/RapidshareOptsForm.ui
 )
-
-if(WITH_SFTP)
-	set(fatrat_SRCS
-		${fatrat_SRCS}
-		src/engines/SftpClient.cpp
-	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
-		src/engines/SftpClient.h
-	)
-endif(WITH_SFTP)
 
 if(WITH_CURL)
 	set(fatrat_SRCS
