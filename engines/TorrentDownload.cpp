@@ -504,6 +504,7 @@ void TorrentDownload::setObject(QString target)
 		try
 		{
 			m_handle.move_storage(newplace);
+			m_strTarget = target;
 		}
 		catch(...)
 		{
