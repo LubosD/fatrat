@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMap>
 #include <QHash>
 #include <curl/curl.h>
-#include "CurlUser.h"
+#include "engines/CurlUser.h"
 
 class CurlPoller : public QThread
 {

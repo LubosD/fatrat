@@ -21,6 +21,7 @@ if(WITH_EVERYTHING)
 	set(WITH_NLS ON)
 	set(WITH_DOCUMENTATION ON)
 	set(WITH_WEBINTERFACE ON)
+	set(WITH_CURL ON)
 endif(WITH_EVERYTHING)
 
 if(WITH_BITTORRENT)
@@ -138,9 +139,9 @@ set(fatrat_SRCS
 	src/tooltips/QueueToolTip.cpp
 	src/tooltips/TrayToolTip.cpp
 
-	src/engines/FtpClient.cpp
-	src/engines/FtpUpload.cpp
-	src/engines/GeneralDownload.cpp
+	#src/engines/FtpClient.cpp
+	#src/engines/FtpUpload.cpp
+	#src/engines/GeneralDownload.cpp
 	src/engines/GeneralDownloadForms.cpp
 	src/engines/HttpClient.cpp
 	src/engines/HttpFtpSettings.cpp
@@ -198,11 +199,11 @@ set(fatrat_MOC_HDRS
 	
 	src/engines/HttpFtpSettings.h
 	src/engines/RapidshareUpload.h
-	src/engines/FtpClient.h
-	src/engines/GeneralDownload.h
+	#src/engines/FtpClient.h
+	#src/engines/GeneralDownload.h
 	src/engines/GeneralDownloadForms.h
 	src/engines/HttpClient.h
-	src/engines/FtpUpload.h
+	#src/engines/FtpUpload.h
 	
 	src/rss/RssFetcher.h
 	src/rss/SettingsRssForm.h
@@ -395,7 +396,9 @@ set(fatrat_DEV_HEADERS
 	src/Settings.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
-	src/engines/GeneralDownload.h
+	src/engines/CurlDownload.h
+	src/engines/CurlUser.h
+	src/engines/CurlPoller.h
 	src/engines/HttpClient.h
 	src/engines/OutputBuffer.h
 	)

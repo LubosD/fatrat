@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define CURLDOWNLOAD_H
 #include "Transfer.h"
 #include "fatrat.h"
-#include "CurlUser.h"
+#include "engines/CurlUser.h"
 #include <QHash>
 #include <QUuid>
 #include <QFile>
@@ -40,7 +40,7 @@ public:
 	virtual void changeActive(bool bActove);
 	virtual void setObject(QString object);
 	virtual QString object() const;
-	virtual QString myClass() const { return "CurlDownload"; }
+	virtual QString myClass() const { return "GeneralDownload"; }
 	virtual QString message() const { return m_strMessage; }
 	virtual QString name() const;
 	virtual void speeds(int& down, int& up) const;
@@ -51,9 +51,13 @@ public:
 	virtual void setSpeedLimits(int down, int up);
 	
 	static int acceptable(QString uri, bool);
+	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
 	static Transfer* createInstance() { return new CurlDownload; }
 	static void globalInit();
 	static void globalExit();
+	
+	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+	virtual void fillContextMenu(QMenu& menu);
 protected:
 	virtual CURL* curlHandle();
 	virtual bool writeData(const char* buffer, size_t bytes);
@@ -65,13 +69,12 @@ private:
 	void generateName();
 	void init2(QString uri, QString dest);
 	void setTargetName(QString newFileName);
-	void fillContextMenu(QMenu& menu);
 	QString filePath() const;
 	void processHeaders();
 	
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
-private:
+protected:
 	CURL* m_curl;
 	QDir m_dir;
 	qulonglong m_nTotal;

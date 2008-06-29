@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ui_HttpUrlOptsDlg.h"
 #include "WidgetHostChild.h"
 #include <QDialog>
-#include "GeneralDownload.h"
+#include "CurlDownload.h"
 
 class HttpUrlOptsDlg : public QDialog, Ui_HttpUrlOptsDlg
 {
@@ -46,7 +46,7 @@ class HttpOptsWidget : public QObject, public WidgetHostChild, Ui_HttpOptsWidget
 {
 Q_OBJECT
 public:
-	HttpOptsWidget(QWidget* me,GeneralDownload* myobj);
+	HttpOptsWidget(QWidget* me,CurlDownload* myobj);
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();
@@ -55,8 +55,8 @@ public slots:
 	void editUrl();
 	void deleteUrl();
 private:
-	GeneralDownload* m_download;
-	QList<GeneralDownload::UrlObject> m_urls;
+	CurlDownload* m_download;
+	QList<CurlDownload::UrlObject> m_urls;
 };
 
 #endif

@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Transfer.h"
 #include "CurlUser.h"
 #include "fatrat.h"
+#include "ui_FtpUploadOptsForm.h"
+#include "WidgetHostChild.h"
+
 #include <QUuid>
 #include <QFile>
 #include <QUrl>
@@ -45,7 +48,7 @@ public:
 	virtual void setSpeedLimits(int, int up);
 	
 	virtual QString object() const { return m_strSource; }
-	virtual QString myClass() const { return "CurlUpload"; }
+	virtual QString myClass() const { return "FtpUpload"; }
 	virtual QString name() const { return m_strName; }
 	virtual QString message() const { return m_strMessage; }
 	virtual Mode primaryMode() const { return Upload; }
@@ -55,9 +58,11 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
-	//virtual WidgetHostChild* createOptionsWidget(QWidget*);
+	virtual WidgetHostChild* createOptionsWidget(QWidget*);
 	
-	//virtual void fillContextMenu(QMenu& menu);
+	virtual void fillContextMenu(QMenu& menu);
+protected slots:
+	void computeHash();
 protected:
 	virtual CURL* curlHandle();
 	virtual void transferDone(CURLcode result);
@@ -65,15 +70,29 @@ protected:
 	
 	static int seek_function(CurlUpload* This, curl_off_t offset, int origin);
 	static int curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, CurlUpload* This);
-private:
+protected:
 	CURL* m_curl;
 	qint64 m_nDone, m_nTotal;
 	QFile m_file;
-	QString m_strSource, m_strMessage, m_strName;
+	QString m_strSource, m_strMessage, m_strName, m_strBindAddress;
 	QUrl m_strTarget;
 	FtpMode m_mode;
 	QUuid m_proxy;
 	char m_errorBuffer[CURL_ERROR_SIZE];
+	
+	friend class FtpUploadOptsForm;
+};
+
+class FtpUploadOptsForm : public QObject, public WidgetHostChild, Ui_FtpUploadOptsForm
+{
+Q_OBJECT
+public:
+	FtpUploadOptsForm(QWidget* me,CurlUpload* myobj);
+	virtual void load();
+	virtual void accepted();
+	virtual bool accept();
+private:
+	CurlUpload* m_upload;
 };
 
 #endif

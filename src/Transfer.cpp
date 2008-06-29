@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Transfer.h"
 #include "Settings.h"
 
-#include "engines/GeneralDownload.h"
 #include "engines/RapidshareUpload.h"
 
 #ifdef WITH_BITTORRENT
@@ -37,8 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #	include "engines/CurlDownload.h"
 #	include "engines/CurlUpload.h"
 #endif
-
-#include "engines/FtpUpload.h"
 
 #include <QtDebug>
 #include <QMessageBox>
@@ -57,10 +54,6 @@ void initTransferClasses()
 		g_enginesDownload << e;
 	}
 #endif
-	{
-		EngineEntry e = { "GeneralDownload", GeneralDownload::getDescription(), GeneralDownload::globalInit, 0, GeneralDownload::createInstance, GeneralDownload::acceptable, GeneralDownload::createMultipleOptionsWidget };
-		g_enginesDownload << e;
-	}
 #ifdef WITH_BITTORRENT
 	{
 		EngineEntry e = { "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, 0 };
@@ -69,18 +62,14 @@ void initTransferClasses()
 #endif
 #ifdef WITH_CURL
 	{
-		EngineEntry e = { "CurlDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance, CurlDownload::acceptable, 0 };
+		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance, CurlDownload::acceptable, 0 };
 		g_enginesDownload << e;
 	}
 	{
-		EngineEntry e = { "CurlUpload", "CURL FTP(S)/SFTP upload", 0, 0, CurlUpload::createInstance, CurlUpload::acceptable, 0 };
+		EngineEntry e = { "FtpUpload", "CURL FTP(S)/SFTP upload", 0, 0, CurlUpload::createInstance, CurlUpload::acceptable, 0 };
 		g_enginesUpload << e;
 	}
 #endif
-	{
-		EngineEntry e = { "FtpUpload", FTPUPLOAD_DESCR, 0, 0, FtpUpload::createInstance, FtpUpload::acceptable, 0 };
-		g_enginesUpload << e;
-	}
 	{
 		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createMultipleOptionsWidget };
 		g_enginesUpload << e;

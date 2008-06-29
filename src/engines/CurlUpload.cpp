@@ -21,7 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlUpload.h"
 #include "CurlPoller.h"
 #include "RuntimeException.h"
+#include "tools/HashDlg.h"
 #include <QFileInfo>
+#include <QMenu>
 
 CurlUpload::CurlUpload()
 	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
@@ -159,6 +161,11 @@ void CurlUpload::changeActive(bool nowActive)
 				ba += m_strSource.mid(end+1).toUtf8();
 			curl_easy_setopt(m_curl, CURLOPT_URL, ba.constData());
 		}
+		{
+			QByteArray ba = m_strBindAddress.toUtf8();
+			if(!ba.isEmpty())
+				curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
+		}
 		
 		if(m_mode == FtpActive)
 			curl_easy_setopt(m_curl, CURLOPT_FTPPORT, "-");
@@ -251,6 +258,7 @@ void CurlUpload::load(const QDomNode& map)
 	m_mode = (FtpMode) getXMLProperty(map, "ftpmode").toInt();
 	m_nDone = getXMLProperty(map, "done").toLongLong();
 	m_proxy = getXMLProperty(map, "proxy");
+	m_strBindAddress = getXMLProperty(map, "bindaddr");
 	
 	try
 	{
@@ -273,14 +281,15 @@ void CurlUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "ftpmode", QString::number(m_mode));
 	setXMLProperty(doc, map, "done", QString::number(m_nDone));
 	setXMLProperty(doc, map, "proxy", m_proxy.toString());
+	setXMLProperty(doc, map, "bindaddr", m_strBindAddress);
 }
 
 int CurlUpload::acceptable(QString url, bool bDrop)
 {
 	if(bDrop)
-		return (url.startsWith("file://") || url.startsWith("/")) ? 1 : 0;
+		return (url.startsWith("file://") || url.startsWith("/")) ? 2 : 0;
 	else
-		return (url.startsWith("ftp://") || url.startsWith("sftp://")) ? 1 : 0;
+		return (url.startsWith("ftp://") || url.startsWith("sftp://")) ? 2 : 0;
 }
 
 CURL* CurlUpload::curlHandle()
@@ -300,5 +309,91 @@ void CurlUpload::transferDone(CURLcode result)
 		m_strMessage = m_errorBuffer;
 		setState(Failed);
 	}
+}
+
+WidgetHostChild* CurlUpload::createOptionsWidget(QWidget* w)
+{
+	return new FtpUploadOptsForm(w, this);
+}
+
+void CurlUpload::fillContextMenu(QMenu& menu)
+{
+	QAction* a;
+	
+	a = menu.addAction(tr("Compute hash..."));
+	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
+}
+
+void CurlUpload::computeHash()
+{
+	HashDlg dlg(getMainWindow(), m_strSource);
+	dlg.exec();
+}
+
+///////////////////////////////////////////
+
+FtpUploadOptsForm::FtpUploadOptsForm(QWidget* me, CurlUpload* myobj)
+	: m_upload(myobj)
+{
+	setupUi(me);
+	
+	if(myobj->m_strTarget.scheme() != "ftp")
+	{
+		//comboFtpMode->setDisabled(true);
+		comboProxy->setDisabled(true);
+	}
+}
+
+void FtpUploadOptsForm::load()
+{
+	QList<Proxy> listProxy = Proxy::loadProxys();
+	QUrl temp, url;
+	
+	temp = url = m_upload->m_strTarget;
+	temp.setUserInfo(QString());
+	lineTarget->setText(temp.toString());
+	lineUsername->setText(url.userName());
+	linePassword->setText(url.password());
+	
+	comboFtpMode->addItems(QStringList(tr("Active mode")) << tr("Passive mode"));
+	comboFtpMode->setCurrentIndex(int(m_upload->m_mode));
+	
+	comboProxy->addItem(tr("(none)", "No proxy"));
+	comboProxy->setCurrentIndex(0);
+	
+	for(int i=0;i<listProxy.size();i++)
+	{
+		comboProxy->addItem(listProxy[i].strName);
+		if(listProxy[i].uuid == m_upload->m_proxy)
+			comboProxy->setCurrentIndex(i+1);
+	}
+	
+	lineAddrBind->setText(m_upload->m_strBindAddress);
+}
+
+void FtpUploadOptsForm::accepted()
+{
+	QList<Proxy> listProxy = Proxy::loadProxys();
+	QUrl url = lineTarget->text();
+	
+	url.setUserName(lineUsername->text());
+	url.setPassword(linePassword->text());
+	
+	m_upload->m_strTarget = url.toString();
+	int ix = comboProxy->currentIndex();
+	m_upload->m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
+	
+	m_upload->m_mode = FtpMode( comboFtpMode->currentIndex() );
+	m_upload->m_strBindAddress = lineAddrBind->text();
+}
+
+bool FtpUploadOptsForm::accept()
+{
+	bool acc = false;
+	
+	acc |= lineTarget->text().startsWith("ftp://");
+	acc |= lineTarget->text().startsWith("sftp://");
+	
+	return acc;
 }
 

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "GeneralDownloadForms.h"
 #include "Settings.h"
 
-HttpOptsWidget::HttpOptsWidget(QWidget* me,GeneralDownload* myobj) : QObject(me), m_download(myobj)
+HttpOptsWidget::HttpOptsWidget(QWidget* me,CurlDownload* myobj) : QObject(me), m_download(myobj)
 {
 	setupUi(me);
 	
@@ -35,7 +35,7 @@ void HttpOptsWidget::load()
 	lineFileName->setText(m_download->m_strFile);
 	
 	m_urls = m_download->m_urls;
-	foreach(GeneralDownload::UrlObject obj,m_urls)
+	foreach(CurlDownload::UrlObject obj,m_urls)
 	{
 		QUrl copy = obj.url;
 		copy.setUserInfo(QString());
@@ -68,7 +68,7 @@ void HttpOptsWidget::addUrl()
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
-		GeneralDownload::UrlObject obj;
+		CurlDownload::UrlObject obj;
 		
 		obj.url = dlg.m_strURL;
 		obj.url.setUserName(dlg.m_strUser);
@@ -91,7 +91,7 @@ void HttpOptsWidget::editUrl()
 	if(row < 0)
 		return;
 	
-	GeneralDownload::UrlObject& obj = m_urls[row];
+	CurlDownload::UrlObject& obj = m_urls[row];
 	
 	QUrl temp = obj.url;
 	temp.setUserInfo(QString());
@@ -217,7 +217,7 @@ void HttpUrlOptsDlg::runMultiUpdate()
 	// let the heuristics begin
 	foreach(Transfer* t, *m_multi)
 	{
-		GeneralDownload::UrlObject& obj = dynamic_cast<GeneralDownload*>(t)->m_urls[0];
+		CurlDownload::UrlObject& obj = dynamic_cast<CurlDownload*>(t)->m_urls[0];
 		if(obj.url.userInfo().isEmpty()) // we will not override the "automatic login data"
 		{
 			obj.url.setUserName(m_strUser);

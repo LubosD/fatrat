@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlDownload.h"
 #include "Settings.h"
 #include "RuntimeException.h"
+#include "GeneralDownloadForms.h"
 #include "tools/HashDlg.h"
 #include "CurlPoller.h"
 #include <QMessageBox>
@@ -107,7 +108,7 @@ int CurlDownload::acceptable(QString uri, bool)
 	if(scheme != "http" && scheme != "ftp" && scheme != "https" && scheme != "sftp")
 		return 0;
 	else
-		return 1;
+		return 2;
 }
 
 void CurlDownload::globalInit()
@@ -487,7 +488,7 @@ void CurlDownload::setSpeedLimits(int down, int)
 	m_down.max = down;
 }
 
-/*
+
 QDialog* CurlDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)
 {
 	HttpUrlOptsDlg* obj = new HttpUrlOptsDlg(parent, &transfers);
@@ -499,5 +500,4 @@ WidgetHostChild* CurlDownload::createOptionsWidget(QWidget* w)
 {
 	return new HttpOptsWidget(w,this);
 }
-*/
 
