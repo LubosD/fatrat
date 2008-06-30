@@ -5,6 +5,14 @@ find_package(Qt4 REQUIRED)
 
 set(CMAKE_MODULE_PATH cmake_modules)
 
+if(WITH_EVERYTHING)
+	set(WITH_BITTORRENT ON)
+	set(WITH_JABBER ON)
+	set(WITH_NLS ON)
+	set(WITH_DOCUMENTATION ON)
+	set(WITH_SFTP ON)
+endif(WITH_EVERYTHING)
+
 if(WITH_BITTORRENT)
 	set(libtorrent_DIR ${CMAKE_MODULE_PATH})
 	find_package(libtorrent REQUIRED)
