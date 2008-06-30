@@ -238,24 +238,24 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 	connect(hdr, SIGNAL(sectionResized(int,int,int)), this, SLOT(saveWindowState()));
 	connect(splitterQueues, SIGNAL(splitterMoved(int,int)), this, SLOT(saveWindowState()));
 	
-	if(!bStartHidden)
+	QPoint pos = g_settings->value("state/mainwindow_pos").toPoint();
+	QSize size = g_settings->value("state/mainwindow_size").toSize();
+	
+	if(size.isEmpty())
 	{
-		QPoint pos = g_settings->value("state/mainwindow_pos").toPoint();
-		QSize size = g_settings->value("state/mainwindow_size").toSize();
-		
-		if(size.isEmpty())
-		{
-			qDebug() << "Maximizing the main window";
+		qDebug() << "Maximizing the main window";
+		if(!bStartHidden)
 			showMaximized();
-		}
-		else
-		{
-			QWidget::move(pos);
-			resize(size);
-			show();
-		}
 	}
 	else
+	{
+		QWidget::move(pos);
+		resize(size);
+		if(!bStartHidden)
+			show();
+	}
+	
+	if(bStartHidden)
 		actionDisplay->setChecked(false);
 }
 
