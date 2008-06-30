@@ -72,6 +72,7 @@ private:
 	QString filePath() const;
 	void processHeaders();
 	
+	static int seek_function(QFile* file, curl_off_t offset, int origin);
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
 protected:

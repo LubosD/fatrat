@@ -248,6 +248,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 10);
 		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
 		
+		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
+		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
+		
 		// BUG (CRASH) WORKAROUND
 		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
 		curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
@@ -319,6 +322,30 @@ void CurlDownload::processHeaders()
 	}
 	
 	m_headers.clear();
+}
+
+int CurlDownload::seek_function(QFile* file, curl_off_t offset, int origin)
+{
+	qDebug() << "seek_function" << offset << origin;
+	
+	if(origin == SEEK_SET)
+	{
+		if(!file->seek(offset))
+			return -1;
+	}
+	else if(origin == SEEK_CUR)
+	{
+		if(!file->seek(file->pos() + offset))
+			return -1;
+	}
+	else if(origin == SEEK_END)
+	{
+		if(!file->seek(file->size() + offset))
+			return -1;
+	}
+	else
+		return -1;
+	return 0;
 }
 
 int CurlDownload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, CurlDownload* This)

@@ -82,23 +82,23 @@ void CurlUpload::setObject(QString source)
 	m_strSource = source;
 }
 
-int CurlUpload::seek_function(CurlUpload* This, curl_off_t offset, int origin)
+int CurlUpload::seek_function(QFile* file, curl_off_t offset, int origin)
 {
 	qDebug() << "seek_function" << offset << origin;
 	
 	if(origin == SEEK_SET)
 	{
-		if(!This->m_file.seek(offset))
+		if(!file->seek(offset))
 			return -1;
 	}
 	else if(origin == SEEK_CUR)
 	{
-		if(!This->m_file.seek(This->m_file.pos() + offset))
+		if(!file->seek(file->pos() + offset))
 			return -1;
 	}
 	else if(origin == SEEK_END)
 	{
-		if(!This->m_file.seek(This->m_file.size() + offset))
+		if(!file->seek(file->size() + offset))
 			return -1;
 	}
 	else
@@ -140,7 +140,7 @@ void CurlUpload::changeActive(bool nowActive)
 		curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
 		
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
-		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, this);
+		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
 		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);

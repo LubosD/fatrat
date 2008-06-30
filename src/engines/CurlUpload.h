@@ -68,7 +68,7 @@ protected:
 	virtual void transferDone(CURLcode result);
 	virtual size_t readData(char* buffer, size_t maxData);
 	
-	static int seek_function(CurlUpload* This, curl_off_t offset, int origin);
+	static int seek_function(QFile* file, curl_off_t offset, int origin);
 	static int curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, CurlUpload* This);
 protected:
 	CURL* m_curl;
