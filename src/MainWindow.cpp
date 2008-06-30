@@ -55,13 +55,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #	include "tools/HelpBrowser.h"
 #endif
 
-#include <stdexcept>
+//#include <stdexcept>
+#include <climits>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 
 static QList<MenuAction> m_menuActions;
+
+// status widgets that need to be added after the main window is created
+static QList<QPair<QWidget*,bool> > m_statusWidgets;
 
 using namespace std;
 
@@ -107,8 +111,9 @@ void MainWindow::setupUi()
 	showTrayIcon();
 	
 	statusbar->addWidget(&m_labelStatus);
-	
 	statusbar->addPermanentWidget(new SpeedLimitWidget(statusbar));
+	
+	m_nStatusWidgetsLeft = m_nStatusWidgetsRight = 1;
 	
 	m_log = new LogManager(this, textTransferLog, textGlobalLog);
 	
@@ -128,6 +133,15 @@ void MainWindow::setupUi()
 		loadCSS();
 	
 	connectActions();
+	
+	for(int i=0;i<m_statusWidgets.size();i++)
+	{
+		if(m_statusWidgets[i].second)
+			statusbar->insertPermanentWidget(m_nStatusWidgetsRight++, m_statusWidgets[i].first);
+		else
+			statusbar->insertWidget(m_nStatusWidgetsLeft++, m_statusWidgets[i].first);
+		m_statusWidgets[i].first->show();
+	}
 }
 
 void MainWindow::loadCSS()
@@ -1546,4 +1560,43 @@ void MainWindow::menuActionTriggered()
 void addMenuAction(const MenuAction& action)
 {
 	m_menuActions << action;
+}
+
+void addStatusWidget(QWidget* widget, bool bRight)
+{
+	MainWindow* wnd = (MainWindow*) getMainWindow();
+	
+	if(wnd != 0)
+	{
+		if(bRight)
+			wnd->statusbar->insertPermanentWidget(wnd->m_nStatusWidgetsRight++, widget);
+		else
+			wnd->statusbar->insertWidget(wnd->m_nStatusWidgetsLeft++, widget);
+		widget->show();
+	}
+	m_statusWidgets << QPair<QWidget*,bool>(widget, bRight);
+}
+
+void removeStatusWidget(QWidget* widget)
+{
+	MainWindow* wnd = (MainWindow*) getMainWindow();
+	if(wnd != 0)
+	{
+		widget->hide();
+		wnd->statusbar->removeWidget(widget);
+	}
+
+	for(int i=0;i<m_statusWidgets.size();i++)
+	{
+		if(m_statusWidgets[i].first != widget)
+			continue;
+		
+		if(m_statusWidgets[i].second)
+			wnd->m_nStatusWidgetsRight--;
+		else
+			wnd->m_nStatusWidgetsLeft--;
+		
+		m_statusWidgets.removeAt(i);
+		break;
+	}
 }

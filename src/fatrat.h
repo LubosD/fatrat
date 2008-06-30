@@ -39,6 +39,9 @@ QWidget* getMainWindow();
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);
 
+void addStatusWidget(QWidget* widget, bool bRight);
+void removeStatusWidget(QWidget* widget);
+
 class Sleeper : public QThread
 {
 public:

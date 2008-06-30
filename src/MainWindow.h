@@ -132,6 +132,8 @@ private:
 	NewTransferDlg* m_dlgNewTransfer;
 	
 	QList<QAction*> m_menuActionObjects;
+public:
+	int m_nStatusWidgetsLeft, m_nStatusWidgetsRight;
 	
 	friend class DropBox;
 	friend class SpeedLimitWidget;

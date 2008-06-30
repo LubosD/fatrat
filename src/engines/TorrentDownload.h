@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class TorrentWorker;
 class TorrentDetails;
 class RssFetcher;
+class QLabel;
 
 class TorrentDownload : public Transfer
 {
@@ -123,6 +124,7 @@ protected:
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;
 	static QList<QRegExp> m_listBTLinks;
+	static QLabel* m_labelDHTStats;
 	
 	friend class TorrentWorker;
 	friend class TorrentDetails;

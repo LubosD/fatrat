@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QUrl>
 #include <QFile>
 #include <QVector>
+#include <QLabel>
 #include <QtDebug>
 
 extern QSettings* g_settings;
@@ -51,6 +52,7 @@ libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
 QList<QRegExp> TorrentDownload::m_listBTLinks;
+QLabel* TorrentDownload::m_labelDHTStats = 0;
 
 const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
 
@@ -114,6 +116,8 @@ void TorrentDownload::globalInit()
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
 	m_session->set_severity_level(libtorrent::alert::warning);
+	
+	m_labelDHTStats = new QLabel;
 	
 	applySettings();
 	
@@ -224,9 +228,14 @@ void TorrentDownload::applySettings()
 				break;
 			}
 		}
+		addStatusWidget(m_labelDHTStats, true);
 	}
-	else
+	else if(m_bDHT)
+	{
 		m_session->stop_dht();
+		m_bDHT = false;
+		removeStatusWidget(m_labelDHTStats);
+	}
 	
 	m_session->set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
 	m_session->set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
@@ -1082,6 +1091,13 @@ void TorrentWorker::doWork()
 	}
 #undef IS_ALERT
 #undef IS_ALERT_S
+	
+	libtorrent::session_status st = TorrentDownload::m_session->status();
+	if(TorrentDownload::m_bDHT)
+	{
+		QString text = tr("<b>DHT:</b> %1 nodes (%2 globally)").arg(st.dht_nodes).arg(st.dht_global_nodes);
+		TorrentDownload::m_labelDHTStats->setText(text);
+	}
 }
 
 void TorrentDownload::forceReannounce()
