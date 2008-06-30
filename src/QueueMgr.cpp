@@ -183,7 +183,7 @@ void QueueMgr::doWork()
 	m_down = total[0];
 	m_up = total[1];
 	
-	if(++m_nCycle > 30)
+	if(++m_nCycle > 60)
 	{
 		m_nCycle = 0;
 		Queue::saveQueues();

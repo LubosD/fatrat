@@ -39,6 +39,9 @@ StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent)
 
 void StatsWidget::refresh()
 {
+	if(!isVisible())
+		return;
+	
 	QPair<qint64, qint64> newv = QPair<qint64, qint64>(-1, -1);
 	m_strInterface = getRoutingInterface4();
 	

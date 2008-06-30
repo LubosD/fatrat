@@ -128,34 +128,34 @@
        </rect>
       </property>
       <attribute name="title" >
-       <string>TV show support</string>
+       <string>TV show/podcast support</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout" >
        <item row="0" column="0" colspan="2" >
         <widget class="QRadioButton" name="radioTVSNone" >
          <property name="text" >
-          <string>Not a TV serie</string>
+          <string>Not a TV serie or podcast</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2" colspan="2" >
         <widget class="QRadioButton" name="radioTVSSeason" >
          <property name="text" >
-          <string>Season based TV serie</string>
+          <string>Season based</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0" colspan="2" >
         <widget class="QRadioButton" name="radioTVSEpisode" >
          <property name="text" >
-          <string>Episode based TV serie</string>
+          <string>Episode based</string>
          </property>
         </widget>
        </item>
        <item row="1" column="2" colspan="2" >
         <widget class="QRadioButton" name="radioTVSDate" >
          <property name="text" >
-          <string>Date based TV serie</string>
+          <string>Date based</string>
          </property>
         </widget>
        </item>

@@ -936,15 +936,16 @@ void TorrentWorker::doWork()
 		const std::vector<bool>* prog = d->m_status.pieces;
 		int len = d->m_info->piece_length();
 		
-		for(size_t i=0;i<prog->size();i++)
+		size_t size = prog->size();
+		for(size_t i=0;i<size;i++)
 		{
 			if(prio[i])
 			{
-				if(i+1 == prog->size())
+				if(i+1 == size)
 					len = d->m_info->piece_size(i);
 				
 				wanted += len;
-				if(prog->at(i))
+				if((*prog)[i])
 					done += len;
 			}
 		}
