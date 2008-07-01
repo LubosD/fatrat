@@ -81,7 +81,7 @@
        <item row="0" column="0" >
         <widget class="QLabel" name="label" >
          <property name="pixmap" >
-          <pixmap resource="gfx/resources.qrc" >:/fatrat/fatrat_brown.png</pixmap>
+          <pixmap resource="../gfx/resources.qrc" >:/fatrat/fatrat_brown.png</pixmap>
          </property>
          <property name="alignment" >
           <set>Qt::AlignCenter</set>
@@ -220,16 +220,6 @@
         </widget>
        </item>
        <item row="2" column="0" >
-        <widget class="QCheckBox" name="checkFeatureSFTP" >
-         <property name="enabled" >
-          <bool>false</bool>
-         </property>
-         <property name="text" >
-          <string>SFTP</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" >
         <widget class="QCheckBox" name="checkFeatureBitTorrent" >
          <property name="enabled" >
           <bool>false</bool>
@@ -239,7 +229,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
+       <item row="3" column="0" >
         <widget class="QCheckBox" name="checkFeatureJabber" >
          <property name="enabled" >
           <bool>false</bool>
@@ -249,7 +239,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0" >
+       <item row="4" column="0" >
         <widget class="QCheckBox" name="checkFeatureDocumentation" >
          <property name="enabled" >
           <bool>false</bool>
@@ -259,7 +249,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0" >
+       <item row="5" column="0" >
         <widget class="QCheckBox" name="checkFeatureWebInterface" >
          <property name="enabled" >
           <bool>false</bool>
@@ -269,7 +259,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0" >
+       <item row="6" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -331,7 +321,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="gfx/resources.qrc" />
+  <include location="../gfx/resources.qrc" />
  </resources>
  <connections>
   <connection>

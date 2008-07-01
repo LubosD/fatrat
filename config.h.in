@@ -2,7 +2,6 @@
 #define CONFIG_H
 
 #cmakedefine WITH_BITTORRENT
-#cmakedefine WITH_SFTP
 #cmakedefine WITH_NLS
 #cmakedefine WITH_JABBER
 #cmakedefine WITH_WEBINTERFACE
