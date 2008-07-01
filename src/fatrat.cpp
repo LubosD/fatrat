@@ -108,6 +108,7 @@ int main(int argc,char** argv)
 	initAppTools();
 	
 	qRegisterMetaType<QString*>("QString*");
+	qRegisterMetaType<QByteArray*>("QByteArray*");
 	
 	qmgr = new QueueMgr;
 	//qmgr->start();
