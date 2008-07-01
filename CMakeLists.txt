@@ -129,9 +129,7 @@ set(fatrat_SRCS
 	#src/engines/FtpClient.cpp
 	#src/engines/FtpUpload.cpp
 	#src/engines/GeneralDownload.cpp
-	src/engines/GeneralDownloadForms.cpp
 	src/engines/HttpClient.cpp
-	src/engines/HttpFtpSettings.cpp
 	src/engines/RapidshareUpload.cpp
 
 	src/dbus/DbusAdaptor.cpp
@@ -184,11 +182,9 @@ set(fatrat_MOC_HDRS
 	src/tools/RapidTools.h
 	src/tools/VideoFetcher.h
 	
-	src/engines/HttpFtpSettings.h
 	src/engines/RapidshareUpload.h
 	#src/engines/FtpClient.h
 	#src/engines/GeneralDownload.h
-	src/engines/GeneralDownloadForms.h
 	src/engines/HttpClient.h
 	#src/engines/FtpUpload.h
 	
@@ -245,11 +241,15 @@ if(WITH_CURL)
 		src/engines/CurlUpload.cpp
 		src/engines/CurlPoller.cpp
 		src/engines/CurlUser.cpp
+		src/engines/GeneralDownloadForms.cpp
+		src/engines/HttpFtpSettings.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/CurlDownload.h
 		src/engines/CurlUpload.h
+		src/engines/HttpFtpSettings.h
+		src/engines/GeneralDownloadForms.h
 	)
 endif(WITH_CURL)
 
