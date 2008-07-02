@@ -116,7 +116,10 @@ void QueueView::mouseMoveEvent(QMouseEvent* event)
 		
 		m_status->move(mapToGlobal(event->pos()) + QPoint(25, 25));
 		if(!m_status->isVisible())
+		{
+			m_status->refresh();
 			m_status->show();
+		}
 	}
 }
 

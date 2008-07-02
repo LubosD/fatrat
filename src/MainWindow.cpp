@@ -1403,28 +1403,40 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 	if(!popup && !email)
 		return;
 	
-	if((prev == Transfer::Active || prev == Transfer::ForcedActive) && (now == Transfer::Completed))
+	if(prev == Transfer::Active || prev == Transfer::ForcedActive)
 	{
-		if(popup)
+		if(now == Transfer::Completed)
 		{
-			m_trayIcon.showMessage(tr("Transfer completed"),
-					QString(tr("The transfer of \"%1\" has been completed.")).arg(d->name()),
-					QSystemTrayIcon::Information, g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt()*1000);
+			if(popup)
+			{
+				m_trayIcon.showMessage(tr("Transfer completed"),
+						QString(tr("The transfer of \"%1\" has been completed.")).arg(d->name()),
+						QSystemTrayIcon::Information, g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt()*1000);
+			}
+			if(email)
+			{
+				QString from,to;
+				QString message;
+				
+				from = g_settings->value("emailsender", getSettingsDefault("emailsender")).toString();
+				to = g_settings->value("emailrcpt", getSettingsDefault("emailrcpt")).toString();
+				
+				message = QString("From: <%1>\r\nTo: <%2>\r\n"
+						"Subject: FatRat transfer completed\r\n"
+						"X-Mailer: FatRat/" VERSION "\r\n"
+						"The transfer of \"%3\" has been completed.").arg(from).arg(to).arg(d->name());
+				
+				new SimpleEmail(g_settings->value("smtpserver",getSettingsDefault("smtpserver")).toString(),from,to,message);
+			}
 		}
-		if(email)
+		else if(now == Transfer::Failed)
 		{
-			QString from,to;
-			QString message;
-			
-			from = g_settings->value("emailsender", getSettingsDefault("emailsender")).toString();
-			to = g_settings->value("emailrcpt", getSettingsDefault("emailrcpt")).toString();
-			
-			message = QString("From: <%1>\r\nTo: <%2>\r\n"
-					"Subject: FatRat transfer completed\r\n"
-					"X-Mailer: FatRat/" VERSION "\r\n"
-					"The transfer of \"%3\" has been completed.").arg(from).arg(to).arg(d->name());
-			
-			new SimpleEmail(g_settings->value("smtpserver",getSettingsDefault("smtpserver")).toString(),from,to,message);
+			if(popup)
+			{
+				m_trayIcon.showMessage(tr("Transfer failed"),
+						QString(tr("The transfer \"%1\" has failed.")).arg(d->name()),
+						QSystemTrayIcon::Warning, g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt()*1000);
+			}
 		}
 	}
 }
