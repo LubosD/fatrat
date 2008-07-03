@@ -856,7 +856,17 @@ show_dialog:
 			throw RuntimeException();
 
 		for(int i=0;i<uris.size();i++)
-			uris[i] = uris[i].trimmed();
+		{
+			QString trm = uris[i].trimmed();
+			
+			if(trm.isEmpty())
+			{
+				uris.removeAt(i);
+				i--;
+			}
+			else
+				uris[i] = trm;
+		}
 		
 		for(int i=0;i<uris.size();i++)
 		{
@@ -947,6 +957,7 @@ show_dialog:
 	catch(const RuntimeException& e)
 	{
 		qDeleteAll(listTransfers);
+		listTransfers.clear();
 		if(!e.what().isEmpty())
 		{
 			QMessageBox::critical(this, tr("Error"), e.what());
