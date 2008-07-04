@@ -31,6 +31,7 @@ public:
 	QueueToolTip(QWidget* parent, Queue* queue);
 	Queue* getQueue() const { return m_queue; }
 	void refresh();
+	void fill();
 private:
 	Queue* m_queue;
 };

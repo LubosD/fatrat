@@ -27,11 +27,8 @@ QueueToolTip::QueueToolTip(QWidget* parent, Queue* queue)
 {
 }
 
-void QueueToolTip::refresh()
+void QueueToolTip::fill()
 {
-	if(!isVisible())
-		return;
-	
 	QString text;
 	const Queue::Stats& stats = m_queue->m_stats;
 	QPoint diff = QCursor::pos() - pos() + QPoint(25, 25);
@@ -48,5 +45,11 @@ void QueueToolTip::refresh()
 		setText(text);
 		resize(sizeHint());
 	}
+}
+
+void QueueToolTip::refresh()
+{
+	if(isVisible())
+		fill();
 }
 
