@@ -367,23 +367,8 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 				 matcher3("(\\d\\d?)[\\-\\. ](\\w{3,})[\\-\\. ](\\d{2,4})");
 		if(matcher1.indexIn(itemName) != -1)
 		{
-			// Some Americans are complete idiots when it comes to writing dates
-			// Hence we have to do some guessing to recognize which field is the month and which one is the day
 			int month = matcher1.cap(2).toInt(), day = matcher1.cap(3).toInt();
-			QDate date = QDate::currentDate();
-			
-			if(month > 12)
-				std::swap(month, day);
-			else
-			{
-				int prevmonth = date.month() - 1;
-				if(!prevmonth)
-					prevmonth = 12;
-				
-				if(month != date.month() && month != prevmonth && (day == date.month() || day == prevmonth))
-					std::swap(month, day);
-			}
-			
+			dayMonthHeuristics(day, month);
 			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(month,2,10,zero).arg(day,2,10,zero);
 		}
 		else if(matcher2.indexIn(itemName) != -1)
@@ -391,7 +376,11 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 			int year = matcher2.cap(3).toInt();
 			if(year < 100)
 				year += 2000;
-			rval = QString("%1-%2-%3").arg(year).arg(matcher2.cap(1).toInt(),2,10,zero).arg(matcher2.cap(2).toInt(),2,10,zero);
+			int day = matcher2.cap(1).toInt();
+			int month = matcher2.cap(2).toInt();
+			
+			dayMonthHeuristics(day, month);
+			rval = QString("%1-%2-%3").arg(year).arg(month,2,10,zero).arg(day,2,10,zero);
 		}
 		else if(matcher3.indexIn(itemName) != -1)
 		{
@@ -444,6 +433,25 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 	}
 	
 	return rval;
+}
+
+void RssFetcher::dayMonthHeuristics(int& day, int& month)
+{
+	// Some Americans are complete idiots when it comes to writing dates
+	// Hence we have to do some guessing to recognize which field is the month and which one is the day
+	QDate date = QDate::currentDate();
+			
+	if(month > 12)
+		std::swap(month, day);
+	else
+	{
+		int prevmonth = date.month() - 1;
+		if(!prevmonth)
+			prevmonth = 12;
+				
+		if(month != date.month() && month != prevmonth && (day == date.month() || day == prevmonth))
+			std::swap(month, day);
+	}
 }
 
 bool RssFetcher::startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts)

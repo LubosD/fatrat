@@ -82,7 +82,7 @@ void CurlDownload::init(QString uri, QString dest)
 	
 	QString scheme = obj.url.scheme();
 	if(scheme != "http" && scheme != "ftp" && scheme != "sftp" && scheme != "https")
-		throw RuntimeException(tr("Unsupported protocol"));
+		throw RuntimeException(tr("Unsupported protocol: \"%1\"").arg(scheme));
 	
 	m_urls.clear();
 	m_urls << obj;

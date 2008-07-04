@@ -79,6 +79,7 @@ public:
 	static void saveFeeds(const QList<RssFeed>& items);
 	
 	static QString generateEpisodeName(const RssRegexp& match, QString itemName);
+	static void dayMonthHeuristics(int& day, int& month);
 public slots:
 	void refresh();
 	void requestFinished(int id, bool error);

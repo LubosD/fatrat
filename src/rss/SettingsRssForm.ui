@@ -13,7 +13,7 @@
    <string>RSS</string>
   </property>
   <layout class="QGridLayout" >
-   <item row="0" column="0" colspan="4" >
+   <item row="0" column="0" colspan="5" >
     <widget class="QCheckBox" name="checkEnable" >
      <property name="text" >
       <string>Automatically download new stuff from RSS feeds</string>
@@ -60,7 +60,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4" >
+   <item row="2" column="0" colspan="5" >
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >
       <string>RSS feeds</string>
@@ -106,7 +106,7 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0" colspan="4" >
+   <item row="3" column="0" colspan="5" >
     <widget class="QGroupBox" name="groupBox_2" >
      <property name="title" >
       <string>Regular expressions</string>
@@ -165,6 +165,13 @@
      </property>
     </spacer>
    </item>
+   <item row="1" column="4" >
+    <widget class="QPushButton" name="pusUpdate" >
+     <property name="text" >
+      <string>Update</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -178,7 +185,7 @@
   <tabstop>pushRegexpDelete</tabstop>
  </tabstops>
  <resources>
-  <include location="../gfx/resources.qrc" />
+  <include location="../../gfx/resources.qrc" />
  </resources>
  <connections>
   <connection>
