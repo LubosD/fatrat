@@ -166,7 +166,7 @@
     </spacer>
    </item>
    <item row="1" column="4" >
-    <widget class="QPushButton" name="pusUpdate" >
+    <widget class="QPushButton" name="pushUpdate" >
      <property name="text" >
       <string>Update</string>
      </property>

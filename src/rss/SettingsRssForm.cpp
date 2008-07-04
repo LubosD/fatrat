@@ -41,7 +41,7 @@ SettingsRssForm::SettingsRssForm(QWidget* w, QObject* parent)
 	connect(pushRegexpEdit, SIGNAL(clicked()), this, SLOT(regexpEdit()));
 	connect(pushRegexpDelete, SIGNAL(clicked()), this, SLOT(regexpDelete()));
 	
-	connect(RssFetcher::instance(), SIGNAL(clicked()), this, SLOT(refresh()));
+	connect(pushUpdate, SIGNAL(clicked()), RssFetcher::instance(), SLOT(refresh()));
 }
 
 void SettingsRssForm::load()
