@@ -189,6 +189,16 @@ function setAutoResets()
 	}
 }
 
+function keyPress(event)
+{
+	if(event.ctrlKey && event.which == 65)
+	{
+		checkAll(true);
+		return false;
+	}
+	return true;
+}
+
 function init()
 {
 	hideCheckboxes();
@@ -198,6 +208,7 @@ function init()
 	
 	var html = document.getElementsByTagName("html")[0];
 	html.onclick = bodyClick;
+	html.onkeypress = keyPress;
 }
 
 function confirmOp(msg)
