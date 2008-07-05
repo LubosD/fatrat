@@ -251,6 +251,7 @@ endif(WITH_CURL)
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
+		src/engines/Base32.cpp
 		src/engines/TorrentDetails.cpp
 		src/engines/TorrentDownload.cpp
 		src/engines/TorrentFilesModel.cpp
@@ -430,12 +431,14 @@ if(WITH_WEBINTERFACE)
 	install(FILES data/remote/states/forcedactive.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/paused.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/waiting.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/failed.png DESTINATION share/fatrat/data/remote/states)
 	
 	install(FILES data/remote/states/active_upload.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/completed_upload.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/forcedactive_upload.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/paused_upload.png DESTINATION share/fatrat/data/remote/states)
 	install(FILES data/remote/states/waiting_upload.png DESTINATION share/fatrat/data/remote/states)
+	install(FILES data/remote/states/failed_upload.png DESTINATION share/fatrat/data/remote/states)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
