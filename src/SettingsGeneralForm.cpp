@@ -42,6 +42,7 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	
 	comboLinkSeparator->addItems(QStringList() << tr("a newline") << tr("whitespace characters"));
 	comboFileExec->addItems(QStringList() << "xdg-open" << "kfmclient exec" << "gnome-open");
+	comboGraphStyle->addItems(QStringList() << tr("Filled graph") << tr("Line graph"));
 }
 
 void SettingsGeneralForm::load()
@@ -54,6 +55,7 @@ void SettingsGeneralForm::load()
 	checkHideClose->setChecked( getSettingsValue("hideclose").toBool() );
 	
 	spinGraphMinutes->setValue( getSettingsValue("graphminutes").toInt() );
+	comboGraphStyle->setCurrentIndex( getSettingsValue("graph_style").toInt() );
 	
 	comboDoubleClick->setCurrentIndex( getSettingsValue("transfer_dblclk").toInt() );
 	comboCloseCurrent->setCurrentIndex( getSettingsValue("tab_onclose").toInt() );
@@ -89,6 +91,7 @@ void SettingsGeneralForm::accepted()
 	setSettingsValue("hideclose", checkHideClose->isChecked());
 	
 	setSettingsValue("graphminutes", spinGraphMinutes->value());
+	setSettingsValue("graph_style", comboGraphStyle->currentIndex());
 	setSettingsValue("transfer_dblclk", comboDoubleClick->currentIndex());
 	setSettingsValue("tab_onclose", comboCloseCurrent->currentIndex());
 	setSettingsValue("link_separator", comboLinkSeparator->currentIndex());

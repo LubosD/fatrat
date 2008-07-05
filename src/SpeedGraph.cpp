@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Settings.h"
 #include "fatrat.h"
 #include <QtDebug>
-#include <QSettings>
 #include <QMenu>
 #include <QFileDialog>
 
@@ -77,6 +76,7 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	QQueue<QPair<int,int> > data;
 	QPainter painter(device);
 	int seconds = getSettingsValue("graphminutes").toInt()*60;
+	bool bFilled = getSettingsValue("graph_style").toInt() == 0;
 	
 	painter.setRenderHint(QPainter::Antialiasing);
 	
@@ -129,10 +129,13 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	
 	painter.setPen(Qt::darkBlue);
 	
-	QColor blueFill(Qt::darkBlue);
-	blueFill.setAlpha(64);
-	painter.setBrush(blueFill);
-	painter.drawPolygon(filler.constData(), filler.size(), Qt::OddEvenFill);
+	if(bFilled)
+	{
+		QColor blueFill(Qt::darkBlue);
+		blueFill.setAlpha(64);
+		painter.setBrush(blueFill);
+		painter.drawPolygon(filler.constData(), filler.size(), Qt::OddEvenFill);
+	}
 	
 	lines[elems-1] = QLine(2,7,12,7);
 	painter.drawLines(lines.constData(), lines.size());
@@ -151,10 +154,13 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	
 	painter.setPen(Qt::darkRed);
 	
-	QColor redFill(Qt::darkRed);
-	redFill.setAlpha(64);
-	painter.setBrush(redFill);
-	painter.drawPolygon(filler.constData(), filler.size(), Qt::OddEvenFill);
+	if(bFilled)
+	{
+		QColor redFill(Qt::darkRed);
+		redFill.setAlpha(64);
+		painter.setBrush(redFill);
+		painter.drawPolygon(filler.constData(), filler.size(), Qt::OddEvenFill);
+	}
 	
 	lines[elems-1] = QLine(2,19,12,19);
 	painter.drawLines(lines.constData(), lines.size());
