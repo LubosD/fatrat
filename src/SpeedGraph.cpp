@@ -30,7 +30,7 @@ SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_transfer(0)
 {
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
-	m_timer->start(1000);
+	m_timer->start(getSettingsValue("gui_refresh").toInt());
 }
 
 void SpeedGraph::setRenderSource(Transfer* t)

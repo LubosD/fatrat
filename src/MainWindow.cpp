@@ -1553,7 +1553,7 @@ void MainWindow::applySettings()
 	delete m_timer;	
 	m_timer = new QTimer(this);
 	
-	m_timer->start(g_settings->value("gui_refresh", getSettingsDefault("gui_refresh")).toInt());
+	m_timer->start(getSettingsValue("gui_refresh").toInt());
 	
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
