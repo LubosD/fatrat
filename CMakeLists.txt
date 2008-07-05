@@ -1,9 +1,5 @@
 project(fatrat)
 
-ADD_CUSTOM_TARGET(uninstall
-	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
-	)
-
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
@@ -13,6 +9,21 @@ find_package(Qt4 REQUIRED)
 
 set(CMAKE_MODULE_PATH cmake_modules)
 include_directories(src)
+
+ADD_CUSTOM_TARGET(uninstall
+	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
+	)
+
+MACRO (qt4_wrap_ts outfiles lupdate_outputs prefix)
+	FOREACH (it ${ARGN})
+		SET(tsfile ${CMAKE_CURRENT_BINARY_DIR}/${lupdate_outputs}/${prefix}_${it}.ts)
+		SET(qmfile ${CMAKE_CURRENT_BINARY_DIR}/${lupdate_outputs}/${prefix}_${it}.qm)
+		ADD_CUSTOM_COMMAND(OUTPUT ${qmfile}
+			COMMAND ${QT_LRELEASE_EXECUTABLE} ${tsfile} -qm ${qmfile} -compress
+			)
+		SET(${outfiles} ${${outfiles}} ${qmfile})
+	ENDFOREACH(it)
+ENDMACRO (qt4_wrap_ts)
 
 if(WITH_EVERYTHING)
 	set(WITH_BITTORRENT ON)
@@ -111,12 +122,6 @@ set(fatrat_SRCS
 	src/Settings.cpp
 	src/engines/OutputBuffer.cpp
 	
-	# experimental
-	#src/engines/DataPoller.cpp
-	#src/engines/HttpEngine.cpp
-	#src/engines/LineFeeder.cpp
-	#src/engines/SocketInterface.cpp
-	
 	src/rss/RssFetcher.cpp
 	src/rss/SettingsRssForm.cpp
 	src/rss/RssRegexpDlg.cpp
@@ -126,9 +131,6 @@ set(fatrat_SRCS
 	src/tooltips/QueueToolTip.cpp
 	src/tooltips/TrayToolTip.cpp
 
-	#src/engines/FtpClient.cpp
-	#src/engines/FtpUpload.cpp
-	#src/engines/GeneralDownload.cpp
 	src/engines/HttpClient.cpp
 	src/engines/RapidshareUpload.cpp
 
@@ -174,19 +176,12 @@ set(fatrat_MOC_HDRS
 	src/Logger.h
 	src/engines/OutputBuffer.h
 	
-	# experimental
-	#src/engines/DataPoller.h
-	#src/engines/HttpEngine.h
-	
 	src/tools/HashDlg.h
 	src/tools/RapidTools.h
 	src/tools/VideoFetcher.h
 	
 	src/engines/RapidshareUpload.h
-	#src/engines/FtpClient.h
-	#src/engines/GeneralDownload.h
 	src/engines/HttpClient.h
-	#src/engines/FtpUpload.h
 	
 	src/rss/RssFetcher.h
 	src/rss/SettingsRssForm.h
@@ -353,9 +348,10 @@ set(fatrat_RCS
 
 qt4_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
 qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
+qt4_wrap_ts(lrelease_outputs locale fatrat cs_CZ tr_TR)
 
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
-${fatrat_QRC_H})
+${fatrat_QRC_H} ${lrelease_outputs})
 
 target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
@@ -388,7 +384,7 @@ install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
 install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
 
 if(WITH_NLS)
-	install(FILES locale/fatrat_cs_CZ.qm locale/fatrat_tr_TR.qm DESTINATION share/fatrat/lang)
+	install(FILES ${lrelease_outputs} DESTINATION share/fatrat/lang)
 endif(WITH_NLS)
 
 if(WITH_BITTORRENT)
