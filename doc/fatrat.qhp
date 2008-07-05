@@ -6,6 +6,9 @@
 		<toc>
 			<section title="FatRat" ref="index.html">
 				<section title="Drop-box" ref="dropbox/index.html" />
+				<section title="BitTorrent Support" ref="bittorrent/index.html">
+					<section title="Creating Torrents" ref="jabber/create.html" />
+				</secion>
 				<section title="Jabber Remote Control" ref="jabber/index.html">
 					<section title="Settings" ref="jabber/settings.html" />
 					<section title="Usage" ref="jabber/usage.html" />
@@ -54,6 +57,11 @@
 			<file>rss/rss_feed.png</file>
 			<file>rss/rss_regexp.png</file>
 			<file>rss/rss_tvshows.png</file>
+			
+			<file>bittorrent/index.html</file>
+			<file>bittorrent/create.html</file>
+			<file>bittorrent/create.png</file>
+			<file>bittorrent/create-menu.png</file>
 		</files>
 	</filterSection>
 </QtHelpProject>
