@@ -872,6 +872,7 @@ show_dialog:
 		{
 			Transfer* d;
 			
+			int classID;
 			if(m_dlgNewTransfer->m_nClass == -1)
 			{
 				// autodetection
@@ -885,10 +886,12 @@ show_dialog:
 				if(eng.nClass < 0)
 					throw RuntimeException(tr("Couldn't autodetect transfer type for \"%1\"").arg(uris[i]));
 				else
-					m_dlgNewTransfer->m_nClass = eng.nClass;
+					classID = eng.nClass;
 			}
+			else
+				classID = m_dlgNewTransfer->m_nClass;
 			
-			d = Transfer::createInstance(m_dlgNewTransfer->m_mode, m_dlgNewTransfer->m_nClass);
+			d = Transfer::createInstance(m_dlgNewTransfer->m_mode, classID);
 			
 			if(d == 0)
 				throw RuntimeException(tr("Failed to create a class instance."));
