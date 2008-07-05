@@ -107,47 +107,57 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	}
 	
 	top = std::max(top/10*11,10*1024);
+	
 	const int height = size.height();
 	const int width = size.width();
-	
-	painter.setPen(QPen(Qt::gray, 1.0, Qt::DashLine));
-	for(int i=1;i<10;i++)
-	{
-		int pos = int( float(height)/10.f*i );
-		painter.drawLine(0,pos,width,pos);
-		painter.drawText(0,pos-10,formatSize( qulonglong( top/10.f*(10-i) ), true));
-	}
-	
-	const int elems = data.size()-1;
+	const int elems = data.size();
 	qreal perpt = width / (qreal(std::max(elems,seconds))-1);
 	qreal pos = width;
-	QLineF* lines = new QLineF[elems+1];
+	QVector<QLine> lines(elems);
+	QVector<QPoint> filler(elems+2);
 	
-	for(int i = 0;i<elems;i++) // download speed
+	for(int i = 0;i<data.size();i++) // download speed
 	{
-		lines[i] = QLineF(pos, height-height/qreal(top)*data[elems-i].first,
-				pos-perpt, height-height/qreal(top)*data[elems-i-1].first);
+		float y = height-height/qreal(top)*data[elems-i-1].first;
+		filler[i] = QPoint(pos, y);
+		if(i > 0)
+			lines[i-1] = QLine(filler[i-1], filler[i]);
 		pos -= perpt;
 	}
+	filler[elems] = QPoint(filler[elems-1].x(), height);
+	filler[elems+1] = QPoint(filler[0].x(), height);
 	
 	painter.setPen(Qt::darkBlue);
 	
-	lines[elems] = QLineF(2,7,12,7);
-	painter.drawLines(lines,elems+1);
+	QColor blueFill(Qt::darkBlue);
+	blueFill.setAlpha(64);
+	painter.setBrush(blueFill);
+	painter.drawPolygon(filler.constData(), filler.size(), Qt::OddEvenFill);
+	
+	lines[elems-1] = QLine(2,7,12,7);
+	painter.drawLines(lines.constData(), lines.size());
 	
 	pos = width;
 	for(int i = 0;i<elems;i++) // upload speed
 	{
-		lines[i] = QLineF(pos, height-height/qreal(top)*data[elems-i].second,
-				pos-perpt, height-height/qreal(top)*data[elems-i-1].second);
+		float y = height-height/qreal(top)*data[elems-i-1].second;
+		filler[i] = QPoint(pos, y);
+		if(i > 0)
+			lines[i-1] = QLine(filler[i-1], filler[i]);
 		pos -= perpt;
 	}
+	filler[elems] = QPoint(filler[elems-1].x(), height);
+	filler[elems+1] = QPoint(filler[0].x(), height);
 	
 	painter.setPen(Qt::darkRed);
 	
-	lines[elems] = QLineF(2,19,12,19);
-	painter.drawLines(lines,elems+1);
-	delete [] lines;
+	QColor redFill(Qt::darkRed);
+	redFill.setAlpha(64);
+	painter.setBrush(redFill);
+	painter.drawPolygon(filler.constData(), filler.size(), Qt::OddEvenFill);
+	
+	lines[elems-1] = QLine(2,19,12,19);
+	painter.drawLines(lines.constData(), lines.size());
 	
 	painter.setPen(QColor(80,180,80));
 	for(int i=0;i<4;i++)
@@ -160,6 +170,14 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	painter.setPen(Qt::black);
 	painter.drawText(15,12,tr("Download"));
 	painter.drawText(15,24,tr("Upload"));
+	
+	painter.setPen(QPen(Qt::gray, 1.0, Qt::DashLine));
+	for(int i=1;i<10;i++)
+	{
+		int pos = int( float(height)/10.f*i );
+		painter.drawLine(0,pos,width,pos);
+		painter.drawText(0,pos-10,formatSize( qulonglong( top/10.f*(10-i) ), true));
+	}
 }
 
 void SpeedGraph::paintEvent(QPaintEvent* event)
