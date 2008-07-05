@@ -159,7 +159,7 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	lines[elems-1] = QLine(2,19,12,19);
 	painter.drawLines(lines.constData(), lines.size());
 	
-	painter.setPen(QColor(80,180,80));
+	painter.setPen(Qt::black);
 	for(int i=0;i<4;i++)
 	{
 		int x = width-(i+1)*(width/4);
@@ -167,7 +167,6 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 		painter.drawText(x+2, height-2, tr("%1 mins ago").arg( (seconds/4) * (i+1) / 60.0 ));
 	}
 	
-	painter.setPen(Qt::black);
 	painter.drawText(15,12,tr("Download"));
 	painter.drawText(15,24,tr("Upload"));
 	
