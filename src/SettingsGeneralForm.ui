@@ -30,35 +30,14 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="5" >
-    <widget class="QLabel" name="label_9" >
-     <property name="text" >
-      <string>Display speed graphs for last</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="5" >
-    <widget class="QSpinBox" name="spinGraphMinutes" >
-     <property name="minimum" >
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="6" >
-    <widget class="QLabel" name="label_10" >
-     <property name="text" >
-      <string comment="last X minutes" >minutes</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" >
+   <item row="1" column="0" >
     <widget class="QLabel" name="label_5" >
      <property name="text" >
       <string>Refresh GUI every</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="5" >
+   <item row="1" column="5" >
     <widget class="QSpinBox" name="spinRefreshGUI" >
      <property name="minimum" >
       <number>1</number>
@@ -68,12 +47,43 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="6" >
+   <item row="1" column="6" >
     <widget class="QLabel" name="label_6" >
      <property name="text" >
       <string comment="every X seconds" >seconds</string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="0" colspan="5" >
+    <widget class="QLabel" name="label_9" >
+     <property name="text" >
+      <string>Display speed graphs for last</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5" >
+    <widget class="QSpinBox" name="spinGraphMinutes" >
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="6" >
+    <widget class="QLabel" name="label_10" >
+     <property name="text" >
+      <string comment="last X minutes" >minutes</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_7" >
+     <property name="text" >
+      <string>Speed graph style</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3" colspan="5" >
+    <widget class="QComboBox" name="comboGraphStyle" />
    </item>
    <item row="4" column="0" colspan="3" >
     <widget class="QLabel" name="label_11" >
@@ -177,16 +187,6 @@
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="2" column="0" >
-    <widget class="QLabel" name="label_7" >
-     <property name="text" >
-      <string>Speed graph style</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3" colspan="5" >
-    <widget class="QComboBox" name="comboGraphStyle" />
    </item>
   </layout>
  </widget>
