@@ -48,8 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QLabel>
 #include <QtDebug>
 
-extern QSettings* g_settings;
-
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
@@ -126,7 +124,7 @@ void TorrentDownload::globalInit()
 	
 	applySettings();
 	
-	if(g_settings->value("torrent/pex", getSettingsDefault("torrent/pex")).toBool())
+	if(getSettingsValue("torrent/pex").toBool())
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
 	m_session->add_extension(&libtorrent::create_metadata_plugin);
 	
@@ -210,7 +208,7 @@ void TorrentDownload::applySettings()
 	
 	if(getSettingsValue("torrent/dht").toBool())
 	{
-		QByteArray state = g_settings->value("torrent/dht_state").toByteArray();
+		QByteArray state = getSettingsValue("torrent/dht_state").toByteArray();
 		while(!m_bDHT)
 		{
 			try
@@ -255,7 +253,7 @@ void TorrentDownload::applySettings()
 	settings.request_queue_time = 30.f;
 	settings.max_out_request_queue = 100;
 	
-	QByteArray external_ip = g_settings->value("torrent/external_ip").toString().toUtf8();
+	QByteArray external_ip = getSettingsValue("torrent/external_ip").toString().toUtf8();
 	if(!external_ip.isEmpty())
 		settings.announce_ip = asio::ip::address::from_string(external_ip.constData());
 	
@@ -298,9 +296,9 @@ void TorrentDownload::applySettings()
 	// Proxy settings
 	QUuid tracker, seed, peer;
 	
-	tracker = g_settings->value("torrent/proxy_tracker").toString();
-	seed = g_settings->value("torrent/proxy_webseed").toString();
-	peer = g_settings->value("torrent/proxy_peer").toString();
+	tracker = getSettingsValue("torrent/proxy_tracker").toString();
+	seed = getSettingsValue("torrent/proxy_webseed").toString();
+	peer = getSettingsValue("torrent/proxy_peer").toString();
 	
 	libtorrent::proxy_settings proxy;
 	
@@ -353,7 +351,7 @@ void TorrentDownload::globalExit()
 {
 	if(m_bDHT)
 	{
-		g_settings->setValue("torrent/dht_state", bencode_simple(m_session->dht_state()));
+		setSettingsValue("torrent/dht_state", bencode_simple(m_session->dht_state()));
 	}
 	
 	delete m_worker;

@@ -22,10 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define _DOWNLOAD_H
 #include <QString>
 #include <QObject>
-#include <QTimer>
 #include <QQueue>
 #include <QPair>
-#include <QSettings>
 #include <QDateTime>
 #include <QDomNode>
 #include <QUuid>
@@ -150,7 +148,6 @@ signals:
 	void stateChanged(Transfer::State prev, Transfer::State now);
 	void modeChanged(Transfer::Mode prev, Transfer::Mode now);
 public slots:
-	void updateGraph();
 	void retry();
 protected:
 	virtual void changeActive(bool nowActive) = 0;
@@ -158,6 +155,7 @@ protected:
 	void setInternalSpeedLimits(int down,int up);
 	void setMode(Mode mode);
 	void fireCompleted();
+	void updateGraph();
 	
 	State m_state;
 	Mode m_mode;
@@ -172,7 +170,6 @@ protected:
 	
 	QString m_strLog, m_strComment, m_strCommandCompleted;
 	
-	QTimer* m_timer;
 	QQueue<QPair<int,int> > m_qSpeedData;
 	QUuid m_uuid;
 	

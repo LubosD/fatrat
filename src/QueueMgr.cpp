@@ -71,6 +71,7 @@ void QueueMgr::doWork()
 			Transfer::State state = d->state();
 			Transfer::Mode mode = d->mode();
 			
+			d->updateGraph();
 			d->speeds(downs,ups);
 			
 			if(downs >= 1024 && mode == Transfer::Download)

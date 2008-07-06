@@ -88,7 +88,7 @@ void addTransferClass(const EngineEntry& e, Transfer::Mode m)
 Transfer::Transfer(bool local)
 	: m_state(Paused), m_mode(Download), m_nDownLimit(0), m_nUpLimit(0),
 		  m_nDownLimitInt(0), m_nUpLimitInt(0), m_bLocal(local), m_bWorking(false),
-		  m_nTimeRunning(0), m_nRetryCount(0), m_timer(0)
+		  m_nTimeRunning(0), m_nRetryCount(0)
 {
 	m_uuid = QUuid::createUuid();
 }
@@ -252,13 +252,6 @@ void Transfer::setState(State newState)
 	
 	if(!statePossible(newState))
 		return;
-	
-	if(!m_timer)
-	{
-		m_timer = new QTimer(this);
-		connect(m_timer, SIGNAL(timeout()), this, SLOT(updateGraph()));
-		m_timer->start(1000);
-	}
 	
 	if(!m_bLocal)
 		emit TransferNotifier::instance()->stateChanged(this, m_state, newState);
