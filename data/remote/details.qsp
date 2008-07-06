@@ -14,26 +14,18 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	var queue, transfer;
 	for(var i=0;i<QUEUES.length;i++)
 	{
-		if(QUEUES[i].uuid == GET.queue)
+		queue = QUEUES[i];
+		for(var j=0;j<queue.size;j++)
 		{
-			queue = QUEUES[i];
-			break;
+			if(queue.at(j).uuid == GET.transfer)
+			{
+				transfer = queue.at(j);
+				break;
+			}
 		}
 	}
-	if(!queue)
-	{
-		print('<h2>Queue not found!</h2>');
-		return;
-	}
-	for(var i=0;i<queue.size;i++)
-	{
-		if(queue.at(i).uuid == GET.transfer)
-		{
-			transfer = queue.at(i);
-			break;
-		}
-	}
-	if(!queue)
+	
+	if(!transfer)
 	{
 		print('<h2>Transfer not found!</h2>');
 		return;

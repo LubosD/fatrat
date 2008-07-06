@@ -438,20 +438,12 @@ QByteArray HttpService::graph(QString queryString)
 {
 	QBuffer buf;
 	QImage image(QSize(640, 480), QImage::Format_RGB32);
-	QStringList args = queryString.split(';');
-	
-	if(args.size() != 2)
-		return QByteArray();
 	
 	QReadLocker locker(&g_queuesLock);
-	QString qn, tn;
 	Queue* q;
 	Transfer* t;
 	
-	qn = args[0];
-	tn = args[1];
-	
-	findTransfer(qn, tn, &q, &t);
+	findTransfer(queryString, &q, &t);
 	if(!q || !t)
 		return QByteArray();
 	
@@ -555,7 +547,7 @@ void HttpService::serveClient(int fd)
 		else if(fileName == "/download")
 		{
 			QMap<QString,QString> gets = processQueryString(queryString);
-			QString q, t;
+			QString t;
 			QString path;
 			Queue* qo = 0;
 			Transfer* to = 0;
@@ -568,14 +560,13 @@ void HttpService::serveClient(int fd)
 					throw 0;
 				}
 				
-				q = gets["queue"];
 				t = gets["transfer"];
 				path = gets["path"];
 				
 				if(path.indexOf("/..") != -1 || path.indexOf("../") != -1)
 					throw 0;
 				
-				findTransfer(q, t, &qo, &to);
+				findTransfer(t, &qo, &to);
 				if(!qo || !to)
 					throw 0;
 				
@@ -1056,41 +1047,30 @@ void transferFromScriptValue(const QScriptValue &object, Transfer* &out)
 	out = qobject_cast<Transfer*>(object.toQObject());
 }
 
-void HttpService::findTransfer(QString queueUUID, QString transferUUID, Queue** q, Transfer** t)
+void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
 {
 	*q = 0;
 	*t = 0;
 	
-	qDebug() << queueUUID << " - " << transferUUID;
 	g_queuesLock.lockForRead();
 	for(int i=0;i<g_queues.size();i++)
 	{
-		if(g_queues[i]->uuid() == queueUUID)
+		Queue* c = g_queues[i];
+		c->lock();
+		
+		for(int j=0;j<c->size();j++)
 		{
-			*q = g_queues[i];
-			break;
+			if(c->at(j)->uuid() == transferUUID)
+			{
+				*q = c;
+				*t = c->at(j);
+				return;
+			}
 		}
+		
+		c->unlock();
 	}
 	
-	if(!*q)
-	{
-		qDebug() << "Queue" << queueUUID << "not found";
-		g_queuesLock.unlock();
-		return;
-	}
-	
-	(*q)->lock();
-	for(int i=0;i<(*q)->size();i++)
-	{
-		if((*q)->at(i)->uuid() == transferUUID)
-		{
-			*t = (*q)->at(i);
-			return;
-		}
-	}
-	
-	qDebug() << "Transfer" << transferUUID << "not found";
-	(*q)->unlock();
 	g_queuesLock.unlock();
 }
 

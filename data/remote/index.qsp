@@ -225,19 +225,19 @@ function escapeAmpersand(text)
 		{
 			if(info.directory)
 			{
-				print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+transfer.uuid+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
+				print(' <a href="/browse.qsp?transfer='+transfer.uuid+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
 			}
 			else
 			{
-				print(' <a href="/download?queue='+GET.queue+'&amp;transfer='+transfer.uuid+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
+				print(' <a href="/download?transfer='+transfer.uuid+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
 			}
 		}
 		
-		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+transfer.uuid+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
+		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+transfer.uuid+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
 		
 		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" class="stateicon" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="'+transfer.uuid+'"/> ');
-		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+transfer.uuid+'">' + shorten(transfer.name) + '</a></td>');
+		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?transfer='+transfer.uuid+'">' + shorten(transfer.name) + '</a></td>');
 		
 		var progress;
 		if(transfer.total > 0)

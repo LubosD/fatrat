@@ -90,7 +90,7 @@ public:
 	static QByteArray progressBar(QByteArray queryString);
 	static QByteArray graph(QString queryString);
 	static QString urlDecode(QByteArray arr);
-	static void findTransfer(QString queueUUID, QString transferUUID, Queue** q, Transfer** t);
+	static void findTransfer(QString transferUUID, Queue** q, Transfer** t);
 private:
 	void interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString, QByteArray postData);
 	QByteArray handleException();
