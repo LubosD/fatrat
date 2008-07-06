@@ -320,6 +320,11 @@ void CurlDownload::processHeaders()
 			}
 		}
 	}
+	else
+	{
+		QByteArray newurl = m_headers["location"];
+		setTargetName(QFileInfo(newurl).fileName());
+	}
 	
 	m_headers.clear();
 }
