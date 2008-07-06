@@ -7,6 +7,14 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat - transfer details</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
+<script type="text/javascript"><!--
+function reloadOpener()
+{
+	mform = window.opener.document.getElementById('mainform');
+	mform.submit();
+	window.close();
+}
+//--></script>
 </head>
 <body>
 
@@ -40,7 +48,7 @@ else
 	if(error)
 		print('<input type="button" value="Go back" onclick="javascript:history.go(-1)"/>');
 	else
-		print('<input type="button" value="Close" onclick="javascript:window.close()"/>');
+		print('<input type="button" value="Close" onclick="javascript:reloadOpener()"/>');
 	?>
 </p>
 
