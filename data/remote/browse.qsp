@@ -11,6 +11,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <body>
 
 <p style="text-align: center"><b>Browse files</b></p>
+<pre style="text-align: center"><? print(GET.path); ?></pre>
 
 <table class="transfers">
 <thead>
@@ -47,12 +48,12 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 			
 			if(info.directory)
 			{
-				print('<tr><td><a href="?queue='+GET.queue+'&amp;transfer='+GET.transfer+'&amp;path='+path+'">['+ files[i] + ']</a></td><td>&lt;DIR&gt;</td></tr>');
+				print('<tr><td><a href="?transfer='+GET.transfer+'&amp;path='+path+'">['+ files[i] + ']</a></td><td>&lt;DIR&gt;</td></tr>');
 			}
 			else
 			{
 				size = formatSize(info.size, false);
-				print('<tr><td><a href="/download?queue='+GET.queue+'&amp;transfer='+GET.transfer+'&amp;path='+path+'">'+files[i]+'</a></td><td>'+size+'</td></tr>');
+				print('<tr><td><a href="/download?transfer='+GET.transfer+'&amp;path='+path+'">'+files[i]+'</a></td><td>'+size+'</td></tr>');
 			}
 		}
 	}
@@ -62,7 +63,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		x = GET.path.lastIndexOf('/');
 		path = GET.path.substring(0, x);
 		
-		print('<tr><td><a href="?queue='+GET.queue+'&amp;transfer='+GET.transfer+'&amp;path='+path+'">[..]</a></td><td>&lt;DIR&gt;</td></tr>');
+		print('<tr><td><a href="?transfer='+GET.transfer+'&amp;path='+path+'">[..]</a></td><td>&lt;DIR&gt;</td></tr>');
 	}
 	
 	list(true);
