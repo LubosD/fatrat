@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "config.h"
 #include "Logger.h"
 #include "Settings.h"
+#include "Base32.h"
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
 #include "TorrentDetails.h"
@@ -32,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
+#include <libtorrent/extensions/metadata_transfer.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -55,6 +57,7 @@ QList<QRegExp> TorrentDownload::m_listBTLinks;
 QLabel* TorrentDownload::m_labelDHTStats = 0;
 
 const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
+const char* MAGNET_PREFIX = "magnet:?xt=urn:btih:";
 
 void* g_pGeoIP = 0;
 QLibrary g_geoIPLib;
@@ -107,6 +110,8 @@ int TorrentDownload::acceptable(QString uri, bool)
 		if(uri[0] == '/' || uri.startsWith("file://"))
 			return 2;
 	}
+	if(uri.startsWith(MAGNET_PREFIX) && uri.size() == (int) strlen(MAGNET_PREFIX)+32)
+		return 3;
         return 0;
 }
 
@@ -115,7 +120,7 @@ void TorrentDownload::globalInit()
 	boost::filesystem::path::default_name_check(boost::filesystem::native);
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
-	m_session->set_severity_level(libtorrent::alert::warning);
+	m_session->set_severity_level(libtorrent::alert::info);
 	
 	m_labelDHTStats = new QLabel;
 	
@@ -123,6 +128,7 @@ void TorrentDownload::globalInit()
 	
 	if(g_settings->value("torrent/pex", getSettingsDefault("torrent/pex")).toBool())
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
+	m_session->add_extension(&libtorrent::create_metadata_plugin);
 	
 	m_worker = new TorrentWorker;
 	
@@ -361,8 +367,15 @@ QString TorrentDownload::name() const
 {
 	if(m_handle.is_valid())
 	{
-		std::string str = m_handle.name();
-		return QString::fromUtf8(str.c_str());
+		if(m_status.state == libtorrent::torrent_status::downloading_metadata)
+		{
+			return tr("Downloading metadata: %1%").arg((int) m_status.progress*100);
+		}
+		else
+		{
+			std::string str = m_handle.name();
+			return QString::fromUtf8(str.c_str());
+		}
 	}
 	else if(m_pFileDownload != 0)
 		return tr("Downloading the .torrent file...");
@@ -395,42 +408,64 @@ void TorrentDownload::init(QString source, QString target)
 	{
 		if(source.startsWith("file://"))
 			source = source.mid(7);
-		if(source.startsWith('/'))
+		
+		bool localFile = source.startsWith('/');
+		bool magnetLink = source.startsWith(MAGNET_PREFIX) && source.size() == (int) strlen(MAGNET_PREFIX)+32;
+		
+		if(localFile || magnetLink)
 		{
-			QFile in(source);
-			QByteArray data;
-			const char* p;
 			libtorrent::storage_mode_t storageMode;
-			
-			if(!in.open(QIODevice::ReadOnly))
-				throw RuntimeException(tr("Unable to open the file!"));
-			
-			data = in.readAll();
-			p = data.data();
-			
-			m_info = new libtorrent::torrent_info( libtorrent::bdecode(p, p+data.size()) );
-			
 			storageMode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
-			m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>(m_info), target.toStdString(), libtorrent::entry(), storageMode, !isActive());
 			
-			int limit;
+			if(localFile)
+			{
+				QFile in(source);
+				QByteArray data;
+				const char* p;
+				
+				if(!in.open(QIODevice::ReadOnly))
+					throw RuntimeException(tr("Unable to open the file!"));
+				
+				data = in.readAll();
+				p = data.data();
+				
+				m_info = new libtorrent::torrent_info( libtorrent::bdecode(p, p+data.size()) );
+				m_handle = m_session->add_torrent(m_info, target.toStdString(), libtorrent::entry(), storageMode, !isActive());
+			}
+			else
+			{
+				libtorrent::sha1_hash hash;
+				QByteArray s = source.toLatin1();
+				const char* b32data = s.constData()+strlen(MAGNET_PREFIX);
+				base32_decode(b32data, hash.begin());
+				
+				m_handle = m_session->add_torrent(0, hash, b32data, target.toStdString(), libtorrent::entry(), storageMode);
+			}
 			
-			limit = getSettingsValue("torrent/maxuploads_loc").toInt();
-			m_handle.set_max_uploads(limit ? limit : limit-1);
-			
-			limit = getSettingsValue("torrent/maxconnections_loc").toInt();
-			m_handle.set_max_connections(limit ? limit : limit-1);
-			
-			m_bHasHashCheck = true;
 			
 			m_handle.set_ratio(1.2f);
-			createDefaultPriorityList();
-		
-			m_worker->doWork();
-			storeTorrent(source);
 			
-			if(!m_bAuto)
-				RssFetcher::performManualCheck(name());
+			{
+				int limit;
+				
+				limit = getSettingsValue("torrent/maxuploads_loc").toInt();
+				m_handle.set_max_uploads(limit ? limit : limit-1);
+				
+				limit = getSettingsValue("torrent/maxconnections_loc").toInt();
+				m_handle.set_max_connections(limit ? limit : limit-1);
+			}
+			
+			if(localFile)
+			{
+				m_bHasHashCheck = true;
+				
+				createDefaultPriorityList();
+				m_worker->doWork();
+				storeTorrent(source);
+				
+				if(!m_bAuto)
+					RssFetcher::performManualCheck(name());
+			}
 		}
 		else
 		{
@@ -891,7 +926,7 @@ QString TorrentDownload::message() const
 			state = tr("Allocating: %1%").arg(m_status.progress*100.f);
 			break;
 		case libtorrent::torrent_status::downloading_metadata:
-			state = "Downloading metadata";
+			state = tr("Downloading metadata");
 			break;
 		}
 	}
@@ -931,16 +966,23 @@ void TorrentWorker::doWork()
 {
 	QMutexLocker l(&m_mutex);
 	
-	// libtorrent bug workaround
 	foreach(TorrentDownload* d, m_objects)
 	{
 		if(!d->m_handle.is_valid())
 			continue;
 		
+		d->m_status = d->m_handle.status();
+		
+		if(!d->m_info)
+		{
+			if(!d->m_handle.has_metadata())
+				continue;
+			d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
+		}
+		
+		// libtorrent bug workaround
 		std::vector<int> prio = d->m_handle.piece_priorities();
 		qint64 done = 0, wanted = 0;
-		
-		d->m_status = d->m_handle.status();
 		
 		const std::vector<bool>* prog = d->m_status.pieces;
 		int len = d->m_info->piece_length();
@@ -965,7 +1007,7 @@ void TorrentWorker::doWork()
 	
 	foreach(TorrentDownload* d, m_objects)
 	{
-		if(!d->m_handle.is_valid())
+		if(!d->m_handle.is_valid() || !d->m_info)
 			continue;
 		
 		//d->m_status = d->m_handle.status();
@@ -1075,6 +1117,14 @@ void TorrentWorker::doWork()
 			else if(IS_ALERT_S(fastresume_rejected_alert))
 			{
 				d->enterLogMessage(tr("The fast-resume data have been rejected: %1").arg(errmsg));
+			}
+			else if(IS_ALERT_S(metadata_failed_alert))
+			{
+				d->enterLogMessage(tr("Failed to retrieve the metadata"));
+			}
+			else if(IS_ALERT_S(metadata_received_alert))
+			{
+				d->enterLogMessage(tr("Successfully retrieved the metadata"));
 			}
 		}
 		else

@@ -168,7 +168,7 @@ void TorrentDetails::destroy()
 
 void TorrentDetails::fill()
 {
-	if(m_download && m_download->m_handle.is_valid())
+	if(m_download && m_download->m_handle.is_valid() && m_download->m_info)
 	{
 		m_bFilled = true;
 		
@@ -193,7 +193,7 @@ void TorrentDetails::fill()
 
 void TorrentDetails::refresh()
 {
-	if(m_download && m_download->m_handle.is_valid())
+	if(m_download && m_download->m_handle.is_valid() && m_download->m_info)
 	{
 		if(!m_bFilled)
 			fill();

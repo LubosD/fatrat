@@ -102,7 +102,7 @@ private slots:
 	void forceRecheck();
 protected:
 	libtorrent::torrent_handle m_handle;
-	libtorrent::torrent_info* m_info;
+	boost::intrusive_ptr<libtorrent::torrent_info> m_info;
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;

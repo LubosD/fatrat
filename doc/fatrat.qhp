@@ -7,8 +7,8 @@
 			<section title="FatRat" ref="index.html">
 				<section title="Drop-box" ref="dropbox/index.html" />
 				<section title="BitTorrent Support" ref="bittorrent/index.html">
-					<section title="Creating Torrents" ref="jabber/create.html" />
-				</secion>
+					<section title="Creating Torrents" ref="bittorrent/create.html" />
+				</section>
 				<section title="Jabber Remote Control" ref="jabber/index.html">
 					<section title="Settings" ref="jabber/settings.html" />
 					<section title="Usage" ref="jabber/usage.html" />
