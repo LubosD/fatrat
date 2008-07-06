@@ -136,6 +136,9 @@ void HttpService::setup()
 			throwErrno();
 	}
 	
+	int reuse = 1;
+	setsockopt(m_server, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+	
 	if(bIPv6)
 	{
 		sockaddr_in6 addr6;
@@ -441,29 +444,21 @@ QByteArray HttpService::graph(QString queryString)
 		return QByteArray();
 	
 	QReadLocker locker(&g_queuesLock);
-	int qn, tn;
+	QString qn, tn;
 	Queue* q;
 	Transfer* t;
 	
-	qn = args[0].toInt();
-	tn = args[1].toInt();
+	qn = args[0];
+	tn = args[1];
 	
-	if(qn < 0 || qn >= g_queues.size())
+	findTransfer(qn, tn, &q, &t);
+	if(!q || !t)
 		return QByteArray();
 	
-	q = g_queues[qn];
-	q->lock();
-	
-	if(tn < 0 || tn >= q->size())
-	{
-		q->unlock();
-		return QByteArray();
-	}
-	
-	t = q->at(tn);
 	SpeedGraph::draw(t, QSize(640, 480), &image);
 	
 	q->unlock();
+	g_queuesLock.unlock();
 	
 	image.save(&buf, "PNG");
 	return buf.data();
@@ -560,7 +555,7 @@ void HttpService::serveClient(int fd)
 		else if(fileName == "/download")
 		{
 			QMap<QString,QString> gets = processQueryString(queryString);
-			int q, t;
+			QString q, t;
 			QString path;
 			Queue* qo = 0;
 			Transfer* to = 0;
@@ -573,23 +568,16 @@ void HttpService::serveClient(int fd)
 					throw 0;
 				}
 				
-				QReadLocker locker(&g_queuesLock);
-				q = gets["queue"].toInt();
-				t = gets["transfer"].toInt();
+				q = gets["queue"];
+				t = gets["transfer"];
 				path = gets["path"];
 				
 				if(path.indexOf("/..") != -1 || path.indexOf("../") != -1)
 					throw 0;
 				
-				if(q < 0 || q >= g_queues.size() || t < 0)
+				findTransfer(q, t, &qo, &to);
+				if(!qo || !to)
 					throw 0;
-				
-				qo = g_queues[q];
-				qo->lock();
-				
-				if(t >= qo->size())
-					throw 0;
-				to = qo->at(t);
 				
 				path.prepend(to->dataPath(true));
 				
@@ -605,8 +593,11 @@ void HttpService::serveClient(int fd)
 				path.clear();
 			}
 			
-			if(qo)
+			if(qo && to)
+			{
 				qo->unlock();
+				g_queuesLock.unlock();
+			}
 			
 			if(!path.isEmpty() && !bHead)
 			{
@@ -972,12 +963,13 @@ QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine
 	QString uris = context->argument(0).toString();
 	QString target = context->argument(1).toString();
 	int classIndex = context->argument(2).toInt32();
-	int queueIndex = context->argument(3).toInt32();
+	QString queueUUID = context->argument(3).toString();
 	
 	QList<Transfer*> listTransfers;
 	try
 	{
 		QStringList listUris;
+		int queueIndex = -1;
 		
 		if(uris.isEmpty())
 			throw RuntimeException("No URIs were passed");
@@ -987,8 +979,16 @@ QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine
 		else
 			listUris = uris.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 		
-		if(queueIndex < 0 || queueIndex >= g_queues.size())
-			throw RuntimeException("queueID is out of range");
+		for(int i=0;i<g_queues.size();i++)
+		{
+			if(g_queues[i]->uuid() == queueUUID)
+			{
+				queueIndex = i;
+				break;
+			}
+		}
+		if(queueIndex < 0)
+			throw RuntimeException("queueUUID is invalid");
 		
 		foreach(QString uri, listUris)
 		{
@@ -1054,6 +1054,44 @@ QScriptValue transferToScriptValue(QScriptEngine *engine, Transfer* const &in)
 void transferFromScriptValue(const QScriptValue &object, Transfer* &out)
 {
 	out = qobject_cast<Transfer*>(object.toQObject());
+}
+
+void HttpService::findTransfer(QString queueUUID, QString transferUUID, Queue** q, Transfer** t)
+{
+	*q = 0;
+	*t = 0;
+	
+	qDebug() << queueUUID << " - " << transferUUID;
+	g_queuesLock.lockForRead();
+	for(int i=0;i<g_queues.size();i++)
+	{
+		if(g_queues[i]->uuid() == queueUUID)
+		{
+			*q = g_queues[i];
+			break;
+		}
+	}
+	
+	if(!*q)
+	{
+		qDebug() << "Queue" << queueUUID << "not found";
+		g_queuesLock.unlock();
+		return;
+	}
+	
+	(*q)->lock();
+	for(int i=0;i<(*q)->size();i++)
+	{
+		if((*q)->at(i)->uuid() == transferUUID)
+		{
+			*t = (*q)->at(i);
+			return;
+		}
+	}
+	
+	qDebug() << "Transfer" << transferUUID << "not found";
+	(*q)->unlock();
+	g_queuesLock.unlock();
 }
 
 void HttpService::initScriptEngine()

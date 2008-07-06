@@ -326,6 +326,10 @@ void Transfer::load(const QDomNode& map)
 	up = getXMLProperty(map, "uplimit").toInt();
 	m_strComment = getXMLProperty(map, "comment");
 	m_nTimeRunning = getXMLProperty(map, "timerunning").toLongLong();
+	m_uuid = getXMLProperty(map, "uuid");
+	
+	if(m_uuid.isNull())
+		m_uuid = QUuid::createUuid();
 	
 	QDomElement n = map.firstChildElement("action");
 	while(!n.isNull())
@@ -345,6 +349,7 @@ void Transfer::save(QDomDocument& doc, QDomNode& node) const
 	setXMLProperty(doc, node, "uplimit", QString::number(m_nUpLimit));
 	setXMLProperty(doc, node, "comment", m_strComment);
 	setXMLProperty(doc, node, "timerunning", QString::number(timeRunning()));
+	setXMLProperty(doc, node, "uuid", m_uuid.toString());
 	
 	QDomElement elem = doc.createElement("action");
 	QDomText text = doc.createTextNode(m_strCommandCompleted);
@@ -478,6 +483,11 @@ void Transfer::setStateString(QString s)
 
 void Transfer::setSpeedLimits(int down,int up)
 {
+}
+
+QString Transfer::uuid() const
+{
+	return m_uuid.toString();
 }
 
 //////////////////

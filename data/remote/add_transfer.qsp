@@ -22,8 +22,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		<?
 		for(i=0;i<QUEUES.length;i++)
 		{
-			print('<option value="'+i+'" ');
-			if(GET.queue == i)
+			print('<option value="'+QUEUES[i].uuid+'" ');
+			if(GET.queue == QUEUES[i].uuid)
 				print('selected="selected"');
 			print('>'+QUEUES[i].name+'</option>');
 		}

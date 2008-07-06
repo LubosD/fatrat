@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QSettings>
 #include <QDateTime>
 #include <QDomNode>
+#include <QUuid>
 #include "Logger.h"
 
 struct EngineEntry;
@@ -119,6 +120,9 @@ public:
 	QString autoActionCommand(State state) const;
 	void setAutoActionCommand(State state, QString command);
 	
+	Q_INVOKABLE QString uuid() const;
+	Q_PROPERTY(QString uuid READ uuid)
+	
 	// GENERIC UTILITY FUNCTIONS
 	static State string2state(QString s);
 	static QString state2string(State s);
@@ -170,6 +174,7 @@ protected:
 	
 	QTimer* m_timer;
 	QQueue<QPair<int,int> > m_qSpeedData;
+	QUuid m_uuid;
 	
 	friend class QueueMgr;
 	friend class Queue;

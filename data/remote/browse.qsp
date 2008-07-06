@@ -19,7 +19,34 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <tbody>
 <?
-	var transfer = QUEUES[GET.queue].at(GET.transfer);
+	var queue, transfer;
+	for(var i=0;i<QUEUES.length;i++)
+	{
+		if(QUEUES[i].uuid == GET.queue)
+		{
+			queue = QUEUES[i];
+			break;
+		}
+	}
+	if(!queue)
+	{
+		print('<h2>Queue not found!</h2>');
+		return;
+	}
+	for(var i=0;i<queue.size;i++)
+	{
+		if(queue.at(i).uuid == GET.transfer)
+		{
+			transfer = queue.at(i);
+			break;
+		}
+	}
+	if(!queue)
+	{
+		print('<h2>Transfer not found!</h2>');
+		return;
+	}
+	
 	var files = listDirectory(transfer.dataPath + GET.path);
 	
 	function list(dirs)

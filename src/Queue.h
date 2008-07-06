@@ -47,7 +47,8 @@ public:
 	Q_INVOKABLE QString name() const { m_lock.lockForRead(); QString s=m_strName; m_lock.unlock(); return s; }
 	Q_PROPERTY(QString name READ name WRITE setName)
 	
-	QString uuid() const { return m_uuid.toString(); }
+	Q_INVOKABLE QString uuid() const { return m_uuid.toString(); }
+	Q_PROPERTY(QString uuid READ uuid)
 	
 	Q_INVOKABLE bool upAsDown() const { return m_bUpAsDown; }
 	Q_INVOKABLE void setUpAsDown(bool v) { m_bUpAsDown=v; }

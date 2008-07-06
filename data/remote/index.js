@@ -29,7 +29,7 @@ function checkTransfer(checkbox)
 
 function saveSelection()
 {
-	var selection = QUEUE+'-';
+	var selection = QUEUE+'|';
 	for(var i=0;;i++)
 	{
 		checkbox = document.getElementById('transfer'+i);
@@ -37,10 +37,20 @@ function saveSelection()
 			break;
 		
 		if(checkbox.checked)
-			selection += i + '-';
+			selection += checkbox.value + '|';
 	}
 	
 	document.cookie = 'selection='+selection;
+}
+
+function arrayContains(array, what)
+{
+	for(var i=0;i<array.length;i++)
+	{
+		if(array[i] == what)
+		return true;
+	}
+	return false;
 }
 
 function loadSelection()
@@ -48,20 +58,20 @@ function loadSelection()
 	state = readCookie('selection');
 	if(!state)
 		return;
-	transfers = state.split('-');
+	transfers = state.split('|');
 	
 	if(transfers[0] != QUEUE)
 		return;
 	
-	for(var i=1;i<transfers.length;i++)
+	for(var i=0;;i++)
 	{
-		clickedTransfer(null, transfers[i]);
+		checkbox = document.getElementById('transfer'+i);
+		if(!checkbox)
+			break;
+		
+		if(arrayContains(transfers, checkbox.value))
+			clickedTransfer(null, i);
 	}
-}
-
-function resetSavedSelection()
-{
-	document.cookie = 'selection=';
 }
 
 function resetSelection()
@@ -177,18 +187,6 @@ function loadRefresh()
 	}
 }
 
-function setAutoResets()
-{
-	tbar = document.getElementById('toolbar');
-	btns = tbar.getElementsByTagName('button');
-	
-	for(var i=0;i<btns.length;i++)
-	{
-		if(btns[i].id != "btn_add" && btns[i].id != "btn_delete" && btns[i].id != "btn_reload")
-			btns[i].onclick = resetSavedSelection;
-	}
-}
-
 function keyPress(event)
 {
 	if(event.ctrlKey && event.which == 65)
@@ -204,7 +202,6 @@ function init()
 	hideCheckboxes();
 	loadRefresh();
 	loadSelection();
-	setAutoResets();
 	
 	var html = document.getElementsByTagName("html")[0];
 	html.onclick = bodyClick;
@@ -214,10 +211,7 @@ function init()
 function confirmOp(msg)
 {
 	if(confirm(msg))
-	{
-		resetSavedSelection();
 		return true;
-	}
 	return false;
 }
 

@@ -16,7 +16,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <?
 if(GET.queue == undefined && QUEUES.length != 0)
-	GET.queue = 0;
+	GET.queue = QUEUES[0].uuid;
 function escapeAmpersand(text)
 {
 	text = new String(text);
@@ -30,8 +30,8 @@ function escapeAmpersand(text)
 	<?
 		for(i=0;i<QUEUES.length;i++)
 		{
-			print('<option value="'+i+'" ');
-			if(GET.queue == i)
+			print('<option value="'+QUEUES[i].uuid+'" ');
+			if(GET.queue == QUEUES[i].uuid)
 				print('selected="selected"');
 			print('>'+QUEUES[i].name+'</option>');
 		}
@@ -40,7 +40,7 @@ function escapeAmpersand(text)
 	<input type="submit" id="sumbit_queue" value="Switch"/>
 	<script type="text/javascript"><!--
 	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden');
-	var QUEUE = <? print(GET.queue); ?>;
+	var QUEUE = '<? print(GET.queue); ?>';
 	//--></script>
 </p>
 </form>
@@ -67,7 +67,7 @@ function escapeAmpersand(text)
 	//--></script>
 	
 	<button type="submit" name="remove" id="btn_delete" value="delete" title="Delete" onclick="javascript:return confirmOp('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
-	<button type="submit" name="remove" id="btn_delete" value="delete_data" title="Delete including data" onclick="javascript:return confirmOp('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
+	<button type="submit" name="remove" id="btn_delete2" value="delete_data" title="Delete including data" onclick="javascript:return confirmOp('Do you really want to delete the selected transfers and their data?')"><img src="/delete_with_data.png" alt="Delete including data"/></button>
 	<button type="submit" name="cleanup" value="cleanup" title="Remove completed"><img src="/states/completed.png" alt="Remove completed"/></button>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button type="submit" name="setState" value="Active" title="Resume"><img src="/states/active.png" alt="Resume"/></button>
@@ -111,21 +111,38 @@ function escapeAmpersand(text)
 		else
 			return text;
 	}
-	
-	if(GET.queue == undefined)
+	function arrayContains(array, what)
 	{
-		print("No queue");
+		for(var i=0;i<array.length;i++)
+		{
+			if(array[i] == what)
+				return true;
+		}
+		return false;
+	}
+	
+	var queue;
+	for(var i=0;i<QUEUES.length;i++)
+	{
+		if(QUEUES[i].uuid == GET.queue)
+		{
+			queue = QUEUES[i];
+			break;
+		}
+	}
+	if(queue == undefined)
+	{
+		print("<h2>No queue</h2>");
 		return;
 	}
 	
-	var queue = QUEUES[GET.queue];
 	if(POST.queueLimits != undefined)
 		queue.setSpeedLimits(POST.downLimit*1024, POST.upLimit*1024);
 	if(POST.setState && POST.transfer)
 	{
 		for(i=queue.size-1;i>=0;i--)
 		{
-			if(!POST.transfer[i])
+			if(!arrayContains(POST.transfer, queue.at(i).uuid))
 				continue;
 
 			if(POST.setState == 'Active')
@@ -143,7 +160,7 @@ function escapeAmpersand(text)
 	{
 		for(i=queue.size-1;i>=0;i--)
 		{
-			if(!POST.transfer[i])
+			if(!arrayContains(POST.transfer, queue.at(i).uuid))
 				continue;
 			if(POST.remove == 'delete_data')
 				queue.removeWithData(i, true);
@@ -166,7 +183,7 @@ function escapeAmpersand(text)
 			var x = 0;
 			for(i=queue.size-1;i>=0;i--)
 			{
-				if(POST.transfer[i])
+				if(arrayContains(POST.transfer, queue.at(i).uuid))
 					queue.moveToTop(i+x++);
 			}
 		}
@@ -174,7 +191,7 @@ function escapeAmpersand(text)
 		{
 			for(i=0;i<queue.size;i++)
 			{
-				if(POST.transfer[i])
+				if(arrayContains(POST.transfer, queue.at(i).uuid))
 					queue.moveUp(i);
 			}
 		}
@@ -182,7 +199,7 @@ function escapeAmpersand(text)
 		{
 			for(i=queue.size-1;i>=0;i--)
 			{
-				if(POST.transfer[i])
+				if(arrayContains(POST.transfer, queue.at(i).uuid))
 					queue.moveDown(i);
 			}
 		}
@@ -191,13 +208,13 @@ function escapeAmpersand(text)
 			var x = 0;
 			for(i=0;i<queue.size;i++)
 			{
-				if(POST.transfer[i])
+				if(arrayContains(POST.transfer, queue.at(i).uuid))
 					queue.moveToBottom(i-x++)
 			}
 		}
 	}
 	
-	for(i=0;i<queue.size;i++)
+	for(var i=0;i<queue.size;i++)
 	{
 		var transfer = queue.at(i);
 		
@@ -208,19 +225,19 @@ function escapeAmpersand(text)
 		{
 			if(info.directory)
 			{
-				print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+i+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
+				print(' <a href="/browse.qsp?queue='+GET.queue+'&amp;transfer='+transfer.uuid+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
 			}
 			else
 			{
-				print(' <a href="/download?queue='+GET.queue+'&amp;transfer='+i+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
+				print(' <a href="/download?queue='+GET.queue+'&amp;transfer='+transfer.uuid+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
 			}
 		}
 		
-		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+i+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
+		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+GET.queue+';'+transfer.uuid+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
 		
 		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" class="stateicon" alt="' + transfer.state + '"/> ');
-		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="true"/> ');
-		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+i+'">' + shorten(transfer.name) + '</a></td>');
+		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="'+transfer.uuid+'"/> ');
+		print('<a onclick="javascript:return newwin(this.href);" title="Details" href="/details.qsp?queue='+GET.queue+'&amp;transfer='+transfer.uuid+'">' + shorten(transfer.name) + '</a></td>');
 		
 		var progress;
 		if(transfer.total > 0)
