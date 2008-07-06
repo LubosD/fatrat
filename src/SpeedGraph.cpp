@@ -176,11 +176,14 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	painter.drawText(15,12,tr("Download"));
 	painter.drawText(15,24,tr("Upload"));
 	
-	painter.setPen(QPen(Qt::gray, 1.0, Qt::DashLine));
 	for(int i=1;i<10;i++)
 	{
 		int pos = int( float(height)/10.f*i );
+		
+		painter.setPen(QPen(Qt::gray, 1.0, Qt::DashLine));
 		painter.drawLine(0,pos,width,pos);
+		
+		painter.setPen(Qt::black);
 		painter.drawText(0,pos-10,formatSize( qulonglong( top/10.f*(10-i) ), true));
 	}
 }
