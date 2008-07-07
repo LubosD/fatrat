@@ -80,12 +80,20 @@ QVariant TransfersModel::headerData(int section, Qt::Orientation orientation, in
 		case 2:
 			return tr("Size");
 		case 3:
-			return tr("Speed");
 		case 4:
-			return tr("Time left");
+			return tr("Speed");
 		case 5:
+			return tr("Time left");
+		case 6:
 			return tr("Message");
 		}
+	}
+	if(role == Qt::DecorationRole)
+	{
+		if(section == 3)
+			return QIcon(":/states/download.png");
+		else if(section == 4)
+			return QIcon(":/states/upload.png");
 	}
 
 	return QVariant();
@@ -121,20 +129,13 @@ TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
 	
 	if(t->isActive())
 	{
-		QString s;
 		int down,up;
 		t->speeds(down,up);
 		
 		if(down || t->mode() == Transfer::Download)
-			s = formatSize(down, true)+" down";
-		if(up)
-		{
-			if(!s.isEmpty())
-				s += " | ";
-			s += formatSize(up, true)+" up";
-		}
-		
-		newData.speed = s;
+			newData.speedDown = formatSize(down, true);
+		if(up || t->mode() == Transfer::Upload)
+			newData.speedUp = formatSize(up, true);
 		
 		if(t->total())
 		{
@@ -234,7 +235,7 @@ bool TransfersModel::hasChildren (const QModelIndex & parent) const
 
 int TransfersModel::columnCount(const QModelIndex&) const
 {
-	return 6;
+	return 7;
 }
 
 QVariant TransfersModel::data(const QModelIndex &index, int role) const
@@ -254,10 +255,12 @@ QVariant TransfersModel::data(const QModelIndex &index, int role) const
 			case 2:
 				return m_lastData[row].size;
 			case 3:
-				return m_lastData[row].speed;
+				return m_lastData[row].speedDown;
 			case 4:
-				return m_lastData[row].timeLeft;
+				return m_lastData[row].speedUp;
 			case 5:
+				return m_lastData[row].timeLeft;
+			case 6:
 				return m_lastData[row].message;
 			}
 		}

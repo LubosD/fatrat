@@ -65,14 +65,14 @@ private:
 	struct RowData
 	{
 		Transfer::State state;
-		QString name, speed, timeLeft, message, progress, size;
+		QString name, speedDown, speedUp, timeLeft, message, progress, size;
 		Transfer::Mode mode, primaryMode;
 		float fProgress;
 		
 		inline bool operator!=(const RowData& d2)
 		{
 #define COMP(n) n != d2.n
-			return COMP(state) || COMP(name) || COMP(speed) || COMP(timeLeft) || COMP(message) ||
+			return COMP(state) || COMP(name) || COMP(speedDown) || COMP(speedUp) || COMP(timeLeft) || COMP(message) ||
 					COMP(progress) || COMP(size) || COMP(mode) || COMP(primaryMode);
 #undef COMP
 		}

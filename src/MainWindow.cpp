@@ -218,10 +218,7 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 	QVariant state = g_settings->value("state/mainheaders");
 	
 	if(state.isNull())
-	{
 		hdr->resizeSection(0, 300);
-		hdr->resizeSection(3, 160);
-	}
 	else
 		hdr->restoreState(state.toByteArray());
 	

@@ -286,6 +286,8 @@
     <file>up.png</file>
   </qresource>
   <qresource prefix="/states" >
+    <file>upload.png</file>
+    <file>download.png</file>
     <file>active.png</file>
     <file>completed.png</file>
     <file>completed_upload.png</file>
