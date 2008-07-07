@@ -23,12 +23,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TorrentPeersModel.h"
 #include "TorrentFilesModel.h"
 #include "Settings.h"
+#include "Base32.h"
 #include <QHeaderView>
 #include <QMenu>
 #include <QProcess>
 #include <QMessageBox>
 #include <QSettings>
 #include <boost/date_time/posix_time/posix_time.hpp>
+
+extern const char* MAGNET_PREFIX;
 
 TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	: m_download(obj), m_bFilled(false)
@@ -186,6 +189,17 @@ void TorrentDetails::fill()
 		
 		lineCreator->setText(m_download->m_info->creator().c_str());
 		linePrivate->setText( m_download->m_info->priv() ? tr("yes") : tr("no"));
+		
+		libtorrent::sha1_hash hash = m_download->m_handle.info_hash();
+		char link[60];
+		size_t len;
+		
+		strcpy(link, MAGNET_PREFIX);
+		len = strlen(link);
+		
+		base32_encode(hash.begin(), link+len);
+		link[len+32] = 0;
+		lineMagnet->setText(link);
 		
 		m_pFilesModel->fill();
 	}

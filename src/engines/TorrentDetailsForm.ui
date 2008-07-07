@@ -19,6 +19,14 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>689</width>
+        <height>615</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>General</string>
       </attribute>
@@ -264,7 +272,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="2" colspan="4" >
+       <item row="6" column="2" >
         <widget class="QLineEdit" name="lineCreationDate" >
          <property name="frame" >
           <bool>false</bool>
@@ -299,7 +307,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>202</width>
            <height>81</height>
@@ -307,9 +315,40 @@
          </property>
         </spacer>
        </item>
+       <item row="6" column="3" >
+        <widget class="QLabel" name="label_11" >
+         <property name="font" >
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text" >
+          <string>Magnet link:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="5" >
+        <widget class="QLineEdit" name="lineMagnet" >
+         <property name="frame" >
+          <bool>false</bool>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>689</width>
+        <height>615</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Peers</string>
       </attribute>
@@ -336,6 +375,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>689</width>
+        <height>615</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Pieces</string>
       </attribute>
@@ -359,6 +406,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>689</width>
+        <height>615</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Files</string>
       </attribute>
@@ -392,7 +447,8 @@
   </layout>
   <action name="actionOpenFile" >
    <property name="icon" >
-    <iconset resource="../gfx/resources.qrc" >:/menu/run.png</iconset>
+    <iconset resource="../../gfx/resources.qrc" >
+     <normaloff>:/menu/run.png</normaloff>:/menu/run.png</iconset>
    </property>
    <property name="text" >
     <string>Open</string>
@@ -408,7 +464,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../gfx/resources.qrc" />
+  <include location="../../gfx/resources.qrc" />
  </resources>
  <connections/>
 </ui>

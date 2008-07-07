@@ -84,7 +84,7 @@ function escapeAmpersand(text)
 
 <table class="transfers">
 <thead>
-<tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m">Speed <img src="/download.png" alt="down"/></td><td class="m">Speed <img src="/upload.png" alt="up"/></td><td class="m">Time left</td><td>Message</td></tr>
+<tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m"><img src="/download.png" alt="down"/> Speed</td><td class="m"><img src="/upload.png" alt="up"/> Speed</td><td class="m">Time left</td><td>Message</td></tr>
 </thead>
 
 <tbody>
