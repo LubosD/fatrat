@@ -100,7 +100,6 @@ set(fatrat_SRCS
 	src/DropBox.cpp
 	src/fatrat.cpp
 	src/InfoBar.cpp
-	src/LimitedSocket.cpp
 	src/MainTab.cpp
 	src/MainWindow.cpp
 	src/NetIface.cpp
@@ -131,8 +130,6 @@ set(fatrat_SRCS
 	src/tooltips/QueueToolTip.cpp
 	src/tooltips/TrayToolTip.cpp
 
-	src/engines/HttpClient.cpp
-
 	src/dbus/DbusAdaptor.cpp
 	src/dbus/DbusImpl.cpp
 	src/tools/HashDlg.cpp
@@ -158,7 +155,6 @@ set(fatrat_MOC_HDRS
 	src/SettingsGeneralForm.h
 	src/Transfer.h
 	src/SimpleEmail.h
-	src/LimitedSocket.h
 	src/QueueView.h
 	src/MainWindow.h
 	src/AboutDlg.h
@@ -178,8 +174,6 @@ set(fatrat_MOC_HDRS
 	src/tools/HashDlg.h
 	src/tools/RapidTools.h
 	src/tools/VideoFetcher.h
-	
-	src/engines/HttpClient.h
 	
 	src/rss/RssFetcher.h
 	src/rss/SettingsRssForm.h
@@ -237,6 +231,7 @@ if(WITH_CURL)
 		src/engines/HttpFtpSettings.cpp
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
+		src/engines/RapidshareFreeDownload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -245,6 +240,7 @@ if(WITH_CURL)
 		src/engines/HttpFtpSettings.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
+		src/engines/RapidshareFreeDownload.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
@@ -367,7 +363,6 @@ set(fatrat_DEV_HEADERS
 	src/Transfer.h
 	src/WidgetHostChild.h
 	src/WidgetHostDlg.h
-	src/LimitedSocket.h
 	src/Queue.h
 	src/Logger.h
 	src/RuntimeException.h
@@ -377,7 +372,6 @@ set(fatrat_DEV_HEADERS_ENGINES
 	src/engines/CurlDownload.h
 	src/engines/CurlUser.h
 	src/engines/CurlPoller.h
-	src/engines/HttpClient.h
 	src/engines/OutputBuffer.h
 	)
 
