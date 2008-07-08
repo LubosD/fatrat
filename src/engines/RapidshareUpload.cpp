@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlPoller.h"
 #include "WidgetHostDlg.h"
 #include "Settings.h"
+#include "RapidshareUploadDetails.h"
+
 #include <QHttp>
 #include <QBuffer>
 #include <QThread>
@@ -572,6 +574,16 @@ QDialog* RapidshareUpload::createMultipleOptionsWidget(QWidget* parent, QList<Tr
 	return host;
 }
 
+QObject* RapidshareUpload::createDetailsWidget(QWidget* widget)
+{
+	return new RapidshareUploadDetails(widget, this);
+}
+
+qint64 RapidshareUpload::chunkSize()
+{
+	return CHUNK_SIZE;
+}
+
 ////////////////////////////////////////////
 
 RapidshareOptsWidget::RapidshareOptsWidget(QWidget* me, RapidshareUpload* myobj)
@@ -806,3 +818,4 @@ bool RapidshareSettings::accept()
 	else
 		return !lineUsername->text().isEmpty() && !linePassword->text().isEmpty();
 }
+

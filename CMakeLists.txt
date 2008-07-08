@@ -68,7 +68,7 @@ if(WITH_CURL)
 	endif(CURL_FOUND)
 endif(WITH_CURL)
 
-if(; MATCHES Debug)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
 	ADD_DEFINITIONS(-DDEBUG)
 	ADD_DEFINITIONS(-Wall)
@@ -236,6 +236,7 @@ if(WITH_CURL)
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/RapidshareUpload.cpp
+		src/engines/RapidshareUploadProgress.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -248,6 +249,7 @@ if(WITH_CURL)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/engines/RapidshareOptsForm.ui
+		src/engines/RapidshareUploadDetailsForm.ui
 	)
 endif(WITH_CURL)
 

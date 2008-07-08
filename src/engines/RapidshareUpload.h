@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #ifndef RAPIDSHAREUPLOAD_H
+#define RAPIDSHAREUPLOAD_H
+
 #include "Transfer.h"
 #include "CurlUser.h"
 #include "WidgetHostChild.h"
@@ -57,10 +59,12 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
+	virtual QObject* createDetailsWidget(QWidget* widget);
 	
 	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
 	static int curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, RapidshareUpload* This);
 	static int seek_function(RapidshareUpload* file, curl_off_t offset, int origin);
+	static qint64 chunkSize();
 	
 	void beginNextChunk();
 protected slots:
@@ -73,7 +77,7 @@ protected:
 	virtual void transferDone(CURLcode result);
 	virtual size_t readData(char* buffer, size_t maxData);
 	virtual bool writeData(const char* buffer, size_t bytes);
-	
+protected:
 	enum AccountType { AccountNone = 0, AccountCollector, AccountPremium };
 	enum QueryType { QueryNone = 0, QueryFileInfo, QueryServerID };
 	
@@ -96,6 +100,8 @@ protected:
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	
 	friend class RapidshareOptsWidget;
+	friend class RapidshareUploadDetails;
+	friend class RSProgressWidget;
 };
 
 class RapidshareOptsWidget : public QObject, public WidgetHostChild, Ui_RapidshareOptsForm
