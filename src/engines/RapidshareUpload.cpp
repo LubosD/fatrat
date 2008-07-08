@@ -205,14 +205,19 @@ void RapidshareUpload::changeActive(bool nowActive)
 		{
 			if(m_nFileID > 0 && !m_strKillID.isEmpty() && !m_bIDJustChecked)
 			{
-				// verify that the ID is still valid
-				m_query = QueryFileInfo;
-				m_http = new QHttp("rapidshare.com", 80);
-				
-				connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
-				
-				m_http->setProxy(Proxy::getProxy(m_proxy));
-				m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), &m_buffer);
+				if(m_nDone < m_nTotal)
+				{
+					// verify that the ID is still valid
+					m_query = QueryFileInfo;
+					m_http = new QHttp("rapidshare.com", 80);
+					
+					connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
+					
+					m_http->setProxy(Proxy::getProxy(m_proxy));
+					m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), &m_buffer);
+				}
+				else
+					setState(Completed);
 			}
 			else
 			{
@@ -357,7 +362,7 @@ void RapidshareUpload::transferDone(CURLcode result)
 	{
 		m_nDone += qMin<qint64>(CHUNK_SIZE, m_nTotal - m_nDone);
 		
-		QRegExp reFileID("File1.1=http://rapidshare.com/files/(\\d+)/");
+		QRegExp reFileID("File1.1=http://rapidshare.com/files/(\\d+)/([^\\n]+)");
 		QRegExp reKillID("\\?killcode=(\\d+)");
 		QString link;
 		const QByteArray& response = m_buffer.buffer();
@@ -389,6 +394,10 @@ void RapidshareUpload::transferDone(CURLcode result)
 				if(ix < 0)
 					throw RuntimeException(tr("Failed to find the file ID"));
 				m_nFileID = reFileID.cap(1).toLongLong();
+				m_strSafeName = reFileID.cap(2);
+				
+				if(m_strSafeName.endsWith(".html"))
+					m_strSafeName.resize(m_strSafeName.size()-5);
 				
 				ix = reKillID.indexIn(response);
 				if(ix < 0)
@@ -398,7 +407,7 @@ void RapidshareUpload::transferDone(CURLcode result)
 			
 			if(m_nDone == m_nTotal)
 			{
-				link = QString("http://rapidshare.com/files/%1/%2").arg(m_nFileID).arg(m_strName);
+				link = QString("http://rapidshare.com/files/%1/%2").arg(m_nFileID).arg(m_strSafeName);
 				enterLogMessage(tr("Download link:") + ' ' + link);
 				
 				m_strMessage.clear();
@@ -528,6 +537,7 @@ void RapidshareUpload::load(const QDomNode& map)
 	m_strUsername = getXMLProperty(map, "username");
 	m_strPassword = getXMLProperty(map, "password");
 	m_strServer = getXMLProperty(map, "server");
+	m_strSafeName = getXMLProperty(map, "safename");
 	m_proxy = getXMLProperty(map, "proxy");
 	
 	Transfer::load(map);
@@ -545,6 +555,7 @@ void RapidshareUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "username", m_strUsername);
 	setXMLProperty(doc, map, "password", m_strPassword);
 	setXMLProperty(doc, map, "server", m_strServer);
+	setXMLProperty(doc, map, "safename", m_strSafeName);
 	setXMLProperty(doc, map, "proxy", m_proxy);
 }
 

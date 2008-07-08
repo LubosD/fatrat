@@ -78,7 +78,7 @@ protected:
 	enum QueryType { QueryNone = 0, QueryFileInfo, QueryServerID };
 	
 	qint64 m_nTotal;
-	QString m_strName, m_strSource, m_strMessage;
+	QString m_strName, m_strSource, m_strMessage, m_strSafeName;
 	QString m_strUsername, m_strPassword, m_strServer;
 	AccountType m_type;
 	QueryType m_query;
