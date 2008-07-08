@@ -145,9 +145,12 @@ TransfersModel::RowData TransfersModel::createDataSet(Transfer* t)
 			
 			t->speeds(down,up);
 			
-			if(down)
-				newData.timeLeft = formatTime(totransfer/down);
-			else if(up && t->primaryMode() == Transfer::Upload)
+			if(t->primaryMode() == Transfer::Download)
+			{
+				if(down)
+					newData.timeLeft = formatTime(totransfer/down);
+			}
+			else if(up)
 				newData.timeLeft = formatTime(totransfer/up);
 		}
 	}

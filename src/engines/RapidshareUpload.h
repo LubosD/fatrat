@@ -20,13 +20,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef RAPIDSHAREUPLOAD_H
 #include "Transfer.h"
-#include "HttpClient.h"
+#include "CurlUser.h"
 #include "WidgetHostChild.h"
 #include "ui_RapidshareOptsForm.h"
+#include <QFile>
+#include <QBuffer>
 
-class QBuffer;
+class QHttp;
 
-class RapidshareUpload : public Transfer
+class RapidshareUpload : public Transfer, public CurlUser
 {
 Q_OBJECT
 public:
@@ -57,13 +59,20 @@ public:
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
 	
 	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
+	static int curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, RapidshareUpload* This);
+	static int seek_function(RapidshareUpload* file, curl_off_t offset, int origin);
 	
 	void beginNextChunk();
 protected slots:
 	void queryDone(bool error);
-	void postFinished(bool error);
 protected:
 	void saveLink(QString file, QString link);
+	void curlInit();
+	
+	virtual CURL* curlHandle();
+	virtual void transferDone(CURLcode result);
+	virtual size_t readData(char* buffer, size_t maxData);
+	virtual bool writeData(const char* buffer, size_t bytes);
 	
 	enum AccountType { AccountNone = 0, AccountCollector, AccountPremium };
 	enum QueryType { QueryNone = 0, QueryFileInfo, QueryServerID };
@@ -79,9 +88,12 @@ protected:
 	QUuid m_proxy;
 	QString m_strLinksDownload, m_strLinksKill;
 	
-	HttpClient* m_engine;
+	CURL* m_curl;
+	curl_httppost* m_postData;
 	QHttp* m_http;
-	QBuffer* m_buffer;
+	QBuffer m_buffer;
+	QFile m_file;
+	char m_errorBuffer[CURL_ERROR_SIZE];
 	
 	friend class RapidshareOptsWidget;
 };

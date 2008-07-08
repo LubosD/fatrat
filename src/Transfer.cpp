@@ -70,11 +70,11 @@ void initTransferClasses()
 		EngineEntry e = { "FtpUpload", "CURL FTP(S)/SFTP upload", 0, 0, CurlUpload::createInstance, CurlUpload::acceptable, 0 };
 		g_enginesUpload << e;
 	}
-#endif
 	{
 		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createMultipleOptionsWidget };
 		g_enginesUpload << e;
 	}
+#endif
 }
 
 void addTransferClass(const EngineEntry& e, Transfer::Mode m)

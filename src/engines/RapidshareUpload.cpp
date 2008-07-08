@@ -18,22 +18,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include "fatrat.h"
 #include "RapidshareUpload.h"
 #include "RuntimeException.h"
+#include "CurlPoller.h"
 #include "WidgetHostDlg.h"
 #include "Settings.h"
+#include <QHttp>
 #include <QBuffer>
+#include <QThread>
 #include <QFileInfo>
 #include <QSettings>
 #include <QFileDialog>
+#include <QtDebug>
 
 extern QSettings* g_settings;
 
 const long CHUNK_SIZE = 10*1024*1024;
-const char* MIME_BOUNDARY = "---------------------244245272FATRAT12354348";
 
 RapidshareUpload::RapidshareUpload()
-	: m_engine(0), m_http(0), m_buffer(0)
+	: m_curl(0), m_postData(0), m_http(0)
 {
 	m_query = QueryNone;
 	m_nFileID = -1;
@@ -52,8 +56,10 @@ RapidshareUpload::RapidshareUpload()
 
 RapidshareUpload::~RapidshareUpload()
 {
-	if(m_engine)
-		m_engine->destroy();
+	if(m_curl)
+		curl_easy_cleanup(m_curl);
+	if(m_postData)
+		curl_formfree(m_postData);
 }
 
 void RapidshareUpload::globalInit()
@@ -71,10 +77,68 @@ int RapidshareUpload::acceptable(QString url, bool)
 	return 0; // because this class doesn't actually use URLs
 }
 
+int anti_crash_fun();
+
 void RapidshareUpload::init(QString source, QString target)
 {
 	setObject(source);
+	
+	if(QThread::currentThread() != QApplication::instance()->thread())
+		moveToThread(QApplication::instance()->thread());
 }
+
+void RapidshareUpload::curlInit()
+{
+	if(m_curl)
+		curl_easy_cleanup(m_curl);
+	
+	m_curl = curl_easy_init();
+	//curl_easy_setopt(m_curl, CURLOPT_POST, true);
+	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
+	curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
+	curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
+	curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, this);
+	curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
+	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
+	curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
+	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
+	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
+	curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
+	curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
+	curl_easy_setopt(m_curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+}
+
+CURL* RapidshareUpload::curlHandle()
+{
+	return m_curl;
+}
+
+size_t RapidshareUpload::readData(char* buffer, size_t maxData)
+{
+	maxData = qMin<size_t>(m_nDone+CHUNK_SIZE - m_file.pos(), maxData);
+	return m_file.read(buffer, maxData);
+}
+
+bool RapidshareUpload::writeData(const char* buffer, size_t bytes)
+{
+	m_buffer.write(buffer, bytes);
+	return true;
+}
+
+int RapidshareUpload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, RapidshareUpload* This)
+{
+	if(type != CURLINFO_DATA_IN && type != CURLINFO_DATA_OUT)
+	{
+		QByteArray line = QByteArray(text, bytes).trimmed();
+		qDebug() << "CURL debug:" << line;
+		if(!line.isEmpty())
+			This->enterLogMessage(line);
+	}
+	
+	return 0;
+}
+
 
 void RapidshareUpload::setObject(QString source)
 {
@@ -92,6 +156,8 @@ void RapidshareUpload::changeActive(bool nowActive)
 {
 	if(nowActive)
 	{
+		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
+		
 		if(m_type != AccountNone && (m_strUsername.isEmpty() || m_strPassword.isEmpty()))
 		{
 			m_strMessage = tr("You have to enter your account information");
@@ -99,18 +165,41 @@ void RapidshareUpload::changeActive(bool nowActive)
 			return;
 		}
 		
+		Proxy proxy = Proxy::getProxy(m_proxy);
+		if(proxy.nType != Proxy::ProxyNone)
+		{
+			QByteArray p;
+			
+			if(!proxy.strUser.isEmpty())
+				p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
+			else
+				p = QString("%1:%2@%3:%4").arg(proxy.strUser).arg(proxy.strPassword).arg(proxy.strIP).arg(proxy.nPort).toLatin1();
+			curl_easy_setopt(m_curl, CURLOPT_PROXY, p.constData());
+		}
+		else
+			curl_easy_setopt(m_curl, CURLOPT_PROXY, "");
+		
+		if(!m_file.isOpen())
+		{
+			m_file.setFileName(m_strSource);
+			if(!m_file.open(QIODevice::ReadOnly))
+			{
+				m_strMessage = tr("Can't open the file");
+				setState(Failed);
+				return;
+			}
+		}
+		
+		m_buffer.close();
 		if(m_strServer.isEmpty())
 		{
 			m_query = QueryServerID;
 			m_http = new QHttp("rapidshare.com", 80);
-			m_buffer = new QBuffer(m_http);
-			
-			m_buffer->open(QIODevice::ReadWrite);
 			
 			connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
 			
 			m_http->setProxy(Proxy::getProxy(m_proxy));
-			m_http->get("/cgi-bin/rsapi.cgi?sub=nextuploadserver_v1", m_buffer);
+			m_http->get("/cgi-bin/rsapi.cgi?sub=nextuploadserver_v1", &m_buffer);
 		}
 		else
 		{
@@ -119,18 +208,15 @@ void RapidshareUpload::changeActive(bool nowActive)
 				// verify that the ID is still valid
 				m_query = QueryFileInfo;
 				m_http = new QHttp("rapidshare.com", 80);
-				m_buffer = new QBuffer(m_http);
-				
-				m_buffer->open(QIODevice::ReadWrite);
 				
 				connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
 				
 				m_http->setProxy(Proxy::getProxy(m_proxy));
-				m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), m_buffer);
+				m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), &m_buffer);
 			}
 			else
 			{
-				if(!m_nFileID || m_strKillID.isEmpty())
+				if(m_nFileID <= 0 || m_strKillID.isEmpty())
 					m_nDone = 0;
 				
 				m_nTotal = QFileInfo(m_strSource).size();
@@ -158,19 +244,58 @@ void RapidshareUpload::changeActive(bool nowActive)
 			m_http->deleteLater();
 			m_http = 0;
 		}
-		if(m_engine)
+		
+		resetStatistics();
+		CurlPoller::instance()->removeTransfer(this);
+		
+		if(m_curl)
 		{
-			m_engine->destroy();
-			m_engine = 0;
+			curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
+			curl_easy_cleanup(m_curl);
+			m_curl = 0;
+		}
+		
+		if(m_postData)
+		{
+			curl_formfree(m_postData);
+			m_postData = 0;
 		}
 	}
 }
 
+int RapidshareUpload::seek_function(RapidshareUpload* This, curl_off_t offset, int origin)
+{
+	qDebug() << "seek_function" << offset << origin;
+	
+	if(origin == SEEK_SET)
+	{
+		if(!This->m_file.seek(This->m_nDone + offset))
+			return -1;
+	}
+	else if(origin == SEEK_CUR)
+	{
+		if(!This->m_file.seek(This->m_file.pos() + offset))
+			return -1;
+	}
+	else
+		return -1;
+	return 0;
+}
+
 void RapidshareUpload::beginNextChunk()
 {
-	QString header = QString("%1\r\nContent-Disposition: form-data; name=\"rsapi_v1\"\r\n\r\n1\r\n").arg(MIME_BOUNDARY);
-	QString footer = QString("\r\n%1--\r\n").arg(MIME_BOUNDARY);
+	curl_httppost* lastData = 0;
 	const char* handler;
+	const char* state = 0;
+	
+	if(m_postData)
+	{
+		curl_formfree(m_postData);
+		m_postData = 0;
+	}
+	
+	curlInit();
+	curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "rsapi_v1", CURLFORM_PTRCONTENTS, "1", CURLFORM_END);
 	
 	//qDebug() << "***FileID" << m_nFileID;
 	//qDebug() << "***KillID" << m_nKillID;
@@ -178,78 +303,64 @@ void RapidshareUpload::beginNextChunk()
 	
 	if(m_nFileID > 0 && !m_strKillID.isEmpty() && m_nDone > 0)
 	{
-		header += QString("%1\r\nContent-Disposition: form-data; name=\"fileid\"\r\n\r\n%2\r\n"
-				"%1\r\nContent-Disposition: form-data; name=\"killcode\"\r\n\r\n%3\r\n")
-				.arg(MIME_BOUNDARY).arg(m_nFileID).arg(m_strKillID);
+		char buf[50];
+		
+		sprintf(buf, "%lld", m_nFileID);
+		curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "fileid", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
+		curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "killcode", CURLFORM_COPYCONTENTS, m_strKillID.toLatin1().data(), CURLFORM_END);
+		
 		handler = "uploadresume";
 	}
 	else
 	{
+		handler = "upload";
+	
 		if(m_type != AccountNone)
 		{
 			const char* acctype = (m_type == AccountCollector) ? "freeaccountid" : "login";
-			header += QString("%1\r\nContent-Disposition: form-data; name=\"%2\"\r\n\r\n%3\r\n"
-					 "%1\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\n%4\r\n")
-					.arg(MIME_BOUNDARY).arg(acctype).arg(m_strUsername).arg(m_strPassword);
+			curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, acctype, CURLFORM_COPYCONTENTS, m_strUsername.toUtf8().constData(), CURLFORM_END);
+			curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "password", CURLFORM_COPYCONTENTS, m_strPassword.toUtf8().constData(), CURLFORM_END);
 		}
-		handler = "upload";
 	}
-	
-	const char* state = 0;
+
 	if(m_nDone+CHUNK_SIZE >= m_nTotal)
 		state = "complete";
 	else //if(m_nDone+CHUNK_SIZE < m_nTotal)
 		state = "incomplete";
 	
 	if(state != 0)
-	{
-		header += QString("%1\r\nContent-Disposition: form-data; name=\"%2\"\r\n\r\n1\r\n")
-				.arg(MIME_BOUNDARY).arg(state);
-	}
+		curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, state, CURLFORM_PTRCONTENTS, "1", CURLFORM_END);
 	
-	header += QString("%1\r\nContent-Disposition: form-data; name=\"filecontent\"; filename=\"%2\"\r\n\r\n")
-			.arg(MIME_BOUNDARY).arg(m_strName);
+	curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "filecontent",
+		CURLFORM_STREAM, static_cast<CurlUser*>(this),
+		CURLFORM_FILENAME, m_strName.toUtf8().constData(),
+		CURLFORM_CONTENTSLENGTH, qMin<long>(CHUNK_SIZE, m_nTotal - m_nDone), CURLFORM_END);
 	
-	qDebug() << header;
+	QByteArray url = QString("http://%1/cgi-bin/%2.cgi").arg(m_strServer).arg(handler).toLatin1();
+	curl_easy_setopt(m_curl, CURLOPT_URL, url.constData());
+	curl_easy_setopt(m_curl, CURLOPT_HTTPPOST, m_postData);
 	
-	QString url = QString("http://%1/cgi-bin/%2.cgi").arg(m_strServer).arg(handler);
-	m_engine = new HttpClient(QUrl(url), QUrl(), m_proxy);
+	m_file.seek(m_nDone);
+	m_buffer.close();
+	m_buffer.open(QIODevice::WriteOnly);
 	
-	connect(m_engine, SIGNAL(finished(bool)), this, SLOT(postFinished(bool)), Qt::QueuedConnection);
-	//connect(m_engine, SIGNAL(statusMessage(QString)), this, SLOT(changeMessage(QString)));
-	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
-	
-	int down, up;
-	internalSpeedLimits(down, up);
-	m_engine->setLimit(up);
-	
-	m_engine->addHeaderValue("Content-Type", QString("multipart/form-data; boundary=")+MIME_BOUNDARY);
-	m_engine->setSegment(m_nDone, m_nDone + qMin<qint64>(CHUNK_SIZE, m_nTotal - m_nDone));
-	m_engine->setRequestBody(header.toUtf8(), footer.toUtf8());
-	m_engine->request(m_strSource, true, 0);
+	CurlPoller::instance()->addTransfer(this);
 }
 
-void RapidshareUpload::postFinished(bool error)
+void RapidshareUpload::transferDone(CURLcode result)
 {
-	if(error && isActive())
+	if(result != CURLE_OK && isActive())
 	{
 		setState(Failed);
-		
-		if(m_engine)
-		{
-			m_strMessage = m_engine->errorString();
-			m_engine->destroy();
-			m_engine = 0;
-		}
 	}
-	if(!error)
+	if(result == CURLE_OK)
 	{
 		m_nDone += qMin<qint64>(CHUNK_SIZE, m_nTotal - m_nDone);
 		
 		QRegExp reFileID("File1.1=http://rapidshare.com/files/(\\d+)/");
 		QRegExp reKillID("\\?killcode=(\\d+)");
 		QString link;
-		QByteArray response = m_engine->getResponseBody();
+		const QByteArray& response = m_buffer.buffer();
 		
 		qDebug() << response;
 		
@@ -265,7 +376,13 @@ void RapidshareUpload::postFinished(bool error)
 				throw RuntimeException(tr("Invalid password"));
 			
 			if(response.startsWith("ERROR"))
-				throw RuntimeException(response);
+			{
+				int ix = response.indexOf('.');
+				if(ix > 0)
+					throw RuntimeException(response.left(ix+1));
+				else
+					throw RuntimeException(response);
+			}
 			if(!response.startsWith("COMPLETE") && !response.startsWith("CHUNK"))
 			{
 				int ix = reFileID.indexIn(response);
@@ -279,14 +396,12 @@ void RapidshareUpload::postFinished(bool error)
 				m_strKillID = reKillID.cap(1);
 			}
 			
-			m_engine->destroy();
-			m_engine = 0;
-			
 			if(m_nDone == m_nTotal)
 			{
 				link = QString("http://rapidshare.com/files/%1/%2").arg(m_nFileID).arg(m_strName);
 				enterLogMessage(tr("Download link:") + ' ' + link);
 				
+				m_strMessage.clear();
 				if(!m_strLinksDownload.isEmpty())
 					saveLink(m_strLinksDownload, link);
 				
@@ -307,8 +422,6 @@ void RapidshareUpload::postFinished(bool error)
 		}
 		catch(const RuntimeException& e)
 		{
-			m_engine->destroy();
-			m_engine = 0;
 			m_nDone = 0;
 			m_strMessage = e.what();
 			setState(Failed);
@@ -331,13 +444,7 @@ void RapidshareUpload::saveLink(QString filename, QString link)
 
 void RapidshareUpload::queryDone(bool error)
 {
-	if(!m_buffer)
-	{
-		qDebug() << "This error should not happen.";
-		return;
-	}
-	
-	m_buffer->seek(0);
+	m_buffer.seek(0);
 	
 	if(m_query == QueryServerID)
 	{
@@ -348,7 +455,7 @@ void RapidshareUpload::queryDone(bool error)
 		}
 		else
 		{
-			m_strServer = QString("rs%1l3.rapidshare.com").arg(m_buffer->readLine().data());
+			m_strServer = QString("rs%1l3.rapidshare.com").arg(m_buffer.data().toInt());
 			
 			enterLogMessage(tr("Uploading to %1").arg(m_strServer));
 		}
@@ -365,13 +472,13 @@ void RapidshareUpload::queryDone(bool error)
 			m_bIDJustChecked = true;
 			
 			bool ok;
-			QByteArray line = m_buffer->readLine();
-			m_nDone = line.toLongLong(&ok);
+			m_nDone = m_buffer.data().toLongLong(&ok);
 			
 			if(!ok)
 			{
+				qDebug() << m_buffer.data() << "isn't a valid number";
 				// file ID invalid etc.
-				m_strMessage = line;
+				m_strMessage = m_buffer.data();
 				m_nDone = 0;
 				m_nFileID = -1;
 				m_strKillID.clear();
@@ -385,7 +492,6 @@ void RapidshareUpload::queryDone(bool error)
 	m_query = QueryNone;
 	m_http->deleteLater();
 	m_http = 0;
-	m_buffer = 0;
 	
 	if(!error && isActive())
 		changeActive(true); // next stage
@@ -393,26 +499,23 @@ void RapidshareUpload::queryDone(bool error)
 
 void RapidshareUpload::setSpeedLimits(int, int up)
 {
-	//qDebug() << "Speed:" << up;
-	if(m_engine)
-		m_engine->setLimit(up);
+	m_up.max = up;
 }
 
 void RapidshareUpload::speeds(int& down, int& up) const
 {
-	down = 0;
 	up = 0;
-	
-	if(m_engine)
-		up = m_engine->speed();
+	if(isActive())
+		CurlUser::speeds(down, up);
+	down = 0;
 }
 
 qulonglong RapidshareUpload::done() const
 {
-	if(!isActive() || !m_engine)
+	if(!isActive())
 		return m_nDone;
 	else
-		return m_nDone + m_engine->done();
+		return m_file.pos();
 }
 
 void RapidshareUpload::load(const QDomNode& map)

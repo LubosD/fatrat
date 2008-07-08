@@ -68,7 +68,7 @@ if(WITH_CURL)
 	endif(CURL_FOUND)
 endif(WITH_CURL)
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
+if(; MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
 	ADD_DEFINITIONS(-DDEBUG)
 	ADD_DEFINITIONS(-Wall)
@@ -132,7 +132,6 @@ set(fatrat_SRCS
 	src/tooltips/TrayToolTip.cpp
 
 	src/engines/HttpClient.cpp
-	src/engines/RapidshareUpload.cpp
 
 	src/dbus/DbusAdaptor.cpp
 	src/dbus/DbusImpl.cpp
@@ -180,7 +179,6 @@ set(fatrat_MOC_HDRS
 	src/tools/RapidTools.h
 	src/tools/VideoFetcher.h
 	
-	src/engines/RapidshareUpload.h
 	src/engines/HttpClient.h
 	
 	src/rss/RssFetcher.h
@@ -226,7 +224,6 @@ set(fatrat_UIS
 	src/engines/HttpOptsWidget.ui
 	src/engines/HttpUrlOptsDlg.ui
 	src/engines/SettingsHttpForm.ui
-	src/engines/RapidshareOptsForm.ui
 )
 
 if(WITH_CURL)
@@ -238,6 +235,7 @@ if(WITH_CURL)
 		src/engines/CurlUser.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
+		src/engines/RapidshareUpload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -245,6 +243,11 @@ if(WITH_CURL)
 		src/engines/CurlUpload.h
 		src/engines/HttpFtpSettings.h
 		src/engines/GeneralDownloadForms.h
+		src/engines/RapidshareUpload.h
+	)
+	set(fatrat_UIS
+		${fatrat_UIS}
+		src/engines/RapidshareOptsForm.ui
 	)
 endif(WITH_CURL)
 
