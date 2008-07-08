@@ -221,9 +221,9 @@ void RapidshareUpload::changeActive(bool nowActive)
 				
 				m_nTotal = QFileInfo(m_strSource).size();
 				
-				if( (m_nTotal > 100*1024*1024 && m_type != AccountPremium) || m_nTotal > 2LL*1024LL*1024LL*1024LL)
+				if(m_nTotal > 200*1024*1024)
 				{
-					m_strMessage = tr("The maximum file size is 100 MB (non-premium) or 2 GB (premium)");
+					m_strMessage = tr("The maximum file size is 200 MB");
 					setState(Failed);
 					return;
 				}
