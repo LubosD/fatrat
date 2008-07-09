@@ -58,6 +58,7 @@ protected slots:
 	void secondElapsed();
 protected:
 	void deriveName();
+	virtual void transferDone(CURLcode result);
 private:
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;

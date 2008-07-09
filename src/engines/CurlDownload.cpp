@@ -180,7 +180,7 @@ void CurlDownload::changeActive(bool bActive)
 			m_nUrl = 0;
 		
 		m_file.setFileName(filePath());
-		if(!m_file.open(QIODevice::WriteOnly | QIODevice::Append))
+		if(!m_file.open(QIODevice::ReadWrite | QIODevice::Append))
 		{
 			enterLogMessage(m_strMessage = m_file.errorString());
 			setState(Failed);

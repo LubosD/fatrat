@@ -253,3 +253,25 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 	}
 	return 0;
 }
+
+void RapidshareFreeDownload::transferDone(CURLcode result)
+{
+	if(result == CURLE_OK)
+	{
+		if(done() < 10*1024)
+		{
+			QByteArray data;
+			m_file.seek(0);
+			data = m_file.readAll();
+			
+			if(data.indexOf("<h1>Error</h1>") != -1)
+			{
+				m_file.remove();
+				setState(Failed);
+				m_strMessage = tr("Failed to download the file.");
+			}
+		}
+	}
+	
+	CurlDownload::transferDone(result);
+}
