@@ -92,6 +92,9 @@ QStringList QueueView::mimeTypes() const
 
 void QueueView::mouseMoveEvent(QMouseEvent* event)
 {
+	if(!getSettingsValue("queue_tooltips").toBool())
+		return;
+	
 	QTreeWidgetItem* item = itemAt(event->pos());
 	
 	if(!item)

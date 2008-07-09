@@ -19,12 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "SettingsQueueForm.h"
-#include <QSettings>
 #include <QMessageBox>
 #include <QSystemTrayIcon>
 #include "Settings.h"
-
-extern QSettings* g_settings;
 
 SettingsQueueForm::SettingsQueueForm(QWidget* w, QObject* parent) : QObject(parent)
 {
@@ -44,19 +41,21 @@ void SettingsQueueForm::load()
 	
 	checkPopup->setEnabled(QSystemTrayIcon::supportsMessages());
 	checkAutoRemove->setChecked( getSettingsValue("autoremove").toBool() );
+	checkTooltips->setChecked(getSettingsValue("queue_tooltips").toBool());
 }
 
 void SettingsQueueForm::accepted()
 {
-	g_settings->setValue("retrycount", spinRetry->value());
-	g_settings->setValue("retryworking", checkRetryWorking->isChecked());
-	g_settings->setValue("showpopup", checkPopup->isChecked());
-	g_settings->setValue("popuptime", spinPopup->value());
-	g_settings->setValue("sendemail", checkEmail->isChecked());
-	g_settings->setValue("smtpserver", lineSmtp->text());
-	g_settings->setValue("emailsender", lineSender->text());
-	g_settings->setValue("emailrcpt", lineRecipient->text());
-	g_settings->setValue("autoremove", checkAutoRemove->isChecked());
+	setSettingsValue("retrycount", spinRetry->value());
+	setSettingsValue("retryworking", checkRetryWorking->isChecked());
+	setSettingsValue("showpopup", checkPopup->isChecked());
+	setSettingsValue("popuptime", spinPopup->value());
+	setSettingsValue("sendemail", checkEmail->isChecked());
+	setSettingsValue("smtpserver", lineSmtp->text());
+	setSettingsValue("emailsender", lineSender->text());
+	setSettingsValue("emailrcpt", lineRecipient->text());
+	setSettingsValue("autoremove", checkAutoRemove->isChecked());
+	setSettingsValue("queue_tooltips", checkTooltips->isChecked());
 }
 
 bool SettingsQueueForm::accept()
