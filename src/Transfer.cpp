@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Transfer.h"
 #include "Settings.h"
 
-#include "engines/RapidshareUpload.h"
-
 #ifdef WITH_BITTORRENT
 #	include "engines/TorrentDownload.h"
 #endif
@@ -35,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef WITH_CURL
 #	include "engines/CurlDownload.h"
 #	include "engines/CurlUpload.h"
+#	include "engines/RapidshareUpload.h"
+#	include "engines/RapidshareFreeDownload.h"
 #endif
 
 #include <QtDebug>
@@ -73,6 +73,10 @@ void initTransferClasses()
 	{
 		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createMultipleOptionsWidget };
 		g_enginesUpload << e;
+	}
+	{
+		EngineEntry e = { "RapidshareFreeDownload", "RapidShare.com FREE download", 0, 0, RapidshareFreeDownload::createInstance, RapidshareFreeDownload::acceptable, 0 };
+		g_enginesDownload << e;
 	}
 #endif
 }

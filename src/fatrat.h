@@ -73,6 +73,7 @@ struct Auth
 {
 	QString strRegExp, strUser, strPassword;
 	static QList<Auth> loadAuths();
+	static void saveAuths(const QList<Auth>& auths);
 };
 
 struct PluginInfo

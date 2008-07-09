@@ -328,6 +328,19 @@ QList<Auth> Auth::loadAuths()
 	return r;
 }
 
+void Auth::saveAuths(const QList<Auth>& auths)
+{
+	g_settings->beginWriteArray("httpftp/auths");
+	for(int i=0;i<auths.size();i++)
+	{
+		g_settings->setArrayIndex(i);
+		g_settings->setValue("regexp", auths[i].strRegExp);
+		g_settings->setValue("user", auths[i].strUser);
+		g_settings->setValue("password", auths[i].strPassword);
+	}
+	g_settings->endArray();
+}
+
 Proxy::Proxy Proxy::getProxy(QUuid uuid)
 {
 	int count = g_settings->beginReadArray("httpftp/proxys");

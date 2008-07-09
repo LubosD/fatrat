@@ -62,6 +62,7 @@ protected:
 	virtual CURL* curlHandle();
 	virtual bool writeData(const char* buffer, size_t bytes);
 	virtual void transferDone(CURLcode result);
+	QString filePath() const;
 private slots:
 	void switchMirror();
 	void computeHash();
@@ -69,7 +70,6 @@ private:
 	void generateName();
 	void init2(QString uri, QString dest);
 	void setTargetName(QString newFileName);
-	QString filePath() const;
 	void processHeaders();
 	
 	static int seek_function(QFile* file, curl_off_t offset, int origin);

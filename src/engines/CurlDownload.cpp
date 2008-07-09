@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Settings.h"
 #include "RuntimeException.h"
 #include "GeneralDownloadForms.h"
+#include "HttpFtpSettings.h"
 #include "tools/HashDlg.h"
 #include "CurlPoller.h"
 #include <QMessageBox>
@@ -108,15 +109,18 @@ int CurlDownload::acceptable(QString uri, bool)
 	if(scheme != "http" && scheme != "ftp" && scheme != "https" && scheme != "sftp")
 		return 0;
 	else
-	{
-		qDebug() << "CurlDownload::acceptable: 2";
 		return 2;
-	}
 }
 
 void CurlDownload::globalInit()
 {
 	new CurlPoller;
+	
+	SettingsItem si;
+	si.icon = QIcon(":/fatrat/httpftp.png");
+	si.lpfnCreate = HttpFtpSettings::create;
+	
+	addSettingsPage(si);
 }
 
 void CurlDownload::globalExit()
@@ -129,9 +133,10 @@ void CurlDownload::setObject(QString target)
 	QDir dirnew = target;
 	if(dirnew != m_dir)
 	{
+		if(!QFile::rename(filePath(), target))
+			throw RuntimeException(tr("Cannot move the file."));
+			
 		m_dir = dirnew;
-		if(isActive())
-			setState(Waiting); // restart the download
 	}
 }
 

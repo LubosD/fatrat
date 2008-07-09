@@ -13,71 +13,58 @@
    <string>RapidShare.com</string>
   </property>
   <layout class="QGridLayout" >
-   <item row="0" column="0" colspan="2" >
-    <widget class="QLabel" name="labelSettings" >
-     <property name="text" >
-      <string>Default settings - &lt;b>&lt;font color="red">used only for upload!&lt;/font>&lt;/b> For download see the HTTP/FTP section.</string>
-     </property>
-     <property name="scaledContents" >
-      <bool>false</bool>
-     </property>
-     <property name="wordWrap" >
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" >
+   <item row="0" column="0" >
     <widget class="QLabel" name="label" >
      <property name="text" >
       <string>RS.com account type</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" >
+   <item row="0" column="1" >
     <widget class="QComboBox" name="comboAccount" />
    </item>
-   <item row="2" column="0" >
+   <item row="1" column="0" >
     <widget class="QLabel" name="label_2" >
      <property name="text" >
       <string>User name</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" >
+   <item row="1" column="1" >
     <widget class="QLineEdit" name="lineUsername" />
    </item>
-   <item row="3" column="0" >
+   <item row="2" column="0" >
     <widget class="QLabel" name="label_3" >
      <property name="text" >
       <string>Password</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1" >
+   <item row="2" column="1" >
     <widget class="QLineEdit" name="linePassword" >
      <property name="echoMode" >
       <enum>QLineEdit::Password</enum>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2" >
+   <item row="3" column="0" colspan="2" >
     <widget class="Line" name="line" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" >
+   <item row="4" column="0" >
     <widget class="QLabel" name="label_4" >
      <property name="text" >
       <string>Proxy</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1" >
+   <item row="4" column="1" >
     <widget class="QComboBox" name="comboProxy" />
    </item>
-   <item row="6" column="0" colspan="2" >
+   <item row="5" column="0" colspan="2" >
     <widget class="QGroupBox" name="groupLinks" >
      <property name="title" >
       <string>Save links to a file</string>
@@ -120,7 +107,7 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="1" >
+   <item row="6" column="1" >
     <spacer>
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
@@ -136,7 +123,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../gfx/resources.qrc" />
+  <include location="../../gfx/resources.qrc" />
  </resources>
  <connections/>
 </ui>

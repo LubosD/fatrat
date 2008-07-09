@@ -228,9 +228,9 @@ void RapidshareUpload::changeActive(bool nowActive)
 				
 				m_nTotal = QFileInfo(m_strSource).size();
 				
-				if(m_nTotal > 200*1024*1024)
+				if((m_nTotal > 200*1024*1024 && m_type != AccountPremium) || m_nTotal > 2LL*1024LL*1024LL*1024LL)
 				{
-					m_strMessage = tr("The maximum file size is 200 MB");
+					m_strMessage = tr("The maximum file size is 200 MB/2 GB (premium)");
 					setState(Failed);
 					return;
 				}
@@ -337,6 +337,8 @@ void RapidshareUpload::beginNextChunk()
 	
 	if(state != 0)
 		curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, state, CURLFORM_PTRCONTENTS, "1", CURLFORM_END);
+	
+	QString name;
 	
 	curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "filecontent",
 		CURLFORM_STREAM, static_cast<CurlUser*>(this),
@@ -605,8 +607,6 @@ void RapidshareOptsWidget::init(QWidget* me)
 	connect(toolDownload, SIGNAL(clicked()), this, SLOT(browseDownload()));
 	connect(toolKill, SIGNAL(clicked()), this, SLOT(browseKill()));
 	
-	labelSettings->setVisible(false);
-	//groupLinks->setVisible(false);
 	comboAccount->addItems( QStringList() << tr("No account") << tr("Collector's account") << tr("Premium account") );
 }
 
@@ -792,9 +792,42 @@ void RapidshareSettings::load()
 
 void RapidshareSettings::accepted()
 {
-	g_settings->setValue("rapidshare/account", comboAccount->currentIndex());
-	g_settings->setValue("rapidshare/username", lineUsername->text());
-	g_settings->setValue("rapidshare/password", linePassword->text());
+	int acctype = comboAccount->currentIndex();
+	QString user, password;
+	QList<Auth> auths = Auth::loadAuths();
+	int ix = -1;
+	const char* REGEXP = "http://rapidshare\\.com/files/\\d+/.+";
+	
+	user = lineUsername->text();
+	password = linePassword->text();
+	
+	for(int i=0;i<auths.size();i++)
+	{
+		if(auths[i].strRegExp == REGEXP)
+		{
+			ix = i;
+			break;
+		}
+	}
+	
+	if(!acctype && ix >= 0)
+		auths.removeAt(ix);
+	else if(ix >= 0)
+	{
+		auths[ix].strUser = user;
+		auths[ix].strPassword = password;
+	}
+	else
+	{
+		Auth auth = { REGEXP, user, password };
+		auths << auth;
+	}
+	
+	Auth::saveAuths(auths);
+	
+	g_settings->setValue("rapidshare/account", acctype);
+	g_settings->setValue("rapidshare/username", user);
+	g_settings->setValue("rapidshare/password", password);
 	g_settings->setValue("rapidshare/proxy", comboProxy->itemData(comboProxy->currentIndex()).toString());
 	g_settings->setValue("rapidshare/down_links", lineLinksDownload->text());
 	g_settings->setValue("rapidshare/kill_links", lineLinksKill->text());

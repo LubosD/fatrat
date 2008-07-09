@@ -71,28 +71,14 @@ void HttpFtpSettings::load()
 
 void HttpFtpSettings::accepted()
 {
-	g_settings->beginGroup("httpftp");
-	
 	int index = comboDefaultProxy->currentIndex();
 	if(!index)
 		m_defaultProxy = QUuid();
 	else
 		m_defaultProxy = m_listProxy[index-1].uuid;
-	g_settings->setValue("defaultproxy", m_defaultProxy.toString());
+	g_settings->setValue("httpftp/defaultproxy", m_defaultProxy.toString());
 	
-	g_settings->beginWriteArray("auths");
-	for(int i=0;i<m_listAuth.size();i++)
-	{
-		Auth& a = m_listAuth[i];
-		
-		g_settings->setArrayIndex(i);
-		g_settings->setValue("regexp",a.strRegExp);
-		g_settings->setValue("user",a.strUser);
-		g_settings->setValue("password",a.strPassword);
-	}
-	g_settings->endArray();
-	
-	g_settings->endGroup();
+	Auth::saveAuths(m_listAuth);
 }
 
 void HttpFtpSettings::authAdd()
