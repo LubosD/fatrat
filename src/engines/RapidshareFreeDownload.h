@@ -32,6 +32,8 @@ class RapidshareFreeDownload : public CurlDownload
 Q_OBJECT
 public:
 	RapidshareFreeDownload();
+	virtual ~RapidshareFreeDownload();
+	
 	virtual void init(QString source, QString target);
 	virtual QString myClass() const { return "RapidshareFreeDownload"; }
 	virtual QString name() const;
@@ -63,6 +65,7 @@ private:
 	QBuffer* m_buffer;
 	int m_nSecondsLeft;
 	QTimer m_timer;
+	bool m_bHasLock;
 };
 
 #endif

@@ -25,10 +25,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QBuffer>
 #include <QRegExp>
 #include <QApplication>
+#include <QMutex>
+
+static QMutex m_mInstanceActive;
 
 RapidshareFreeDownload::RapidshareFreeDownload()
-	: m_http(0), m_buffer(0), m_nSecondsLeft(-1)
+	: m_http(0), m_buffer(0), m_nSecondsLeft(-1), m_bHasLock(false)
 {
+}
+
+RapidshareFreeDownload::~RapidshareFreeDownload()
+{
+	if(isActive())
+		changeActive(false);
 }
 
 void RapidshareFreeDownload::init(QString source, QString target)
@@ -105,6 +114,13 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 {
 	if(bActive)
 	{
+		if(!m_mInstanceActive.tryLock())
+		{
+			m_strMessage = tr("You cannot have multiple RS.com FREE downloads.");
+			setState(Failed);
+			return;
+		}
+		
 		QUrl url(m_strOriginal);
 		m_http = new QHttp("rapidshare.com", 80, this);
 		m_buffer = new QBuffer(m_http);
@@ -112,9 +128,16 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 		m_http->get(url.path(), m_buffer);
 		
 		m_strMessage = tr("Loading the first page");
+		m_bHasLock = true;
 	}
 	else
 	{
+		if(m_bHasLock)
+		{
+			m_mInstanceActive.unlock();
+			m_bHasLock = false;
+		}
+		
 		if(m_curl)
 			CurlDownload::changeActive(false);
 		m_nSecondsLeft = -1;
