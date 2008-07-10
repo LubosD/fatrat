@@ -364,10 +364,17 @@ set(fatrat_DEV_HEADERS_ENGINES
 	src/engines/OutputBuffer.h
 	)
 
-install(FILES data/LICENSE.txt data/TRANSLATIONS.txt data/3RDPARTIES.txt data/defaults.conf DESTINATION share/fatrat/data)
-install(FILES data/css/queueview.css data/css/label-headers.css DESTINATION share/fatrat/data/css)
-install(FILES gfx/fatrat.png DESTINATION share/pixmaps)
-install(FILES data/fatrat.desktop DESTINATION share/applications)
+install(FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/data/LICENSE.txt
+	${CMAKE_CURRENT_SOURCE_DIR}/data/TRANSLATIONS.txt
+	${CMAKE_CURRENT_SOURCE_DIR}/data/3RDPARTIES.txt
+	${CMAKE_CURRENT_SOURCE_DIR}/data/defaults.conf
+	DESTINATION share/fatrat/data
+	)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/css/queueview.css ${CMAKE_CURRENT_SOURCE_DIR}/data/css/label-headers.css DESTINATION share/fatrat/data/css)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gfx/fatrat.png DESTINATION share/pixmaps)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fatrat.desktop DESTINATION share/applications)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
 install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
@@ -377,62 +384,34 @@ if(WITH_NLS)
 endif(WITH_NLS)
 
 if(WITH_BITTORRENT)
-	install(FILES data/btsearch.xml DESTINATION share/fatrat/data)
-	install(FILES data/btlinks.txt DESTINATION share/fatrat/data)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btsearch.xml DESTINATION share/fatrat/data)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btlinks.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
 
 if(WITH_WEBINTERFACE)
-	install(FILES data/remote/logo.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/reload.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/browse.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/add.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/delete.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/delete_with_data.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/graph.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/down.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/header.png DESTINATION share/fatrat/data/remote)
+	FILE( GLOB rm_pngs ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/*.png )
+	install(FILES ${rm_pngs} DESTINATION share/fatrat/data/remote)
 	
-	install(FILES data/remote/download.png DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/upload.png DESTINATION share/fatrat/data/remote)
+	FILE( GLOB rm_qsps ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/*.qsp )
+	install(FILES ${rm_qsps} DESTINATION share/fatrat/data/remote)
 	
-	install(FILES data/remote/index.js DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/index.qsp DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/details.qsp DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/browse.qsp DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/add_transfer.qsp DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/add_transfer2.qsp DESTINATION share/fatrat/data/remote)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/index.js DESTINATION share/fatrat/data/remote)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/style.css DESTINATION share/fatrat/data/remote)
 	
-	install(FILES data/remote/style.css DESTINATION share/fatrat/data/remote)
-	install(FILES data/remote/favicon.png DESTINATION share/fatrat/data/remote)
+	FILE( GLOB rm_move ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/move/*.png )
+	install(FILES ${rm_move} DESTINATION share/fatrat/data/remote/move)
 	
-	install(FILES data/remote/move/top.png DESTINATION share/fatrat/data/remote/move)
-	install(FILES data/remote/move/up.png DESTINATION share/fatrat/data/remote/move)
-	install(FILES data/remote/move/down.png DESTINATION share/fatrat/data/remote/move)
-	install(FILES data/remote/move/bottom.png DESTINATION share/fatrat/data/remote/move)
+	FILE( GLOB rm_queue ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/queue/*.png )
+	install(FILES ${rm_queue} DESTINATION share/fatrat/data/remote/queue)
 	
-	install(FILES data/remote/queue/add.png DESTINATION share/fatrat/data/remote/queue)
-	install(FILES data/remote/queue/remove.png DESTINATION share/fatrat/data/remote/queue)
-	install(FILES data/remote/queue/properties.png DESTINATION share/fatrat/data/remote/queue)
-	
-	install(FILES data/remote/states/active.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/completed.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/forcedactive.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/paused.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/waiting.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/failed.png DESTINATION share/fatrat/data/remote/states)
-	
-	install(FILES data/remote/states/active_upload.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/completed_upload.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/forcedactive_upload.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/paused_upload.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/waiting_upload.png DESTINATION share/fatrat/data/remote/states)
-	install(FILES data/remote/states/failed_upload.png DESTINATION share/fatrat/data/remote/states)
+	FILE( GLOB rm_states ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/states/*.png )
+	install(FILES ${rm_states} DESTINATION share/fatrat/data/remote/states)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
 	execute_process(COMMAND doc/generate.sh)
-	install(FILES doc/fatrat.qhc DESTINATION share/fatrat/doc)
-	install(FILES doc/fatrat.qch DESTINATION share/fatrat/doc)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
 endif(WITH_DOCUMENTATION)
 
-install(PROGRAMS fatrat DESTINATION bin)
+install(TARGETS fatrat DESTINATION bin)
