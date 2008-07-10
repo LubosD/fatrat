@@ -140,6 +140,7 @@ void RssFetcher::requestFinished(int id, bool error)
 		
 		reader.setContentHandler(this);
 		
+		m_bInItem = false;
 		m_strCurrentSource = feed->url;
 		m_itemNext = RssItem();
 		

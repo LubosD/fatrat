@@ -50,10 +50,12 @@ if(WITH_JABBER)
 endif(WITH_JABBER)
 
 if(WITH_CURL)
-	find_package(CURL REQUIRED)
+	find_package(CURL 7.18.3 REQUIRED)
 	
 	if(CURL_FOUND)
 		include_directories(${CURL_INCLUDE_DIRS})
+	else(CURL_FOUND)
+		message(FATAR_ERROR "No curl")
 	endif(CURL_FOUND)
 endif(WITH_CURL)
 
