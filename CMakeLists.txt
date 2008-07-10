@@ -324,7 +324,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gfx/fatrat.png DESTINATION share/pixma
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fatrat.desktop DESTINATION share/applications)
 
 if(WITH_NLS)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/locale/fatrat_cs_CZ.qm DESTINATION share/fatrat/lang)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/locale/fatrat_cs_CZ.qm ${CMAKE_CURRENT_SOURCE_DIR}/locale/fatrat_tr_TR.qm DESTINATION share/fatrat/lang)
 endif(WITH_NLS)
 
 if(WITH_BITTORRENT)
