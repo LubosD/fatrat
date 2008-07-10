@@ -288,18 +288,6 @@ if(WITH_JABBER)
 	)
 endif(WITH_JABBER)
 
-if(WITH_JAVAREMOTE)
-	set(fatrat_SRCS
-		${fatrat_SRCS}
-		remote/HttpService.cpp
-		remote/JavaService.cpp
-	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
-		remote/HttpService.h
-	)
-endif(WITH_JAVAREMOTE)
-
 if(WITH_DOCUMENTATION)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
@@ -343,13 +331,6 @@ if(WITH_BITTORRENT)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btsearch.xml DESTINATION share/fatrat/data)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btlinks.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
-
-if(WITH_JAVAREMOTE)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/fatratremote.jar DESTINATION share/fatrat/data/remote)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/logo.png DESTINATION share/fatrat/data/remote)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/index.html DESTINATION share/fatrat/data/remote)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/favicon.png DESTINATION share/fatrat/data/remote)
-endif(WITH_JAVAREMOTE)
 
 if(WITH_DOCUMENTATION)
 	execute_process(COMMAND doc/generate.sh)
