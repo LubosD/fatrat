@@ -14,17 +14,6 @@ ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
 	)
 
-MACRO (qt4_wrap_ts outfiles lupdate_outputs prefix)
-	FOREACH (it ${ARGN})
-		SET(tsfile ${CMAKE_CURRENT_BINARY_DIR}/${lupdate_outputs}/${prefix}_${it}.ts)
-		SET(qmfile ${CMAKE_CURRENT_BINARY_DIR}/${lupdate_outputs}/${prefix}_${it}.qm)
-		ADD_CUSTOM_COMMAND(OUTPUT ${qmfile}
-			COMMAND ${QT_LRELEASE_EXECUTABLE} ${tsfile} -qm ${qmfile} -compress
-			)
-		SET(${outfiles} ${${outfiles}} ${qmfile})
-	ENDFOREACH(it)
-ENDMACRO (qt4_wrap_ts)
-
 if(WITH_EVERYTHING)
 	set(WITH_BITTORRENT ON)
 	set(WITH_JABBER ON)
@@ -350,7 +339,7 @@ set(fatrat_RCS
 
 qt4_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
 qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
-qt4_wrap_ts(lrelease_outputs locale fatrat cs_CZ tr_TR)
+qt4_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts locale/fatrat_tr_TR.ts)
 
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
