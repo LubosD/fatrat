@@ -129,6 +129,7 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 		
 		m_strMessage = tr("Loading the first page");
 		m_bHasLock = true;
+		m_nTotal = 0;
 	}
 	else
 	{
@@ -270,6 +271,7 @@ void RapidshareFreeDownload::transferDone(CURLcode result)
 			{
 				m_file.remove();
 				setState(Failed);
+				m_nTotal = 0;
 				m_strMessage = tr("Failed to download the file.");
 			}
 		}
