@@ -157,6 +157,8 @@ void RapidshareFreeDownload::secondElapsed()
 		
 		try
 		{
+			m_nTotal = 0;
+			
 			CurlDownload::init(m_downloadUrl.toString(), m_strTarget);
 			QFile::remove(filePath());
 			CurlDownload::changeActive(true);
