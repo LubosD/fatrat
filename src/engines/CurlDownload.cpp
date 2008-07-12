@@ -328,7 +328,7 @@ void CurlDownload::processHeaders()
 	else
 	{
 		QByteArray newurl = m_headers["location"];
-		if(m_nAutoName)
+		if(m_bAutoName)
 			setTargetName(QFileInfo(newurl).fileName());
 	}
 	
