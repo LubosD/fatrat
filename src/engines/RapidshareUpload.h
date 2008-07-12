@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QBuffer>
 
 class QHttp;
+class RapidshareStatusWidget;
 
 class RapidshareUpload : public Transfer, public CurlUser
 {
@@ -38,6 +39,7 @@ public:
 	virtual ~RapidshareUpload();
 	
 	static void globalInit();
+	static void applySettings();
 	static Transfer* createInstance() { return new RapidshareUpload; }
 	static int acceptable(QString url, bool);
 	
@@ -98,6 +100,8 @@ protected:
 	QBuffer m_buffer;
 	QFile m_file;
 	char m_errorBuffer[CURL_ERROR_SIZE];
+	
+	static RapidshareStatusWidget* m_labelStatus;
 	
 	friend class RapidshareOptsWidget;
 	friend class RapidshareUploadDetails;

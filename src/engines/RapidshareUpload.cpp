@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "WidgetHostDlg.h"
 #include "Settings.h"
 #include "RapidshareUploadDetails.h"
+#include "RapidshareStatusWidget.h"
 
 #include <QHttp>
 #include <QBuffer>
@@ -36,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 extern QSettings* g_settings;
 
+RapidshareStatusWidget* RapidshareUpload::m_labelStatus = 0;
 const long CHUNK_SIZE = 10*1024*1024;
 
 RapidshareUpload::RapidshareUpload()
@@ -72,6 +74,26 @@ void RapidshareUpload::globalInit()
 	si.lpfnCreate = RapidshareSettings::create;
 	
 	addSettingsPage(si);
+	applySettings();
+}
+
+void RapidshareUpload::applySettings()
+{
+	if(getSettingsValue("rapidshare/status_widget").toBool())
+	{
+		if(!m_labelStatus)
+		{
+			m_labelStatus = new RapidshareStatusWidget;
+			addStatusWidget(m_labelStatus, true);
+		}
+		else
+			m_labelStatus->applySettings();
+	}
+	else if(m_labelStatus)
+	{
+		removeStatusWidget(m_labelStatus);
+		m_labelStatus = 0;
+	}
 }
 
 int RapidshareUpload::acceptable(QString url, bool)
@@ -598,6 +620,7 @@ RapidshareOptsWidget::RapidshareOptsWidget(QWidget* me, QList<Transfer*>* multi,
 	: QObject(parent), m_upload(0), m_multi(multi)
 {
 	init(me);
+	checkStatus->setVisible(false);
 }
 
 void RapidshareOptsWidget::init(QWidget* me)
@@ -760,25 +783,28 @@ void RapidshareSettings::accTypeChanged(int now)
 {
 	lineUsername->setEnabled(now != 0);
 	linePassword->setEnabled(now != 0);
+	checkStatus->setEnabled(now == 2);
 }
 
 void RapidshareSettings::load()
 {
 	QList<Proxy> listProxy = Proxy::loadProxys();
 	QString proxy;
-	int acc = g_settings->value("rapidshare/account").toInt();
+	
+	int acc = getSettingsValue("rapidshare/account").toInt();
 	comboAccount->setCurrentIndex(acc);
-	lineUsername->setText(g_settings->value("rapidshare/username").toString());
-	linePassword->setText(g_settings->value("rapidshare/password").toString());
-	lineLinksDownload->setText(g_settings->value("rapidshare/down_links").toString());
-	lineLinksKill->setText(g_settings->value("rapidshare/kill_links").toString());
+	lineUsername->setText(getSettingsValue("rapidshare/username").toString());
+	linePassword->setText(getSettingsValue("rapidshare/password").toString());
+	lineLinksDownload->setText(getSettingsValue("rapidshare/down_links").toString());
+	lineLinksKill->setText(getSettingsValue("rapidshare/kill_links").toString());
+	checkStatus->setChecked(getSettingsValue("rapidshare/status_widget").toBool());
 	
 	accTypeChanged(acc);
 	
 	comboProxy->clear();
 	comboProxy->addItem(tr("None", "No proxy"));
 	
-	proxy = g_settings->value("rapidshare/proxy").toString();
+	proxy = getSettingsValue("rapidshare/proxy").toString();
 	
 	for(int i=0;i<listProxy.size();i++)
 	{
@@ -825,12 +851,15 @@ void RapidshareSettings::accepted()
 	
 	Auth::saveAuths(auths);
 	
-	g_settings->setValue("rapidshare/account", acctype);
-	g_settings->setValue("rapidshare/username", user);
-	g_settings->setValue("rapidshare/password", password);
-	g_settings->setValue("rapidshare/proxy", comboProxy->itemData(comboProxy->currentIndex()).toString());
-	g_settings->setValue("rapidshare/down_links", lineLinksDownload->text());
-	g_settings->setValue("rapidshare/kill_links", lineLinksKill->text());
+	setSettingsValue("rapidshare/account", acctype);
+	setSettingsValue("rapidshare/username", user);
+	setSettingsValue("rapidshare/password", password);
+	setSettingsValue("rapidshare/proxy", comboProxy->itemData(comboProxy->currentIndex()).toString());
+	setSettingsValue("rapidshare/down_links", lineLinksDownload->text());
+	setSettingsValue("rapidshare/kill_links", lineLinksKill->text());
+	
+	setSettingsValue("rapidshare/status_widget", checkStatus->isChecked());
+	RapidshareUpload::applySettings();
 }
 
 void RapidshareSettings::browseDownload()
@@ -851,4 +880,5 @@ bool RapidshareSettings::accept()
 	else
 		return !lineUsername->text().isEmpty() && !linePassword->text().isEmpty();
 }
+
 

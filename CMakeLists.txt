@@ -223,6 +223,7 @@ if(WITH_CURL)
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
 		src/engines/RapidshareFreeDownload.cpp
+		src/engines/RapidshareStatusWidget.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -232,6 +233,7 @@ if(WITH_CURL)
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
 		src/engines/RapidshareFreeDownload.h
+		src/engines/RapidshareStatusWidget.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}

@@ -250,7 +250,7 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 	if(re.exactMatch(uri))
 	{
 		if(getSettingsValue("rapidshare/account") != 0)
-			return 1; // use has an account -> let CurlDownload handle this
+			return 1; // user has an account -> let CurlDownload handle this
 		else
 			return 3; // no account, it's up to us
 	}
@@ -259,21 +259,18 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::transferDone(CURLcode result)
 {
-	if(result == CURLE_OK)
+	if(result == CURLE_OK && done() < 10*1024)
 	{
-		if(done() < 10*1024)
+		QByteArray data;
+		m_file.seek(0);
+		data = m_file.readAll();
+		
+		if(data.indexOf("<h1>Error</h1>") != -1)
 		{
-			QByteArray data;
-			m_file.seek(0);
-			data = m_file.readAll();
-			
-			if(data.indexOf("<h1>Error</h1>") != -1)
-			{
-				m_file.remove();
-				setState(Failed);
-				m_nTotal = 0;
-				m_strMessage = tr("Failed to download the file.");
-			}
+			m_file.remove();
+			setState(Failed);
+			m_nTotal = 0;
+			m_strMessage = tr("Failed to download the file.");
 		}
 	}
 	
