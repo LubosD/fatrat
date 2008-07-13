@@ -30,7 +30,7 @@ USA.
 #include <QFile>
 #include <QNetworkProxy>
 
-#define VERSION "SVN"
+#define VERSION "1.0"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
