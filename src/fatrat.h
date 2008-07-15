@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QIcon>
 #include <QNetworkProxy>
 
-#define VERSION "DEV"
+#define VERSION "DEV" 
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
