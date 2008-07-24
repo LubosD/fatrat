@@ -27,12 +27,22 @@ if(WITH_BITTORRENT)
 	set(libtorrent_DIR ${CMAKE_MODULE_PATH})
 	find_package(libtorrent REQUIRED)
 	
-	if(LIBTORRENT_FOUND)
-		message(STATUS "libtorrent found OK")
-		include_directories(${LIBTORRENT_INCLUDE_DIRS})
-	else(LIBTORRENT_FOUND)
+	if(LIBTORRENTRB_FOUND)
+		message(STATUS "libtorrent found OK ${LIBTORRENTRB_LIBRARY}")
+		include_directories(${LIBTORRENTRB_INCLUDE_DIRS})
+	else(LIBTORRENTRB_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent")
-	endif(LIBTORRENT_FOUND)
+	endif(LIBTORRENTRB_FOUND)
+	
+	set(asio_DIR ${CMAKE_MODULE_PATH})
+	find_package(asio REQUIRED)
+	
+	if(ASIO_FOUND)
+		message(STATUS "asio found OK ${ASIO_INCLUDE_DIRS}")
+		include_directories(${ASIO_INCLUDE_DIRS})
+	else(ASIO_FOUND)
+		message(FATAL_ERROR "No Boost asio")
+	endif(ASIO_FOUND)
 	
 	set(QT_USE_QTWEBKIT TRUE)
 endif(WITH_BITTORRENT)
@@ -348,7 +358,7 @@ qt4_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts locale/fatrat_tr_TR.
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENT_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENTRB_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
 	src/fatrat.h
