@@ -360,7 +360,7 @@ qt4_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts locale/fatrat_tr_TR.
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENTRB_LIBRARIES} ${LIBSSH2_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENTRB_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
 	src/fatrat.h
@@ -372,6 +372,8 @@ set(fatrat_DEV_HEADERS
 	src/Logger.h
 	src/RuntimeException.h
 	src/Settings.h
+	src/Auth.h
+	src/Proxy.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
 	src/engines/CurlDownload.h
