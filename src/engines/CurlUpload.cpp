@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlPoller.h"
 #include "RuntimeException.h"
 #include "tools/HashDlg.h"
+#include "Proxy.h"
+#include "Auth.h"
 #include <QFileInfo>
 #include <QMenu>
 

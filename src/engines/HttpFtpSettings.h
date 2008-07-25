@@ -23,7 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ui_SettingsHttpForm.h"
 #include "WidgetHostChild.h"
 #include <QObject>
-#include "fatrat.h"
+#include "Proxy.h"
+#include "Auth.h"
 
 class HttpFtpSettings : public QObject, public WidgetHostChild, Ui_SettingsHttpForm
 {

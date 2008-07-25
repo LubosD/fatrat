@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TorrentOptsWidget.h"
 #include <QHeaderView>
 #include <iostream>
+#include "fatrat.h"
 
 TorrentOptsWidget::TorrentOptsWidget(QWidget* me, TorrentDownload* parent)
 	: m_download(parent), m_bUpdating(false)

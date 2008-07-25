@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TorrentSearch.h"
 #include "RuntimeException.h"
 #include "fatrat.h"
+#include "Proxy.h"
 #include "Settings.h"
 #include "MainWindow.h"
 #include "TorrentWebView.h"

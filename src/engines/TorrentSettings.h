@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef TORRENTSETTINGS_H
 #define TORRENTSETTINGS_H
 #include <QObject>
-#include "fatrat.h"
+#include "Proxy.h"
 #include "WidgetHostChild.h"
 #include "ui_SettingsTorrentForm.h"
 

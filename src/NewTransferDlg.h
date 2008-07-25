@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QWidget>
 #include "ui_NewTransferDlg.h"
 #include "Transfer.h"
-#include "fatrat.h"
+#include "Auth.h"
 #include <QDir>
 
 class NewTransferDlg : public QDialog, Ui_NewTransferDlg

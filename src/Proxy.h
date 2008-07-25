@@ -18,26 +18,29 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef SETTINGSNETWORKFORM_H
-#define SETTINGSNETWORKFORM_H
-#include "ui_SettingsNetworkForm.h"
-#include "WidgetHostChild.h"
-#include "Proxy.h"
+#ifndef PROXY_H
+#define PROXY_H
+#include <QString>
+#include <QUuid>
+#include <QNetworkProxy>
 
-class SettingsNetworkForm : public QObject, public WidgetHostChild, Ui_SettingsNetworkForm
+struct Proxy
 {
-Q_OBJECT
-public:
-	SettingsNetworkForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsNetworkForm(w, parent); }
-public slots:
-	void proxyAdd();
-	void proxyEdit();
-	void proxyDelete();
-private:
-	QList<Proxy> m_listProxy;
+	Proxy() : nType(ProxyNone) {}
+	
+	QString strName, strIP, strUser, strPassword;
+	quint16 nPort;
+	enum ProxyType { ProxyNone=-1, ProxyHttp, ProxySocks5 } nType;
+	QUuid uuid;
+	
+	QString toString() const
+	{
+		return QString("%1 (%2)").arg(strName).arg( (nType==0) ? "HTTP" : "SOCKS 5");
+	}
+	operator QNetworkProxy() const;
+	
+	static QList<Proxy> loadProxys();
+	static Proxy getProxy(QUuid uuid);
 };
 
 #endif

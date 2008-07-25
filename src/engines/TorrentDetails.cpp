@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TorrentFilesModel.h"
 #include "Settings.h"
 #include "Base32.h"
+#include "fatrat.h"
 #include <QHeaderView>
 #include <QMenu>
 #include <QProcess>

@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "JabberService.h"
 #include "fatrat.h"
+#include "Proxy.h"
 #include "Queue.h"
 #include "RuntimeException.h"
 #include "Logger.h"
@@ -46,7 +47,7 @@ const int SESSION_MINUTES = 10;
 JabberService* JabberService::m_instance = 0;
 
 JabberService::JabberService()
-	: m_bTerminating(false)
+	: m_pClient(0), m_bTerminating(false)
 {
 	m_instance = this;
 	applySettings();

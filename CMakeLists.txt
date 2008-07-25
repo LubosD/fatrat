@@ -96,10 +96,12 @@ add_definitions(${QT_DEFINITIONS})
 include_directories(./ ../ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
 
 set(fatrat_SRCS
+	src/Auth.cpp
 	src/AboutDlg.cpp
 	src/AppTools.cpp
 	src/DropBox.cpp
 	src/fatrat.cpp
+	src/Proxy.cpp
 	src/InfoBar.cpp
 	src/MainTab.cpp
 	src/MainWindow.cpp

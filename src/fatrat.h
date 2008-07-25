@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QIcon>
 #include <QNetworkProxy>
 
-#define VERSION "DEV" 
+#define VERSION "DEV"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
@@ -38,6 +38,7 @@ QString getDataFileDir(QString dir, QString fileName);
 QWidget* getMainWindow();
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);
+bool programHasGUI();
 
 void addStatusWidget(QWidget* widget, bool bRight);
 void removeStatusWidget(QWidget* widget);
@@ -48,32 +49,6 @@ public:
 	static void sleep(unsigned long secs) {QThread::sleep(secs);}
 	static void msleep(unsigned long msecs) {QThread::msleep(msecs);}
 	static void usleep(unsigned long usecs) {QThread::usleep(usecs);}
-};
-
-struct Proxy
-{
-	Proxy() : nType(ProxyNone) {}
-	
-	QString strName, strIP, strUser, strPassword;
-	quint16 nPort;
-	enum ProxyType { ProxyNone=-1, ProxyHttp, ProxySocks5 } nType;
-	QUuid uuid;
-	
-	QString toString() const
-	{
-		return QString("%1 (%2)").arg(strName).arg( (nType==0) ? "HTTP" : "SOCKS 5");
-	}
-	operator QNetworkProxy() const;
-	
-	static QList<Proxy> loadProxys();
-	static Proxy getProxy(QUuid uuid);
-};
-
-struct Auth
-{
-	QString strRegExp, strUser, strPassword;
-	static QList<Auth> loadAuths();
-	static void saveAuths(const QList<Auth>& auths);
 };
 
 struct PluginInfo

@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "GeneralDownloadForms.h"
 #include "Settings.h"
+#include "Proxy.h"
 
 HttpOptsWidget::HttpOptsWidget(QWidget* me,CurlDownload* myobj) : QObject(me), m_download(myobj)
 {

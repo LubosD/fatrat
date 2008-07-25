@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QDialog>
 #include <QRegExp>
 #include <QMessageBox>
-#include "fatrat.h"
+#include "Auth.h"
 #include "ui_UserAuthDlg.h"
 
 class UserAuthDlg : public QDialog, Ui_UserAuthDlg

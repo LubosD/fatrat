@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "fatrat.h"
+#include "Proxy.h"
 #include "RapidshareUpload.h"
 #include "RuntimeException.h"
 #include "CurlPoller.h"
@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Settings.h"
 #include "RapidshareUploadDetails.h"
 #include "RapidshareStatusWidget.h"
+#include "fatrat.h"
+#include "Auth.h"
 
 #include <QHttp>
 #include <QBuffer>
@@ -79,20 +81,23 @@ void RapidshareUpload::globalInit()
 
 void RapidshareUpload::applySettings()
 {
-	if(getSettingsValue("rapidshare/status_widget").toBool())
+	if(programHasGUI())
 	{
-		if(!m_labelStatus)
+		if(getSettingsValue("rapidshare/status_widget").toBool())
 		{
-			m_labelStatus = new RapidshareStatusWidget;
-			addStatusWidget(m_labelStatus, true);
+			if(!m_labelStatus)
+			{
+				m_labelStatus = new RapidshareStatusWidget;
+				addStatusWidget(m_labelStatus, true);
+			}
+			else
+				m_labelStatus->applySettings();
 		}
-		else
-			m_labelStatus->applySettings();
-	}
-	else if(m_labelStatus)
-	{
-		removeStatusWidget(m_labelStatus);
-		m_labelStatus = 0;
+		else if(m_labelStatus)
+		{
+			removeStatusWidget(m_labelStatus);
+			m_labelStatus = 0;
+		}
 	}
 }
 

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "HttpFtpSettings.h"
 #include "tools/HashDlg.h"
 #include "CurlPoller.h"
+#include "Auth.h"
 #include <QMessageBox>
 #include <QMenu>
 #include <QtDebug>

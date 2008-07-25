@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define _PROXYDLG_H
 #include <QDialog>
 #include "ui_ProxyDlg.h"
-#include "fatrat.h"
+#include "Proxy.h"
 
 class ProxyDlg : public QDialog, Ui_ProxyDlg
 {
@@ -70,7 +70,7 @@ public slots:
 			QDialog::accept();
 	}
 public:
-	Proxy m_data; // fatrat.h
+	Proxy m_data;
 };
 
 #endif

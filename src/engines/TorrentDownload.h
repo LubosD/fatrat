@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
-#include "fatrat.h"
+#include "Proxy.h"
 
 class TorrentWorker;
 class TorrentDetails;

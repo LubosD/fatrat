@@ -18,26 +18,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef SETTINGSNETWORKFORM_H
-#define SETTINGSNETWORKFORM_H
-#include "ui_SettingsNetworkForm.h"
-#include "WidgetHostChild.h"
-#include "Proxy.h"
+#ifndef AUTH_H
+#define AUTH_H
+#include <QString>
+#include <QList>
 
-class SettingsNetworkForm : public QObject, public WidgetHostChild, Ui_SettingsNetworkForm
+struct Auth
 {
-Q_OBJECT
-public:
-	SettingsNetworkForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsNetworkForm(w, parent); }
-public slots:
-	void proxyAdd();
-	void proxyEdit();
-	void proxyDelete();
-private:
-	QList<Proxy> m_listProxy;
+	QString strRegExp, strUser, strPassword;
+	static QList<Auth> loadAuths();
+	static void saveAuths(const QList<Auth>& auths);
 };
 
 #endif

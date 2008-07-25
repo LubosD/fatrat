@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef SETTINGSJABBERFORM_H
 #define SETTINGSJABBERFORM_H
 #include <QObject>
-#include "fatrat.h"
+#include "Proxy.h"
 #include "config.h"
 #include "WidgetHostChild.h"
 #include "ui_SettingsJabberForm.h"

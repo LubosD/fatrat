@@ -120,7 +120,8 @@ void TorrentDownload::globalInit()
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
 	m_session->set_severity_level(libtorrent::alert::info);
 	
-	m_labelDHTStats = new QLabel;
+	if(programHasGUI())
+		m_labelDHTStats = new QLabel;
 	
 	applySettings();
 	
@@ -232,13 +233,17 @@ void TorrentDownload::applySettings()
 				break;
 			}
 		}
-		addStatusWidget(m_labelDHTStats, true);
+		
+		if(programHasGUI())
+			addStatusWidget(m_labelDHTStats, true);
 	}
 	else if(m_bDHT)
 	{
 		m_session->stop_dht();
 		m_bDHT = false;
-		removeStatusWidget(m_labelDHTStats);
+		
+		if(programHasGUI())
+			removeStatusWidget(m_labelDHTStats);
 	}
 	
 	m_session->set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
@@ -1141,7 +1146,7 @@ void TorrentWorker::doWork()
 #undef IS_ALERT_S
 	
 	libtorrent::session_status st = TorrentDownload::m_session->status();
-	if(TorrentDownload::m_bDHT)
+	if(TorrentDownload::m_bDHT && TorrentDownload::m_labelDHTStats)
 	{
 		QString text = tr("<b>DHT:</b> %1 nodes (%2 globally)").arg(st.dht_nodes).arg(st.dht_global_nodes);
 		TorrentDownload::m_labelDHTStats->setText(text);

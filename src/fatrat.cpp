@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <dlfcn.h>
 #include <cstdlib>
+#include <signal.h>
+#include <iostream>
 
 #include "MainWindow.h"
 #include "QueueMgr.h"
@@ -70,20 +72,30 @@ static QString argsToArg(int argc,char** argv);
 static void processSession(QString arg);
 static void loadPlugins();
 static void loadPlugins(const char* dir);
+static void showHelp();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
+static bool m_bStartGUI = true;
 
 int main(int argc,char** argv)
 {
-	QApplication app(argc, argv);
+	QCoreApplication* app = 0;
 	int rval;
 	QueueMgr* qmgr;
 	QString arg = argsToArg(argc, argv);
 	
+	if(m_bStartGUI)
+		app = new QApplication(argc, argv);
+	else
+		app = new QCoreApplication(argc, argv);
+	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
+	
+	signal(SIGINT, QCoreApplication::exit);
+	signal(SIGTERM, QCoreApplication::exit);
 	
 	if(!m_bForceNewInstance)
 		processSession(arg);
@@ -94,7 +106,7 @@ int main(int argc,char** argv)
 		QString fname = QString("fatrat_") + QLocale::system().name();
 		qDebug() << "Current locale" << QLocale::system().name();
 		translator.load(fname, getDataFileDir("/lang", fname));
-		app.installTranslator(&translator);
+		QCoreApplication::installTranslator(&translator);
 	}
 #endif
 	
@@ -111,9 +123,11 @@ int main(int argc,char** argv)
 	qRegisterMetaType<QByteArray*>("QByteArray*");
 	
 	qmgr = new QueueMgr;
-	//qmgr->start();
 	
-	g_wndMain = new MainWindow(m_bStartHidden);
+	if(m_bStartGUI)
+		g_wndMain = new MainWindow(m_bStartHidden);
+	else
+		qDebug() << "FatRat is up and running now";
 	
 #ifdef WITH_WEBINTERFACE
 	new HttpService;
@@ -126,15 +140,16 @@ int main(int argc,char** argv)
 	QDBusConnection::sessionBus().registerObject("/", impl);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 	
-	if(!arg.isEmpty())
+	if(!arg.isEmpty() && m_bStartGUI)
 		g_wndMain->addTransfer(arg);
 	
 #ifdef WITH_JABBER
 	new JabberService;
 #endif
 	
-	app.setQuitOnLastWindowClosed(false);
-	rval = app.exec();
+	if(m_bStartGUI)
+		QApplication::setQuitOnLastWindowClosed(false);
+	rval = app->exec();
 	
 #ifdef WITH_JABBER
 	delete JabberService::instance();
@@ -144,6 +159,7 @@ int main(int argc,char** argv)
 #endif
 	delete RssFetcher::instance();
 	delete g_wndMain;
+	delete app;
 	
 	Queue::saveQueues();
 	qmgr->exit();
@@ -167,6 +183,10 @@ QString argsToArg(int argc,char** argv)
 			m_bForceNewInstance = true;
 		else if(!strcasecmp(argv[i], "--hidden"))
 			m_bStartHidden = true;
+		else if(!strcasecmp(argv[i], "--nogui"))
+			m_bStartGUI = false;
+		else if(!strcasecmp(argv[i], "--help"))
+			showHelp();
 		else
 		{
 			if(i > 1)
@@ -282,109 +302,6 @@ QString formatTime(qulonglong inval)
 	return result;
 }
 
-QList<Proxy> Proxy::loadProxys()
-{
-	QList<Proxy> r;
-	
-	int count = g_settings->beginReadArray("httpftp/proxys");
-	for(int i=0;i<count;i++)
-	{
-		Proxy p;
-		g_settings->setArrayIndex(i);
-		
-		p.strName = g_settings->value("name").toString();
-		p.strIP = g_settings->value("ip").toString();
-		p.nPort = g_settings->value("port").toUInt();
-		p.strUser = g_settings->value("user").toString();
-		p.strPassword = g_settings->value("password").toString();
-		p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
-		p.uuid = g_settings->value("uuid").toString();
-		
-		r << p;
-	}
-	g_settings->endArray();
-	return r;
-}
-
-QList<Auth> Auth::loadAuths()
-{
-	QSettings s;
-	QList<Auth> r;
-	
-	int count = s.beginReadArray("httpftp/auths");
-	for(int i=0;i<count;i++)
-	{
-		Auth auth;
-		s.setArrayIndex(i);
-		
-		auth.strRegExp = s.value("regexp").toString();
-		auth.strUser = s.value("user").toString();
-		auth.strPassword = s.value("password").toString();
-		
-		r << auth;
-	}
-	s.endArray();
-	
-	return r;
-}
-
-void Auth::saveAuths(const QList<Auth>& auths)
-{
-	g_settings->beginWriteArray("httpftp/auths");
-	for(int i=0;i<auths.size();i++)
-	{
-		g_settings->setArrayIndex(i);
-		g_settings->setValue("regexp", auths[i].strRegExp);
-		g_settings->setValue("user", auths[i].strUser);
-		g_settings->setValue("password", auths[i].strPassword);
-	}
-	g_settings->endArray();
-}
-
-Proxy::Proxy Proxy::getProxy(QUuid uuid)
-{
-	int count = g_settings->beginReadArray("httpftp/proxys");
-	for(int i=0;i<count;i++)
-	{
-		Proxy p;
-		g_settings->setArrayIndex(i);
-		
-		p.uuid = g_settings->value("uuid").toString();
-		if(p.uuid != uuid)
-			continue;
-		
-		p.strName = g_settings->value("name").toString();
-		p.strIP = g_settings->value("ip").toString();
-		p.nPort = g_settings->value("port").toUInt();
-		p.strUser = g_settings->value("user").toString();
-		p.strPassword = g_settings->value("password").toString();
-		p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
-		
-		g_settings->endArray();
-		return p;
-	}
-	
-	g_settings->endArray();
-	return Proxy();
-}
-
-Proxy::operator QNetworkProxy() const
-{
-	QNetworkProxy p;
-	
-	if(nType == ProxyNone)
-		p.setType(QNetworkProxy::NoProxy);
-	else if(nType == ProxyNone)
-		p.setType(QNetworkProxy::HttpProxy);
-	else
-		p.setType(QNetworkProxy::Socks5Proxy);
-	
-	p.setHostName(strIP);
-	p.setUser(strUser);
-	p.setPassword(strUser);
-	
-	return p;
-}
 
 /////////////////////////////////////////////////////////
 
@@ -517,3 +434,20 @@ void loadPlugins(const char* p)
 	}
 }
 
+bool programHasGUI()
+{
+	return m_bStartGUI;
+}
+
+void showHelp()
+{
+	std::cout << "FatRat download manager ("VERSION")\n\n"
+			"Copyright (C) 2006-2008 Lubos Dolezel\n"
+			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
+			"--force \tRun the program even if an instance already exists\n"
+			"--hidden\tHide the GUI at startup (only if the tray icon exists\n"
+			"--nogui \tStart with no GUI at all\n"
+			"--help  \tShow this help\n\n"
+			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
+	exit(0);
+}
