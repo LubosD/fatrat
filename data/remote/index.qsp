@@ -32,9 +32,9 @@ if(GET.queue == undefined && QUEUES.length != 0)
 	GET.queue = QUEUES[0].uuid;
 ?>
 
-<form method="get" action="">
+<form method="get" action="" style="margin-bottom: -1px">
 <p class="toolbar">
-	Queue: <select name="queue" onchange="javascript:this.form.submit()">
+	<label>Queue <select name="queue" onchange="javascript:this.form.submit()">
 	<?
 		for(i=0;i<QUEUES.length;i++)
 		{
@@ -44,7 +44,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 			print('>'+QUEUES[i].name+'</option>');
 		}
 	?>
-	</select>
+	</select></label>
 	<input type="submit" id="sumbit_queue" value="Switch"/>
 	<script type="text/javascript"><!--
 	
@@ -59,7 +59,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 </p>
 </form>
 
-<form method="post" id="mainform" action="?queue=<? if(GET.queue) print(GET.queue); ?>">
+<form method="post" id="mainform" action="?queue=<? if(GET.queue) print(GET.queue); ?>" style="margin-top: 0px">
 
 <noscript>
 	<p>
@@ -70,15 +70,15 @@ if(GET.queue == undefined && QUEUES.length != 0)
 </noscript>
 
 <p class="toolbar" id="toolbar">
-	<span class="ralign" title="Will not reload if any checkboxes are checked">
-		Reload every
+	<span class="ralign">
+		<label>Reload every
 		<select id="refresh" onchange="javascript:refreshChange()">
 			<option value="0">never</option>
 			<option value="5">5 seconds</option>
 			<option value="10">10 seconds</option>
 			<option value="30">30 seconds</option>
 			<option value="60">minute</option>
-		</select>
+		</select></label>
 	</span>
 	
 	<script type="text/javascript"><!--
@@ -101,7 +101,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 	<button type="submit" title="Reload" id="btn_reload"><img src="/reload.png" alt="Reload"/></button>
 </p>
 
-<table class="transfers">
+<table class="transfers" style="margin-top: 10px">
 <thead>
 <tr><td>Name</td><td class="m">Progress</td><td class="m">Size</td><td class="m"><img src="/download.png" alt="down"/> Speed</td><td class="m"><img src="/upload.png" alt="up"/> Speed</td><td class="m">Time left</td><td>Message</td></tr>
 </thead>
@@ -302,8 +302,8 @@ if(GET.queue == undefined && QUEUES.length != 0)
 
 <p>
 	<span class="ralign">Queue speed limit:
-		<span class="speedspan"><input type="text" size="4" name="downLimit" value="<? if(sl) print(sl.down/1024); ?>"/> kB/s down</span>
-		<span class="speedspan"><input type="text" size="4" name="upLimit" value="<? if(sl) print(sl.up/1024); ?>"/> kB/s up</span>
+		<span class="speedspan"><label><input type="text" size="4" name="downLimit" value="<? if(sl) print(sl.down/1024); ?>"/> kB/s down</label></span>
+		<span class="speedspan"><label><input type="text" size="4" name="upLimit" value="<? if(sl) print(sl.up/1024); ?>"/> kB/s up</label></span>
 		<input type="submit" name="queueLimits" value="Set"/>
 	</span>
 	<input type="button" value="Check all" onclick="javascript: checkAll(true);"/>
