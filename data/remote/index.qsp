@@ -62,10 +62,13 @@ if(GET.queue == undefined && QUEUES.length != 0)
 <form method="post" id="mainform" action="?queue=<? if(GET.queue) print(GET.queue); ?>">
 
 <noscript>
-	<p><a href="/queue.qsp?queue=<? print(GET.queue); ?>">Queue properties</a></p> |
-	<p><a href="/queue.qsp">New queue</a></p> |
-	<p><a href="/add_transfer.qsp?queue=<? print(GET.queue); ?>">Add transfer</a></p>
+	<p>
+		<a href="/queue.qsp?queue=<? print(GET.queue); ?>">Queue properties</a> |
+		<a href="/queue.qsp">New queue</a> |
+		<a href="/add_transfer.qsp?queue=<? print(GET.queue); ?>">Add transfer</a>
+	</p>
 </noscript>
+
 <p class="toolbar" id="toolbar">
 	<span class="ralign" title="Will not reload if any checkboxes are checked">
 		Reload every
