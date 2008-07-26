@@ -406,8 +406,9 @@ bool HttpService::authenitcate(const QList<QByteArray>& data)
 
 QByteArray HttpService::progressBar(QByteArray queryString)
 {
+	const int WIDTH = 150, HEIGHT = 20;
 	QBuffer buf;
-	QImage image(QSize(150, 20), QImage::Format_RGB32);
+	QImage image(QSize(WIDTH, HEIGHT), QImage::Format_RGB32);
 	QImage pg(":/other/progressbar.png");
 	QPainter painter;
 	float pct = 0;
@@ -416,18 +417,31 @@ QByteArray HttpService::progressBar(QByteArray queryString)
 		pct = atof(queryString.constData()) / 100.f;
 	
 	painter.begin(&image);
-	painter.fillRect(0, 0, 150, 20, QBrush(Qt::white));
-	int pts = 150*pct;
+	painter.fillRect(0, 0, WIDTH, HEIGHT, QBrush(Qt::white));
+	int pts = WIDTH*pct;
 	
 	for(int done=0;done<pts;)
 	{
 		int w = qMin<int>(pts-done, pg.width());
-		painter.drawImage(QRect(done, 0, w, 20), pg, QRect(0, 0, w, 20));
+		painter.drawImage(QRect(done, 0, w, HEIGHT), pg, QRect(0, 0, w, HEIGHT));
 		done += w;
 	}
 	
-	painter.drawRect(0, 0, 149, 19);
-	painter.drawText(QRect(0, 0, 150, 20), Qt::AlignCenter, queryString);
+	painter.setPen(Qt::gray);
+	painter.drawRect(0, 0, WIDTH-1, HEIGHT-1);
+	
+	QFont font = painter.font();
+	font.setBold(true);
+	
+	painter.setClipRect(pts, 0, WIDTH, HEIGHT);
+	painter.setFont(font);
+	painter.setPen(Qt::black);
+	painter.drawText(QRect(0, 0, WIDTH, HEIGHT), Qt::AlignCenter, queryString);
+	
+	painter.setClipRect(0, 0, pts, HEIGHT);
+	painter.setPen(Qt::white);
+	painter.drawText(QRect(0, 0, WIDTH, HEIGHT), Qt::AlignCenter, queryString);
+	
 	painter.end();
 	
 	image.save(&buf, "PNG");
@@ -902,6 +916,24 @@ QScriptValue queueSpeedLimitsFunction(QScriptContext* context, QScriptEngine* en
 	return v;
 }
 
+QScriptValue queueTransferLimitsFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 0)
+	{
+		context->throwError("Queue.transferLimits(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	Queue* t = (Queue*) context->thisObject().toQObject();
+	int down, up;
+	t->transferLimits(down, up);
+	
+	QScriptValue v = engine->newObject();
+	v.setProperty("down", engine->toScriptValue(down));
+	v.setProperty("up", engine->toScriptValue(up));
+	
+	return v;
+}
+
 QScriptValue transferTimeLeftFunction(QScriptContext* context, QScriptEngine* engine)
 {
 	if(context->argumentCount() != 0)
@@ -941,6 +973,29 @@ QScriptValue getSettingsValueFunction(QScriptContext* context, QScriptEngine* en
 	
 	QVariant r = getSettingsValue(context->argument(0).toString());
 	return engine->toScriptValue(r);
+}
+
+QScriptValue addQueueFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	if(context->argumentCount() != 0)
+	{
+		context->throwError("addQueue(): wrong argument count");
+		return engine->undefinedValue();
+	}
+	
+	Queue* queue = new Queue;
+	QScriptValue retval = engine->newQObject(queue);
+	QScriptValue fun, fun2;
+	
+	fun = engine->newFunction(queueSpeedLimitsFunction);
+	fun2 = engine->newFunction(queueTransferLimitsFunction);
+	
+	retval.setProperty("speedLimits", fun);
+	retval.setProperty("transferLimits", fun2);
+	
+	g_queues << queue;
+	
+	return retval;
 }
 
 QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine)
@@ -1098,6 +1153,9 @@ void HttpService::initScriptEngine()
 	fun = m_engine->newFunction(addTransfersFunction);
 	m_engine->globalObject().setProperty("addTransfers", fun);
 	
+	fun = m_engine->newFunction(addQueueFunction);
+	m_engine->globalObject().setProperty("addQueue", fun);
+	
 	QScriptValue engines = m_engine->newArray(g_enginesDownload.size());
 	for(int i=0;i<g_enginesDownload.size();i++)
 		engines.setProperty(i, m_engine->toScriptValue(QString(g_enginesDownload[i].longName)));
@@ -1111,7 +1169,7 @@ void HttpService::initScriptEngine()
 void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString, QByteArray postData)
 {
 	QByteArray in;
-	QScriptValue fun;
+	QScriptValue fun, fun2;
 	
 	g_queuesLock.lockForWrite();
 	in = input->readAll();
@@ -1128,10 +1186,13 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 	
 	QScriptValue queues = m_engine->newArray(g_queues.size());
 	fun = m_engine->newFunction(queueSpeedLimitsFunction);
+	fun2 = m_engine->newFunction(queueTransferLimitsFunction);
+	
 	for(int i=0;i<g_queues.size();i++)
 	{
 		QScriptValue val = m_engine->newQObject(g_queues[i]);
 		val.setProperty("speedLimits", fun);
+		val.setProperty("transferLimits", fun2);
 		queues.setProperty(i, val);
 	}
 	m_engine->globalObject().setProperty("QUEUES", queues);

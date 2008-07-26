@@ -61,7 +61,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </tr>
 <tr>
 	<td></td>
-	<td><input type="checkbox" name="paused" id="paused" value="true"/><label for="paused">Add paused</label></td>
+	<td><label><input type="checkbox" name="paused" id="paused" value="true"/>Add paused</label></td>
 </tr>
 </table>
 

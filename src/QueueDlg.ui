@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>484</width>
-    <height>284</height>
+    <height>263</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -129,19 +129,6 @@
          <string>Count as downloads</string>
         </property>
        </widget>
-      </item>
-      <item row="2" column="1" >
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0" >
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>

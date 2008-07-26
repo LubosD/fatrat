@@ -15,13 +15,21 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <p><img src="logo.png" alt="FatRat logo"/></p>
 
 <?
+if(GET.rmqueue)
+{
+	for(var i=0;i<QUEUES.length;i++)
+	{
+		if(QUEUES[i].uuid == GET.queue)
+		{
+			QUEUES[i] = undefined;
+			break;
+		}
+	}
+	GET.queue = undefined;
+}
+
 if(GET.queue == undefined && QUEUES.length != 0)
 	GET.queue = QUEUES[0].uuid;
-function escapeAmpersand(text)
-{
-	text = new String(text);
-	return text.split('&').join('&amp;');
-}
 ?>
 
 <form method="get" action="">
@@ -39,15 +47,23 @@ function escapeAmpersand(text)
 	</select>
 	<input type="submit" id="sumbit_queue" value="Switch"/>
 	<script type="text/javascript"><!--
-	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden');
+	
+	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden; width: 0px');
 	var QUEUE = '<? print(GET.queue); ?>';
+	
+	document.write('<button type="button" onclick="javascript:newwin(\'/queue.qsp?queue=<? print(GET.queue); ?>\')" title="Queue properties"><img src="/queue/properties.png" alt="Queue properties"/></button>');
+	document.write('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+	document.write('<button type="button" onclick="javascript:newwin(\'/queue.qsp\')" title="New queue"><img src="/queue/add.png" alt="New queue"/></button>');
 	//--></script>
+	<button type="submit" name="rmqueue" value="true" title="Delete queue" onclick="javascript:return confirmOp('Do you really want to delete this queue including all its transfers?')"><img src="/queue/remove.png" alt="Delete queue"/></button>
 </p>
 </form>
 
-<form method="post" id="mainform" action="?<? print(escapeAmpersand(QUERY_STRING)); ?>">
+<form method="post" id="mainform" action="?queue=<? if(GET.queue) print(GET.queue); ?>">
 
 <noscript>
+	<p><a href="/queue.qsp?queue=<? print(GET.queue); ?>">Queue properties</a></p> |
+	<p><a href="/queue.qsp">New queue</a></p> |
 	<p><a href="/add_transfer.qsp?queue=<? print(GET.queue); ?>">Add transfer</a></p>
 </noscript>
 <p class="toolbar" id="toolbar">
@@ -273,7 +289,7 @@ function escapeAmpersand(text)
 </table>
 </form>
 
-<form method="post" action="?<? print(escapeAmpersand(QUERY_STRING)); ?>">
+<form method="post" action="?queue=<? if(queue) print(queue.uuid); ?>">
 
 <?
 	var sl = null;
