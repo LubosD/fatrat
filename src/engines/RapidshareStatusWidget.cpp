@@ -56,10 +56,11 @@ void RapidshareStatusWidget::done(bool error)
 	
 	if(!error)
 	{
-		QRegExp re("<td>Traffic left:</td><td align=right><b><script>document.write\\(setzeTT\\(\"(\\d+)");
+		QRegExp re("setzeTT\\(\"\"\\+Math\\.ceil\\((\\d+)/(\\d+)");
 		if(re.indexIn(m_buffer->data()) != -1)
 		{
-			setText(QString("<b>RS</b>: ") + formatSize(re.cap(1).toLong()*1024LL));
+			qint64 bytes = re.cap(1).toDouble()/re.cap(2).toDouble()*1024LL*1024LL;
+			setText(QString("<b>RS</b>: ") + formatSize(bytes));
 			return;
 		}
 	}
