@@ -378,10 +378,13 @@ void CurlDownload::transferDone(CURLcode result)
 	if(!isActive())
 		return;
 	
-	if(result == CURLE_OK || done() == total())
+	if(result == CURLE_OK || (done() == total() && total()))
 		setState(Completed);
 	else
 	{
+		if(result == CURLE_OPERATION_TIMEDOUT)
+			strcpy(m_errorBuffer, "Timeout");
+		
 		m_strMessage = m_errorBuffer;
 		setState(Failed);
 	}

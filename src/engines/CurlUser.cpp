@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static const int MAX_STATS = 5;
 
+bool operator<(const timeval& t1, const timeval& t2);
+
 CurlUser::CurlUser()
 {
 	m_down.max = m_up.max = 0;
@@ -41,6 +43,14 @@ size_t CurlUser::readData(char* buffer, size_t maxData)
 bool CurlUser::writeData(const char* buffer, size_t bytes)
 {
 	return false;
+}
+
+timeval CurlUser::lastOperation() const
+{
+	if(m_down.lastOp < m_up.lastOp)
+		return m_up.lastOp;
+	else
+		return m_down.lastOp;
 }
 
 size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This)
@@ -67,13 +77,13 @@ size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, Curl
 
 void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 {
+	timeval tvNow;
+	gettimeofday(&tvNow, 0);
+	
 	if(isNull(data.last))
-		gettimeofday(&data.last, 0);
+		data.last = tvNow;
 	else
 	{
-		timeval tvNow;
-		gettimeofday(&tvNow, 0);
-		
 		long msec = (tvNow.tv_sec-data.last.tv_sec)*1000L + (tvNow.tv_usec-data.last.tv_usec)/1000L;
 		data.accum.first += msec;
 		data.accum.second += bytes;
@@ -105,6 +115,9 @@ void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 		
 		data.last = tvNow;
 	}
+	
+	if(bytes)
+		data.lastOp = tvNow;
 }
 
 void CurlUser::resetStatistics()
@@ -119,6 +132,9 @@ void CurlUser::resetStatistics()
 	
 	memset(&m_down.next, 0, sizeof m_down.next);
 	memset(&m_up.next, 0, sizeof m_up.next);
+	
+	gettimeofday(&m_down.lastOp, 0);
+	m_up.lastOp = m_down.lastOp;
 }
 
 int CurlUser::computeSpeed(const QList<QPair<long,long> >& data)

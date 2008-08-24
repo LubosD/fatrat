@@ -41,6 +41,8 @@ public:
 	timeval nextWriteTime() const;
 	
 	bool performsLimiting() const;
+	
+	timeval lastOperation() const;
 protected:
 	virtual CURL* curlHandle() = 0;
 	virtual void transferDone(CURLcode result) = 0;
@@ -55,11 +57,10 @@ protected:
 	struct SpeedData
 	{
 		QList<QPair<long,long> > stats;
-		timeval last, next;
+		timeval last, next, lastOp;
 		QPair<long, long> accum;
 		int max;
 	};
-	
 private:
 	static int computeSpeed(const QList<QPair<long,long> >& data);
 	static void timeProcess(SpeedData& data, size_t bytes);

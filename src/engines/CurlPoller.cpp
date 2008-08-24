@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 CurlPoller* CurlPoller::m_instance = 0;
 
+static const int TRANSFER_TIMEOUT = 20;
+
 CurlPoller::CurlPoller()
 	: m_bAbort(false), m_usersLock(QMutex::Recursive)
 {
@@ -77,6 +79,8 @@ void CurlPoller::run()
 	{
 		epoll_event events[20];
 		int nfds, dummy;
+		timeval tvNow;
+		QList<CurlUser*> timedOut;
 		
 		nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), timeout);
 		
@@ -102,8 +106,9 @@ void CurlPoller::run()
 			curl_multi_socket_action(m_curlm, fd, mask, &dummy);
 		}
 		
-		timeval tvNow;
 		gettimeofday(&tvNow, 0);
+		
+		QMutexLocker locker(&m_usersLock);
 		
 		if(curl_timeout <= 0 || curl_timeout > 500)
 			timeout = 500;
@@ -113,14 +118,27 @@ void CurlPoller::run()
 		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int mask = 0;
-			if(it.value().second->hasNextReadTime())
+			CurlUser* user = it.value().second;
+			timeval lastOp = user->lastOperation();
+			
+			int seconds = tvNow.tv_sec - lastOp.tv_sec;
+			
+			if(seconds > TRANSFER_TIMEOUT)
+				timedOut << user;
+			else if(seconds > 1)
 			{
-				if(it.value().second->nextReadTime() < tvNow)
+				CurlUser::read_function(0, 0, 0, user);
+				CurlUser::write_function(0, 0, 0, user);
+			}
+			
+			if(user->hasNextReadTime())
+			{
+				if(user->nextReadTime() < tvNow)
 					mask |= CURL_CSELECT_IN;
 			}
-			if(it.value().second->hasNextWriteTime())
+			if(user->hasNextWriteTime())
 			{
-				if(it.value().second->nextWriteTime() < tvNow)
+				if(user->nextWriteTime() < tvNow)
 					mask |= CURL_CSELECT_OUT;
 			}
 			
@@ -130,16 +148,17 @@ void CurlPoller::run()
 		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int msec = -1;
+			CurlUser* user = it.value().second;
 			
-			if(it.value().second->hasNextReadTime())
+			if(user->hasNextReadTime())
 			{
-				timeval tv = it.value().second->nextReadTime();
+				timeval tv = user->nextReadTime();
 				msec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
 			}
-			if(it.value().second->hasNextWriteTime())
+			if(user->hasNextWriteTime())
 			{
 				int mmsec;
-				timeval tv = it.value().second->nextWriteTime();
+				timeval tv = user->nextWriteTime();
 				mmsec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
 				
 				if(mmsec < msec || msec < 0)
@@ -153,15 +172,18 @@ void CurlPoller::run()
 			}
 			else
 			{
-				if(it.value().second->performsLimiting())
-					it.value().first |= EPOLLONESHOT;
-				else if(it.value().first & EPOLLONESHOT)
-					it.value().first ^= EPOLLONESHOT;
-				epollEnable(it.key(), it.value().first);
+				int& flags = it.value().first;
+				if(user->performsLimiting())
+					flags |= EPOLLONESHOT;
+				else if(flags & EPOLLONESHOT)
+					flags ^= EPOLLONESHOT;
+				epollEnable(it.key(), flags);
 			}
 		}
 		
-		QMutexLocker locker(&m_usersLock);
+		foreach(CurlUser* user, timedOut)
+			user->transferDone(CURLE_OPERATION_TIMEDOUT);
+		
 		while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
 		{
 			if(msg->msg != CURLMSG_DONE)
