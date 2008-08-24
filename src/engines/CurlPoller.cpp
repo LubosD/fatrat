@@ -258,6 +258,7 @@ void CurlPoller::addTransfer(CurlUser* obj)
 	
 	qDebug() << "CurlPoller::addTransfer" << obj;
 	
+	obj->resetStatistics();
 	CURL* handle = obj->curlHandle();
 	m_users[handle] = obj;
 	curl_multi_add_handle(m_curlm, handle);

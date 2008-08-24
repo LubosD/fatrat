@@ -28,7 +28,6 @@ bool operator<(const timeval& t1, const timeval& t2);
 CurlUser::CurlUser()
 {
 	m_down.max = m_up.max = 0;
-	resetStatistics();
 }
 
 CurlUser::~CurlUser()
