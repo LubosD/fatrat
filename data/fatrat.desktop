@@ -1,7 +1,6 @@
 [Desktop Entry]
 Categories=Application;Network;
 Comment=Qt-based download/upload manager
-Encoding=UTF-8
 Exec=fatrat
 Name=FatRat
 GenericName=Download/upload manager
