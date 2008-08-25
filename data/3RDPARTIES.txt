@@ -1,6 +1,10 @@
 Original FatRat photo, Copyright © 2000-2004 Martin Krzywinski
 
+Various icons, Copyright © Everaldo Coelho
+Various icons, Copyright © David Vignoni
+
 Rasterbar libtorrent library, Copyright © 2003-2008 Arvid Norberg
 Libssh2 library, Copyright © 2004-2008 libssh2 developers
 Gloox XMPP library, Copyright © 2005-2008 Jakob Schröter
 Trolltech Qt 4, Copyright © 2000-2008 Trolltech ASA
+cURL, Copyright © 1996-2008 Daniel Stenberg

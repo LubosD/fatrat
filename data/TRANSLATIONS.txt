@@ -1,2 +1,6 @@
+Translations are licensed under the terms of the GNU GPLv2
+as published by the Free Software Foundation. The copyright
+of translations is held by their respective author(s).
+
 Czech cs_CZ (čeština) - Luboš Doležel <lubos a dolezel.info>
 Turkish tr_TR (Türkçe) - Volkan Çetin <cetinv a gmail.com>
