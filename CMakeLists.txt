@@ -427,7 +427,9 @@ if(WITH_WEBINTERFACE)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
-	execute_process(COMMAND doc/generate.sh)
+	execute_process(COMMAND qcollectiongenerator
+	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhcp -o
+	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
 endif(WITH_DOCUMENTATION)
