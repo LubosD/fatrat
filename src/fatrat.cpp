@@ -179,13 +179,13 @@ QString argsToArg(int argc,char** argv)
 	
 	for(int i=1;i<argc;i++)
 	{
-		if(!strcasecmp(argv[i], "--force"))
+		if(!strcasecmp(argv[i], "--force") || !strcasecmp(argv[i], "-f"))
 			m_bForceNewInstance = true;
-		else if(!strcasecmp(argv[i], "--hidden"))
+		else if(!strcasecmp(argv[i], "--hidden") || !strcasecmp(argv[i], "-i"))
 			m_bStartHidden = true;
-		else if(!strcasecmp(argv[i], "--nogui"))
+		else if(!strcasecmp(argv[i], "--nogui") || !strcasecmp(argv[i], "-n"))
 			m_bStartGUI = false;
-		else if(!strcasecmp(argv[i], "--help"))
+		else if(!strcasecmp(argv[i], "--help") || !strcasecmp(argv[i], "-h"))
 			showHelp();
 		else
 		{
@@ -444,10 +444,10 @@ void showHelp()
 	std::cout << "FatRat download manager ("VERSION")\n\n"
 			"Copyright (C) 2006-2008 Lubos Dolezel\n"
 			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
-			"--force \tRun the program even if an instance already exists\n"
-			"--hidden\tHide the GUI at startup (only if the tray icon exists\n"
-			"--nogui \tStart with no GUI at all\n"
-			"--help  \tShow this help\n\n"
+			"-f, --force \tRun the program even if an instance already exists\n"
+			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"
+			"-n, --nogui \tStart with no GUI at all\n"
+			"-h, --help  \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
 	exit(0);
 }
