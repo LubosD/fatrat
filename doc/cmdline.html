@@ -20,19 +20,29 @@ pre, code { background-color: #eee }
 FatRat normally uses D-Bus to check whether there already is a running instance. If you want to bypass this check, launch FatRat like this:
 </p>
 
-<pre>fatrat --force</pre>
+<pre>fatrat --force  # (or -f)</pre>
 
 <p>
 If you want FatRat to hide its window on startup (into a tray icon), use the following command:
 </p>
 
-<pre>fatrat --hidden</pre>
+<pre>fatrat --hidden  # (or -i)</pre>
+
+<p>
+FatRat can be started with no GUI at all, which may be useful for those who want to run it as a daemon.
+</p>
+
+<pre>fatrat --nogui  # (or -n)</pre>
 
 <p>
 To show a New transfers dialog with some links, pass them as additional arguments:
 </p>
 
 <pre>fatrat "http://link1" "http://link2"</pre>
+
+<p>
+To see the basic description of command line options, use <code>-h</code> or <code>--help</code> or see the man(1) page
+</p>
 
 <p>
 A significant advantage of using this metod when compared to passing via D-Bus is that you don't need to have a running instance for this to work. FatRat will automatically create one if needed.
