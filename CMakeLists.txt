@@ -434,4 +434,6 @@ if(WITH_DOCUMENTATION)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
 endif(WITH_DOCUMENTATION)
 
+install(FILES doc/fatrat.1 DESTINATION share/man/man1)
+
 install(TARGETS fatrat DESTINATION bin)
