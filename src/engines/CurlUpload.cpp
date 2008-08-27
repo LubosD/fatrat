@@ -31,6 +31,7 @@ CurlUpload::CurlUpload()
 	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
 {
 	Transfer::m_mode = Upload;
+	m_errorBuffer[0] = 0;
 }
 
 CurlUpload::~CurlUpload()

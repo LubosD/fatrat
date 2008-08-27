@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 CurlDownload::CurlDownload()
 	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0)
 {
+	m_errorBuffer[0] = 0;
 }
 
 CurlDownload::~CurlDownload()
