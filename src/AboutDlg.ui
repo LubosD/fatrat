@@ -5,56 +5,37 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
-    <height>381</height>
+    <width>543</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>About FatRat</string>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QGridLayout" name="gridLayout_3" >
    <item row="0" column="0" >
-    <widget class="QTableWidget" name="tableMenu" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Expanding" hsizetype="Fixed" >
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QListWidget" name="listMenu" >
      <property name="maximumSize" >
       <size>
-       <width>120</width>
+       <width>130</width>
        <height>16777215</height>
       </size>
      </property>
-     <property name="selectionMode" >
-      <enum>QAbstractItemView::SingleSelection</enum>
+     <property name="editTriggers" >
+      <set>QAbstractItemView::NoEditTriggers</set>
      </property>
      <property name="selectionBehavior" >
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <property name="textElideMode" >
-      <enum>Qt::ElideMiddle</enum>
+     <property name="iconSize" >
+      <size>
+       <width>24</width>
+       <height>24</height>
+      </size>
      </property>
-     <property name="showGrid" >
-      <bool>false</bool>
-     </property>
-     <property name="cornerButtonEnabled" >
-      <bool>false</bool>
-     </property>
-     <property name="rowCount" >
-      <number>6</number>
-     </property>
-     <property name="columnCount" >
+     <property name="spacing" >
       <number>1</number>
      </property>
-     <row/>
-     <row/>
-     <row/>
-     <row/>
-     <row/>
-     <row/>
-     <column/>
     </widget>
    </item>
    <item row="0" column="1" >
@@ -69,14 +50,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="page" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>478</width>
-        <height>321</height>
-       </rect>
-      </property>
       <layout class="QGridLayout" >
        <item row="0" column="0" >
         <widget class="QLabel" name="label" >
@@ -124,14 +97,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
       <layout class="QGridLayout" >
        <property name="margin" >
         <number>0</number>
@@ -151,14 +116,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_3" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
       <layout class="QGridLayout" >
        <property name="margin" >
         <number>0</number>
@@ -169,14 +126,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_4" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
       <layout class="QGridLayout" >
        <property name="margin" >
         <number>0</number>
@@ -187,14 +136,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_5" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>478</width>
-        <height>321</height>
-       </rect>
-      </property>
       <layout class="QGridLayout" name="gridLayout_2" >
        <item row="0" column="0" >
         <widget class="QLabel" name="label_4" >
@@ -275,14 +216,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_6" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>478</width>
-        <height>321</height>
-       </rect>
-      </property>
       <layout class="QGridLayout" name="gridLayout" >
        <property name="margin" >
         <number>0</number>
@@ -331,8 +264,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>318</x>
-     <y>332</y>
+     <x>463</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -347,8 +280,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>386</x>
-     <y>338</y>
+     <x>531</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
@@ -357,18 +290,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>tableMenu</sender>
-   <signal>currentCellChanged(int,int,int,int)</signal>
+   <sender>listMenu</sender>
+   <signal>currentRowChanged(int)</signal>
    <receiver>stackedWidget</receiver>
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>56</x>
-     <y>67</y>
+     <x>109</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>183</x>
-     <y>10</y>
+     <x>148</x>
+     <y>136</y>
     </hint>
    </hints>
   </connection>

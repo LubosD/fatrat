@@ -30,24 +30,16 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 {
 	setupUi(this);
 	
-	QTableWidgetItem* first;
 	QStringList items;
 	items << "FatRat" << tr("License") << tr("Translations") << tr("3rd parties")
 			<< tr("Features") << tr("Plugins");
 	
+	QIcon icon(":/fatrat/miscellaneous.png");
 	for(int i=0;i<items.size();i++)
 	{
-		QTableWidgetItem* item = new QTableWidgetItem(items[i]);
-		item->setTextAlignment(Qt::AlignCenter);
-		tableMenu->setItem(i, 0, item);
-		
-		if(!i) first = item;
+		QListWidgetItem* item = new QListWidgetItem(icon,items[i],listMenu);
+		listMenu->addItem(item);
 	}
-	
-	tableMenu->setCurrentItem(first);
-	tableMenu->horizontalHeader()->hide();
-	tableMenu->verticalHeader()->hide();
-	tableMenu->setColumnWidth(0, 116);
 	
 	labelVersion->setText(tr("Version %1").arg(VERSION));
 	
@@ -72,6 +64,7 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 #endif
 	
 	processPlugins();
+	listMenu->setCurrentRow(0);
 }
 
 void AboutDlg::processPlugins()
