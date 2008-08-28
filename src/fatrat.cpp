@@ -386,6 +386,9 @@ bool openDataFile(QFile* file, QString filePath)
 
 QString getDataFileDir(QString dir, QString fileName)
 {
+	if(fileName.isEmpty())
+		return QLatin1String(DATA_LOCATION) + dir;
+	
 	QString f = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + dir;
 	if(fileName[0] != '/')
 		fileName.prepend('/');

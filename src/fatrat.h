@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
-QString getDataFileDir(QString dir, QString fileName);
+QString getDataFileDir(QString dir, QString fileName = QString());
 QWidget* getMainWindow();
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);
