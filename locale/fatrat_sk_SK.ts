@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="cs">
+<defaultcodec></defaultcodec>
 <context>
     <name>AboutDlg</name>
     <message>
@@ -261,7 +262,7 @@
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="139"/>
         <source>Cannot move the file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemôžem presunúť súbor.</translation>
     </message>
 </context>
 <context>
@@ -1557,47 +1558,47 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="119"/>
         <source>You cannot have multiple RS.com FREE downloads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemôžete sťahovať viac vecí naraz z RS.com FREE.</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="130"/>
         <source>Loading the first page</source>
-        <translation type="unfinished"></translation>
+        <translation>Načítavam prvú stránku</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="175"/>
         <source>%1 seconds left</source>
-        <translation type="unfinished"></translation>
+        <translation>zostáva %1 sekúnd</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="189"/>
         <source>Failed to load the download&apos;s first page.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa načítať prvú stránku so sťahovaním</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="193"/>
         <source>Failed to parse the download&apos;s first page.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa rozparsovať prvú stránku so sťahovaním.</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="202"/>
         <source>Loading the second page</source>
-        <translation type="unfinished"></translation>
+        <translation>Načítavam druhú stránku</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="223"/>
         <source>Failed to load the download&apos;s waiting page.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa načítať stránku s čakaním na download.</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="234"/>
         <source>Failed to parse the download&apos;s waiting page.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa rozparsovať stránku s čakaním na download.</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="273"/>
         <source>Failed to download the file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa stiahnuť súbor.</translation>
     </message>
 </context>
 <context>
@@ -1650,7 +1651,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_RapidshareOptsForm.h" line="173"/>
         <source>Enable the status widget</source>
-        <translation type="unfinished"></translation>
+        <translation>Povoliť widget, ktorý zobrazuje stav</translation>
     </message>
 </context>
 <context>
@@ -1771,12 +1772,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/RapidshareUpload.cpp" line="216"/>
         <source>Can&apos;t open the file</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemôžem otvoriť súbor</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareUpload.cpp" line="260"/>
         <source>The maximum file size is 200 MB/2 GB (premium)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximálna veľkosť súboru je 200 MB/2 GB (premium)</translation>
     </message>
 </context>
 <context>
@@ -1784,7 +1785,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_RapidshareUploadDetailsForm.h" line="57"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulár</translation>
     </message>
 </context>
 <context>
@@ -2396,7 +2397,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_SettingsQueueForm.h" line="225"/>
         <source>Enable tooltips</source>
-        <translation type="unfinished"></translation>
+        <translation>Povoliť tipy nástrojov</translation>
     </message>
 </context>
 <context>
@@ -2780,7 +2781,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_TorrentDetailsForm.h" line="350"/>
         <source>Completition</source>
-        <translation>Dokončenie</translation>
+        <translation>Dokončených</translation>
     </message>
     <message>
         <location filename="../ui_TorrentDetailsForm.h" line="362"/>
@@ -2822,7 +2823,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_TorrentDetailsForm.h" line="360"/>
         <source>Magnet link:</source>
-        <translation type="unfinished"></translation>
+        <translation>Odkaz Magnet-link:</translation>
     </message>
 </context>
 <context>
@@ -2905,12 +2906,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="375"/>
         <source>Downloading metadata: %1%</source>
-        <translation type="unfinished"></translation>
+        <translation>Sťahujem metadáta: %1%</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="932"/>
         <source>Downloading metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Sťahujem metadáta</translation>
     </message>
 </context>
 <context>
@@ -3378,12 +3379,12 @@ uploadnutý nasledujúci objem</translation>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1126"/>
         <source>Failed to retrieve the metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa získať metadáta</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1130"/>
         <source>Successfully retrieved the metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Úspešne získané metadáta</translation>
     </message>
 </context>
 <context>
