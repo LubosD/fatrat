@@ -717,7 +717,7 @@
         <location filename="../src/engines/HttpFtpSettings.cpp" line="47"/>
         <source>None</source>
         <comment>No proxy</comment>
-        <translation>Žiaden</translation>
+        <translation>Žiadne</translation>
     </message>
 </context>
 <context>
@@ -3266,18 +3266,18 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.cpp" line="65"/>
         <source>The .torrent is being downloaded, please wait.</source>
-        <translation>Je sťahovaný .torrent súbor, prosím vyčkajte.</translation>
+        <translation>Sťahuje sa .torrent súbor, prosím počkajte.</translation>
     </message>
     <message>
         <location filename="../ui_TorrentOptsWidget.h" line="225"/>
         <source>Seeding limits</source>
-        <translation>Limity seedovánia</translation>
+        <translation>Limity seedovania</translation>
     </message>
     <message>
         <location filename="../ui_TorrentOptsWidget.h" line="223"/>
         <source>Seed until specified amount
 of data has been uploaded</source>
-        <translation>Seedovať pokiaľ nebude
+        <translation>Seedovať, pokiaľ nebude
 uploadnutý nasledujúci objem</translation>
     </message>
     <message>
