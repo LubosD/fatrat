@@ -712,6 +712,7 @@ void MainWindow::move(int i)
 {
 	Queue* q = getCurrentQueue(false);
 	QList<int> sel = getSelection();
+	QModelIndex eVisible;
 	
 	if(!q) return;
 	
@@ -732,6 +733,8 @@ void MainWindow::move(int i)
 					q->moveToTop(sel[size-j-1]+j);
 					model->select(m_modelTransfers->index(j), QItemSelectionModel::Select | QItemSelectionModel::Rows);
 				}
+				
+				eVisible = m_modelTransfers->index(size-1);
 				break;
 			}
 			case 1:
@@ -741,6 +744,9 @@ void MainWindow::move(int i)
 					
 					newpos = q->moveUp(sel[i]);
 					model->select(m_modelTransfers->index(newpos), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+					
+					if(i == 0)
+						eVisible = m_modelTransfers->index(newpos);
 				}
 				break;
 			case 2:
@@ -750,6 +756,9 @@ void MainWindow::move(int i)
 					
 					newpos = q->moveDown(sel[i]);
 					model->select(m_modelTransfers->index(newpos), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+					
+					if(i == size-1)
+						eVisible = m_modelTransfers->index(newpos);
 				}
 				break;
 			case 3:
@@ -761,6 +770,9 @@ void MainWindow::move(int i)
 				{
 					q->moveToBottom(sel[i]-i);
 					model->select(m_modelTransfers->index(qsize-i-1), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+					
+					if(i == 0)
+						eVisible = m_modelTransfers->index(qsize-i-1);
 				}
 				break;
 			}
@@ -771,6 +783,8 @@ void MainWindow::move(int i)
 	
 	doneQueue(q,false);
 	Queue::saveQueues();
+	
+	treeTransfers->scrollTo(eVisible);
 }
 
 void MainWindow::moveToTop()
