@@ -1039,6 +1039,7 @@ QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine
 		foreach(QString uri, listUris)
 		{
 			const EngineEntry* _class = 0;
+			uri = uri.trimmed();
 			if(classIndex < 0)
 			{
 				Transfer::BestEngine eng;
