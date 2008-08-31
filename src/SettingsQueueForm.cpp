@@ -60,10 +60,13 @@ void SettingsQueueForm::accepted()
 
 bool SettingsQueueForm::accept()
 {
-	if(!lineSender->text().contains('@') || !lineRecipient->text().contains('@'))
+	if(checkEmail->isChecked())
 	{
-		QMessageBox::critical(0, tr("Error"), tr("The e-mail address is incorrect."));
-		return false;
+		if(!lineSender->text().contains('@') || !lineRecipient->text().contains('@'))
+		{
+			QMessageBox::critical(0, tr("Error"), tr("The e-mail address is incorrect."));
+			return false;
+		}
 	}
 	return true;
 }
