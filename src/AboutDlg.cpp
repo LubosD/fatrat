@@ -73,7 +73,7 @@ void AboutDlg::processPlugins()
 	for(QMap<QString,PluginInfo>::const_iterator it = g_plugins.constBegin();
 		   it != g_plugins.constEnd(); it++)
 	{
-		text += QString("<b>%1</b><br>File name: %2<br>Author: %3<br>Web site: <a href=\"%4\">%4</a>")
+		text += tr("<b>%1</b><br>File name: %2<br>Author: %3<br>Web site: <a href=\"%4\">%4</a>")
 				.arg(it->name).arg(it.key()).arg(it->author).arg(it->website);
 		text += "<p>";
 	}
