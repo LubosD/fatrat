@@ -12,7 +12,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </head>
 
 <body onload="javascript: init();">
-<p><img src="logo.png" alt="FatRat logo"/></p>
+<p><img src="logo.png" style="width: 288px; height: 75px" alt="FatRat logo"/></p>
 
 <?
 if(GET.rmqueue)
@@ -244,15 +244,15 @@ if(GET.queue == undefined && QUEUES.length != 0)
 		{
 			if(info.directory)
 			{
-				print(' <a href="/browse.qsp?transfer='+transfer.uuid+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" alt="Browse" title="Browse"/></a> ');
+				print(' <a href="/browse.qsp?transfer='+transfer.uuid+'&amp;path=" onclick="javascript: return newwin(this.href);"><img src="/browse.png" style="width: 16px; height: 16px" alt="Browse" title="Browse"/></a> ');
 			}
 			else
 			{
-				print(' <a href="/download?transfer='+transfer.uuid+'&amp;path="><img src="/down.png" alt="Download" title="Download"/></a> ');
+				print(' <a href="/download?transfer='+transfer.uuid+'&amp;path="><img src="/down.png" style="width: 16px; height: 16px" alt="Download" title="Download"/></a> ');
 			}
 		}
 		
-		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+transfer.uuid+'"><img src="/graph.png" title="Graph" alt="Graph"/></a></span>');
+		print('<a onclick="javascript:return newwin(this.href);" href="/generate/graph.png?'+transfer.uuid+'"><img src="/graph.png" style="width: 16px; height: 16px" title="Graph" alt="Graph"/></a></span>');
 		
 		print(' <img src="/states/' + transfer.state.toLowerCase()+stateSuffix(transfer) + '.png" class="stateicon" alt="' + transfer.state + '"/> ');
 		print(' <input type="checkbox" id="transfer'+i+'" onclick="javascript:checkTransfer(this)" name="transfer['+i+']" value="'+transfer.uuid+'"/> ');
@@ -264,12 +264,12 @@ if(GET.queue == undefined && QUEUES.length != 0)
 			progress = 100*transfer.done/transfer.total;
 			progress = Math.round(progress*10)/10;
 			
-			print('<td class="m"><img src="/generate/progress.png?'+progress+'%25" alt="'+progress+'%"/></td>');
+			print('<td class="m"><img src="/generate/progress.png?'+progress+'%25" style="width: 150px; height: 20px" alt="'+progress+'%"/></td>');
 			print('<td class="m">'+formatSize(transfer.total, false)+'</td>');
 		}
 		else
 		{
-			print('<td class="m"><img src="/generate/progress.png?%3F" alt="?"/></td><td class="m">?</td>');
+			print('<td class="m"><img src="/generate/progress.png?%3F" style="width: 150px; height: 20px" alt="?"/></td><td class="m">?</td>');
 		}
 		
 		speed = transfer.speed();
