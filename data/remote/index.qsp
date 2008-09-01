@@ -135,7 +135,10 @@ if(GET.queue == undefined && QUEUES.length != 0)
 		for(var i=0;i<array.length;i++)
 		{
 			if(array[i] == what)
+			{
+				array[i] = null;
 				return true;
+			}
 		}
 		return false;
 	}
@@ -203,7 +206,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 			for(i=queue.size-1;i>=0;i--)
 			{
 				if(arrayContains(POST.transfer, queue.at(i).uuid))
-					queue.moveToTop(i+x++);
+					queue.moveToTop(i++);
 			}
 		}
 		else if(POST.move == 'up')
@@ -224,11 +227,10 @@ if(GET.queue == undefined && QUEUES.length != 0)
 		}
 		else if(POST.move == 'bottom')
 		{
-			var x = 0;
 			for(i=0;i<queue.size;i++)
 			{
 				if(arrayContains(POST.transfer, queue.at(i).uuid))
-					queue.moveToBottom(i-x++)
+					queue.moveToBottom(i--);
 			}
 		}
 	}
