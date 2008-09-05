@@ -1,16 +1,35 @@
 === GRAPHICS ===
-Original FatRat photo; Copyright © 2000-2004 Martin Krzywinski <martink at bcgsc.ca>
 
-active.png, active_upload.png, forced_active.png, forcedactive.png, forcedactive_upload.png, distribute.png, forced_distribute.png, failed.png, failed_upload.png:
-Copyright © David Vignoni <services at icon-king.com>
+* Original FatRat photo
+  Copyright © 2000-2004 Martin Krzywinski <martink at bcgsc.ca>
+  For public use; use, modification and distribution of these photos is unrestricted.
 
-Icons in fatrat/gfx/flags; Copyright © Mark James <http://www.famfamfam.com>
+* active.png, active_upload.png, forced_active.png, forcedactive.png, forcedactive_upload.png, distribute.png, forced_distribute.png, failed.png, failed_upload.png:
+  Copyright © David Vignoni <services at icon-king.com>
+  GNU LGPL v2.1 or any later version.
 
-All other PNG icons in the fatrat/gfx and fatrat/data/remote directories; Copyright © Everaldo Coelho <contact at everaldo.com>
+* Icons in fatrat/gfx/flags
+  Copyright © Mark James <http://www.famfamfam.com>
+  Available for free use for any purpose with no requirement for attribution.
+
+* All other PNG icons in the fatrat/gfx and fatrat/data/remote directories
+  Copyright © Everaldo Coelho <contact at everaldo.com>
+  GNU LGPL v2.1 or any later version.
 
 === SOFTWARE ===
 
-Rasterbar libtorrent library; Copyright © 2003-2008 Arvid Norberg <arvidn at sourceforge.net>
-Gloox XMPP library; Copyright © 2005-2008 Jakob Schröter <js at camaya.net>
-Trolltech Qt 4; Copyright © 2000-2008 Trolltech ASA <http://www.trolltech.com>
-cURL; Copyright © 1996-2008 Daniel Stenberg <daniel at haxx.se>
+* Rasterbar libtorrent library
+  Copyright © 2003-2008 Arvid Norberg <arvidn at sourceforge.net>
+  BSD license.
+
+* Gloox XMPP library
+  Copyright © 2005-2008 Jakob Schröter <js at camaya.net>
+  GNU GPL version 2.
+
+* Trolltech Qt 4
+  Copyright © 2000-2008 Trolltech ASA <http://www.trolltech.com>
+  GNU GPL version 2 or 3.
+
+* cURL
+  Copyright © 1996-2008 Daniel Stenberg <daniel at haxx.se>
+  MIT/X derivate license
