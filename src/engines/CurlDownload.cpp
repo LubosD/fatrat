@@ -248,6 +248,7 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
 		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
 		curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
+		curl_easy_setopt(m_curl, CURLOPT_FAILONERROR, true);
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD);
