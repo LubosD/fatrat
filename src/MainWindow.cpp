@@ -1141,7 +1141,7 @@ void MainWindow::transferOptions()
 			{
 				d->setObject(wgt->m_strURI);
 			}
-			catch(const std::exception& e)
+			catch(const RuntimeException& e)
 			{
 				QMessageBox::critical(this, tr("Error"), e.what());
 			}
