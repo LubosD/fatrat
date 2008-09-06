@@ -315,7 +315,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 
 <hr/>
 
-<p style="text-align: center; font-size: x-small"><b><a href="http://fatrat.dolezel.info">FatRat</a></b> is Copyright © 2006-2008 Luboš Doležel</p>
+<p style="text-align: center; font-size: x-small"><b><a href="http://fatrat.dolezel.info">FatRat</a></b> - Copyright © 2006-2008 Luboš Doležel</p>
 
 </body>
 </html>
