@@ -135,7 +135,7 @@ void CurlDownload::setObject(QString target)
 	QDir dirnew = target;
 	if(dirnew != m_dir)
 	{
-		if(!QFile::rename(filePath(), target))
+		if(!QFile::rename(filePath(), target+"/"+m_strFile))
 			throw RuntimeException(tr("Cannot move the file."));
 			
 		m_dir = dirnew;
