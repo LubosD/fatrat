@@ -646,7 +646,7 @@ void JabberService::onDisconnect(gloox::ConnectionError e)
 		case gloox::ConnAuthenticationFailed:
 			err += tr("Authentication failed"); break;
 		case gloox::ConnUserDisconnected:
-			err += tr("The user was disconnect"); break;
+			err += tr("The user was disconnected"); break;
 		default:
 			err += tr("Other reason"); break;
 	}
