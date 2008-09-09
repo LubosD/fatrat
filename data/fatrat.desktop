@@ -5,7 +5,6 @@ Exec=fatrat
 Name=FatRat
 GenericName=Download/upload manager
 Icon=fatrat.png
-Name=FatRat
 StartupNotify=true
 Terminal=false
 Type=Application
