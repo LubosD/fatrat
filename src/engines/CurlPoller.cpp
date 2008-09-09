@@ -84,6 +84,7 @@ void CurlPoller::run()
 		
 		nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), timeout);
 		
+		m_usersLock.lock();
 		if(!nfds)
 		{
 			//qDebug() << "No events";
@@ -107,8 +108,6 @@ void CurlPoller::run()
 		}
 		
 		gettimeofday(&tvNow, 0);
-		
-		QMutexLocker locker(&m_usersLock);
 		
 		if(curl_timeout <= 0 || curl_timeout > 500)
 			timeout = 500;
@@ -194,6 +193,7 @@ void CurlPoller::run()
 			if(user)
 				user->transferDone(msg->data.result);
 		}
+		m_usersLock.unlock();
 	}
 }
 
