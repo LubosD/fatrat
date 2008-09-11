@@ -97,7 +97,7 @@ protected:
 	CURL* m_curl;
 	curl_httppost* m_postData;
 	QHttp* m_http;
-	QBuffer m_buffer;
+	QBuffer* m_buffer;
 	QFile m_file;
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	

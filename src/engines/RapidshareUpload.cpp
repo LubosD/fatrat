@@ -43,7 +43,7 @@ RapidshareStatusWidget* RapidshareUpload::m_labelStatus = 0;
 const long CHUNK_SIZE = 10*1024*1024;
 
 RapidshareUpload::RapidshareUpload()
-	: m_curl(0), m_postData(0), m_http(0)
+	: m_curl(0), m_postData(0), m_http(0), m_buffer(0)
 {
 	m_query = QueryNone;
 	m_nFileID = -1;
@@ -51,6 +51,8 @@ RapidshareUpload::RapidshareUpload()
 	m_bIDJustChecked = false;
 	
 	m_mode = Upload;
+	m_buffer = new QBuffer;
+	m_buffer->open(QIODevice::ReadWrite);
 	
 	m_type = AccountType( g_settings->value("rapidshare/account").toInt() );
 	m_strUsername = g_settings->value("rapidshare/username").toString();
@@ -62,6 +64,8 @@ RapidshareUpload::RapidshareUpload()
 
 RapidshareUpload::~RapidshareUpload()
 {
+	delete m_buffer;
+	
 	if(m_curl)
 		curl_easy_cleanup(m_curl);
 	if(m_postData)
@@ -151,7 +155,7 @@ size_t RapidshareUpload::readData(char* buffer, size_t maxData)
 
 bool RapidshareUpload::writeData(const char* buffer, size_t bytes)
 {
-	m_buffer.write(buffer, bytes);
+	m_buffer->write(buffer, bytes);
 	return true;
 }
 
@@ -219,7 +223,10 @@ void RapidshareUpload::changeActive(bool nowActive)
 			}
 		}
 		
-		m_buffer.close();
+		delete m_buffer;
+		m_buffer = new QBuffer;
+		m_buffer->open(QIODevice::ReadWrite);
+		
 		if(m_strServer.isEmpty())
 		{
 			m_query = QueryServerID;
@@ -228,7 +235,7 @@ void RapidshareUpload::changeActive(bool nowActive)
 			connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
 			
 			m_http->setProxy(Proxy::getProxy(m_proxy));
-			m_http->get("/cgi-bin/rsapi.cgi?sub=nextuploadserver_v1", &m_buffer);
+			m_http->get("/cgi-bin/rsapi.cgi?sub=nextuploadserver_v1", m_buffer);
 		}
 		else
 		{
@@ -243,7 +250,7 @@ void RapidshareUpload::changeActive(bool nowActive)
 					connect(m_http, SIGNAL(done(bool)), this, SLOT(queryDone(bool)));
 					
 					m_http->setProxy(Proxy::getProxy(m_proxy));
-					m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), &m_buffer);
+					m_http->get(QString("/cgi-bin/rsapi.cgi?sub=checkincomplete_v1&fileid=%1&killcode=%2").arg(m_nFileID).arg(m_strKillID), m_buffer);
 				}
 				else
 					setState(Completed);
@@ -377,8 +384,10 @@ void RapidshareUpload::beginNextChunk()
 	curl_easy_setopt(m_curl, CURLOPT_HTTPPOST, m_postData);
 	
 	m_file.seek(m_nDone);
-	m_buffer.close();
-	m_buffer.open(QIODevice::WriteOnly);
+	
+	delete m_buffer;
+	m_buffer = new QBuffer;
+	m_buffer->open(QIODevice::ReadWrite);
 	
 	CurlPoller::instance()->addTransfer(this);
 }
@@ -396,7 +405,7 @@ void RapidshareUpload::transferDone(CURLcode result)
 		QRegExp reFileID("File1.1=http://rapidshare.com/files/(\\d+)/([^\\n]+)");
 		QRegExp reKillID("\\?killcode=(\\d+)");
 		QString link;
-		const QByteArray& response = m_buffer.buffer();
+		const QByteArray& response = m_buffer->buffer();
 		
 		qDebug() << response;
 		
@@ -484,7 +493,7 @@ void RapidshareUpload::saveLink(QString filename, QString link)
 
 void RapidshareUpload::queryDone(bool error)
 {
-	m_buffer.seek(0);
+	m_buffer->seek(0);
 	
 	if(m_query == QueryServerID)
 	{
@@ -495,7 +504,7 @@ void RapidshareUpload::queryDone(bool error)
 		}
 		else
 		{
-			m_strServer = QString("rs%1l3.rapidshare.com").arg(m_buffer.data().toInt());
+			m_strServer = QString("rs%1l3.rapidshare.com").arg(m_buffer->data().toInt());
 			
 			enterLogMessage(tr("Uploading to %1").arg(m_strServer));
 		}
@@ -512,13 +521,13 @@ void RapidshareUpload::queryDone(bool error)
 			m_bIDJustChecked = true;
 			
 			bool ok;
-			m_nDone = m_buffer.data().toLongLong(&ok);
+			m_nDone = m_buffer->data().toLongLong(&ok);
 			
 			if(!ok)
 			{
-				qDebug() << m_buffer.data() << "isn't a valid number";
+				qDebug() << m_buffer->data() << "isn't a valid number";
 				// file ID invalid etc.
-				m_strMessage = m_buffer.data();
+				m_strMessage = m_buffer->data();
 				m_nDone = 0;
 				m_nFileID = -1;
 				m_strKillID.clear();
@@ -552,7 +561,8 @@ void RapidshareUpload::speeds(int& down, int& up) const
 
 qulonglong RapidshareUpload::done() const
 {
-	if(!isActive())
+	bool active = isActive();
+	if(!active || (active && m_query == QueryFileInfo))
 		return m_nDone;
 	else
 		return m_file.pos();
