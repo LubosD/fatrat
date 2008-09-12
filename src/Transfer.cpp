@@ -258,10 +258,6 @@ void Transfer::setState(State newState)
 	if(!statePossible(newState))
 		return;
 	
-	if(!m_bLocal)
-		emit TransferNotifier::instance()->stateChanged(this, m_state, newState);
-	emit stateChanged(m_state, newState);
-	
 	enterLogMessage(tr("Changed state: %1 -> %2").arg(state2string(m_state)).arg(state2string(newState)));
 	
 	if(newState == Completed)
@@ -280,6 +276,10 @@ void Transfer::setState(State newState)
 		else
 			m_nTimeRunning += m_timeStart.secsTo(QDateTime::currentDateTime());
 	}
+	
+	if(!m_bLocal)
+		emit TransferNotifier::instance()->stateChanged(this, m_state, newState);
+	emit stateChanged(m_state, newState);
 }
 
 qint64 Transfer::timeRunning() const
