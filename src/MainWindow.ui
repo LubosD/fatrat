@@ -16,18 +16,10 @@
    <string>FatRat</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="gfx/resources.qrc" >
+   <iconset resource="../gfx/resources.qrc" >
     <normaloff>:/fatrat/fatrat.png</normaloff>:/fatrat/fatrat.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>62</y>
-     <width>737</width>
-     <height>437</height>
-    </rect>
-   </property>
    <layout class="QGridLayout" >
     <property name="margin" >
      <number>9</number>
@@ -41,19 +33,11 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="tab" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>715</width>
-         <height>389</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Transfers</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >
+        <iconset resource="../gfx/resources.qrc" >
          <normaloff>:/menu/main_view.png</normaloff>:/menu/main_view.png</iconset>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2" >
@@ -191,19 +175,11 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>715</width>
-         <height>389</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Details</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >
+        <iconset resource="../gfx/resources.qrc" >
          <normaloff>:/menu/details.png</normaloff>:/menu/details.png</iconset>
        </attribute>
        <layout class="QGridLayout" >
@@ -321,7 +297,7 @@
            <string>Transfer properties</string>
           </property>
           <property name="icon" >
-           <iconset resource="gfx/resources.qrc" >
+           <iconset resource="../gfx/resources.qrc" >
             <normaloff>:/menu/properties.png</normaloff>:/menu/properties.png</iconset>
           </property>
          </widget>
@@ -334,44 +310,18 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <widget class="QWidget" name="page" >
-           <property name="geometry" >
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>697</width>
-             <height>294</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QWidget" name="page_2" >
-           <property name="geometry" >
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-          </widget>
+          <widget class="QWidget" name="page" />
+          <widget class="QWidget" name="page_2" />
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="widget" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>715</width>
-         <height>389</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Speed graph</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >
+        <iconset resource="../gfx/resources.qrc" >
          <normaloff>:/menu/network.png</normaloff>:/menu/network.png</iconset>
        </attribute>
        <layout class="QGridLayout" name="gridLayout" >
@@ -387,19 +337,11 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_3" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>715</width>
-         <height>389</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Log</string>
        </attribute>
        <attribute name="icon" >
-        <iconset resource="gfx/resources.qrc" >
+        <iconset resource="../gfx/resources.qrc" >
          <normaloff>:/menu/log.png</normaloff>:/menu/log.png</iconset>
        </attribute>
        <layout class="QGridLayout" >
@@ -563,25 +505,8 @@
    <addaction name="menuSettings" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>499</y>
-     <width>737</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QStatusBar" name="statusbar" />
   <widget class="QToolBar" name="toolBar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>25</y>
-     <width>737</width>
-     <height>37</height>
-    </rect>
-   </property>
    <property name="windowTitle" >
     <string>Main toolbar</string>
    </property>
@@ -614,16 +539,19 @@
   </widget>
   <action name="actionQuit" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/exit.png</normaloff>:/menu/exit.png</iconset>
    </property>
    <property name="text" >
     <string>Quit</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="actionNewQueue" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/queue_add.png</normaloff>:/menu/queue_add.png</iconset>
    </property>
    <property name="text" >
@@ -632,7 +560,7 @@
   </action>
   <action name="actionDeleteQueue" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/queue_remove.png</normaloff>:/menu/queue_remove.png</iconset>
    </property>
    <property name="text" >
@@ -651,47 +579,62 @@
   </action>
   <action name="actionNewTransfer" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/add.png</normaloff>:/menu/add.png</iconset>
    </property>
    <property name="text" >
     <string>New transfer</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionDeleteTransfer" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/delete.png</normaloff>:/menu/delete.png</iconset>
    </property>
    <property name="text" >
     <string>Delete transfer</string>
    </property>
+   <property name="shortcut" >
+    <string>Del</string>
+   </property>
   </action>
   <action name="actionResume" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/states/active.png</normaloff>:/states/active.png</iconset>
    </property>
    <property name="text" >
     <string>Start</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionForcedResume" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/states/forced_active.png</normaloff>:/states/forced_active.png</iconset>
    </property>
    <property name="text" >
     <string>Force start</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+F</string>
+   </property>
   </action>
   <action name="actionPause" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/states/paused.png</normaloff>:/states/paused.png</iconset>
    </property>
    <property name="text" >
     <string>Pause</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionAbout" >
@@ -701,7 +644,7 @@
   </action>
   <action name="actionTop" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/top.png</normaloff>:/menu/top.png</iconset>
    </property>
    <property name="text" >
@@ -710,7 +653,7 @@
   </action>
   <action name="actionUp" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/up.png</normaloff>:/menu/up.png</iconset>
    </property>
    <property name="text" >
@@ -719,7 +662,7 @@
   </action>
   <action name="actionDown" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/down.png</normaloff>:/menu/down.png</iconset>
    </property>
    <property name="text" >
@@ -728,7 +671,7 @@
   </action>
   <action name="actionBottom" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/bottom.png</normaloff>:/menu/bottom.png</iconset>
    </property>
    <property name="text" >
@@ -737,7 +680,7 @@
   </action>
   <action name="actionRemoveCompleted" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/states/completed.png</normaloff>:/states/completed.png</iconset>
    </property>
    <property name="text" >
@@ -768,7 +711,7 @@
   </action>
   <action name="actionProperties" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/properties.png</normaloff>:/menu/properties.png</iconset>
    </property>
    <property name="text" >
@@ -793,7 +736,7 @@
   </action>
   <action name="actionSettings" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/configure.png</normaloff>:/menu/configure.png</iconset>
    </property>
    <property name="text" >
@@ -802,7 +745,7 @@
   </action>
   <action name="actionQueueProperties" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/properties.png</normaloff>:/menu/properties.png</iconset>
    </property>
    <property name="text" >
@@ -814,7 +757,7 @@
     <bool>true</bool>
    </property>
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/fatrat/dropbox.png</normaloff>:/fatrat/dropbox.png</iconset>
    </property>
    <property name="text" >
@@ -823,7 +766,7 @@
   </action>
   <action name="actionOpenFile" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/run.png</normaloff>:/menu/run.png</iconset>
    </property>
    <property name="text" >
@@ -832,7 +775,7 @@
   </action>
   <action name="actionOpenDirectory" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/directory.png</normaloff>:/menu/directory.png</iconset>
    </property>
    <property name="text" >
@@ -846,11 +789,14 @@
   </action>
   <action name="actionDeleteTransferData" >
    <property name="icon" >
-    <iconset resource="gfx/resources.qrc" >
+    <iconset resource="../gfx/resources.qrc" >
      <normaloff>:/menu/delete_with_data.png</normaloff>:/menu/delete_with_data.png</iconset>
    </property>
    <property name="text" >
     <string>Delete transfer including data</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+Del</string>
    </property>
   </action>
  </widget>
@@ -885,7 +831,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="gfx/resources.qrc" />
+  <include location="../gfx/resources.qrc" />
  </resources>
  <connections/>
 </ui>
