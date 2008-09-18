@@ -102,6 +102,7 @@ bool RapidTools::doRShareCheck()
 void RapidTools::reserRShare()
 {
 	textLinks->setText(QString());
+	m_strRShareWorking.clear();
 }
 
 void RapidTools::downloadRShareLinks()
