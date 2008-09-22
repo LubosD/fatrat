@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QList>
 #include <QBuffer>
 #include <QUrl>
+#include <QDir>
 #include <QXmlSimpleReader>
 #include <QtDebug>
 
@@ -220,6 +221,8 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 			{
 				Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1").arg(item.title));
 				Transfer* t = eng.engine->lpfnCreate();
+				
+				QDir().mkpath(regexps[i].target);
 				
 				t->init(item.url, regexps[i].target);
 				t->setComment(item.descr);
