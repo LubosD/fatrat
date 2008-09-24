@@ -355,7 +355,7 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 					"logout/quit/exit - Log out\n"
 					"\nPass arguments like this: \"resume 1 3 5\", use indexes from the lists\n\n"
 					"add/new - Add new transfers\n"
-					"This command needs special arguments. See more at http://fatrat.dolezel.info/doc/jabber.xhtml");
+					"This command needs special arguments. See more in the documentation.");
 		}
 		else if(args[0] == "qlist")
 		{
