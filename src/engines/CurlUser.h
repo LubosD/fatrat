@@ -54,15 +54,17 @@ protected:
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
 	
+	typedef QPair<long long,long> timedata_pair;
+	
 	struct SpeedData
 	{
-		QList<QPair<long,long> > stats;
+		QList<timedata_pair> stats;
 		timeval last, next, lastOp;
-		QPair<long, long> accum;
+		timedata_pair accum;
 		int max;
 	};
 private:
-	static int computeSpeed(const QList<QPair<long,long> >& data);
+	static int computeSpeed(const QList<timedata_pair>& data);
 	static void timeProcess(SpeedData& data, size_t bytes);
 	static bool isNull(const timeval& t);
 protected:

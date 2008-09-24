@@ -83,32 +83,32 @@ void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 		data.last = tvNow;
 	else
 	{
-		long msec = (tvNow.tv_sec-data.last.tv_sec)*1000L + (tvNow.tv_usec-data.last.tv_usec)/1000L;
-		data.accum.first += msec;
+		long usec = (tvNow.tv_sec-data.last.tv_sec)*1000000LL + (tvNow.tv_usec-data.last.tv_usec);
+		data.accum.first += usec;
 		data.accum.second += bytes;
 		
-		if(data.accum.first > 1000)
+		if(data.accum.first > 1000000LL)
 		{
 			data.stats << data.accum;
 			
 			if(data.stats.size() > MAX_STATS)
 				data.stats.pop_front();
 			
-			data.accum = QPair<long,long>(0,0);
+			data.accum = timedata_pair(0,0);
 		}
 		
 		memset(&data.next, 0, sizeof data.next);
 		if(data.max > 0)
 		{
-			long delta = bytes*1000/data.max - msec/2;
+			long delta = bytes*1000000LL/data.max - usec/2;
 			
 			if(delta > 0)
 			{
 				delta *= 2;
 				//qDebug() << "Sleeping for" << delta;
 				data.next = tvNow;
-				data.next.tv_sec += delta/1000;
-				data.next.tv_usec += (delta%1000)*1000;
+				data.next.tv_sec += delta/1000000LL;
+				data.next.tv_usec += delta%1000000LL;
 			}
 		}
 		
@@ -124,7 +124,7 @@ void CurlUser::resetStatistics()
 	m_down.stats.clear();
 	m_up.stats.clear();
 	
-	m_down.accum = m_up.accum = QPair<long,long>(0,0);
+	m_down.accum = m_up.accum = timedata_pair(0,0);
 	
 	memset(&m_down.last, 0, sizeof(m_down.last));
 	memset(&m_up.last, 0, sizeof(m_up.last));
@@ -136,7 +136,7 @@ void CurlUser::resetStatistics()
 	m_up.lastOp = m_down.lastOp;
 }
 
-int CurlUser::computeSpeed(const QList<QPair<long,long> >& data)
+int CurlUser::computeSpeed(const QList<timedata_pair>& data)
 {
 	long long time = 0, bytes = 0;
 	
@@ -147,7 +147,7 @@ int CurlUser::computeSpeed(const QList<QPair<long,long> >& data)
 	}
 	
 	if(time)
-		return double(bytes)/time*1000;
+		return double(bytes)/(double(time)/1000000);
 	else
 		return 0;
 }
