@@ -282,12 +282,14 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
 	if(reason == QSystemTrayIcon::Trigger)
 	{
-		if(actionDisplay->isChecked() && !this->isActiveWindow())
+		// The following feature is confusing, hence disabled (#22)
+		/*if(actionDisplay->isChecked() && !this->isActiveWindow())
 		{
 			activateWindow();
 			raise();
 		}
 		else
+		*/
 			actionDisplay->toggle();
 	}
 	else if(reason == QSystemTrayIcon::Context)
