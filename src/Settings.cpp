@@ -109,9 +109,6 @@ void exitSettings()
 
 QVariant getSettingsDefault(QString id)
 {
-	if(id == "defaultdir")
-		return QDir::homePath();
-	else
-		return m_settingsDefaults->value(id);
+	return m_settingsDefaults->value(id);
 }
 

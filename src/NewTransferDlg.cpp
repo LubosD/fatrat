@@ -146,6 +146,22 @@ void NewTransferDlg::accepted()
 	m_nQueue = comboQueue->currentIndex();
 }
 
+QString NewTransferDlg::getDestination() const
+{
+	if(radioDownload->isChecked())
+		return comboDestination->currentText();
+	else
+		return comboDestination2->currentText();
+}
+
+void NewTransferDlg::setDestination(QString p)
+{
+	if(radioDownload->isChecked())
+		comboDestination->setEditText(p);
+	else
+		comboDestination2->setEditText(p);
+}
+
 void NewTransferDlg::addLinks(QString links)
 {
 	m_mode = radioDownload->isChecked() ? Transfer::Download : Transfer::Upload;
@@ -190,18 +206,26 @@ void NewTransferDlg::load()
 		}
 	}
 	{
-		g_queuesLock.lockForRead();
+		QReadLocker l(&g_queuesLock);
 		
-		foreach(Queue* q, g_queues)
-			comboQueue->addItem(q->name());
+		for(int i=0;i<g_queues.size();i++)
+		{
+			comboQueue->addItem(g_queues[i]->name());
+			comboQueue->setItemData(i, g_queues[i]->defaultDirectory());
+		}
+		
+		if(g_queues.isEmpty())
+			m_nQueue = -1;
 		
 		comboQueue->setCurrentIndex(m_nQueue);
-		
-		g_queuesLock.unlock();
+		if(m_strDestination.isEmpty())
+		{
+			if(m_nQueue != -1)
+				m_strDestination = g_queues[m_nQueue]->defaultDirectory();
+			else
+				m_strDestination = QDir::homePath();
+		}
 	}
-	
-	if(m_strDestination.isEmpty())
-		m_strDestination = g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
 	
 	m_lastDirs = g_settings->value("lastdirs").toStringList();
 	if(!m_lastDirs.contains(m_strDestination))
@@ -222,6 +246,18 @@ void NewTransferDlg::load()
 	}
 	else
 		textURIs->setText(m_strURIs);
+	
+	connect(comboQueue, SIGNAL(currentIndexChanged(int)), this, SLOT(queueChanged(int)));
+}
+
+void NewTransferDlg::queueChanged(int now)
+{
+	if(now == m_nQueue)
+		return;
+	
+	if(getDestination() == comboQueue->itemData(m_nQueue).toString())
+		setDestination(comboQueue->itemData(now).toString());
+	m_nQueue = now;
 }
 
 void NewTransferDlg::addTextFile()

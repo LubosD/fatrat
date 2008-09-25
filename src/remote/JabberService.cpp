@@ -388,9 +388,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 		}
 		else if(args[0] == "list")
 		{
-			validateQueue(conn);
-			
 			QReadLocker locker(&g_queuesLock);
+			
+			validateQueue(conn);
 			response = tr("List of transfers:");
 			
 			Queue* q = g_queues[conn->nQueue];
@@ -408,9 +408,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 		}
 		else if(args[0] == "pauseall" || args[0] == "resumeall")
 		{
-			validateQueue(conn);
-			QReadLocker locker(&g_queuesLock);
 			Transfer::State state;
+			QReadLocker locker(&g_queuesLock);
+			validateQueue(conn);
 			
 			if(args[0] == "resumeall")
 				state = Transfer::Active;
@@ -423,8 +423,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 		}
 		else if(args[0] == "pause" || args[0] == "resume")
 		{
-			validateQueue(conn);
 			QReadLocker locker(&g_queuesLock);
+			validateQueue(conn);
+			
 			Queue* q = g_queues[conn->nQueue];
 			
 			Transfer::State state;
@@ -454,8 +455,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 		}
 		else if(args[0] == "remove" || args[0] == "delete")
 		{
-			validateQueue(conn);
 			QReadLocker locker(&g_queuesLock);
+			validateQueue(conn);
+			
 			Queue* q = g_queues[conn->nQueue];
 			QList<int> items;
 			
@@ -479,7 +481,9 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 		}
 		else if(args[0] == "add" || args[0] == "new")
 		{
+			QReadLocker locker(&g_queuesLock);
 			validateQueue(conn);
+			
 			if(extargs.isEmpty())
 				response = tr("Nothing to add");
 			else
@@ -488,7 +492,10 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 					args.insert(1, "auto");
 				
 				if(args.size() < 3)
-					args << g_settings->value("defaultdir", getSettingsDefault("defaultdir")).toString();
+				{
+					Queue* q = g_queues[conn->nQueue];
+					args << q->defaultDirectory();
+				}
 				
 				response = DbusImpl::instance()->addTransfersNonInteractive(extargs, args[2], args[1], conn->nQueue);
 				

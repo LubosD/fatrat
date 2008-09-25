@@ -50,8 +50,6 @@ RssRegexpDlg::RssRegexpDlg(QWidget* parent)
 	m_regexp.includeRepacks = true;
 	m_regexp.excludeManuals = true;
 	m_regexp.includeTrailers = false;
-	
-	m_regexp.target = getSettingsValue("defaultdir").toString();
 }
 
 void RssRegexpDlg::updateTVS()
@@ -131,10 +129,21 @@ int RssRegexpDlg::exec()
 	{
 		comboQueue->addItem(g_queues[i]->name());
 		comboQueue->setItemData(i, g_queues[i]->uuid());
+		comboQueue->setItemData(i, g_queues[i]->defaultDirectory(), Qt::UserRole+1);
+		
 		if(g_queues[i]->uuid() == m_regexp.queueUUID)
 			comboQueue->setCurrentIndex(i);
 	}
 	g_queuesLock.unlock();
+	
+	if(m_regexp.target.isEmpty())
+	{
+		m_nLastQueue = comboQueue->currentIndex();
+		if(m_nLastQueue != -1)
+			m_regexp.target = comboQueue->itemData(m_nLastQueue, Qt::UserRole+1).toString();
+		else
+			m_regexp.target = QDir::homePath();
+	}
 	
 	lineExpression->setText(m_regexp.regexp.pattern());
 	lineTarget->setText(m_regexp.target);
@@ -156,6 +165,8 @@ int RssRegexpDlg::exec()
 	checkTVSRepacks->setChecked(m_regexp.includeRepacks);
 	checkTVSTrailers->setChecked(m_regexp.includeTrailers);
 	checkTVSNoManuals->setChecked(m_regexp.excludeManuals);
+	
+	connect(comboQueue, SIGNAL(currentIndexChanged(int)), this, SLOT(queueChanged(int)));
 	
 	test();
 	
@@ -186,6 +197,17 @@ int RssRegexpDlg::exec()
 	}
 	
 	return r;
+}
+
+void RssRegexpDlg::queueChanged(int now)
+{
+	if(m_nLastQueue == now)
+		return;
+	
+	if(lineTarget->text() == comboQueue->itemData(m_nLastQueue, Qt::UserRole+1).toString())
+		lineTarget->setText(comboQueue->itemData(now, Qt::UserRole+1).toString());
+	
+	m_nLastQueue = now;
 }
 
 void RssRegexpDlg::browse()

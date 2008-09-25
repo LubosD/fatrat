@@ -35,6 +35,9 @@ public:
 	void accepted();
 	void load();
 	void addLinks(QString links);
+private:
+	QString getDestination() const;
+	void setDestination(QString p);
 private slots:
 	void browse();
 	void browse2();
@@ -43,6 +46,8 @@ private slots:
 	
 	void addTextFile();
 	void addClipboard();
+	
+	void queueChanged(int now);
 public:
 	QString m_strURIs,m_strDestination,m_strClass;
 	QStringList m_lastDirs;

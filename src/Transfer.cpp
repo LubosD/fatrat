@@ -254,6 +254,7 @@ bool Transfer::statePossible(State newState) const
 void Transfer::setState(State newState)
 {
 	bool now,was = isActive();
+	State oldState;
 	
 	if(!statePossible(newState))
 		return;
@@ -263,6 +264,7 @@ void Transfer::setState(State newState)
 	if(newState == Completed)
 		fireCompleted();
 	
+	oldState = m_state;
 	m_state = newState;
 	now = isActive();
 	
@@ -278,7 +280,7 @@ void Transfer::setState(State newState)
 	}
 	
 	if(!m_bLocal)
-		emit TransferNotifier::instance()->stateChanged(this, m_state, newState);
+		emit TransferNotifier::instance()->stateChanged(this, oldState, newState);
 	emit stateChanged(m_state, newState);
 }
 

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fatrat.h"
 #include "Settings.h"
 #include "QueueMgr.h"
+#include "RuntimeException.h"
 #include <QSettings>
 
 using namespace std;
@@ -101,6 +102,7 @@ void QueueMgr::doWork()
 			}
 			else if(state == Transfer::Completed && autoremove)
 			{
+				doMove(q, d);
 				q->remove(i--, true);
 			}
 			
@@ -192,19 +194,55 @@ void QueueMgr::doWork()
 	}
 }
 
-void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::State now)
+void QueueMgr::doMove(Queue* q, Transfer* t)
 {
-	if(now != Transfer::Failed)
+	QString whereTo = q->moveDirectory();
+	if(whereTo.isEmpty())
 		return;
 	
-	bool bRetry = false;
-	if(g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool())
-		bRetry = t->m_bWorking;
-	else if(g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt() > t->m_nRetryCount)
-		bRetry = true;
-	
-	if(bRetry)
-		QMetaObject::invokeMethod(t, "retry", Qt::QueuedConnection);
+	try
+	{
+		t->setObject(whereTo);
+	}
+	catch(const RuntimeException& e)
+	{
+		t->enterLogMessage("QueueMgr", tr("Failed to move the transfer's data: %1").arg(e.what()));
+	}
+}
+
+void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::State now)
+{
+	const bool autoremove = getSettingsValue("autoremove").toBool();
+	if(now == Transfer::Completed)
+	{
+		if(autoremove)
+			return;
+		Queue* q = findQueue(t);
+		if(q != 0)
+			doMove(q, t);
+	}
+	else if(now == Transfer::Failed)
+	{
+		bool bRetry = false;
+		if(g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool())
+			bRetry = t->m_bWorking;
+		else if(g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt() > t->m_nRetryCount)
+			bRetry = true;
+		
+		if(bRetry)
+			QMetaObject::invokeMethod(t, "retry", Qt::QueuedConnection);
+	}
+}
+
+Queue* QueueMgr::findQueue(Transfer* t)
+{
+	QReadLocker l(&g_queuesLock);
+	for(int i=0;i<g_queues.size();i++)
+	{
+		if(g_queues[i]->contains(t))
+			return g_queues[i];
+	}
+	return 0;
 }
 
 void QueueMgr::exit()
@@ -216,7 +254,8 @@ void QueueMgr::exit()
 	{
 		foreach(Transfer* d,q->m_transfers)
 		{
-			d->setState(Transfer::Paused);
+			if(d->isActive())
+				d->changeActive(false);
 		}
 	}
 	g_queuesLock.unlock();

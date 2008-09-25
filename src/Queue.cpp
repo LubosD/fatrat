@@ -39,6 +39,7 @@ Queue::Queue()
 {
 	memset(&m_stats, 0, sizeof m_stats);
 	m_uuid = QUuid::createUuid();
+	m_strDefaultDirectory = QDir::homePath();
 }
 
 Queue::~Queue()
@@ -98,6 +99,8 @@ void Queue::loadQueues()
 				pQueue->m_nUpTransferLimit = n.attribute("utranslimit").toInt();
 				pQueue->m_bUpAsDown = n.attribute("upasdown").toInt() != 0;
 				pQueue->m_uuid = QUuid( n.attribute("uuid", pQueue->m_uuid.toString()) );
+				pQueue->m_strDefaultDirectory = n.attribute("defaultdir", pQueue->m_strDefaultDirectory);
+				pQueue->m_strMoveDirectory = n.attribute("movedir");
 				
 				pQueue->loadQueue(n);
 				g_queues << pQueue;
@@ -138,6 +141,8 @@ void Queue::saveQueues()
 		elem.setAttribute("utranslimit",QString::number(q->m_nUpTransferLimit));
 		elem.setAttribute("upasdown",QString::number(q->m_bUpAsDown));
 		elem.setAttribute("uuid",q->m_uuid.toString());
+		elem.setAttribute("defaultdir",q->m_strDefaultDirectory);
+		elem.setAttribute("movedir",q->m_strMoveDirectory);
 		
 		q->saveQueue(elem,doc);
 		root.appendChild(elem);
@@ -341,4 +346,44 @@ void Queue::setAutoLimits(int down, int up)
 	}
 }
 
+void Queue::setName(QString name)
+{
+	QWriteLocker l(&m_lock);
+	m_strName = name;
+}
+QString Queue::name() const
+{
+	QReadLocker l(&m_lock);
+	return m_strName;
+}
+
+void Queue::setDefaultDirectory(QString path)
+{
+	QWriteLocker l(&m_lock);
+	m_strDefaultDirectory = path;
+}
+
+QString Queue::defaultDirectory() const
+{
+	QReadLocker l(&m_lock);
+	return m_strDefaultDirectory;
+}
+
+void Queue::setMoveDirectory(QString path)
+{
+	QWriteLocker l(&m_lock);
+	m_strMoveDirectory = path;
+}
+
+QString Queue::moveDirectory() const
+{
+	QReadLocker l(&m_lock);
+	return m_strMoveDirectory;
+}
+
+bool Queue::contains(Transfer* t) const
+{
+	QReadLocker l(&m_lock);
+	return m_transfers.contains(t);
+}
 

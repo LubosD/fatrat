@@ -29,11 +29,8 @@ Q_OBJECT
 public:
 	SettingsGeneralForm(QWidget* me, QObject* parent);
 	virtual void load();
-	virtual bool accept();
 	virtual void accepted();
 	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsGeneralForm(me, parent); }
-public slots:
-	void browse();
 };
 
 #endif

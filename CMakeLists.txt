@@ -122,6 +122,7 @@ set(fatrat_SRCS
 	src/TransfersModel.cpp
 	src/Logger.cpp
 	src/Settings.cpp
+	src/QueueDlg.cpp
 	src/engines/OutputBuffer.cpp
 	
 	src/rss/RssFetcher.cpp

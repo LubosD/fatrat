@@ -548,6 +548,8 @@ void MainWindow::newQueue()
 		else
 			q->setTransferLimits(-1, -1);
 		q->setUpAsDown(dlg.m_bUpAsDown);
+		q->setDefaultDirectory(dlg.m_strDefaultDirectory);
+		q->setMoveDirectory(dlg.m_strMoveDirectory);
 		
 		g_queuesLock.lockForWrite();
 		g_queues << q;
@@ -599,6 +601,8 @@ void MainWindow::queueItemProperties()
 	
 	dlg.m_strName = q->name();
 	dlg.m_bUpAsDown = q->upAsDown();
+	dlg.m_strDefaultDirectory = q->defaultDirectory();
+	dlg.m_strMoveDirectory = q->moveDirectory();
 	q->speedLimits(dlg.m_nDownLimit, dlg.m_nUpLimit);
 	q->transferLimits(dlg.m_nDownTransfersLimit,dlg.m_nUpTransfersLimit);
 	
@@ -619,6 +623,8 @@ void MainWindow::queueItemProperties()
 		else
 			q->setTransferLimits();
 		q->setUpAsDown(dlg.m_bUpAsDown);
+		q->setDefaultDirectory(dlg.m_strDefaultDirectory);
+		q->setMoveDirectory(dlg.m_strMoveDirectory);
 		treeQueues->currentItem()->setText(0, dlg.m_strName);
 		
 		Queue::saveQueues();

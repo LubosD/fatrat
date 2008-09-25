@@ -35,11 +35,13 @@ protected slots:
 	void test();
 	void updateTVS();
 	void linkClicked(const QString& link);
+	void queueChanged(int now);
 public:
 	QList<RssFeed> m_feeds;
 	
 	QString m_strFeedName;
 	RssRegexp m_regexp;
+	int m_nLastQueue;
 };
 
 #endif

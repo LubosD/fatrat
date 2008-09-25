@@ -25,15 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QSettings>
 #include <QDir>
 #include <QMessageBox>
-#include <QFileDialog>
 
 extern QSettings* g_settings;
 
 SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject(parent)
 {
 	setupUi(me);
-	
-	connect(toolDestination, SIGNAL(pressed()), this, SLOT(browse()));
 	
 	comboDoubleClick->addItems(QStringList() << tr("switches to transfer details") << tr("switches to the graph")
 			<< tr("opens the file") << tr("opens the parent directory") );
@@ -47,7 +44,6 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 
 void SettingsGeneralForm::load()
 {
-	lineDestination->setText( getSettingsValue("defaultdir").toString() );
 	comboFileExec->setEditText( getSettingsValue("fileexec").toString() );
 	
 	checkTrayIcon->setChecked( getSettingsValue("trayicon").toBool() );
@@ -65,25 +61,8 @@ void SettingsGeneralForm::load()
 	checkCSS->setChecked( getSettingsValue("css").toBool() );
 }
 
-bool SettingsGeneralForm::accept()
-{
-	if(lineDestination->text().isEmpty())
-		return false;
-	else
-	{
-		QDir dir(lineDestination->text());
-		if(!dir.isReadable())
-		{
-			QMessageBox::critical(0, tr("Error"), tr("The specified directory is inaccessible."));
-			return false;
-		}
-	}
-	
-	return true;
-}
 void SettingsGeneralForm::accepted()
 {
-	setSettingsValue("defaultdir", lineDestination->text());
 	setSettingsValue("fileexec", comboFileExec->currentText());
 	
 	setSettingsValue("trayicon", checkTrayIcon->isChecked());
@@ -102,9 +81,3 @@ void SettingsGeneralForm::accepted()
 	((MainWindow*) getMainWindow())->applySettings();
 }
 
-void SettingsGeneralForm::browse()
-{
-	QString dir = QFileDialog::getExistingDirectory(0, tr("Choose directory"), lineDestination->text());
-	if(!dir.isNull())
-		lineDestination->setText(dir);
-}

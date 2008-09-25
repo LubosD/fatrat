@@ -36,6 +36,9 @@ public:
 	
 	inline int totalDown() const { return m_down; }
 	inline int totalUp() const { return m_up; }
+private:
+	void doMove(Queue* q, Transfer* t);
+	static Queue* findQueue(Transfer* t);
 public slots:
 	void doWork();
 	void transferStateChanged(Transfer*,Transfer::State,Transfer::State);

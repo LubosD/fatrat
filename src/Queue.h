@@ -43,9 +43,17 @@ public:
 	Q_INVOKABLE void setTransferLimits(int down = -1,int up = -1) { m_nDownTransferLimit=down; m_nUpTransferLimit=up; }
 	void transferLimits(int& down,int& up) const { down=m_nDownTransferLimit; up=m_nUpTransferLimit; }
 	
-	Q_INVOKABLE void setName(QString name) { m_lock.lockForWrite(); m_strName=name; m_lock.unlock(); }
-	Q_INVOKABLE QString name() const { m_lock.lockForRead(); QString s=m_strName; m_lock.unlock(); return s; }
+	Q_INVOKABLE void setName(QString name);
+	Q_INVOKABLE QString name() const;
 	Q_PROPERTY(QString name READ name WRITE setName)
+	
+	Q_INVOKABLE void setDefaultDirectory(QString path);
+	Q_INVOKABLE QString defaultDirectory() const;
+	Q_PROPERTY(QString defaultDirectory READ defaultDirectory WRITE setDefaultDirectory)
+	
+	Q_INVOKABLE void setMoveDirectory(QString path);
+	Q_INVOKABLE QString moveDirectory() const;
+	Q_PROPERTY(QString moveDirectory READ moveDirectory WRITE setMoveDirectory)
 	
 	Q_INVOKABLE QString uuid() const { return m_uuid.toString(); }
 	Q_PROPERTY(QString uuid READ uuid)
@@ -78,11 +86,13 @@ public:
 	
 	void autoLimits(int& down, int& up) const { down=m_nDownAuto; up=m_nUpAuto; }
 	void setAutoLimits(int down, int up);
+	
+	bool contains(Transfer* t) const;
 private:
 	void loadQueue(const QDomNode& node);
 	void saveQueue(QDomNode& node,QDomDocument& doc);
 	
-	QString m_strName;
+	QString m_strName, m_strDefaultDirectory, m_strMoveDirectory;
 	int m_nDownLimit,m_nUpLimit,m_nDownTransferLimit,m_nUpTransferLimit;
 	int m_nDownAuto, m_nUpAuto;
 	bool m_bUpAsDown;
