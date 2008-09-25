@@ -7,6 +7,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat - transfer details</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
+<script type="text/javascript" src="/filedialog/api.js"></script>
 </head>
 <body>
 
@@ -54,8 +55,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <table class="transfers">
 <tr><td>Name</td><td><? print(transfer.name) ?></td></tr>
 <tr>
-	<td><? if(transfer.mode == 1) print('Destination'); else print('Source'); ?></td>
-	<td><input type="text" name="object" style="width: 100%" value="<? print(transfer.object) ?>"/></td>
+	<td><? if(transfer.primaryMode == 1) print('Destination'); else print('Source'); ?></td>
+	<td>
+		<input type="text" name="object" id="object" style="width: 90%" value="<? print(transfer.object) ?>"/>
+		<input type="button" value="..." onclick="javascript: dirDialog('object')" <?if(transfer.primaryMode != 1) print('style="visibility: hidden"'); ?>/>
+	</td>
 </tr>
 <tr>
 	<td>Max. download speed</td>

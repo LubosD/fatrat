@@ -1,0 +1,19 @@
+<?
+var files = listDirectory(GET.path);
+var dirsOnly = GET.dirsOnly == "true";
+
+print('<list>');
+
+for(i=0;i<files.length;i++)
+{
+	info = fileInfo(GET.path + '/' + files[i]);
+	if(!info.directory && dirsOnly)
+		continue;
+	if(info.directory)
+		print('<dir name="' + files[i].replace('"','&quot;') + '"/>');
+	else
+		print('<file name="' + files[i] + '" size="' + info.size +'"/>');
+}
+
+print('</list>');
+?>

@@ -7,6 +7,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat - new transfer</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
+<script type="text/javascript" src="/filedialog/api.js"></script>
 
 <script type="text/javascript"><!--
 function queueChanged()
@@ -74,7 +75,10 @@ function queueChanged()
 </tr>
 <tr>
 	<td>Destination</td>
-	<td><input type="text" id="destination" style="width: 100%" name="destination" value="<? if(lastQueue!=-1) print(QUEUES[lastQueue].defaultDirectory); ?>"/></td>
+	<td>
+		<input type="text" id="destination" name="destination" style="width: 90%" value="<? if(lastQueue!=-1) print(QUEUES[lastQueue].defaultDirectory); ?>"/>
+		<input type="button" value="..." onclick="javascript: dirDialog('destination')"/>
+	</td>
 </tr>
 <tr>
 	<td>Max. download speed</td>

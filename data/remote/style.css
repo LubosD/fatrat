@@ -51,3 +51,9 @@ hr {
 
 .ralign { float: right }
 
+.tree { font-size: larger }
+.tree a { text-decoration: none }
+.treeNode { padding-left: 15px }
+.treeNode img { margin-right: 10px; cursor: hand; border: 0px }
+.treeNode a { cursor: hand; padding-left: 4px; padding-right: 4px; border: 1px solid transparent }
+.treeNode a:hover { color: red; border: 1px solid blue; background-color: #ddf }

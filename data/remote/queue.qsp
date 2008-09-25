@@ -8,6 +8,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat web interface</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
+<script type="text/javascript" src="/filedialog/api.js"></script>
 
 <script type="text/javascript"><!--
 function checkedLimiting()
@@ -80,13 +81,15 @@ function checkedLimiting()
 <tr>
 	<td>Destination directory</td>
 	<td>
-		<input type="text" name="defaultDirectory" value="<? if(queue) print(queue.defaultDirectory); ?>"/>
+		<input type="text" name="defaultDirectory" id="defaultDirectory" style="width: 90%" value="<? if(queue) print(queue.defaultDirectory); ?>"/>
+		<input type="button" value="..." onclick="javascript: dirDialog('defaultDirectory')"/>
 	</td>
 </tr>
 <tr>
 	<td>Move transfers after completion</td>
 	<td>
-		<input type="text" name="moveDirectory" value="<? if(queue) print(queue.moveDirectory); ?>"/>
+		<input type="text" name="moveDirectory" id="moveDirectory" style="width: 90%" value="<? if(queue) print(queue.moveDirectory); ?>"/>
+		<input type="button" value="..." onclick="javascript: dirDialog('moveDirectory')"/>
 		(directory, empty = disabled)
 	</td>
 </tr>
