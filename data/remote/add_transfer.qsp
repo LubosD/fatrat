@@ -7,6 +7,21 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <title>FatRat - new transfer</title>
 <link rel="icon" href="/favicon.png" type="image/png"/>
 <link rel="stylesheet" type="text/css" href="/style.css"/>
+
+<script type="text/javascript"><!--
+function queueChanged()
+{
+	var elemQueue = document.getElementById('queue');
+	var elemDir = document.getElementById('destination');
+	if(elemQueue.selectedIndex == lastQueue)
+		return;
+	
+	if(elemDir.value == defaultDirs[lastQueue])
+		elemDir.value = defaultDirs[elemQueue.selectedIndex];
+	
+	lastQueue = elemQueue.selectedIndex;
+}
+//--></script>
 </head>
 <body>
 
@@ -18,15 +33,25 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <tr>
 	<td>Queue</td>
 	<td>
-		<select name="queue" style="width: 100%">
+		<select name="queue" id="queue" style="width: 100%" onchange="javascript: queueChanged()">
 		<?
+		var lastQueue = -1;
 		for(i=0;i<QUEUES.length;i++)
 		{
 			print('<option value="'+QUEUES[i].uuid+'" ');
 			if(GET.queue == QUEUES[i].uuid)
+			{
 				print('selected="selected"');
+				lastQueue = i;
+			}
 			print('>'+QUEUES[i].name+'</option>');
 		}
+		print("<script type=\"text/javascript\"><!--\n");
+		print('var defaultDirs = new Array('+QUEUES.length+');');
+		print('var lastQueue = '+lastQueue+';');
+		for(i=0;i<QUEUES.length;i++)
+			print('defaultDirs['+i+'] = "' + new String(QUEUES[i].defaultDirectory).replace('"','\\"') +'";');
+		print('//--></script>');
 		?>
 		</select>
 	</td>
@@ -49,7 +74,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </tr>
 <tr>
 	<td>Destination</td>
-	<td><input type="text" style="width: 100%" name="destination" value="<? print(getSettingsValue('defaultdir')); ?>"/></td>
+	<td><input type="text" id="destination" style="width: 100%" name="destination" value="<? if(lastQueue!=-1) print(QUEUES[lastQueue].defaultDirectory); ?>"/></td>
 </tr>
 <tr>
 	<td>Max. download speed</td>

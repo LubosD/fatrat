@@ -13,9 +13,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 function checkedLimiting()
 {
 	box = document.getElementById('limitTransfers');
+	boxUpAsDown = document.getElementById('upAsDown');
 	document.getElementById('downTransferLimit').disabled = !box.checked;
-	document.getElementById('upTransferLimit').disabled = !box.checked;
-	document.getElementById('upAsDown').disabled = !box.checked;
+	document.getElementById('upTransferLimit').disabled = !box.checked || boxUpAsDown.checked;
+	boxUpAsDown.disabled = !box.checked;
 }
 //--></script>
 </head>
@@ -53,6 +54,8 @@ function checkedLimiting()
 		else
 			queue.setTransferLimits(-1, -1);
 		queue.upAsDown = POST.upAsDown != undefined;
+		queue.defaultDirectory = POST.defaultDirectory;
+		queue.moveDirectory = POST.moveDirectory;
 		
 		if(POST.save)
 			print('<p style="color: green">Saved.</p>');
@@ -72,6 +75,19 @@ function checkedLimiting()
 	<td>Name</td>
 	<td>
 		<input type="text" name="name" value="<? if(queue) print(queue.name); ?>"/>
+	</td>
+</tr>
+<tr>
+	<td>Destination directory</td>
+	<td>
+		<input type="text" name="defaultDirectory" value="<? if(queue) print(queue.defaultDirectory); ?>"/>
+	</td>
+</tr>
+<tr>
+	<td>Move transfers after completion</td>
+	<td>
+		<input type="text" name="moveDirectory" value="<? if(queue) print(queue.moveDirectory); ?>"/>
+		(directory, empty = disabled)
 	</td>
 </tr>
 <tr>
@@ -121,7 +137,7 @@ function checkedLimiting()
 	<td>Max. active uploads</td>
 	<td>
 		<input type="text" size="4" id="upTransferLimit" name="upTransferLimit" value="<? if(queue && transfers.up > 0) print(transfers.up); else print(1); ?>"/>
-		<label><input type="checkbox" id="upAsDown" name="upAsDown" <? if(queue && queue.upAsDown) print('checked="checked"'); ?> />Count as downloads</label>
+		<label><input type="checkbox" id="upAsDown" onclick="javascript:checkedLimiting()" name="upAsDown" <? if(queue && queue.upAsDown) print('checked="checked"'); ?> />Count as downloads</label>
 	</td>
 </tr>
 

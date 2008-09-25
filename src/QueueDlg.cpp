@@ -42,6 +42,8 @@ QueueDlg::QueueDlg(QWidget* parent)
 	spinUp->setRange(0,INT_MAX);
 	spinTransfersDown->setMinimum(1);
 	spinTransfersUp->setMinimum(1);
+	
+	m_strDefaultDirectory = QDir::homePath();
 }
 
 int QueueDlg::exec()
