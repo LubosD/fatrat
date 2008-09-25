@@ -197,7 +197,7 @@ void QueueMgr::doWork()
 void QueueMgr::doMove(Queue* q, Transfer* t)
 {
 	QString whereTo = q->moveDirectory();
-	if(whereTo.isEmpty())
+	if(whereTo.isEmpty() || t->primaryMode() != Transfer::Download)
 		return;
 	
 	try
