@@ -81,14 +81,14 @@ function checkedLimiting()
 <tr>
 	<td>Destination directory</td>
 	<td>
-		<input type="text" name="defaultDirectory" id="defaultDirectory" style="width: 90%" value="<? if(queue) print(queue.defaultDirectory); ?>"/>
+		<input type="text" name="defaultDirectory" id="defaultDirectory" style="width: 80%" value="<? if(queue) print(queue.defaultDirectory); ?>"/>
 		<input type="button" value="..." onclick="javascript: dirDialog('defaultDirectory')"/>
 	</td>
 </tr>
 <tr>
 	<td>Move transfers after completion</td>
 	<td>
-		<input type="text" name="moveDirectory" id="moveDirectory" style="width: 90%" value="<? if(queue) print(queue.moveDirectory); ?>"/>
+		<input type="text" name="moveDirectory" id="moveDirectory" style="width: 80%" value="<? if(queue) print(queue.moveDirectory); ?>"/>
 		<input type="button" value="..." onclick="javascript: dirDialog('moveDirectory')"/>
 		(directory, empty = disabled)
 	</td>

@@ -425,6 +425,9 @@ if(WITH_WEBINTERFACE)
 	
 	FILE( GLOB rm_states ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/states/*.png )
 	install(FILES ${rm_states} DESTINATION share/fatrat/data/remote/states)
+	
+	FILE( GLOB rm_filedialog ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/filedialog/* )
+	install(FILES ${rm_filedialog} DESTINATION share/fatrat/data/remote/filedialog)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
