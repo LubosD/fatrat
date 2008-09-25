@@ -234,29 +234,12 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 	return best;
 }
 
-bool Transfer::statePossible(State newState) const
-{
-	if(m_state == newState)
-		return false;
-	/*
-	if(newState != ForcedActive && m_state == Completed)
-	{
-		if(done() >= total())
-			return false;
-		else
-			cout << "WTF, done: " << done() << " but total: " << total() << endl;
-	}
-	*/
-	
-	return true;
-}
-
 void Transfer::setState(State newState)
 {
 	bool now,was = isActive();
-	State oldState;
+	State oldState = m_state;
 	
-	if(!statePossible(newState))
+	if(newState == oldState)
 		return;
 	
 	enterLogMessage(tr("Changed state: %1 -> %2").arg(state2string(m_state)).arg(state2string(newState)));
@@ -264,7 +247,6 @@ void Transfer::setState(State newState)
 	if(newState == Completed)
 		fireCompleted();
 	
-	oldState = m_state;
 	m_state = newState;
 	now = isActive();
 	

@@ -68,7 +68,6 @@ public:
 	Q_INVOKABLE void setStateString(QString s);
 	Q_PROPERTY(QString state READ stateString WRITE setStateString)
 	
-	bool statePossible(State state) const;
 	int retryCount() const { return m_nRetryCount; }
 	qint64 timeRunning() const;
 	

@@ -396,9 +396,10 @@ void MainWindow::updateUi()
 			d = q->at(sel[0]);
 			actionInfoBar->setChecked(InfoBar::getInfoBar(d) != 0);
 			
-			actionForcedResume->setEnabled(d->statePossible(Transfer::ForcedActive));
-			actionResume->setEnabled(d->statePossible(Transfer::Active));
-			actionPause->setEnabled(d->statePossible(Transfer::Paused));
+			Transfer::State state = d->state();
+			actionForcedResume->setEnabled(Transfer::ForcedActive != state);
+			actionResume->setEnabled(Transfer::Active != state);
+			actionPause->setEnabled(Transfer::Paused != state);
 			
 			speedGraph->setRenderSource(d);
 			m_log->setLogSource(d);
