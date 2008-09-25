@@ -35,7 +35,7 @@ function queueChanged()
 	<td>Queue</td>
 	<td>
 		<select name="queue" id="queue" style="width: 100%" onchange="javascript: queueChanged()">
-		<?
+		<?qs
 		var lastQueue = -1;
 		for(i=0;i<QUEUES.length;i++)
 		{
@@ -66,7 +66,7 @@ function queueChanged()
 	<td>
 		<select name="type" style="width: 100%">
 			<option value="-1" selected="selected">Auto detect</option>
-			<?
+			<?qs
 				for(i=0;i<ENGINES.length;i++)
 					print('<option value="'+i+'">'+ENGINES[i]+'</option>');
 			?>
@@ -76,7 +76,7 @@ function queueChanged()
 <tr>
 	<td>Destination</td>
 	<td>
-		<input type="text" id="destination" name="destination" style="width: 90%" value="<? if(lastQueue!=-1) print(QUEUES[lastQueue].defaultDirectory); ?>"/>
+		<input type="text" id="destination" name="destination" style="width: 90%" value="<?qs if(lastQueue!=-1) print(QUEUES[lastQueue].defaultDirectory); ?>"/>
 		<input type="button" value="..." onclick="javascript: dirDialog('destination')"/>
 	</td>
 </tr>

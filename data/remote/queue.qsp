@@ -22,7 +22,7 @@ function checkedLimiting()
 //--></script>
 </head>
 
-<?
+<?qs
 	var queue;
 	if(GET.queue)
 	{
@@ -69,26 +69,26 @@ function checkedLimiting()
 
 <p style="text-align: center"><b>Queue details</b></p>
 
-<form method="post" action="?queue=<? if(queue) print(queue.uuid);?>">
+<form method="post" action="?queue=<?qs if(queue) print(queue.uuid);?>">
 
 <table class="transfers">
 <tr>
 	<td>Name</td>
 	<td>
-		<input type="text" name="name" value="<? if(queue) print(queue.name); ?>"/>
+		<input type="text" name="name" value="<?qs if(queue) print(queue.name); ?>"/>
 	</td>
 </tr>
 <tr>
 	<td>Destination directory</td>
 	<td>
-		<input type="text" name="defaultDirectory" id="defaultDirectory" style="width: 80%" value="<? if(queue) print(queue.defaultDirectory); ?>"/>
+		<input type="text" name="defaultDirectory" id="defaultDirectory" style="width: 80%" value="<?qs if(queue) print(queue.defaultDirectory); ?>"/>
 		<input type="button" value="..." onclick="javascript: dirDialog('defaultDirectory')"/>
 	</td>
 </tr>
 <tr>
 	<td>Move transfers after completion</td>
 	<td>
-		<input type="text" name="moveDirectory" id="moveDirectory" style="width: 80%" value="<? if(queue) print(queue.moveDirectory); ?>"/>
+		<input type="text" name="moveDirectory" id="moveDirectory" style="width: 80%" value="<?qs if(queue) print(queue.moveDirectory); ?>"/>
 		<input type="button" value="..." onclick="javascript: dirDialog('moveDirectory')"/>
 		(directory, empty = disabled)
 	</td>
@@ -96,23 +96,23 @@ function checkedLimiting()
 <tr>
 	<td>Max. download speed</td>
 	<td>
-		<?
+		<?qs
 			var speed;
 			if(queue)
 				speed = queue.speedLimits();
 		?>
-		<input type="text" size="4" name="downLimit" value="<? if(queue) print(speed.down/1024); else print(0); ?>"/> kB/s
+		<input type="text" size="4" name="downLimit" value="<?qs if(queue) print(speed.down/1024); else print(0); ?>"/> kB/s
 	</td>
 </tr>
 <tr>
 	<td>Max. upload speed</td>
 	<td>
-		<input type="text" size="4" name="upLimit" value="<? if(queue) print(speed.up/1024); else print(0); ?>"/> kB/s
+		<input type="text" size="4" name="upLimit" value="<?qs if(queue) print(speed.up/1024); else print(0); ?>"/> kB/s
 	</td>
 </tr>
 
 <tr>
-	<?
+	<?qs
 		var transfers;
 		if(queue)
 			transfers = queue.transferLimits();
@@ -121,7 +121,7 @@ function checkedLimiting()
 	<td>&nbsp;</td>
 	<td>
 		<label><input type="checkbox" name="limitTransfers" id="limitTransfers"
-		<?
+		<?qs
 		if( (transfers && (transfers.down != -1 || transfers.up != -1)) || !queue)
 			print('checked="checked"');
 		?>
@@ -133,14 +133,14 @@ function checkedLimiting()
 <tr>
 	<td>Max. active downloads</td>
 	<td>
-		<input type="text" size="4" id="downTransferLimit" name="downTransferLimit" value="<? if(queue && transfers.down > 0) print(transfers.down); else print(1); ?>"/>
+		<input type="text" size="4" id="downTransferLimit" name="downTransferLimit" value="<?qs if(queue && transfers.down > 0) print(transfers.down); else print(1); ?>"/>
 	</td>
 </tr>
 <tr>
 	<td>Max. active uploads</td>
 	<td>
-		<input type="text" size="4" id="upTransferLimit" name="upTransferLimit" value="<? if(queue && transfers.up > 0) print(transfers.up); else print(1); ?>"/>
-		<label><input type="checkbox" id="upAsDown" onclick="javascript:checkedLimiting()" name="upAsDown" <? if(queue && queue.upAsDown) print('checked="checked"'); ?> />Count as downloads</label>
+		<input type="text" size="4" id="upTransferLimit" name="upTransferLimit" value="<?qs if(queue && transfers.up > 0) print(transfers.up); else print(1); ?>"/>
+		<label><input type="checkbox" id="upAsDown" onclick="javascript:checkedLimiting()" name="upAsDown" <?qs if(queue && queue.upAsDown) print('checked="checked"'); ?> />Count as downloads</label>
 	</td>
 </tr>
 
@@ -148,7 +148,7 @@ function checkedLimiting()
 </table>
 
 <p style="text-align: center">
-	<?
+	<?qs
 	if(queue)
 		print('<input type="submit" name="save" value="Apply"/>');
 	else

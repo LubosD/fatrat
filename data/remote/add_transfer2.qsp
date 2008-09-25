@@ -20,7 +20,7 @@ function reloadOpener()
 
 <p style="text-align: center"><b>New transfer</b></p>
 
-<?
+<?qs
 result = addTransfers(POST.links, POST.destination, POST.type, POST.queue);
 
 if(!Array.prototype.isPrototypeOf(result))
@@ -44,7 +44,7 @@ else
 ?>
 
 <p style="text-align: center">
-	<?
+	<?qs
 	if(error)
 		print('<input type="button" value="Go back" onclick="javascript:history.go(-1)"/>');
 	else

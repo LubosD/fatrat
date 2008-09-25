@@ -1201,7 +1201,7 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 	int p = 0;
 	while(true)
 	{
-		int e,next = in.indexOf("<?", p);
+		int e,next = in.indexOf("<?qs", p);
 		int line;
 		
 		output->putData(in.constData()+p, (next>=0) ? next-p : in.size()-p);
@@ -1209,7 +1209,7 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 			break;
 		
 		line = countLines(in, next) + 1;
-		next += 2;
+		next += 4;
 		
 		e = in.indexOf("?>", next);
 		if(e < 0)

@@ -14,7 +14,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <body onload="javascript: init();">
 <p><img src="logo.png" style="width: 288px; height: 75px" alt="FatRat logo"/></p>
 
-<?
+<?qs
 if(GET.rmqueue)
 {
 	for(var i=0;i<QUEUES.length;i++)
@@ -35,7 +35,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 <form method="get" action="" style="margin-bottom: -1px">
 <p class="toolbar">
 	<label>Queue <select name="queue" onchange="javascript:this.form.submit()">
-	<?
+	<?qs
 		for(i=0;i<QUEUES.length;i++)
 		{
 			print('<option value="'+QUEUES[i].uuid+'" ');
@@ -49,9 +49,9 @@ if(GET.queue == undefined && QUEUES.length != 0)
 	<script type="text/javascript"><!--
 	
 	document.getElementById('sumbit_queue').setAttribute('style', 'visibility: hidden; width: 0px');
-	var QUEUE = '<? print(GET.queue); ?>';
+	var QUEUE = '<?qs print(GET.queue); ?>';
 	
-	document.write('<button type="button" onclick="javascript:newwin(\'/queue.qsp?queue=<? print(GET.queue); ?>\')" title="Queue properties"><img src="/queue/properties.png" alt="Queue properties"/></button>');
+	document.write('<button type="button" onclick="javascript:newwin(\'/queue.qsp?queue=<?qs print(GET.queue); ?>\')" title="Queue properties"><img src="/queue/properties.png" alt="Queue properties"/></button>');
 	document.write('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
 	document.write('<button type="button" onclick="javascript:newwin(\'/queue.qsp\')" title="New queue"><img src="/queue/add.png" alt="New queue"/></button>');
 	//--></script>
@@ -59,13 +59,13 @@ if(GET.queue == undefined && QUEUES.length != 0)
 </p>
 </form>
 
-<form method="post" id="mainform" action="?queue=<? if(GET.queue) print(GET.queue); ?>" style="margin-top: 0px">
+<form method="post" id="mainform" action="?queue=<?qs if(GET.queue) print(GET.queue); ?>" style="margin-top: 0px">
 
 <noscript>
 	<p>
-		<a href="/queue.qsp?queue=<? print(GET.queue); ?>">Queue properties</a> |
+		<a href="/queue.qsp?queue=<?qs print(GET.queue); ?>">Queue properties</a> |
 		<a href="/queue.qsp">New queue</a> |
-		<a href="/add_transfer.qsp?queue=<? print(GET.queue); ?>">Add transfer</a>
+		<a href="/add_transfer.qsp?queue=<?qs print(GET.queue); ?>">Add transfer</a>
 	</p>
 </noscript>
 
@@ -82,7 +82,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 	</span>
 	
 	<script type="text/javascript"><!--
-		document.write('<button type="button" id="btn_add" onclick="javascript:newwin(\'/add_transfer.qsp?queue=<? print(GET.queue); ?>\')" title="New transfer"><img src="/add.png" alt="New transfer"/></button>');
+		document.write('<button type="button" id="btn_add" onclick="javascript:newwin(\'/add_transfer.qsp?queue=<?qs print(GET.queue); ?>\')" title="New transfer"><img src="/add.png" alt="New transfer"/></button>');
 	//--></script>
 	
 	<button type="submit" name="remove" id="btn_delete" value="delete" title="Delete" onclick="javascript:return confirmOp('Do you really want to delete the selected transfers?')"><img src="/delete.png" alt="Delete"/></button>
@@ -107,7 +107,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 </thead>
 
 <tbody>
-<?
+<?qs
 	function stateSuffix(transfer)
 	{
 		if(transfer.mode == 1)
@@ -294,9 +294,9 @@ if(GET.queue == undefined && QUEUES.length != 0)
 </table>
 </form>
 
-<form method="post" action="?queue=<? if(queue) print(queue.uuid); ?>">
+<form method="post" action="?queue=<?qs if(queue) print(queue.uuid); ?>">
 
-<?
+<?qs
 	var sl = null;
 	if(queue != undefined)
 		sl = queue.speedLimits();
@@ -304,8 +304,8 @@ if(GET.queue == undefined && QUEUES.length != 0)
 
 <p>
 	<span class="ralign">Queue speed limit:
-		<span class="speedspan"><label><input type="text" size="4" name="downLimit" value="<? if(sl) print(sl.down/1024); ?>"/> kB/s down</label></span>
-		<span class="speedspan"><label><input type="text" size="4" name="upLimit" value="<? if(sl) print(sl.up/1024); ?>"/> kB/s up</label></span>
+		<span class="speedspan"><label><input type="text" size="4" name="downLimit" value="<?qs if(sl) print(sl.down/1024); ?>"/> kB/s down</label></span>
+		<span class="speedspan"><label><input type="text" size="4" name="upLimit" value="<?qs if(sl) print(sl.up/1024); ?>"/> kB/s up</label></span>
 		<input type="submit" name="queueLimits" value="Set"/>
 	</span>
 	<input type="button" value="Check all" onclick="javascript: checkAll(true);"/>

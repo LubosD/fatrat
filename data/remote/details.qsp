@@ -11,7 +11,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </head>
 <body>
 
-<?
+<?qs
 	var queue, transfer;
 	for(var i=0;i<QUEUES.length;i++)
 	{
@@ -50,34 +50,34 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <p style="text-align: center"><b>Transfer details</b></p>
 
-<form method="post" action="?<? print(escapeAmpersand(QUERY_STRING));?>">
+<form method="post" action="?<?qs print(escapeAmpersand(QUERY_STRING));?>">
 
 <table class="transfers">
-<tr><td>Name</td><td><? print(transfer.name) ?></td></tr>
+<tr><td>Name</td><td><?qs print(transfer.name) ?></td></tr>
 <tr>
-	<td><? if(transfer.primaryMode == 1) print('Destination'); else print('Source'); ?></td>
+	<td><?qs if(transfer.primaryMode == 1) print('Destination'); else print('Source'); ?></td>
 	<td>
-		<input type="text" name="object" id="object" style="width: 90%" value="<? print(transfer.object) ?>"/>
-		<input type="button" value="..." onclick="javascript: dirDialog('object')" <?if(transfer.primaryMode != 1) print('style="visibility: hidden"'); ?>/>
+		<input type="text" name="object" id="object" style="width: 90%" value="<?qs print(transfer.object) ?>"/>
+		<input type="button" value="..." onclick="javascript: dirDialog('object')" <?qsif(transfer.primaryMode != 1) print('style="visibility: hidden"'); ?>/>
 	</td>
 </tr>
 <tr>
 	<td>Max. download speed</td>
 	<td>
-		<? var speed = transfer.speedLimits(); ?>
-		<input type="text" size="4" name="downLimit" value="<? print(speed.down/1024); ?>"/> kB/s
+		<?qs var speed = transfer.speedLimits(); ?>
+		<input type="text" size="4" name="downLimit" value="<?qs print(speed.down/1024); ?>"/> kB/s
 	</td>
 </tr>
 <tr>
 	<td>Max. upload speed</td>
 	<td>
-		<input type="text" size="4" name="upLimit" value="<? print(speed.up/1024); ?>"/> kB/s
+		<input type="text" size="4" name="upLimit" value="<?qs print(speed.up/1024); ?>"/> kB/s
 	</td>
 </tr>
 <tr>
 	<td>Comment</td>
 	<td>
-		<textarea name="comment" rows="10" cols="10" style="width: 100%"><? print(transfer.comment); ?></textarea>
+		<textarea name="comment" rows="10" cols="10" style="width: 100%"><?qs print(transfer.comment); ?></textarea>
 	</td>
 </tr>
 </table>
