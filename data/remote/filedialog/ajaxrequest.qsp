@@ -10,7 +10,7 @@ for(i=0;i<files.length;i++)
 	if(!info.directory && dirsOnly)
 		continue;
 	if(info.directory)
-		print('<dir name="' + files[i].replace('"','&quot;') + '"/>');
+		print('<dir name="' + files[i].replace('&','&amp;').replace('"','&quot;') + '"/>');
 	else
 		print('<file name="' + files[i] + '" size="' + info.size +'"/>');
 }
