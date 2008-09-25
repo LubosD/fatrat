@@ -50,9 +50,14 @@ private:
 	CURLM* m_curlm;
 	int m_epoll;
 	
+	typedef QHash<int, QPair<int,CurlUser*> > sockets_hash;
+	
 	QMap<CURL*, CurlUser*> m_users;
-	QHash<int, QPair<int,CurlUser*> > m_sockets;
+	sockets_hash m_sockets;
 	QMutex m_usersLock;
+	
+	QList<int> m_socketsToRemove;
+	sockets_hash m_socketsToAdd;
 };
 
 #endif

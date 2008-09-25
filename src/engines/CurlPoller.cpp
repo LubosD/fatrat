@@ -193,6 +193,15 @@ void CurlPoller::run()
 			if(user)
 				user->transferDone(msg->data.result);
 		}
+		
+		for(int i = 0; i < m_socketsToRemove.size(); i++)
+			m_sockets.remove(m_socketsToRemove[i]);
+		m_socketsToRemove.clear();
+		
+		for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
+			m_sockets[it.key()] = it.value();
+		m_socketsToAdd.clear();
+		
 		m_usersLock.unlock();
 	}
 }
@@ -228,14 +237,17 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 	{
 		qDebug() << "CurlPoller::socket_callback - remove";
 		
-		This->m_sockets.remove(s);
+		//This->m_sockets.remove(s);
+		This->m_socketsToRemove << s;
+		
 		epoll_ctl(This->m_epoll, EPOLL_CTL_DEL, s, 0);
 	}
 	else
 	{
 		qDebug() << "CurlPoller::socket_callback - add/mod";
 		
-		This->m_sockets[s] = QPair<int,CurlUser*>(event.events, This->m_users[easy]);
+		This->m_socketsToAdd[s] = QPair<int,CurlUser*>(event.events, This->m_users[easy]); 
+		//This->m_sockets[s] = QPair<int,CurlUser*>(event.events, This->m_users[easy]);
 		
 		if(epoll_ctl(This->m_epoll, EPOLL_CTL_MOD, s, &event))
 		{
