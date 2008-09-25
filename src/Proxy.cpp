@@ -50,6 +50,9 @@ QList<Proxy> Proxy::loadProxys()
 
 Proxy::Proxy Proxy::getProxy(QUuid uuid)
 {
+	if(uuid.isNull())
+		return Proxy();
+	
 	int count = g_settings->beginReadArray("httpftp/proxys");
 	for(int i=0;i<count;i++)
 	{

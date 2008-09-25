@@ -32,6 +32,7 @@ static QMutex m_mInstanceActive;
 RapidshareFreeDownload::RapidshareFreeDownload()
 	: m_http(0), m_buffer(0), m_nSecondsLeft(-1), m_bHasLock(false)
 {
+	m_proxy = getSettingsValue("httpftp/defaultproxy").toString();
 }
 
 RapidshareFreeDownload::~RapidshareFreeDownload()
@@ -117,6 +118,7 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 		if(!m_mInstanceActive.tryLock())
 		{
 			m_strMessage = tr("You cannot have multiple RS.com FREE downloads.");
+			enterLogMessage(tr("You cannot have multiple RS.com FREE downloads."));
 			setState(Failed);
 			return;
 		}
@@ -124,6 +126,8 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 		QUrl url(m_strOriginal);
 		m_http = new QHttp("rapidshare.com", 80, this);
 		m_buffer = new QBuffer(m_http);
+		
+		m_http->setProxy(Proxy::getProxy(m_proxy));
 		connect(m_http, SIGNAL(done(bool)), this, SLOT(firstPageDone(bool)));
 		m_http->get(url.path(), m_buffer);
 		
@@ -196,6 +200,8 @@ void RapidshareFreeDownload::firstPageDone(bool error)
 		
 		m_http = new QHttp(m_downloadUrl.host(), 80, this);
 		m_buffer = new QBuffer(m_http);
+		m_http->setProxy(Proxy::getProxy(m_proxy));
+		
 		connect(m_http, SIGNAL(done(bool)), this, SLOT(secondPageDone(bool)));
 		m_http->post(m_downloadUrl.path(), "dl.start=Free", m_buffer);
 		
