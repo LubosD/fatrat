@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlDownload.h"
 #include <QUrl>
 #include <QTimer>
+#include <QUuid>
 
 class QHttp;
 class QBuffer;
@@ -67,6 +68,7 @@ private:
 	int m_nSecondsLeft;
 	QTimer m_timer;
 	bool m_bHasLock;
+	QUuid m_proxy;
 };
 
 #endif

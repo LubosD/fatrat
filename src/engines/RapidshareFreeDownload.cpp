@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "RapidshareFreeDownload.h"
 #include "Settings.h"
 #include "RuntimeException.h"
+#include "Proxy.h"
 #include <QHttp>
 #include <QBuffer>
 #include <QRegExp>
