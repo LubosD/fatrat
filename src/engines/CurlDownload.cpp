@@ -267,7 +267,7 @@ void CurlDownload::changeActive(bool bActive)
 		
 		CurlPoller::instance()->addTransfer(this);
 	}
-	else
+	else if(m_curl != 0)
 	{
 		resetStatistics();
 		CurlPoller::instance()->removeTransfer(this);

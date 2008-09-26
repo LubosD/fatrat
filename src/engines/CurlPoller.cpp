@@ -283,6 +283,9 @@ void CurlPoller::removeTransfer(CurlUser* obj)
 	qDebug() << "CurlPoller::removeTransfer" << obj;
 	
 	CURL* handle = obj->curlHandle();
-	curl_multi_remove_handle(m_curlm, handle);
-	m_users.remove(handle);
+	if(handle != 0)
+	{
+		curl_multi_remove_handle(m_curlm, handle);
+		m_users.remove(handle);
+	}
 }
