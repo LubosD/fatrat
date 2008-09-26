@@ -5,220 +5,187 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>374</height>
+    <width>465</width>
+    <height>297</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>RSS</string>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" colspan="5" >
-    <widget class="QCheckBox" name="checkEnable" >
-     <property name="text" >
-      <string>Automatically download new stuff from RSS feeds</string>
+  <layout class="QGridLayout" name="gridLayout_4" >
+   <item row="0" column="0" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QLabel" name="label" >
-     <property name="text" >
-      <string>Update interval</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="2" >
-    <widget class="QSpinBox" name="spinUpdateInterval" >
-     <property name="minimum" >
-      <number>5</number>
-     </property>
-     <property name="maximum" >
-      <number>1000</number>
-     </property>
-     <property name="singleStep" >
-      <number>5</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3" >
-    <widget class="QLabel" name="label_2" >
-     <property name="text" >
-      <string>minutes</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="5" >
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="title" >
-      <string>RSS feeds</string>
-     </property>
-     <layout class="QGridLayout" >
-      <item rowspan="4" row="0" column="0" >
-       <widget class="QListWidget" name="listFeeds" />
-      </item>
-      <item row="0" column="1" >
-       <widget class="QPushButton" name="pushFeedAdd" >
-        <property name="text" >
-         <string>Add</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" >
-       <widget class="QPushButton" name="pushFeedEdit" >
-        <property name="text" >
-         <string>Edit</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" >
-       <widget class="QPushButton" name="pushFeedDelete" >
-        <property name="text" >
-         <string>Delete</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" >
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0" >
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="5" >
-    <widget class="QGroupBox" name="groupBox_2" >
-     <property name="title" >
-      <string>Regular expressions</string>
-     </property>
-     <layout class="QGridLayout" >
-      <item rowspan="4" row="0" column="0" >
-       <widget class="QListWidget" name="listRegexps" />
-      </item>
-      <item row="0" column="1" >
-       <widget class="QPushButton" name="pushRegexpAdd" >
-        <property name="text" >
-         <string>Add</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" >
-       <widget class="QPushButton" name="pushRegexpEdit" >
-        <property name="text" >
-         <string>Edit</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" >
-       <widget class="QPushButton" name="pushRegexpDelete" >
-        <property name="text" >
-         <string>Delete</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" >
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0" >
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="1" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="4" >
-    <widget class="QPushButton" name="pushUpdate" >
-     <property name="text" >
-      <string>Update</string>
-     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>General</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3" >
+       <item row="0" column="0" colspan="6" >
+        <widget class="QCheckBox" name="checkEnable" >
+         <property name="text" >
+          <string>Automatically download new stuff from RSS feeds</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label" >
+         <property name="text" >
+          <string>Update interval</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <spacer name="spacer" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>98</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="3" >
+        <widget class="QSpinBox" name="spinUpdateInterval" >
+         <property name="minimum" >
+          <number>5</number>
+         </property>
+         <property name="maximum" >
+          <number>1000</number>
+         </property>
+         <property name="singleStep" >
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4" >
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
+          <string>minutes</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5" >
+        <widget class="QPushButton" name="pushUpdate" >
+         <property name="text" >
+          <string>Update</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2" >
+        <spacer name="verticalSpacer" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>170</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>RSS feeds</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2" >
+       <item rowspan="4" row="0" column="0" >
+        <widget class="QListWidget" name="listFeeds" />
+       </item>
+       <item row="0" column="1" >
+        <widget class="QPushButton" name="pushFeedAdd" >
+         <property name="text" >
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QPushButton" name="pushFeedEdit" >
+         <property name="text" >
+          <string>Edit</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QPushButton" name="pushFeedDelete" >
+         <property name="text" >
+          <string>Delete</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <spacer name="spacer_2" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>131</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3" >
+      <attribute name="title" >
+       <string>Regular expressions</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout" >
+       <item rowspan="4" row="0" column="0" >
+        <widget class="QListWidget" name="listRegexps" />
+       </item>
+       <item row="0" column="1" >
+        <widget class="QPushButton" name="pushRegexpAdd" >
+         <property name="text" >
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QPushButton" name="pushRegexpEdit" >
+         <property name="text" >
+          <string>Edit</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QPushButton" name="pushRegexpDelete" >
+         <property name="text" >
+          <string>Delete</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <spacer name="spacer_3" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>131</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>listFeeds</tabstop>
-  <tabstop>pushFeedAdd</tabstop>
-  <tabstop>pushFeedEdit</tabstop>
-  <tabstop>pushFeedDelete</tabstop>
-  <tabstop>listRegexps</tabstop>
-  <tabstop>pushRegexpAdd</tabstop>
-  <tabstop>pushRegexpEdit</tabstop>
-  <tabstop>pushRegexpDelete</tabstop>
- </tabstops>
  <resources>
   <include location="../../gfx/resources.qrc" />
  </resources>
- <connections>
-  <connection>
-   <sender>listFeeds</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>pushFeedEdit</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>190</x>
-     <y>79</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>329</x>
-     <y>103</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>listRegexps</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>pushRegexpEdit</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>164</x>
-     <y>242</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>340</x>
-     <y>242</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
