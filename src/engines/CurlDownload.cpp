@@ -171,6 +171,8 @@ void CurlDownload::changeActive(bool bActive)
 {
 	if(bActive)
 	{
+		m_strMessage.clear();
+		
 		if(m_urls.isEmpty())
 		{
 			enterLogMessage(m_strMessage = tr("No URLs have been given"));

@@ -118,8 +118,7 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 	{
 		if(!m_mInstanceActive.tryLock())
 		{
-			m_strMessage = tr("You cannot have multiple RS.com FREE downloads.");
-			enterLogMessage(tr("You cannot have multiple RS.com FREE downloads."));
+			enterLogMessage(m_strMessage = tr("You cannot have multiple RS.com FREE downloads."));
 			setState(Failed);
 			return;
 		}
@@ -210,7 +209,7 @@ void RapidshareFreeDownload::firstPageDone(bool error)
 	}
 	catch(QString err)
 	{
-		m_strMessage = err;
+		enterLogMessage(m_strMessage = err);
 		setState(Failed);
 		m_http = 0;
 		m_buffer = 0;

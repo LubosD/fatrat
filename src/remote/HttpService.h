@@ -83,7 +83,7 @@ public:
 	QMap<QString,QString> processQueryString(QByteArray queryString);
 	
 	static int countLines(const QByteArray& ar, int left);
-	static bool authenitcate(const QList<QByteArray>& data);
+	static bool authenticate(const QList<QByteArray>& data);
 	
 	static long contentLength(const QList<QByteArray>& data);
 	

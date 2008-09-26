@@ -388,7 +388,7 @@ bool HttpService::processClientWrite(int fd)
 	return true;
 }
 
-bool HttpService::authenitcate(const QList<QByteArray>& data)
+bool HttpService::authenticate(const QList<QByteArray>& data)
 {
 	for(int i=0;i<data.size();i++)
 	{
@@ -517,7 +517,7 @@ void HttpService::serveClient(int fd)
 		{
 			fileName.prepend(DATA_LOCATION "/data/remote");
 			
-			if(authenitcate(rq.lines))
+			if(authenticate(rq.lines))
 			{
 				QFile file(fileName);
 				if(file.open(QIODevice::ReadOnly))
@@ -568,7 +568,7 @@ void HttpService::serveClient(int fd)
 			
 			try
 			{
-				if(!authenitcate(rq.lines))
+				if(!authenticate(rq.lines))
 				{
 					bAuthFail = true;
 					throw 0;
@@ -626,6 +626,9 @@ void HttpService::serveClient(int fd)
 			QFileInfo info(fileName);
 			if(info.exists())
 			{
+				if(info.isDir())
+					throw "403 Forbidden";
+				
 				modTime = info.lastModified();
 				fileSize = info.size();
 				
