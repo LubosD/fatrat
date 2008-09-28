@@ -134,7 +134,7 @@ void HttpOptsWidget::deleteUrl()
 ////////////////////////////////////////////////////////////////////////////////
 
 HttpUrlOptsDlg::HttpUrlOptsDlg(QWidget* parent, QList<Transfer*>* multi)
-	: QDialog(parent), m_multi(multi)
+	: QDialog(parent), m_ftpMode(FtpActive), m_multi(multi)
 {
 	setupUi(this);
 	
@@ -177,6 +177,7 @@ void HttpUrlOptsDlg::init()
 int HttpUrlOptsDlg::exec()
 {
 	int result;
+	init();
 	
 	result = QDialog::exec();
 	
