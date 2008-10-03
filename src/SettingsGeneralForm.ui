@@ -125,6 +125,13 @@
         </property>
        </spacer>
       </item>
+      <item row="1" column="0" colspan="3" >
+       <widget class="QCheckBox" name="checkHideUnfocused" >
+        <property name="text" >
+         <string>Tray icon click hides an unfocused window</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

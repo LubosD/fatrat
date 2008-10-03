@@ -49,6 +49,7 @@ void SettingsGeneralForm::load()
 	checkTrayIcon->setChecked( getSettingsValue("trayicon").toBool() );
 	checkHideMinimize->setChecked( getSettingsValue("hideminimize").toBool() );
 	checkHideClose->setChecked( getSettingsValue("hideclose").toBool() );
+	checkHideUnfocused->setChecked( getSettingsValue("gui/hideunfocused").toBool() );
 	
 	spinGraphMinutes->setValue( getSettingsValue("graphminutes").toInt() );
 	comboGraphStyle->setCurrentIndex( getSettingsValue("graph_style").toInt() );
@@ -68,6 +69,7 @@ void SettingsGeneralForm::accepted()
 	setSettingsValue("trayicon", checkTrayIcon->isChecked());
 	setSettingsValue("hideminimize", checkHideMinimize->isChecked());
 	setSettingsValue("hideclose", checkHideClose->isChecked());
+	setSettingsValue("gui/hideunfocused", checkHideUnfocused->isChecked());
 	
 	setSettingsValue("graphminutes", spinGraphMinutes->value());
 	setSettingsValue("graph_style", comboGraphStyle->currentIndex());
