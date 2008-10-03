@@ -217,7 +217,7 @@ void CurlDownload::changeActive(bool bActive)
 		{
 			QByteArray p;
 			
-			if(!proxy.strUser.isEmpty())
+			if(proxy.strUser.isEmpty())
 				p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
 			else
 				p = QString("%1:%2@%3:%4").arg(proxy.strUser).arg(proxy.strPassword).arg(proxy.strIP).arg(proxy.nPort).toLatin1();

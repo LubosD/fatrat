@@ -193,5 +193,38 @@
  <resources>
   <include location="../../gfx/resources.qrc" />
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>listFeeds</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>pushFeedEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>185</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>385</x>
+     <y>79</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listRegexps</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>pushRegexpEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>202</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>383</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
