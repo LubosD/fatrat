@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QHash>
 #include <curl/curl.h>
 #include "engines/CurlUser.h"
+#include "poller/Poller.h"
 
 class CurlPoller : public QThread
 {
@@ -48,7 +49,7 @@ private:
 	static CurlPoller* m_instance;
 	bool m_bAbort;
 	CURLM* m_curlm;
-	int m_epoll;
+	Poller* m_poller;
 	
 	typedef QHash<int, QPair<int,CurlUser*> > sockets_hash;
 	

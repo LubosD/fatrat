@@ -121,9 +121,12 @@ set(fatrat_SRCS
 	src/Transfer.cpp
 	src/TransfersModel.cpp
 	src/Logger.cpp
+	src/MyFileDialog.cpp
 	src/Settings.cpp
 	src/QueueDlg.cpp
 	src/engines/OutputBuffer.cpp
+	src/poller/Poller.cpp
+	src/poller/EpollPoller.cpp
 	
 	src/rss/RssFetcher.cpp
 	src/rss/SettingsRssForm.cpp

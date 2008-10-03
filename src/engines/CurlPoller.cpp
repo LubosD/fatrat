@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CurlPoller.h"
 #include <QtDebug>
-#include <sys/epoll.h>
-#include <errno.h>
 
 CurlPoller* CurlPoller::m_instance = 0;
 
@@ -36,7 +34,7 @@ CurlPoller::CurlPoller()
 	
 	curl_global_init(CURL_GLOBAL_SSL);
 	m_curlm = curl_multi_init();
-	m_epoll = epoll_create(20);
+	m_poller = Poller::createInstance(this);
 	
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETFUNCTION, socket_callback);
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETDATA, this);
@@ -55,7 +53,6 @@ CurlPoller::~CurlPoller()
 	m_instance = 0;
 	curl_multi_cleanup(m_curlm);
 	curl_global_cleanup();
-	close(m_epoll);
 }
 
 bool operator<(const timeval& t1, const timeval& t2)
@@ -77,34 +74,33 @@ void CurlPoller::run()
 	
 	while(!m_bAbort)
 	{
-		epoll_event events[20];
-		int nfds, dummy;
+		QList<Poller::Event> events;
+		int dummy;
 		timeval tvNow;
 		QList<CurlUser*> timedOut;
 		
-		nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), timeout);
+		events = m_poller->wait(timeout);
 		
 		m_usersLock.lock();
-		if(!nfds)
+		if(events.isEmpty())
 		{
 			//qDebug() << "No events";
 			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 		}
 		
-		for(int i=0;i<nfds;i++)
+		for(int i=0;i<events.size();i++)
 		{
 			int mask = 0;
-			int fd = events[i].data.fd;
 			
-			if(events[i].events & EPOLLIN)
+			if(events[i].flags & Poller::PollerIn)
 				mask |= CURL_CSELECT_IN;
-			if(events[i].events & EPOLLOUT)
+			if(events[i].flags & Poller::PollerOut)
 				mask |= CURL_CSELECT_OUT;
-			if(events[i].events & (EPOLLERR | EPOLLHUP))
+			if(events[i].flags & Poller::PollerError)
 				mask |= CURL_CSELECT_ERR;
 			
 			//qDebug() << "Events:" << mask;
-			curl_multi_socket_action(m_curlm, fd, mask, &dummy);
+			curl_multi_socket_action(m_curlm, events[i].socket, mask, &dummy);
 		}
 		
 		gettimeofday(&tvNow, 0);
@@ -173,10 +169,10 @@ void CurlPoller::run()
 			{
 				int& flags = it.value().first;
 				if(user->performsLimiting())
-					flags |= EPOLLONESHOT;
-				else if(flags & EPOLLONESHOT)
-					flags ^= EPOLLONESHOT;
-				epollEnable(it.key(), flags);
+					flags |= Poller::PollerOneShot;
+				else if(flags & Poller::PollerOneShot)
+					flags ^= Poller::PollerOneShot;
+				m_poller->addSocket(it.key(), flags);
 			}
 		}
 		
@@ -208,12 +204,7 @@ void CurlPoller::run()
 
 void CurlPoller::epollEnable(int socket, int events)
 {
-	epoll_event event;
-	
-	event.events = events;
-	event.data.fd = socket;
-	
-	epoll_ctl(m_epoll, EPOLL_CTL_MOD, socket, &event);
+	m_poller->addSocket(socket, events);
 }
 
 int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
@@ -224,44 +215,28 @@ int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
 
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
-	epoll_event event;
-	event.events = EPOLLONESHOT;
-	event.data.fd = s;
+	int flags = Poller::PollerOneShot;
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)
-		event.events |= EPOLLIN;
+		flags |= Poller::PollerIn;
 	if(action == CURL_POLL_OUT || action == CURL_POLL_INOUT)
-		event.events |= EPOLLOUT;
+		flags |= Poller::PollerOut;
 	
 	if(action == CURL_POLL_REMOVE)
 	{
 		qDebug() << "CurlPoller::socket_callback - remove";
 		
-		//This->m_sockets.remove(s);
 		This->m_socketsToRemove << s;
-		
-		epoll_ctl(This->m_epoll, EPOLL_CTL_DEL, s, 0);
+		return This->m_poller->removeSocket(s);
 	}
 	else
 	{
 		qDebug() << "CurlPoller::socket_callback - add/mod";
 		
-		This->m_socketsToAdd[s] = QPair<int,CurlUser*>(event.events, This->m_users[easy]); 
-		//This->m_sockets[s] = QPair<int,CurlUser*>(event.events, This->m_users[easy]);
+		This->m_socketsToAdd[s] = QPair<int,CurlUser*>(flags, This->m_users[easy]); 
 		
-		if(epoll_ctl(This->m_epoll, EPOLL_CTL_MOD, s, &event))
-		{
-			if(errno == ENOENT)
-			{
-				if(epoll_ctl(This->m_epoll, EPOLL_CTL_ADD, s, &event))
-					return errno;
-			}
-			else
-				return errno;
-		}
+		return This->m_poller->addSocket(s, flags);
 	}
-	
-	return 0;
 }
 
 void CurlPoller::addTransfer(CurlUser* obj)
