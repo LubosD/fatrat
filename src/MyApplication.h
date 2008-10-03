@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef MYAPPLICATION_H
 #define MYAPPLICATION_H
+#include <typeinfo>
 
 class MyApplication : public QApplication
 {
