@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dbus/DbusAdaptor.h"
 #include "dbus/DbusImpl.h"
 #include "rss/RssFetcher.h"
+#include "MyApplication.h"
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
@@ -78,17 +79,16 @@ static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
 
+class MyApplication;
+
 int main(int argc,char** argv)
 {
-	QCoreApplication* app = 0;
+	QApplication* app = 0;
 	int rval;
 	QueueMgr* qmgr;
 	QString arg = argsToArg(argc, argv);
 	
-	if(m_bStartGUI)
-		app = new QApplication(argc, argv);
-	else
-		app = new QCoreApplication(argc, argv);
+	app = new MyApplication(argc, argv, m_bStartGUI);
 	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
@@ -456,3 +456,5 @@ void showHelp()
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
 	exit(0);
 }
+
+
