@@ -18,28 +18,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "config.h"
-#if defined(HAVE_SYS_EPOLL_H)
-#	include "EpollPoller.h"
-#elif defined(HAVE_KQUEUE)
-#	include "KqueuePoller.h"
-#endif
-
+#ifndef KQUEUEPOLLER_H
+#define KQUEUEPOLLER_H
 #include "Poller.h"
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
 
-Poller* Poller::createInstance(QObject* parent)
+class KqueuePoller : public Poller
 {
-#if defined(HAVE_SYS_EPOLL_H)
-	return new EpollPoller(parent);
-#elif defined(HAVE_KQUEUE)
-	return new KqueuePoller(parent);
-#else
-#	error Your OS is unsupported as there is no polling implementation written for it.
+public:
+	KqueuePoller(QObject* object);
+	virtual ~KqueuePoller();
+	
+	virtual int addSocket(int socket, int flags);
+	virtual int removeSocket(int socket);
+	virtual QList<Event> wait(int msec);
+private:
+	int m_kqueue;
+};
+
 #endif
-}
-
-Poller::Poller(QObject* parent)
-	: QObject(parent)
-{
-}
 

@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "EpollPoller.h"
+#include "RuntimeException.h"
 #include <sys/epoll.h>
 #include <errno.h>
 
@@ -26,6 +27,8 @@ EpollPoller::EpollPoller(QObject* parent)
 	: Poller(parent)
 {
 	m_epoll = epoll_create(20);
+	if(m_epoll <= 0)
+		throw RuntimeException("epoll_create() failed");
 }
 
 EpollPoller::~EpollPoller()
@@ -46,6 +49,8 @@ int EpollPoller::addSocket(int socket, int flags)
 		event.events |= EPOLLOUT;
 	if(flags & PollerOneShot)
 		event.events |= EPOLLONESHOT;
+	if(flags & PollerHup)
+		event.events |= EPOLLHUP;
 	
 	if(epoll_ctl(m_epoll, EPOLL_CTL_MOD, socket, &event))
 	{
@@ -85,8 +90,10 @@ QList<Poller::Event> EpollPoller::wait(int msec)
 			ev.flags |= PollerIn;
 		if(events[i].events & EPOLLOUT)
 			ev.flags |= PollerOut;
-		if(events[i].events & (EPOLLERR | EPOLLHUP))
+		if(events[i].events & EPOLLERR)
 			ev.flags |= PollerError;
+		if(events[i].events & EPOLLHUP)
+			ev.flags |= PollerHup;
 		
 		retval << ev;
 	}

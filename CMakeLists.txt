@@ -150,6 +150,8 @@ set(fatrat_SRCS
 
 if(HAVE_SYS_EPOLL_H)
 	set(fatrat_SRCS ${fatrat_SRCS} src/poller/EpollPoller.cpp)
+elseif(HAVE_KQUEUE)
+	set(fatrat_SRCS ${fatrat_SRCS} src/poller/KqueuePoller.cpp)
 endif(HAVE_SYS_EPOLL_H)
 
 set(fatrat_MOC_HDRS

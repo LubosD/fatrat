@@ -28,7 +28,7 @@ class Poller : public QObject
 public:
 	static Poller* createInstance(QObject* parent = 0);
 	
-	enum Flags { PollerIn = 1, PollerOut = 2, PollerError = 4, PollerOneShot = 8 };
+	enum Flags { PollerIn = 1, PollerOut = 2, PollerError = 4, PollerHup = 8, PollerOneShot = 16 };
 	
 	struct Event
 	{
