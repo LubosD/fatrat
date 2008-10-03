@@ -367,23 +367,23 @@ ${fatrat_QRC_H} ${lrelease_outputs})
 target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENTRB_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
-	src/fatrat.h
-	src/AppTools.h
-	src/Transfer.h
-	src/WidgetHostChild.h
-	src/WidgetHostDlg.h
-	src/Queue.h
-	src/Logger.h
-	src/RuntimeException.h
-	src/Settings.h
-	src/Auth.h
-	src/Proxy.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/AppTools.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Transfer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/WidgetHostChild.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/WidgetHostDlg.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Queue.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Logger.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/RuntimeException.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Settings.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Auth.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Proxy.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
-	src/engines/CurlDownload.h
-	src/engines/CurlUser.h
-	src/engines/CurlPoller.h
-	src/engines/OutputBuffer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlDownload.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlUser.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlPoller.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/OutputBuffer.h
 	)
 
 install(FILES
@@ -400,6 +400,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fatrat.desktop DESTINATION share/
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
 install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/poller/Poller.h DESTINATION include/fatrat/poller)
 
 if(WITH_NLS)
 	install(FILES ${lrelease_outputs} DESTINATION share/fatrat/lang)
