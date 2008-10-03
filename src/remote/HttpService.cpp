@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fatrat.h"
 #include "Logger.h"
 #include "dbus/DbusImpl.h"
+#include "poller/Poller.h"
 
 #include <QSettings>
 #include <QtDebug>
@@ -175,25 +176,19 @@ void HttpService::throwErrno()
 
 void HttpService::run()
 {
-	int ep;
-	epoll_event ev, events[10];
+	Poller* poller = Poller::createInstance();
 	
-	ep = epoll_create(30);
-	
-	ev.events = EPOLLIN | EPOLLPRI | EPOLLHUP | EPOLLERR;
-	ev.data.fd = m_server;
-	
-	epoll_ctl(ep, EPOLL_CTL_ADD, m_server, &ev);
+	poller->addSocket(m_server, Poller::PollerIn | Poller::PollerOut | Poller::PollerError | Poller::PollerHup);
 	
 	while(!m_bAbort)
 	{
-		int nfds = epoll_wait(ep, events, 10, 500);
+		QList<Poller::Event> events = poller->wait(500);
 		
-		for(int i=0;i<nfds;i++)
+		for(int i=0;i<events.size();i++)
 		{
-			int fd = events[i].data.fd;
+			const Poller::Event& ev = events[i];
 			
-			if(fd == m_server)
+			if(ev.socket == m_server)
 			{
 				sockaddr addr;
 				socklen_t len = sizeof addr;
@@ -205,25 +200,23 @@ void HttpService::run()
 				int arg = fcntl(client, F_GETFL);
 				fcntl(client, F_SETFL, arg | O_NONBLOCK);
 				
-				ev.events = EPOLLIN | EPOLLHUP | EPOLLERR | EPOLLOUT;
-				ev.data.fd = client;
-				
-				epoll_ctl(ep, EPOLL_CTL_ADD, client, &ev);
+				poller->addSocket(client, Poller::PollerIn | Poller::PollerOut | Poller::PollerError | Poller::PollerHup);
 			}
 			else
 			{
 				bool bTerminate = false;
-				if((events[i].events & EPOLLERR || events[i].events & EPOLLHUP))
+				
+				if(ev.flags & (Poller::PollerError | Poller::PollerHup))
 					bTerminate = true;
-				else if(events[i].events & EPOLLIN && !processClientRead(fd))
+				else if(ev.flags & Poller::PollerIn && !processClientRead(ev.socket))
 					bTerminate = true;
-				else if(events[i].events & EPOLLOUT && !processClientWrite(fd))
+				else if(ev.flags & Poller::PollerOut && !processClientWrite(ev.socket))
 					bTerminate = true;
 				
 				if(bTerminate)
 				{
-					freeClient(fd, ep);
-					m_clients.remove(fd);
+					freeClient(ev.socket, poller);
+					m_clients.remove(ev.socket);
 				}
 			}
 		}
@@ -232,7 +225,7 @@ void HttpService::run()
 		{
 			if(time(0) - it.value().lastData > SOCKET_TIMEOUT)
 			{
-				freeClient(it.key(), ep);
+				freeClient(it.key(), poller);
 				it = m_clients.erase(it);
 			}
 			else
@@ -242,19 +235,19 @@ void HttpService::run()
 	
 	for(QMap<int, ClientData>::iterator it = m_clients.begin(); it != m_clients.end();)
 	{
-		freeClient(it.key(), ep);
+		freeClient(it.key(), poller);
 		it = m_clients.erase(it);
 	}
 	
-	close(ep);
+	delete poller;
 }
 
-void HttpService::freeClient(int fd, int ep)
+void HttpService::freeClient(int fd, Poller* poller)
 {
 	ClientData& data = m_clients[fd];
 	delete data.file;
 	delete data.buffer;
-	epoll_ctl(ep, EPOLL_CTL_DEL, fd, 0);
+	poller->removeSocket(fd);
 	close(fd);
 }
 

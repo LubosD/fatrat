@@ -65,6 +65,7 @@ class QScriptEngine;
 class QScriptValue;
 class Queue;
 class Transfer;
+class Poller;
 
 class HttpService : public QThread
 {
@@ -96,7 +97,7 @@ private:
 	QByteArray handleException();
 	bool processClientRead(int fd);
 	bool processClientWrite(int fd);
-	void freeClient(int fd, int ep);
+	void freeClient(int fd, Poller* poller);
 	void serveClient(int fd);
 	void initScriptEngine();
 private:
