@@ -10,6 +10,9 @@
 
 #cmakedefine ENABLE_FAKEDOWNLOAD
 
+#cmakedefine HAVE_SYS_EPOLL_H
+#cmakedefine HAVE_KQUEUE
+
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 #define PLUGIN_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/fatrat/plugins"
 

@@ -5,6 +5,9 @@ if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
+INCLUDE(CheckFunctionExists)
+INCLUDE(CheckIncludeFiles)
+
 find_package(Qt4 REQUIRED)
 
 set(CMAKE_MODULE_PATH cmake_modules)
@@ -75,6 +78,8 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-Wall)
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
+CHECK_INCLUDE_FILES(sys/epoll.h HAVE_SYS_EPOLL_H)
+CHECK_FUNCTION_EXISTS(kqueue HAVE_KQUEUE)
 CONFIGURE_FILE(config.h.in config.h)
 
 #QT4_ADD_DBUS_INTERFACE (fatrat_SRCS dbus/interface.xml dbusinterface)
@@ -126,7 +131,6 @@ set(fatrat_SRCS
 	src/QueueDlg.cpp
 	src/engines/OutputBuffer.cpp
 	src/poller/Poller.cpp
-	src/poller/EpollPoller.cpp
 	
 	src/rss/RssFetcher.cpp
 	src/rss/SettingsRssForm.cpp
@@ -143,6 +147,10 @@ set(fatrat_SRCS
 	src/tools/RapidTools.cpp
 	src/tools/VideoFetcher.cpp
 )
+
+if(HAVE_SYS_EPOLL_H)
+	set(fatrat_SRCS ${fatrat_SRCS} src/poller/EpollPoller.cpp)
+endif(HAVE_SYS_EPOLL_H)
 
 set(fatrat_MOC_HDRS
 	src/dbus/DbusAdaptor.h

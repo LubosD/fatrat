@@ -18,7 +18,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifdef linux
+#include "config.h"
+#ifdef HAVE_SYS_EPOLL_H
 #	include "EpollPoller.h"
 #endif
 
@@ -26,8 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 Poller* Poller::createInstance(QObject* parent)
 {
-#ifdef linux
+#ifdef HAVE_SYS_EPOLL_H
 	return new EpollPoller(parent);
+#else
+#	error There is no polling implementation for your OS.
 #endif
 }
 
