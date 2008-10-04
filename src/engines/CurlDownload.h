@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QDir>
 #include <QUrl>
 
-class CurlDownload : public Transfer, public CurlUser
+class CurlDownload : public Transfer, public CurlUserCallback
 {
 Q_OBJECT
 public:
@@ -97,6 +97,7 @@ protected:
 	};
 	QList<UrlObject> m_urls;
 	int m_nUrl;
+	CurlUser m_curlUser;
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;

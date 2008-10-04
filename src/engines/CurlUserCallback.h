@@ -18,27 +18,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef OUTPUTBUFFER_H
-#define OUTPUTBUFFER_H
-#include <QObject>
+#ifndef CURLUSERCALLBACK_H
+#define CURLUSERCALLBACK_H
 
-class OutputBuffer : public QObject
+#include <curl/curl.h>
+
+class CurlUserCallback
 {
-Q_OBJECT
 public:
-	OutputBuffer(unsigned long reserve = 40*1024);
-	~OutputBuffer();
-	void putData(const char* data, unsigned long bytes);
+	virtual CURL* curlHandle() = 0;
+	virtual void transferDone(CURLcode result) = 0;
 	
-	// doesn't remove anything from the buffer!
-	void getData(char* data, unsigned long* bytes) const;
-	void removeData(unsigned long bytes);
-	void putBack(const char* data, unsigned long bytes);
-	bool isEmpty() const { return !m_bytes; }
-	unsigned long size() const { return m_bytes; }
-private:
-	char* m_buffer;
-	unsigned long m_bytes, m_reserve;
+	virtual size_t readData(char* buffer, size_t maxData) { return 0;}
+	virtual bool writeData(const char* buffer, size_t bytes) { return false; }
 };
 
 #endif

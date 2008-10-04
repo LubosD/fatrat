@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMenu>
 
 CurlUpload::CurlUpload()
-	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
+	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive), m_curlUser(this)
 {
 	Transfer::m_mode = Upload;
 	m_errorBuffer[0] = 0;
@@ -139,8 +139,8 @@ void CurlUpload::changeActive(bool nowActive)
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
 		
-		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
-		curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
+		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, CurlUser::read_function);
+		curl_easy_setopt(m_curl, CURLOPT_READDATA, &m_curlUser);
 		
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
@@ -196,14 +196,14 @@ void CurlUpload::changeActive(bool nowActive)
 		else
 			curl_easy_setopt(m_curl, CURLOPT_PROXY, "");
 		
-		CurlPoller::instance()->addTransfer(this);
+		CurlPoller::instance()->addTransfer(&m_curlUser);
 	}
 	else
 	{
 		m_nDone = done();
 		
-		resetStatistics();
-		CurlPoller::instance()->removeTransfer(this);
+		m_curlUser.resetStatistics();
+		CurlPoller::instance()->removeTransfer(&m_curlUser);
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
 		curl_easy_cleanup(m_curl);
 		m_curl = 0;
@@ -231,12 +231,12 @@ int CurlUpload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_
 
 void CurlUpload::setSpeedLimits(int, int up)
 {
-	m_up.max = up;
+	m_curlUser.setMaxUp(up);
 }
 
 void CurlUpload::speeds(int& down, int& up) const
 {
-	CurlUser::speeds(down, up);
+	m_curlUser.speeds(down, up);
 }
 
 qulonglong CurlUpload::done() const

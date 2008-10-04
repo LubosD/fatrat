@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class QHttp;
 class RapidshareStatusWidget;
 
-class RapidshareUpload : public Transfer, public CurlUser
+class RapidshareUpload : public Transfer, public CurlUserCallback
 {
 Q_OBJECT
 public:
@@ -100,6 +100,8 @@ protected:
 	QBuffer* m_buffer;
 	QFile m_file;
 	char m_errorBuffer[CURL_ERROR_SIZE];
+	
+	CurlUser m_curlUser;
 	
 	static RapidshareStatusWidget* m_labelStatus;
 	

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef CURLUSER_H
 #define CURLUSER_H
+#include "CurlUserCallback.h"
 #include <curl/curl.h>
 #include <sys/time.h>
 #include <QReadWriteLock>
@@ -30,10 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class CurlUser
 {
 public:
-	CurlUser();
+	CurlUser(CurlUserCallback* cb);
 	virtual ~CurlUser();
 	
 	void speeds(int& down, int& up) const;
+	void setMaxUp(int bytespersec);
+	void setMaxDown(int bytespersec);
 	
 	bool hasNextReadTime() const;
 	bool hasNextWriteTime() const;
@@ -43,16 +46,13 @@ public:
 	bool performsLimiting() const;
 	
 	timeval lastOperation() const;
-protected:
-	virtual CURL* curlHandle() = 0;
-	virtual void transferDone(CURLcode result) = 0;
-	
-	virtual size_t readData(char* buffer, size_t maxData);
-	virtual bool writeData(const char* buffer, size_t bytes);
-	
 	void resetStatistics();
+	
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
+protected:
+	CURL* curlHandle();
+	void transferDone(CURLcode result);
 	
 	typedef QPair<long long,long> timedata_pair;
 	
@@ -69,6 +69,7 @@ private:
 	static bool isNull(const timeval& t);
 protected:
 	SpeedData m_down, m_up;
+	CurlUserCallback* m_cb;
 private:
 	mutable QReadWriteLock m_statsMutex;
 	

@@ -25,23 +25,14 @@ static const int MAX_STATS = 5;
 
 bool operator<(const timeval& t1, const timeval& t2);
 
-CurlUser::CurlUser()
+CurlUser::CurlUser(CurlUserCallback* cb)
+	: m_cb(cb)
 {
 	m_down.max = m_up.max = 0;
 }
 
 CurlUser::~CurlUser()
 {
-}
-
-size_t CurlUser::readData(char* buffer, size_t maxData)
-{
-	return 0;
-}
-
-bool CurlUser::writeData(const char* buffer, size_t bytes)
-{
-	return false;
 }
 
 timeval CurlUser::lastOperation() const
@@ -54,7 +45,7 @@ timeval CurlUser::lastOperation() const
 
 size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This)
 {
-	size_t bytes = This->readData(ptr, size*nmemb);
+	size_t bytes = This->m_cb->readData(ptr, size*nmemb);
 	
 	This->m_statsMutex.lockForWrite();
 	timeProcess(This->m_up, size*nmemb);
@@ -65,7 +56,7 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 
 size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This)
 {
-	bool ok = This->writeData(ptr, size*nmemb);
+	bool ok = This->m_cb->writeData(ptr, size*nmemb);
 	
 	This->m_statsMutex.lockForWrite();
 	timeProcess(This->m_down, size*nmemb);
@@ -189,3 +180,24 @@ bool CurlUser::performsLimiting() const
 {
 	return m_up.max || m_down.max;
 }
+
+CURL* CurlUser::curlHandle()
+{
+	return m_cb->curlHandle();
+}
+
+void CurlUser::setMaxUp(int bytespersec)
+{
+	m_up.max = bytespersec;
+}
+
+void CurlUser::setMaxDown(int bytespersec)
+{
+	m_down.max = bytespersec;
+}
+
+void CurlUser::transferDone(CURLcode result)
+{
+	m_cb->transferDone(result);
+}
+

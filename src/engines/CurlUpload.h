@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QUrl>
 #include <curl/curl.h>
 
-class CurlUpload : public Transfer, public CurlUser
+class CurlUpload : public Transfer, public CurlUserCallback
 {
 Q_OBJECT
 public:
@@ -79,6 +79,7 @@ protected:
 	FtpMode m_mode;
 	QUuid m_proxy;
 	char m_errorBuffer[CURL_ERROR_SIZE];
+	CurlUser m_curlUser;
 	
 	friend class FtpUploadOptsForm;
 };

@@ -51,7 +51,7 @@ void OutputBuffer::putBack(const char* data, unsigned long bytes)
 	m_bytes += bytes;
 }
 
-void OutputBuffer::getData(char* data, unsigned long* bytes)
+void OutputBuffer::getData(char* data, unsigned long* bytes) const
 {
 	*bytes = std::min<unsigned long>(*bytes, m_bytes);
 	memcpy(data, m_buffer, *bytes);

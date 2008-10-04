@@ -43,7 +43,7 @@ RapidshareStatusWidget* RapidshareUpload::m_labelStatus = 0;
 const long CHUNK_SIZE = 10*1024*1024;
 
 RapidshareUpload::RapidshareUpload()
-	: m_curl(0), m_postData(0), m_http(0), m_buffer(0)
+	: m_curl(0), m_postData(0), m_http(0), m_buffer(0), m_curlUser(this)
 {
 	m_query = QueryNone;
 	m_nFileID = -1;
@@ -137,10 +137,10 @@ void RapidshareUpload::curlInit()
 	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
 	curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
 	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
-	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
-	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
-	curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
-	curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
+	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, CurlUser::write_function);
+	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_curlUser);
+	curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, CurlUser::read_function);
+	curl_easy_setopt(m_curl, CURLOPT_READDATA, &m_curlUser);
 	curl_easy_setopt(m_curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
 }
 
@@ -297,8 +297,8 @@ void RapidshareUpload::changeActive(bool nowActive)
 			m_http = 0;
 		}
 		
-		resetStatistics();
-		CurlPoller::instance()->removeTransfer(this);
+		CurlPoller::instance()->removeTransfer(&m_curlUser);
+		m_curlUser.resetStatistics();
 		
 		if(m_curl)
 		{
@@ -386,7 +386,7 @@ void RapidshareUpload::beginNextChunk()
 	QString name;
 	
 	curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, "filecontent",
-		CURLFORM_STREAM, static_cast<CurlUser*>(this),
+		CURLFORM_STREAM, &m_curlUser,
 		CURLFORM_FILENAME, m_strName.toUtf8().constData(),
 		CURLFORM_CONTENTSLENGTH, qMin<long>(CHUNK_SIZE, m_nTotal - m_nDone), CURLFORM_END);
 	
@@ -400,7 +400,7 @@ void RapidshareUpload::beginNextChunk()
 	m_buffer = new QBuffer;
 	m_buffer->open(QIODevice::ReadWrite);
 	
-	CurlPoller::instance()->addTransfer(this);
+	CurlPoller::instance()->addTransfer(&m_curlUser);
 }
 
 void RapidshareUpload::transferDone(CURLcode result)
@@ -559,15 +559,14 @@ void RapidshareUpload::queryDone(bool error)
 
 void RapidshareUpload::setSpeedLimits(int, int up)
 {
-	m_up.max = up;
+	m_curlUser.setMaxUp(up);
 }
 
 void RapidshareUpload::speeds(int& down, int& up) const
 {
-	up = 0;
+	up = down = 0;
 	if(isActive())
-		CurlUser::speeds(down, up);
-	down = 0;
+		m_curlUser.speeds(down, up);
 }
 
 qulonglong RapidshareUpload::done() const

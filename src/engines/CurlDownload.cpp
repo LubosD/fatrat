@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QtDebug>
 
 CurlDownload::CurlDownload()
-	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0)
+	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0), m_curlUser(this)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -246,8 +246,8 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
 		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = m_file.pos());
-		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
-		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
+		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, CurlUser::write_function);
+		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_curlUser);
 		
 		if(bWatchHeaders)
 		{
@@ -274,12 +274,12 @@ void CurlDownload::changeActive(bool bActive)
 		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
 		curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
 		
-		CurlPoller::instance()->addTransfer(this);
+		CurlPoller::instance()->addTransfer(&m_curlUser);
 	}
 	else if(m_curl != 0)
 	{
-		resetStatistics();
-		CurlPoller::instance()->removeTransfer(this);
+		CurlPoller::instance()->removeTransfer(&m_curlUser);
+		m_curlUser.resetStatistics();
 		curl_easy_cleanup(m_curl);
 		m_curl = 0;
 		m_nStart = 0;
@@ -414,7 +414,7 @@ void CurlDownload::setTargetName(QString newFileName)
 
 void CurlDownload::speeds(int& down, int& up) const
 {
-	CurlUser::speeds(down, up);
+	m_curlUser.speeds(down, up);
 }
 
 qulonglong CurlDownload::total() const
@@ -543,7 +543,7 @@ QString CurlDownload::filePath() const
 
 void CurlDownload::setSpeedLimits(int down, int)
 {
-	m_down.max = down;
+	m_curlUser.setMaxDown(down);
 }
 
 
