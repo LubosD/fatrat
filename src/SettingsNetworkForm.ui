@@ -156,7 +156,24 @@
   </layout>
  </widget>
  <resources>
-  <include location="gfx/resources.qrc" />
+  <include location="../gfx/resources.qrc" />
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>listProxys</sender>
+   <signal>itemDoubleClicked(QListWidgetItem*)</signal>
+   <receiver>pushEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>163</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>285</x>
+     <y>168</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

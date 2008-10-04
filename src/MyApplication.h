@@ -42,7 +42,7 @@ public:
 		}
 		catch(const RuntimeException& e)
 		{
-			reportException(e.what(), typeid(e).name());
+			reportException(e.what(), "RuntimeException");
 		}
 		
 		return false;

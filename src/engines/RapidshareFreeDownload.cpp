@@ -33,7 +33,7 @@ static QMutex m_mInstanceActive;
 RapidshareFreeDownload::RapidshareFreeDownload()
 	: m_http(0), m_buffer(0), m_nSecondsLeft(-1), m_bHasLock(false)
 {
-	m_proxy = getSettingsValue("httpftp/defaultproxy").toString();
+	m_proxy = getSettingsValue("rapidshare/proxy").toString();
 }
 
 RapidshareFreeDownload::~RapidshareFreeDownload()
@@ -165,6 +165,7 @@ void RapidshareFreeDownload::secondElapsed()
 			m_nTotal = 0;
 			
 			CurlDownload::init(m_downloadUrl.toString(), m_strTarget);
+			m_urls[0].proxy = m_proxy;
 			QFile::remove(filePath());
 			CurlDownload::changeActive(true);
 		}

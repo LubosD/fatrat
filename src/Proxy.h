@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QString>
 #include <QUuid>
 #include <QNetworkProxy>
+#include <QHttp>
 
 struct Proxy
 {
@@ -38,6 +39,7 @@ struct Proxy
 		return QString("%1 (%2)").arg(strName).arg( (nType==0) ? "HTTP" : "SOCKS 5");
 	}
 	operator QNetworkProxy() const;
+	//void setProxyTo(QHttp* http) const;
 	
 	static QList<Proxy> loadProxys();
 	static Proxy getProxy(QUuid uuid);
