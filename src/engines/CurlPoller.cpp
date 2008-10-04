@@ -29,9 +29,6 @@ static const int TRANSFER_TIMEOUT = 20;
 CurlPoller::CurlPoller()
 	: m_bAbort(false), m_usersLock(QMutex::Recursive)
 {
-	if(m_instance)
-		abort();
-	
 	curl_global_init(CURL_GLOBAL_SSL);
 	m_curlm = curl_multi_init();
 	m_poller = Poller::createInstance(this);
@@ -39,7 +36,8 @@ CurlPoller::CurlPoller()
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETFUNCTION, socket_callback);
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETDATA, this);
 	
-	m_instance = this;
+	if(!m_instance)
+		m_instance = this;
 	start();
 }
 
@@ -50,9 +48,14 @@ CurlPoller::~CurlPoller()
 	if(isRunning())
 		wait();
 	
-	m_instance = 0;
+	if(this == m_instance)
+		m_instance = 0;
 	curl_multi_cleanup(m_curlm);
 	curl_global_cleanup();
+}
+
+void CurlPoller::init()
+{
 }
 
 bool operator<(const timeval& t1, const timeval& t2)
@@ -67,10 +70,10 @@ bool operator<(const timeval& t1, const timeval& t2)
 
 void CurlPoller::run()
 {
-	long timeout = 0, curl_timeout;
+	long timeout = 0;
 	
 	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
-	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, &curl_timeout);
+	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, &m_curlTimeout);
 	
 	while(!m_bAbort)
 	{
@@ -105,10 +108,10 @@ void CurlPoller::run()
 		
 		gettimeofday(&tvNow, 0);
 		
-		if(curl_timeout <= 0 || curl_timeout > 500)
+		if(m_curlTimeout <= 0 || m_curlTimeout > 500)
 			timeout = 500;
 		else
-			timeout = curl_timeout;
+			timeout = m_curlTimeout;
 		
 		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{

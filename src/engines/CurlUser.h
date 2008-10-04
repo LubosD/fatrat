@@ -21,57 +21,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef CURLUSER_H
 #define CURLUSER_H
+#include "CurlStat.h"
 #include <curl/curl.h>
-#include <sys/time.h>
-#include <QReadWriteLock>
 #include <QList>
 #include <QPair>
 
-class CurlUser
+class CurlUser : public CurlStat
 {
 public:
 	CurlUser();
 	virtual ~CurlUser();
 	
-	void speeds(int& down, int& up) const;
-	
-	bool hasNextReadTime() const;
-	bool hasNextWriteTime() const;
-	timeval nextReadTime() const;
-	timeval nextWriteTime() const;
-	
-	bool performsLimiting() const;
-	
-	timeval lastOperation() const;
-protected:
-	virtual CURL* curlHandle() = 0;
+	virtual size_t readData(char* buffer, size_t maxData) { return 0;}
+	virtual bool writeData(const char* buffer, size_t bytes) { return false; }
 	virtual void transferDone(CURLcode result) = 0;
+	virtual CURL* curlHandle() = 0;
 	
-	virtual size_t readData(char* buffer, size_t maxData);
-	virtual bool writeData(const char* buffer, size_t bytes);
-	
-	void resetStatistics();
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
-	
-	typedef QPair<long long,long> timedata_pair;
-	
-	struct SpeedData
-	{
-		QList<timedata_pair> stats;
-		timeval last, next, lastOp;
-		timedata_pair accum;
-		int max;
-	};
-private:
-	static int computeSpeed(const QList<timedata_pair>& data);
-	static void timeProcess(SpeedData& data, size_t bytes);
-	static bool isNull(const timeval& t);
 protected:
-	SpeedData m_down, m_up;
-private:
-	mutable QReadWriteLock m_statsMutex;
-	
 	friend class CurlPoller;
 };
 

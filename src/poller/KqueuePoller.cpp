@@ -38,6 +38,11 @@ KqueuePoller::~KqueuePoller()
 		close(m_kqueue);
 }
 
+int KqueuePoller::handle()
+{
+	return m_kqueue;
+}
+
 int KqueuePoller::addSocket(int socket, int flags)
 {
 	struct kevent ev;

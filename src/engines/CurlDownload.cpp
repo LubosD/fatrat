@@ -278,8 +278,8 @@ void CurlDownload::changeActive(bool bActive)
 	}
 	else if(m_curl != 0)
 	{
-		resetStatistics();
 		CurlPoller::instance()->removeTransfer(this);
+		resetStatistics();
 		curl_easy_cleanup(m_curl);
 		m_curl = 0;
 		m_nStart = 0;
@@ -543,7 +543,7 @@ QString CurlDownload::filePath() const
 
 void CurlDownload::setSpeedLimits(int down, int)
 {
-	m_down.max = down;
+	setMaxDown(down);
 }
 
 

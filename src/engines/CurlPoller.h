@@ -35,6 +35,8 @@ public:
 	CurlPoller();
 	~CurlPoller();
 	
+	static void init();
+	
 	void addTransfer(CurlUser* obj);
 	void removeTransfer(CurlUser* obj);
 	
@@ -50,6 +52,7 @@ private:
 	bool m_bAbort;
 	CURLM* m_curlm;
 	Poller* m_poller;
+	int m_curlTimeout;
 	
 	typedef QHash<int, QPair<int,CurlUser*> > sockets_hash;
 	

@@ -139,7 +139,7 @@ void CurlUpload::changeActive(bool nowActive)
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
 		
-		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
+		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, CurlUser::read_function);
 		curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
 		
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
@@ -231,12 +231,12 @@ int CurlUpload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_
 
 void CurlUpload::setSpeedLimits(int, int up)
 {
-	m_up.max = up;
+	setMaxUp(up);
 }
 
 void CurlUpload::speeds(int& down, int& up) const
 {
-	CurlUser::speeds(down, up);
+	speeds(down, up);
 }
 
 qulonglong CurlUpload::done() const

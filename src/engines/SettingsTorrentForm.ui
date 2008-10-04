@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>438</width>
-    <height>350</height>
+    <height>405</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -22,14 +22,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>434</width>
-        <height>322</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Main</string>
       </attribute>
@@ -236,9 +228,9 @@
         </spacer>
        </item>
        <item row="11" column="0" colspan="2" >
-        <widget class="QLabel" name="labelCleanup" >
+        <widget class="QPushButton" name="pushCleanup" >
          <property name="text" >
-          <string>&lt;a href="cleanup">Clean up the .torrent storage&lt;/a></string>
+          <string>Clean up the .torrent storage</string>
          </property>
         </widget>
        </item>
@@ -258,14 +250,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>434</width>
-        <height>326</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Encryption</string>
       </attribute>
@@ -323,14 +307,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>434</width>
-        <height>326</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Proxy</string>
       </attribute>
@@ -381,14 +357,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="Portmapping" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>434</width>
-        <height>326</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Port mapping</string>
       </attribute>
@@ -423,14 +391,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>434</width>
-        <height>326</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Torrent search</string>
       </attribute>

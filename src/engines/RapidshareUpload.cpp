@@ -137,9 +137,9 @@ void RapidshareUpload::curlInit()
 	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
 	curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
 	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
-	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
+	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, CurlUser::write_function);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
-	curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
+	curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, CurlUser::read_function);
 	curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
 	curl_easy_setopt(m_curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
 }
@@ -297,8 +297,8 @@ void RapidshareUpload::changeActive(bool nowActive)
 			m_http = 0;
 		}
 		
-		resetStatistics();
 		CurlPoller::instance()->removeTransfer(this);
+		resetStatistics();
 		
 		if(m_curl)
 		{
@@ -559,15 +559,14 @@ void RapidshareUpload::queryDone(bool error)
 
 void RapidshareUpload::setSpeedLimits(int, int up)
 {
-	m_up.max = up;
+	setMaxUp(up);
 }
 
 void RapidshareUpload::speeds(int& down, int& up) const
 {
-	up = 0;
+	up = down = 0;
 	if(isActive())
 		CurlUser::speeds(down, up);
-	down = 0;
 }
 
 qulonglong RapidshareUpload::done() const

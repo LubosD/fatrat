@@ -32,6 +32,8 @@ public:
 	EpollPoller(QObject* parent);
 	virtual ~EpollPoller();
 	
+	virtual int handle();
+	
 	virtual int addSocket(int socket, int flags);
 	virtual int removeSocket(int socket);
 	virtual QList<Event> wait(int msec);

@@ -42,7 +42,7 @@ TorrentSettings::TorrentSettings(QWidget* w, QObject* p) : QObject(p)
 	comboEncLevel->addItems( QStringList() << tr("Plaintext") << tr("RC4") << tr("Both", "Both levels") );
 	comboDetailsMode->addItems( QStringList() << tr("in a new tab") << tr("in an external browser") );
 	
-	connect(labelCleanup, SIGNAL(linkActivated(const QString&)), this, SLOT(cleanup()));
+	connect(pushCleanup, SIGNAL(clicked()), this, SLOT(cleanup()));
 }
 
 void TorrentSettings::load()

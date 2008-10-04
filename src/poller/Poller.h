@@ -36,6 +36,8 @@ public:
 		int flags;
 	};
 	
+	virtual int handle() = 0;
+	
 	// Should perform modify if the socket is already in the set
 	// provided that the underlying subsystem requires that.
 	virtual int addSocket(int socket, int flags) = 0;

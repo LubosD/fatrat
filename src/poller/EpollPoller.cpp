@@ -37,6 +37,11 @@ EpollPoller::~EpollPoller()
 		close(m_epoll);
 }
 
+int EpollPoller::handle()
+{
+	return m_epoll;
+}
+
 int EpollPoller::addSocket(int socket, int flags)
 {
 	epoll_event event;

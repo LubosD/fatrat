@@ -244,6 +244,7 @@ if(WITH_CURL)
 		src/engines/CurlUpload.cpp
 		src/engines/CurlPoller.cpp
 		src/engines/CurlUser.cpp
+		src/engines/CurlStat.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/RapidshareUpload.cpp

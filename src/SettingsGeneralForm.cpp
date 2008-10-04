@@ -40,6 +40,8 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	comboLinkSeparator->addItems(QStringList() << tr("a newline") << tr("whitespace characters"));
 	comboFileExec->addItems(QStringList() << "xdg-open" << "kfmclient exec" << "gnome-open");
 	comboGraphStyle->addItems(QStringList() << tr("Filled graph") << tr("Line graph"));
+	
+	connect(labelManageFavs, SIGNAL(linkActivated(const QString&)), this, SLOT(manageFavs()));
 }
 
 void SettingsGeneralForm::load()
@@ -81,5 +83,9 @@ void SettingsGeneralForm::accepted()
 	setSettingsValue("css", checkCSS->isChecked());
 	
 	((MainWindow*) getMainWindow())->applySettings();
+}
+
+void SettingsGeneralForm::manageFavs()
+{
 }
 
