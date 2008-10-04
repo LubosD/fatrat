@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "KqueuePoller.h"
 #include "RuntimeException.h"
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
 
 KqueuePoller::KqueuePoller(QObject* parent)
 	: Poller(parent)
@@ -37,7 +40,7 @@ KqueuePoller::~KqueuePoller()
 
 int KqueuePoller::addSocket(int socket, int flags)
 {
-	kevent ev;
+	struct kevent ev;
 	int eflags = EV_ADD | EV_ENABLE;
 	int efilters = 0;
 	
@@ -50,21 +53,21 @@ int KqueuePoller::addSocket(int socket, int flags)
 	if(flags & PollerHup)
 		eflags |= EV_EOF;
 	
-	EV_SET(&ev, socket, efilter, eflags, 0, 0, 0);
+	EV_SET(&ev, socket, efilters, eflags, 0, 0, 0);
 	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
 }
 
 int KqueuePoller::removeSocket(int socket)
 {
-	kevent ev;
+	struct kevent ev;
 	EV_SET(&ev, socket, 0, EV_DELETE | EV_DISABLE, 0, 0, 0);
 	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
 }
 
-QList<Event> KqueuePoller::wait(int msec)
+QList<Poller::Event> KqueuePoller::wait(int msec)
 {
 	QList<Event> retval;
-	kevent evlist[30];
+	struct kevent evlist[30];
 	struct timespec tspec = { msec/1000, (msec%1000)*1000000L };
 	
 	int nev = kevent(m_kqueue, 0, 0, evlist, sizeof(evlist)/sizeof(evlist[0]), &tspec);
@@ -76,9 +79,9 @@ QList<Event> KqueuePoller::wait(int msec)
 			event.flags |= PollerError;
 		if(evlist[i].flags & EV_EOF)
 			event.flags |= PollerHup;
-		if(evlist[i].filters & EVFILT_READ)
+		if(evlist[i].filter & EVFILT_READ)
 			event.flags |= PollerIn;
-		if(evlist[i].filters & EVFIL_WRITE)
+		if(evlist[i].filter & EVFILT_WRITE)
 			event.flags |= PollerOut;
 		
 		retval << event;

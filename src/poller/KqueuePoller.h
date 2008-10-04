@@ -21,9 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef KQUEUEPOLLER_H
 #define KQUEUEPOLLER_H
 #include "Poller.h"
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
 
 class KqueuePoller : public Poller
 {
