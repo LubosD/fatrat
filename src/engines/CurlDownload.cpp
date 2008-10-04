@@ -222,6 +222,15 @@ void CurlDownload::changeActive(bool bActive)
 			else
 				p = QString("%1:%2@%3:%4").arg(proxy.strUser).arg(proxy.strPassword).arg(proxy.strIP).arg(proxy.nPort).toLatin1();
 			curl_easy_setopt(m_curl, CURLOPT_PROXY, p.constData());
+			
+			int type;
+			if(proxy.nType == Proxy::ProxySocks5)
+				type = CURLPROXY_SOCKS5;
+			else if(proxy.nType == Proxy::ProxyHttp)
+				type = CURLPROXY_HTTP;
+			else
+				type = 0;
+			curl_easy_setopt(m_curl, CURLOPT_PROXYTYPE, type);
 		}
 		else
 			curl_easy_setopt(m_curl, CURLOPT_PROXY, "");
