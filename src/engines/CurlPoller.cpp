@@ -176,9 +176,6 @@ void CurlPoller::run()
 			}
 		}
 		
-		foreach(CurlUser* user, timedOut)
-			user->transferDone(CURLE_OPERATION_TIMEDOUT);
-		
 		while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
 		{
 			if(msg->msg != CURLMSG_DONE)
@@ -197,6 +194,9 @@ void CurlPoller::run()
 		for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
 			m_sockets[it.key()] = it.value();
 		m_socketsToAdd.clear();
+		
+		foreach(CurlUser* user, timedOut)
+			user->transferDone(CURLE_OPERATION_TIMEDOUT);
 		
 		m_usersLock.unlock();
 	}

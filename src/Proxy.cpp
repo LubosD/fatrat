@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "Proxy.h"
 #include <QSettings>
+#include <QHttp>
+#include <QtDebug>
 
 extern QSettings* g_settings;
 
@@ -80,18 +82,22 @@ Proxy::Proxy Proxy::getProxy(QUuid uuid)
 
 Proxy::operator QNetworkProxy() const
 {
-	QNetworkProxy p;
+	QNetworkProxy::ProxyType t;
 	
-	if(nType == ProxyNone)
-		p.setType(QNetworkProxy::NoProxy);
-	else if(nType == ProxyNone)
-		p.setType(QNetworkProxy::HttpProxy);
+	if(nType == ProxyHttp)
+		t = QNetworkProxy::HttpProxy;
+	else if(nType == ProxySocks5)
+		t = QNetworkProxy::Socks5Proxy;
 	else
-		p.setType(QNetworkProxy::Socks5Proxy);
+		t = QNetworkProxy::NoProxy;
+	
+	QNetworkProxy p(t);
 	
 	p.setHostName(strIP);
+	p.setPort(nPort);
 	p.setUser(strUser);
-	p.setPassword(strUser);
+	p.setPassword(strPassword);
 	
 	return p;
 }
+

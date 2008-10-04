@@ -23,9 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstring>
 #include <algorithm>
 
-OutputBuffer::OutputBuffer()
-	: m_buffer(0), m_bytes(0)
+OutputBuffer::OutputBuffer(unsigned long reserve)
+	: m_buffer(0), m_bytes(0), m_reserve(reserve)
 {
+	m_buffer = (char*) malloc(reserve);
 }
 
 OutputBuffer::~OutputBuffer()
@@ -35,14 +36,16 @@ OutputBuffer::~OutputBuffer()
 
 void OutputBuffer::putData(const char* data, unsigned long bytes)
 {
-	m_buffer = (char*) realloc(m_buffer, m_bytes+bytes);
+	if(m_bytes+bytes > m_reserve)
+		m_buffer = (char*) realloc(m_buffer, m_bytes+bytes);
 	memcpy(m_buffer+m_bytes, data, bytes);
 	m_bytes += bytes;
 }
 
 void OutputBuffer::putBack(const char* data, unsigned long bytes)
 {
-	m_buffer = (char*) realloc(m_buffer, m_bytes+bytes);
+	if(m_bytes+bytes > m_reserve)
+		m_buffer = (char*) realloc(m_buffer, m_bytes+bytes);
 	memmove(m_buffer+bytes, m_buffer, m_bytes);
 	memcpy(m_buffer, data, bytes);
 	m_bytes += bytes;
@@ -52,7 +55,13 @@ void OutputBuffer::getData(char* data, unsigned long* bytes)
 {
 	*bytes = std::min<unsigned long>(*bytes, m_bytes);
 	memcpy(data, m_buffer, *bytes);
-	memmove(m_buffer, m_buffer+*bytes, m_bytes-*bytes);
-	m_bytes -= *bytes;
-	m_buffer = (char*) realloc(m_buffer, m_bytes);
 }
+
+void OutputBuffer::removeData(unsigned long bytes)
+{
+	bytes = std::min<unsigned long>(bytes, m_bytes);
+	memmove(m_buffer, m_buffer+bytes, m_bytes-bytes);
+	m_bytes -= bytes;
+	//m_buffer = (char*) realloc(m_buffer, m_bytes);
+}
+
