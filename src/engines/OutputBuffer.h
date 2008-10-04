@@ -26,7 +26,7 @@ class OutputBuffer : public QObject
 {
 Q_OBJECT
 public:
-	OutputBuffer();
+	OutputBuffer(unsigned long reserve = 40*1024);
 	~OutputBuffer();
 	void putData(const char* data, unsigned long bytes);
 	
@@ -38,7 +38,7 @@ public:
 	unsigned long size() const { return m_bytes; }
 private:
 	char* m_buffer;
-	unsigned long m_bytes;
+	unsigned long m_bytes, m_reserve;
 };
 
 #endif
