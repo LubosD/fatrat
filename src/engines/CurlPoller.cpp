@@ -96,7 +96,7 @@ void CurlPoller::run()
 				mask |= CURL_CSELECT_IN;
 			if(events[i].flags & Poller::PollerOut)
 				mask |= CURL_CSELECT_OUT;
-			if(events[i].flags & Poller::PollerError)
+			if(events[i].flags & (Poller::PollerError | Poller::PollerHup))
 				mask |= CURL_CSELECT_ERR;
 			
 			//qDebug() << "Events:" << mask;
@@ -215,7 +215,7 @@ int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
 
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
-	int flags = Poller::PollerOneShot;
+	int flags = Poller::PollerOneShot | Poller::PollerError | Poller::PollerHup;
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)
 		flags |= Poller::PollerIn;
