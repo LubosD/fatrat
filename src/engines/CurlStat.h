@@ -58,6 +58,8 @@ protected:
 protected:
 	SpeedData m_down, m_up;
 	mutable QReadWriteLock m_statsMutex;
+	
+	friend class CurlUser;
 };
 
 #endif

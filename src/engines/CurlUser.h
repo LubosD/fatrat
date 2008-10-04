@@ -40,7 +40,12 @@ public:
 	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
 	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
 protected:
+	void setSegmentMaster(CurlStat* master);
+	CurlStat* segmentMaster() const;
+	
 	friend class CurlPoller;
+private:
+	CurlStat* m_master;
 };
 
 #endif

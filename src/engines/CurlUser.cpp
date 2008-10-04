@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QtDebug>
 
 CurlUser::CurlUser()
+	: m_master(0)
 {
 }
 
@@ -37,6 +38,13 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 	timeProcess(This->m_up, size*nmemb);
 	This->m_statsMutex.unlock();
 	
+	if(CurlStat* master = This->m_master)
+	{
+		master->m_statsMutex.lockForWrite();
+		timeProcess(master->m_up, size*nmemb);
+		master->m_statsMutex.unlock();
+	}
+	
 	return bytes;
 }
 
@@ -48,6 +56,23 @@ size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, Curl
 	timeProcess(This->m_down, size*nmemb);
 	This->m_statsMutex.unlock();
 	
+	if(CurlStat* master = This->m_master)
+	{
+		master->m_statsMutex.lockForWrite();
+		timeProcess(master->m_down, size*nmemb);
+		master->m_statsMutex.unlock();
+	}
+	
 	return ok ? size*nmemb : 0;
+}
+
+void CurlUser::setSegmentMaster(CurlStat* master)
+{
+	m_master = master;
+}
+
+CurlStat* CurlUser::segmentMaster() const
+{
+	return m_master;
 }
 
