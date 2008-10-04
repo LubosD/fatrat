@@ -29,7 +29,10 @@ public:
 	OutputBuffer();
 	~OutputBuffer();
 	void putData(const char* data, unsigned long bytes);
+	
+	// doesn't remove anything from the buffer!
 	void getData(char* data, unsigned long* bytes);
+	void removeData(unsigned long bytes);
 	void putBack(const char* data, unsigned long bytes);
 	bool isEmpty() const { return !m_bytes; }
 	unsigned long size() const { return m_bytes; }

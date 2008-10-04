@@ -373,8 +373,8 @@ bool HttpService::processClientWrite(int fd)
 		int written = write(fd, ar.constData(), bytes);
 		if(written <= 0)
 			return false;
-		else if(written < int(bytes))
-			data.buffer->putBack(ar.constData()+written, bytes-written);
+		else
+			data.buffer->removeData(written);
 	}
 	
 	return true;

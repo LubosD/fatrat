@@ -52,7 +52,13 @@ void OutputBuffer::getData(char* data, unsigned long* bytes)
 {
 	*bytes = std::min<unsigned long>(*bytes, m_bytes);
 	memcpy(data, m_buffer, *bytes);
-	memmove(m_buffer, m_buffer+*bytes, m_bytes-*bytes);
-	m_bytes -= *bytes;
+}
+
+void OutputBuffer::removeData(unsigned long bytes)
+{
+	bytes = std::min<unsigned long>(bytes, m_bytes);
+	memmove(m_buffer, m_buffer+bytes, m_bytes-bytes);
+	m_bytes -= bytes;
 	m_buffer = (char*) realloc(m_buffer, m_bytes);
 }
+
