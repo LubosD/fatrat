@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Transfer.h"
 #include "fatrat.h"
 #include "engines/CurlUser.h"
+#include "engines/UrlClient.h"
 #include <QHash>
 #include <QUuid>
 #include <QFile>
@@ -88,14 +89,7 @@ protected:
 	
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	
-	struct UrlObject
-	{
-		QUrl url;
-		QString strReferrer, strBindAddress;
-		FtpMode ftpMode;
-		QUuid proxy;
-	};
-	QList<UrlObject> m_urls;
+	QList<UrlClient::UrlObject> m_urls;
 	int m_nUrl;
 	
 	friend class HttpOptsWidget;

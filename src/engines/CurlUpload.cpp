@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMenu>
 
 CurlUpload::CurlUpload()
-	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
+	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(UrlClient::FtpPassive)
 {
 	Transfer::m_mode = Upload;
 	m_errorBuffer[0] = 0;
@@ -170,7 +170,7 @@ void CurlUpload::changeActive(bool nowActive)
 				curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
 		}
 		
-		if(m_mode == FtpActive)
+		if(m_mode == UrlClient::FtpActive)
 			curl_easy_setopt(m_curl, CURLOPT_FTPPORT, "-");
 		
 		Proxy proxy = Proxy::getProxy(m_proxy);
@@ -267,7 +267,7 @@ void CurlUpload::load(const QDomNode& map)
 	source = getXMLProperty(map, "source");
 	target = getXMLProperty(map, "target");
 	m_strName = getXMLProperty(map, "name");
-	m_mode = (FtpMode) getXMLProperty(map, "ftpmode").toInt();
+	m_mode = (UrlClient::FtpMode) getXMLProperty(map, "ftpmode").toInt();
 	m_nDone = getXMLProperty(map, "done").toLongLong();
 	m_proxy = getXMLProperty(map, "proxy");
 	m_strBindAddress = getXMLProperty(map, "bindaddr");
@@ -398,7 +398,7 @@ void FtpUploadOptsForm::accepted()
 	int ix = comboProxy->currentIndex();
 	m_upload->m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
 	
-	m_upload->m_mode = FtpMode( comboFtpMode->currentIndex() );
+	m_upload->m_mode = UrlClient::FtpMode( comboFtpMode->currentIndex() );
 	m_upload->m_strBindAddress = lineAddrBind->text();
 }
 

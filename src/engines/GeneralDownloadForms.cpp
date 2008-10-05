@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "GeneralDownloadForms.h"
 #include "Settings.h"
 #include "Proxy.h"
+#include <QMessageBox>
 
 HttpOptsWidget::HttpOptsWidget(QWidget* me,CurlDownload* myobj) : QObject(me), m_download(myobj)
 {
@@ -36,7 +37,7 @@ void HttpOptsWidget::load()
 	lineFileName->setText(m_download->m_strFile);
 	
 	m_urls = m_download->m_urls;
-	foreach(CurlDownload::UrlObject obj,m_urls)
+	foreach(UrlClient::UrlObject obj,m_urls)
 	{
 		QUrl copy = obj.url;
 		copy.setUserInfo(QString());
@@ -69,7 +70,7 @@ void HttpOptsWidget::addUrl()
 	
 	if(dlg.exec() == QDialog::Accepted)
 	{
-		CurlDownload::UrlObject obj;
+		UrlClient::UrlObject obj;
 		
 		obj.url = dlg.m_strURL;
 		obj.url.setUserName(dlg.m_strUser);
@@ -92,7 +93,7 @@ void HttpOptsWidget::editUrl()
 	if(row < 0)
 		return;
 	
-	CurlDownload::UrlObject& obj = m_urls[row];
+	UrlClient::UrlObject& obj = m_urls[row];
 	
 	QUrl temp = obj.url;
 	temp.setUserInfo(QString());
@@ -132,7 +133,7 @@ void HttpOptsWidget::deleteUrl()
 ////////////////////////////////////////////////////////////////////////////////
 
 HttpUrlOptsDlg::HttpUrlOptsDlg(QWidget* parent, QList<Transfer*>* multi)
-	: QDialog(parent), m_ftpMode(FtpActive), m_multi(multi)
+	: QDialog(parent), m_ftpMode(UrlClient::FtpActive), m_multi(multi)
 {
 	setupUi(this);
 	
@@ -188,7 +189,7 @@ int HttpUrlOptsDlg::exec()
 		m_strUser = lineUsername->text();
 		m_strPassword = linePassword->text();
 		m_strBindAddress = lineAddrBind->text();
-		m_ftpMode = FtpMode( comboFtpMode->currentIndex() );
+		m_ftpMode = UrlClient::FtpMode( comboFtpMode->currentIndex() );
 		
 		int ix = comboProxy->currentIndex();
 		m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
@@ -204,12 +205,10 @@ void HttpUrlOptsDlg::accept()
 {
 	QString url = lineUrl->text();
 	
-	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://")
-#ifdef WITH_SFTP
-		  || url.startsWith("sftp://")
-#endif
-		  || url.startsWith("https://"))
+	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://") || url.startsWith("sftp://") || url.startsWith("https://"))
 		QDialog::accept();
+	else
+		QMessageBox::warning(this, "FatRat", tr("%1 is not a supported URL."));
 }
 
 void HttpUrlOptsDlg::runMultiUpdate()
@@ -217,7 +216,7 @@ void HttpUrlOptsDlg::runMultiUpdate()
 	// let the heuristics begin
 	foreach(Transfer* t, *m_multi)
 	{
-		CurlDownload::UrlObject& obj = dynamic_cast<CurlDownload*>(t)->m_urls[0];
+		UrlClient::UrlObject& obj = dynamic_cast<CurlDownload*>(t)->m_urls[0];
 		if(obj.url.userInfo().isEmpty()) // we will not override the "automatic login data"
 		{
 			obj.url.setUserName(m_strUser);

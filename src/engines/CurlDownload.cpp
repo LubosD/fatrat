@@ -45,7 +45,7 @@ CurlDownload::~CurlDownload()
 
 void CurlDownload::init(QString uri, QString dest)
 {
-	UrlObject obj;
+	UrlClient::UrlObject obj;
 	
 	int hash = uri.lastIndexOf("#__filename=");
 	if(hash != -1)
@@ -78,7 +78,7 @@ void CurlDownload::init(QString uri, QString dest)
 	}
 	
 	obj.proxy = getSettingsValue("httpftp/defaultproxy").toString();
-	obj.ftpMode = FtpPassive;
+	obj.ftpMode = UrlClient::FtpPassive;
 	
 	m_dir = dest;
 	m_dir.mkpath(".");
@@ -446,12 +446,12 @@ void CurlDownload::load(const QDomNode& map)
 	QDomElement url = map.firstChildElement("url");
 	while(!url.isNull())
 	{
-		UrlObject obj;
+		UrlClient::UrlObject obj;
 		
 		obj.url = getXMLProperty(url, "address");
 		obj.strReferrer = getXMLProperty(url, "referrer");
 		obj.proxy = getXMLProperty(url, "proxy");
-		obj.ftpMode = (FtpMode) getXMLProperty(url, "ftpmode").toInt();
+		obj.ftpMode = (UrlClient::FtpMode) getXMLProperty(url, "ftpmode").toInt();
 		obj.strBindAddress = getXMLProperty(url, "bindip");
 		
 		url = url.nextSiblingElement("url");

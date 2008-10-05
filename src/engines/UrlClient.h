@@ -1,0 +1,60 @@
+/*
+FatRat download manager
+http://fatrat.dolezel.info
+
+Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+#ifndef URLCLIENT_H
+#define URLCLIENT_H
+#include <QUrl>
+#include <QString>
+#include <QUuid>
+#include <curl/curl.h>
+#include "engines/CurlUser.h"
+
+class UrlClient : public QObject, public CurlUser
+{
+Q_OBJECT
+public:
+	UrlClient();
+	~UrlClient();
+	
+	enum FtpMode { FtpActive = 0, FtpPassive };
+	struct UrlObject
+	{
+		QUrl url;
+		QString strReferrer, strBindAddress;
+		FtpMode ftpMode;
+		QUuid proxy;
+	};
+	
+	void setSourceObject(const UrlObject& obj);
+	void setTargetObject(QIODevice* dev);
+	void setRange(qlonglong from, qlonglong to);
+	qlonglong progress() const;
+signals:
+	void logMessage(QString msg);
+	void done(bool error);
+private:
+	qlonglong m_progress;
+	UrlObject m_source;
+	QIODevice* m_target;
+	qlonglong m_rangeFrom, m_rangeTo;
+	CURL* m_curl;
+};
+
+#endif
