@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QUrl>
 #include <QString>
 #include <QUuid>
+#include <QHash>
+#include <QByteArray>
 #include <curl/curl.h>
 #include "engines/CurlUser.h"
 
@@ -42,10 +44,19 @@ public:
 		QUuid proxy;
 	};
 	
+	void start();
+	void stop();
+	
 	void setSourceObject(const UrlObject& obj);
 	void setTargetObject(QIODevice* dev);
 	void setRange(qlonglong from, qlonglong to);
 	qlonglong progress() const;
+	
+	virtual CURL* curlHandle();
+protected:
+	static size_t process_header(const char* ptr, size_t size, size_t nmemb, UrlClient* This);
+	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, UrlClient* This);
+	void processHeaders();
 signals:
 	void logMessage(QString msg);
 	void done(bool error);
@@ -55,6 +66,8 @@ private:
 	QIODevice* m_target;
 	qlonglong m_rangeFrom, m_rangeTo;
 	CURL* m_curl;
+	char m_errorBuffer[CURL_ERROR_SIZE];
+	QHash<QByteArray, QByteArray> m_headers;
 };
 
 #endif
