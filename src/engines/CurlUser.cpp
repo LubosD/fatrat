@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlUser.h"
 #include <QtDebug>
 
+static const int TRANSFER_TIMEOUT = 10;
+
 CurlUser::CurlUser()
 	: m_master(0)
 {
@@ -34,16 +36,10 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 {
 	size_t bytes = This->readData(ptr, size*nmemb);
 	
-	This->m_statsMutex.lockForWrite();
-	timeProcess(This->m_up, size*nmemb);
-	This->m_statsMutex.unlock();
+	This->timeProcessUp(size*nmemb);
 	
-	if(CurlStat* master = This->m_master)
-	{
-		master->m_statsMutex.lockForWrite();
-		timeProcess(master->m_up, size*nmemb);
-		master->m_statsMutex.unlock();
-	}
+	if(This->m_master != 0)
+		This->m_master->timeProcessUp(size*nmemb);
 	
 	return bytes;
 }
@@ -52,16 +48,10 @@ size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, Curl
 {
 	bool ok = This->writeData(ptr, size*nmemb);
 	
-	This->m_statsMutex.lockForWrite();
-	timeProcess(This->m_down, size*nmemb);
-	This->m_statsMutex.unlock();
+	This->timeProcessDown(size*nmemb);
 	
-	if(CurlStat* master = This->m_master)
-	{
-		master->m_statsMutex.lockForWrite();
-		timeProcess(master->m_down, size*nmemb);
-		master->m_statsMutex.unlock();
-	}
+	if(This->m_master != 0)
+		This->m_master->timeProcessDown(size*nmemb);
 	
 	return ok ? size*nmemb : 0;
 }
@@ -74,5 +64,19 @@ void CurlUser::setSegmentMaster(CurlStat* master)
 CurlStat* CurlUser::segmentMaster() const
 {
 	return m_master;
+}
+
+bool CurlUser::idleCycle(const timeval& tvNow)
+{
+	int seconds = tvNow.tv_sec - lastOperation().tv_sec;
+	
+	if(seconds > TRANSFER_TIMEOUT)
+		return false;
+	else if(seconds > 1)
+	{
+		read_function(0, 0, 0, this);
+		write_function(0, 0, 0, this);
+	}
+	return true;
 }
 

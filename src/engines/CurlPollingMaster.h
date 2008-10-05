@@ -18,35 +18,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef CURLPOLLINGMASTER_H
+#define CURLPOLLINGMASTER_H
+#include "CurlPoller.h"
 
-#ifndef CURLUSER_H
-#define CURLUSER_H
-#include "CurlStat.h"
-#include <curl/curl.h>
-#include <QList>
-#include <QPair>
-
-class CurlUser : public CurlStat
+class CurlPollingMaster : public CurlPoller, public CurlStat
 {
 public:
-	CurlUser();
-	virtual ~CurlUser();
-	
-	virtual size_t readData(char* buffer, size_t maxData) { return 0;}
-	virtual bool writeData(const char* buffer, size_t bytes) { return false; }
-	virtual void transferDone(CURLcode result) = 0;
-	virtual CURL* curlHandle() = 0;
+	void doWork();
+	int handle();
 	virtual bool idleCycle(const timeval& tvNow);
-	
-	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
-	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
-protected:
-	void setSegmentMaster(CurlStat* master);
-	CurlStat* segmentMaster() const;
-	
-	friend class CurlPoller;
-private:
-	CurlStat* m_master;
 };
 
 #endif

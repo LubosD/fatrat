@@ -116,6 +116,7 @@ int CurlDownload::acceptable(QString uri, bool)
 
 void CurlDownload::globalInit()
 {
+	CurlPoller::init();
 	new CurlPoller;
 	
 	SettingsItem si;

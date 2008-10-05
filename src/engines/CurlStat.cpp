@@ -153,7 +153,6 @@ bool CurlStat::performsLimiting() const
 	return m_up.max || m_down.max;
 }
 
-
 void CurlStat::setMaxUp(int bytespersec)
 {
 	m_up.max = bytespersec;
@@ -162,4 +161,16 @@ void CurlStat::setMaxUp(int bytespersec)
 void CurlStat::setMaxDown(int bytespersec)
 {
 	m_down.max = bytespersec;
+}
+
+void CurlStat::timeProcessDown(size_t bytes)
+{
+	QWriteLocker l(&m_statsMutex);
+	timeProcess(m_down, bytes);
+}
+
+void CurlStat::timeProcessUp(size_t bytes)
+{
+	QWriteLocker l(&m_statsMutex);
+	timeProcess(m_up, bytes);
 }

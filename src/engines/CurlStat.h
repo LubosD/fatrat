@@ -42,6 +42,8 @@ public:
 	timeval lastOperation() const;
 	void resetStatistics();
 	
+	virtual bool idleCycle(const timeval& tvNow) = 0;
+	
 	typedef QPair<long long,long> timedata_pair;
 	
 	struct SpeedData
@@ -55,6 +57,9 @@ protected:
 	static int computeSpeed(const QList<timedata_pair>& data);
 	static void timeProcess(SpeedData& data, size_t bytes);
 	static bool isNull(const timeval& t);
+	
+	void timeProcessDown(size_t bytes);
+	void timeProcessUp(size_t bytes);
 protected:
 	SpeedData m_down, m_up;
 	mutable QReadWriteLock m_statsMutex;
