@@ -67,7 +67,7 @@ private:
 	QBuffer* m_buffer;
 	int m_nSecondsLeft;
 	QTimer m_timer;
-	bool m_bHasLock;
+	bool m_bHasLock, m_bLongWaiting;
 	QUuid m_proxy;
 };
 

@@ -116,12 +116,14 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 {
 	if(bActive)
 	{
-		if(!m_mInstanceActive.tryLock())
+		if(!m_bHasLock && !m_mInstanceActive.tryLock())
 		{
 			enterLogMessage(m_strMessage = tr("You cannot have multiple RS.com FREE downloads."));
 			setState(Failed);
 			return;
 		}
+		
+		m_bLongWaiting = false;
 		
 		QUrl url(m_strOriginal);
 		m_http = new QHttp("rapidshare.com", 80, this);
@@ -157,27 +159,35 @@ void RapidshareFreeDownload::secondElapsed()
 	
 	if(--m_nSecondsLeft <= 0)
 	{
-		m_strMessage.clear();
-		m_timer.stop();
-		
-		try
+		if(m_bLongWaiting)
 		{
-			m_nTotal = 0;
-			
-			CurlDownload::init(m_downloadUrl.toString(), m_strTarget);
-			m_urls[0].proxy = m_proxy;
-			QFile::remove(filePath());
-			CurlDownload::changeActive(true);
+			// restart the procedure
+			changeActive(true);
 		}
-		catch(const RuntimeException& e)
+		else
 		{
-			m_strMessage = e.what();
-			setState(Failed);
+			m_strMessage.clear();
+			m_timer.stop();
+			
+			try
+			{
+				m_nTotal = 0;
+				
+				CurlDownload::init(m_downloadUrl.toString(), m_strTarget);
+				m_urls[0].proxy = m_proxy;
+				QFile::remove(filePath());
+				CurlDownload::changeActive(true);
+			}
+			catch(const RuntimeException& e)
+			{
+				m_strMessage = e.what();
+				setState(Failed);
+			}
 		}
 	}
 	else
 	{
-		m_strMessage = tr("%1 seconds left").arg(m_nSecondsLeft);
+		m_strMessage = tr("%1:%2 seconds left").arg(m_nSecondsLeft/60).arg(m_nSecondsLeft%60);
 	}
 }
 
@@ -231,9 +241,18 @@ void RapidshareFreeDownload::secondPageDone(bool error)
 		
 		QRegExp re("var c=(\\d+);");
 		if(re.indexIn(m_buffer->data()) < 0)
-			throw tr("Failed to parse the download's waiting page.");
+		{
+			re.setPattern("Or try again in about (\\d+) minutes.");
+			if(re.indexIn(m_buffer->data()) < 0)
+				throw tr("Failed to parse the download's waiting page.");
+			m_bLongWaiting = true;
+		}
 		
 		m_nSecondsLeft = re.cap(1).toInt();
+		
+		if(m_bLongWaiting)
+			m_nSecondsLeft *= 60; // it is actually minutes
+		
 		m_timer.start(1000);
 		
 		QRegExp re2("<form name=\"dlf\" action=\"([^\"]+)");
