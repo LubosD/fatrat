@@ -30,6 +30,7 @@ CurlStat::CurlStat()
 	m_down.stats = new timedata_pair[MAX_STATS];
 	m_up.stats = new timedata_pair[MAX_STATS];
 	m_down.nextStat = m_up.nextStat = 0;
+	resetStatistics();
 }
 
 CurlStat::~CurlStat()

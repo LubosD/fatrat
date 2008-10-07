@@ -111,6 +111,10 @@ void CurlPoller::pollingCycle(bool oneshot)
 	else
 		m_timeout = m_curlTimeout;
 	
+	for(int i = 0; i < m_socketsToRemove.size(); i++)
+		m_sockets.remove(m_socketsToRemove[i]);
+	m_socketsToRemove.clear();
+	
 	for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 	{
 		int mask = 0;
@@ -179,10 +183,6 @@ void CurlPoller::pollingCycle(bool oneshot)
 		if(user)
 			user->transferDone(msg->data.result);
 	}
-	
-	for(int i = 0; i < m_socketsToRemove.size(); i++)
-		m_sockets.remove(m_socketsToRemove[i]);
-	m_socketsToRemove.clear();
 	
 	for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
 		m_sockets[it.key()] = it.value();
