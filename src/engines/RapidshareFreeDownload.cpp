@@ -159,6 +159,9 @@ void RapidshareFreeDownload::secondElapsed()
 	
 	if(--m_nSecondsLeft <= 0)
 	{
+		m_strMessage.clear();
+		m_timer.stop();
+		
 		if(m_bLongWaiting)
 		{
 			// restart the procedure
@@ -166,9 +169,6 @@ void RapidshareFreeDownload::secondElapsed()
 		}
 		else
 		{
-			m_strMessage.clear();
-			m_timer.stop();
-			
 			try
 			{
 				m_nTotal = 0;
