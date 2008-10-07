@@ -20,13 +20,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CurlStat.h"
 
-static const int MAX_STATS = 5;
+const int CurlStat::MAX_STATS = 5;
 
 bool operator<(const timeval& t1, const timeval& t2);
 
 CurlStat::CurlStat()
 {
 	m_down.max = m_up.max = 0;
+	m_down.stats = new timedata_pair[MAX_STATS];
+	m_up.stats = new timedata_pair[MAX_STATS];
+	m_down.nextStat = m_up.nextStat = 0;
+}
+
+CurlStat::~CurlStat()
+{
+	delete [] m_down.stats;
+	delete [] m_up.stats;
 }
 
 timeval CurlStat::lastOperation() const
@@ -52,10 +61,9 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 		
 		if(data.accum.first > 1000000LL)
 		{
-			data.stats << data.accum;
-			
-			if(data.stats.size() > MAX_STATS)
-				data.stats.pop_front();
+			if(data.nextStat >= MAX_STATS)
+				data.nextStat = 0;
+			data.stats[data.nextStat++] = data.accum;
 			
 			data.accum = timedata_pair(0,0);
 		}
@@ -84,9 +92,6 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 
 void CurlStat::resetStatistics()
 {
-	m_down.stats.clear();
-	m_up.stats.clear();
-	
 	m_down.accum = m_up.accum = timedata_pair(0,0);
 	
 	memset(&m_down.last, 0, sizeof(m_down.last));
@@ -95,15 +100,18 @@ void CurlStat::resetStatistics()
 	memset(&m_down.next, 0, sizeof m_down.next);
 	memset(&m_up.next, 0, sizeof m_up.next);
 	
+	memset(m_down.stats, 0, sizeof(*m_down.stats)*MAX_STATS);
+	memset(m_up.stats, 0, sizeof(*m_up.stats)*MAX_STATS);
+	
 	gettimeofday(&m_down.lastOp, 0);
 	m_up.lastOp = m_down.lastOp;
 }
 
-int CurlStat::computeSpeed(const QList<timedata_pair>& data)
+int CurlStat::computeSpeed(const timedata_pair* data)
 {
 	long long time = 0, bytes = 0;
 	
-	for(int i=0;i<data.size();i++)
+	for(int i=0;i<MAX_STATS;i++)
 	{
 		time += data[i].first;
 		bytes += data[i].second;

@@ -28,6 +28,8 @@ class CurlStat
 {
 public:
 	CurlStat();
+	virtual ~CurlStat();
+	
 	void speeds(int& down, int& up) const;
 	void setMaxUp(int bytespersec);
 	void setMaxDown(int bytespersec);
@@ -48,13 +50,16 @@ public:
 	
 	struct SpeedData
 	{
-		QList<timedata_pair> stats;
+		timedata_pair* stats;
 		timeval last, next, lastOp;
 		timedata_pair accum;
 		int max;
+		int nextStat;
 	};
+	
+	static const int MAX_STATS;
 protected:
-	static int computeSpeed(const QList<timedata_pair>& data);
+	static int computeSpeed(const timedata_pair* data);
 	static void timeProcess(SpeedData& data, size_t bytes);
 	static bool isNull(const timeval& t);
 	
