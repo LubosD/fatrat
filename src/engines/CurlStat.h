@@ -67,7 +67,6 @@ protected:
 	void timeProcessUp(size_t bytes);
 protected:
 	SpeedData m_down, m_up;
-	mutable QReadWriteLock m_statsMutex;
 	
 	friend class CurlUser;
 };

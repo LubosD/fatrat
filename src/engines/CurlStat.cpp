@@ -130,8 +130,6 @@ bool CurlStat::isNull(const timeval& t)
 
 void CurlStat::speeds(int& down, int& up) const
 {
-	QReadLocker l(&m_statsMutex);
-	
 	down = computeSpeed(m_down.stats);
 	up = computeSpeed(m_up.stats);
 }
@@ -173,12 +171,10 @@ void CurlStat::setMaxDown(int bytespersec)
 
 void CurlStat::timeProcessDown(size_t bytes)
 {
-	QWriteLocker l(&m_statsMutex);
 	timeProcess(m_down, bytes);
 }
 
 void CurlStat::timeProcessUp(size_t bytes)
 {
-	QWriteLocker l(&m_statsMutex);
 	timeProcess(m_up, bytes);
 }
