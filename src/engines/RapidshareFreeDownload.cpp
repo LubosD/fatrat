@@ -249,17 +249,18 @@ void RapidshareFreeDownload::secondPageDone(bool error)
 		}
 		
 		m_nSecondsLeft = re.cap(1).toInt();
+		m_timer.start(1000);
 		
 		if(m_bLongWaiting)
 			m_nSecondsLeft *= 60; // it is actually minutes
-		
-		m_timer.start(1000);
-		
-		QRegExp re2("<form name=\"dlf\" action=\"([^\"]+)");
-		if(re2.indexIn(m_buffer->data()) < 0)
-			throw tr("Failed to parse the download's waiting page.");
-		
-		m_downloadUrl = re2.cap(1);
+		else
+		{
+			QRegExp re2("<form name=\"dlf\" action=\"([^\"]+)");
+			if(re2.indexIn(m_buffer->data()) < 0)
+				throw tr("Failed to parse the download's waiting page.");
+			
+			m_downloadUrl = re2.cap(1);
+		}
 	}
 	catch(QString err)
 	{
