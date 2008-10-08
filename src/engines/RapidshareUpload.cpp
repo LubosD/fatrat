@@ -861,17 +861,23 @@ void RapidshareSettings::accepted()
 		}
 	}
 	
-	if(!acctype && ix >= 0)
-		auths.removeAt(ix);
-	else if(ix >= 0)
+	if(!acctype)
 	{
-		auths[ix].strUser = user;
-		auths[ix].strPassword = password;
+		if(ix >= 0)
+			auths.removeAt(ix);
 	}
 	else
 	{
-		Auth auth = { REGEXP, user, password };
-		auths << auth;
+		if(ix >= 0)
+		{
+			auths[ix].strUser = user;
+			auths[ix].strPassword = password;
+		}
+		else
+		{
+			Auth auth = { REGEXP, user, password };
+			auths << auth;
+		}
 	}
 	
 	Auth::saveAuths(auths);

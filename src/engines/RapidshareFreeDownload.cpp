@@ -187,7 +187,7 @@ void RapidshareFreeDownload::secondElapsed()
 	}
 	else
 	{
-		m_strMessage = tr("%1:%2 seconds left").arg(m_nSecondsLeft/60).arg(m_nSecondsLeft%60);
+		m_strMessage = tr("%1:%2 seconds left").arg(m_nSecondsLeft/60).arg(m_nSecondsLeft%60,2,10,QChar('0'));
 	}
 }
 
