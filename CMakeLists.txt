@@ -186,6 +186,7 @@ set(fatrat_MOC_HDRS
 	src/UserAuthDlg.h
 	src/NewTransferDlg.h
 	src/Logger.h
+	src/MyApplication.h
 	src/engines/OutputBuffer.h
 	
 	src/tools/HashDlg.h

@@ -20,10 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef MYAPPLICATION_H
 #define MYAPPLICATION_H
+#include <QApplication>
+#include <QMessageBox>
 #include <typeinfo>
+#include "RuntimeException.h"
 
 class MyApplication : public QApplication
 {
+Q_OBJECT
 public:
 	MyApplication(int& argc, char** argv, bool gui)
 		: QApplication(argc, argv, gui)

@@ -77,6 +77,11 @@
         <source>Web interface</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/AboutDlg.cpp" line="77"/>
+        <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;File name: %2&lt;br&gt;Author: %3&lt;br&gt;Web site: &lt;a href=&quot;%4&quot;&gt;%4&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AutoActionForm</name>
@@ -226,37 +231,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="139"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="140"/>
         <source>Cannot move the file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="176"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="179"/>
         <source>No URLs have been given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="483"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="496"/>
         <source>Switch mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="486"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="499"/>
         <source>Compute hash...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="500"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="513"/>
         <source>No mirror to switch to!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="503"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="516"/>
         <source>Switching mirror: %1 -&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="518"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="531"/>
         <source>You&apos;re about to compute hash from an incomplete download.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -279,7 +284,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="329"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="338"/>
         <source>Compute hash...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -353,17 +358,17 @@
 <context>
     <name>FtpUploadOptsForm</name>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="364"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="373"/>
         <source>Active mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="364"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="373"/>
         <source>Passive mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="367"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="376"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation type="unfinished"></translation>
@@ -546,17 +551,17 @@
 <context>
     <name>HttpUrlOptsDlg</name>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="152"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="151"/>
         <source>Active mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="152"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="151"/>
         <source>Passive mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="161"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="160"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation type="unfinished"></translation>
@@ -606,6 +611,11 @@
         <source>Bind IP address:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="211"/>
+        <source>%1 is not a supported URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>JabberService</name>
@@ -643,22 +653,6 @@ pass yourpassword</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="358"/>
-        <source>List of commands:
-qlist - Show list of queues
-qset - Set current queue ID
-list - Show transfers of the current queue
-pauseall/resumeall - Pause/resume all transfers
-pause/resume/delete - Pause/resume/delete specified transfers
-logout/quit/exit - Log out
-
-Pass arguments like this: &quot;resume 1 3 5&quot;, use indexes from the lists
-
-add/new - Add new transfers
-This command needs special arguments. See more at http://fatrat.dolezel.info/doc/jabber.xhtml</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/remote/JabberService.cpp" line="363"/>
         <source>List of queues:</source>
         <translation type="unfinished"></translation>
@@ -680,7 +674,7 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="536"/>
+        <location filename="../src/remote/JabberService.cpp" line="543"/>
         <source>Invalid queue ID.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -690,7 +684,7 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="447"/>
+        <location filename="../src/remote/JabberService.cpp" line="448"/>
         <source>
 #%1 %2</source>
         <translation type="unfinished"></translation>
@@ -701,123 +695,118 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="436"/>
+        <location filename="../src/remote/JabberService.cpp" line="437"/>
         <source>Set transfer states:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="477"/>
+        <location filename="../src/remote/JabberService.cpp" line="479"/>
         <source>
 #%1 Invalid transfer ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="469"/>
+        <location filename="../src/remote/JabberService.cpp" line="471"/>
         <source>Removing transfers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="484"/>
+        <location filename="../src/remote/JabberService.cpp" line="488"/>
         <source>Nothing to add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="501"/>
+        <location filename="../src/remote/JabberService.cpp" line="508"/>
         <source>Unknown command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="529"/>
+        <location filename="../src/remote/JabberService.cpp" line="536"/>
         <source>[%2] - &quot;%3&quot;; %5 down, %6 up; %7% out of %8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="555"/>
+        <location filename="../src/remote/JabberService.cpp" line="562"/>
         <source>New chat session: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="604"/>
+        <location filename="../src/remote/JabberService.cpp" line="611"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="618"/>
+        <location filename="../src/remote/JabberService.cpp" line="625"/>
         <source>Disconnected:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="623"/>
+        <location filename="../src/remote/JabberService.cpp" line="630"/>
         <source>Stream error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="625"/>
+        <location filename="../src/remote/JabberService.cpp" line="632"/>
         <source>Stream version error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="627"/>
+        <location filename="../src/remote/JabberService.cpp" line="634"/>
         <source>Stream closed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="629"/>
+        <location filename="../src/remote/JabberService.cpp" line="636"/>
         <source>Proxy authentication required</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="631"/>
+        <location filename="../src/remote/JabberService.cpp" line="638"/>
         <source>Proxy authentication failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="633"/>
+        <location filename="../src/remote/JabberService.cpp" line="640"/>
         <source>The proxy requires an unsupported auth mechanism</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="635"/>
+        <location filename="../src/remote/JabberService.cpp" line="642"/>
         <source>I/O error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="637"/>
+        <location filename="../src/remote/JabberService.cpp" line="644"/>
         <source>XML parse error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="639"/>
+        <location filename="../src/remote/JabberService.cpp" line="646"/>
         <source>Failed to connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="641"/>
+        <location filename="../src/remote/JabberService.cpp" line="648"/>
         <source>Failed to resolve the domain name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="643"/>
+        <location filename="../src/remote/JabberService.cpp" line="650"/>
         <source>Out of memory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="645"/>
+        <location filename="../src/remote/JabberService.cpp" line="652"/>
         <source>The server doesn&apos;t provide any supported authentication mechanism</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="647"/>
+        <location filename="../src/remote/JabberService.cpp" line="654"/>
         <source>Authentication failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="649"/>
-        <source>The user was disconnect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/remote/JabberService.cpp" line="651"/>
+        <location filename="../src/remote/JabberService.cpp" line="658"/>
         <source>Other reason</source>
         <translation type="unfinished"></translation>
     </message>
@@ -827,8 +816,29 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="496"/>
+        <location filename="../src/remote/JabberService.cpp" line="503"/>
         <source>Transfer(s) added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/remote/JabberService.cpp" line="358"/>
+        <source>List of commands:
+qlist - Show list of queues
+qset - Set current queue ID
+list - Show transfers of the current queue
+pauseall/resumeall - Pause/resume all transfers
+pause/resume/delete - Pause/resume/delete specified transfers
+logout/quit/exit - Log out
+
+Pass arguments like this: &quot;resume 1 3 5&quot;, use indexes from the lists
+
+add/new - Add new transfers
+This command needs special arguments. See more in the documentation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/remote/JabberService.cpp" line="656"/>
+        <source>The user was disconnected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -848,338 +858,389 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../ui_MainWindow.h" line="683"/>
+        <location filename="../ui_MainWindow.h" line="681"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="531"/>
+        <location filename="../src/MainWindow.cpp" line="533"/>
         <source>Queue&apos;s speed: %1 down, %2 up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="632"/>
+        <location filename="../ui_MainWindow.h" line="624"/>
         <source>Delete queue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="569"/>
+        <location filename="../src/MainWindow.cpp" line="573"/>
         <source>Do you really want to delete the active queue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="635"/>
+        <location filename="../ui_MainWindow.h" line="627"/>
         <source>New transfer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1132"/>
+        <location filename="../src/MainWindow.cpp" line="1154"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="954"/>
+        <location filename="../src/MainWindow.cpp" line="976"/>
         <source>Internal error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="895"/>
+        <location filename="../src/MainWindow.cpp" line="917"/>
         <source>Failed to create a class instance.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="928"/>
+        <location filename="../src/MainWindow.cpp" line="950"/>
         <source>Transfer details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1013"/>
+        <location filename="../src/MainWindow.cpp" line="1035"/>
         <source>Delete transfers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="988"/>
+        <location filename="../src/MainWindow.cpp" line="1010"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1014"/>
+        <location filename="../src/MainWindow.cpp" line="1036"/>
         <source>Do you really want to delete selected transfers &lt;b&gt;including the data&lt;/b&gt;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1101"/>
+        <location filename="../src/MainWindow.cpp" line="1123"/>
         <source>Generic options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="678"/>
+        <location filename="../ui_MainWindow.h" line="676"/>
         <source>Details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1104"/>
+        <location filename="../src/MainWindow.cpp" line="1126"/>
         <source>Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1105"/>
+        <location filename="../src/MainWindow.cpp" line="1127"/>
         <source>Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="675"/>
+        <location filename="../ui_MainWindow.h" line="673"/>
         <source>Transfer properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1169"/>
+        <location filename="../src/MainWindow.cpp" line="1191"/>
         <source>completed %1 from %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1171"/>
+        <location filename="../src/MainWindow.cpp" line="1193"/>
         <source>completed %1, total size unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1193"/>
+        <location filename="../src/MainWindow.cpp" line="1215"/>
         <source>, %1 left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1424"/>
+        <location filename="../src/MainWindow.cpp" line="1446"/>
         <source>Transfer completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1425"/>
+        <location filename="../src/MainWindow.cpp" line="1447"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="685"/>
+        <location filename="../ui_MainWindow.h" line="683"/>
         <source>FatRat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="666"/>
+        <location filename="../ui_MainWindow.h" line="664"/>
         <source>Transfers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="664"/>
+        <location filename="../ui_MainWindow.h" line="662"/>
         <source>Queues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="667"/>
+        <location filename="../ui_MainWindow.h" line="665"/>
         <source>&lt;b&gt;Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="668"/>
+        <location filename="../ui_MainWindow.h" line="666"/>
         <source>&lt;b&gt;Progress:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="669"/>
+        <location filename="../ui_MainWindow.h" line="667"/>
         <source>&lt;b&gt;Destination:&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="670"/>
+        <location filename="../ui_MainWindow.h" line="668"/>
         <source>&lt;b&gt;Speed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="671"/>
+        <location filename="../ui_MainWindow.h" line="669"/>
         <source>&lt;b&gt;Message:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="672"/>
+        <location filename="../ui_MainWindow.h" line="670"/>
         <source>&lt;b&gt;Running for:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="679"/>
+        <location filename="../ui_MainWindow.h" line="677"/>
         <source>Speed graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="682"/>
+        <location filename="../ui_MainWindow.h" line="680"/>
         <source>Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="680"/>
+        <location filename="../ui_MainWindow.h" line="678"/>
         <source>Transfer log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="681"/>
+        <location filename="../ui_MainWindow.h" line="679"/>
         <source>Global log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="684"/>
+        <location filename="../ui_MainWindow.h" line="682"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="686"/>
+        <location filename="../ui_MainWindow.h" line="684"/>
         <source>Transfer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="687"/>
+        <location filename="../ui_MainWindow.h" line="685"/>
         <source>Queue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="688"/>
+        <location filename="../ui_MainWindow.h" line="686"/>
         <source>Main toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="630"/>
+        <location filename="../ui_MainWindow.h" line="621"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="631"/>
+        <location filename="../ui_MainWindow.h" line="623"/>
         <source>New queue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="633"/>
+        <location filename="../ui_MainWindow.h" line="625"/>
         <source>Start all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="634"/>
+        <location filename="../ui_MainWindow.h" line="626"/>
         <source>Pause all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="636"/>
+        <location filename="../ui_MainWindow.h" line="629"/>
         <source>Delete transfer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="637"/>
+        <location filename="../ui_MainWindow.h" line="631"/>
         <source>Start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="638"/>
+        <location filename="../ui_MainWindow.h" line="633"/>
         <source>Force start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="639"/>
+        <location filename="../ui_MainWindow.h" line="635"/>
         <source>Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="640"/>
+        <location filename="../ui_MainWindow.h" line="637"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="641"/>
+        <location filename="../ui_MainWindow.h" line="638"/>
         <source>Move to top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="642"/>
+        <location filename="../ui_MainWindow.h" line="639"/>
         <source>Move up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="643"/>
+        <location filename="../ui_MainWindow.h" line="640"/>
         <source>Move down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="644"/>
+        <location filename="../ui_MainWindow.h" line="641"/>
         <source>Move to bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="645"/>
+        <location filename="../ui_MainWindow.h" line="642"/>
         <source>Remove completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="646"/>
+        <location filename="../ui_MainWindow.h" line="643"/>
         <source>About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="651"/>
+        <location filename="../ui_MainWindow.h" line="648"/>
         <source>Display info bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="658"/>
+        <location filename="../ui_MainWindow.h" line="655"/>
         <source>Properties...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="655"/>
+        <location filename="../ui_MainWindow.h" line="652"/>
         <source>Hide all info bars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="656"/>
+        <location filename="../ui_MainWindow.h" line="653"/>
         <source>Display main window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="657"/>
+        <location filename="../ui_MainWindow.h" line="654"/>
         <source>Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="659"/>
+        <location filename="../ui_MainWindow.h" line="656"/>
         <source>Display the drop-box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="660"/>
+        <location filename="../ui_MainWindow.h" line="657"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="661"/>
+        <location filename="../ui_MainWindow.h" line="658"/>
         <source>Open directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="662"/>
+        <location filename="../ui_MainWindow.h" line="659"/>
         <source>Compute hash...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="663"/>
+        <location filename="../ui_MainWindow.h" line="660"/>
         <source>Delete transfer including data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="885"/>
+        <location filename="../src/MainWindow.cpp" line="907"/>
         <source>Couldn&apos;t autodetect transfer type for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1448"/>
+        <location filename="../src/MainWindow.cpp" line="1470"/>
         <source>Transfer failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1449"/>
+        <location filename="../src/MainWindow.cpp" line="1471"/>
         <source>The transfer &quot;%1&quot; has failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="622"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="628"/>
+        <source>Ctrl+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="630"/>
+        <source>Del</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="632"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="634"/>
+        <source>Ctrl+F</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="636"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="661"/>
+        <source>Shift+Del</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MyApplication</name>
+    <message>
+        <location filename="../src/MyApplication.h" line="53"/>
+        <source>Unhandled exception</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MyApplication.h" line="56"/>
+        <source>The main handler has caught the following exception. This is a bug and should be reported as such.
+
+Type of exception: %1
+Message: %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1352,18 +1413,18 @@ This command needs special arguments. See more at http://fatrat.dolezel.info/doc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="220"/>
+        <location filename="../src/fatrat.cpp" line="222"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="380"/>
+        <location filename="../src/fatrat.cpp" line="382"/>
         <source>Unable to load a data file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Queue.cpp" line="75"/>
+        <location filename="../src/Queue.cpp" line="76"/>
         <source>Main queue</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1378,17 +1439,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="420"/>
+        <location filename="../src/fatrat.cpp" line="422"/>
         <source>Loaded a plugin:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="431"/>
+        <location filename="../src/fatrat.cpp" line="433"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="436"/>
+        <location filename="../src/fatrat.cpp" line="438"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1396,43 +1457,71 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>QueueDlg</name>
     <message>
-        <location filename="../ui_QueueDlg.h" line="165"/>
+        <location filename="../ui_QueueDlg.h" line="211"/>
         <source>Queue properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="166"/>
-        <source>Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui_QueueDlg.h" line="167"/>
+        <location filename="../ui_QueueDlg.h" line="217"/>
         <source>Down speed limit (kiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="168"/>
+        <location filename="../ui_QueueDlg.h" line="218"/>
         <source>Up speed limit (kiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="169"/>
+        <location filename="../ui_QueueDlg.h" line="219"/>
         <source>Limit active transfer count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="170"/>
+        <location filename="../ui_QueueDlg.h" line="220"/>
         <source>Maximum active download transfers:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="171"/>
+        <location filename="../ui_QueueDlg.h" line="221"/>
         <source>Maximum active upload transfers:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="172"/>
+        <location filename="../ui_QueueDlg.h" line="222"/>
         <source>Count as downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/QueueDlg.cpp" line="111"/>
+        <source>Choose directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="212"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="213"/>
+        <source>Destination directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="216"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="215"/>
+        <source>Move transfers after completion</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QueueMgr</name>
+    <message>
+        <location filename="../src/QueueMgr.cpp" line="209"/>
+        <source>Failed to move the transfer&apos;s data: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1447,12 +1536,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidTools</name>
     <message>
-        <location filename="../src/tools/RapidTools.cpp" line="271"/>
+        <location filename="../src/tools/RapidTools.cpp" line="272"/>
         <source>An invalid link has been encountered: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.cpp" line="305"/>
+        <location filename="../src/tools/RapidTools.cpp" line="306"/>
         <source>Server failed to process our query.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1535,48 +1624,48 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareFreeDownload</name>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="119"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="121"/>
         <source>You cannot have multiple RS.com FREE downloads.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="130"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="136"/>
         <source>Loading the first page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="175"/>
-        <source>%1 seconds left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="189"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="204"/>
         <source>Failed to load the download&apos;s first page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="193"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="208"/>
         <source>Failed to parse the download&apos;s first page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="202"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="219"/>
         <source>Loading the second page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="223"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="240"/>
         <source>Failed to load the download&apos;s waiting page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="234"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="260"/>
         <source>Failed to parse the download&apos;s waiting page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="273"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="300"/>
         <source>Failed to download the file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="190"/>
+        <source>%1:%2 seconds left</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1636,22 +1725,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareOptsWidget</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="638"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="658"/>
         <source>No account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="638"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="658"/>
         <source>Collector&apos;s account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="638"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="658"/>
         <source>Premium account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="672"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="692"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation type="unfinished"></translation>
@@ -1660,22 +1749,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareSettings</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="781"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="801"/>
         <source>No account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="781"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="801"/>
         <source>Collector&apos;s account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="781"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="801"/>
         <source>Premium account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="810"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="830"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation type="unfinished"></translation>
@@ -1684,86 +1773,78 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareUpload</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="192"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="198"/>
         <source>You have to enter your account information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="406"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="426"/>
         <source>This file is forbidden to be shared</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="409"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="429"/>
         <source>Invalid username</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="412"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="432"/>
         <source>Invalid password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="426"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="446"/>
         <source>Failed to find the file ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="435"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="455"/>
         <source>Failed to find the kill ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="442"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="462"/>
         <source>Download link:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="451"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="471"/>
         <source>Kill link:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="477"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="497"/>
         <source>Cannot append to file &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="493"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="513"/>
         <source>Failed to get server ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="500"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="520"/>
         <source>Uploading to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="507"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="527"/>
         <source>Failed to query resume information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="528"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="548"/>
         <source>File ID %1 validated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="216"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="231"/>
         <source>Can&apos;t open the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="260"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="278"/>
         <source>The maximum file size is 200 MB/2 GB (premium)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RapidshareUploadDetailsForm</name>
-    <message>
-        <location filename="../ui_RapidshareUploadDetailsForm.h" line="57"/>
-        <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1827,22 +1908,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RssFetcher</name>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="149"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="150"/>
         <source>Failed to parse the feed &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="155"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="156"/>
         <source>Failed to fetch the feed &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="218"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="219"/>
         <source>The transfer wasn&apos;t accepted by any class: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="221"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="222"/>
         <source>Automatically adding a new transfer: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1989,150 +2070,135 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsGeneralForm</name>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="38"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="35"/>
         <source>switches to transfer details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="39"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="36"/>
         <source>switches to the graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="39"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="36"/>
         <source>opens the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="39"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="36"/>
         <source>opens the parent directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="41"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="38"/>
         <source>switch to the next tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="41"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="38"/>
         <source>switch to the previous active tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="43"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="40"/>
         <source>a newline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="43"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="40"/>
         <source>whitespace characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="77"/>
-        <source>Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="77"/>
-        <source>The specified directory is inaccessible.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="107"/>
-        <source>Choose directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="208"/>
-        <source>Default destination directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="209"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="212"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="201"/>
         <source>Display speed graphs for last</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="213"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="202"/>
         <source>minutes</source>
         <comment>last X minutes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="215"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="204"/>
         <source>Open files/directories by running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="217"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="206"/>
         <source>Display the tray icon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="218"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="207"/>
         <source>Hide by minimizing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="219"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="208"/>
         <source>Hide by closing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="220"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="210"/>
         <source>A doubleclick on a transfer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="221"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="211"/>
         <source>When the current tab is closed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="222"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="212"/>
         <source>Links in a list are separated by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="210"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="199"/>
         <source>Refresh GUI every</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="211"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="200"/>
         <source>seconds</source>
         <comment>every X seconds</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="216"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="205"/>
         <source>Enable GUI CSS styling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="207"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="198"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="45"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="42"/>
         <source>Filled graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="45"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="42"/>
         <source>Line graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="214"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="203"/>
         <source>Speed graph style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsGeneralForm.h" line="209"/>
+        <source>Tray icon click hides an unfocused window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsGeneralForm.h" line="213"/>
+        <source>&lt;a href=&quot;manageFavs&quot;&gt;Manage favorite directories...&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2246,47 +2312,47 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="150"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="151"/>
         <source>Line speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="151"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="152"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="154"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="155"/>
         <source>KB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="153"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="154"/>
         <source>Upload</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="155"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="156"/>
         <source>Proxy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="156"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="157"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="157"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="158"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="158"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="159"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="149"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="150"/>
         <source>Network</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2294,12 +2360,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsQueueForm</name>
     <message>
-        <location filename="../src/SettingsQueueForm.cpp" line="65"/>
+        <location filename="../src/SettingsQueueForm.cpp" line="67"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/SettingsQueueForm.cpp" line="65"/>
+        <location filename="../src/SettingsQueueForm.cpp" line="67"/>
         <source>The e-mail address is incorrect.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2382,196 +2448,201 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsRssForm</name>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="178"/>
+        <location filename="../ui_SettingsRssForm.h" line="185"/>
         <source>Automatically download new stuff from RSS feeds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="179"/>
+        <location filename="../ui_SettingsRssForm.h" line="186"/>
         <source>Update interval</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="180"/>
+        <location filename="../ui_SettingsRssForm.h" line="187"/>
         <source>minutes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="181"/>
+        <location filename="../ui_SettingsRssForm.h" line="193"/>
         <source>RSS feeds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="186"/>
+        <location filename="../ui_SettingsRssForm.h" line="194"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="187"/>
+        <location filename="../ui_SettingsRssForm.h" line="195"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="188"/>
+        <location filename="../ui_SettingsRssForm.h" line="196"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="185"/>
+        <location filename="../ui_SettingsRssForm.h" line="197"/>
         <source>Regular expressions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="177"/>
+        <location filename="../ui_SettingsRssForm.h" line="184"/>
         <source>RSS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="189"/>
+        <location filename="../ui_SettingsRssForm.h" line="188"/>
         <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsRssForm.h" line="189"/>
+        <source>General</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SettingsTorrentForm</name>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="401"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="397"/>
         <source>BitTorrent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="402"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="398"/>
         <source>Listen port start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="403"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="399"/>
         <source>Listen port end</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="404"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="400"/>
         <source>Seed up to ratio (default value)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="405"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="401"/>
         <source>Maximum connections (global/per torrent)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="406"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="402"/>
         <source>Maximum uploads (global/per torrent)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="407"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="403"/>
         <source>Maximum open files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="408"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="404"/>
         <source>File allocation mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="409"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="405"/>
         <source>External IP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="406"/>
         <source>Enable distributed tracker (DHT)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="407"/>
         <source>Enable uTorrent Peer Exchange</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
         <source>Encryption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
         <source>Encryption of incoming connections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
         <source>Encryption of outgoing connections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="413"/>
         <source>Encryption levels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
         <source>Prefer RC4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
         <source>Proxy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
         <source>Tracker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
         <source>Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
         <source>Web seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="426"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
         <source>Port mapping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
         <source>Enable UPnP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="425"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
         <source>Enable NAT-PMP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="413"/>
-        <source>&lt;a href=&quot;cleanup&quot;&gt;Clean up the .torrent storage&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="428"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
         <source>Torrent search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="427"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
         <source>Open pages with details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="408"/>
         <source>Enable Local Service Discovery</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsTorrentForm.h" line="409"/>
+        <source>Clean up the .torrent storage</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2595,24 +2666,6 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_SettingsWebForm.h" line="93"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SftpEngine</name>
-    <message>
-        <location filename="../src/engines/SftpClient.cpp" line="64"/>
-        <source>Failed to open file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/engines/SftpClient.cpp" line="169"/>
-        <source>Failed to open remote file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/engines/SftpClient.cpp" line="188"/>
-        <source>Error reading/writing data</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3373,7 +3426,7 @@ of data has been uploaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Transfer.cpp" line="265"/>
+        <location filename="../src/Transfer.cpp" line="245"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>

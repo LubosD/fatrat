@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="cs">
-<defaultcodec></defaultcodec>
 <context>
     <name>AboutDlg</name>
     <message>
@@ -77,6 +76,11 @@
         <location filename="../ui_AboutDlg.h" line="259"/>
         <source>Web interface</source>
         <translation>Webové rozhranie</translation>
+    </message>
+    <message>
+        <location filename="../src/AboutDlg.cpp" line="77"/>
+        <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;File name: %2&lt;br&gt;Author: %3&lt;br&gt;Web site: &lt;a href=&quot;%4&quot;&gt;%4&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -230,37 +234,37 @@
         <translation>Nepodporovaný protokol &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="176"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="179"/>
         <source>No URLs have been given</source>
         <translation>Nebola zadaná žiadna URL</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="483"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="496"/>
         <source>Switch mirror</source>
         <translation>Zmeniť zrkadlo</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="486"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="499"/>
         <source>Compute hash...</source>
         <translation>Vypočítať hash...</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="500"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="513"/>
         <source>No mirror to switch to!</source>
         <translation>Nie je zrkadlo na prepnutie!</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="503"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="516"/>
         <source>Switching mirror: %1 -&gt; %2</source>
         <translation>Prepínam zrkadlá: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="518"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="531"/>
         <source>You&apos;re about to compute hash from an incomplete download.</source>
         <translation>Chystáte se počítať hash z nedokončeného sťahovania.</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="139"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="140"/>
         <source>Cannot move the file.</source>
         <translation>Nemôžem presunúť súbor.</translation>
     </message>
@@ -283,7 +287,7 @@
         <translation>Načítané uložené prihlasovacie údaje, URL zodpovedá regexpu %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="329"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="338"/>
         <source>Compute hash...</source>
         <translation>Vypočítať hash...</translation>
     </message>
@@ -357,17 +361,17 @@
 <context>
     <name>FtpUploadOptsForm</name>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="364"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="373"/>
         <source>Active mode</source>
         <translation>Aktívny režim</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="364"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="373"/>
         <source>Passive mode</source>
         <translation>Pasívny režim</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlUpload.cpp" line="367"/>
+        <location filename="../src/engines/CurlUpload.cpp" line="376"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žiadny)</translation>
@@ -550,17 +554,17 @@
 <context>
     <name>HttpUrlOptsDlg</name>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="152"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="151"/>
         <source>Active mode</source>
         <translation>Aktívny režim</translation>
     </message>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="152"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="151"/>
         <source>Passive mode</source>
         <translation>Pasívny režim</translation>
     </message>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="161"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="160"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(žiadny)</translation>
@@ -610,6 +614,11 @@
         <source>HTTP/FTP link properties</source>
         <translation>Vlastnosti HTTP/FTP adresy</translation>
     </message>
+    <message>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="211"/>
+        <source>%1 is not a supported URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>JabberService</name>
@@ -657,7 +666,7 @@ pass vašeheslo</translation>
         <translation>OK.</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="536"/>
+        <location filename="../src/remote/JabberService.cpp" line="543"/>
         <source>Invalid queue ID.</source>
         <translation>Chybné ID frontu.</translation>
     </message>
@@ -667,7 +676,7 @@ pass vašeheslo</translation>
         <translation>Zoznam prenosov:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="447"/>
+        <location filename="../src/remote/JabberService.cpp" line="448"/>
         <source>
 #%1 %2</source>
         <translation>
@@ -679,29 +688,29 @@ pass vašeheslo</translation>
         <translation>žiadne prenosy</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="436"/>
+        <location filename="../src/remote/JabberService.cpp" line="437"/>
         <source>Set transfer states:</source>
         <translation>Nastaviť stav prenosov:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="477"/>
+        <location filename="../src/remote/JabberService.cpp" line="479"/>
         <source>
 #%1 Invalid transfer ID</source>
         <translation>
 #%1 Chybné ID prenosu</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="469"/>
+        <location filename="../src/remote/JabberService.cpp" line="471"/>
         <source>Removing transfers</source>
         <translation>Odstraňujem prenosy</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="501"/>
+        <location filename="../src/remote/JabberService.cpp" line="508"/>
         <source>Unknown command</source>
         <translation>Neznámy príkaz</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="529"/>
+        <location filename="../src/remote/JabberService.cpp" line="536"/>
         <source>[%2] - &quot;%3&quot;; %5 down, %6 up; %7% out of %8</source>
         <translation>[%2] - &quot;%3&quot;; %5 down, %6 up; %7% z %8</translation>
     </message>
@@ -716,92 +725,92 @@ pass vašeheslo</translation>
         <translation>%1 odhlásený</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="555"/>
+        <location filename="../src/remote/JabberService.cpp" line="562"/>
         <source>New chat session: %1</source>
         <translation>Nová chatovacia relácia: %1</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="604"/>
+        <location filename="../src/remote/JabberService.cpp" line="611"/>
         <source>Connected</source>
         <translation>Pripojený</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="618"/>
+        <location filename="../src/remote/JabberService.cpp" line="625"/>
         <source>Disconnected:</source>
         <translation>Odpojený:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="623"/>
+        <location filename="../src/remote/JabberService.cpp" line="630"/>
         <source>Stream error</source>
         <translation>Chyba prúdu</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="625"/>
+        <location filename="../src/remote/JabberService.cpp" line="632"/>
         <source>Stream version error</source>
         <translation>Chybná verzia prúdu</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="627"/>
+        <location filename="../src/remote/JabberService.cpp" line="634"/>
         <source>Stream closed</source>
         <translation>Prúd ukončený</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="629"/>
+        <location filename="../src/remote/JabberService.cpp" line="636"/>
         <source>Proxy authentication required</source>
         <translation>Proxy vyžaduje autentizáciu</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="631"/>
+        <location filename="../src/remote/JabberService.cpp" line="638"/>
         <source>Proxy authentication failed</source>
         <translation>Autentizácia proxy zlyhala</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="633"/>
+        <location filename="../src/remote/JabberService.cpp" line="640"/>
         <source>The proxy requires an unsupported auth mechanism</source>
         <translation>Proxy vyžaduje nepodporovaný mechanizmus autentizácie</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="635"/>
+        <location filename="../src/remote/JabberService.cpp" line="642"/>
         <source>I/O error</source>
         <translation>Chyba V/V</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="637"/>
+        <location filename="../src/remote/JabberService.cpp" line="644"/>
         <source>XML parse error</source>
         <translation>Chyba parsovania XML</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="641"/>
+        <location filename="../src/remote/JabberService.cpp" line="648"/>
         <source>Failed to resolve the domain name</source>
         <translation>Nepodarilo sa preložiť doménové meno</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="643"/>
+        <location filename="../src/remote/JabberService.cpp" line="650"/>
         <source>Out of memory</source>
         <translation>Nedostatek pamäte</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="645"/>
+        <location filename="../src/remote/JabberService.cpp" line="652"/>
         <source>The server doesn&apos;t provide any supported authentication mechanism</source>
         <translation>Server neposkytuje žiaden podporovaný mechanizmus autentizácie</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="647"/>
+        <location filename="../src/remote/JabberService.cpp" line="654"/>
         <source>Authentication failed</source>
         <translation>Autentizácia zlyhala</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="649"/>
         <source>The user was disconnect</source>
-        <translation>Užívateľ bol odpojený</translation>
+        <translation type="obsolete">Užívateľ bol odpojený</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="651"/>
+        <location filename="../src/remote/JabberService.cpp" line="658"/>
         <source>Other reason</source>
         <translation>Iný dôvod</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="639"/>
+        <location filename="../src/remote/JabberService.cpp" line="646"/>
         <source>Failed to connect</source>
         <translation>Nepodarilo sa pripojiť</translation>
     </message>
@@ -819,7 +828,7 @@ Pass arguments like this: &quot;resume 1 3 5&quot;, use indexes from the lists
 
 add/new - Add new transfers
 This command needs special arguments. See more at http://fatrat.dolezel.info/doc/jabber.xhtml</source>
-        <translation>Zoznam príkazov:
+        <translation type="obsolete">Zoznam príkazov:
 qlist - Zobraziť zoznam frontov
 qset - Nastaviť aktuálny front podľa ID
 list - Vypísať prenosy v aktuálnom fronte
@@ -833,7 +842,7 @@ add/new - Pridať nové prenosy
 Tento príkaz vyžaduje špeciálne argumenty. Viac na http://fatrat.dolezel.info/doc/jabber.xhtml</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="484"/>
+        <location filename="../src/remote/JabberService.cpp" line="488"/>
         <source>Nothing to add</source>
         <translation>Nie je čo pridať</translation>
     </message>
@@ -848,9 +857,30 @@ Tento príkaz vyžaduje špeciálne argumenty. Viac na http://fatrat.dolezel.inf
         <translation>Odmietam prihlásenie pre %1 (ja som %2)</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="496"/>
+        <location filename="../src/remote/JabberService.cpp" line="503"/>
         <source>Transfer(s) added</source>
         <translation>Prenos(y) pridaný(é)</translation>
+    </message>
+    <message>
+        <location filename="../src/remote/JabberService.cpp" line="358"/>
+        <source>List of commands:
+qlist - Show list of queues
+qset - Set current queue ID
+list - Show transfers of the current queue
+pauseall/resumeall - Pause/resume all transfers
+pause/resume/delete - Pause/resume/delete specified transfers
+logout/quit/exit - Log out
+
+Pass arguments like this: &quot;resume 1 3 5&quot;, use indexes from the lists
+
+add/new - Add new transfers
+This command needs special arguments. See more in the documentation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/remote/JabberService.cpp" line="656"/>
+        <source>The user was disconnected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -869,339 +899,390 @@ Tento príkaz vyžaduje špeciálne argumenty. Viac na http://fatrat.dolezel.inf
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../ui_MainWindow.h" line="632"/>
+        <location filename="../ui_MainWindow.h" line="624"/>
         <source>Delete queue</source>
         <translation>Odstrániť front</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="569"/>
+        <location filename="../src/MainWindow.cpp" line="573"/>
         <source>Do you really want to delete the active queue?</source>
         <translation>Naozaj chcete odstrániť vybraný front?</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1132"/>
+        <location filename="../src/MainWindow.cpp" line="1154"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="636"/>
+        <location filename="../ui_MainWindow.h" line="629"/>
         <source>Delete transfer</source>
         <translation>Odstrániť prenos</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1101"/>
+        <location filename="../src/MainWindow.cpp" line="1123"/>
         <source>Generic options</source>
         <translation>Všeobecné vlastnosti</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="678"/>
+        <location filename="../ui_MainWindow.h" line="676"/>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="675"/>
+        <location filename="../ui_MainWindow.h" line="673"/>
         <source>Transfer properties</source>
         <translation>Vlastnosti prenosu</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1193"/>
+        <location filename="../src/MainWindow.cpp" line="1215"/>
         <source>, %1 left</source>
         <translation>, zostáva %1</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="685"/>
+        <location filename="../ui_MainWindow.h" line="683"/>
         <source>FatRat</source>
         <translation>FatRat</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="928"/>
+        <location filename="../src/MainWindow.cpp" line="950"/>
         <source>Transfer details</source>
         <translation>Detaily prenosu</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="667"/>
+        <location filename="../ui_MainWindow.h" line="665"/>
         <source>&lt;b&gt;Name:</source>
         <translation>&lt;b&gt;Meno:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="670"/>
+        <location filename="../ui_MainWindow.h" line="668"/>
         <source>&lt;b&gt;Speed:</source>
         <translation>&lt;b&gt;Rýchlosť:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="668"/>
+        <location filename="../ui_MainWindow.h" line="666"/>
         <source>&lt;b&gt;Progress:</source>
         <translation>&lt;b&gt;Priebeh:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="671"/>
+        <location filename="../ui_MainWindow.h" line="669"/>
         <source>&lt;b&gt;Message:</source>
         <translation>&lt;b&gt;Správa:</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="687"/>
+        <location filename="../ui_MainWindow.h" line="685"/>
         <source>Queue</source>
         <translation>Front</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="683"/>
+        <location filename="../ui_MainWindow.h" line="681"/>
         <source>Help</source>
         <translation>Pomocník</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="686"/>
+        <location filename="../ui_MainWindow.h" line="684"/>
         <source>Transfer</source>
         <translation>Prenos</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="684"/>
+        <location filename="../ui_MainWindow.h" line="682"/>
         <source>Settings</source>
         <translation>Nastavenia</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="630"/>
+        <location filename="../ui_MainWindow.h" line="621"/>
         <source>Quit</source>
         <translation>Ukončiť</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="631"/>
+        <location filename="../ui_MainWindow.h" line="623"/>
         <source>New queue</source>
         <translation>Nový front</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="635"/>
+        <location filename="../ui_MainWindow.h" line="627"/>
         <source>New transfer</source>
         <translation>Nový prenos</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="639"/>
+        <location filename="../ui_MainWindow.h" line="635"/>
         <source>Pause</source>
         <translation>Zastaviť</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="640"/>
+        <location filename="../ui_MainWindow.h" line="637"/>
         <source>About</source>
         <translation>O programe</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="641"/>
+        <location filename="../ui_MainWindow.h" line="638"/>
         <source>Move to top</source>
         <translation>Presunúť na začiatok</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="642"/>
+        <location filename="../ui_MainWindow.h" line="639"/>
         <source>Move up</source>
         <translation>Presunúť vyššie</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="643"/>
+        <location filename="../ui_MainWindow.h" line="640"/>
         <source>Move down</source>
         <translation>Presunúť nižšie</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="644"/>
+        <location filename="../ui_MainWindow.h" line="641"/>
         <source>Move to bottom</source>
         <translation>Presunúť na koniec</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="645"/>
+        <location filename="../ui_MainWindow.h" line="642"/>
         <source>Remove completed</source>
         <translation>Odstrániť dokončené</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="646"/>
+        <location filename="../ui_MainWindow.h" line="643"/>
         <source>About Qt</source>
         <translation>O Qt</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="651"/>
+        <location filename="../ui_MainWindow.h" line="648"/>
         <source>Display info bar</source>
         <translation>Zobraziť info prúžok</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="655"/>
+        <location filename="../ui_MainWindow.h" line="652"/>
         <source>Hide all info bars</source>
         <translation>Skryť všetky info prúžky</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="656"/>
+        <location filename="../ui_MainWindow.h" line="653"/>
         <source>Display main window</source>
         <translation>Zobraziť hlavné okno</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1424"/>
+        <location filename="../src/MainWindow.cpp" line="1446"/>
         <source>Transfer completed</source>
         <translation>Prenos dokončený</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="637"/>
+        <location filename="../ui_MainWindow.h" line="631"/>
         <source>Start</source>
         <translation>Spustiť</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="638"/>
+        <location filename="../ui_MainWindow.h" line="633"/>
         <source>Force start</source>
         <translation>Vynútiť spustenie</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="633"/>
+        <location filename="../ui_MainWindow.h" line="625"/>
         <source>Start all</source>
         <translation>Spustiť všetko</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="634"/>
+        <location filename="../ui_MainWindow.h" line="626"/>
         <source>Pause all</source>
         <translation>Zastaviť všetko</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1425"/>
+        <location filename="../src/MainWindow.cpp" line="1447"/>
         <source>The transfer of &quot;%1&quot; has been completed.</source>
         <translation>Prenos súboru &quot;%1&quot; bol dokončený.</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="666"/>
+        <location filename="../ui_MainWindow.h" line="664"/>
         <source>Transfers</source>
         <translation>Prenosy</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1013"/>
+        <location filename="../src/MainWindow.cpp" line="1035"/>
         <source>Delete transfers</source>
         <translation>Odstrániť prenosy</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="988"/>
+        <location filename="../src/MainWindow.cpp" line="1010"/>
         <source>Do you really want to delete selected transfers?</source>
         <translation>Naozaj chcete odstrániť vybrané prenosy?</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1104"/>
+        <location filename="../src/MainWindow.cpp" line="1126"/>
         <source>Comment</source>
         <translation>Komentár</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="660"/>
+        <location filename="../ui_MainWindow.h" line="657"/>
         <source>Open</source>
         <translation>Otvoriť</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="661"/>
+        <location filename="../ui_MainWindow.h" line="658"/>
         <source>Open directory</source>
         <translation>Otvoriť adresár</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="658"/>
+        <location filename="../ui_MainWindow.h" line="655"/>
         <source>Properties...</source>
         <translation>Vlastnosti...</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="657"/>
+        <location filename="../ui_MainWindow.h" line="654"/>
         <source>Settings...</source>
         <translation>Nastavenia...</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="662"/>
+        <location filename="../ui_MainWindow.h" line="659"/>
         <source>Compute hash...</source>
         <translation>Vypočítať hash...</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="895"/>
+        <location filename="../src/MainWindow.cpp" line="917"/>
         <source>Failed to create a class instance.</source>
         <translation>Nepodarilo sa vytvoriť inštanciu triedy.</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="954"/>
+        <location filename="../src/MainWindow.cpp" line="976"/>
         <source>Internal error.</source>
         <translation>Interná chyba.</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1014"/>
+        <location filename="../src/MainWindow.cpp" line="1036"/>
         <source>Do you really want to delete selected transfers &lt;b&gt;including the data&lt;/b&gt;?</source>
         <translation>Naozaj chcete odstrániť vybrané prenosy &lt;b&gt;vrátane dát&lt;/b&gt;?</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="663"/>
+        <location filename="../ui_MainWindow.h" line="660"/>
         <source>Delete transfer including data</source>
         <translation>Odstrániť prenos vrátane dát</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="679"/>
+        <location filename="../ui_MainWindow.h" line="677"/>
         <source>Speed graph</source>
         <translation>Graf rýchlosti</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="682"/>
+        <location filename="../ui_MainWindow.h" line="680"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="688"/>
+        <location filename="../ui_MainWindow.h" line="686"/>
         <source>Main toolbar</source>
         <translation>Hlavný panel nástrojov</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1169"/>
+        <location filename="../src/MainWindow.cpp" line="1191"/>
         <source>completed %1 from %2 (%3%)</source>
         <translation>dokončené %1 z %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1171"/>
+        <location filename="../src/MainWindow.cpp" line="1193"/>
         <source>completed %1, total size unknown</source>
         <translation>dokončené %1, celková veľkosť neznáma</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="669"/>
+        <location filename="../ui_MainWindow.h" line="667"/>
         <source>&lt;b&gt;Destination:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Cieľ:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="672"/>
+        <location filename="../ui_MainWindow.h" line="670"/>
         <source>&lt;b&gt;Running for:</source>
         <translation>&lt;b&gt;Beží po dobu:</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1105"/>
+        <location filename="../src/MainWindow.cpp" line="1127"/>
         <source>Actions</source>
         <translation>Akcie</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="664"/>
+        <location filename="../ui_MainWindow.h" line="662"/>
         <source>Queues</source>
         <translation>Fronty</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="680"/>
+        <location filename="../ui_MainWindow.h" line="678"/>
         <source>Transfer log</source>
         <translation>Log prenosu</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="681"/>
+        <location filename="../ui_MainWindow.h" line="679"/>
         <source>Global log</source>
         <translation>Globálny log</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="531"/>
+        <location filename="../src/MainWindow.cpp" line="533"/>
         <source>Queue&apos;s speed: %1 down, %2 up</source>
         <translation>Rýchlosť frontu: %1 down, %2 up</translation>
     </message>
     <message>
-        <location filename="../ui_MainWindow.h" line="659"/>
+        <location filename="../ui_MainWindow.h" line="656"/>
         <source>Display the drop-box</source>
         <translation>Zobraziť drop-box</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="885"/>
+        <location filename="../src/MainWindow.cpp" line="907"/>
         <source>Couldn&apos;t autodetect transfer type for &quot;%1&quot;</source>
         <translation>Nemôžem automaticky detegovať typ prenosu pre &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1448"/>
+        <location filename="../src/MainWindow.cpp" line="1470"/>
         <source>Transfer failed</source>
         <translation>Prenos zlyhal</translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="1449"/>
+        <location filename="../src/MainWindow.cpp" line="1471"/>
         <source>The transfer &quot;%1&quot; has failed.</source>
         <translation>Prenos &quot;%1&quot; zlyhal.</translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="622"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="628"/>
+        <source>Ctrl+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="630"/>
+        <source>Del</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="632"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="634"/>
+        <source>Ctrl+F</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="636"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_MainWindow.h" line="661"/>
+        <source>Shift+Del</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MyApplication</name>
+    <message>
+        <location filename="../src/MyApplication.h" line="53"/>
+        <source>Unhandled exception</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MyApplication.h" line="56"/>
+        <source>The main handler has caught the following exception. This is a bug and should be reported as such.
+
+Type of exception: %1
+Message: %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1358,12 +1439,12 @@ Tento príkaz vyžaduje špeciálne argumenty. Viac na http://fatrat.dolezel.inf
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/Queue.cpp" line="75"/>
+        <location filename="../src/Queue.cpp" line="76"/>
         <source>Main queue</source>
         <translation>Hlavný front</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="220"/>
+        <location filename="../src/fatrat.cpp" line="222"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>V systéme je už bežiaca inštancia. Ak chcete FatRat aj napriek tomu spustiť, pridajte --force medzi argumenty.</translation>
@@ -1384,7 +1465,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Nástroje pre RapidShare</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="380"/>
+        <location filename="../src/fatrat.cpp" line="382"/>
         <source>Unable to load a data file:</source>
         <translation>Nemôžem načítať dátový súbor:</translation>
     </message>
@@ -1399,17 +1480,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Vypočítať hash súboru</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="420"/>
+        <location filename="../src/fatrat.cpp" line="422"/>
         <source>Loaded a plugin:</source>
         <translation>Načítaný plugin:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="431"/>
+        <location filename="../src/fatrat.cpp" line="433"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation>VAROVANIE: plugin je nekompatibilný:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="436"/>
+        <location filename="../src/fatrat.cpp" line="438"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation>Nepodarilo sa načítať plugin: %1: %2</translation>
     </message>
@@ -1417,44 +1498,77 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>QueueDlg</name>
     <message>
-        <location filename="../ui_QueueDlg.h" line="165"/>
+        <location filename="../ui_QueueDlg.h" line="211"/>
         <source>Queue properties</source>
         <translation>Vlastnosti fronty</translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="167"/>
+        <location filename="../ui_QueueDlg.h" line="217"/>
         <source>Down speed limit (kiB/s):</source>
         <translation>Obmedzenie rýchlosti sťahovania (kiB/s):</translation>
     </message>
     <message>
         <location filename="../ui_QueueDlg.h" line="166"/>
         <source>Name:</source>
-        <translation>Názov:</translation>
+        <translation type="obsolete">Názov:</translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="168"/>
+        <location filename="../ui_QueueDlg.h" line="218"/>
         <source>Up speed limit (kiB/s):</source>
         <translation>Obmedzenie rýchlosti uploadu (kiB/s):</translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="170"/>
+        <location filename="../ui_QueueDlg.h" line="220"/>
         <source>Maximum active download transfers:</source>
         <translation>Maximum aktívnych sťahovaní:</translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="171"/>
+        <location filename="../ui_QueueDlg.h" line="221"/>
         <source>Maximum active upload transfers:</source>
         <translation>Maximum aktívnych uploadov:</translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="169"/>
+        <location filename="../ui_QueueDlg.h" line="219"/>
         <source>Limit active transfer count</source>
         <translation>Obmedzovať počet aktívnych prenosov</translation>
     </message>
     <message>
-        <location filename="../ui_QueueDlg.h" line="172"/>
+        <location filename="../ui_QueueDlg.h" line="222"/>
         <source>Count as downloads</source>
         <translation>Počítať ako sťahovanie</translation>
+    </message>
+    <message>
+        <location filename="../src/QueueDlg.cpp" line="111"/>
+        <source>Choose directory</source>
+        <translation type="unfinished">Zvoľte adresár</translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="212"/>
+        <source>Name</source>
+        <translation type="unfinished">Názov</translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="213"/>
+        <source>Destination directory</source>
+        <translation type="unfinished">Cieľový adresár</translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="216"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../ui_QueueDlg.h" line="215"/>
+        <source>Move transfers after completion</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QueueMgr</name>
+    <message>
+        <location filename="../src/QueueMgr.cpp" line="209"/>
+        <source>Failed to move the transfer&apos;s data: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1468,12 +1582,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidTools</name>
     <message>
-        <location filename="../src/tools/RapidTools.cpp" line="271"/>
+        <location filename="../src/tools/RapidTools.cpp" line="272"/>
         <source>An invalid link has been encountered: %1</source>
         <translation>Bol nájdený neplatný odkaz: %1</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.cpp" line="305"/>
+        <location filename="../src/tools/RapidTools.cpp" line="306"/>
         <source>Server failed to process our query.</source>
         <translation>Server nedokázal spracovať požiadavku.</translation>
     </message>
@@ -1556,49 +1670,54 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareFreeDownload</name>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="119"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="121"/>
         <source>You cannot have multiple RS.com FREE downloads.</source>
         <translation>Nemôžete sťahovať viac vecí naraz z RS.com FREE.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="130"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="136"/>
         <source>Loading the first page</source>
         <translation>Načítavam prvú stránku</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="175"/>
         <source>%1 seconds left</source>
-        <translation>zostáva %1 sekúnd</translation>
+        <translation type="obsolete">zostáva %1 sekúnd</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="189"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="204"/>
         <source>Failed to load the download&apos;s first page.</source>
         <translation>Nepodarilo sa načítať prvú stránku so sťahovaním</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="193"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="208"/>
         <source>Failed to parse the download&apos;s first page.</source>
         <translation>Nepodarilo sa rozparsovať prvú stránku so sťahovaním.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="202"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="219"/>
         <source>Loading the second page</source>
         <translation>Načítavam druhú stránku</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="223"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="240"/>
         <source>Failed to load the download&apos;s waiting page.</source>
         <translation>Nepodarilo sa načítať stránku s čakaním na download.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="234"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="260"/>
         <source>Failed to parse the download&apos;s waiting page.</source>
         <translation>Nepodarilo sa rozparsovať stránku s čakaním na download.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="273"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="300"/>
         <source>Failed to download the file.</source>
         <translation>Nepodarilo sa stiahnuť súbor.</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="190"/>
+        <source>%1:%2 seconds left</source>
+        <translation type="unfinished">zostáva %1 sekúnd {1:%2 ?}</translation>
     </message>
 </context>
 <context>
@@ -1657,22 +1776,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareOptsWidget</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="638"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="658"/>
         <source>No account</source>
         <translation>Žiaden účet</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="638"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="658"/>
         <source>Collector&apos;s account</source>
         <translation>Bezplatný účet</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="638"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="658"/>
         <source>Premium account</source>
         <translation>Premium účet</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="672"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="692"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Žiadne</translation>
@@ -1681,22 +1800,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareSettings</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="781"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="801"/>
         <source>No account</source>
         <translation>Žiaden účet</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="781"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="801"/>
         <source>Collector&apos;s account</source>
         <translation>Bezplatný účet</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="781"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="801"/>
         <source>Premium account</source>
         <translation>Premium účet</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="810"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="830"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Žiadne</translation>
@@ -1705,77 +1824,77 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareUpload</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="192"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="198"/>
         <source>You have to enter your account information</source>
         <translation>Musíte zadať informácie o účte</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="406"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="426"/>
         <source>This file is forbidden to be shared</source>
         <translation>Tento súbor je zakázané zdieľať</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="409"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="429"/>
         <source>Invalid username</source>
         <translation>Chybné meno užívateľa</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="412"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="432"/>
         <source>Invalid password</source>
         <translation>Chybné heslo</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="426"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="446"/>
         <source>Failed to find the file ID</source>
         <translation>Nepodarilo sa nájsť ID súboru</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="435"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="455"/>
         <source>Failed to find the kill ID</source>
         <translation>Nepodarilo sa nájsť ID pre odstránenie</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="442"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="462"/>
         <source>Download link:</source>
         <translation>Odkaz pre sťahovanie:</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="451"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="471"/>
         <source>Kill link:</source>
         <translation>Odkaz pre odstránenie:</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="493"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="513"/>
         <source>Failed to get server ID</source>
         <translation>Nepodarilo sa získať ID servera</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="500"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="520"/>
         <source>Uploading to %1</source>
         <translation>Uploadujem na %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="507"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="527"/>
         <source>Failed to query resume information</source>
         <translation>Nepodarilo sa získať informácie o obnovení prenosu</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="528"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="548"/>
         <source>File ID %1 validated</source>
         <translation>ID súboru %1 overené</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="477"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="497"/>
         <source>Cannot append to file &quot;%1&quot;</source>
         <translation>Nemôžem pripisovať do súboru &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="216"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="231"/>
         <source>Can&apos;t open the file</source>
         <translation>Nemôžem otvoriť súbor</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="260"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="278"/>
         <source>The maximum file size is 200 MB/2 GB (premium)</source>
         <translation>Maximálna veľkosť súboru je 200 MB/2 GB (premium)</translation>
     </message>
@@ -1785,7 +1904,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../ui_RapidshareUploadDetailsForm.h" line="57"/>
         <source>Form</source>
-        <translation>Formulár</translation>
+        <translation type="obsolete">Formulár</translation>
     </message>
 </context>
 <context>
@@ -1848,22 +1967,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RssFetcher</name>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="149"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="150"/>
         <source>Failed to parse the feed &quot;%1&quot;</source>
         <translation>Zlyhalo parsovanie kanála &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="155"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="156"/>
         <source>Failed to fetch the feed &quot;%1&quot;</source>
         <translation>Nepodarilo sa stiahnuť kanál &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="221"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="222"/>
         <source>Automatically adding a new transfer: %1</source>
         <translation>Automaticky pridávam nový prenos: %1</translation>
     </message>
     <message>
-        <location filename="../src/rss/RssFetcher.cpp" line="218"/>
+        <location filename="../src/rss/RssFetcher.cpp" line="219"/>
         <source>The transfer wasn&apos;t accepted by any class: %1</source>
         <translation>Prenos nebol prijatý žiadnou triedou: %1</translation>
     </message>
@@ -2012,149 +2131,159 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="77"/>
         <source>Error</source>
-        <translation>Chyba</translation>
+        <translation type="obsolete">Chyba</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="77"/>
         <source>The specified directory is inaccessible.</source>
-        <translation>Vybraný adresár je neprístupný.</translation>
+        <translation type="obsolete">Vybraný adresár je neprístupný.</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="107"/>
         <source>Choose directory</source>
-        <translation>Zvoľte adresár</translation>
+        <translation type="obsolete">Zvoľte adresár</translation>
     </message>
     <message>
         <location filename="../ui_SettingsGeneralForm.h" line="208"/>
         <source>Default destination directory</source>
-        <translation>Východzí cieľový adresár</translation>
+        <translation type="obsolete">Východzí cieľový adresár</translation>
     </message>
     <message>
         <location filename="../ui_SettingsGeneralForm.h" line="209"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation type="obsolete">...</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="212"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="201"/>
         <source>Display speed graphs for last</source>
         <translation>Zobrazovať graf rýchlosti za posledných</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="218"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="207"/>
         <source>Hide by minimizing</source>
         <translation>Skryť pri minimalizácii</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="219"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="208"/>
         <source>Hide by closing</source>
         <translation>Skryť pri zatvorení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="215"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="204"/>
         <source>Open files/directories by running</source>
         <translation>Otvárať súbory/adresáre spustením</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="217"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="206"/>
         <source>Display the tray icon</source>
         <translation>Zobraziť ikonu v lište</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="220"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="210"/>
         <source>A doubleclick on a transfer</source>
         <translation>Dvojklik na prenos</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="41"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="38"/>
         <source>switch to the next tab</source>
         <translation>prepnúť na ďalší tab</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="41"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="38"/>
         <source>switch to the previous active tab</source>
         <translation>prepnúť na predchádzajúci aktívny tab</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="221"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="211"/>
         <source>When the current tab is closed</source>
         <translation>Keď je zatvorený súčasný tab</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="38"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="35"/>
         <source>switches to transfer details</source>
         <translation>prepne na podrobnosti prenosu</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="39"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="36"/>
         <source>switches to the graph</source>
         <translation>prepne na graf</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="39"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="36"/>
         <source>opens the file</source>
         <translation>otvorí soubor</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="39"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="36"/>
         <source>opens the parent directory</source>
         <translation>otvorí nadradený adresár</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="43"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="40"/>
         <source>a newline</source>
         <translation>koncom riadku</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="43"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="40"/>
         <source>whitespace characters</source>
         <translation>whitespace znakmi</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="222"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="212"/>
         <source>Links in a list are separated by</source>
         <translation>Odkazy sú v zozname oddelené</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="213"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="202"/>
         <source>minutes</source>
         <comment>last X minutes</comment>
         <translation>minút</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="210"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="199"/>
         <source>Refresh GUI every</source>
         <translation>Obnovovať GUI každých</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="211"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="200"/>
         <source>seconds</source>
         <comment>every X seconds</comment>
         <translation>sekúnd</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="216"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="205"/>
         <source>Enable GUI CSS styling</source>
         <translation>Povoliť CSS štýlovanie GUI</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="207"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="198"/>
         <source>Main</source>
         <translation>Hlavné</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="45"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="42"/>
         <source>Filled graph</source>
         <translation>Vyplnený graf</translation>
     </message>
     <message>
-        <location filename="../src/SettingsGeneralForm.cpp" line="45"/>
+        <location filename="../src/SettingsGeneralForm.cpp" line="42"/>
         <source>Line graph</source>
         <translation>Čiarový graf</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsGeneralForm.h" line="214"/>
+        <location filename="../ui_SettingsGeneralForm.h" line="203"/>
         <source>Speed graph style</source>
         <translation>Štýl rýchlostného grafu</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsGeneralForm.h" line="209"/>
+        <source>Tray icon click hides an unfocused window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsGeneralForm.h" line="213"/>
+        <source>&lt;a href=&quot;manageFavs&quot;&gt;Manage favorite directories...&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2267,47 +2396,47 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Naozaj chcete odstrániť vybrané proxy?</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="150"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="151"/>
         <source>Line speed</source>
         <translation>Rýchlosť linky</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="151"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="152"/>
         <source>Download</source>
         <translation>Sťahovanie</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="154"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="155"/>
         <source>KB/s</source>
         <translation>KB/s</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="153"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="154"/>
         <source>Upload</source>
         <translation>Upload</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="155"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="156"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="156"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="157"/>
         <source>Add</source>
         <translation>Pridať</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="157"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="158"/>
         <source>Edit</source>
         <translation>Upraviť</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="158"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="159"/>
         <source>Delete</source>
         <translation>Odstrániť</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsNetworkForm.h" line="149"/>
+        <location filename="../ui_SettingsNetworkForm.h" line="150"/>
         <source>Network</source>
         <translation>Sieť</translation>
     </message>
@@ -2315,12 +2444,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsQueueForm</name>
     <message>
-        <location filename="../src/SettingsQueueForm.cpp" line="65"/>
+        <location filename="../src/SettingsQueueForm.cpp" line="67"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/SettingsQueueForm.cpp" line="65"/>
+        <location filename="../src/SettingsQueueForm.cpp" line="67"/>
         <source>The e-mail address is incorrect.</source>
         <translation>E-mailová adresa je nesprávna.</translation>
     </message>
@@ -2403,197 +2532,207 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsRssForm</name>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="181"/>
+        <location filename="../ui_SettingsRssForm.h" line="193"/>
         <source>RSS feeds</source>
         <translation>RSS kanály</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="186"/>
+        <location filename="../ui_SettingsRssForm.h" line="194"/>
         <source>Add</source>
         <translation>Pridať</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="187"/>
+        <location filename="../ui_SettingsRssForm.h" line="195"/>
         <source>Edit</source>
         <translation>Upraviť</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="188"/>
+        <location filename="../ui_SettingsRssForm.h" line="196"/>
         <source>Delete</source>
         <translation>Odstrániť</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="185"/>
+        <location filename="../ui_SettingsRssForm.h" line="197"/>
         <source>Regular expressions</source>
         <translation>Regulárne výrazy</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="179"/>
+        <location filename="../ui_SettingsRssForm.h" line="186"/>
         <source>Update interval</source>
         <translation>Interval obnovovania</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="180"/>
+        <location filename="../ui_SettingsRssForm.h" line="187"/>
         <source>minutes</source>
         <translation>minút</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="178"/>
+        <location filename="../ui_SettingsRssForm.h" line="185"/>
         <source>Automatically download new stuff from RSS feeds</source>
         <translation>Automaticky sťahovať nové veci z RSS kanálov</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="177"/>
+        <location filename="../ui_SettingsRssForm.h" line="184"/>
         <source>RSS</source>
         <translation>RSS</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsRssForm.h" line="189"/>
+        <location filename="../ui_SettingsRssForm.h" line="188"/>
         <source>Update</source>
         <translation>Zaktualizovať</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsRssForm.h" line="189"/>
+        <source>General</source>
+        <translation type="unfinished">Všeobecné</translation>
     </message>
 </context>
 <context>
     <name>SettingsTorrentForm</name>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="401"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="397"/>
         <source>BitTorrent</source>
         <translation>BitTorrent</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="402"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="398"/>
         <source>Listen port start</source>
         <translation>Načúvací port (od)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="403"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="399"/>
         <source>Listen port end</source>
         <translation>Načúvací port (do)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="406"/>
         <source>Enable distributed tracker (DHT)</source>
         <translation>Povoliť distribuovaný tracker (DHT)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="407"/>
         <source>Enable uTorrent Peer Exchange</source>
         <translation>Povoliť uTorrent Peer Exchange</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="407"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="403"/>
         <source>Maximum open files</source>
         <translation>Maximum otvorených súborov</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="405"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="401"/>
         <source>Maximum connections (global/per torrent)</source>
         <translation>Maximum spojení (globálne/na torrent)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="406"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="402"/>
         <source>Maximum uploads (global/per torrent)</source>
         <translation>Maximum uploadov (globálne/na torrent)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="408"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="404"/>
         <source>File allocation mode</source>
         <translation>Spôsob alokácie súborov</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="404"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="400"/>
         <source>Seed up to ratio (default value)</source>
         <translation>Seedovať do pomeru (východzia hodnota)</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="409"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="405"/>
         <source>External IP</source>
         <translation>Vonkajšia IP</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
         <source>Tracker</source>
         <translation>Tracker</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
         <source>Peer</source>
         <translation>Klientské spojenia</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
         <source>Web seed</source>
         <translation>Distribúcia cez web</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
         <source>Main</source>
         <translation>Hlavné</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
         <source>Encryption</source>
         <translation>Šifrovanie</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
         <source>Encryption of incoming connections</source>
         <translation>Šifrovanie prichádzajúcich spojení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
         <source>Encryption of outgoing connections</source>
         <translation>Šifrovanie odchádzajúcich spojení</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="413"/>
         <source>Encryption levels</source>
         <translation>Úrovne šifrovania</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
         <source>Prefer RC4</source>
         <translation>Uprednostňovať RC4</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="426"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
         <source>Port mapping</source>
         <translation>Mapovanie portov</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
         <source>Enable UPnP</source>
         <translation>Povoliť UPnP</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="425"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
         <source>Enable NAT-PMP</source>
         <translation>Povoliť NAT-PMP</translation>
     </message>
     <message>
         <location filename="../ui_SettingsTorrentForm.h" line="413"/>
         <source>&lt;a href=&quot;cleanup&quot;&gt;Clean up the .torrent storage&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;cleanup&quot;&gt;Vyčistiť úložiško .torrent súborov&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;cleanup&quot;&gt;Vyčistiť úložiško .torrent súborov&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="428"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
         <source>Torrent search</source>
         <translation>Vyhľadávanie torrentov</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="427"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
         <source>Open pages with details</source>
         <translation>Otvárať stránky s detailmi</translation>
     </message>
     <message>
-        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="408"/>
         <source>Enable Local Service Discovery</source>
         <translation>Povoliť Local Service Discovery</translation>
+    </message>
+    <message>
+        <location filename="../ui_SettingsTorrentForm.h" line="409"/>
+        <source>Clean up the .torrent storage</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2624,17 +2763,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/SftpClient.cpp" line="64"/>
         <source>Failed to open file</source>
-        <translation>Nepodarilo sa otvoriť súbor</translation>
+        <translation type="obsolete">Nepodarilo sa otvoriť súbor</translation>
     </message>
     <message>
         <location filename="../src/engines/SftpClient.cpp" line="169"/>
         <source>Failed to open remote file</source>
-        <translation>Nepodarilo sa otvoriť vzdialený súbor</translation>
+        <translation type="obsolete">Nepodarilo sa otvoriť vzdialený súbor</translation>
     </message>
     <message>
         <location filename="../src/engines/SftpClient.cpp" line="188"/>
         <source>Error reading/writing data</source>
-        <translation>Chyba pri čítaní/zápise dát</translation>
+        <translation type="obsolete">Chyba pri čítaní/zápise dát</translation>
     </message>
 </context>
 <context>
@@ -3390,7 +3529,7 @@ uploadnutý nasledujúci objem</translation>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../src/Transfer.cpp" line="265"/>
+        <location filename="../src/Transfer.cpp" line="245"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Zmenený stav: %1 -&gt; %2</translation>
     </message>
