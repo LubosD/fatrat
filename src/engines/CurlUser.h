@@ -32,8 +32,8 @@ public:
 	CurlUser();
 	virtual ~CurlUser();
 	
-	virtual size_t readData(char* buffer, size_t maxData) { return 0;}
-	virtual bool writeData(const char* buffer, size_t bytes) { return false; }
+	virtual size_t readData(char* buffer, size_t maxData);
+	virtual bool writeData(const char* buffer, size_t bytes);
 	virtual void transferDone(CURLcode result) = 0;
 	virtual CURL* curlHandle() = 0;
 	virtual bool idleCycle(const timeval& tvNow);

@@ -53,18 +53,20 @@ public:
 	qlonglong progress() const;
 	
 	virtual CURL* curlHandle();
+	virtual bool writeData(const char* buffer, size_t bytes);
+	virtual void transferDone(CURLcode result);
 protected:
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, UrlClient* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, UrlClient* This);
 	void processHeaders();
 signals:
+	void renameTo(QString name);
 	void logMessage(QString msg);
-	void done(bool error);
+	void done(QString error);
 private:
-	qlonglong m_progress;
 	UrlObject m_source;
 	QIODevice* m_target;
-	qlonglong m_rangeFrom, m_rangeTo;
+	qlonglong m_rangeFrom, m_rangeTo, m_progress;
 	CURL* m_curl;
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	QHash<QByteArray, QByteArray> m_headers;

@@ -80,3 +80,14 @@ bool CurlUser::idleCycle(const timeval& tvNow)
 	return true;
 }
 
+size_t CurlUser::readData(char* buffer, size_t maxData)
+{
+	return 0;
+}
+
+bool CurlUser::writeData(const char* buffer, size_t bytes)
+{
+	return false;
+}
+
+
