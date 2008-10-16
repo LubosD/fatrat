@@ -143,7 +143,7 @@ void UrlClient::start()
 	//curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
 	
 	// BUG (CRASH) WORKAROUND
-	//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
+	curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
 	curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
 }
 

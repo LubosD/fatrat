@@ -174,6 +174,7 @@ int anti_crash_fun() { return 0; }
 
 void CurlDownload::changeActive(bool bActive)
 {
+	qDebug() << this << "changeActive" << bActive;
 	if(bActive)
 	{
 		const qulonglong d = done();

@@ -35,8 +35,10 @@ CurlPoller::CurlPoller()
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETDATA, this);
 	
 	if(!m_instance)
+	{
 		m_instance = this;
-	start();
+		start();
+	}
 }
 
 CurlPoller::~CurlPoller()
@@ -49,7 +51,7 @@ CurlPoller::~CurlPoller()
 	if(this == m_instance)
 		m_instance = 0;
 	curl_multi_cleanup(m_curlm);
-	curl_global_cleanup();
+	//curl_global_cleanup();
 }
 
 void CurlPoller::init()
@@ -86,6 +88,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 	for(int i=0;i<events.size();i++)
 	{
 		int socket = events[i].socket;
+		qDebug() << "Activity on" << socket;
 		if(!m_masters.contains(socket))
 		{
 			int mask = 0;
@@ -272,15 +275,24 @@ void CurlPoller::removeTransfer(CurlUser* obj)
 
 void CurlPoller::addTransfer(CurlPollingMaster* obj)
 {
+	QMutexLocker locker(&m_usersLock);
+	
 	int handle = obj->handle();
+	int mask = Poller::PollerError | Poller::PollerHup | Poller::PollerIn | Poller::PollerOut;
+	
+	qDebug() << "Adding a polling master" << handle << obj;
 	m_masters[handle] = obj;
-	m_poller->addSocket(handle, Poller::PollerError | Poller::PollerHup | Poller::PollerIn | Poller::PollerOut);
+	m_sockets[handle] = QPair<int,CurlStat*>(mask, obj);
+	m_poller->addSocket(handle, mask);
 }
 
 void CurlPoller::removeTransfer(CurlPollingMaster* obj)
 {
+	QMutexLocker locker(&m_usersLock);
+	
 	int handle = obj->handle();
 	m_masters.remove(handle);
+	m_sockets.remove(handle);
 	m_poller->removeSocket(handle);
 }
 
