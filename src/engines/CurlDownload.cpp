@@ -35,10 +35,8 @@ static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::m
 	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
 
 CurlDownload::CurlDownload()
-	: m_nTotal(0), m_bAutoName(false), m_nameChanger(0)
+	: m_nTotal(0), m_bAutoName(false), m_master(0), m_nameChanger(0)
 {
-	m_master = new CurlPollingMaster;
-	CurlPoller::instance()->addTransfer(m_master);
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateSegmentProgress()));
 }
 
@@ -46,8 +44,6 @@ CurlDownload::~CurlDownload()
 {
 	if(isActive())
 		changeActive(false);
-	CurlPoller::instance()->removeTransfer(m_master);
-	delete m_master;
 }
 
 void CurlDownload::init(QString uri, QString dest)
@@ -202,6 +198,12 @@ void CurlDownload::changeActive(bool bActive)
 			setState(Completed);
 			return;
 		}
+		
+		m_master = new CurlPollingMaster;
+		CurlPoller::instance()->addTransfer(m_master);
+		m_master->setMaxDown(m_nDownLimitInt);
+		
+		qDebug() << "The limit is" << m_nDownLimitInt;
 
 run_segments:
 		for(int i=0;i<m_segments.size();i++)
@@ -238,6 +240,7 @@ run_segments:
 			sg.client = client;
 			sg.color = allocateSegmentColor();
 			
+			client->setPollingMaster(m_master);
 			client->start();
 			m_master->addTransfer(client);
 			
@@ -276,6 +279,10 @@ run_segments:
 		m_segmentsLock.unlock();
 		m_nameChanger = 0;
 		m_timer.stop();
+		
+		CurlPoller::instance()->removeTransfer(m_master);
+		delete m_master;
+		m_master = 0;
 	}
 }
 
@@ -291,19 +298,8 @@ void CurlDownload::setTargetName(QString newFileName)
 void CurlDownload::speeds(int& down, int& up) const
 {
 	down = up = 0;
-	m_segmentsLock.lockForRead();
-	
-	for(int i=0;i<m_segments.size();i++)
-	{
-		if(m_segments[i].client != 0)
-		{
-			int d, u;
-			m_segments[i].client->speeds(d, u);
-			down += d;
-		}
-	}
-	
-	m_segmentsLock.unlock();
+	if(m_master != 0)
+		m_master->speeds(down, up);
 }
 
 qulonglong CurlDownload::total() const
@@ -538,7 +534,8 @@ QString CurlDownload::filePath() const
 
 void CurlDownload::setSpeedLimits(int down, int)
 {
-	m_master->setMaxDown(down);
+	if(m_master != 0)
+		m_master->setMaxDown(down);
 }
 
 QDialog* CurlDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)

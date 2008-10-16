@@ -88,7 +88,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 	for(int i=0;i<events.size();i++)
 	{
 		int socket = events[i].socket;
-		qDebug() << "Activity on" << socket;
+		//qDebug() << "Activity on" << socket;
 		if(!m_masters.contains(socket))
 		{
 			int mask = 0;

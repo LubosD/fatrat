@@ -69,6 +69,7 @@ protected:
 	SpeedData m_down, m_up;
 	
 	friend class CurlUser;
+	friend class UrlClient;
 };
 
 #endif

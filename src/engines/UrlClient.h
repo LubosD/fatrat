@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <curl/curl.h>
 #include "engines/CurlUser.h"
 
+class CurlPollingMaster;
+
 class UrlClient : public QObject, public CurlUser
 {
 Q_OBJECT
@@ -51,6 +53,7 @@ public:
 	void setTargetObject(QIODevice* dev);
 	void setRange(qlonglong from, qlonglong to);
 	qlonglong progress() const;
+	void setPollingMaster(CurlPollingMaster* master);
 	
 	virtual CURL* curlHandle();
 	virtual bool writeData(const char* buffer, size_t bytes);
@@ -71,6 +74,7 @@ private:
 	CURL* m_curl;
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	QHash<QByteArray, QByteArray> m_headers;
+	CurlPollingMaster* m_master;
 };
 
 #endif

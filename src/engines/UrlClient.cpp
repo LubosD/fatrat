@@ -21,10 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "UrlClient.h"
 #include "Proxy.h"
 #include "fatrat.h"
+#include "CurlPollingMaster.h"
 #include <QFileInfo>
 
 UrlClient::UrlClient()
-	: m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0)
+	: m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0)
 {
 }
 
@@ -244,6 +245,9 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	m_target->write(buffer, towrite);
 	m_progress += towrite;
 	
+	if(m_master != 0)
+		m_master->timeProcessDown(towrite);
+	
 	return towrite == bytes;
 }
 
@@ -262,6 +266,11 @@ void UrlClient::transferDone(CURLcode result)
 			err = QString::fromUtf8(m_errorBuffer);
 		emit done(err);
 	}
+}
+
+void UrlClient::setPollingMaster(CurlPollingMaster* master)
+{
+	m_master = master;
 }
 
 
