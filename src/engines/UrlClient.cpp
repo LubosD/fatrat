@@ -63,6 +63,12 @@ void UrlClient::start()
 	QUrl url = m_source.url;
 	bool bWatchHeaders = false;
 	
+	if(!m_target->seek(m_rangeFrom))
+	{
+		emit done(tr("Failed to seek in the file"));
+		return;
+	}
+	
 	m_curl = curl_easy_init();
 	
 	if(!url.userInfo().isEmpty())
@@ -72,9 +78,7 @@ void UrlClient::start()
 	}
 	
 	ba = url.toString().toUtf8();
-	
 	bWatchHeaders = ba.startsWith("http");
-	
 	curl_easy_setopt(m_curl, CURLOPT_URL, ba.constData());
 	
 	if(!auth.isEmpty())
@@ -224,7 +228,10 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
 		if(len > 0)
+		{
 			m_rangeTo = m_rangeFrom + len;
+			emit totalSizeKnown(m_rangeTo);
+		}
 	}
 	
 	if(m_rangeTo != -1)

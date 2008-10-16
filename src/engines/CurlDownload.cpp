@@ -31,16 +31,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QMenu>
 #include <QtDebug>
 
+static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::magenta, Qt::yellow, Qt::darkRed,
+	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
+
 CurlDownload::CurlDownload()
-	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0)
+	: m_nTotal(0), m_bAutoName(false), m_nameChanger(0)
 {
-	m_errorBuffer[0] = 0;
+	m_master = new CurlPollingMaster;
+	CurlPoller::instance()->addTransfer(m_master);
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateSegmentProgress()));
 }
 
 CurlDownload::~CurlDownload()
 {
 	if(isActive())
 		changeActive(false);
+	CurlPoller::instance()->removeTransfer(m_master);
+	delete m_master;
 }
 
 void CurlDownload::init(QString uri, QString dest)
@@ -92,6 +99,8 @@ void CurlDownload::init(QString uri, QString dest)
 	
 	if(m_strFile.isEmpty())
 		generateName();
+	
+	autoCreateSegment();
 }
 
 void CurlDownload::generateName()
@@ -161,17 +170,13 @@ QString CurlDownload::name() const
 	return m_strFile;
 }
 
-CURL* CurlDownload::curlHandle()
-{
-	return m_curl;
-}
-
 int anti_crash_fun() { return 0; }
 
 void CurlDownload::changeActive(bool bActive)
 {
 	if(bActive)
 	{
+		const qulonglong d = done();
 		m_strMessage.clear();
 		
 		if(m_urls.isEmpty())
@@ -181,226 +186,95 @@ void CurlDownload::changeActive(bool bActive)
 			return;
 		}
 		
-		if(m_nUrl >= m_urls.size())
-			m_nUrl = 0;
+		if(m_segments.isEmpty())
+			autoCreateSegment();
 		
-		m_file.setFileName(filePath());
-		if(!m_file.open(QIODevice::ReadWrite | QIODevice::Append))
+		m_nameChanger = 0;
+		
+		QWriteLocker l(&m_segmentsLock);
+		int active = 0;
+		
+		simplifySegments(m_segments);
+		
+		if(m_segments.size() == 1 && m_nTotal == d && d)
 		{
-			enterLogMessage(m_strMessage = m_file.errorString());
-			setState(Failed);
+			setState(Completed);
 			return;
 		}
-		
-		QByteArray ba, auth;
-		QUrl url = m_urls[m_nUrl].url;
-		bool bWatchHeaders = false;
-		
-		m_curl = curl_easy_init();
-		
-		if(!url.userInfo().isEmpty())
-		{
-			auth = url.userInfo().toUtf8();
-			url.setUserInfo(QString());
-		}
-		
-		ba = url.toString().toUtf8();
-		
-		bWatchHeaders = ba.startsWith("http");
-		
-		curl_easy_setopt(m_curl, CURLOPT_URL, ba.constData());
-		
-		if(!auth.isEmpty())
-			curl_easy_setopt(m_curl, CURLOPT_USERPWD, auth.constData());
-		
-		Proxy proxy = Proxy::getProxy(m_urls[m_nUrl].proxy);
-		if(proxy.nType != Proxy::ProxyNone)
-		{
-			QByteArray p;
-			
-			if(proxy.strUser.isEmpty())
-				p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
-			else
-				p = QString("%1:%2@%3:%4").arg(proxy.strUser).arg(proxy.strPassword).arg(proxy.strIP).arg(proxy.nPort).toLatin1();
-			curl_easy_setopt(m_curl, CURLOPT_PROXY, p.constData());
-			
-			int type;
-			if(proxy.nType == Proxy::ProxySocks5)
-				type = CURLPROXY_SOCKS5;
-			else if(proxy.nType == Proxy::ProxyHttp)
-				type = CURLPROXY_HTTP;
-			else
-				type = 0;
-			curl_easy_setopt(m_curl, CURLOPT_PROXYTYPE, type);
-		}
-		else
-			curl_easy_setopt(m_curl, CURLOPT_PROXY, "");
-		
-		ba = m_urls[m_nUrl].strBindAddress.toUtf8();
-		if(!ba.isEmpty())
-			curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
-		
-		curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, true);
-		curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, true);
-		curl_easy_setopt(m_curl, CURLOPT_UNRESTRICTED_AUTH, true);
-		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
-		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
-		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
-		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = m_file.pos());
-		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
-		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
-		
-		if(bWatchHeaders)
-		{
-			curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, process_header);
-			curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, this);
-		}
-		
-		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
-		curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
-		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
-		curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
-		curl_easy_setopt(m_curl, CURLOPT_FAILONERROR, true);
-		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
-		curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD);
-		
-		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 10);
-		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
-		
-		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
-		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
-		
-		// BUG (CRASH) WORKAROUND
-		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
-		curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
-		
-		CurlPoller::instance()->addTransfer(this);
-	}
-	else if(m_curl != 0)
-	{
-		CurlPoller::instance()->removeTransfer(this);
-		resetStatistics();
-		curl_easy_cleanup(m_curl);
-		m_curl = 0;
-		m_nStart = 0;
-		m_file.close();
-	}
-}
 
-bool CurlDownload::writeData(const char* buffer, size_t bytes)
-{
-	if(!isActive())
-		return false;
-	
-	if(!m_nTotal)
-	{
-		double len;
-		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-		m_nTotal = m_nStart + len;
-	}
-	
-	m_file.write(buffer, bytes);
-	
-	return true;
-}
-
-size_t CurlDownload::process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This)
-{
-	QByteArray line = QByteArray(ptr, size*nmemb).trimmed();
-	int pos = line.indexOf(": ");
-	
-	if(pos != -1)
-		This->m_headers[line.left(pos).toLower()] = line.mid(pos+2);
-	if(line.isEmpty())
-		This->processHeaders();
-	
-	return size*nmemb;
-}
-
-void CurlDownload::processHeaders()
-{
-	if(!m_headers.contains("location"))
-	{
-		if(m_headers.contains("content-disposition") && m_bAutoName)
+run_segments:
+		for(int i=0;i<m_segments.size();i++)
 		{
-			QByteArray con = m_headers["content-disposition"];
-			int pos = con.indexOf("filename=");
+			Segment& csg = m_segments[i];
 			
-			if(pos != -1)
-			{
-				QString name = con.mid(pos+9);
-				
-				if(name.startsWith('"') && name.endsWith('"'))
-					name = name.mid(1, name.size()-2);
-				
-				name.replace('/', '_');
-				qDebug() << "Automatically renaming to" << name;
-				setTargetName(name);
-			}
+			if(csg.urlIndex < 0 || csg.urlIndex >= m_urls.size() || csg.client != 0)
+				continue;
+			
+			UrlClient* client = new UrlClient;
+			QFile* file = new QFile(client);
+			qlonglong rangeFrom, rangeTo = -1;
+			
+			rangeFrom = csg.offset+csg.bytes;
+			if(i+1 < m_segments.size())
+				rangeTo = m_segments[i+1].offset;
+			
+			client->setRange(rangeFrom, rangeTo);
+			client->setSourceObject(m_urls[csg.urlIndex]);
+			client->setTargetObject(file);
+			
+			connect(client, SIGNAL(renameTo(QString)), this, SLOT(clientRenameTo(QString)));
+			connect(client, SIGNAL(logMessage(QString)), this, SLOT(clientLogMessage(QString)));
+			connect(client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
+			connect(client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
+			
+			file->setFileName(filePath());
+			file->open(QIODevice::WriteOnly);
+			
+			Segment sg;
+			sg.offset = rangeFrom;
+			sg.bytes = 0;
+			sg.urlIndex = csg.urlIndex;
+			sg.client = client;
+			sg.color = allocateSegmentColor();
+			
+			client->start();
+			m_master->addTransfer(client);
+			
+			csg.urlIndex = -1;
+			m_segments.insert(i+1, sg);
+			
+			i++;
+			active++;
 		}
+		
+		if(!active)
+		{
+			autoCreateSegment();
+			goto run_segments;
+		}
+		
+		m_timer.start(500);
+		
+		for(int i=0;i<m_segments.size();i++)
+			qDebug() << "Segment " << i << ": " << m_segments[i].offset << ", +" << m_segments[i].bytes;
 	}
 	else
 	{
-		QByteArray newurl = m_headers["location"];
-		if(m_bAutoName)
-			setTargetName(QFileInfo(newurl).fileName());
-	}
-	
-	m_headers.clear();
-}
-
-int CurlDownload::seek_function(QFile* file, curl_off_t offset, int origin)
-{
-	qDebug() << "seek_function" << offset << origin;
-	
-	if(origin == SEEK_SET)
-	{
-		if(!file->seek(offset))
-			return -1;
-	}
-	else if(origin == SEEK_CUR)
-	{
-		if(!file->seek(file->pos() + offset))
-			return -1;
-	}
-	else if(origin == SEEK_END)
-	{
-		if(!file->seek(file->size() + offset))
-			return -1;
-	}
-	else
-		return -1;
-	return 0;
-}
-
-int CurlDownload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, CurlDownload* This)
-{
-	if(type != CURLINFO_DATA_IN && type != CURLINFO_DATA_OUT)
-	{
-		QByteArray line = QByteArray(text, bytes).trimmed();
-		qDebug() << "CURL debug:" << line;
-		if(!line.isEmpty())
-			This->enterLogMessage(line);
-	}
-	
-	return 0;
-}
-
-void CurlDownload::transferDone(CURLcode result)
-{
-	if(!isActive())
-		return;
-	
-	if(result == CURLE_OK || (done() == total() && total()))
-		setState(Completed);
-	else
-	{
-		if(result == CURLE_OPERATION_TIMEDOUT)
-			strcpy(m_errorBuffer, "Timeout");
-		
-		m_strMessage = m_errorBuffer;
-		setState(Failed);
+		m_segmentsLock.lockForWrite();
+		for(int i=0;i<m_segments.size();i++)
+		{
+			if(!m_segments[i].client)
+				continue;
+			m_master->removeTransfer(m_segments[i].client);
+			m_segments[i].client->stop();
+			m_segments[i].client->deleteLater();
+			m_segments[i].client = 0;
+			m_segments[i].color = QColor();
+		}
+		simplifySegments(m_segments);
+		m_segmentsLock.unlock();
+		m_nameChanger = 0;
+		m_timer.stop();
 	}
 }
 
@@ -415,7 +289,20 @@ void CurlDownload::setTargetName(QString newFileName)
 
 void CurlDownload::speeds(int& down, int& up) const
 {
-	CurlUser::speeds(down, up);
+	down = up = 0;
+	m_segmentsLock.lockForRead();
+	
+	for(int i=0;i<m_segments.size();i++)
+	{
+		if(m_segments[i].client != 0)
+		{
+			int d, u;
+			m_segments[i].client->speeds(d, u);
+			down += d;
+		}
+	}
+	
+	m_segmentsLock.unlock();
 }
 
 qulonglong CurlDownload::total() const
@@ -425,15 +312,14 @@ qulonglong CurlDownload::total() const
 
 qulonglong CurlDownload::done() const
 {
-	if(!isActive())
-	{
-		if(m_nStart)
-			return m_nStart;
-		else
-			return m_nStart = QFileInfo(m_dir.filePath(name())).size();
-	}
-	else
-		return m_file.pos();
+	m_segmentsLock.lockForRead();
+	qlonglong total = 0;
+	
+	for(int i=0;i<m_segments.size();i++)
+		total += m_segments[i].bytes;
+	
+	m_segmentsLock.unlock();
+	return total;
 }
 
 void CurlDownload::load(const QDomNode& map)
@@ -459,8 +345,30 @@ void CurlDownload::load(const QDomNode& map)
 		m_urls << obj;
 	}
 	
+	QDomElement segment, segments = map.firstChildElement("segments");
+	
+	m_segmentsLock.lockForWrite();
+	if(!segments.isNull())
+		segment = segments.firstChildElement("segment");
+	while(!segment.isNull())
+	{
+		Segment data;
+		
+		data.offset = getXMLProperty(segment, "offset").toLongLong();
+		data.bytes = getXMLProperty(segment, "bytes").toLongLong();
+		data.urlIndex = getXMLProperty(segment, "urlindex").toInt();
+		data.client = 0;
+		
+		segment = segment.nextSiblingElement("segment");
+		m_segments << data;
+	}
+	
 	if(m_strFile.isEmpty())
 		generateName();
+	
+	if(m_segments.isEmpty())
+		autoCreateSegment();
+	m_segmentsLock.unlock();
 	
 	Transfer::load(map);
 }
@@ -487,20 +395,105 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 		
 		map.appendChild(sub);
 	}
+	
+	QDomElement subSegments = doc.createElement("segments");
+	
+	m_segmentsLock.lockForRead();
+	for(int i=0;i<m_segments.size();i++)
+	{
+		QDomElement sub = doc.createElement("segment");
+		const Segment& s = m_segments[i];
+		
+		setXMLProperty(doc, sub, "offset", QString::number(s.offset));
+		setXMLProperty(doc, sub, "bytes", QString::number(s.bytes));
+		setXMLProperty(doc, sub, "urlindex", QString::number(s.urlIndex));
+		
+		subSegments.appendChild(sub);
+	}
+	m_segmentsLock.unlock();
+	map.appendChild(subSegments);
+}
+
+void CurlDownload::autoCreateSegment()
+{
+	if(m_segments.isEmpty())
+	{
+		Segment s;
+		QFileInfo fi(filePath());
+		
+		s.offset = s.bytes = 0;
+		s.urlIndex = 0;
+		s.client = 0;
+		
+		if(fi.exists())
+			s.bytes = fi.size();
+		
+		m_segments << s;
+	}
+	else
+	{
+		// we have to find some free space and allocate a URL
+		qlonglong pos = 0;
+		bool solved = false;
+			
+		for(int i=0;i<m_segments.size();i++)
+		{
+			if(m_segments[i].offset > pos)
+			{
+				// a free spot
+				solved = true;
+				
+				Segment sg;
+				sg.offset = sg.bytes = 0;
+				sg.client = 0;
+				sg.urlIndex = 0;
+				
+				if(i > 0)
+					sg.offset = m_segments[i-1].offset + m_segments[i-1].bytes;
+				
+				m_segments.insert(i, sg);
+				break;
+			}
+		}
+		
+		if(!solved)
+		{
+			// create a segment at the end
+			Segment sg;
+			sg.bytes = 0;
+			sg.client = 0;
+			sg.urlIndex = 0;
+			sg.offset = m_segments.last().offset + m_segments.last().bytes;
+			
+			m_segments << sg;
+		}
+	}
+}
+
+void CurlDownload::updateSegmentProgress()
+{
+	m_segmentsLock.lockForWrite();
+	for(int i=0;i<m_segments.size();i++)
+	{
+		if(m_segments[i].client != 0)
+			m_segments[i].bytes = m_segments[i].client->progress();
+	}
+	simplifySegments(m_segments);
+	m_segmentsLock.unlock();
 }
 
 void CurlDownload::fillContextMenu(QMenu& menu)
 {
 	QAction* a;
 	
-	a = menu.addAction(tr("Switch mirror"));
-	connect(a, SIGNAL(triggered()), this, SLOT(switchMirror()));
+	//a = menu.addAction(tr("Switch mirror"));
+	//connect(a, SIGNAL(triggered()), this, SLOT(switchMirror()));
 	
 	a = menu.addAction(tr("Compute hash..."));
 	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
 }
 
-void CurlDownload::switchMirror()
+/*void CurlDownload::switchMirror()
 {
 	int prev,cur;
 	prev = cur = m_nUrl;
@@ -522,7 +515,7 @@ void CurlDownload::switchMirror()
 			changeActive(true);
 		}
 	}
-}
+}*/
 
 void CurlDownload::computeHash()
 {
@@ -544,9 +537,8 @@ QString CurlDownload::filePath() const
 
 void CurlDownload::setSpeedLimits(int down, int)
 {
-	setMaxDown(down);
+	m_master->setMaxDown(down);
 }
-
 
 QDialog* CurlDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)
 {
@@ -558,5 +550,111 @@ QDialog* CurlDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transf
 WidgetHostChild* CurlDownload::createOptionsWidget(QWidget* w)
 {
 	return new HttpOptsWidget(w,this);
+}
+
+void CurlDownload::simplifySegments(QList<CurlDownload::Segment>& retval)
+{
+	for(int i=1;i<retval.size();i++)
+	{
+		qlonglong pos = retval[i-1].offset+retval[i-1].bytes;
+		if(retval[i].offset <= pos && !retval[i-1].client && !retval[i].client)
+		{
+			retval[i].bytes += retval[i].offset - retval[i-1].offset;
+			retval[i].offset = retval[i-1].offset;
+			retval.removeAt(--i);
+		}
+	}
+}
+
+void CurlDownload::clientRenameTo(QString name)
+{
+	UrlClient* client = static_cast<UrlClient*>(sender());
+	if(m_nameChanger && client != m_nameChanger)
+		return;
+	
+	m_nameChanger = client;
+	if(m_bAutoName)
+		setTargetName(name);
+}
+
+void CurlDownload::clientLogMessage(QString msg)
+{
+	UrlClient* client = static_cast<UrlClient*>(sender());
+	enterLogMessage(QString("0x%1 - %2").arg(long(client), 0, 16).arg(msg));
+}
+
+void CurlDownload::clientTotalSizeKnown(qlonglong bytes)
+{
+	m_nTotal = bytes;
+}
+
+void CurlDownload::clientDone(QString error)
+{
+	UrlClient* client = static_cast<UrlClient*>(sender());
+	m_segmentsLock.lockForWrite();
+	
+	for(int i=0;i<m_segments.size();i++)
+	{
+		if(m_segments[i].client == client)
+		{
+			m_segments[i].bytes = client->progress();
+			m_segments[i].client = 0;
+			m_segments[i].color = QColor();
+		}
+	}
+	
+	simplifySegments(m_segments);
+	
+	m_segmentsLock.unlock();
+	
+	m_master->removeTransfer(client);
+	client->deleteLater();
+	
+	qulonglong d = done();
+	if(d == total() && d)
+	{
+		setState(Completed);
+	}
+	else if(!error.isNull())
+	{
+		// TODO: show error
+		m_segmentsLock.lockForRead();
+		bool allfailed = true;
+		
+		for(int i=0;i<m_segments.size();i++)
+		{
+			if(m_segments[i].client != 0)
+			{
+				allfailed = false;
+				break;
+			}
+		}
+		
+		m_segmentsLock.unlock();
+		
+		if(allfailed)
+			setState(Failed);
+	}
+}
+
+QColor CurlDownload::allocateSegmentColor()
+{
+	for(size_t i=0;i<sizeof(g_colors)/sizeof(g_colors[0]);i++)
+	{
+		bool bFound = false;
+		for(int j=0;j<m_segments.size();j++)
+		{
+			if(m_segments[j].client && m_segments[j].color == g_colors[i])
+			{
+				bFound = true;
+				break;
+			}
+		}
+		
+		if(!bFound)
+			return g_colors[i];
+	}
+	
+	return QColor(rand()%256, rand()%256, rand()%256);
 }
 

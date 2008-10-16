@@ -63,6 +63,7 @@ signals:
 	void renameTo(QString name);
 	void logMessage(QString msg);
 	void done(QString error);
+	void totalSizeKnown(qlonglong bytes);
 private:
 	UrlObject m_source;
 	QIODevice* m_target;

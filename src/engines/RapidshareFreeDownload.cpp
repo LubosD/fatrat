@@ -55,7 +55,7 @@ void RapidshareFreeDownload::init(QString source, QString target)
 
 QString RapidshareFreeDownload::name() const
 {
-	if(m_curl)
+	if(isActive())
 		return CurlDownload::name();
 	else
 		return m_strName;
@@ -86,7 +86,7 @@ void RapidshareFreeDownload::deriveName()
 
 qulonglong RapidshareFreeDownload::done() const
 {
-	if(m_curl)
+	if(isActive())
 		return CurlDownload::done();
 	else if(m_state == Completed)
 		return m_nTotal;
@@ -96,7 +96,7 @@ qulonglong RapidshareFreeDownload::done() const
 
 void RapidshareFreeDownload::setObject(QString newdir)
 {
-	if(m_curl)
+	if(isActive())
 		CurlDownload::setObject(newdir);
 	m_strTarget = newdir;
 }
@@ -145,7 +145,7 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 			m_bHasLock = false;
 		}
 		
-		if(m_curl)
+		if(isActive())
 			CurlDownload::changeActive(false);
 		m_nSecondsLeft = -1;
 		m_timer.stop();
@@ -284,22 +284,23 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 	return 0;
 }
 
-void RapidshareFreeDownload::transferDone(CURLcode result)
+void RapidshareFreeDownload::setState(State state)
 {
-	if(result == CURLE_OK && done() < 10*1024)
+	if(state == Completed && done() < 10*1024)
 	{
 		QByteArray data;
-		m_file.seek(0);
-		data = m_file.readAll();
+		QFile file(filePath());
+		data = file.readAll();
 		
 		if(data.indexOf("<h1>Error</h1>") != -1)
 		{
-			m_file.remove();
-			setState(Failed);
+			file.remove();
+			Transfer::setState(Failed);
 			m_nTotal = 0;
 			m_strMessage = tr("Failed to download the file.");
+			return;
 		}
 	}
 	
-	CurlDownload::transferDone(result);
+	Transfer::setState(state);
 }

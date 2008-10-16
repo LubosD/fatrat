@@ -50,6 +50,7 @@ public:
 	virtual void setObject(QString newdir);
 	
 	virtual qulonglong done() const;
+	virtual void setState(State state);
 	
 	static Transfer* createInstance() { return new RapidshareFreeDownload; }
 	static int acceptable(QString uri, bool);
@@ -59,7 +60,6 @@ protected slots:
 	void secondElapsed();
 protected:
 	void deriveName();
-	virtual void transferDone(CURLcode result);
 private:
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;

@@ -112,7 +112,10 @@ int main(int argc,char** argv)
 	
 	// Init download engines (let them load settings)
 	initSettingsDefaults();
-	initSettingsPages();
+	
+	if(m_bStartGUI)
+		initSettingsPages();
+	
 	initTransferClasses();
 	loadPlugins();
 	runEngines();
