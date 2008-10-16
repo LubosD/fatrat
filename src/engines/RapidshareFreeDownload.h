@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef RAPIDSHAREFREEDOWNLOAD_H
 #define RAPIDSHAREFREEDOWNLOAD_H
 #include "CurlDownload.h"
+#include "ui_RapidshareFreeDownloadOptsForm.h"
+#include "WidgetHostChild.h"
 #include <QUrl>
 #include <QTimer>
 #include <QUuid>
@@ -43,7 +45,6 @@ public:
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void changeActive(bool bActive);
 	
-	virtual WidgetHostChild* createOptionsWidget(QWidget* w) { return 0; }
 	virtual void fillContextMenu(QMenu& menu) {}
 	
 	virtual QString object() const { return m_strTarget; }
@@ -51,6 +52,7 @@ public:
 	
 	virtual qulonglong done() const;
 	virtual void setState(State state);
+	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	
 	static Transfer* createInstance() { return new RapidshareFreeDownload; }
 	static int acceptable(QString uri, bool);
@@ -60,7 +62,7 @@ protected slots:
 	void secondElapsed();
 protected:
 	void deriveName();
-private:
+protected:
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;
 	QHttp* m_http;
@@ -69,6 +71,20 @@ private:
 	QTimer m_timer;
 	bool m_bHasLock, m_bLongWaiting;
 	QUuid m_proxy;
+	
+	friend class RapidshareFreeDownloadOptsForm;
 };
+
+class RapidshareFreeDownloadOptsForm : public WidgetHostChild, public Ui_RapidshareFreeDownloadOptsForm
+{
+public:
+	RapidshareFreeDownloadOptsForm(QWidget* w, RapidshareFreeDownload* d);
+	virtual void load();
+	virtual bool accept();
+	virtual void accepted();
+private:
+	RapidshareFreeDownload* m_download;
+};
+
 
 #endif

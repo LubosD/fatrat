@@ -22,10 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Settings.h"
 #include "RuntimeException.h"
 #include "Proxy.h"
+#include "fatrat.h"
 #include <QHttp>
 #include <QBuffer>
 #include <QRegExp>
 #include <QApplication>
+#include <QMessageBox>
 #include <QMutex>
 
 static QMutex m_mInstanceActive;
@@ -55,7 +57,7 @@ void RapidshareFreeDownload::init(QString source, QString target)
 
 QString RapidshareFreeDownload::name() const
 {
-	if(isActive())
+	if(CurlDownload::m_timer.isActive())
 		return CurlDownload::name();
 	else
 		return m_strName;
@@ -304,3 +306,38 @@ void RapidshareFreeDownload::setState(State state)
 	
 	Transfer::setState(state);
 }
+
+WidgetHostChild* RapidshareFreeDownload::createOptionsWidget(QWidget* w)
+{
+	return new RapidshareFreeDownloadOptsForm(w, this);
+}
+
+//////////////////////////////////////////////////////////////
+
+RapidshareFreeDownloadOptsForm::RapidshareFreeDownloadOptsForm(QWidget* w, RapidshareFreeDownload* d)
+	: m_download(d)
+{
+	setupUi(w);
+}
+
+void RapidshareFreeDownloadOptsForm::load()
+{
+	lineURL->setText(m_download->m_strOriginal);
+}
+
+bool RapidshareFreeDownloadOptsForm::accept()
+{
+	if(!RapidshareFreeDownload::acceptable(lineURL->text(), false))
+	{
+		QMessageBox::warning(getMainWindow(), "FatRat", QObject::tr("Invalid URL."));
+		return false;
+	}
+	else
+		return true;
+}
+
+void RapidshareFreeDownloadOptsForm::accepted()
+{
+	m_download->m_strOriginal = lineURL->text();
+}
+

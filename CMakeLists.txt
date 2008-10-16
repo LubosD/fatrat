@@ -270,6 +270,7 @@ if(WITH_CURL)
 		${fatrat_UIS}
 		src/engines/RapidshareOptsForm.ui
 		src/engines/RapidshareUploadDetailsForm.ui
+		src/engines/RapidshareFreeDownloadOptsForm.ui
 	)
 endif(WITH_CURL)
 
