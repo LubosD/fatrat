@@ -62,6 +62,7 @@ public:
 	static void globalExit();
 	
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+	virtual QObject* createDetailsWidget(QWidget* w);
 	virtual void fillContextMenu(QMenu& menu);
 protected:
 	QString filePath() const;
@@ -91,6 +92,7 @@ protected:
 	void setTargetName(QString newFileName);
 	void processHeaders();
 	void autoCreateSegment();
+	void removeLostSegments();
 	static void simplifySegments(QList<Segment>& in);
 	QColor allocateSegmentColor();
 protected:
@@ -112,6 +114,7 @@ protected:
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;
+	friend class HttpDetailsBar;
 };
 
 #endif

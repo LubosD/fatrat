@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tools/HashDlg.h"
 #include "CurlPoller.h"
 #include "Auth.h"
+#include "HttpDetails.h"
 #include <QMessageBox>
 #include <QMenu>
 #include <QtDebug>
@@ -244,10 +245,14 @@ run_segments:
 			client->start();
 			m_master->addTransfer(client);
 			
-			csg.urlIndex = -1;
-			m_segments.insert(i+1, sg);
+			if(csg.bytes)
+			{
+				m_segments.insert(++i, sg);
+				csg.urlIndex = -1;
+			}
+			else
+				m_segments.replace(i, sg);
 			
-			i++;
 			active++;
 		}
 		
@@ -262,7 +267,7 @@ run_segments:
 		for(int i=0;i<m_segments.size();i++)
 			qDebug() << "Segment " << i << ": " << m_segments[i].offset << ", +" << m_segments[i].bytes;
 	}
-	else
+	else if(m_master != 0)
 	{
 		m_segmentsLock.lockForWrite();
 		for(int i=0;i<m_segments.size();i++)
@@ -654,5 +659,17 @@ QColor CurlDownload::allocateSegmentColor()
 	}
 	
 	return QColor(rand()%256, rand()%256, rand()%256);
+}
+
+void CurlDownload::removeLostSegments()
+{
+	// TODO
+}
+
+QObject* CurlDownload::createDetailsWidget(QWidget* w)
+{
+	HttpDetails* d = new HttpDetails(w);
+	d->setDownload(this);
+	return d;
 }
 

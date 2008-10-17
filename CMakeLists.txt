@@ -254,6 +254,7 @@ if(WITH_CURL)
 		src/engines/RapidshareUploadProgress.cpp
 		src/engines/RapidshareFreeDownload.cpp
 		src/engines/RapidshareStatusWidget.cpp
+		src/engines/HttpDetailsBar.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -271,6 +272,7 @@ if(WITH_CURL)
 		src/engines/RapidshareOptsForm.ui
 		src/engines/RapidshareUploadDetailsForm.ui
 		src/engines/RapidshareFreeDownloadOptsForm.ui
+		src/engines/HttpDetails.ui
 	)
 endif(WITH_CURL)
 

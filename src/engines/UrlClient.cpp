@@ -253,6 +253,7 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 
 void UrlClient::transferDone(CURLcode result)
 {
+	curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
 	if(result == CURLE_OK || m_rangeFrom + m_progress >= m_rangeTo)
 	{
 		emit done(QString());
