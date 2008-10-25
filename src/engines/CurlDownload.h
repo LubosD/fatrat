@@ -88,7 +88,6 @@ protected:
 	};
 	
 	void generateName();
-	void init2(QString uri, QString dest);
 	void setTargetName(QString newFileName);
 	void processHeaders();
 	void autoCreateSegment();

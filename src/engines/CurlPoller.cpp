@@ -178,6 +178,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 	
 	while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
 	{
+		qDebug() << "CURL message:" << msg->msg;
 		if(msg->msg != CURLMSG_DONE)
 			continue;
 		

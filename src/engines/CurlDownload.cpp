@@ -149,14 +149,6 @@ void CurlDownload::setObject(QString target)
 	}
 }
 
-void CurlDownload::init2(QString uri,QString dest)
-{
-	QDir dir(dest);
-	m_strFile = dir.dirName();
-	dir.cdUp();
-	init(uri, dir.path());
-}
-
 QString CurlDownload::object() const
 {
 	 return m_dir.path();
@@ -232,7 +224,7 @@ run_segments:
 			connect(client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
 			
 			file->setFileName(filePath());
-			file->open(QIODevice::WriteOnly);
+			file->open(QIODevice::ReadWrite);
 			
 			Segment sg;
 			sg.offset = rangeFrom;
@@ -269,6 +261,8 @@ run_segments:
 	}
 	else if(m_master != 0)
 	{
+		updateSegmentProgress();
+		
 		m_segmentsLock.lockForWrite();
 		for(int i=0;i<m_segments.size();i++)
 		{
@@ -560,7 +554,7 @@ void CurlDownload::simplifySegments(QList<CurlDownload::Segment>& retval)
 	for(int i=1;i<retval.size();i++)
 	{
 		qlonglong pos = retval[i-1].offset+retval[i-1].bytes;
-		if(retval[i].offset <= pos && !retval[i-1].client && !retval[i].client)
+		if(retval[i].offset <= pos && retval[i-1].urlIndex < 0 && retval[i].urlIndex < 0)
 		{
 			retval[i].bytes += retval[i].offset - retval[i-1].offset;
 			retval[i].offset = retval[i-1].offset;
@@ -594,7 +588,11 @@ void CurlDownload::clientTotalSizeKnown(qlonglong bytes)
 void CurlDownload::clientDone(QString error)
 {
 	UrlClient* client = static_cast<UrlClient*>(sender());
+	updateSegmentProgress();
+	
 	m_segmentsLock.lockForWrite();
+	
+	qDebug() << "CurlDownload::clientDone" << error;
 	
 	for(int i=0;i<m_segments.size();i++)
 	{
@@ -602,6 +600,7 @@ void CurlDownload::clientDone(QString error)
 		{
 			m_segments[i].bytes = client->progress();
 			m_segments[i].client = 0;
+			m_segments[i].urlIndex = -1;
 			m_segments[i].color = QColor();
 		}
 	}

@@ -69,6 +69,7 @@ void UrlClient::start()
 		emit done(tr("Failed to seek in the file"));
 		return;
 	}
+	qDebug() << "Position in file:" << m_target->pos();
 	
 	m_curl = curl_easy_init();
 	
@@ -253,6 +254,7 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 
 void UrlClient::transferDone(CURLcode result)
 {
+	qDebug() << "UrlClient::transferDone" << result;
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
 	if(result == CURLE_OK || m_rangeFrom + m_progress >= m_rangeTo)
 	{
@@ -264,7 +266,8 @@ void UrlClient::transferDone(CURLcode result)
 		if(result == CURLE_OPERATION_TIMEDOUT)
 			err = tr("Timeout");
 		else
-			err = QString::fromUtf8(m_errorBuffer);
+			err = curl_easy_strerror(result);
+			//err = QString::fromUtf8(m_errorBuffer);
 		emit done(err);
 	}
 }

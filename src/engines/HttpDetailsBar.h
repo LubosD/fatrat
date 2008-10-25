@@ -32,13 +32,18 @@ class HttpDetailsBar : public QWidget
 public:
 	HttpDetailsBar(QWidget* parent);
 	void setDownload(CurlDownload* d);
+protected slots:
+	void createSegment();
+	void pauseSegment();
+	void stopSegment();
+	void resumeSegment();
 protected:
 	virtual void paintEvent(QPaintEvent* event);
 	virtual void mousePressEvent(QMouseEvent* event);
 private:
 	CurlDownload* m_download;
 	QTimer m_timer;
-	int m_sel;
+	int m_sel, m_createX;
 	QList<QPair<int,int> > m_segs;
 };
 
