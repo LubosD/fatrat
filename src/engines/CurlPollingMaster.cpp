@@ -29,6 +29,25 @@ int CurlPollingMaster::handle()
 bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 {
 	int dummy;
+	QList<CurlStat*> timedOut;
+	
 	curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
+	
+	m_usersLock.lock();
+	for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+	{
+		CurlStat* user = it.value().second;
+		
+		if(!user->idleCycle(tvNow))
+			timedOut << user;
+	}
+	
+	foreach(CurlStat* stat, timedOut)
+	{
+		if(CurlUser* user = dynamic_cast<CurlUser*>(stat))
+			user->transferDone(CURLE_OPERATION_TIMEDOUT);
+	}
+	m_usersLock.unlock();
+	
 	return true;
 }
