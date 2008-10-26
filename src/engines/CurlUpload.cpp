@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlPoller.h"
 #include "RuntimeException.h"
 #include "tools/HashDlg.h"
+#include "Settings.h"
 #include "Proxy.h"
 #include "Auth.h"
 #include <QFileInfo>
@@ -127,6 +128,9 @@ void CurlUpload::changeActive(bool nowActive)
 		
 		m_curl = curl_easy_init();
 		curl_easy_setopt(m_curl, CURLOPT_UPLOAD, true);
+		if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
+			curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		
 		curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, total());
 		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, -1LL);
 		curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, m_nTotal);

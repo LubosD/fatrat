@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Proxy.h"
 #include "fatrat.h"
 #include "CurlPollingMaster.h"
+#include "Settings.h"
 #include <QFileInfo>
 
 UrlClient::UrlClient()
@@ -112,6 +113,9 @@ void UrlClient::start()
 	ba = m_source.strBindAddress.toUtf8();
 	if(!ba.isEmpty())
 		curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
+	
+	if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
+		curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 	
 	curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, true);
 	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, true);

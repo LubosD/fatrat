@@ -20,10 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "HttpFtpSettings.h"
 #include "UserAuthDlg.h"
-#include <QSettings>
+#include "Settings.h"
 #include <QMessageBox>
-
-extern QSettings* g_settings;
 
 HttpFtpSettings::HttpFtpSettings(QWidget* w, QObject* parent)
 	: QObject(parent)
@@ -39,9 +37,11 @@ void HttpFtpSettings::load()
 {
 	bool bFound = false;
 	
+	checkForbidIPv6->setChecked(getSettingsValue("httpftp/forbidipv6").toInt() != 0);
+	
 	// LOAD PROXYS
 	m_listProxy = Proxy::loadProxys();
-	m_defaultProxy = g_settings->value("httpftp/defaultproxy").toString();
+	m_defaultProxy = getSettingsValue("httpftp/defaultproxy").toString();
 	
 	comboDefaultProxy->clear();
 	comboDefaultProxy->addItem(tr("None", "No proxy"));
@@ -63,10 +63,8 @@ void HttpFtpSettings::load()
 	m_listAuth = Auth::loadAuths();
 	
 	listAuths->clear();
-	foreach(Auth a,m_listAuth)
-	{
+	foreach(Auth a, m_listAuth)
 		listAuths->addItem(a.strRegExp);
-	}
 }
 
 void HttpFtpSettings::accepted()
@@ -76,9 +74,10 @@ void HttpFtpSettings::accepted()
 		m_defaultProxy = QUuid();
 	else
 		m_defaultProxy = m_listProxy[index-1].uuid;
-	g_settings->setValue("httpftp/defaultproxy", m_defaultProxy.toString());
+	setSettingsValue("httpftp/defaultproxy", m_defaultProxy.toString());
 	
 	Auth::saveAuths(m_listAuth);
+	setSettingsValue("httpftp/forbidipv6", checkForbidIPv6->isChecked());
 }
 
 void HttpFtpSettings::authAdd()

@@ -6,13 +6,13 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>290</height>
+    <height>327</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>HTTP/FTP</string>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QGridLayout" name="gridLayout" >
    <item row="0" column="0" >
     <widget class="QLabel" name="label_2" >
      <property name="text" >
@@ -100,6 +100,13 @@
      </layout>
     </widget>
    </item>
+   <item row="2" column="0" colspan="2" >
+    <widget class="QCheckBox" name="checkForbidIPv6" >
+     <property name="text" >
+      <string>Forbid IPv6 unless used explicitly</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -109,7 +116,7 @@
   <tabstop>pushAuthDelete</tabstop>
  </tabstops>
  <resources>
-  <include location="../gfx/resources.qrc" />
+  <include location="../../gfx/resources.qrc" />
  </resources>
  <connections>
   <connection>

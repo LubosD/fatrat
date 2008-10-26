@@ -129,6 +129,8 @@ void RapidshareUpload::curlInit()
 	
 	m_curl = curl_easy_init();
 	//curl_easy_setopt(m_curl, CURLOPT_POST, true);
+	if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
+		curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
 	curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
 	curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
