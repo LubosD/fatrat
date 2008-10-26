@@ -244,7 +244,7 @@ void RapidshareFreeDownload::secondPageDone(bool error)
 		QRegExp re("var c=(\\d+);");
 		if(re.indexIn(m_buffer->data()) < 0)
 		{
-			re.setPattern("Or try again in about (\\d+) minutes.");
+			re.setPattern("Please try again in (\\d+) minutes");
 			if(re.indexIn(m_buffer->data()) < 0)
 				throw tr("Failed to parse the download's waiting page.");
 			m_bLongWaiting = true;
