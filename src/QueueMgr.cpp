@@ -65,6 +65,8 @@ void QueueMgr::doWork()
 		
 		q->lock();
 		
+		QList<int> stopList, resumeList;
+		
 		for(int i=0;i<q->m_transfers.size();i++)
 		{
 			Transfer* d = q->m_transfers[i];
@@ -95,10 +97,10 @@ void QueueMgr::doWork()
 				if(*lim != 0)
 				{
 					(*lim)--;
-					d->setState(Transfer::Active);
+					resumeList << i;
 				}
 				else
-					d->setState(Transfer::Waiting);
+					stopList << i;
 			}
 			else if(state == Transfer::Completed && autoremove)
 			{
@@ -114,6 +116,11 @@ void QueueMgr::doWork()
 			else if(d->state() == Transfer::Waiting)
 				( (mode == Transfer::Download) ? stats.waiting_d : stats.waiting_u) ++;
 		}
+		
+		foreach(int x, stopList)
+			q->m_transfers[x]->setState(Transfer::Waiting);
+		foreach(int x, resumeList)
+			q->m_transfers[x]->setState(Transfer::Active);
 		
 		total[0] += stats.down;
 		total[1] += stats.up;

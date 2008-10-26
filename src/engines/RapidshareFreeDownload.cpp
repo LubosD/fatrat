@@ -141,6 +141,9 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 	}
 	else
 	{
+		if(m_state != Failed)
+			m_strMessage.clear();
+		
 		if(m_bHasLock)
 		{
 			m_mInstanceActive.unlock();
