@@ -33,7 +33,7 @@ TorrentProgressWidget::~TorrentProgressWidget()
 	delete [] m_data;
 }
 
-void TorrentProgressWidget::generate(const std::vector<bool>& data)
+void TorrentProgressWidget::generate(const libtorrent::bitfield& data)
 {
 	m_image = generate(data, 1000, m_data);
 	update();
@@ -45,7 +45,7 @@ void TorrentProgressWidget::generate(const std::vector<int>& data)
 	update();
 }
 
-QImage TorrentProgressWidget::generate(const std::vector<bool>& data, int width, quint32* buf, float sstart, float send)
+QImage TorrentProgressWidget::generate(const libtorrent::bitfield& data, int width, quint32* buf, float sstart, float send)
 {
 	double fact = (data.size()-send-sstart)/float(width);
 	double step = qMin<double>(255.0, 255.0/fact);

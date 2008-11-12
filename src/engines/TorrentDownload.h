@@ -59,8 +59,8 @@ public:
 	static void applySettings();
 	static void globalExit();
 	
-	static QByteArray bencode_simple(libtorrent::entry e);
-	static QString bencode(libtorrent::entry e);
+	static QByteArray bencode_simple(libtorrent::entry& e);
+	static QString bencode(libtorrent::entry& e);
 	static libtorrent::entry bdecode_simple(QByteArray d);
 	static libtorrent::entry bdecode(QString d);
 	

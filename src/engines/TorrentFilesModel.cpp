@@ -114,7 +114,7 @@ void TorrentFilesModel::fill()
 	}
 }
 
-void TorrentFilesModel::refresh(const std::vector<bool>* pieces)
+void TorrentFilesModel::refresh(const libtorrent::bitfield* pieces)
 {
 	/*int piece_size = m_download->m_info.piece_length();
 	for(int i=0;i<m_files.size();i++)
@@ -183,10 +183,28 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 		int start = file.offset/piece_size;
 		int end = ceilf( (file.offset+file.size)/float(piece_size) );
 		
-		std::vector<bool> pieces = std::vector<bool>(model->m_pieces->begin() + start,
-				model->m_pieces->begin() + end );
+		const int allocated = (end-start+7)/8;
+		char* cpy = new char[allocated];
+		const char* src = model->m_pieces->bytes();
+		const int shift = start % 8;
 		
-		im = TorrentProgressWidget::generate(pieces, myrect.width(), buf , sstart, send);
+		if(shift)
+		{
+			for(int i = 0; i < allocated; i++)
+			{
+				int x = start / 8 + i;
+				char b = src[x] << shift | src[x+1] >> (8-shift);
+				cpy[i] = b;
+			}
+		}
+		else
+		{
+			memcpy(cpy, src, allocated);
+		}
+		
+		im = TorrentProgressWidget::generate(libtorrent::bitfield(cpy, end-start), myrect.width(), buf , sstart, send);
+		
+		delete [] cpy;
 		
 		painter->drawImage(option.rect, im);
 		painter->setPen(Qt::black);

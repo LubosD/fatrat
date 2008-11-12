@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QPair>
 #include <QThread>
 #include "ui_CreateTorrentDlg.h"
-#include "libtorrent/torrent_info.hpp"
+#include <libtorrent/create_torrent.hpp>
 
 class HasherThread;
 class CreateTorrentDlg : public QDialog, Ui_CreateTorrentDlg
@@ -50,17 +50,17 @@ class HasherThread : public QThread
 {
 Q_OBJECT
 public:
-	HasherThread(QByteArray baseDir, libtorrent::torrent_info* info, QObject* parent);
+	HasherThread(QByteArray baseDir, libtorrent::create_torrent* info, QObject* parent);
 	~HasherThread();
 	
 	virtual void run();
 	const QString& error() const { return m_strError; }
-	libtorrent::torrent_info* info() { return m_info; }
+	libtorrent::create_torrent* info() { return m_info; }
 signals:
 	void progress(int pos);
 private:
 	QByteArray m_baseDir;
-	libtorrent::torrent_info* m_info;
+	libtorrent::create_torrent* m_info;
 	bool m_bAbort;
 	QString m_strError;
 };

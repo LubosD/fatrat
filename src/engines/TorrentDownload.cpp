@@ -260,7 +260,7 @@ void TorrentDownload::applySettings()
 	
 	QByteArray external_ip = getSettingsValue("torrent/external_ip").toString().toUtf8();
 	if(!external_ip.isEmpty())
-		settings.announce_ip = asio::ip::address::from_string(external_ip.constData());
+		settings.announce_ip = libtorrent::address::from_string(external_ip.constData());
 	
 	m_session->set_settings(settings);
 	
@@ -356,7 +356,8 @@ void TorrentDownload::globalExit()
 {
 	if(m_bDHT)
 	{
-		setSettingsValue("torrent/dht_state", bencode_simple(m_session->dht_state()));
+		libtorrent::entry e = m_session->dht_state();
+		setSettingsValue("torrent/dht_state", bencode_simple(e));
 	}
 	
 	delete m_worker;
@@ -423,17 +424,26 @@ void TorrentDownload::init(QString source, QString target)
 			if(localFile)
 			{
 				QFile in(source);
-				QByteArray data;
-				const char* p;
+				//QByteArray data;
+				//const char* p;
 				
 				if(!in.open(QIODevice::ReadOnly))
 					throw RuntimeException(tr("Unable to open the file!"));
 				
-				data = in.readAll();
-				p = data.data();
+				//data = in.readAll();
+				//p = data.data();
 				
-				m_info = new libtorrent::torrent_info( libtorrent::bdecode(p, p+data.size()) );
-				m_handle = m_session->add_torrent(m_info, target.toStdString(), libtorrent::entry(), storageMode, !isActive());
+				libtorrent::add_torrent_params params;
+				m_info = new libtorrent::torrent_info(boost::filesystem::path( source.toStdString() ));
+				
+				params.ti = m_info;
+				params.save_path = target.toStdString();
+				params.storage_mode = storageMode;
+				params.paused = !isActive();
+				params.auto_managed = false;
+				
+				m_handle = m_session->add_torrent(params);
+				//m_handle = m_session->add_torrent(m_info, target.toStdString(), libtorrent::entry(), storageMode, !isActive());
 			}
 			else
 			{
@@ -672,15 +682,15 @@ void TorrentDownload::speeds(int& down, int& up) const
 		down = up = 0;
 }
 
-QByteArray TorrentDownload::bencode_simple(libtorrent::entry e)
+QByteArray TorrentDownload::bencode_simple(libtorrent::entry& e)
 {
 	std::vector<char> buffer;
 	libtorrent::bencode(std::back_inserter(buffer), e);
-	QVector<char> buf2 = QVector<char>::fromStdVector(buffer);
-	return QByteArray(buf2.data(), buf2.size());
+	//QVector<char> buf2 = QVector<char>::fromStdVector(buffer);
+	return QByteArray(buffer.data(), buffer.size());
 }
 
-QString TorrentDownload::bencode(libtorrent::entry e)
+QString TorrentDownload::bencode(libtorrent::entry& e)
 {
 	return bencode_simple(e).toBase64();
 }
@@ -842,7 +852,10 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 		try
 		{
 			if(m_handle.is_valid())
-				setXMLProperty(doc, map, "torrent_resume", bencode(m_handle.write_resume_data()));
+			{
+				libtorrent::entry e = m_handle.write_resume_data();
+				setXMLProperty(doc, map, "torrent_resume", bencode(e));
+			}
 		}
 		catch(...) {}
 	}
@@ -901,9 +914,10 @@ QString TorrentDownload::message() const
 		case libtorrent::torrent_status::checking_files:
 			state = tr("Checking files: %1%").arg(m_status.progress*100.f);
 			break;
-		case libtorrent::torrent_status::connecting_to_tracker:
+		/*case libtorrent::torrent_status::connecting_to_tracker:
 			state = tr("Connecting to the tracker");
 			state += " | ";
+		*/
 		case libtorrent::torrent_status::seeding:
 		case libtorrent::torrent_status::downloading:
 		case libtorrent::torrent_status::finished:
@@ -987,10 +1001,10 @@ void TorrentWorker::doWork()
 		std::vector<int> prio = d->m_handle.piece_priorities();
 		qint64 done = 0, wanted = 0;
 		
-		const std::vector<bool>* prog = d->m_status.pieces;
+		libtorrent::bitfield prog = d->m_status.pieces;
 		int len = d->m_info->piece_length();
 		
-		size_t size = prog->size();
+		size_t size = prog.size();
 		for(size_t i=0;i<size;i++)
 		{
 			if(prio[i])
@@ -999,7 +1013,7 @@ void TorrentWorker::doWork()
 					len = d->m_info->piece_size(i);
 				
 				wanted += len;
-				if((*prog)[i])
+				if(prog[i])
 					done += len;
 			}
 		}
@@ -1085,7 +1099,7 @@ void TorrentWorker::doWork()
 		if(IS_ALERT(torrent_alert))
 		{
 			TorrentDownload* d = getByHandle(alert->handle);
-			const char* shit = static_cast<libtorrent::torrent_alert*>(a.get())->msg().c_str();
+			const char* shit = static_cast<libtorrent::alert*>(a.get())->message().c_str();
 			QString errmsg = QString::fromUtf8(shit);
 			
 			if(!d)
@@ -1101,7 +1115,7 @@ void TorrentWorker::doWork()
 			{
 				d->enterLogMessage(tr("Tracker announce: %1").arg(errmsg));
 			}
-			else if(IS_ALERT(tracker_alert))
+			else if(IS_ALERT(tracker_error_alert))
 			{
 				QString desc = tr("Tracker failure: %1, %2 times in a row ")
 						.arg(errmsg)
@@ -1132,7 +1146,7 @@ void TorrentWorker::doWork()
 		}
 		else
 		{
-			Logger::global()->enterLogMessage("BitTorrent", aaa->msg().c_str());
+			Logger::global()->enterLogMessage("BitTorrent", aaa->message().c_str());
 			
 			/*if(IS_ALERT(peer_error_alert))
 			{

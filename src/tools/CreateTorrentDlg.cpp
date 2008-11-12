@@ -98,13 +98,41 @@ void CreateTorrentDlg::createTorrent()
 	
 	bPrivate = checkPrivate->isChecked();
 	
-	libtorrent::torrent_info* info = new libtorrent::torrent_info;
+	libtorrent::file_storage fs;
+	libtorrent::create_torrent* info;
 	QByteArray comment = lineComment->text().toUtf8();
 	QList<QPair<QString, qint64> > files;
 	
+	QByteArray baseDir;
+	if(!bDirectory)
+	{
+		QFileInfo file(data);
+		
+		baseDir = file.absolutePath().toUtf8();
+		files << QPair<QString, qint64>(file.fileName(), file.size());
+	}
+	else
+	{
+		QDir dir(data);
+		baseDir = dir.dirName().toUtf8() + '/';
+		
+		recurseDir(files, baseDir, data);
+		dir.cdUp();
+		
+		baseDir = dir.absolutePath().toUtf8();
+	}
+	
+	for(int i=0;i<files.size();i++)
+	{
+		QByteArray name = files[i].first.toUtf8();
+		qDebug() << name;
+		fs.add_file(name.data(), files[i].second);
+	}
+	
+	info = new libtorrent::create_torrent(fs, 64*1024 * pow(2, comboPieceSize->currentIndex()));
+	
 	info->set_creator("FatRat " VERSION);
 	info->set_comment(comment.data());
-	info->set_piece_size(64*1024 * pow(2, comboPieceSize->currentIndex()));
 	
 	for(int i=0;i<listTrackers->count();i++)
 	{
@@ -152,32 +180,6 @@ void CreateTorrentDlg::createTorrent()
 		info->add_url_seed(text.data());
 	}
 	
-	QByteArray baseDir;
-	if(!bDirectory)
-	{
-		QFileInfo file(data);
-		
-		baseDir = file.absolutePath().toUtf8();
-		files << QPair<QString, qint64>(file.fileName(), file.size());
-	}
-	else
-	{
-		QDir dir(data);
-		baseDir = dir.dirName().toUtf8() + '/';
-		
-		recurseDir(files, baseDir, data);
-		dir.cdUp();
-		
-		baseDir = dir.absolutePath().toUtf8();
-	}
-	
-	for(int i=0;i<files.size();i++)
-	{
-		QByteArray name = files[i].first.toUtf8();
-		qDebug() << name;
-		info->add_file(name.data(), files[i].second);
-	}
-	
 	m_hasher = new HasherThread(baseDir, info, this);
 	progressBar->setVisible(true);
 	progressBar->setMaximum(info->num_pieces());
@@ -207,7 +209,7 @@ void CreateTorrentDlg::recurseDir(QList<QPair<QString, qint64> >& list, QString 
 
 void CreateTorrentDlg::hasherFinished()
 {
-	libtorrent::torrent_info* info = m_hasher->info();
+	libtorrent::create_torrent* info = m_hasher->info();
 	QByteArray torrent;
 	
 	progressBar->setVisible(false);
@@ -218,7 +220,7 @@ void CreateTorrentDlg::hasherFinished()
 		torrent = QFileDialog::getSaveFileName(this, "FatRat", QString(), tr("Torrents (*.torrent)")).toUtf8();
 		if(!torrent.isEmpty())
 		{
-			libtorrent::entry e = info->create_torrent();
+			libtorrent::entry e = info->generate();
 			std::ofstream fout(torrent.constData(), std::ios_base::binary);
 			libtorrent::bencode(std::ostream_iterator<char>(fout), e);
 		}
@@ -234,7 +236,7 @@ void CreateTorrentDlg::hasherFinished()
 	m_hasher = 0;
 }
 
-HasherThread::HasherThread(QByteArray baseDir, libtorrent::torrent_info* info, QObject* parent)
+HasherThread::HasherThread(QByteArray baseDir, libtorrent::create_torrent* info, QObject* parent)
 	: QThread(parent), m_baseDir(baseDir), m_info(info), m_bAbort(false)
 {
 }
@@ -253,7 +255,7 @@ void HasherThread::run()
 	try
 	{
 		libtorrent::file_pool fp;
-		libtorrent::storage_interface* st = libtorrent::default_storage_constructor(m_info, m_baseDir.data(), fp);
+		libtorrent::storage_interface* st = libtorrent::default_storage_constructor(m_info->files(), m_baseDir.data(), fp);
 		
 		for(int i=0;i<num && !m_bAbort;i++)
 		{

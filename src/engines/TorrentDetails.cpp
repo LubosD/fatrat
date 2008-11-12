@@ -234,12 +234,12 @@ void TorrentDetails::refresh()
 				.arg(next.hours()).arg(next.minutes(),2,10,QChar('0')).arg(next.seconds(),2,10,QChar('0'))
 				.arg(intv.hours()).arg(intv.minutes(),2,10,QChar('0')).arg(intv.seconds(),2,10,QChar('0')));
 		
-		const std::vector<bool>* pieces = m_download->m_status.pieces;
+		libtorrent::bitfield pieces = m_download->m_status.pieces;
 		
-		if(pieces != 0 && m_vecPieces != (*pieces))
+		if(!pieces.empty() && !bitfieldsEqual(m_vecPieces, pieces))
 		{
-			widgetCompletition->generate(*pieces);
-			m_vecPieces = *pieces;
+			widgetCompletition->generate(pieces);
+			m_vecPieces = pieces;
 			
 			// FILES
 			m_pFilesModel->refresh(&m_vecPieces);
@@ -272,3 +272,21 @@ void TorrentDetails::refresh()
 		m_pPeersModel->refresh();
 	}
 }
+
+bool TorrentDetails::bitfieldsEqual(const libtorrent::bitfield& b1, const libtorrent::bitfield& b2)
+{
+	const char* pb1, *pb2;
+	
+	pb1 = b1.bytes();
+	pb2 = b2.bytes();
+	
+	if(!pb1 && !pb2)
+		return true;
+	else if((pb1 && !pb2) || (!pb1 && pb2))
+		return false;
+	else if(b1.size() != b2.size())
+		return false;
+	else
+		return memcmp(pb1, pb2, b1.size()/2) == 0;
+}
+

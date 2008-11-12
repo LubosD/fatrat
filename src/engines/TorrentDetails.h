@@ -36,6 +36,7 @@ public:
 	virtual ~TorrentDetails();
 	void fill(); // only constant data
 	void setPriority(int p);
+	static bool bitfieldsEqual(const libtorrent::bitfield& b1, const libtorrent::bitfield& b2);
 public slots:
 	void refresh();
 	void destroy();
@@ -52,7 +53,7 @@ public slots:
 private:
 	TorrentDownload* m_download;
 	bool m_bFilled;
-	std::vector<bool> m_vecPieces;
+	libtorrent::bitfield m_vecPieces;
 	TorrentPiecesModel* m_pPiecesModel;
 	TorrentPeersModel* m_pPeersModel;
 	TorrentFilesModel* m_pFilesModel;

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QItemDelegate>
 #include <vector>
 #include <libtorrent/session.hpp>
+#include <libtorrent/bitfield.hpp>
 
 class TorrentDownload;
 
@@ -53,11 +54,11 @@ public:
 	bool hasChildren(const QModelIndex& parent) const;
 	
 	void fill();
-	void refresh(const std::vector<bool>* pieces);
+	void refresh(const libtorrent::bitfield* pieces);
 protected:
 	QList<libtorrent::file_entry> m_files;
 	std::vector<float> m_progresses;
-	const std::vector<bool>* m_pieces;
+	const libtorrent::bitfield* m_pieces;
 private:
 	TorrentDownload* m_download;
 	QStringList m_columns;

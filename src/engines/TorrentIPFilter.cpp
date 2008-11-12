@@ -46,8 +46,8 @@ bool loadIPFilter(QString textFile, libtorrent::ip_filter* filter)
 		from = line.mid(colon, dash-colon);
 		to = line.mid(dash+1);
 		
-		filter->add_rule(asio::ip::address::from_string(from.data()),
-				 asio::ip::address::from_string(to.data()), libtorrent::ip_filter::blocked);
+		filter->add_rule(libtorrent::address::from_string(from.data()),
+				 libtorrent::address::from_string(to.data()), libtorrent::ip_filter::blocked);
 	}
 	
 	return true;
