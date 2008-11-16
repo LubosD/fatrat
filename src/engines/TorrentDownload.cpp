@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
 #include <libtorrent/extensions/metadata_transfer.hpp>
+#include <libtorrent/extensions/ut_metadata.hpp>
+#include <libtorrent/extensions/smart_ban.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -47,6 +49,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QVector>
 #include <QLabel>
 #include <QtDebug>
+
+#if (!defined(NDEBUG) && !defined(DEBUG))
+#	error Define NDEBUG or DEBUG!
+#endif
+#if defined(NDEBUG)
+#	warning NDEBUG defined - please always make sure that libtorrent also has NDEBUG defined
+#else
+#	warning DEBUG defined - please always make sure that libtorrent also has DEBUG defined
+#endif
 
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
@@ -130,6 +141,8 @@ void TorrentDownload::globalInit()
 	if(getSettingsValue("torrent/pex").toBool())
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
 	m_session->add_extension(&libtorrent::create_metadata_plugin);
+	m_session->add_extension(&libtorrent::create_ut_metadata_plugin);
+	m_session->add_extension(&libtorrent::create_smart_ban_plugin);
 	
 	m_worker = new TorrentWorker;
 	
@@ -737,7 +750,7 @@ void TorrentDownload::load(const QDomNode& map)
 	
 	try
 	{
-		libtorrent::entry torrent_resume;
+		QByteArray torrent_resume;
 		QString str;
 		QDir dir = QDir::home();
 	
@@ -755,25 +768,29 @@ void TorrentDownload::load(const QDomNode& map)
 		m_strTarget = str = getXMLProperty(map, "target");
 		
 		QByteArray file = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") ).toUtf8();
-		std::ifstream in(file.data(), std::ios_base::binary);
-		in.unsetf(std::ios_base::skipws);
 		
-		if(!in.is_open())
+		if(!QFile(file).open(QIODevice::ReadOnly))
 		{
 			m_strError = tr("Unable to open the file!");
 			setState(Failed);
 			return;
 		}
 		
-		m_info = new libtorrent::torrent_info( libtorrent::bdecode(std::istream_iterator<char>(in), std::istream_iterator<char>()) );
+		m_info = new libtorrent::torrent_info(boost::filesystem::path( file.constData() ));
 		
-		torrent_resume = bdecode(getXMLProperty(map, "torrent_resume"));
+		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
 		
-		libtorrent::storage_mode_t storageMode;
+		libtorrent::add_torrent_params params;
+		std::vector<char> torrent_resume2 = std::vector<char>(torrent_resume.data(), torrent_resume.data()+torrent_resume.size());
 		
-		storageMode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
+		params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
+		params.ti = m_info;
+		params.save_path = str.toStdString();
+		params.resume_data = &torrent_resume2;
+		params.paused = true;
+		params.auto_managed = false;
 		
-		m_handle = m_session->add_torrent(boost::intrusive_ptr<libtorrent::torrent_info>( m_info ), str.toStdString(), torrent_resume, storageMode, true);
+		m_handle = m_session->add_torrent(params);
 		
 		m_handle.set_ratio(1.2f);
 		m_handle.set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
@@ -1087,8 +1104,8 @@ void TorrentWorker::doWork()
 		if(IS_ALERT(torrent_alert))
 		{
 			TorrentDownload* d = getByHandle(alert->handle);
-			const char* shit = static_cast<libtorrent::alert*>(a.get())->message().c_str();
-			QString errmsg = QString::fromUtf8(shit);
+			std::string smsg = static_cast<libtorrent::alert*>(a.get())->message();
+			QString errmsg = QString::fromUtf8(smsg.c_str());
 			
 			if(!d)
 				continue;
