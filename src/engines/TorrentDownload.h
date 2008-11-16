@@ -117,9 +117,6 @@ protected:
 	double m_seedLimitRatio;
 	int m_seedLimitUpload;
 	
-	// libtorrent bug workaround
-	qint64 m_totalWanted, m_totalWantedDone;
-	
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;

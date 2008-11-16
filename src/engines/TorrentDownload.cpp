@@ -66,7 +66,7 @@ void (*GeoIP_delete)(void*);
 
 TorrentDownload::TorrentDownload(bool bAuto)
 	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_pFileDownload(0)
-		, m_pFileDownloadTemp(0), m_totalWanted(1), m_totalWantedDone(0)
+		, m_pFileDownloadTemp(0)
 {
 	m_worker->addObject(this);
 }
@@ -118,7 +118,9 @@ void TorrentDownload::globalInit()
 	boost::filesystem::path::default_name_check(boost::filesystem::native);
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
-	m_session->set_severity_level(libtorrent::alert::info);
+	m_session->set_alert_mask(libtorrent::alert::error_notification | libtorrent::alert::port_mapping_notification |
+			libtorrent::alert::storage_notification | libtorrent::alert::tracker_notification |
+			libtorrent::alert::ip_block_notification);
 	
 	if(programHasGUI())
 		m_labelDHTStats = new QLabel;
@@ -182,28 +184,34 @@ void TorrentDownload::applySettings()
 	bNATPMP = getSettingsValue("torrent/mapping_natpmp").toBool();
 	bLSD = getSettingsValue("torrent/mapping_lsd").toBool();
 	
+	if(!bUPnP)
+		m_session->stop_upnp(); // libtorrent bug workaround
 	if(bUPnP != bUPnPActive)
 	{
 		if(bUPnP)
 			m_session->start_upnp();
-		else
-			m_session->stop_upnp();
+		//else
+		//	m_session->stop_upnp();
 		bUPnPActive = bUPnP;
 	}
+	if(!bNATPMP) // libtorrent bug workaround
+		m_session->stop_natpmp();
 	if(bNATPMP != bNATPMPActive)
 	{
 		if(bNATPMP)
 			m_session->start_natpmp();
-		else
-			m_session->stop_natpmp();
+		//else
+		//	m_session->stop_natpmp();
 		bNATPMPActive = bNATPMP;
 	}
+	if(!bLSD) // libtorrent bug workaround
+		m_session->stop_lsd();
 	if(bLSD != bLSDActive)
 	{
 		if(bLSD)
 			m_session->start_lsd();
-		else
-			m_session->stop_lsd();
+		//else
+		//	m_session->stop_lsd();
 		bLSDActive = bLSD;
 	}
 	
@@ -237,7 +245,7 @@ void TorrentDownload::applySettings()
 		if(programHasGUI())
 			addStatusWidget(m_labelDHTStats, true);
 	}
-	else if(m_bDHT)
+	else //if(m_bDHT)
 	{
 		m_session->stop_dht();
 		m_bDHT = false;
@@ -452,7 +460,15 @@ void TorrentDownload::init(QString source, QString target)
 				const char* b32data = s.constData()+strlen(MAGNET_PREFIX);
 				base32_decode(b32data, hash.begin());
 				
-				m_handle = m_session->add_torrent(0, hash, b32data, target.toStdString(), libtorrent::entry(), storageMode);
+				libtorrent::add_torrent_params params;
+				params.info_hash = hash;
+				params.name = b32data;
+				params.save_path = target.toStdString();
+				params.storage_mode = storageMode;
+				params.paused = !isActive();
+				params.auto_managed = false;
+				
+				m_handle = m_session->add_torrent(params);
 			}
 			
 			
@@ -1020,8 +1036,7 @@ void TorrentWorker::doWork()
 					d->enterLogMessage(tr("The torrent has been downloaded"));
 					d->m_handle.set_ratio(0);
 				}
-				//else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
-				else if(d->m_totalWanted == d->m_totalWantedDone)
+				else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
 				{
 					d->enterLogMessage(tr("Requested parts of the torrent have been downloaded"));
 					d->setMode(Transfer::Upload);
@@ -1030,8 +1045,7 @@ void TorrentWorker::doWork()
 			}
 			if(d->mode() == Transfer::Upload)
 			{
-				//if(d->m_status.total_wanted_done < d->m_status.total_wanted)
-				if(d->m_totalWantedDone < d->m_totalWanted)
+				if(d->m_status.total_wanted_done < d->m_status.total_wanted)
 					d->setMode(Transfer::Download);
 				else if(d->state() != Transfer::ForcedActive)
 				{
