@@ -657,7 +657,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 qulonglong TorrentDownload::done() const
 {
 	if(m_handle.is_valid())
-		return qMax<qint64>(0, /*m_status.total_wanted_done*/ m_totalWantedDone);
+		return qMax<qint64>(0, m_status.total_wanted_done);
 	else
 		return 0;
 }
@@ -665,7 +665,7 @@ qulonglong TorrentDownload::done() const
 qulonglong TorrentDownload::total() const
 {
 	if(m_handle.is_valid())
-		return m_totalWanted;//m_status.total_wanted;
+		return m_status.total_wanted;
 	else
 		return 0;
 }
@@ -996,38 +996,12 @@ void TorrentWorker::doWork()
 				continue;
 			d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
 		}
-		
-		// libtorrent bug workaround
-		std::vector<int> prio = d->m_handle.piece_priorities();
-		qint64 done = 0, wanted = 0;
-		
-		libtorrent::bitfield prog = d->m_status.pieces;
-		int len = d->m_info->piece_length();
-		
-		size_t size = prog.size();
-		for(size_t i=0;i<size;i++)
-		{
-			if(prio[i])
-			{
-				if(i+1 == size)
-					len = d->m_info->piece_size(i);
-				
-				wanted += len;
-				if(prog[i])
-					done += len;
-			}
-		}
-		
-		d->m_totalWanted = wanted;
-		d->m_totalWantedDone = done;
 	}
 	
 	foreach(TorrentDownload* d, m_objects)
 	{
 		if(!d->m_handle.is_valid() || !d->m_info)
 			continue;
-		
-		//d->m_status = d->m_handle.status();
 		
 		if(d->m_bHasHashCheck && d->m_status.state != libtorrent::torrent_status::checking_files && d->m_status.state != libtorrent::torrent_status::queued_for_checking)
 		{

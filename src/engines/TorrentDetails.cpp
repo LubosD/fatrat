@@ -236,6 +236,12 @@ void TorrentDetails::refresh()
 		
 		libtorrent::bitfield pieces = m_download->m_status.pieces;
 		
+		if(pieces.empty() && m_download->m_info->total_size() == m_download->m_status.total_done)
+		{
+			pieces.resize(m_download->m_info->num_pieces());
+			pieces.set_all();
+		}
+		
 		if(!pieces.empty() && !bitfieldsEqual(m_vecPieces, pieces))
 		{
 			widgetCompletition->generate(pieces);
