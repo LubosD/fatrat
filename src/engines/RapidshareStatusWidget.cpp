@@ -57,9 +57,12 @@ void RapidshareStatusWidget::done(bool error)
 	if(!error)
 	{
 		QRegExp re("setzeTT\\(\"\"\\+Math\\.ceil\\((\\d+)/(\\d+)");
+		QRegExp re2(">\\+(\\d+) GB</a>");
 		if(re.indexIn(m_buffer->data()) != -1)
 		{
 			qint64 bytes = re.cap(1).toDouble()/re.cap(2).toDouble()*1024LL*1024LL;
+			if(re2.indexIn(m_buffer->data()) != -1)
+				bytes += re2.cap(1).toLongLong()*1024LL*1024LL*1024LL;
 			setText(QString("<b>RS</b>: ") + formatSize(bytes));
 			return;
 		}
