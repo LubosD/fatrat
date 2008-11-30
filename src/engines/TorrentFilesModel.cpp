@@ -193,13 +193,13 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 			for(int i = 0; i < allocated; i++)
 			{
 				int x = start / 8 + i;
-				char b = src[x] << shift | src[x+1] >> (8-shift);
+				char b = (src[x] << shift) | (src[x+1] >> (8-shift));
 				cpy[i] = b;
 			}
 		}
 		else
 		{
-			memcpy(cpy, src, allocated);
+			memcpy(cpy, src + start/8, allocated);
 		}
 		
 		im = TorrentProgressWidget::generate(libtorrent::bitfield(cpy, end-start), myrect.width(), buf , sstart, send);
