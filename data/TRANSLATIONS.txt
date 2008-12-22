@@ -3,5 +3,6 @@ as published by the Free Software Foundation. The copyright
 of translations is held by their respective author(s).
 
 Czech cs_CZ (čeština) - Luboš Doležel <lubos a dolezel.info>
+Russian ru_RU (по-русски) - <metaller a fromru.com>
 Slovak sk_SK (slovenčina) - Jozef Říha <jose1711 a gmail.com>
 Turkish tr_TR (Türkçe) - Volkan Çetin <cetinv a gmail.com>
