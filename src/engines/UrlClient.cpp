@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 UrlClient::UrlClient()
 	: m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0)
 {
+	m_errorBuffer[0] = 0;
 }
 
 UrlClient::~UrlClient()
@@ -260,7 +261,7 @@ void UrlClient::transferDone(CURLcode result)
 {
 	qDebug() << "UrlClient::transferDone" << result;
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
-	if(result == CURLE_OK || m_rangeFrom + m_progress >= m_rangeTo)
+	if(result == CURLE_OK || (m_rangeFrom + m_progress >= m_rangeTo && m_rangeTo > 0))
 	{
 		emit done(QString());
 	}
@@ -269,9 +270,10 @@ void UrlClient::transferDone(CURLcode result)
 		QString err;
 		if(result == CURLE_OPERATION_TIMEDOUT)
 			err = tr("Timeout");
+		else if(m_errorBuffer[0])
+			err = QString::fromUtf8(m_errorBuffer);
 		else
 			err = curl_easy_strerror(result);
-			//err = QString::fromUtf8(m_errorBuffer);
 		emit done(err);
 	}
 }

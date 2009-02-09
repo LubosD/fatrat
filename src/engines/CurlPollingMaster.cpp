@@ -47,6 +47,18 @@ bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 		if(CurlUser* user = dynamic_cast<CurlUser*>(stat))
 			user->transferDone(CURLE_OPERATION_TIMEDOUT);
 	}
+	
+	while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
+	{
+		qDebug() << "CURL message:" << msg->msg;
+		if(msg->msg != CURLMSG_DONE)
+			continue;
+		
+		CurlUser* user = m_users[msg->easy_handle];
+		
+		if(user)
+			user->transferDone(msg->data.result);
+	}
 	m_usersLock.unlock();
 	
 	return true;

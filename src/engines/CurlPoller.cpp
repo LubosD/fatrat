@@ -85,6 +85,11 @@ void CurlPoller::pollingCycle(bool oneshot)
 		curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	}
 	
+	//for(QMap<int, CurlPollingMaster*>::iterator it = m_masters.begin(); it != m_masters.end(); it++)
+	//{
+	//	it.value()->pollingCycle(true);
+	//}
+	
 	for(int i=0;i<events.size();i++)
 	{
 		int socket = events[i].socket;
@@ -103,8 +108,8 @@ void CurlPoller::pollingCycle(bool oneshot)
 			//qDebug() << "Events:" << mask;
 			curl_multi_socket_action(m_curlm, socket, mask, &dummy);
 		}
-		else
-			m_masters[socket]->pollingCycle(true);
+		//else
+		//	m_masters[socket]->pollingCycle(true);
 	}
 	
 	gettimeofday(&tvNow, 0);

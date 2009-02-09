@@ -635,7 +635,10 @@ void CurlDownload::clientDone(QString error)
 		m_segmentsLock.unlock();
 		
 		if(allfailed)
+		{
 			setState(Failed);
+			m_strMessage = error;
+		}
 	}
 }
 
