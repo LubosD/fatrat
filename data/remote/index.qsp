@@ -155,7 +155,7 @@ if(GET.queue == undefined && QUEUES.length != 0)
 	if(queue == undefined)
 	{
 		print("<h2>No queue</h2>");
-		return;
+		exit(0);
 	}
 	
 	if(POST.queueLimits != undefined)
