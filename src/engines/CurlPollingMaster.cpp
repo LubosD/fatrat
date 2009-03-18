@@ -48,7 +48,7 @@ bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 			user->transferDone(CURLE_OPERATION_TIMEDOUT);
 	}
 	
-	while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
+	/*while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
 	{
 		qDebug() << "CURL message:" << msg->msg;
 		if(msg->msg != CURLMSG_DONE)
@@ -58,7 +58,7 @@ bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 		
 		if(user)
 			user->transferDone(msg->data.result);
-	}
+	}*/
 	m_usersLock.unlock();
 	
 	return true;

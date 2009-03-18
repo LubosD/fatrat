@@ -145,6 +145,7 @@ void UrlClient::start()
 	
 	curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 10);
 	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, true);
 	
 	//curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 	//curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);

@@ -108,8 +108,8 @@ void CurlPoller::pollingCycle(bool oneshot)
 			//qDebug() << "Events:" << mask;
 			curl_multi_socket_action(m_curlm, socket, mask, &dummy);
 		}
-		//else
-		//	m_masters[socket]->pollingCycle(true);
+		else
+			m_masters[socket]->pollingCycle(true);
 	}
 	
 	gettimeofday(&tvNow, 0);
