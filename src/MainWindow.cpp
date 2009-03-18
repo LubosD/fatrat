@@ -888,6 +888,7 @@ show_dialog:
 				uris[i] = trm;
 		}
 		
+		int detectedClass = m_dlgNewTransfer->m_nClass; // used for the multiple cfg dialog
 		for(int i=0;i<uris.size();i++)
 		{
 			Transfer* d;
@@ -907,6 +908,11 @@ show_dialog:
 					throw RuntimeException(tr("Couldn't autodetect transfer type for \"%1\"").arg(uris[i]));
 				else
 					classID = eng.nClass;
+
+				if(detectedClass == -1)
+					detectedClass = classID;
+				else if(detectedClass >= 0 && detectedClass != classID)
+					detectedClass = -2;
 			}
 			else
 				classID = m_dlgNewTransfer->m_nClass;
@@ -957,10 +963,14 @@ show_dialog:
 						throw RuntimeException();
 				}
 			}
-			else // show a dialog designed for multiple
+			else if(detectedClass >= 0) // show a dialog designed for multiple
 			{
-				if(!Transfer::runProperties(this, m_dlgNewTransfer->m_mode, m_dlgNewTransfer->m_nClass, listTransfers))
+				if(!Transfer::runProperties(this, m_dlgNewTransfer->m_mode, detectedClass, listTransfers))
 					throw RuntimeException();
+			}
+			else
+			{
+				QMessageBox::warning(this, "FatRat", tr("Cannot display detailed configuration when there are multiple transfer types used."));
 			}
 		}
 		

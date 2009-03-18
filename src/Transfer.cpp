@@ -64,7 +64,7 @@ void initTransferClasses()
 #endif
 #ifdef WITH_CURL
 	{
-		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance, CurlDownload::acceptable, 0 };
+		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance, CurlDownload::acceptable, CurlDownload::createMultipleOptionsWidget };
 		g_enginesDownload << e;
 	}
 	{
@@ -161,21 +161,28 @@ Transfer* Transfer::createInstance(Mode mode, int classID)
 bool Transfer::runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects)
 {
 	const EngineEntry* entries = engines(mode);
+	bool err = false;
+
 	if(!entries[classID].lpfnMultiOptions)
-	{
-		QMessageBox::information(parent, "FatRat", tr("This transfer type has no advanced options to set."));
-		return true;
-	}
-	else
+	    err = true;
+	if(!err)
 	{
 		int result;
 		QDialog* dlg = entries[classID].lpfnMultiOptions(parent, objects);
-		
-		result = dlg->exec();
-		
-		delete dlg;
-		return result == QDialog::Accepted;
+
+		if(dlg)
+		{
+		    result = dlg->exec();
+
+		    delete dlg;
+		    return result == QDialog::Accepted;
+		}
+		else
+		    err = true;
 	}
+	if(err)
+		QMessageBox::information(parent, "FatRat", tr("This transfer type has no advanced options to set."));
+	return true;
 }
 
 const EngineEntry* Transfer::engines(Mode type)
