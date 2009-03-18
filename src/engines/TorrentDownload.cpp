@@ -380,7 +380,9 @@ void TorrentDownload::globalExit()
 		libtorrent::entry e = m_session->dht_state();
 		setSettingsValue("torrent/dht_state", bencode_simple(e));
 	}
-	
+
+	m_session->abort();
+
 	delete m_worker;
 	delete m_session;
 	
@@ -625,7 +627,7 @@ void TorrentDownload::torrentFileDone(bool error)
 
 void TorrentDownload::setObject(QString target)
 {
-	if(m_handle.is_valid())
+	if(m_handle.is_valid() && target != m_strTarget)
 	{
 		std::string newplace = target.toStdString();
 		try
