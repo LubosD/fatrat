@@ -84,7 +84,7 @@
 		<param name="splitter">&lt;tr onmouseover="this.className='hl_row'" onmouseout="this.className=''"&gt;</param>
 		<param name="ending">Pages(</param>
 		
-		<regexp name="name">&lt;div class="long_word"&gt;([^&lt;]+)&lt;/div&gt;</regexp>
+		<regexp name="name">&lt;span class="long_word"&gt;([^&lt;]+)&lt;/span&gt;</regexp>
 		<regexp name="link" match="1">&lt;a href="([^"]+)"</regexp>
 		<regexp name="info">&lt;a class="toolLinks" href="([^"]+)"&gt;</regexp>
 		<regexp name="size">&lt;td align="right" nowrap="nowrap"&gt;([^&lt;]+)&lt;/td&gt;</regexp>
@@ -92,15 +92,15 @@
 		<regexp name="leechers" match="1">&lt;td align="center"&gt;([0-9]+)&lt;/td&gt;</regexp>
 	</engine>
 	<engine name="EZTV">
-		<param name="query">http://www.eztv.it/</param>
-		<param name="beginning">&lt;td class='section_post_header' colspan='11'&gt;</param>
+		<param name="query">http://eztv.it/index.php?main=search</param>
+		<param name="beginning">&lt;tr class='forum_header_border'&gt;</param>
 		<param name="splitter">&lt;/tr&gt;</param>
-		<param name="ending">&lt;a href="http://www.bt-chat.com"&gt;</param>
+		<param name="ending">&lt;center&gt;</param>
 		<param name="postdata">SearchString1=%1&amp;SearchString=&amp;search=Search</param>
 		
-		<regexp name="name">&lt;font color='#cd4141'&gt;([^&lt;]+)&lt;/font&gt;</regexp>
-		<regexp name="link">&lt;a href='(http://www.mininova.org/tor/\d+)'&gt;</regexp>
-		<regexp name="info">&lt;a href='(http://eztv.it/index.php\?main=show&amp;id=\d+)'&gt;</regexp>
+		<regexp name="name">&lt;font color="#cd4141"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="link">&lt;a href="(http://www.mininova.org/tor/\d+)"</regexp>
+		<regexp name="info">&lt;a href="(/shows/[^"]+)"</regexp>
 		<regexp name="size" match="0">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
 		<regexp name="seeders" match="1">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="2">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
