@@ -498,7 +498,7 @@ void HttpService::serveClient(int fd)
 		if(fileName.isEmpty() || fileName.indexOf("/..") != -1 || fileName.indexOf("../") != -1)
 		{
 			const char* msg = "HTTP/1.0 400 Bad Request\r\n" HTTP_HEADERS "\r\n";
-			write(fd, msg, strlen(msg));
+			(void) write(fd, msg, strlen(msg));
 			return;
 		}
 		
@@ -684,9 +684,9 @@ void HttpService::serveClient(int fd)
 		sprintf(buffer, "HTTP/1.0 %s\r\nContent-Length: %ld\r\n%s\r\n%s", errorMsg, strlen(errorMsg), HTTP_HEADERS, errorMsg);
 	}
 	
-	write(fd, buffer, strlen(buffer));
-	
-	processClientWrite(fd);
+	int l = (int) strlen(buffer);
+	if(write(fd, buffer, l) == l)
+		processClientWrite(fd);
 }
 
 QMap<QString,QString> HttpService::processQueryString(QByteArray queryString)
