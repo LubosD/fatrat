@@ -103,6 +103,7 @@ public slots:
 	void showWindow(bool);
 	
 	void showHelp();
+	void reportBug();
 protected:
 	int getSelectedQueue();
 	static Queue* getQueue(int index, bool lock = true);

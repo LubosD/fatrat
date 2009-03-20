@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "SpeedLimitWidget.h"
 #include "AppTools.h"
 #include "AboutDlg.h"
+#include "ReportBugDlg.h"
 
 #ifdef WITH_DOCUMENTATION
 #	include "tools/HelpBrowser.h"
@@ -211,6 +212,7 @@ void MainWindow::connectActions()
 	connect(actionSettings, SIGNAL(triggered()), this, SLOT(showSettings()));
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
+	connect(actionBugReport, SIGNAL(triggered()), this, SLOT(reportBug()));
 }
 
 void MainWindow::restoreWindowState(bool bStartHidden)
@@ -1611,6 +1613,11 @@ void MainWindow::menuActionTriggered()
 		
 		doneQueue(q, true, false);
 	}
+}
+
+void MainWindow::reportBug()
+{
+	ReportBugDlg(this).exec();
 }
 
 void addMenuAction(const MenuAction& action)

@@ -74,7 +74,8 @@ endif(WITH_CURL)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
-	ADD_DEFINITIONS(-DDEBUG)
+	#ADD_DEFINITIONS(-DDEBUG)
+	ADD_DEFINITIONS(-DNDEBUG)
 	ADD_DEFINITIONS(-Wall)
 else(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-DNDEBUG)
@@ -129,6 +130,7 @@ set(fatrat_SRCS
 	src/TransfersModel.cpp
 	src/Logger.cpp
 	src/MyFileDialog.cpp
+	src/ReportBugDlg.cpp
 	src/Settings.cpp
 	src/QueueDlg.cpp
 	src/engines/OutputBuffer.cpp
@@ -189,6 +191,7 @@ set(fatrat_MOC_HDRS
 	src/NewTransferDlg.h
 	src/Logger.h
 	src/MyApplication.h
+	src/ReportBugDlg.h
 	src/engines/OutputBuffer.h
 	
 	src/tools/HashDlg.h
@@ -223,6 +226,7 @@ set(fatrat_UIS
 	src/SpeedLimitWidget.ui
 	src/UserAuthDlg.ui
 	src/WidgetHostDlg.ui
+	src/ReportBugDlg.ui
 
 	src/tools/HashDlg.ui
 	src/tools/RapidTools.ui
