@@ -1,211 +1,212 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>AboutDlg</class>
- <widget class="QDialog" name="AboutDlg" >
-  <property name="geometry" >
+ <widget class="QDialog" name="AboutDlg">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>543</width>
-    <height>380</height>
+    <width>541</width>
+    <height>378</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>About FatRat</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3" >
-   <item row="0" column="0" >
-    <widget class="QListWidget" name="listMenu" >
-     <property name="maximumSize" >
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="QListWidget" name="listMenu">
+     <property name="maximumSize">
       <size>
        <width>130</width>
        <height>16777215</height>
       </size>
      </property>
-     <property name="editTriggers" >
+     <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <property name="selectionBehavior" >
+     <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <property name="iconSize" >
+     <property name="iconSize">
       <size>
        <width>24</width>
        <height>24</height>
       </size>
      </property>
-     <property name="spacing" >
+     <property name="spacing">
       <number>1</number>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" >
-    <widget class="QStackedWidget" name="stackedWidget" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+   <item row="0" column="1">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="currentIndex" >
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="page" >
-      <layout class="QGridLayout" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label" >
-         <property name="pixmap" >
-          <pixmap resource="../gfx/resources.qrc" >:/fatrat/fatrat_brown.png</pixmap>
+     <widget class="QWidget" name="page">
+      <layout class="QGridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="pixmap">
+          <pixmap>:/fatrat/fatrat_brown.png</pixmap>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
-          <string>&lt;center>&lt;font size=+5>FatRat download manager</string>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>&lt;center&gt;&lt;font size=+5&gt;FatRat download manager</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="labelVersion" >
-         <property name="font" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelVersion">
+         <property name="font">
           <font>
            <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="label_3" >
-         <property name="text" >
-          <string>&lt;center>Copyright © 2006-2008 Luboš Doležel&lt;br>&lt;a href="http://fatrat.dolezel.info">http://fatrat.dolezel.info&lt;/a></string>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</string>
          </property>
-         <property name="textFormat" >
+         <property name="textFormat">
           <enum>Qt::AutoText</enum>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_2" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="page_2">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QTextBrowser" name="textLicense" >
-         <property name="font" >
+       <item row="0" column="0">
+        <widget class="QTextBrowser" name="textLicense">
+         <property name="font">
           <font>
            <family>Courier New</family>
           </font>
          </property>
-         <property name="lineWrapMode" >
+         <property name="lineWrapMode">
           <enum>QTextEdit::NoWrap</enum>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_3" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="page_3">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QTextBrowser" name="textTranslators" />
+       <item row="0" column="0">
+        <widget class="QTextBrowser" name="textTranslators"/>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_4" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="page_4">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QTextBrowser" name="text3rdParties" />
+       <item row="0" column="0">
+        <widget class="QTextBrowser" name="text3rdParties"/>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_5" >
-      <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_4" >
-         <property name="font" >
+     <widget class="QWidget" name="page_5">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="font">
           <font>
            <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Features enabled at compile time:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QCheckBox" name="checkFeatureNLS" >
-         <property name="enabled" >
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkFeatureNLS">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Native Language Support</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QCheckBox" name="checkFeatureBitTorrent" >
-         <property name="enabled" >
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="checkFeatureBitTorrent">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>BitTorrent</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QCheckBox" name="checkFeatureJabber" >
-         <property name="enabled" >
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="checkFeatureJabber">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Jabber remote control</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
-        <widget class="QCheckBox" name="checkFeatureDocumentation" >
-         <property name="enabled" >
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="checkFeatureDocumentation">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Documentation</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" >
-        <widget class="QCheckBox" name="checkFeatureWebInterface" >
-         <property name="enabled" >
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="checkFeatureWebInterface">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Web interface</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0" >
+       <item row="6" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -215,17 +216,17 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_6" >
-      <layout class="QGridLayout" name="gridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="page_6">
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QTextBrowser" name="textPlugins" >
-         <property name="openExternalLinks" >
+       <item row="0" column="0">
+        <widget class="QTextBrowser" name="textPlugins">
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
-         <property name="openLinks" >
+         <property name="openLinks">
           <bool>true</bool>
          </property>
         </widget>
@@ -234,28 +235,26 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2" >
-    <widget class="Line" name="line" >
-     <property name="orientation" >
+   <item row="1" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+   <item row="2" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Close</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../gfx/resources.qrc" />
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
@@ -263,11 +262,11 @@
    <receiver>AboutDlg</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>463</x>
      <y>371</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -279,11 +278,11 @@
    <receiver>AboutDlg</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>531</x>
      <y>371</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
@@ -295,11 +294,11 @@
    <receiver>stackedWidget</receiver>
    <slot>setCurrentIndex(int)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>109</x>
      <y>84</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>148</x>
      <y>136</y>
     </hint>
