@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "config.h"
 #include "Logger.h"
 #include "Settings.h"
-#include "Base32.h"
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
 #include "TorrentDetails.h"
@@ -36,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <libtorrent/extensions/metadata_transfer.hpp>
 #include <libtorrent/extensions/ut_metadata.hpp>
 #include <libtorrent/extensions/smart_ban.hpp>
+#include <libtorrent/magnet_uri.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -119,7 +119,7 @@ int TorrentDownload::acceptable(QString uri, bool)
 		if(uri[0] == '/' || uri.startsWith("file://"))
 			return 2;
 	}
-	if(uri.startsWith(MAGNET_PREFIX) && uri.size() == (int) strlen(MAGNET_PREFIX)+32)
+	if(uri.startsWith(MAGNET_PREFIX))
 		return 3;
         return 0;
 }
@@ -437,7 +437,7 @@ void TorrentDownload::init(QString source, QString target)
 			source = source.mid(7);
 		
 		bool localFile = source.startsWith('/');
-		bool magnetLink = source.startsWith(MAGNET_PREFIX) && source.size() == (int) strlen(MAGNET_PREFIX)+32;
+		bool magnetLink = source.startsWith(MAGNET_PREFIX);
 		
 		if(localFile || magnetLink)
 		{
@@ -470,20 +470,16 @@ void TorrentDownload::init(QString source, QString target)
 			}
 			else
 			{
-				libtorrent::sha1_hash hash;
-				QByteArray s = source.toLatin1();
-				const char* b32data = s.constData()+strlen(MAGNET_PREFIX);
-				base32_decode(b32data, hash.begin());
-				
 				libtorrent::add_torrent_params params;
-				params.info_hash = hash;
-				params.name = b32data;
+				std::string ss = source.toStdString();
+
+				params.name = ss.c_str();
 				params.save_path = target.toStdString();
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
 				params.auto_managed = false;
-				
-				m_handle = m_session->add_torrent(params);
+
+				m_handle = libtorrent::add_magnet_uri(*m_session, ss, params);
 			}
 			
 			

@@ -285,7 +285,6 @@ endif(WITH_CURL)
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		src/engines/Base32.cpp
 		src/engines/TorrentDetails.cpp
 		src/engines/TorrentDownload.cpp
 		src/engines/TorrentFilesModel.cpp
