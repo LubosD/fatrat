@@ -57,7 +57,7 @@ void RapidshareFreeDownload::init(QString source, QString target)
 
 QString RapidshareFreeDownload::name() const
 {
-	if(CurlDownload::m_timer.isActive())
+	if(m_curl)
 		return CurlDownload::name();
 	else
 		return m_strName;
@@ -88,7 +88,7 @@ void RapidshareFreeDownload::deriveName()
 
 qulonglong RapidshareFreeDownload::done() const
 {
-	if(isActive())
+	if(m_curl)
 		return CurlDownload::done();
 	else if(m_state == Completed)
 		return m_nTotal;
@@ -98,7 +98,7 @@ qulonglong RapidshareFreeDownload::done() const
 
 void RapidshareFreeDownload::setObject(QString newdir)
 {
-	if(isActive())
+	if(m_curl)
 		CurlDownload::setObject(newdir);
 	m_strTarget = newdir;
 }
@@ -141,16 +141,13 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 	}
 	else
 	{
-		if(m_state != Failed)
-			m_strMessage.clear();
-		
 		if(m_bHasLock)
 		{
 			m_mInstanceActive.unlock();
 			m_bHasLock = false;
 		}
 		
-		if(isActive())
+		if(m_curl)
 			CurlDownload::changeActive(false);
 		m_nSecondsLeft = -1;
 		m_timer.stop();
@@ -166,14 +163,14 @@ void RapidshareFreeDownload::secondElapsed()
 	{
 		m_strMessage.clear();
 		m_timer.stop();
-		
+
 		if(m_bLongWaiting)
 		{
 			// restart the procedure
 			changeActive(true);
 		}
 		else
-		{
+		{	
 			try
 			{
 				m_nTotal = 0;
@@ -257,11 +254,11 @@ void RapidshareFreeDownload::secondPageDone(bool error)
 		else
 		{
 			m_nSecondsLeft = re.cap(1).toInt();
-			
+
 			QRegExp re2("<form name=\"dlf\" action=\"([^\"]+)");
 			if(re2.indexIn(m_buffer->data()) < 0)
 				throw tr("Failed to parse the download's waiting page.");
-			
+
 			m_downloadUrl = re2.cap(1);
 		}
 		m_timer.start(1000);
@@ -290,16 +287,16 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::setState(State state)
 {
-	if(state == Completed && done() < 10*1024)
+	if(state == Transfer::Completed && done() < 10*1024)
 	{
 		QByteArray data;
-		QFile file(filePath());
-		data = file.readAll();
+		m_file.seek(0);
+		data = m_file.readAll();
 		
 		if(data.indexOf("<h1>Error</h1>") != -1)
 		{
-			file.remove();
-			Transfer::setState(Failed);
+			m_file.remove();
+			setState(Failed);
 			m_nTotal = 0;
 			m_strMessage = tr("Failed to download the file.");
 			return;

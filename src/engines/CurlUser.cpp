@@ -21,63 +21,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlUser.h"
 #include <QtDebug>
 
-static const int TRANSFER_TIMEOUT = 30;
+static const int MAX_STATS = 5;
+
+bool operator<(const timeval& t1, const timeval& t2);
 
 CurlUser::CurlUser()
-	: m_master(0)
 {
+	m_down.max = m_up.max = 0;
 }
 
 CurlUser::~CurlUser()
 {
-}
-
-size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This)
-{
-	size_t bytes = This->readData(ptr, size*nmemb);
-	
-	This->timeProcessUp(size*nmemb);
-	
-	if(This->m_master != 0)
-		This->m_master->timeProcessUp(size*nmemb);
-	
-	return bytes;
-}
-
-size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This)
-{
-	bool ok = This->writeData(ptr, size*nmemb);
-	
-	This->timeProcessDown(size*nmemb);
-	
-	if(This->m_master != 0)
-		This->m_master->timeProcessDown(size*nmemb);
-	
-	return ok ? size*nmemb : 0;
-}
-
-void CurlUser::setSegmentMaster(CurlStat* master)
-{
-	m_master = master;
-}
-
-CurlStat* CurlUser::segmentMaster() const
-{
-	return m_master;
-}
-
-bool CurlUser::idleCycle(const timeval& tvNow)
-{
-	int seconds = tvNow.tv_sec - lastOperation().tv_sec;
-	
-	if(seconds > TRANSFER_TIMEOUT)
-		return false;
-	else if(seconds > 1)
-	{
-		read_function(0, 0, 0, this);
-		write_function(0, 0, 0, this);
-	}
-	return true;
 }
 
 size_t CurlUser::readData(char* buffer, size_t maxData)
@@ -90,4 +44,148 @@ bool CurlUser::writeData(const char* buffer, size_t bytes)
 	return false;
 }
 
+timeval CurlUser::lastOperation() const
+{
+	if(m_down.lastOp < m_up.lastOp)
+		return m_up.lastOp;
+	else
+		return m_down.lastOp;
+}
 
+size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This)
+{
+	size_t bytes = This->readData(ptr, size*nmemb);
+	
+	This->m_statsMutex.lockForWrite();
+	timeProcess(This->m_up, size*nmemb);
+	This->m_statsMutex.unlock();
+	
+	return bytes;
+}
+
+size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This)
+{
+	bool ok = This->writeData(ptr, size*nmemb);
+	
+	This->m_statsMutex.lockForWrite();
+	timeProcess(This->m_down, size*nmemb);
+	This->m_statsMutex.unlock();
+	
+	return ok ? size*nmemb : 0;
+}
+
+void CurlUser::timeProcess(SpeedData& data, size_t bytes)
+{
+	timeval tvNow;
+	gettimeofday(&tvNow, 0);
+	
+	if(isNull(data.last))
+		data.last = tvNow;
+	else
+	{
+		long usec = (tvNow.tv_sec-data.last.tv_sec)*1000000LL + (tvNow.tv_usec-data.last.tv_usec);
+		data.accum.first += usec;
+		data.accum.second += bytes;
+		
+		if(data.accum.first > 1000000LL)
+		{
+			data.stats << data.accum;
+			
+			if(data.stats.size() > MAX_STATS)
+				data.stats.pop_front();
+			
+			data.accum = timedata_pair(0,0);
+		}
+		
+		memset(&data.next, 0, sizeof data.next);
+		if(data.max > 0)
+		{
+			long delta = bytes*1000000LL/data.max - usec/2;
+			
+			if(delta > 0)
+			{
+				delta *= 2;
+				//qDebug() << "Sleeping for" << delta;
+				data.next = tvNow;
+				data.next.tv_sec += delta/1000000LL;
+				data.next.tv_usec += delta%1000000LL;
+			}
+		}
+		
+		data.last = tvNow;
+	}
+	
+	if(bytes)
+		data.lastOp = tvNow;
+}
+
+void CurlUser::resetStatistics()
+{
+	m_down.stats.clear();
+	m_up.stats.clear();
+	
+	m_down.accum = m_up.accum = timedata_pair(0,0);
+	
+	memset(&m_down.last, 0, sizeof(m_down.last));
+	memset(&m_up.last, 0, sizeof(m_up.last));
+	
+	memset(&m_down.next, 0, sizeof m_down.next);
+	memset(&m_up.next, 0, sizeof m_up.next);
+	
+	gettimeofday(&m_down.lastOp, 0);
+	m_up.lastOp = m_down.lastOp;
+}
+
+int CurlUser::computeSpeed(const QList<timedata_pair>& data)
+{
+	long long time = 0, bytes = 0;
+	
+	for(int i=0;i<data.size();i++)
+	{
+		time += data[i].first;
+		bytes += data[i].second;
+	}
+	
+	if(time)
+		return double(bytes)/(double(time)/1000000);
+	else
+		return 0;
+}
+
+bool CurlUser::isNull(const timeval& t)
+{
+	return !t.tv_sec && !t.tv_usec;
+}
+
+void CurlUser::speeds(int& down, int& up) const
+{
+	QReadLocker l(&m_statsMutex);
+	
+	down = computeSpeed(m_down.stats);
+	up = computeSpeed(m_up.stats);
+}
+
+bool CurlUser::hasNextReadTime() const
+{
+	return !isNull(m_down.next);
+}
+
+bool CurlUser::hasNextWriteTime() const
+{
+	return !isNull(m_up.next);
+}
+
+timeval CurlUser::nextReadTime() const
+{
+	return m_down.next;
+}
+
+timeval CurlUser::nextWriteTime() const
+{
+	return m_up.next;
+}
+
+bool CurlUser::performsLimiting() const
+{
+	return m_up.max || m_down.max;
+}

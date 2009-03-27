@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define CURLUPLOAD_H
 #include "Transfer.h"
 #include "CurlUser.h"
-#include "UrlClient.h"
 #include "fatrat.h"
 #include "ui_FtpUploadOptsForm.h"
 #include "WidgetHostChild.h"
@@ -77,7 +76,7 @@ protected:
 	QFile m_file;
 	QString m_strSource, m_strMessage, m_strName, m_strBindAddress;
 	QUrl m_strTarget;
-	UrlClient::FtpMode m_mode;
+	FtpMode m_mode;
 	QUuid m_proxy;
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	

@@ -44,6 +44,7 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void changeActive(bool bActive);
+	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	
 	virtual void fillContextMenu(QMenu& menu) {}
 	
@@ -51,8 +52,7 @@ public:
 	virtual void setObject(QString newdir);
 	
 	virtual qulonglong done() const;
-	virtual void setState(State state);
-	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+	virtual void setState(State newState);
 	
 	static Transfer* createInstance() { return new RapidshareFreeDownload; }
 	static int acceptable(QString uri, bool);
@@ -62,7 +62,7 @@ protected slots:
 	void secondElapsed();
 protected:
 	void deriveName();
-protected:
+private:
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;
 	QHttp* m_http;

@@ -561,7 +561,7 @@ void RapidshareUpload::queryDone(bool error)
 
 void RapidshareUpload::setSpeedLimits(int, int up)
 {
-	setMaxUp(up);
+	m_up.max = up;
 }
 
 void RapidshareUpload::speeds(int& down, int& up) const

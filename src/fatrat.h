@@ -69,4 +69,6 @@ struct MenuAction
 
 void addMenuAction(const MenuAction& action);
 
+enum FtpMode { FtpActive = 0, FtpPassive };
+
 #endif

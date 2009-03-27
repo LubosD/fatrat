@@ -23,18 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Transfer.h"
 #include "fatrat.h"
 #include "engines/CurlUser.h"
-#include "engines/UrlClient.h"
-#include "engines/CurlPollingMaster.h"
-#include <QReadWriteLock>
-#include <QTimer>
-#include <QColor>
 #include <QHash>
 #include <QUuid>
 #include <QFile>
 #include <QDir>
 #include <QUrl>
 
-class CurlDownload : public Transfer
+class CurlDownload : public Transfer, public CurlUser
 {
 Q_OBJECT
 public:
@@ -62,58 +57,49 @@ public:
 	static void globalExit();
 	
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
-	virtual QObject* createDetailsWidget(QWidget* w);
 	virtual void fillContextMenu(QMenu& menu);
 protected:
+	virtual CURL* curlHandle();
+	virtual bool writeData(const char* buffer, size_t bytes);
+	virtual void transferDone(CURLcode result);
 	QString filePath() const;
 private slots:
+	void switchMirror();
 	void computeHash();
-	void clientRenameTo(QString name);
-	void clientLogMessage(QString msg);
-	void clientDone(QString error);
-	void clientTotalSizeKnown(qlonglong bytes);
-	void updateSegmentProgress();
-protected:
-	struct Segment
-	{
-		// the start
-		qlonglong offset;
-		// how many bytes have already been transfered
-		qlonglong bytes;
-		// the last url object used for this segment
-		int urlIndex;
-		// pointer to a UrlClient instance, if the segment is active
-		UrlClient* client;
-		QColor color;
-	};
-	
+private:
 	void generateName();
+	void init2(QString uri, QString dest);
 	void setTargetName(QString newFileName);
 	void processHeaders();
-	void autoCreateSegment();
-	void removeLostSegments();
-	static void simplifySegments(QList<Segment>& in);
-	QColor allocateSegmentColor();
+	
+	static int seek_function(QFile* file, curl_off_t offset, int origin);
+	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
+	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
 protected:
+	CURL* m_curl;
 	QDir m_dir;
 	qulonglong m_nTotal;
+	mutable qulonglong m_nStart;
 	
 	QString m_strFile, m_strMessage;
+	QFile m_file;
 	bool m_bAutoName;
 	QHash<QByteArray, QByteArray> m_headers;
 	
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	
-	QList<UrlClient::UrlObject> m_urls;
-	QList<Segment> m_segments;
-	mutable QReadWriteLock m_segmentsLock;
-	CurlPollingMaster* m_master;
-	UrlClient* m_nameChanger;
-	QTimer m_timer;
+	struct UrlObject
+	{
+		QUrl url;
+		QString strReferrer, strBindAddress;
+		FtpMode ftpMode;
+		QUuid proxy;
+	};
+	QList<UrlObject> m_urls;
+	int m_nUrl;
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;
-	friend class HttpDetailsBar;
 };
 
 #endif

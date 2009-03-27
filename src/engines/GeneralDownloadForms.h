@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "WidgetHostChild.h"
 #include <QDialog>
 #include "CurlDownload.h"
-#include "UrlClient.h"
 
 class HttpUrlOptsDlg : public QDialog, Ui_HttpUrlOptsDlg
 {
@@ -38,7 +37,7 @@ public:
 	virtual void accept();
 
 	QString m_strURL, m_strReferrer, m_strUser, m_strPassword, m_strBindAddress;
-	UrlClient::FtpMode m_ftpMode;
+	FtpMode m_ftpMode;
 	QUuid m_proxy;
 	QList<Transfer*>* m_multi;
 };
@@ -57,7 +56,7 @@ public slots:
 	void deleteUrl();
 private:
 	CurlDownload* m_download;
-	QList<UrlClient::UrlObject> m_urls;
+	QList<CurlDownload::UrlObject> m_urls;
 };
 
 #endif

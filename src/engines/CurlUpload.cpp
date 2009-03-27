@@ -22,14 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlPoller.h"
 #include "RuntimeException.h"
 #include "tools/HashDlg.h"
-#include "Settings.h"
 #include "Proxy.h"
 #include "Auth.h"
 #include <QFileInfo>
 #include <QMenu>
 
 CurlUpload::CurlUpload()
-	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(UrlClient::FtpPassive)
+	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
 {
 	Transfer::m_mode = Upload;
 	m_errorBuffer[0] = 0;
@@ -128,9 +127,6 @@ void CurlUpload::changeActive(bool nowActive)
 		
 		m_curl = curl_easy_init();
 		curl_easy_setopt(m_curl, CURLOPT_UPLOAD, true);
-		if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
-			curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-		
 		curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, total());
 		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, -1LL);
 		curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, m_nTotal);
@@ -143,7 +139,7 @@ void CurlUpload::changeActive(bool nowActive)
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
 		
-		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, CurlUser::read_function);
+		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
 		curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
 		
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
@@ -174,7 +170,7 @@ void CurlUpload::changeActive(bool nowActive)
 				curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
 		}
 		
-		if(m_mode == UrlClient::FtpActive)
+		if(m_mode == FtpActive)
 			curl_easy_setopt(m_curl, CURLOPT_FTPPORT, "-");
 		
 		Proxy proxy = Proxy::getProxy(m_proxy);
@@ -235,12 +231,12 @@ int CurlUpload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_
 
 void CurlUpload::setSpeedLimits(int, int up)
 {
-	setMaxUp(up);
+	m_up.max = up;
 }
 
 void CurlUpload::speeds(int& down, int& up) const
 {
-	speeds(down, up);
+	CurlUser::speeds(down, up);
 }
 
 qulonglong CurlUpload::done() const
@@ -271,7 +267,7 @@ void CurlUpload::load(const QDomNode& map)
 	source = getXMLProperty(map, "source");
 	target = getXMLProperty(map, "target");
 	m_strName = getXMLProperty(map, "name");
-	m_mode = (UrlClient::FtpMode) getXMLProperty(map, "ftpmode").toInt();
+	m_mode = (FtpMode) getXMLProperty(map, "ftpmode").toInt();
 	m_nDone = getXMLProperty(map, "done").toLongLong();
 	m_proxy = getXMLProperty(map, "proxy");
 	m_strBindAddress = getXMLProperty(map, "bindaddr");
@@ -402,7 +398,7 @@ void FtpUploadOptsForm::accepted()
 	int ix = comboProxy->currentIndex();
 	m_upload->m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
 	
-	m_upload->m_mode = UrlClient::FtpMode( comboFtpMode->currentIndex() );
+	m_upload->m_mode = FtpMode( comboFtpMode->currentIndex() );
 	m_upload->m_strBindAddress = lineAddrBind->text();
 }
 

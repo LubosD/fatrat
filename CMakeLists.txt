@@ -252,21 +252,17 @@ if(WITH_CURL)
 		src/engines/CurlPoller.cpp
 		src/engines/CurlUser.cpp
 		src/engines/CurlStat.cpp
-		src/engines/CurlPollingMaster.cpp
-		src/engines/UrlClient.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
 		src/engines/RapidshareFreeDownload.cpp
 		src/engines/RapidshareStatusWidget.cpp
-		src/engines/HttpDetailsBar.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/CurlDownload.h
 		src/engines/CurlUpload.h
-		src/engines/UrlClient.h
 		src/engines/HttpFtpSettings.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
@@ -278,7 +274,6 @@ if(WITH_CURL)
 		src/engines/RapidshareOptsForm.ui
 		src/engines/RapidshareUploadDetailsForm.ui
 		src/engines/RapidshareFreeDownloadOptsForm.ui
-		src/engines/HttpDetails.ui
 	)
 endif(WITH_CURL)
 
@@ -409,7 +404,6 @@ set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlPoller.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/OutputBuffer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlStat.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/UrlClient.h
 	)
 
 install(FILES
