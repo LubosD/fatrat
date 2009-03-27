@@ -95,6 +95,7 @@ public slots:
 private:
 	void createDefaultPriorityList();
 	bool storeTorrent(QString orig);
+	bool storeTorrent();
 	QString storedTorrentName() const;
 private slots:
 	void torrentFileDone(bool error);

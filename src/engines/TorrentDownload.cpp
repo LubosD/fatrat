@@ -129,9 +129,7 @@ void TorrentDownload::globalInit()
 	boost::filesystem::path::default_name_check(boost::filesystem::native);
 	
 	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
-	m_session->set_alert_mask(libtorrent::alert::error_notification | libtorrent::alert::port_mapping_notification |
-			libtorrent::alert::storage_notification | libtorrent::alert::tracker_notification |
-			libtorrent::alert::ip_block_notification);
+	m_session->set_alert_mask(libtorrent::alert::all_categories);
 	
 	if(programHasGUI())
 		m_labelDHTStats = new QLabel;
@@ -578,6 +576,38 @@ bool TorrentDownload::storeTorrent(QString orig)
 		return QFile::copy(orig, str);
 	else
 		return true;
+}
+
+bool TorrentDownload::storeTorrent()
+{
+	QString str = storedTorrentName();
+	QDir dir = QDir::home();
+
+	dir.mkpath(TORRENT_FILE_STORAGE);
+	if(!dir.cd(TORRENT_FILE_STORAGE))
+	{
+		qDebug() << "Unable to cd into" << TORRENT_FILE_STORAGE;
+		return false;
+	}
+
+	str = dir.absoluteFilePath(str);
+
+	const libtorrent::torrent_info info = m_handle.get_torrent_info();
+	boost::shared_array<char> md = info.metadata();
+	int mdlen = info.metadata_size();
+
+	QFile file(str);
+	if(!file.open(QIODevice::ReadWrite))
+	{
+		qDebug() << "Unable to open" << str << "for writing";
+		return false;
+	}
+
+	file.write("d4:info");
+	file.write(md.get(), mdlen);
+	file.write("e");
+	file.close();
+	return true;
 }
 
 QString TorrentDownload::storedTorrentName() const
@@ -1148,6 +1178,7 @@ void TorrentWorker::doWork()
 			else if(IS_ALERT_S(metadata_received_alert))
 			{
 				d->enterLogMessage(tr("Successfully retrieved the metadata"));
+				d->storeTorrent();
 			}
 		}
 		else
