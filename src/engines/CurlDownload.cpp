@@ -292,7 +292,7 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	if(!isActive())
 		return false;
 	
-	if(!m_nTotal)
+	if(m_curl && (!m_nTotal || m_nTotal == -1LL || m_file.pos() == 0))
 	{
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
