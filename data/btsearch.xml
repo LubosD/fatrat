@@ -105,6 +105,19 @@
 		<regexp name="seeders" match="1">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="2">&lt;td align='center' class='forum_thread_post'&gt;([0-9]+)&lt;/td&gt;</regexp>
 	</engine>
+	<engine name="Demonoid.com">
+		<param name="query">http://www.demonoid.com/files/?category=0&amp;subcategory=All&amp;quality=All&amp;seeded=0&amp;external=2&amp;query=%1&amp;uid=0&amp;sort=L</param>
+		<param name="beginning">&lt;!-- start torrent list --&gt;</param>
+		<param name="splitter">&lt;!-- tstart --&gt;</param>
+		<param name="ending">&lt;!-- end torrent list --&gt;</param>
+		
+		<regexp name="name">&lt;a href="/files/details/[^"]+"&gt;([^&lt;]+)</regexp>
+		<regexp name="link">&lt;a href="(/files/download/[^"]+)</regexp>
+		<regexp name="info">&lt;a href="(/files/details/[^"]+)</regexp>
+		<regexp name="size">&lt;td nowrap class="tone_2_bl" align="right"&gt;([^&lt;]+)</regexp>
+		<regexp name="seeders">&lt;font class="green"&gt;(\d+)</regexp>
+		<regexp name="leechers">&lt;font class="red"&gt;(\d+)</regexp>
+	</engine>
 	<!--<engine name="IsoHunt">
 		<param name="query">http://isohunt.com/torrents/?ihq=%1</param>
 		<param name="beginning">&lt;/th&gt;&lt;/tr&gt;</param>
