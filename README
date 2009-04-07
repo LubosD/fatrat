@@ -1,3 +1,7 @@
+FatRat is an open source download manager for Linux written in C++ and built on top of the Trolltech Qt 4 library.
+
+Copyright © 2006-2009 Luboš Doležel <lubos at dolezel.info>
+
 === GRAPHICS ===
 
 * Original FatRat photo
@@ -27,7 +31,7 @@
   GNU GPL version 2.
 
 * Trolltech Qt 4
-  Copyright © 2000-2008 Trolltech ASA <http://www.trolltech.com>
+  Copyright © 2009 Nokia Corporation and/or its subsidiary(-ies). <http://www.qtsoftware.com>
   GNU GPL version 2 or 3.
 
 * cURL

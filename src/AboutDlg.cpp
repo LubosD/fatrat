@@ -43,9 +43,9 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 	
 	labelVersion->setText(tr("Version %1").arg(VERSION));
 	
-	loadFile(textLicense, "LICENSE.txt");
-	loadFile(textTranslators, "TRANSLATIONS.txt");
-	loadFile(text3rdParties, "3RDPARTIES.txt");
+	loadFile(textLicense, "LICENSE");
+	loadFile(textTranslators, "TRANSLATIONS");
+	loadFile(text3rdParties, "README");
 		
 #ifdef WITH_NLS
 	checkFeatureNLS->setChecked(true);
@@ -85,7 +85,7 @@ void AboutDlg::loadFile(QTextEdit* edit, QString filename)
 	QFile file;
 	QString name;
 	
-	name = DATA_LOCATION "/data/";
+	name = DATA_LOCATION "/";
 	name += filename;
 	
 	file.setFileName(name);
