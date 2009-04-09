@@ -37,21 +37,7 @@ respects for all of the code used other than "OpenSSL".
  */
 
 #ifndef DBUSADAPTOR_H_1198795080
-
-In addition, as a special exemption, Luboš Doležel gives permission
-to link the code of FatRat with the OpenSSL project's
-"OpenSSL" library (or with modified versions of it that use the; same
-license as the "OpenSSL" library), and distribute the linked
-executables. You must obey the GNU General Public License in all
-respects for all of the code used other than "OpenSSL".
 #define DBUSADAPTOR_H_1198795080
-
-In addition, as a special exemption, Luboš Doležel gives permission
-to link the code of FatRat with the OpenSSL project's
-"OpenSSL" library (or with modified versions of it that use the; same
-license as the "OpenSSL" library), and distribute the linked
-executables. You must obey the GNU General Public License in all
-respects for all of the code used other than "OpenSSL".
 
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
