@@ -129,6 +129,7 @@ set(fatrat_SRCS
 	src/Transfer.cpp
 	src/TransfersModel.cpp
 	src/Logger.cpp
+	src/XmlRpc.cpp
 	src/MyFileDialog.cpp
 	src/ReportBugDlg.cpp
 	src/Settings.cpp
@@ -342,6 +343,7 @@ if(WITH_WEBINTERFACE)
 		${fatrat_SRCS}
 		src/remote/HttpService.cpp
 		src/remote/SettingsWebForm.cpp
+		src/remote/XmlRpcService.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -397,6 +399,7 @@ set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Settings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Auth.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Proxy.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/XmlRpc.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlDownload.h
@@ -412,7 +415,6 @@ install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/README
 	${CMAKE_CURRENT_SOURCE_DIR}/AUTHORS
 	${CMAKE_CURRENT_SOURCE_DIR}/INSTALL
-	${CMAKE_CURRENT_SOURCE_DIR}/data/defaults.conf
 	DESTINATION share/fatrat
 	)
 

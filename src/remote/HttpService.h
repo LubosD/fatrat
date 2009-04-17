@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2009 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ public:
 	void run();
 	
 	QScriptValue convertQueryString(const QMap<QString,QString>& queryString);
-	QMap<QString,QString> processQueryString(QByteArray queryString);
+	static QMap<QString,QString> processQueryString(QByteArray queryString);
 	
 	static int countLines(const QByteArray& ar, int left);
 	static bool authenticate(const QList<QByteArray>& data);
@@ -98,6 +98,7 @@ public:
 	static QByteArray progressBar(QByteArray queryString);
 	static QByteArray graph(QString queryString);
 	static QString urlDecode(QByteArray arr);
+	static void findQueue(QString queueUUID, Queue** q);
 	static void findTransfer(QString transferUUID, Queue** q, Transfer** t);
 private:
 	void interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString, QByteArray postData);
@@ -107,6 +108,7 @@ private:
 	void freeClient(int fd, Poller* poller);
 	void serveClient(int fd);
 	void initScriptEngine();
+	void timet2lastModified(time_t t, char* buffer, size_t size);
 private:
 	static HttpService* m_instance;
 	int m_server;

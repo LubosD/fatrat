@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2009 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Logger.h"
 #include "dbus/DbusImpl.h"
 #include "poller/Poller.h"
+#include "remote/XmlRpcService.h"
 
 #include <QSettings>
 #include <QtDebug>
@@ -72,6 +73,8 @@ static const int SOCKET_TIMEOUT = 10;
 HttpService* HttpService::m_instance = 0;
 
 #define HTTP_HEADERS "Server: FatRat/" VERSION "\r\n"
+
+struct AuthenticationFailure {};
 
 HttpService::HttpService()
 {
@@ -472,7 +475,7 @@ QByteArray HttpService::graph(QString queryString)
 void HttpService::serveClient(int fd)
 {
 	char buffer[4096];
-	bool bHead, bGet, bPost, bAuthFail = false; // send 401
+	bool bHead, bGet, bPost;
 	qint64 fileSize = -1;
 	QDateTime modTime;
 	QByteArray fileName, queryString, postData, disposition;
@@ -502,6 +505,9 @@ void HttpService::serveClient(int fd)
 	
 	try
 	{
+		if(!authenticate(rq.lines))
+			throw AuthenticationFailure();
+
 		if(fileName.isEmpty() || fileName.indexOf("/..") != -1 || fileName.indexOf("../") != -1)
 		{
 			const char* msg = "HTTP/1.0 400 Bad Request\r\n" HTTP_HEADERS "\r\n";
@@ -516,20 +522,15 @@ void HttpService::serveClient(int fd)
 		{
 			fileName.prepend(DATA_LOCATION "/data/remote");
 			
-			if(authenticate(rq.lines))
+			QFile file(fileName);
+			if(file.open(QIODevice::ReadOnly))
 			{
-				QFile file(fileName);
-				if(file.open(QIODevice::ReadOnly))
-				{
-					data.buffer = new OutputBuffer;
-					
-					qDebug() << "Executing" << fileName;
-					interpretScript(&file, data.buffer, queryString, postData);
-					fileSize = data.buffer->size();
-				}
+				data.buffer = new OutputBuffer;
+
+				qDebug() << "Executing" << fileName;
+				interpretScript(&file, data.buffer, queryString, postData);
+				fileSize = data.buffer->size();
 			}
-			else if(!bHead)
-				bAuthFail = true;
 		}
 		else if(fileName.startsWith("/generate/"))
 		{
@@ -567,12 +568,6 @@ void HttpService::serveClient(int fd)
 			
 			try
 			{
-				if(!authenticate(rq.lines))
-				{
-					bAuthFail = true;
-					throw 0;
-				}
-				
 				t = gets["transfer"];
 				path = gets["path"];
 				
@@ -617,6 +612,20 @@ void HttpService::serveClient(int fd)
 				data.file->open(QIODevice::ReadOnly);
 			}
 		}
+		else if(fileName == "/xmlrpc")
+		{
+			if(bPost)
+			{
+				data.buffer = new OutputBuffer;
+				XmlRpcService::serve(postData, data.buffer);
+
+				strcpy(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
+						"Content-Type: text/xml; encoding=utf-8\r\n"
+						"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n");
+			}
+			else
+				throw "405 Method Not Allowed";
+		}
 		else
 		{
 			fileName.prepend(DATA_LOCATION "/data/remote");
@@ -641,12 +650,7 @@ void HttpService::serveClient(int fd)
 				throw "404 Not Found";
 		}
 		
-		if(bAuthFail)
-		{
-			strcpy(buffer, "HTTP/1.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FatRat web interface\""
-					"\r\nContent-Length: 16\r\n" HTTP_HEADERS "\r\n401 Unauthorized");
-		}
-		else if(bHead && fileSize < 0)
+		if(bHead && fileSize < 0)
 		{
 			strcpy(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
 					"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n");
@@ -658,17 +662,7 @@ void HttpService::serveClient(int fd)
 			if(!modTime.isNull())
 			{
 				char time[100];
-				time_t t = modTime.toTime_t();
-				struct tm tt;
-				char locale[20];
-				
-				gmtime_r(&t, &tt);
-				strcpy(locale, setlocale(LC_TIME, 0));
-				setlocale(LC_TIME, "C");
-				
-				strftime(time, sizeof(time), "Last-Modified: %a, %d %b %Y %T %Z\r\n", &tt);
-				
-				setlocale(LC_TIME, locale);
+				timet2lastModified(modTime.toTime_t(), time, sizeof time);
 				strcat(buffer, time);
 			}
 			else
@@ -690,10 +684,29 @@ void HttpService::serveClient(int fd)
 	{
 		sprintf(buffer, "HTTP/1.0 %s\r\nContent-Length: %ld\r\n%s\r\n%s", errorMsg, strlen(errorMsg), HTTP_HEADERS, errorMsg);
 	}
+	catch(AuthenticationFailure)
+	{
+		strcpy(buffer, "HTTP/1.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FatRat web interface\""
+			"\r\nContent-Length: 16\r\n" HTTP_HEADERS "\r\n401 Unauthorized");
+	}
 	
 	int l = (int) strlen(buffer);
 	if(write(fd, buffer, l) == l)
 		processClientWrite(fd);
+}
+
+void HttpService::timet2lastModified(time_t t, char* buffer, size_t size)
+{
+	struct tm tt;
+	char locale[20];
+
+	gmtime_r(&t, &tt);
+	strcpy(locale, setlocale(LC_TIME, 0));
+	setlocale(LC_TIME, "C");
+
+	strftime(buffer, size, "Last-Modified: %a, %d %b %Y %T %Z\r\n", &tt);
+
+	setlocale(LC_TIME, locale);
 }
 
 QMap<QString,QString> HttpService::processQueryString(QByteArray queryString)

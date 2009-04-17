@@ -77,6 +77,7 @@ public:
 	
 	int retryCount() const { return m_nRetryCount; }
 	qint64 timeRunning() const;
+	Q_PROPERTY(qint64 timeRunning READ timeRunning)
 	
 	// IDENTIFICATION AND INFORMATION
 	Q_INVOKABLE virtual QString myClass() const = 0;

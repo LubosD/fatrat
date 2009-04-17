@@ -51,6 +51,7 @@ Queue::Queue()
 
 Queue::~Queue()
 {
+	QWriteLocker l(&m_lock);
 	qDebug() << "Queue::~Queue()";
 	qDeleteAll(m_transfers);
 }
