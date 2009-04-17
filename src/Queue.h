@@ -40,6 +40,7 @@ public:
 	Queue();
 	~Queue();
 	
+	static void stopQueues();
 	static void loadQueues();
 	static void saveQueues();
 	static void unloadQueues();

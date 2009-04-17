@@ -171,6 +171,7 @@ int main(int argc,char** argv)
 	delete g_wndMain;
 	delete app;
 	
+	Queue::stopQueues();
 	Queue::saveQueues();
 	qmgr->exit();
 	Queue::unloadQueues();

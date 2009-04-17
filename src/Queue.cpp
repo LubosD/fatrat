@@ -62,6 +62,24 @@ void Queue::unloadQueues()
 	qDeleteAll(g_queues);
 }
 
+void Queue::stopQueues()
+{
+	QReadLocker l(&g_queuesLock);
+	for(int i=0;i<g_queues.size();i++)
+	{
+		Queue* q = g_queues[i];
+
+		q->lock();
+		for(int j=0;j<q->size();j++)
+		{
+			Transfer* t = q->at(j);
+			if(t->isActive())
+				t->changeActive(false);
+		}
+		q->unlock();
+	}
+}
+
 void Queue::loadQueues()
 {
 	QDomDocument doc;
