@@ -29,7 +29,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	if(!transfer)
 	{
 		print('<h2>Transfer not found!</h2>');
-		exit(0);
+		terminate();
 	}
 	
 	if(POST.save != undefined)

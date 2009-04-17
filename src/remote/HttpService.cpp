@@ -799,8 +799,7 @@ QScriptValue formatSizeFunction(QScriptContext* context, QScriptEngine* engine)
 	
 	if(context->argumentCount() != 2)
 	{
-		context->throwError("formatSize(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("formatSize(): wrong argument count");
 	}
 	
 	size = context->argument(0).toNumber();
@@ -815,8 +814,7 @@ QScriptValue formatTimeFunction(QScriptContext* context, QScriptEngine* engine)
 	
 	if(context->argumentCount() != 1)
 	{
-		context->throwError("formatTime(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("formatTime(): wrong argument count");
 	}
 	
 	secs = context->argument(0).toNumber();
@@ -830,15 +828,13 @@ QScriptValue fileInfoFunction(QScriptContext* context, QScriptEngine* engine)
 	
 	if(context->argumentCount() != 1)
 	{
-		context->throwError("fileInfo(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("fileInfo(): wrong argument count");
 	}
 	
 	file = context->argument(0).toString();
 	if(file.indexOf("/..") != -1 || file.indexOf("../") != -1)
 	{
-		context->throwError("fileInfo(): security alert");
-		return engine->undefinedValue();
+		return context->throwError("fileInfo(): security alert");
 	}
 	
 	QFileInfo info(file);
@@ -858,15 +854,13 @@ QScriptValue listDirectoryFunction(QScriptContext* context, QScriptEngine* engin
 	
 	if(context->argumentCount() != 1)
 	{
-		context->throwError("listDirectory(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("listDirectory(): wrong argument count");
 	}
 	
 	dir = context->argument(0).toString();
 	if(dir.indexOf("/..") != -1 || dir.indexOf("../") != -1)
 	{
-		context->throwError("listDirectory(): security alert");
-		return engine->undefinedValue();
+		return context->throwError("listDirectory(): security alert");
 	}
 	
 	QDir ddir(dir);
@@ -881,8 +875,7 @@ QScriptValue transferSpeedFunction(QScriptContext* context, QScriptEngine* engin
 {
 	if(context->argumentCount() != 0)
 	{
-		context->throwError("Transfer.speed(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("Transfer.speed(): wrong argument count");
 	}
 	Transfer* t = (Transfer*) context->thisObject().toQObject();
 	int down, up;
@@ -899,8 +892,7 @@ QScriptValue transferSpeedLimitsFunction(QScriptContext* context, QScriptEngine*
 {
 	if(context->argumentCount() != 0)
 	{
-		context->throwError("Transfer.speedLimits(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("Transfer.speedLimits(): wrong argument count");
 	}
 	Transfer* t = (Transfer*) context->thisObject().toQObject();
 	int down, up;
@@ -917,8 +909,7 @@ QScriptValue queueSpeedLimitsFunction(QScriptContext* context, QScriptEngine* en
 {
 	if(context->argumentCount() != 0)
 	{
-		context->throwError("Queue.speedLimits(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("Queue.speedLimits(): wrong argument count");
 	}
 	Queue* t = (Queue*) context->thisObject().toQObject();
 	int down, up;
@@ -935,8 +926,7 @@ QScriptValue queueTransferLimitsFunction(QScriptContext* context, QScriptEngine*
 {
 	if(context->argumentCount() != 0)
 	{
-		context->throwError("Queue.transferLimits(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("Queue.transferLimits(): wrong argument count");
 	}
 	Queue* t = (Queue*) context->thisObject().toQObject();
 	int down, up;
@@ -953,8 +943,7 @@ QScriptValue transferTimeLeftFunction(QScriptContext* context, QScriptEngine* en
 {
 	if(context->argumentCount() != 0)
 	{
-		context->throwError("Transfer.speed(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("Transfer.speed(): wrong argument count");
 	}
 	
 	Transfer* t = (Transfer*) context->thisObject().toQObject();
@@ -982,8 +971,7 @@ QScriptValue getSettingsValueFunction(QScriptContext* context, QScriptEngine* en
 {
 	if(context->argumentCount() != 1)
 	{
-		context->throwError("getSettingsValue(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("getSettingsValue(): wrong argument count");
 	}
 	
 	QVariant r = getSettingsValue(context->argument(0).toString());
@@ -994,8 +982,7 @@ QScriptValue addQueueFunction(QScriptContext* context, QScriptEngine* engine)
 {
 	if(context->argumentCount() != 0)
 	{
-		context->throwError("addQueue(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("addQueue(): wrong argument count");
 	}
 	
 	Queue* queue = new Queue;
@@ -1013,12 +1000,16 @@ QScriptValue addQueueFunction(QScriptContext* context, QScriptEngine* engine)
 	return retval;
 }
 
+QScriptValue terminateFunction(QScriptContext* context, QScriptEngine* engine)
+{
+	return context->throwValue("terminate");
+}
+
 QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine)
 {
 	if(context->argumentCount() != 4)
 	{
-		context->throwError("addTransfers(): wrong argument count");
-		return engine->undefinedValue();
+		return context->throwError("addTransfers(): wrong argument count");
 	}
 	
 	QString uris = context->argument(0).toString();
@@ -1171,6 +1162,9 @@ void HttpService::initScriptEngine()
 	
 	fun = m_engine->newFunction(addQueueFunction);
 	m_engine->globalObject().setProperty("addQueue", fun);
+
+	fun = m_engine->newFunction(terminateFunction);
+	m_engine->globalObject().setProperty("terminate", fun);
 	
 	QScriptValue engines = m_engine->newArray(g_enginesDownload.size());
 	for(int i=0;i<g_enginesDownload.size();i++)
@@ -1235,6 +1229,8 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 		if(m_engine->hasUncaughtException())
 		{
 			QByteArray errmsg = handleException();
+			if(errmsg.isNull())
+				break;
 			output->putData(errmsg.constData(), errmsg.size());
 		}
 	}
@@ -1256,6 +1252,9 @@ void HttpService::interpretScript(QFile* input, OutputBuffer* output, QByteArray
 
 QByteArray HttpService::handleException()
 {
+	if(m_engine->uncaughtException().toString() == "terminate")
+		return QByteArray();
+
 	QByteArray errmsg = "<div style=\"color: red; border: 1px solid red\"><p><b>QtScript runtime exception:</b> <code>";
 	errmsg += m_engine->uncaughtException().toString().toUtf8();
 	errmsg += "</code>";
