@@ -164,7 +164,7 @@ int main(int argc,char** argv)
 #ifdef WITH_JABBER
 	delete JabberService::instance();
 #endif
-#ifdef WITH_REMOTE
+#ifdef WITH_WEBINTERFACE
 	delete HttpService::instance();
 #endif
 	delete RssFetcher::instance();
