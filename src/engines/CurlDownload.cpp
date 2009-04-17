@@ -253,6 +253,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
 		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = m_file.pos());
+
+		qDebug() << "Resume from" << m_nStart;
+
 		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
 		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
 		
@@ -303,7 +306,7 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	{
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-		qDebug() << "total = " << m_nStart << " + " << len;
+		qDebug() << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
 		m_nTotal = m_nStart + len;
 	}
 	
@@ -437,7 +440,10 @@ qulonglong CurlDownload::done() const
 		if(m_nStart)
 			return m_nStart;
 		else
-			return m_nStart = QFileInfo(m_dir.filePath(name())).size();
+		{
+			QFileInfo info(m_dir.filePath(name()));
+			return info.exists() ? info.size() : 0;
+		}
 	}
 	else
 		return m_file.pos();
