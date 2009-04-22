@@ -284,7 +284,7 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 	QRegExp re("http://rapidshare\\.com/files/\\d+/.+");
 	if(re.exactMatch(uri))
 	{
-		if(getSettingsValue("rapidshare/account").toInt() != 0)
+		if(getSettingsValue("rapidshare/account").toInt() == 2)
 			return 1; // user has an account -> let CurlDownload handle this
 		else
 			return 3; // no account, it's up to us
