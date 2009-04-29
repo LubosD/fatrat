@@ -279,6 +279,7 @@ void CurlDownload::changeActive(bool bActive)
 		
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
+		curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, true);
 		
 		// BUG (CRASH) WORKAROUND
 		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
@@ -307,7 +308,8 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
 		qDebug() << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
-		m_nTotal = m_nStart + len;
+		if(len != -1)
+			m_nTotal = m_nStart + len;
 	}
 	
 	m_file.write(buffer, bytes);
