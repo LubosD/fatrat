@@ -41,6 +41,7 @@ protected slots:
 	void browse();
 	void test();
 	void updateTVS();
+	void updateParsing();
 	void linkClicked(const QString& link);
 	void queueChanged(int now);
 public:

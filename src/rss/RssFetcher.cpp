@@ -117,7 +117,13 @@ void RssFetcher::refresh()
 		buffer->open(QIODevice::ReadWrite);
 		
 		http->setHost(url.host(), url.port(80));
-		m_feeds[i].request = http->get(url.path() + "?" + QString(url.encodedQuery()), buffer);
+
+		QString path = url.path();
+
+		if(url.hasQuery())
+			path += "?" + QString(url.encodedQuery());
+
+		m_feeds[i].request = http->get(path, buffer);
 	}
 }
 
@@ -146,6 +152,7 @@ void RssFetcher::requestFinished(int id, bool error)
 		QXmlSimpleReader reader;
 		QXmlInputSource source(device);
 		
+		reader.setErrorHandler(this);
 		reader.setContentHandler(this);
 		
 		m_bInItem = false;
@@ -154,7 +161,9 @@ void RssFetcher::requestFinished(int id, bool error)
 		
 		if(!reader.parse(&source))
 		{
+			qDebug() << "Parse error:" << static_cast<QXmlErrorHandler*>(this)->errorString();
 			Logger::global()->enterLogMessage("RSS", tr("Failed to parse the feed \"%1\"").arg(feed->name));
+
 			m_bAllOK = false;
 		}
 	}
@@ -218,23 +227,41 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 					continue;
 			}
 			
-			// add a transfer
-			Transfer::BestEngine eng;
-			eng = Transfer::bestEngine(item.url, Transfer::Download);
-			
-			if(eng.nClass < 0)
-				Logger::global()->enterLogMessage("RSS", tr("The transfer wasn't accepted by any class: %1").arg(item.title));
-			else
+			QStringList urls;
+
+			if(!regexps[i].linkRegexp.isEmpty())
 			{
-				Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1").arg(item.title));
-				Transfer* t = eng.engine->lpfnCreate();
-				
-				QDir().mkpath(regexps[i].target);
-				
-				t->init(item.url, regexps[i].target);
-				t->setComment(item.descr);
-				t->setState(Transfer::Waiting);
-				g_queues[regexps[i].queueIndex]->add(t);
+				int index = 0;
+				while((index = regexps[i].linkRegexp.indexIn(item.descr, index)) != -1)
+				{
+					QString link = regexps[i].linkRegexp.cap(0);
+					urls << link;
+					index += link.size();
+				}
+			}
+			else
+				urls << item.url;
+
+			foreach(QString url, urls)
+			{
+				// add a transfer
+				Transfer::BestEngine eng;
+				eng = Transfer::bestEngine(url, Transfer::Download);
+
+				if(eng.nClass < 0)
+					Logger::global()->enterLogMessage("RSS", tr("The transfer wasn't accepted by any class: %1 - %2").arg(item.title).arg(url));
+				else
+				{
+					Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1 - %2").arg(item.title).arg(item.url));
+					Transfer* t = eng.engine->lpfnCreate();
+
+					QDir().mkpath(regexps[i].target);
+
+					t->init(url, regexps[i].target);
+					t->setComment(item.descr);
+					t->setState((regexps[i].addPaused) ? Transfer::Paused : Transfer::Waiting);
+					g_queues[regexps[i].queueIndex]->add(t);
+				}
 			}
 		}
 	}
@@ -279,6 +306,8 @@ void RssFetcher::loadRegexps(QList<RssRegexp>& items)
 		item.includeRepacks = g_settings->value("includeRepacks").toBool();
 		item.excludeManuals = g_settings->value("excludeManuals").toBool();
 		item.queueIndex = -1;
+		item.addPaused = g_settings->value("addPaused").toBool();
+		item.linkRegexp = QRegExp(g_settings->value("linkRegexp").toString(), Qt::CaseInsensitive);
 		
 		items << item;
 	}
@@ -307,6 +336,8 @@ void RssFetcher::saveRegexps(const QList<RssRegexp>& items)
 		g_settings->setValue("includeTrailers", items[i].includeTrailers);
 		g_settings->setValue("includeRepacks", items[i].includeRepacks);
 		g_settings->setValue("excludeManuals", items[i].excludeManuals);
+		g_settings->setValue("addPaused", items[i].addPaused);
+		g_settings->setValue("linkRegexp", items[i].linkRegexp.pattern());
 	}
 	
 	g_settings->endArray();

@@ -52,8 +52,9 @@ struct RssRegexp
 	QRegExp regexp;
 	QString queueUUID, from, to;
 	QStringList epDone;
+	QRegExp linkRegexp;
 	int queueIndex;
-	bool excludeManuals, includeTrailers, includeRepacks;
+	bool excludeManuals, includeTrailers, includeRepacks, addPaused;
 	
 	enum TVSType { None = 0, SeasonBased, EpisodeBased, DateBased } tvs;
 };

@@ -51,12 +51,20 @@ RssRegexpDlg::RssRegexpDlg(QWidget* parent)
 	connect(radioTVSSeason, SIGNAL(toggled(bool)), this, SLOT(updateTVS()));
 	connect(radioTVSEpisode, SIGNAL(toggled(bool)), this, SLOT(updateTVS()));
 	connect(radioTVSDate, SIGNAL(toggled(bool)), this, SLOT(updateTVS()));
+	connect(radioParsingNone, SIGNAL(toggled(bool)), this, SLOT(updateParsing()));
+	connect(radioParsingExtract, SIGNAL(toggled(bool)), this, SLOT(updateParsing()));
 	
 	connect(labelManage, SIGNAL(linkActivated(const QString&)), this, SLOT(linkClicked(const QString&)));
 	
 	m_regexp.includeRepacks = true;
 	m_regexp.excludeManuals = true;
 	m_regexp.includeTrailers = false;
+	m_regexp.addPaused = false;
+}
+
+void RssRegexpDlg::updateParsing()
+{
+	lineParsingRegexp->setEnabled(radioParsingExtract->isChecked());
 }
 
 void RssRegexpDlg::updateTVS()
@@ -172,10 +180,18 @@ int RssRegexpDlg::exec()
 	checkTVSRepacks->setChecked(m_regexp.includeRepacks);
 	checkTVSTrailers->setChecked(m_regexp.includeTrailers);
 	checkTVSNoManuals->setChecked(m_regexp.excludeManuals);
+	checkAddPaused->setChecked(m_regexp.addPaused);
+
+	if(!m_regexp.linkRegexp.isEmpty())
+	{
+		radioParsingExtract->setChecked(true);
+		lineParsingRegexp->setText(m_regexp.linkRegexp.pattern());
+	}
 	
 	connect(comboQueue, SIGNAL(currentIndexChanged(int)), this, SLOT(queueChanged(int)));
 	
 	test();
+	updateParsing();
 	
 	if((r = QDialog::exec()) == QDialog::Accepted)
 	{
@@ -201,6 +217,8 @@ int RssRegexpDlg::exec()
 		m_regexp.includeRepacks = checkTVSRepacks->isChecked();
 		m_regexp.includeTrailers = checkTVSTrailers->isChecked();
 		m_regexp.excludeManuals = checkTVSNoManuals->isChecked();
+		m_regexp.addPaused = checkAddPaused->isChecked();
+		m_regexp.linkRegexp = QRegExp(lineParsingRegexp->text(), Qt::CaseInsensitive);
 	}
 	
 	return r;
