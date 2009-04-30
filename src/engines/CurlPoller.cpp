@@ -74,7 +74,7 @@ bool operator<(const timeval& t1, const timeval& t2)
 
 void CurlPoller::run()
 {
-	long timeout = 0, curl_timeout;
+	long timeout = 0, curl_timeout = 0;
 	
 	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
 	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, &curl_timeout);

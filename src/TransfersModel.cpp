@@ -61,7 +61,7 @@ TransfersModel::TransfersModel(QObject* parent)
 
 TransfersModel::~TransfersModel()
 {
-	qDeleteAll(m_states,m_states+8);
+	qDeleteAll(m_states,m_states+12);
 }
 
 QModelIndex TransfersModel::index(int row, int column, const QModelIndex &parent) const
