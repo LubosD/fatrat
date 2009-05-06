@@ -81,6 +81,7 @@ static void processSession(QString arg);
 static void loadPlugins();
 static void loadPlugins(const char* dir);
 static void showHelp();
+static void installSignalHandler();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
@@ -101,8 +102,7 @@ int main(int argc,char** argv)
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
 	
-	signal(SIGINT, QCoreApplication::exit);
-	signal(SIGTERM, QCoreApplication::exit);
+	installSignalHandler();
 	
 	if(!m_bForceNewInstance)
 		processSession(arg);
@@ -469,4 +469,24 @@ void showHelp()
 	exit(0);
 }
 
+static void terminateHandler(int s)
+{
+	static int callno = 0;
+	if(!callno++)
+		QCoreApplication::exit();
+	else
+		exit(s);
+}
+
+void installSignalHandler()
+{
+	struct sigaction act;
+
+	act.sa_handler = terminateHandler;
+	act.sa_flags = SA_NOMASK;
+	act.sa_restorer = 0;
+
+	sigaction(SIGINT, &act, 0);
+	sigaction(SIGTERM, &act, 0);
+}
 
