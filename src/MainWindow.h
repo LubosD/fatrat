@@ -124,6 +124,7 @@ protected:
 	
 	void restoreWindowState(bool bStartHidden);
 	void connectActions();
+	void fillSettingsMenu();
 	
 	void showTrayIcon();
 	void transferOpen(bool bOpenFile);

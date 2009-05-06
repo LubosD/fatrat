@@ -177,6 +177,7 @@ void TorrentDownload::globalInit()
 	SettingsItem si;
 	
 	si.icon = QIcon(":/fatrat/bittorrent.png");
+	si.title = tr("BitTorrent");
 	si.lpfnCreate = TorrentSettings::create;
 	
 	addSettingsPage(si);

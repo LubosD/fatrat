@@ -53,32 +53,38 @@ void initSettingsPages()
 	SettingsItem si;
 	
 	si.icon = QIcon(":/fatrat/fatrat.png");
+	si.title = QObject::tr("Main");
 	si.lpfnCreate = SettingsGeneralForm::create;
 	
 	g_settingsPages << si;
 	
 	si.icon = QIcon(":/fatrat/queue.png");
+	si.title = QObject::tr("Queue");
 	si.lpfnCreate = SettingsQueueForm::create;
 	
 	g_settingsPages << si;
 	
 	si.icon = QIcon(":/fatrat/miscellaneous.png");
+	si.title = QObject::tr("Drop-box");
 	si.lpfnCreate = SettingsDropBoxForm::create;
 	
 	g_settingsPages << si;
 	
 	si.icon = QIcon(":/menu/network.png");
+	si.title = QObject::tr("Network");
 	si.lpfnCreate = SettingsNetworkForm::create;
 	
 	g_settingsPages << si;
 	
 	si.icon = QIcon(":/fatrat/rss.png");
+	si.title = QObject::tr("RSS");
 	si.lpfnCreate = SettingsRssForm::create;
 	
 	g_settingsPages << si;
 	
 #ifdef WITH_JABBER
 	si.icon = QIcon(":/fatrat/jabber.png");
+	si.title = QObject::tr("Jabber");
 	si.lpfnCreate = SettingsJabberForm::create;
 	
 	g_settingsPages << si;

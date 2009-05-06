@@ -133,15 +133,16 @@ int main(int argc,char** argv)
 	qRegisterMetaType<QByteArray*>("QByteArray*");
 	
 	qmgr = new QueueMgr;
+
+#ifdef WITH_WEBINTERFACE
+	new HttpService;
+#endif
 	
 	if(m_bStartGUI)
 		g_wndMain = new MainWindow(m_bStartHidden);
 	else
 		qDebug() << "FatRat is up and running now";
 	
-#ifdef WITH_WEBINTERFACE
-	new HttpService;
-#endif
 	new RssFetcher;
 	
 	DbusImpl* impl = new DbusImpl;

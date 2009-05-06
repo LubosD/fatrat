@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>541</width>
-    <height>378</height>
+    <width>539</width>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <widget class="QListWidget" name="listMenu">
      <property name="maximumSize">
       <size>
-       <width>130</width>
+       <width>155</width>
        <height>16777215</height>
       </size>
      </property>

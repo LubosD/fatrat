@@ -1,123 +1,121 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SettingsGeneralForm</class>
- <widget class="QWidget" name="SettingsGeneralForm" >
-  <property name="geometry" >
+ <widget class="QWidget" name="SettingsGeneralForm">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>419</height>
+    <width>448</width>
+    <height>417</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>Main</string>
-  </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="QLabel" name="label_5" >
-     <property name="text" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
       <string>Refresh GUI every</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="4" >
-    <widget class="QSpinBox" name="spinRefreshGUI" >
-     <property name="minimum" >
+   <item row="0" column="4">
+    <widget class="QSpinBox" name="spinRefreshGUI">
+     <property name="minimum">
       <number>1</number>
      </property>
-     <property name="maximum" >
+     <property name="maximum">
       <number>10</number>
      </property>
     </widget>
    </item>
-   <item row="0" column="5" >
-    <widget class="QLabel" name="label_6" >
-     <property name="text" >
-      <string comment="every X seconds" >seconds</string>
+   <item row="0" column="5">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string comment="every X seconds">seconds</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="4" >
-    <widget class="QLabel" name="label_9" >
-     <property name="text" >
+   <item row="1" column="0" colspan="4">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
       <string>Display speed graphs for last</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="4" >
-    <widget class="QSpinBox" name="spinGraphMinutes" >
-     <property name="minimum" >
+   <item row="1" column="4">
+    <widget class="QSpinBox" name="spinGraphMinutes">
+     <property name="minimum">
       <number>1</number>
      </property>
     </widget>
    </item>
-   <item row="1" column="5" >
-    <widget class="QLabel" name="label_10" >
-     <property name="text" >
-      <string comment="last X minutes" >minutes</string>
+   <item row="1" column="5">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string comment="last X minutes">minutes</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" >
-    <widget class="QLabel" name="label_7" >
-     <property name="text" >
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
       <string>Speed graph style</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2" colspan="4" >
-    <widget class="QComboBox" name="comboGraphStyle" />
+   <item row="2" column="2" colspan="4">
+    <widget class="QComboBox" name="comboGraphStyle"/>
    </item>
-   <item row="3" column="0" colspan="2" >
-    <widget class="QLabel" name="label_11" >
-     <property name="text" >
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="label_11">
+     <property name="text">
       <string>Open files/directories by running</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="2" colspan="4" >
-    <widget class="QComboBox" name="comboFileExec" >
-     <property name="editable" >
+   <item row="3" column="2" colspan="4">
+    <widget class="QComboBox" name="comboFileExec">
+     <property name="editable">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" >
-    <widget class="QCheckBox" name="checkCSS" >
-     <property name="text" >
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="checkCSS">
+     <property name="text">
       <string>Enable GUI CSS styling</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="6" >
-    <widget class="QGroupBox" name="checkTrayIcon" >
-     <property name="title" >
+   <item row="5" column="0" colspan="6">
+    <widget class="QGroupBox" name="checkTrayIcon">
+     <property name="title">
       <string>Display the tray icon</string>
      </property>
-     <property name="checkable" >
+     <property name="checkable">
       <bool>true</bool>
      </property>
-     <layout class="QGridLayout" >
-      <item row="0" column="0" >
-       <widget class="QCheckBox" name="checkHideMinimize" >
-        <property name="text" >
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkHideMinimize">
+        <property name="text">
          <string>Hide by minimizing</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1" >
-       <widget class="QCheckBox" name="checkHideClose" >
-        <property name="text" >
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="checkHideClose">
+        <property name="text">
          <string>Hide by closing</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2" >
+      <item row="0" column="2">
        <spacer>
-        <property name="orientation" >
+        <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" stdset="0" >
+        <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
           <height>20</height>
@@ -125,9 +123,9 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="0" colspan="3" >
-       <widget class="QCheckBox" name="checkHideUnfocused" >
-        <property name="text" >
+      <item row="1" column="0" colspan="3">
+       <widget class="QCheckBox" name="checkHideUnfocused">
+        <property name="text">
          <string>Tray icon click hides an unfocused window</string>
         </property>
        </widget>
@@ -135,49 +133,49 @@
      </layout>
     </widget>
    </item>
-   <item row="6" column="0" >
-    <widget class="QLabel" name="label_2" >
-     <property name="text" >
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
       <string>A doubleclick on a transfer</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1" colspan="5" >
-    <widget class="QComboBox" name="comboDoubleClick" />
+   <item row="6" column="1" colspan="5">
+    <widget class="QComboBox" name="comboDoubleClick"/>
    </item>
-   <item row="7" column="0" colspan="3" >
-    <widget class="QLabel" name="label_3" >
-     <property name="text" >
+   <item row="7" column="0" colspan="3">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
       <string>When the current tab is closed</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="3" colspan="3" >
-    <widget class="QComboBox" name="comboCloseCurrent" />
+   <item row="7" column="3" colspan="3">
+    <widget class="QComboBox" name="comboCloseCurrent"/>
    </item>
-   <item row="8" column="0" colspan="3" >
-    <widget class="QLabel" name="label_4" >
-     <property name="text" >
+   <item row="8" column="0" colspan="3">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
       <string>Links in a list are separated by</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="3" colspan="3" >
-    <widget class="QComboBox" name="comboLinkSeparator" />
+   <item row="8" column="3" colspan="3">
+    <widget class="QComboBox" name="comboLinkSeparator"/>
    </item>
-   <item row="9" column="0" colspan="2" >
-    <widget class="QLabel" name="labelManageFavs" >
-     <property name="text" >
-      <string>&lt;a href="manageFavs">Manage favorite directories...&lt;/a></string>
+   <item row="9" column="0" colspan="2">
+    <widget class="QLabel" name="labelManageFavs">
+     <property name="text">
+      <string>&lt;a href=&quot;manageFavs&quot;&gt;Manage favorite directories...&lt;/a&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="6" >
+   <item row="10" column="0" colspan="6">
     <spacer>
-     <property name="orientation" >
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>396</width>
        <height>71</height>
@@ -187,8 +185,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../gfx/resources.qrc" />
- </resources>
+ <resources/>
  <connections/>
 </ui>

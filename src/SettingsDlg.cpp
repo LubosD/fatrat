@@ -47,7 +47,7 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 		QWidget* w = new QWidget(stackedWidget);
 		m_children << g_settingsPages[i].lpfnCreate(w, this);
 		stackedWidget->addWidget(w);
-		listWidget->addItem( new QListWidgetItem(g_settingsPages[i].icon, w->windowTitle(), listWidget) );
+		listWidget->addItem( new QListWidgetItem(g_settingsPages[i].icon, g_settingsPages[i].title, listWidget) );
 	}
 	
 	listWidget->setCurrentRow(0);
@@ -58,6 +58,12 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 SettingsDlg::~SettingsDlg()
 {
 	qDeleteAll(m_children);
+}
+
+void SettingsDlg::setPage(int i)
+{
+	listWidget->setCurrentRow(i);
+	stackedWidget->setCurrentIndex(i);
 }
 
 void SettingsDlg::accept()

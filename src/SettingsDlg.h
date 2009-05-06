@@ -40,6 +40,8 @@ Q_OBJECT
 public:
 	SettingsDlg(QWidget* parent);
 	~SettingsDlg();
+
+	void setPage(int i);
 	
 	virtual void accept();
 	int exec();

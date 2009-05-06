@@ -127,6 +127,7 @@ void CurlDownload::globalInit()
 	
 	SettingsItem si;
 	si.icon = QIcon(":/fatrat/httpftp.png");
+	si.title = tr("HTTP/FTP");
 	si.lpfnCreate = HttpFtpSettings::create;
 	
 	addSettingsPage(si);

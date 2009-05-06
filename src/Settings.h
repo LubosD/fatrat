@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 struct SettingsItem
 {
 	QIcon icon;
+	QString title;
 	WidgetHostChild* (*lpfnCreate)(QWidget*, QObject*);
 };
 

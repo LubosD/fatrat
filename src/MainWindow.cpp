@@ -70,6 +70,7 @@ respects for all of the code used other than "OpenSSL".
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
+extern QVector<SettingsItem> g_settingsPages;
 
 static QList<MenuAction> m_menuActions;
 
@@ -150,6 +151,20 @@ void MainWindow::setupUi()
 		else
 			statusbar->insertWidget(m_nStatusWidgetsLeft++, m_statusWidgets[i].first);
 		m_statusWidgets[i].first->show();
+	}
+
+	fillSettingsMenu();
+}
+
+void MainWindow::fillSettingsMenu()
+{
+	menuSettings->addSeparator();
+	for(int i=1;i<g_settingsPages.size();i++)
+	{
+		QAction* act;
+		act = menuSettings->addAction(g_settingsPages[i].icon, g_settingsPages[i].title);
+		act->setData(i);
+		connect(act, SIGNAL(triggered()), this, SLOT(showSettings()));
 	}
 }
 
@@ -1440,7 +1455,14 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::showSettings()
 {
-	SettingsDlg(this).exec();
+	SettingsDlg dlg(this);
+	QAction* act = static_cast<QAction*>(sender());
+	int index = act->data().toInt();
+
+	if(index)
+		dlg.setPage(index);
+
+	dlg.exec();
 }
 
 void MainWindow::showTrayIcon()

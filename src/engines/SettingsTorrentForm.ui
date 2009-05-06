@@ -1,225 +1,223 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SettingsTorrentForm</class>
- <widget class="QWidget" name="SettingsTorrentForm" >
-  <property name="geometry" >
+ <widget class="QWidget" name="SettingsTorrentForm">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>438</width>
-    <height>405</height>
+    <width>462</width>
+    <height>403</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>BitTorrent</string>
-  </property>
-  <layout class="QGridLayout" >
-   <property name="margin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="0" >
-    <widget class="QTabWidget" name="tabWidget" >
-     <property name="currentIndex" >
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
        <string>Main</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout" >
-       <item row="0" column="0" colspan="4" >
-        <layout class="QHBoxLayout" >
-         <property name="spacing" >
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0" colspan="4">
+        <layout class="QHBoxLayout">
+         <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin" >
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="label" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Listen port start</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinListenStart" >
-           <property name="minimum" >
+          <widget class="QSpinBox" name="spinListenStart">
+           <property name="minimum">
             <number>1024</number>
            </property>
-           <property name="maximum" >
+           <property name="maximum">
             <number>32768</number>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_2" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+          <widget class="QLabel" name="label_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Listen port end</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinListenEnd" >
-           <property name="minimum" >
+          <widget class="QSpinBox" name="spinListenEnd">
+           <property name="minimum">
             <number>1024</number>
            </property>
-           <property name="maximum" >
+           <property name="maximum">
             <number>32768</number>
            </property>
           </widget>
          </item>
         </layout>
        </item>
-       <item row="1" column="0" colspan="3" >
-        <widget class="QLabel" name="label_3" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+       <item row="1" column="0" colspan="3">
+        <widget class="QLabel" name="label_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Seed up to ratio (default value)</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="3" colspan="2" >
-        <widget class="QDoubleSpinBox" name="spinRatio" >
-         <property name="decimals" >
+       <item row="1" column="3" colspan="2">
+        <widget class="QDoubleSpinBox" name="spinRatio">
+         <property name="decimals">
           <number>1</number>
          </property>
-         <property name="minimum" >
+         <property name="minimum">
           <double>0.000000000000000</double>
          </property>
-         <property name="singleStep" >
+         <property name="singleStep">
           <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="3" >
-        <widget class="QLabel" name="label_4" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+       <item row="2" column="0" colspan="3">
+        <widget class="QLabel" name="label_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Maximum connections (global/per torrent)</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="3" >
-        <widget class="QSpinBox" name="spinConnections" >
-         <property name="maximum" >
+       <item row="2" column="3">
+        <widget class="QSpinBox" name="spinConnections">
+         <property name="maximum">
           <number>10000</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="4" >
-        <widget class="QSpinBox" name="spinConnectionsLocal" >
-         <property name="maximum" >
+       <item row="2" column="4">
+        <widget class="QSpinBox" name="spinConnectionsLocal">
+         <property name="maximum">
           <number>10000</number>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="3" >
-        <widget class="QLabel" name="label_5" >
-         <property name="text" >
+       <item row="3" column="0" colspan="3">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
           <string>Maximum uploads (global/per torrent)</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="3" >
-        <widget class="QSpinBox" name="spinUploads" >
-         <property name="value" >
+       <item row="3" column="3">
+        <widget class="QSpinBox" name="spinUploads">
+         <property name="value">
           <number>1</number>
          </property>
         </widget>
        </item>
-       <item row="3" column="4" >
-        <widget class="QSpinBox" name="spinUploadsLocal" >
-         <property name="value" >
+       <item row="3" column="4">
+        <widget class="QSpinBox" name="spinUploadsLocal">
+         <property name="value">
           <number>1</number>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="3" >
-        <widget class="QLabel" name="label_6" >
-         <property name="text" >
+       <item row="4" column="0" colspan="3">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
           <string>Maximum open files</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3" colspan="2" >
-        <widget class="QSpinBox" name="spinFiles" >
-         <property name="minimum" >
+       <item row="4" column="3" colspan="2">
+        <widget class="QSpinBox" name="spinFiles">
+         <property name="minimum">
           <number>10</number>
          </property>
-         <property name="maximum" >
+         <property name="maximum">
           <number>500</number>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="3" >
-        <widget class="QLabel" name="label_7" >
-         <property name="text" >
+       <item row="5" column="0" colspan="3">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
           <string>File allocation mode</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="3" colspan="2" >
-        <widget class="QComboBox" name="comboAllocation" />
+       <item row="5" column="3" colspan="2">
+        <widget class="QComboBox" name="comboAllocation"/>
        </item>
-       <item row="6" column="0" >
-        <widget class="QLabel" name="label_8" >
-         <property name="text" >
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
           <string>External IP</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="3" colspan="2" >
-        <widget class="QLineEdit" name="lineIP" />
+       <item row="6" column="3" colspan="2">
+        <widget class="QLineEdit" name="lineIP"/>
        </item>
-       <item row="7" column="0" colspan="3" >
-        <widget class="QCheckBox" name="checkDHT" >
-         <property name="text" >
+       <item row="7" column="0" colspan="3">
+        <widget class="QCheckBox" name="checkDHT">
+         <property name="text">
           <string>Enable distributed tracker (DHT)</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="3" >
-        <widget class="QCheckBox" name="checkPEX" >
-         <property name="text" >
+       <item row="8" column="0" colspan="3">
+        <widget class="QCheckBox" name="checkPEX">
+         <property name="text">
           <string>Enable uTorrent Peer Exchange</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="3" >
-        <widget class="QCheckBox" name="checkLSD" >
-         <property name="text" >
+       <item row="9" column="0" colspan="3">
+        <widget class="QCheckBox" name="checkLSD">
+         <property name="text">
           <string>Enable Local Service Discovery</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="1" colspan="3" >
+       <item row="10" column="1" colspan="3">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>141</width>
            <height>21</height>
@@ -227,19 +225,19 @@
          </property>
         </spacer>
        </item>
-       <item row="11" column="0" colspan="2" >
-        <widget class="QPushButton" name="pushCleanup" >
-         <property name="text" >
+       <item row="11" column="0" colspan="2">
+        <widget class="QPushButton" name="pushCleanup">
+         <property name="text">
           <string>Clean up the .torrent storage</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="2" colspan="3" >
+       <item row="11" column="2" colspan="3">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>181</width>
            <height>20</height>
@@ -249,54 +247,54 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
        <string>Encryption</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_12" >
-         <property name="text" >
+      <layout class="QGridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
           <string>Encryption of incoming connections</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="comboEncIncoming" />
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboEncIncoming"/>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="label_13" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
           <string>Encryption of outgoing connections</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QComboBox" name="comboEncOutgoing" />
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboEncOutgoing"/>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="label_14" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
           <string>Encryption levels</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="QComboBox" name="comboEncLevel" />
+       <item row="2" column="1">
+        <widget class="QComboBox" name="comboEncLevel"/>
        </item>
-       <item row="3" column="1" >
-        <widget class="QCheckBox" name="checkEncRC4Prefer" >
-         <property name="text" >
+       <item row="3" column="1">
+        <widget class="QCheckBox" name="checkEncRC4Prefer">
+         <property name="text">
           <string>Prefer RC4</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
+       <item row="4" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>131</height>
@@ -306,47 +304,47 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
        <string>Proxy</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_9" >
-         <property name="text" >
+      <layout class="QGridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
           <string>Tracker</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="comboProxyTracker" />
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboProxyTracker"/>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="label_10" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
           <string>Peer</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QComboBox" name="comboProxyPeer" />
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboProxyPeer"/>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="label_11" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
           <string>Web seed</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="QComboBox" name="comboProxySeed" />
+       <item row="2" column="1">
+        <widget class="QComboBox" name="comboProxySeed"/>
        </item>
-       <item row="3" column="0" >
+       <item row="3" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -356,31 +354,31 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="Portmapping" >
-      <attribute name="title" >
+     <widget class="QWidget" name="Portmapping">
+      <attribute name="title">
        <string>Port mapping</string>
       </attribute>
-      <layout class="QGridLayout" >
-       <item row="0" column="0" >
-        <widget class="QCheckBox" name="checkUPNP" >
-         <property name="text" >
+      <layout class="QGridLayout">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkUPNP">
+         <property name="text">
           <string>Enable UPnP</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QCheckBox" name="checkNATPMP" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkNATPMP">
+         <property name="text">
           <string>Enable NAT-PMP</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
+       <item row="2" column="1">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -390,27 +388,27 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
        <string>Torrent search</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_15" >
-         <property name="text" >
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
           <string>Open pages with details</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="comboDetailsMode" />
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboDetailsMode"/>
        </item>
-       <item row="1" column="0" colspan="2" >
-        <spacer name="verticalSpacer" >
-         <property name="orientation" >
+       <item row="1" column="0" colspan="2">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>275</height>
@@ -424,8 +422,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../gfx/resources.qrc" />
- </resources>
+ <resources/>
  <connections/>
 </ui>
