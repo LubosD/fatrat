@@ -174,12 +174,16 @@ void CurlPoller::run()
 			}
 			else
 			{
-				int& flags = it.value().first;
+				int flags = it.value().first;
 				if(user->performsLimiting())
 					flags |= Poller::PollerOneShot;
 				else if(flags & Poller::PollerOneShot)
 					flags ^= Poller::PollerOneShot;
-				m_poller->addSocket(it.key(), flags);
+				if(flags != it.value().first)
+				{
+					m_poller->addSocket(it.key(), flags);
+					it.value().first = flags;
+				}
 			}
 		}
 		
