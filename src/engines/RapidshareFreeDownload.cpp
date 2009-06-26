@@ -251,7 +251,7 @@ void RapidshareFreeDownload::secondPageDone(bool error)
 		QRegExp re("var c=(\\d+);");
 		if(re.indexIn(m_buffer->data()) < 0)
 		{
-			re.setPattern("Please try again in (\\d+) minutes");
+			re.setPattern("(\\d+) minutes");
 			if(re.indexIn(m_buffer->data()) < 0)
 				m_nSecondsLeft = 30;
 			else
