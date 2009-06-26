@@ -495,7 +495,7 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 		QDomElement sub = doc.createElement("url");
 		//sub.setAttribute("id", QString::number(i));
 		
-		setXMLProperty(doc, sub, "address", m_urls[i].url.toString());
+		setXMLProperty(doc, sub, "address", QString(m_urls[i].url.toEncoded()));
 		setXMLProperty(doc, sub, "referrer", m_urls[i].strReferrer);
 		setXMLProperty(doc, sub, "proxy", m_urls[i].proxy.toString());
 		setXMLProperty(doc, sub, "ftpmode", QString::number( (int) m_urls[i].ftpMode ));
