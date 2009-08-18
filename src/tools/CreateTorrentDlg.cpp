@@ -105,7 +105,6 @@ void CreateTorrentDlg::createTorrent()
 	
 	bPrivate = checkPrivate->isChecked();
 	
-	libtorrent::file_storage fs;
 	libtorrent::create_torrent* info;
 	QByteArray comment = lineComment->text().toUtf8();
 	QList<QPair<QString, qint64> > files;
@@ -133,10 +132,10 @@ void CreateTorrentDlg::createTorrent()
 	{
 		QByteArray name = files[i].first.toUtf8();
 		qDebug() << name;
-		fs.add_file(name.data(), files[i].second);
+		m_fs.add_file(name.data(), files[i].second);
 	}
 	
-	info = new libtorrent::create_torrent(fs, 64*1024 * pow(2, comboPieceSize->currentIndex()));
+	info = new libtorrent::create_torrent(m_fs, 64*1024 * pow(2, comboPieceSize->currentIndex()));
 	
 	info->set_creator("FatRat " VERSION);
 	info->set_comment(comment.data());

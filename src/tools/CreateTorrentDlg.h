@@ -49,6 +49,7 @@ public slots:
 	void createTorrent();
 	void hasherFinished();
 private:
+	libtorrent::file_storage m_fs;
 	HasherThread* m_hasher;
 	QPushButton* pushCreate;
 };
