@@ -535,13 +535,13 @@ QString JabberService::transferInfo(Transfer* t)
 	size = t->total();
 	done = t->done();
 	
-	if(size)
-		percent = 100.f/size*done;
+	if(size && done)
+		percent = 100.f*done/size;
 	else
 		percent = 0;
 	
 	return tr("[%2] - \"%3\"; %5 down, %6 up; %7% out of %8").arg(t->state2string(t->state())).arg(t->name())
-			.arg(formatSize(down, true)).arg(formatSize(up, true)).arg(percent).arg(formatSize(size, false));
+			.arg(formatSize(down, true)).arg(formatSize(up, true)).arg(percent, 0, 'g', 2).arg(formatSize(size, false));
 }
 
 void JabberService::validateQueue(ConnectionInfo* conn)
