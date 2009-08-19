@@ -293,7 +293,7 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::setState(State state)
 {
-	if(state == Transfer::Completed && done() < 10*1024)
+	if(state == Transfer::Completed && done() < 10*1024 && m_file.isOpen())
 	{
 		QByteArray data;
 		m_file.seek(0);

@@ -129,7 +129,10 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 				throw;
 			}
 			
-			g_queues[queueID]->add(t);
+			Queue* q = g_queues[queueID];
+			q->lockW();
+			q->add(t);
+			q->unlock();
 		}
 	}
 	catch(const RuntimeException& e)
