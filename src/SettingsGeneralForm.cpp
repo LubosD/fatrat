@@ -48,7 +48,7 @@ SettingsGeneralForm::SettingsGeneralForm(QWidget* me, QObject* parent) : QObject
 	comboFileExec->addItems(QStringList() << "xdg-open" << "kfmclient exec" << "gnome-open");
 	comboGraphStyle->addItems(QStringList() << tr("Filled graph") << tr("Line graph"));
 	
-	connect(labelManageFavs, SIGNAL(linkActivated(const QString&)), this, SLOT(manageFavs()));
+	//connect(labelManageFavs, SIGNAL(linkActivated(const QString&)), this, SLOT(manageFavs()));
 }
 
 void SettingsGeneralForm::load()

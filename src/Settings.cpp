@@ -32,6 +32,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QSettings>
 #include <QVector>
 #include <QDir>
+#include <QMessageBox>
+#include <iostream>
 
 #include "SettingsGeneralForm.h"
 #include "SettingsDropBoxForm.h"
@@ -112,6 +114,15 @@ void initSettingsDefaults()
 	
 	QLatin1String df("/defaults.conf");
 	QString path = getDataFileDir("/data", df) + df;
+
+	if (!QFile::exists(path)) {
+		const char* error = "Your installation is incomplete.\nPlease learn how to install programs first!\n";
+		std::cerr << error;
+
+		if (getenv("DISPLAY"))
+			QMessageBox::critical(0, "FatRat", error);
+	}
+
 	m_settingsDefaults = new QSettings(path, QSettings::IniFormat, qApp);
 }
 
