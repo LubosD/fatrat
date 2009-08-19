@@ -74,6 +74,7 @@ void RapidshareFreeDownload::load(const QDomNode& map)
 {
 	m_strOriginal = getXMLProperty(map, "rapidshare_original");
 	m_strTarget = getXMLProperty(map, "rapidshare_target");
+	m_nTotal = getXMLProperty(map, "knowntotal").toLongLong();
 	
 	Transfer::load(map);
 	deriveName();
@@ -112,13 +113,11 @@ void RapidshareFreeDownload::setObject(QString newdir)
 
 void RapidshareFreeDownload::save(QDomDocument& doc, QDomNode& map) const
 {
-	if(m_state != Completed)
-		Transfer::save(doc, map);
-	else
-		CurlDownload::save(doc, map);
+	Transfer::save(doc, map);
 	
 	setXMLProperty(doc, map, "rapidshare_original", m_strOriginal);
 	setXMLProperty(doc, map, "rapidshare_target", m_strTarget);
+	setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
 }
 
 void RapidshareFreeDownload::changeActive(bool bActive)
