@@ -37,7 +37,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QIcon>
 #include <QNetworkProxy>
 
-#define VERSION "DEV"
+#define VERSION "1.1.1"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
