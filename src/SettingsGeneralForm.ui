@@ -163,14 +163,7 @@
    <item row="8" column="3" colspan="3">
     <widget class="QComboBox" name="comboLinkSeparator"/>
    </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QLabel" name="labelManageFavs">
-     <property name="text">
-      <string>&lt;a href=&quot;manageFavs&quot;&gt;Manage favorite directories...&lt;/a&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0" colspan="6">
+   <item row="9" column="0" colspan="6">
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
