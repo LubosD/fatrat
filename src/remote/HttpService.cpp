@@ -1003,7 +1003,7 @@ QScriptValue addQueueFunction(QScriptContext* context, QScriptEngine* engine)
 
 QScriptValue terminateFunction(QScriptContext* context, QScriptEngine* engine)
 {
-	return context->throwValue("terminate");
+	return context->throwValue(QScriptValue(engine, "terminate"));
 }
 
 QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine)
