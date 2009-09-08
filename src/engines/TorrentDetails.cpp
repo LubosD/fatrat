@@ -121,7 +121,7 @@ void TorrentDetails::openFile()
 	
 	int i = m_selFiles[0];
 	
-	QString relative = m_download->m_info->file_at(i).path.string().c_str();
+	QString relative = QString::fromUtf8(m_download->m_info->file_at(i).path.string().c_str());
 	QString path = m_download->dataPath(false);
 	
 	if(!path.endsWith('/'))

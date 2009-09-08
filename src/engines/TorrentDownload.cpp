@@ -463,10 +463,12 @@ void TorrentDownload::init(QString source, QString target)
 				//p = data.data();
 				
 				libtorrent::add_torrent_params params;
-				m_info = new libtorrent::torrent_info(boost::filesystem::path( source.toStdString() ));
+				QByteArray path = source.toUtf8();
+				m_info = new libtorrent::torrent_info(boost::filesystem::path( path.constData() ));
 				
 				params.ti = m_info;
-				params.save_path = target.toStdString();
+				path = target.toUtf8();
+				params.save_path = path.constData();
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
 				params.auto_managed = false;
@@ -477,10 +479,12 @@ void TorrentDownload::init(QString source, QString target)
 			else
 			{
 				libtorrent::add_torrent_params params;
-				std::string ss = source.toStdString();
+				QByteArray path = source.toUtf8();
+				std::string ss = path.constData();
 
 				params.name = ss.c_str();
-				params.save_path = target.toStdString();
+				path = target.toUtf8();
+				params.save_path = path.constData();
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
 				params.auto_managed = false;
@@ -663,7 +667,8 @@ void TorrentDownload::setObject(QString target)
 {
 	if(m_handle.is_valid() && target != m_strTarget)
 	{
-		std::string newplace = target.toStdString();
+		QByteArray path = target.toUtf8();
+		std::string newplace = path.constData();
 		try
 		{
 			m_handle.move_storage(newplace);
@@ -803,9 +808,10 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_strTarget = str = getXMLProperty(map, "target");
 		
-		QByteArray file = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") ).toUtf8();
+		QString sfile = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") );
+		QByteArray file = sfile.toUtf8();
 		
-		if(!QFile(file).open(QIODevice::ReadOnly))
+		if(!QFile(sfile).open(QIODevice::ReadOnly))
 		{
 			m_strError = tr("Unable to open the file!");
 			setState(Failed);
@@ -821,7 +827,9 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
 		params.ti = m_info;
-		params.save_path = str.toStdString();
+		
+		QByteArray path = str.toUtf8();
+		params.save_path = path.constData();
 		params.resume_data = &torrent_resume2;
 		params.paused = true;
 		params.auto_managed = false;
