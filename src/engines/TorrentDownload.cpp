@@ -134,8 +134,27 @@ int TorrentDownload::acceptable(QString uri, bool)
 void TorrentDownload::globalInit()
 {
 	boost::filesystem::path::default_name_check(boost::filesystem::native);
+	QString ua = getSettingsValue("torrent/ua").toString();
+	short s1 = 0, s2 = 0, s3 = 0, s4 = 0;
+	QRegExp reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
 	
-	m_session = new libtorrent::session(libtorrent::fingerprint("FR", 0, 1, 0, 0));
+	if(reVersion.indexIn(ua) != -1)
+	{
+		QStringList caps = reVersion.capturedTexts();
+		s1 = caps[1].toShort();
+		s2 = caps[2].toShort();
+		s3 = caps[3].toShort();
+		if(caps.size() >= 5)
+			s4 = caps[4].toShort();
+	}
+	
+	libtorrent::fingerprint fp = libtorrent::fingerprint("FR", s1, s2, s3, s4);
+	if(ua.startsWith("μTorrent"))
+		fp = libtorrent::fingerprint("UT", s1, s2, s3, s4);
+	else if(ua.startsWith("Azureus"))
+		fp = libtorrent::fingerprint("AZ", s1, s2, s3, s4);
+	
+	m_session = new libtorrent::session(fp);
 	m_session->set_alert_mask(libtorrent::alert::all_categories);
 	
 	if(programHasGUI())
