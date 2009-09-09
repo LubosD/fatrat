@@ -336,28 +336,34 @@
 <context>
     <name>FtpClient</name>
     <message>
+        <location filename="../src/engines/FtpClient.ui" line="13"/>
         <source>FTP client</source>
-        <translation type="obsolete">Klient FTP</translation>
+        <translation type="unfinished">Klient FTP</translation>
     </message>
     <message>
+        <location filename="../src/engines/FtpClient.ui" line="25"/>
         <source>Server</source>
-        <translation type="obsolete">Serwer</translation>
+        <translation type="unfinished">Serwer</translation>
     </message>
     <message>
+        <location filename="../src/engines/FtpClient.ui" line="48"/>
         <source>User</source>
-        <translation type="obsolete">Nazwa użytkownika</translation>
+        <translation type="unfinished">Nazwa użytkownika</translation>
     </message>
     <message>
+        <location filename="../src/engines/FtpClient.ui" line="71"/>
         <source>Password</source>
-        <translation type="obsolete">Hasło</translation>
+        <translation type="unfinished">Hasło</translation>
     </message>
     <message>
+        <location filename="../src/engines/FtpClient.ui" line="97"/>
         <source>Connect</source>
-        <translation type="obsolete">Połącz</translation>
+        <translation type="unfinished">Połącz</translation>
     </message>
     <message>
+        <location filename="../src/engines/FtpClient.ui" line="111"/>
         <source>1</source>
-        <translation type="obsolete">1</translation>
+        <translation type="unfinished">1</translation>
     </message>
 </context>
 <context>
@@ -1649,14 +1655,14 @@ Message: %2</source>
         <translation>Narzędzia RapidShare</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="233"/>
+        <location filename="../src/fatrat.cpp" line="235"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Program jest już uruchomiony.
 Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uruchamiania.</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="394"/>
+        <location filename="../src/fatrat.cpp" line="396"/>
         <source>Unable to load a data file:</source>
         <translation>Nie można wczytać plik z danymi:</translation>
     </message>
@@ -1676,17 +1682,17 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
         <translation>Obliczanie sum kontrolnych</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="434"/>
+        <location filename="../src/fatrat.cpp" line="436"/>
         <source>Loaded a plugin:</source>
         <translation>Wczytano wtyczkę:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="445"/>
+        <location filename="../src/fatrat.cpp" line="447"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation>UWAGA: wtyczka jest niekompatybilna:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="450"/>
+        <location filename="../src/fatrat.cpp" line="452"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation>Błąd w czasie wczytywania wtyczki: %1: %2</translation>
     </message>
@@ -3109,145 +3115,151 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="24"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
         <source>Main</source>
         <translation>Główne</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="44"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="398"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
         <source>Listen port start</source>
         <translation>Początkowy port nasłuchu</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="67"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="399"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
         <source>Listen port end</source>
         <translation>Końcowy port nasłuchu</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="92"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="400"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
         <source>Seed up to ratio (default value)</source>
         <translation>Limit współczynnika udziału (domyślnie)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="118"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="401"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="413"/>
         <source>Maximum connections (global/per torrent)</source>
         <translation>Maksymalnie połączeń (globalnie/na torrent)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="139"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="402"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
         <source>Maximum uploads (global/per torrent)</source>
         <translation>Maksymalnie slotów na wysyłanie (globalnie/na torrent)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="160"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="403"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
         <source>Maximum open files</source>
         <translation>Maksymalnie otwartych plików</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="177"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="404"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
         <source>File allocation mode</source>
         <translation>Tryb alokacji danych</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="187"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="405"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
         <source>External IP</source>
         <translation>Zewnętrzny adres IP</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="197"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="406"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
         <source>Enable distributed tracker (DHT)</source>
         <translation>Włącza tracker rozproszony (DHT)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="204"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="407"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
         <source>Enable uTorrent Peer Exchange</source>
         <translation>Włącza wymianę źródeł z uTorrent</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="231"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="409"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
         <source>Clean up the .torrent storage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="252"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="251"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
+        <source>Identify as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="262"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="428"/>
         <source>Encryption</source>
         <translation>Szyfrowanie</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="258"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="268"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
         <source>Encryption of incoming connections</source>
         <translation>Szyfrowanie połączeń przychodzących</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="268"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="278"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="425"/>
         <source>Encryption of outgoing connections</source>
         <translation>Szyfrowanie połączeń wychodzących</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="278"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="413"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="288"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="426"/>
         <source>Encryption levels</source>
         <translation>Poziomy szyfrowania</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="288"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="298"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="427"/>
         <source>Prefer RC4</source>
         <translation>Preferuj RC4</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="309"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="319"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="432"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="315"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="325"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="429"/>
         <source>Tracker</source>
         <translation>Tracker</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="325"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="335"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="430"/>
         <source>Peer</source>
         <translation>Partner</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="335"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="345"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="431"/>
         <source>Web seed</source>
         <translation>Serwer rozsiewający</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="359"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="369"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="435"/>
         <source>Port mapping</source>
         <translation>Mapowanie portów</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="365"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="375"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="433"/>
         <source>Enable UPnP</source>
         <translation>Włącza UPnP</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="372"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="382"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="434"/>
         <source>Enable NAT-PMP</source>
         <translation>Włącza NAT-PMP</translation>
     </message>
@@ -3256,20 +3268,20 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
         <translation type="obsolete">&lt;a href=&quot;cleanup&quot;&gt;Sprzątanie magazynu plików .torrent&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="393"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="403"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="437"/>
         <source>Torrent search</source>
         <translation>Wyszukiwanie plików torrent</translation>
     </message>
     <message>
-        <location filename="../src/engines/SettingsTorrentForm.ui" line="399"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
+        <location filename="../src/engines/SettingsTorrentForm.ui" line="409"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="436"/>
         <source>Open pages with details</source>
         <translation>Otwieranie stron ze szczegółami</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="211"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="408"/>
+        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
         <source>Enable Local Service Discovery</source>
         <translation>Włącza wykrywanie usług lokalnych</translation>
     </message>
@@ -3531,32 +3543,39 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
     <name>TorrentDownload</name>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="248"/>
+        <location filename="../TorrentDownload.cpp" line="242"/>
         <source>DHT started</source>
         <translation>Uruchomiono DHT</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="253"/>
+        <location filename="../TorrentDownload.cpp" line="247"/>
         <source>Failed to start DHT!</source>
         <translation>Podczas uruchamiania DHT wystąpił błąd!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="414"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="417"/>
+        <location filename="../TorrentDownload.cpp" line="408"/>
         <source>Downloading the .torrent file...</source>
         <translation>Pobieranie pliku .torrent...</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="460"/>
-        <location filename="../src/engines/TorrentDownload.cpp" line="810"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="463"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="819"/>
+        <location filename="../TorrentDownload.cpp" line="454"/>
+        <location filename="../TorrentDownload.cpp" line="776"/>
         <source>Unable to open the file!</source>
         <translation>Nie można otworzyć pliku!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="551"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="558"/>
+        <location filename="../TorrentDownload.cpp" line="549"/>
         <source>Cannot create a temporary file</source>
         <translation>Nie można utworzyć tymczasowego pliku</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="529"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="536"/>
+        <location filename="../TorrentDownload.cpp" line="527"/>
         <source>The torrent file is invalid.</source>
         <translation>Niepoprawny plik torrent.</translation>
     </message>
@@ -3566,27 +3585,32 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
         <translation type="unfinished">BitTorrent</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="639"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="646"/>
+        <location filename="../TorrentDownload.cpp" line="605"/>
         <source>Failed to download the .torrent file</source>
         <translation>Pobieranie pliku .torrent nie powiodło się</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="674"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="682"/>
+        <location filename="../TorrentDownload.cpp" line="640"/>
         <source>Cannot change storage!</source>
         <translation>Nie można zmienić miejsca przechowywania danych!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="974"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="985"/>
+        <location filename="../TorrentDownload.cpp" line="940"/>
         <source>Downloading the .torrent file</source>
         <translation>Pobieranie pliku .torrent</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="981"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="992"/>
+        <location filename="../TorrentDownload.cpp" line="947"/>
         <source>Queued for checking</source>
         <translation>W kolejce do sprawdzenia</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="984"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="995"/>
+        <location filename="../TorrentDownload.cpp" line="950"/>
         <source>Checking files: %1%</source>
         <translation>Sprawdzanie plików: %1%</translation>
     </message>
@@ -3595,32 +3619,37 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
         <translation type="obsolete">Łączenie do trackera</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1012"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1023"/>
+        <location filename="../TorrentDownload.cpp" line="978"/>
         <source>Allocating: %1%</source>
         <translation>Przydzielanie: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1018"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1029"/>
         <source>Checking resume data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1269"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1280"/>
+        <location filename="../TorrentDownload.cpp" line="1231"/>
         <source>Force announce</source>
         <translation>Wymuś rozgłoszenie</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1271"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1282"/>
+        <location filename="../TorrentDownload.cpp" line="1233"/>
         <source>Recheck files</source>
         <translation>Sprawdź ponownie pliki</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="405"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="408"/>
+        <location filename="../TorrentDownload.cpp" line="399"/>
         <source>Downloading metadata: %1%</source>
         <translation>Pobieranie metadanych: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1015"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1026"/>
+        <location filename="../TorrentDownload.cpp" line="981"/>
         <source>Downloading metadata</source>
         <translation>Pobieranie metadanych</translation>
     </message>
@@ -4019,15 +4048,15 @@ ilość danych nie zostanie wysłana</translation>
         <translation>Oba</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentSettings.cpp" line="83"/>
-        <location filename="../src/engines/TorrentSettings.cpp" line="84"/>
-        <location filename="../src/engines/TorrentSettings.cpp" line="85"/>
+        <location filename="../src/engines/TorrentSettings.cpp" line="87"/>
+        <location filename="../src/engines/TorrentSettings.cpp" line="88"/>
+        <location filename="../src/engines/TorrentSettings.cpp" line="89"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Żaden</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentSettings.cpp" line="207"/>
+        <location filename="../src/engines/TorrentSettings.cpp" line="222"/>
         <source>Removed %1 files.</source>
         <translation>Usunięto %1 plików.</translation>
     </message>
@@ -4058,62 +4087,74 @@ ilość danych nie zostanie wysłana</translation>
 <context>
     <name>TorrentWorker</name>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1092"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1103"/>
+        <location filename="../TorrentDownload.cpp" line="1055"/>
         <source>The torrent has been downloaded</source>
         <translation>Torrent został pobrany</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1097"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1108"/>
+        <location filename="../TorrentDownload.cpp" line="1060"/>
         <source>Requested parts of the torrent have been downloaded</source>
         <translation>Żadane części torrenta zostały pobrane</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1156"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1167"/>
+        <location filename="../TorrentDownload.cpp" line="1119"/>
         <source>File error: %1</source>
         <translation>Błąd pliku: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1160"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1171"/>
+        <location filename="../TorrentDownload.cpp" line="1123"/>
         <source>Tracker announce: %1</source>
         <translation>Rozgłoszenie trackera: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1164"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1175"/>
+        <location filename="../TorrentDownload.cpp" line="1127"/>
         <source>Tracker failure: %1, %2 times in a row </source>
         <translation>Błąd trackera: %1, %2 razy pod rząd</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1169"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1180"/>
+        <location filename="../TorrentDownload.cpp" line="1132"/>
         <source>(error %1)</source>
         <translation>(błąd %1)</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1171"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1182"/>
+        <location filename="../TorrentDownload.cpp" line="1134"/>
         <source>(timeout)</source>
         <translation>(limit czasu)</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1176"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1187"/>
+        <location filename="../TorrentDownload.cpp" line="1139"/>
         <source>Tracker warning: %1</source>
         <translation>Ostrzeżenie trackera: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1180"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1191"/>
+        <location filename="../TorrentDownload.cpp" line="1143"/>
         <source>The fast-resume data have been rejected: %1</source>
         <translation>Szybkie wznowienie danych zostało odrzucone: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1184"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1195"/>
+        <location filename="../TorrentDownload.cpp" line="1147"/>
         <source>Failed to retrieve the metadata</source>
         <translation>Podczas pobierania metadanych wystąpił błąd</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1188"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1199"/>
+        <location filename="../TorrentDownload.cpp" line="1151"/>
         <source>Successfully retrieved the metadata</source>
         <translation>Pomyślnie pobrano metadane</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1210"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1221"/>
+        <location filename="../TorrentDownload.cpp" line="1172"/>
         <source>&lt;b&gt;DHT:&lt;/b&gt; %1 nodes (%2 globally)</source>
         <translation>&lt;b&gt;DHT:&lt;/b&gt; %1 węzłów (%2 wszystkich)</translation>
     </message>
