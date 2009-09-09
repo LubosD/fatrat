@@ -69,6 +69,8 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 			listUris = uris.split('\n', QString::SkipEmptyParts);
 		else
 			listUris = uris.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+		for(int i = 0; i < listUris.size(); i++)
+			listUris[i] = listUris[i].trimmed();
 		
 		if(queueID < 0 || queueID >= g_queues.size())
 			throw RuntimeException("queueID is out of range");
