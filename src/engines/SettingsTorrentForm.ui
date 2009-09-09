@@ -191,28 +191,28 @@
        <item row="6" column="3" colspan="2">
         <widget class="QLineEdit" name="lineIP"/>
        </item>
-       <item row="7" column="0" colspan="3">
+       <item row="8" column="0" colspan="3">
         <widget class="QCheckBox" name="checkDHT">
          <property name="text">
           <string>Enable distributed tracker (DHT)</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="3">
+       <item row="9" column="0" colspan="3">
         <widget class="QCheckBox" name="checkPEX">
          <property name="text">
           <string>Enable uTorrent Peer Exchange</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="3">
+       <item row="10" column="0" colspan="3">
         <widget class="QCheckBox" name="checkLSD">
          <property name="text">
           <string>Enable Local Service Discovery</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="1" colspan="3">
+       <item row="11" column="1" colspan="3">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -225,14 +225,14 @@
          </property>
         </spacer>
        </item>
-       <item row="11" column="0" colspan="2">
+       <item row="12" column="0" colspan="2">
         <widget class="QPushButton" name="pushCleanup">
          <property name="text">
           <string>Clean up the .torrent storage</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="2" colspan="3">
+       <item row="12" column="2" colspan="3">
         <spacer>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -244,6 +244,16 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="7" column="0" colspan="3">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Identify as</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="3" colspan="2">
+        <widget class="QComboBox" name="comboUA"/>
        </item>
       </layout>
      </widget>

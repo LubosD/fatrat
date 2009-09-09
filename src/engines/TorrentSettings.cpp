@@ -49,6 +49,10 @@ TorrentSettings::TorrentSettings(QWidget* w, QObject* p) : QObject(p)
 	comboEncLevel->addItems( QStringList() << tr("Plaintext") << tr("RC4") << tr("Both", "Both levels") );
 	comboDetailsMode->addItems( QStringList() << tr("in a new tab") << tr("in an external browser") );
 	
+	comboUA->addItem("FatRat", "FatRat %v");
+	comboUA->addItem("μTorrent", "μTorrent 1.8.4");
+	comboUA->addItem("Azureus/Vuze", "Azureus 4.2.0.8");
+	
 	connect(pushCleanup, SIGNAL(clicked()), this, SLOT(cleanup()));
 }
 
@@ -127,6 +131,16 @@ void TorrentSettings::load()
 	checkLSD->setChecked(getSettingsValue("torrent/mapping_lsd").toBool());
 	
 	comboDetailsMode->setCurrentIndex(getSettingsValue("torrent/details_mode").toInt());
+	
+	QString ua = getSettingsValue("torrent/ua").toString();
+	for(int i=0;i<comboUA->count();i++)
+	{
+		if (comboUA->itemData(i).toString() == ua)
+		{
+			comboUA->setCurrentIndex(i);
+			break;
+		}
+	}
 }
 
 void TorrentSettings::accepted()
@@ -165,6 +179,7 @@ void TorrentSettings::accepted()
 	g_settings->setValue("torrent/mapping_lsd", checkLSD->isChecked());
 	
 	g_settings->setValue("torrent/details_mode", comboDetailsMode->currentIndex());
+	g_settings->setValue("torrent/ua", comboUA->itemData(comboUA->currentIndex()).toString());
 	
 	TorrentDownload::applySettings();
 }

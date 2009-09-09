@@ -276,9 +276,12 @@ void TorrentDownload::applySettings()
 	m_session->set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
 	m_session->set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
 	
+	QString ua = getSettingsValue("torrent/ua").toString();
+	ua.replace("%v", VERSION);
+	
 	settings.file_pool_size = getSettingsValue("torrent/maxfiles").toInt();
 	settings.use_dht_as_fallback = false; // i.e. use DHT always
-	settings.user_agent = "FatRat " VERSION;
+	settings.user_agent = ua.toStdString();
 	//settings.max_out_request_queue = 300;
 	//settings.piece_timeout = 50;
 	settings.max_failcount = 7;
