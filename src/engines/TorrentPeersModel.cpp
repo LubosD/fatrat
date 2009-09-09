@@ -33,8 +33,8 @@ respects for all of the code used other than "OpenSSL".
 
 extern void* g_pGeoIP;
 
-extern const char* ( *GeoIP_country_name_by_addr ) ( void*, const char* );
-extern const char* ( *GeoIP_country_code_by_addr ) ( void*, const char* );
+extern const char* ( *GeoIP_country_name_by_addr_imp ) ( void*, const char* );
+extern const char* ( *GeoIP_country_code_by_addr_imp ) ( void*, const char* );
 
 static QMap<QString,QIcon> g_mapFlags;
 
@@ -93,7 +93,7 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 				std::string ip = info.ip.address().to_string();
 
 				if ( g_pGeoIP != 0 )
-					country = GeoIP_country_name_by_addr ( g_pGeoIP, ip.c_str() );
+					country = GeoIP_country_name_by_addr_imp ( g_pGeoIP, ip.c_str() );
 				if ( country != 0 )
 					return QString ( country );
 				else
@@ -181,7 +181,7 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 		if ( index.column() == 1 && g_pGeoIP != 0 )
 		{
 			std::string ip = info.ip.address().to_string();
-			const char* country = GeoIP_country_code_by_addr ( g_pGeoIP, ip.c_str() );
+			const char* country = GeoIP_country_code_by_addr_imp ( g_pGeoIP, ip.c_str() );
 
 			if ( country != 0 )
 			{
