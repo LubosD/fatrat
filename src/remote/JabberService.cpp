@@ -439,7 +439,7 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 			if(args[0] == "pause")
 				state = Transfer::Paused;
 			else if(args[0] == "resume")
-				state = Transfer::Active;
+				state = Transfer::Waiting;
 			
 			response = tr("Set transfer states:");
 			
