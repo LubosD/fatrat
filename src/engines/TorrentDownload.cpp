@@ -149,7 +149,7 @@ void TorrentDownload::globalInit()
 	}
 	
 	libtorrent::fingerprint fp = libtorrent::fingerprint("FR", s1, s2, s3, s4);
-	if(ua.startsWith("μTorrent"))
+	if(ua.startsWith(QString::fromUtf8("μTorrent")))
 		fp = libtorrent::fingerprint("UT", s1, s2, s3, s4);
 	else if(ua.startsWith("Azureus"))
 		fp = libtorrent::fingerprint("AZ", s1, s2, s3, s4);

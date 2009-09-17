@@ -212,7 +212,14 @@ void TorrentSearch::search()
 		{
 			if(listEngines->item(i)->checkState() == Qt::Checked)
 			{
-				QUrl url = m_engines[i].query.arg(expr);
+				QUrl url;
+				const QString& query = m_engines[i].query;
+				
+				if(query.contains("%1"))
+					url = query.arg(expr);
+				else
+					url = query;
+				
 				QString path = url.path();
 				
 				path.replace(' ', '+');
@@ -230,7 +237,11 @@ void TorrentSearch::search()
 				{
 					QString postQuery;
 					QByteArray postEnc;
-					QHttpRequestHeader hdr ("POST", path+"?"+url.encodedQuery());
+					
+					if(!url.encodedQuery().isEmpty())
+						path += "?"+url.encodedQuery();
+					
+					QHttpRequestHeader hdr ("POST", path);
 					
 					postQuery = m_engines[i].postData.arg(expr);
 					postQuery.replace(' ', '+');
@@ -521,6 +532,12 @@ bool SearchTreeWidgetItem::operator<(const QTreeWidgetItem& other) const
 void SearchTreeWidgetItem::parseSize(QString in)
 {
 	int split = -1;
+	
+	if(in.isEmpty())
+	{
+		setText(1, "?");
+		return;
+	}
 	
 	for(int i=0;i<in.size();i++)
 	{

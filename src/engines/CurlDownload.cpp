@@ -211,7 +211,7 @@ void CurlDownload::changeActive(bool bActive)
 			url.setUserInfo(QString());
 		}
 		
-		ba = url.toString().toUtf8();
+		ba = url.toEncoded();
 		
 		bWatchHeaders = ba.startsWith("http");
 		
@@ -281,6 +281,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
 		curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, true);
+		
+		if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
+			curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		
 		// BUG (CRASH) WORKAROUND
 		//curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help

@@ -27,8 +27,8 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef CURLDOWNLOAD_H
 #define CURLDOWNLOAD_H
-#include "Transfer.h"
-#include "fatrat.h"
+#include <Transfer.h>
+#include <fatrat.h>
 #include "engines/CurlUser.h"
 #include <QHash>
 #include <QUuid>

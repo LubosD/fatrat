@@ -44,7 +44,7 @@ void HttpFtpSettings::load()
 {
 	bool bFound = false;
 	
-	checkForbidIPv6->setChecked(getSettingsValue("httpftp/forbidipv6").toInt() != 0);
+	checkForbidIPv6->setChecked(getSettingsValue("httpftp/forbidipv6").toBool());
 	
 	// LOAD PROXYS
 	m_listProxy = Proxy::loadProxys();
