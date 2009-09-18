@@ -65,7 +65,7 @@ void CurlDownload::init(QString uri, QString dest)
 	if(hash != -1)
 		uri.resize(hash);
 	
-	obj.url = uri;
+	obj.url = QUrl::fromPercentEncoding(uri.toUtf8());
 	
 	if(obj.url.userInfo().isEmpty())
 	{

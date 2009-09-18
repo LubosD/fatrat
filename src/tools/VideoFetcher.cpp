@@ -226,7 +226,7 @@ QString VideoFetcher::decodeYouTube(QByteArray _data, QString url)
 		title += ".flv";
 	}
 	
-	return QString("http://www.youtube.com/get_video?video_id=%1&t=%2#__filename=%3").arg(id).arg(t).arg(title);
+	return QString("http://www.youtube.com/get_video?video_id=")+id+"&fmt=18&t="+t+"#__filename="+title;
 }
 
 QString VideoFetcher::decodeStreamCZ(QByteArray data, QString url)
