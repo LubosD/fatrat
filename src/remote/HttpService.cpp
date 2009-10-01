@@ -192,9 +192,10 @@ void HttpService::run()
 	
 	while(!m_bAbort)
 	{
-		QList<Poller::Event> events = poller->wait(500);
+		Poller::Event events[30];
+		int nev = poller->wait(500, events, sizeof(events)/sizeof(events[0]));
 		
-		for(int i=0;i<events.size();i++)
+		for(int i=0;i<nev;i++)
 		{
 			const Poller::Event& ev = events[i];
 			

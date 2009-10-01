@@ -34,6 +34,8 @@ respects for all of the code used other than "OpenSSL".
 #include "tools/HashDlg.h"
 #include "CurlPoller.h"
 #include "Auth.h"
+#include <errno.h>
+#include <cstring>
 #include <QMessageBox>
 #include <QMenu>
 #include <QtDebug>
@@ -191,13 +193,15 @@ void CurlDownload::changeActive(bool bActive)
 		if(m_nUrl >= m_urls.size())
 			m_nUrl = 0;
 		
-		m_file.setFileName(filePath());
-		if(!m_file.open(QIODevice::ReadWrite | QIODevice::Append))
+		std::string spath = filePath().toStdString();
+		m_file.open(spath.c_str(), std::ios_base::out | std::ios_base::in | std::ios_base::app | std::ios_base::binary);
+		if(!m_file.is_open())
 		{
-			enterLogMessage(m_strMessage = m_file.errorString());
+			enterLogMessage(m_strMessage = strerror(errno));
 			setState(Failed);
 			return;
 		}
+		m_file.seekp(0, std::ios_base::end);
 		
 		QByteArray ba, auth;
 		QUrl url = m_urls[m_nUrl].url;
@@ -253,7 +257,7 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
 		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
-		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = m_file.pos());
+		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = m_file.tellp());
 
 		qDebug() << "Resume from" << m_nStart;
 
@@ -307,7 +311,7 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	if(!isActive())
 		return false;
 	
-	if(m_curl && (!m_nTotal || m_nTotal == -1LL || m_file.pos() == 0))
+	if(m_curl && (!m_nTotal || m_nTotal == -1LL || m_file.tellp() == 0))
 	{
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
@@ -366,23 +370,23 @@ void CurlDownload::processHeaders()
 	m_headers.clear();
 }
 
-int CurlDownload::seek_function(QFile* file, curl_off_t offset, int origin)
+int CurlDownload::seek_function(std::ofstream* file, curl_off_t offset, int origin)
 {
 	qDebug() << "seek_function" << offset << origin;
 	
 	if(origin == SEEK_SET)
 	{
-		if(!file->seek(offset))
+		if(!file->seekp(offset, std::ios_base::beg))
 			return -1;
 	}
 	else if(origin == SEEK_CUR)
 	{
-		if(!file->seek(file->pos() + offset))
+		if(!file->seekp(offset, std::ios_base::cur))
 			return -1;
 	}
 	else if(origin == SEEK_END)
 	{
-		if(!file->seek(file->size() + offset))
+		if(!file->seekp(offset, std::ios_base::end))
 			return -1;
 	}
 	else
@@ -452,7 +456,7 @@ qulonglong CurlDownload::done() const
 		}
 	}
 	else
-		return m_file.pos();
+		return m_file.tellp();
 }
 
 void CurlDownload::load(const QDomNode& map)
@@ -576,6 +580,6 @@ QDialog* CurlDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transf
 
 WidgetHostChild* CurlDownload::createOptionsWidget(QWidget* w)
 {
-	return new HttpOptsWidget(w,this);
+	return new HttpOptsWidget(w, this);
 }
 

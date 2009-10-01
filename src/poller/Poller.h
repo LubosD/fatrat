@@ -49,7 +49,7 @@ public:
 	// provided that the underlying subsystem requires that.
 	virtual int addSocket(int socket, int flags) = 0;
 	virtual int removeSocket(int socket) = 0;
-	virtual QList<Event> wait(int msec) = 0;
+	virtual int wait(int msec, Event* ev, int max) = 0;
 protected:
 	Poller(QObject* parent);
 };

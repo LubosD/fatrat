@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#include <alloca.h>
 
 KqueuePoller::KqueuePoller(QObject* parent)
 	: Poller(parent)
@@ -76,13 +77,12 @@ int KqueuePoller::removeSocket(int socket)
 	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
 }
 
-QList<Poller::Event> KqueuePoller::wait(int msec)
+int KqueuePoller::wait(int msec, Event* ev, int max)
 {
-	QList<Event> retval;
-	struct kevent evlist[30];
+	struct kevent* evlist = (kevent*) alloca(sizeof(kevent) * max);
 	struct timespec tspec = { msec/1000, (msec%1000)*1000000L };
 	
-	int nev = kevent(m_kqueue, 0, 0, evlist, sizeof(evlist)/sizeof(evlist[0]), &tspec);
+	int nev = kevent(m_kqueue, 0, 0, evlist, max, &tspec);
 	for(int i=0;i<nev;i++)
 	{
 		Event event = { evlist[i].ident, 0 };
@@ -96,9 +96,9 @@ QList<Poller::Event> KqueuePoller::wait(int msec)
 		if(evlist[i].filter & EVFILT_WRITE)
 			event.flags |= PollerOut;
 		
-		retval << event;
+		ev[i] = event;
 	}
 	
-	return retval;
+	return nev;
 }
 

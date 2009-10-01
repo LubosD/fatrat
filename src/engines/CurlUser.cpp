@@ -28,17 +28,22 @@ respects for all of the code used other than "OpenSSL".
 #include "CurlUser.h"
 #include <QtDebug>
 
-static const int MAX_STATS = 5;
+const int CurlUser::MAX_STATS = 5;
 
 bool operator<(const timeval& t1, const timeval& t2);
 
 CurlUser::CurlUser()
 {
 	m_down.max = m_up.max = 0;
+	m_down.stats = new timedata_pair[MAX_STATS];
+	m_up.stats = new timedata_pair[MAX_STATS];
+	resetStatistics();
 }
 
 CurlUser::~CurlUser()
 {
+	delete [] m_down.stats;
+	delete [] m_up.stats;
 }
 
 size_t CurlUser::readData(char* buffer, size_t maxData)
@@ -96,10 +101,9 @@ void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 		
 		if(data.accum.first > 1000000LL)
 		{
-			data.stats << data.accum;
-			
-			if(data.stats.size() > MAX_STATS)
-				data.stats.pop_front();
+			if(data.nextStat >= MAX_STATS)
+				data.nextStat = 0;
+			data.stats[data.nextStat++] = data.accum;
 			
 			data.accum = timedata_pair(0,0);
 		}
@@ -128,9 +132,6 @@ void CurlUser::timeProcess(SpeedData& data, size_t bytes)
 
 void CurlUser::resetStatistics()
 {
-	m_down.stats.clear();
-	m_up.stats.clear();
-	
 	m_down.accum = m_up.accum = timedata_pair(0,0);
 	
 	memset(&m_down.last, 0, sizeof(m_down.last));
@@ -139,15 +140,19 @@ void CurlUser::resetStatistics()
 	memset(&m_down.next, 0, sizeof m_down.next);
 	memset(&m_up.next, 0, sizeof m_up.next);
 	
+	memset(m_down.stats, 0, sizeof(*m_down.stats)*MAX_STATS);
+	memset(m_up.stats, 0, sizeof(*m_up.stats)*MAX_STATS);
+	m_down.nextStat = m_up.nextStat = 0;
+	
 	gettimeofday(&m_down.lastOp, 0);
 	m_up.lastOp = m_down.lastOp;
 }
 
-int CurlUser::computeSpeed(const QList<timedata_pair>& data)
+int CurlUser::computeSpeed(const timedata_pair* data)
 {
 	long long time = 0, bytes = 0;
 	
-	for(int i=0;i<data.size();i++)
+	for(int i=0;i<MAX_STATS;i++)
 	{
 		time += data[i].first;
 		bytes += data[i].second;

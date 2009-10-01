@@ -75,27 +75,27 @@ bool operator<(const timeval& t1, const timeval& t2)
 void CurlPoller::run()
 {
 	long timeout = 0, curl_timeout = 0;
+	Poller::Event events[30];
 	
 	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
 	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, &curl_timeout);
 	
 	while(!m_bAbort)
 	{
-		QList<Poller::Event> events;
 		int dummy;
 		timeval tvNow;
 		QList<CurlUser*> timedOut;
 		
-		events = m_poller->wait(timeout);
+		int numEvents = m_poller->wait(timeout, events, sizeof(events) / sizeof(events[0]));
 		
 		m_usersLock.lock();
-		if(events.isEmpty())
+		if(!numEvents)
 		{
 			//qDebug() << "No events";
 			curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 		}
 		
-		for(int i=0;i<events.size();i++)
+		for(int i=0;i<numEvents;i++)
 		{
 			int mask = 0;
 			

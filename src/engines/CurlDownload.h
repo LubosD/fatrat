@@ -32,7 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "engines/CurlUser.h"
 #include <QHash>
 #include <QUuid>
-#include <QFile>
+#include <fstream>
 #include <QDir>
 #include <QUrl>
 
@@ -79,7 +79,7 @@ private:
 	void setTargetName(QString newFileName);
 	void processHeaders();
 	
-	static int seek_function(QFile* file, curl_off_t offset, int origin);
+	static int seek_function(std::ofstream* file, curl_off_t offset, int origin);
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
 protected:
@@ -89,7 +89,7 @@ protected:
 	mutable qulonglong m_nStart;
 	
 	QString m_strFile, m_strMessage;
-	QFile m_file;
+	mutable std::fstream m_file;
 	bool m_bAutoName;
 	QHash<QByteArray, QByteArray> m_headers;
 	

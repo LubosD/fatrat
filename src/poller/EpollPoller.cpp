@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include <sys/epoll.h>
 #include <errno.h>
+#include <alloca.h>
 
 EpollPoller::EpollPoller(QObject* parent)
 	: Poller(parent)
@@ -84,17 +85,16 @@ int EpollPoller::removeSocket(int socket)
 	return errno;
 }
 
-QList<Poller::Event> EpollPoller::wait(int msec)
+int EpollPoller::wait(int msec, Event* xev, int max)
 {
-	epoll_event events[20];
+	epoll_event* events = (epoll_event*) alloca(sizeof(epoll_event) * max);
 	int nfds;
-	QList<Event> retval;
 	
-	nfds = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), msec);
+	nfds = epoll_wait(m_epoll, events, max, msec);
 	
 	for(int i=0;i<nfds;i++)
 	{
-		Event ev;
+		Event& ev = xev[i];
 		ev.socket = events[i].data.fd;
 		ev.flags = 0;
 		
@@ -106,9 +106,7 @@ QList<Poller::Event> EpollPoller::wait(int msec)
 			ev.flags |= PollerError;
 		if(events[i].events & EPOLLHUP)
 			ev.flags |= PollerHup;
-		
-		retval << ev;
 	}
 	
-	return retval;
+	return nfds;
 }

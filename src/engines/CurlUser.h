@@ -65,13 +65,15 @@ protected:
 	
 	struct SpeedData
 	{
-		QList<timedata_pair> stats;
+		timedata_pair* stats;
 		timeval last, next, lastOp;
 		timedata_pair accum;
-		int max;
+		int max, nextStat;
 	};
+	
+	static const int MAX_STATS;
 private:
-	static int computeSpeed(const QList<timedata_pair>& data);
+	static int computeSpeed(const timedata_pair* data);
 	static void timeProcess(SpeedData& data, size_t bytes);
 	static bool isNull(const timeval& t);
 protected:

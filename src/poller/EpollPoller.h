@@ -43,7 +43,7 @@ public:
 	
 	virtual int addSocket(int socket, int flags);
 	virtual int removeSocket(int socket);
-	virtual QList<Event> wait(int msec);
+	virtual int wait(int msec, Event* ev, int max);
 private:
 	int m_epoll;
 };

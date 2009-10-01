@@ -293,15 +293,27 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::setState(State state)
 {
-	if(state == Transfer::Completed && done() < 10*1024 && m_file.isOpen())
+	if(state == Transfer::Completed && done() < 10*1024 && m_file.is_open())
 	{
 		QByteArray data;
-		m_file.seek(0);
-		data = m_file.readAll();
+		char line[512];
+		bool fail = false;
 		
-		if(data.indexOf("<h1>Error</h1>") != -1)
+		m_file.seekg(0, std::ios_base::beg);
+		
+		while (!m_file.eof())
 		{
-			m_file.remove();
+			m_file.getline(line, sizeof(line));
+			if(strstr(line, "<h1>Error</h1>"))
+			{
+				fail = true;
+				break;
+			}
+		}
+		
+		if(fail)
+		{
+			QFile(filePath()).remove();
 			setState(Failed);
 			m_nTotal = 0;
 			m_strMessage = tr("Failed to download the file.");
