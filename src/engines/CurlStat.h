@@ -51,8 +51,6 @@ public:
 	timeval lastOperation() const;
 	void resetStatistics();
 	
-	virtual bool idleCycle(const timeval& tvNow) = 0;
-	
 	typedef QPair<long long,long> timedata_pair;
 	
 	struct SpeedData

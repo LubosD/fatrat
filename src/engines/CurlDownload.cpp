@@ -36,12 +36,15 @@ respects for all of the code used other than "OpenSSL".
 #include "Auth.h"
 #include <errno.h>
 #include <cstring>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <QMessageBox>
 #include <QMenu>
 #include <QtDebug>
 
 CurlDownload::CurlDownload()
-	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0)
+	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0), m_file(0)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -194,14 +197,14 @@ void CurlDownload::changeActive(bool bActive)
 			m_nUrl = 0;
 		
 		std::string spath = filePath().toStdString();
-		m_file.open(spath.c_str(), std::ios_base::out | std::ios_base::in | std::ios_base::app | std::ios_base::binary);
-		if(!m_file.is_open())
+		m_file = open(spath.c_str(), O_CREAT|O_RDWR, 0666);
+		if(!m_file)
 		{
 			enterLogMessage(m_strMessage = strerror(errno));
 			setState(Failed);
 			return;
 		}
-		m_file.seekp(0, std::ios_base::end);
+		lseek(m_file, 0, SEEK_END);
 		
 		QByteArray ba, auth;
 		QUrl url = m_urls[m_nUrl].url;
@@ -257,7 +260,7 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
 		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
-		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = m_file.tellp());
+		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = lseek(m_file, 0, SEEK_CUR));
 
 		qDebug() << "Resume from" << m_nStart;
 
@@ -302,7 +305,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_cleanup(m_curl);
 		m_curl = 0;
 		m_nStart = 0;
-		m_file.close();
+		qDebug() << "Closing at pos" << lseek(m_file, 0, SEEK_CUR);
+		close(m_file);
+		m_file = 0;
 	}
 }
 
@@ -311,7 +316,7 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	if(!isActive())
 		return false;
 	
-	if(m_curl && (!m_nTotal || m_nTotal == -1LL || m_file.tellp() == 0))
+	if(m_curl && (!m_nTotal || m_nTotal == -1LL || lseek(m_file, 0, SEEK_CUR) == 0))
 	{
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
@@ -320,7 +325,11 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 			m_nTotal = m_nStart + len;
 	}
 	
-	m_file.write(buffer, bytes);
+	if (write(m_file, buffer, bytes) != bytes)
+	{
+		m_strMessage = tr("Write failed");
+		return false;
+	}
 	
 	return true;
 }
@@ -370,27 +379,13 @@ void CurlDownload::processHeaders()
 	m_headers.clear();
 }
 
-int CurlDownload::seek_function(std::ofstream* file, curl_off_t offset, int origin)
+int CurlDownload::seek_function(int file, curl_off_t offset, int origin)
 {
 	qDebug() << "seek_function" << offset << origin;
 	
-	if(origin == SEEK_SET)
-	{
-		if(!file->seekp(offset, std::ios_base::beg))
-			return -1;
-	}
-	else if(origin == SEEK_CUR)
-	{
-		if(!file->seekp(offset, std::ios_base::cur))
-			return -1;
-	}
-	else if(origin == SEEK_END)
-	{
-		if(!file->seekp(offset, std::ios_base::end))
-			return -1;
-	}
-	else
+	if (lseek(file, offset, origin) == (off_t) -1)
 		return -1;
+	
 	return 0;
 }
 
@@ -416,10 +411,10 @@ void CurlDownload::transferDone(CURLcode result)
 		setState(Completed);
 	else
 	{
-		if(result == CURLE_OPERATION_TIMEDOUT)
-			strcpy(m_errorBuffer, "Timeout");
-		
 		m_strMessage = m_errorBuffer;
+		if(result == CURLE_OPERATION_TIMEDOUT)
+			m_strMessage = tr("Timeout");
+		
 		setState(Failed);
 	}
 }
@@ -456,7 +451,7 @@ qulonglong CurlDownload::done() const
 		}
 	}
 	else
-		return m_file.tellp();
+		return lseek(m_file, 0, SEEK_CUR);
 }
 
 void CurlDownload::load(const QDomNode& map)

@@ -325,10 +325,10 @@ void CurlUpload::transferDone(CURLcode result)
 		setState(Completed);
 	else
 	{
-		if(result == CURLE_OPERATION_TIMEDOUT)
-			strcpy(m_errorBuffer, "Timeout");
-		
 		m_strMessage = m_errorBuffer;
+		if(result == CURLE_OPERATION_TIMEDOUT)
+			m_strMessage = tr("Timeout");
+		
 		setState(Failed);
 	}
 }

@@ -293,23 +293,24 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::setState(State state)
 {
-	if(state == Transfer::Completed && done() < 10*1024 && m_file.is_open())
+	if(state == Transfer::Completed && done() < 10*1024 && m_file != 0)
 	{
-		QByteArray data;
-		char line[512];
+		char* data = 0;
 		bool fail = false;
 		
-		m_file.seekg(0, std::ios_base::beg);
+		lseek(m_file, 0, SEEK_SET);
+		data = new char[10*1024];
 		
-		while (!m_file.eof())
+		int bread = read(m_file, data, 10*1024);
+		if(bread < 0)
+			fail = true;
+		else
 		{
-			m_file.getline(line, sizeof(line));
-			if(strstr(line, "<h1>Error</h1>"))
-			{
+			data[bread] = 0;
+			if (strstr(data, "<h1>Error</h1>"))
 				fail = true;
-				break;
-			}
 		}
+		delete [] data;
 		
 		if(fail)
 		{

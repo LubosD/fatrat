@@ -201,7 +201,7 @@ QString argsToArg(int argc,char** argv)
 			m_bStartGUI = false;
 		else if(!strcasecmp(argv[i], "--help") || !strcasecmp(argv[i], "-h"))
 			showHelp();
-		else if(!strcasecmp(argv[i], "-session"))
+		else if(argv[i][0] == '-')
 			i++;
 		else
 		{
