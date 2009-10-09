@@ -175,13 +175,16 @@ void Queue::saveQueues()
 	}
 	
 	g_queuesLock.unlock();
-	file.write(doc.toByteArray());
-	file.close();
-	
-	if(dir.exists("queues.xml.new"))
-	{
-		dir.remove("queues.xml");
-		dir.rename("queues.xml.new", "queues.xml");
+	if (file.write(doc.toByteArray()) == -1)
+		Logger::global()->enterLogMessage(tr("Queue"), tr("Failed to write the queue file!"));
+	else {
+		file.close();
+		
+		if(dir.exists("queues.xml.new"))
+		{
+			dir.remove("queues.xml");
+			dir.rename("queues.xml.new", "queues.xml");
+		}
 	}
 }
 
