@@ -175,7 +175,7 @@ void Queue::saveQueues()
 	}
 	
 	g_queuesLock.unlock();
-	if (file.write(doc.toByteArray()) == -1)
+	if (file.write(doc.toByteArray()) == -1 || !file.flush())
 		Logger::global()->enterLogMessage(tr("Queue"), tr("Failed to write the queue file!"));
 	else {
 		file.close();
