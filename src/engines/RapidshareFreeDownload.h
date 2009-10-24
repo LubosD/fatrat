@@ -61,7 +61,7 @@ public:
 	virtual qulonglong done() const;
 	virtual void setState(State newState);
 	
-	static Transfer* createInstance() { new RapidshareFreeDownload; }
+	static Transfer* createInstance() { return new RapidshareFreeDownload; }
 	static int acceptable(QString uri, bool);
 protected slots:
 	void firstPageDone(bool error);
