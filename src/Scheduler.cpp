@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Scheduler.h"
 #include "Settings.h"
 #include "Queue.h"
+#include "Logger.h"
 #include <QReadLocker>
 
 Scheduler* Scheduler::m_instance = 0;
@@ -130,11 +131,15 @@ void Scheduler::doWork()
 void Scheduler::executeAction(const ScheduledAction& action)
 {
 	QReadLocker l(&g_queuesLock);
+	bool bFound = false;
+
 	for(int i=0;i<g_queues.size();i++)
 	{
 		Queue* q = g_queues[i];
 		if(q->uuid() == action.queue)
 		{
+			Logger::global()->enterLogMessage(tr("Scheduler"), tr("Executing a scheduled action: %1").arg(action.name));
+
 			switch(action.action)
 			{
 			case ScheduledAction::ActionResumeAll:
@@ -150,8 +155,14 @@ void Scheduler::executeAction(const ScheduledAction& action)
 					break;
 				}
 			}
+			bFound = true;
 			break;
 		}
+	}
+
+	if(!bFound)
+	{
+		Logger::global()->enterLogMessage(tr("Scheduler"), tr("Failed to execute a scheduled action: %1, the queue doesn't seem to exist any more").arg(action.name));
 	}
 }
 
