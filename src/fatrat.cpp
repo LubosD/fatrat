@@ -56,6 +56,7 @@ respects for all of the code used other than "OpenSSL".
 #include "dbus/DbusImpl.h"
 #include "rss/RssFetcher.h"
 #include "MyApplication.h"
+#include "Scheduler.h"
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
@@ -159,6 +160,7 @@ int main(int argc,char** argv)
 #ifdef WITH_JABBER
 	new JabberService;
 #endif
+	new Scheduler;
 	
 	if(m_bStartGUI)
 		QApplication::setQuitOnLastWindowClosed(false);
@@ -171,6 +173,7 @@ int main(int argc,char** argv)
 	delete HttpService::instance();
 #endif
 	delete RssFetcher::instance();
+	delete Scheduler::instance();
 	delete g_wndMain;
 	delete app;
 	

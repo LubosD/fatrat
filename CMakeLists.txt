@@ -123,6 +123,8 @@ set(fatrat_SRCS
 	src/SettingsGeneralForm.cpp
 	src/SettingsNetworkForm.cpp
 	src/SettingsQueueForm.cpp
+	src/SettingsSchedulerForm.cpp
+	src/ScheduledActionDlg.cpp
 	src/SimpleEmail.cpp
 	src/SpeedGraph.cpp
 	src/SpeedLimitWidget.cpp
@@ -131,6 +133,7 @@ set(fatrat_SRCS
 	src/TransfersModel.cpp
 	src/Logger.cpp
 	src/XmlRpc.cpp
+	src/Scheduler.cpp
 	src/MyFileDialog.cpp
 	src/ReportBugDlg.cpp
 	src/Settings.cpp
@@ -171,12 +174,15 @@ set(fatrat_MOC_HDRS
 	src/SettingsDropBoxForm.h
 	src/SettingsNetworkForm.h
 	src/SettingsQueueForm.h
+	src/SettingsSchedulerForm.h
+	src/ScheduledActionDlg.h
 	src/StatsWidget.h
 	src/ProxyDlg.h
 	src/SpeedLimitWidget.h
 	src/LogManager.h
 	src/SettingsGeneralForm.h
 	src/Transfer.h
+	src/Scheduler.h
 	src/SimpleEmail.h
 	src/QueueView.h
 	src/MainWindow.h
@@ -225,6 +231,8 @@ set(fatrat_UIS
 	src/SettingsGeneralForm.ui
 	src/SettingsNetworkForm.ui
 	src/SettingsQueueForm.ui
+	src/SettingsSchedulerForm.ui
+	src/ScheduledActionDlg.ui
 	src/SpeedLimitWidget.ui
 	src/UserAuthDlg.ui
 	src/WidgetHostDlg.ui

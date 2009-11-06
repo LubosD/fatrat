@@ -258,6 +258,7 @@
     <file>queue.png</file>
     <file>rscom.png</file>
     <file>rss.png</file>
+    <file>scheduler.png</file>
   </qresource>
   <qresource prefix="/menu" >
     <file>about.png</file>

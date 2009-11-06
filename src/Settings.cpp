@@ -39,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 #include "SettingsDropBoxForm.h"
 #include "SettingsNetworkForm.h"
 #include "SettingsQueueForm.h"
+#include "SettingsSchedulerForm.h"
 #include "rss/SettingsRssForm.h"
 
 #ifdef WITH_JABBER
@@ -91,6 +92,12 @@ void initSettingsPages()
 	
 	g_settingsPages << si;
 #endif
+	
+	si.icon = QIcon(":/fatrat/scheduler.png");
+	si.title = QObject::tr("Scheduler");
+	si.lpfnCreate = SettingsSchedulerForm::create;
+	
+	g_settingsPages << si;
 }
 
 void addSettingsPage(const SettingsItem& i)
@@ -121,6 +128,7 @@ void initSettingsDefaults()
 
 		if (getenv("DISPLAY"))
 			QMessageBox::critical(0, "FatRat", error);
+		exit(1);
 	}
 
 	m_settingsDefaults = new QSettings(path, QSettings::IniFormat, qApp);

@@ -33,6 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include <QUuid>
 #include "Transfer.h"
 
+class Queue;
+extern QList<Queue*> g_queues;
+extern QReadWriteLock g_queuesLock;
+
 class Queue : public QObject
 {
 Q_OBJECT
@@ -96,6 +100,8 @@ public:
 	void setAutoLimits(int down, int up);
 	
 	bool contains(Transfer* t) const;
+	void stopAll();
+	void resumeAll();
 private:
 	void loadQueue(const QDomNode& node);
 	void saveQueue(QDomNode& node,QDomDocument& doc);

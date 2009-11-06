@@ -416,3 +416,25 @@ bool Queue::contains(Transfer* t) const
 	return m_transfers.contains(t);
 }
 
+void Queue::stopAll()
+{
+	QReadLocker l(&m_lock);
+	for(int j=0;j<size();j++)
+	{
+		Transfer* t = at(j);
+		if(t->isActive())
+			t->setState(Transfer::Paused);
+	}
+}
+
+void Queue::resumeAll()
+{
+	QReadLocker l(&m_lock);
+	for(int j=0;j<size();j++)
+	{
+		Transfer* t = at(j);
+		Transfer::State state = t->state();
+		if(state == Transfer::Paused || state == Transfer::Failed)
+			t->setState(Transfer::Active);
+	}
+}
