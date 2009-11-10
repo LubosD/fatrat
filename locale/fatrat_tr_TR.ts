@@ -30,7 +30,6 @@
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="14"/>
-        <location filename="../ui_AboutDlg.h" line="252"/>
         <source>About FatRat</source>
         <translation>Fatrat Hakkında</translation>
     </message>
@@ -41,37 +40,31 @@
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="160"/>
-        <location filename="../ui_AboutDlg.h" line="256"/>
         <source>Native Language Support</source>
         <translation>Yerel Dil Desteği</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="170"/>
-        <location filename="../ui_AboutDlg.h" line="257"/>
         <source>BitTorrent</source>
         <translation>BitTorrent</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="180"/>
-        <location filename="../ui_AboutDlg.h" line="258"/>
         <source>Jabber remote control</source>
         <translation>Jabber  ile uzaktan yönetim</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="190"/>
-        <location filename="../ui_AboutDlg.h" line="259"/>
         <source>Documentation</source>
         <translation>Dokümantasyon</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="68"/>
-        <location filename="../ui_AboutDlg.h" line="253"/>
         <source>&lt;center&gt;&lt;font size=+5&gt;FatRat download manager</source>
         <translation>&lt;center&gt;&lt;font size=+5&gt;Fatrat indirme yöneticisi</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="150"/>
-        <location filename="../ui_AboutDlg.h" line="255"/>
         <source>Features enabled at compile time:</source>
         <translation>Derleme esnasında etkinleştirilen özellikler</translation>
     </message>
@@ -81,12 +74,7 @@
         <translation>Eklentiler</translation>
     </message>
     <message>
-        <source>&lt;center&gt;Copyright © 2006-2008 Lubo? Dole?el&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;center&gt;Telif Hakkı © 2006-2008 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</translation>
-    </message>
-    <message>
         <location filename="../src/AboutDlg.ui" line="200"/>
-        <location filename="../ui_AboutDlg.h" line="260"/>
         <source>Web interface</source>
         <translation>Web arayüzü</translation>
     </message>
@@ -95,29 +83,21 @@
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;File name: %2&lt;br&gt;Author: %3&lt;br&gt;Web site: &lt;a href=&quot;%4&quot;&gt;%4&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
-        <location filename="../ui_AboutDlg.h" line="254"/>
-        <source>&lt;center&gt;Copyright Â© 2006-2009 LuboÅ¡ DoleÅ¾el&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>AutoActionForm</name>
     <message>
         <location filename="../src/AutoActionForm.ui" line="13"/>
-        <location filename="../ui_AutoActionForm.h" line="69"/>
         <source>Actions</source>
         <translation>Olaylar</translation>
     </message>
     <message>
         <location filename="../src/AutoActionForm.ui" line="19"/>
-        <location filename="../ui_AutoActionForm.h" line="70"/>
         <source>Run the following command when the transfer completes</source>
         <translation>Transfer tamamlanınca şu komutu çalıştır</translation>
     </message>
     <message>
         <location filename="../src/AutoActionForm.ui" line="42"/>
-        <location filename="../ui_AutoActionForm.h" line="71"/>
         <source>%N - transfer name
 %T - transfer type
 %D - destination directory
@@ -132,7 +112,6 @@
     <name>CommentForm</name>
     <message>
         <location filename="../src/CommentForm.ui" line="13"/>
-        <location filename="../ui_CommentForm.h" line="51"/>
         <source>Comment</source>
         <translation>Yorum</translation>
     </message>
@@ -174,85 +153,71 @@
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="13"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="207"/>
         <source>Create a torrent</source>
         <translation>Torrent oluştur</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="19"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="208"/>
         <source>Data (a single file or a directory)</source>
         <translation>Data (tekil dosya ya da dizin)</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="29"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="210"/>
         <source>Browse files</source>
         <translation>Dosyaları dolaş</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="32"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="212"/>
         <source>F</source>
         <translation>F</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="39"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="214"/>
         <source>Browse directories</source>
         <translation>Dizinleri dolaş</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="42"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="216"/>
         <source>D</source>
         <translation>D</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="49"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="217"/>
         <source>Piece size</source>
         <translation>Parça boyutu</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="72"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="218"/>
         <source>Comment</source>
         <translation>Yorum</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="82"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="219"/>
         <source>Private torrent (disable DHT)</source>
         <translation>Özel torrent (DHT etkin değil)</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="93"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="221"/>
         <source>Trackers</source>
         <translation>İzleyiciler</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="99"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="220"/>
         <source>Private torrents need at least one tracker</source>
         <translation>Özel torrentlar en az bir izleyiciye ihtiyaç duyar</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="120"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="223"/>
         <source>DHT nodes</source>
         <translation>DHT düğümleri</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="126"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="222"/>
         <source>Enter adresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</source>
         <translation>Adresleri şu şekilde girin &lt;code&gt;address:port&lt;/code&gt;, diğer şekiller kabul edilmez</translation>
     </message>
     <message>
         <location filename="../src/tools/CreateTorrentDlg.ui" line="140"/>
-        <location filename="../ui_CreateTorrentDlg.h" line="224"/>
         <source>Web seeds</source>
         <translation>Web yayıncıları</translation>
     </message>
@@ -260,52 +225,62 @@
 <context>
     <name>CurlDownload</name>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="81"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="86"/>
         <source>Loaded stored authentication data, matched regexp %1</source>
         <translation>Saklanan kimlik bilgisi yüklendi, eşleşti regexp %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="95"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="100"/>
         <source>Unsupported protocol: &quot;%1&quot;</source>
         <translation>Desteklenmeyen protokol: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="130"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="135"/>
         <source>HTTP/FTP</source>
         <translation type="unfinished">HTTP/FTP</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="147"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="152"/>
         <source>Cannot move the file.</source>
         <translation>Dosya taşınamaz.</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="186"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="191"/>
         <source>No URLs have been given</source>
         <translation>Hiçbir URL verilmedi</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="512"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="330"/>
+        <source>Write failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/CurlDownload.cpp" line="416"/>
+        <source>Timeout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/CurlDownload.cpp" line="514"/>
         <source>Switch mirror</source>
         <translation>Yansı değiştir</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="515"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="517"/>
         <source>Compute hash...</source>
         <translation>Hash hesapla...</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="529"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="531"/>
         <source>No mirror to switch to!</source>
         <translation>Değiştirilecek yansı yok!</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="532"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="534"/>
         <source>Switching mirror: %1 -&gt; %2</source>
         <translation>Yansı değiştiriliyor: %1-&gt; %2</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="547"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="549"/>
         <source>You&apos;re about to compute hash from an incomplete download.</source>
         <translation>Tamamlanmamış bir indirmenin hash hesaplamasını yapmak üzeresiniz.</translation>
     </message>
@@ -326,6 +301,11 @@
         <location filename="../src/engines/CurlUpload.cpp" line="83"/>
         <source>Loaded stored authentication data, matched regexp %1</source>
         <translation>Saklanan kimlik bilgisi yüklendi, eşleşti regexp %1</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/CurlUpload.cpp" line="330"/>
+        <source>Timeout</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/engines/CurlUpload.cpp" line="345"/>
@@ -419,43 +399,36 @@
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="16"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="144"/>
         <source>Target URL:</source>
         <translation>Hedef URL:</translation>
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="26"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="145"/>
         <source>FTP connection mode:</source>
         <translation>FTP bağlantı modu:</translation>
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="36"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="146"/>
         <source>Authentication</source>
         <translation>Kimlik denetimi</translation>
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="70"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="147"/>
         <source>Password:</source>
         <translation>Şifre:</translation>
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="77"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="148"/>
         <source>Username:</source>
         <translation>Kullanıcı adı:</translation>
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="87"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="149"/>
         <source>Proxy server:</source>
         <translation>Proxy sunucusu:</translation>
     </message>
     <message>
         <location filename="../src/engines/FtpUploadOptsForm.ui" line="97"/>
-        <location filename="../ui_FtpUploadOptsForm.h" line="150"/>
         <source>Bind IP address:</source>
         <translation>Bind IP adresi:</translation>
     </message>
@@ -479,25 +452,21 @@
     </message>
     <message>
         <location filename="../src/GenericOptsForm.ui" line="22"/>
-        <location filename="../ui_GenericOptsForm.h" line="112"/>
         <source>Destination:</source>
         <translation>Hedef:</translation>
     </message>
     <message>
         <location filename="../src/GenericOptsForm.ui" line="32"/>
-        <location filename="../ui_GenericOptsForm.h" line="113"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
         <location filename="../src/GenericOptsForm.ui" line="39"/>
-        <location filename="../ui_GenericOptsForm.h" line="114"/>
         <source>Down speed limit (kB/s):</source>
         <translation>İndirme hız limiti (kB/s):</translation>
     </message>
     <message>
         <location filename="../src/GenericOptsForm.ui" line="66"/>
-        <location filename="../ui_GenericOptsForm.h" line="115"/>
         <source>Up speed limit (kB/s):</source>
         <translation>Gönderme hız limiti (kB/s):</translation>
     </message>
@@ -516,37 +485,31 @@
     </message>
     <message>
         <location filename="../src/tools/HashDlg.ui" line="13"/>
-        <location filename="../ui_HashDlg.h" line="123"/>
         <source>Compute hash</source>
         <translation>Hash hesapla</translation>
     </message>
     <message>
         <location filename="../src/tools/HashDlg.ui" line="19"/>
-        <location filename="../ui_HashDlg.h" line="124"/>
         <source>Hash type</source>
         <translation>Hash türü</translation>
     </message>
     <message>
         <location filename="../src/tools/HashDlg.ui" line="42"/>
-        <location filename="../ui_HashDlg.h" line="125"/>
         <source>Compute</source>
         <translation>Hesapla</translation>
     </message>
     <message>
         <location filename="../src/tools/HashDlg.ui" line="52"/>
-        <location filename="../ui_HashDlg.h" line="126"/>
         <source>Result</source>
         <translation>Sonuç</translation>
     </message>
     <message>
         <location filename="../src/tools/HashDlg.ui" line="76"/>
-        <location filename="../ui_HashDlg.h" line="127"/>
         <source>File</source>
         <translation>Dosya</translation>
     </message>
     <message>
         <location filename="../src/tools/HashDlg.ui" line="93"/>
-        <location filename="../ui_HashDlg.h" line="128"/>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -557,7 +520,6 @@
         <location filename="../src/tools/HelpBrowser.cpp" line="39"/>
         <location filename="../src/tools/HelpBrowser.cpp" line="70"/>
         <location filename="../src/tools/HelpBrowser.ui" line="13"/>
-        <location filename="../ui_HelpBrowser.h" line="56"/>
         <source>Help</source>
         <translation>Yardım</translation>
     </message>
@@ -603,19 +565,16 @@
     <name>HttpOptsWidget</name>
     <message>
         <location filename="../src/engines/HttpOptsWidget.ui" line="13"/>
-        <location filename="../ui_HttpOptsWidget.h" line="106"/>
         <source>HTTP/FTP transfer options</source>
         <translation>HTTP/FTP transfer tercihleri</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpOptsWidget.ui" line="19"/>
-        <location filename="../ui_HttpOptsWidget.h" line="107"/>
         <source>URLs</source>
         <translation>URL&apos;ler</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpOptsWidget.ui" line="52"/>
-        <location filename="../ui_HttpOptsWidget.h" line="108"/>
         <source>Target file name:</source>
         <translation>Hedef dosya adı: </translation>
     </message>
@@ -653,55 +612,46 @@
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="13"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="168"/>
         <source>HTTP/FTP link properties</source>
         <translation>HTTP/FTP link özellikleri</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="19"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="169"/>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="29"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="170"/>
         <source>HTTP referrer:</source>
         <translation>HTTP işaretçisi:</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="39"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="171"/>
         <source>FTP connection mode:</source>
         <translation>FTP bağlantı modu:</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="49"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="172"/>
         <source>Authentication</source>
         <translation>Kimlik denetimi</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="83"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="173"/>
         <source>Password:</source>
         <translation>Şifre:</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="90"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="174"/>
         <source>Username:</source>
         <translation>Kullanıcı adı:</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="100"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="175"/>
         <source>Proxy server:</source>
         <translation>Proxy sunucusu:</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpUrlOptsDlg.ui" line="133"/>
-        <location filename="../ui_HttpUrlOptsDlg.h" line="176"/>
         <source>Bind IP address:</source>
         <translation>Bind IP adresi:</translation>
     </message>
@@ -743,33 +693,6 @@ pass şifreniz</translation>
         <location filename="../src/remote/JabberService.cpp" line="273"/>
         <source>%1 logged out</source>
         <translation>%1 oturum kapatıldı</translation>
-    </message>
-    <message>
-        <source>List of commands:
-qlist - Show list of queues
-qset - Set current queue ID
-list - Show transfers of the current queue
-pauseall/resumeall - Pause/resume all transfers
-pause/resume/delete - Pause/resume/delete specified transfers
-logout/quit/exit - Log out
-
-Pass arguments like this: &quot;resume 1 3 5&quot;, use indexes from the lists
-
-add/new - Add new transfers
-This command needs special arguments. See more at http://fatrat.dolezel.info/doc/jabber.xhtml</source>
-        <translation type="obsolete">Komut listesi:
-qlist - Kuyruktakilerin listesini göster
-qset - Geçerli kuyruk ID&apos;sini ayarla
-list - Geçerli kuyruğun transferlerini göster
-pauseall/resumeall - bütün transferleri 
-duraklat/sürdür
-pause/resume/delete - belirtilen transferleri duraklat/sürdür/sil
-logout/quit/exit - Oturumu kapat
-
-Bu gibi argümanlar girin: &quot;resume 1 3 5&quot;, listedeki indeksleri kullanın
-
-add/new - Yeni transferler ekler
-Bu komut özel argümanlar gerektirir. Daha fazla bilgi için bu adrese bakın http://fatrat.dolezel.info/doc/jabber.xhtml</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="370"/>
@@ -931,10 +854,6 @@ Bu komut özel argümanlar gerektirir. Daha fazla bilgi için bu adrese bakın h
         <translation>Kimlik doğrulama başarısız</translation>
     </message>
     <message>
-        <source>The user was disconnect</source>
-        <translation type="obsolete">Kullanıcı bağlı değil</translation>
-    </message>
-    <message>
         <location filename="../src/remote/JabberService.cpp" line="665"/>
         <source>Other reason</source>
         <translation>Diğer sebep</translation>
@@ -990,7 +909,6 @@ This command needs special arguments. See more in the documentation.</source>
         <location filename="../src/MainWindow.cpp" line="132"/>
         <location filename="../src/MainWindow.cpp" line="1611"/>
         <location filename="../src/MainWindow.ui" line="448"/>
-        <location filename="../ui_MainWindow.h" line="684"/>
         <source>Help</source>
         <translation>Yardım</translation>
     </message>
@@ -1002,7 +920,6 @@ This command needs special arguments. See more in the documentation.</source>
     <message>
         <location filename="../src/MainWindow.cpp" line="596"/>
         <location filename="../src/MainWindow.ui" line="570"/>
-        <location filename="../ui_MainWindow.h" line="630"/>
         <source>Delete queue</source>
         <translation>Kuyruğu sil</translation>
     </message>
@@ -1014,7 +931,6 @@ This command needs special arguments. See more in the documentation.</source>
     <message>
         <location filename="../src/MainWindow.cpp" line="865"/>
         <location filename="../src/MainWindow.ui" line="589"/>
-        <location filename="../ui_MainWindow.h" line="633"/>
         <source>New transfer</source>
         <translation>Yeni transfer</translation>
     </message>
@@ -1068,7 +984,6 @@ This command needs special arguments. See more in the documentation.</source>
     <message>
         <location filename="../src/MainWindow.cpp" line="1159"/>
         <location filename="../src/MainWindow.ui" line="184"/>
-        <location filename="../ui_MainWindow.h" line="679"/>
         <source>Details</source>
         <translation>Detaylar</translation>
     </message>
@@ -1085,7 +1000,6 @@ This command needs special arguments. See more in the documentation.</source>
     <message>
         <location filename="../src/MainWindow.cpp" line="1170"/>
         <location filename="../src/MainWindow.ui" line="298"/>
-        <location filename="../ui_MainWindow.h" line="677"/>
         <source>Transfer properties</source>
         <translation>Transfer özellikleri</translation>
     </message>
@@ -1118,196 +1032,162 @@ This command needs special arguments. See more in the documentation.</source>
     <message>
         <location filename="../src/MainWindow.ui" line="17"/>
         <location filename="../src/MainWindow.ui" line="463"/>
-        <location filename="../ui_MainWindow.h" line="626"/>
-        <location filename="../ui_MainWindow.h" line="686"/>
         <source>FatRat</source>
         <translation>FatRat</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="42"/>
         <location filename="../src/MainWindow.ui" line="131"/>
-        <location filename="../ui_MainWindow.h" line="668"/>
-        <location filename="../ui_MainWindow.h" line="669"/>
         <source>Transfers</source>
         <translation>Transferler</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="68"/>
-        <location filename="../ui_MainWindow.h" line="667"/>
         <source>Queues</source>
         <translation>Kuyruk</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="190"/>
-        <location filename="../ui_MainWindow.h" line="670"/>
         <source>&lt;b&gt;Name:</source>
         <translation>&lt;b&gt;Ad:</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="207"/>
-        <location filename="../ui_MainWindow.h" line="671"/>
         <source>&lt;b&gt;Progress:</source>
         <translation>&lt;b&gt;İlerleme:</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="224"/>
-        <location filename="../ui_MainWindow.h" line="672"/>
         <source>&lt;b&gt;Destination:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Hedef:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="241"/>
-        <location filename="../ui_MainWindow.h" line="673"/>
         <source>&lt;b&gt;Speed:</source>
         <translation>&lt;b&gt;Hız:</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="258"/>
-        <location filename="../ui_MainWindow.h" line="674"/>
         <source>&lt;b&gt;Message:</source>
         <translation>&lt;b&gt;Mesaj:</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="275"/>
-        <location filename="../ui_MainWindow.h" line="675"/>
         <source>&lt;b&gt;Running for:</source>
         <translation>&lt;b&gt;Çalışıyor:</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="326"/>
-        <location filename="../ui_MainWindow.h" line="680"/>
         <source>Speed graph</source>
         <translation>Hız grafiği</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="346"/>
-        <location filename="../ui_MainWindow.h" line="683"/>
         <source>Log</source>
         <translation>Günlük</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="368"/>
-        <location filename="../ui_MainWindow.h" line="681"/>
         <source>Transfer log</source>
         <translation>Transfer günlüğü </translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="407"/>
-        <location filename="../ui_MainWindow.h" line="682"/>
         <source>Global log</source>
         <translation>Global günlük</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="457"/>
-        <location filename="../ui_MainWindow.h" line="685"/>
         <source>Settings</source>
         <translation>Ayarlar</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="472"/>
-        <location filename="../ui_MainWindow.h" line="687"/>
         <source>Transfer</source>
         <translation>Transfer</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="493"/>
-        <location filename="../ui_MainWindow.h" line="688"/>
         <source>Queue</source>
         <translation>Kuyruk</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="514"/>
-        <location filename="../ui_MainWindow.h" line="689"/>
         <source>Main toolbar</source>
         <translation>Ana araç çubuğu</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="549"/>
-        <location filename="../ui_MainWindow.h" line="627"/>
         <source>Quit</source>
         <translation>Çık</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="561"/>
-        <location filename="../ui_MainWindow.h" line="629"/>
         <source>New queue</source>
         <translation>Yeni kuyruk</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="575"/>
-        <location filename="../ui_MainWindow.h" line="631"/>
         <source>Start all</source>
         <translation>Hepsini başlat</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="580"/>
-        <location filename="../ui_MainWindow.h" line="632"/>
         <source>Pause all</source>
         <translation>Hepsini duraklat</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="601"/>
-        <location filename="../ui_MainWindow.h" line="635"/>
         <source>Delete transfer</source>
         <translation>Transferi sil</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="613"/>
-        <location filename="../ui_MainWindow.h" line="637"/>
         <source>Start</source>
         <translation>Başlat</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="625"/>
-        <location filename="../ui_MainWindow.h" line="639"/>
         <source>Force start</source>
         <translation>Başlamaya zorla</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="637"/>
-        <location filename="../ui_MainWindow.h" line="641"/>
         <source>Pause</source>
         <translation>Duraklat</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="645"/>
-        <location filename="../ui_MainWindow.h" line="643"/>
         <source>About</source>
         <translation>Hakkında</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="654"/>
-        <location filename="../ui_MainWindow.h" line="644"/>
         <source>Move to top</source>
         <translation>Tepeye çıkart</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="663"/>
-        <location filename="../ui_MainWindow.h" line="645"/>
         <source>Move up</source>
         <translation>Yukarıya çıkart</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="672"/>
-        <location filename="../ui_MainWindow.h" line="646"/>
         <source>Move down</source>
         <translation>Aşağıya indir</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="681"/>
-        <location filename="../ui_MainWindow.h" line="647"/>
         <source>Move to bottom</source>
         <translation>En alta indir</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="690"/>
-        <location filename="../ui_MainWindow.h" line="648"/>
         <source>Remove completed</source>
         <translation>Tamamlananı kaldır</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="695"/>
-        <location filename="../ui_MainWindow.h" line="649"/>
         <source>About Qt</source>
         <translation>Qt Hakkında</translation>
     </message>
@@ -1315,71 +1195,57 @@ This command needs special arguments. See more in the documentation.</source>
         <location filename="../src/MainWindow.ui" line="703"/>
         <location filename="../src/MainWindow.ui" line="706"/>
         <location filename="../src/MainWindow.ui" line="709"/>
-        <location filename="../ui_MainWindow.h" line="650"/>
-        <location filename="../ui_MainWindow.h" line="651"/>
-        <location filename="../ui_MainWindow.h" line="653"/>
         <source>Display info bar</source>
         <translation>Bilgi çubuğunu göster</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="721"/>
         <location filename="../src/MainWindow.ui" line="755"/>
-        <location filename="../ui_MainWindow.h" line="655"/>
-        <location filename="../ui_MainWindow.h" line="659"/>
         <source>Properties...</source>
         <translation>Özellikler...</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="726"/>
-        <location filename="../ui_MainWindow.h" line="656"/>
         <source>Hide all info bars</source>
         <translation>Bütün bilgi çubuklarını gizle</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="737"/>
-        <location filename="../ui_MainWindow.h" line="657"/>
         <source>Display main window</source>
         <translation>Ana pencereyi göster</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="746"/>
-        <location filename="../ui_MainWindow.h" line="658"/>
         <source>Settings...</source>
         <translation>Ayarlar...</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="767"/>
-        <location filename="../ui_MainWindow.h" line="660"/>
         <source>Display the drop-box</source>
         <translation>Sepeti göster</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="776"/>
-        <location filename="../ui_MainWindow.h" line="661"/>
         <source>Open</source>
         <translation>Aç</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="785"/>
-        <location filename="../ui_MainWindow.h" line="662"/>
         <source>Open directory</source>
         <translation>Dizin aç</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="790"/>
-        <location filename="../ui_MainWindow.h" line="663"/>
         <source>Compute hash...</source>
         <translation>Hash hesapla...</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="799"/>
-        <location filename="../ui_MainWindow.h" line="664"/>
         <source>Delete transfer including data</source>
         <translation>Transferi datasıyla birlikte sil</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="807"/>
-        <location filename="../ui_MainWindow.h" line="666"/>
         <source>Report a bug</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1400,43 +1266,36 @@ This command needs special arguments. See more in the documentation.</source>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="552"/>
-        <location filename="../ui_MainWindow.h" line="628"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="592"/>
-        <location filename="../ui_MainWindow.h" line="634"/>
         <source>Ctrl+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="604"/>
-        <location filename="../ui_MainWindow.h" line="636"/>
         <source>Del</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="616"/>
-        <location filename="../ui_MainWindow.h" line="638"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="628"/>
-        <location filename="../ui_MainWindow.h" line="640"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="640"/>
-        <location filename="../ui_MainWindow.h" line="642"/>
         <source>Ctrl+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="802"/>
-        <location filename="../ui_MainWindow.h" line="665"/>
         <source>Shift+Del</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1482,113 +1341,93 @@ Message: %2</source>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="13"/>
-        <location filename="../ui_NewTransferDlg.h" line="345"/>
         <source>New transfer</source>
         <translation>Yeni transfer</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="19"/>
-        <location filename="../ui_NewTransferDlg.h" line="346"/>
         <source>&lt;b&gt;Type:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Tür:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="26"/>
-        <location filename="../ui_NewTransferDlg.h" line="347"/>
         <source>Download</source>
         <translation>İndirme</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="36"/>
-        <location filename="../ui_NewTransferDlg.h" line="348"/>
         <source>Upload</source>
         <translation>Gönderme</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="87"/>
-        <location filename="../ui_NewTransferDlg.h" line="349"/>
         <source>URIs:</source>
         <translation>URI&apos;ler:</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="94"/>
-        <location filename="../ui_NewTransferDlg.h" line="350"/>
         <source>Add special</source>
         <translation>Özel ekle</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="124"/>
         <location filename="../src/NewTransferDlg.ui" line="292"/>
-        <location filename="../ui_NewTransferDlg.h" line="352"/>
-        <location filename="../ui_NewTransferDlg.h" line="361"/>
         <source>Set authentication data</source>
         <translation>Kimlik doğrulama bilgisini ayarla</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="154"/>
         <location filename="../src/NewTransferDlg.ui" line="272"/>
-        <location filename="../ui_NewTransferDlg.h" line="354"/>
-        <location filename="../ui_NewTransferDlg.h" line="359"/>
         <source>Destination:</source>
         <translation>Hedef:</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="174"/>
-        <location filename="../ui_NewTransferDlg.h" line="355"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="187"/>
-        <location filename="../ui_NewTransferDlg.h" line="356"/>
         <source>Download as:</source>
         <translation>Farklı indir:</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="222"/>
-        <location filename="../ui_NewTransferDlg.h" line="357"/>
         <source>Files:</source>
         <translation>Dosyalar:</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="235"/>
-        <location filename="../ui_NewTransferDlg.h" line="358"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="309"/>
-        <location filename="../ui_NewTransferDlg.h" line="363"/>
         <source>Upload as:</source>
         <translation>Farklı gönder:</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="330"/>
-        <location filename="../ui_NewTransferDlg.h" line="364"/>
         <source>Down speed limit (kB/s):</source>
         <translation>İndirme hız limiti (kB/s):</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="347"/>
-        <location filename="../ui_NewTransferDlg.h" line="365"/>
         <source>Add paused</source>
         <translation>Duraklamış olarak ekle</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="354"/>
-        <location filename="../ui_NewTransferDlg.h" line="366"/>
         <source>Up speed limit (kB/s):</source>
         <translation>Gönderme hız limiti (kB/s):</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="364"/>
-        <location filename="../ui_NewTransferDlg.h" line="367"/>
         <source>Set advanced options</source>
         <translation>Gelişmiş seçenekleri ayarla</translation>
     </message>
     <message>
         <location filename="../src/NewTransferDlg.ui" line="381"/>
-        <location filename="../ui_NewTransferDlg.h" line="368"/>
         <source>Queue:</source>
         <translation>Kuyruk:</translation>
     </message>
@@ -1597,43 +1436,36 @@ Message: %2</source>
     <name>ProxyDlg</name>
     <message>
         <location filename="../src/ProxyDlg.ui" line="13"/>
-        <location filename="../ui_ProxyDlg.h" line="148"/>
         <source>Proxy server</source>
         <translation>Proxy sunucusu</translation>
     </message>
     <message>
         <location filename="../src/ProxyDlg.ui" line="38"/>
-        <location filename="../ui_ProxyDlg.h" line="149"/>
         <source>Proxy user:</source>
         <translation>Proxy kullanıcısı:</translation>
     </message>
     <message>
         <location filename="../src/ProxyDlg.ui" line="48"/>
-        <location filename="../ui_ProxyDlg.h" line="150"/>
         <source>Proxy name:</source>
         <translation>Proxy adı:</translation>
     </message>
     <message>
         <location filename="../src/ProxyDlg.ui" line="78"/>
-        <location filename="../ui_ProxyDlg.h" line="151"/>
         <source>Proxy IP:</source>
         <translation>Proxy IP:</translation>
     </message>
     <message>
         <location filename="../src/ProxyDlg.ui" line="85"/>
-        <location filename="../ui_ProxyDlg.h" line="152"/>
         <source>Proxy type:</source>
         <translation>Proxy türü:</translation>
     </message>
     <message>
         <location filename="../src/ProxyDlg.ui" line="92"/>
-        <location filename="../ui_ProxyDlg.h" line="153"/>
         <source>Proxy password:</source>
         <translation>Proxy şifresi:</translation>
     </message>
     <message>
         <location filename="../src/ProxyDlg.ui" line="102"/>
-        <location filename="../ui_ProxyDlg.h" line="154"/>
         <source>Proxy port:</source>
         <translation>Proxy portu:</translation>
     </message>
@@ -1656,13 +1488,13 @@ Message: %2</source>
         <translation>RapidShare araçları</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="235"/>
+        <location filename="../src/fatrat.cpp" line="238"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Halihazırda çalışan bir örnek var. Yine de Fatrat&apos;i başlatmak istiyorsanız, komut satırı argümanlarına --force ekleyin.</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="396"/>
+        <location filename="../src/fatrat.cpp" line="399"/>
         <source>Unable to load a data file:</source>
         <translation>Data dosyası yüklenemedi</translation>
     </message>
@@ -1682,54 +1514,59 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Dosya hash hesaplayıcısı</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="436"/>
+        <location filename="../src/fatrat.cpp" line="439"/>
         <source>Loaded a plugin:</source>
         <translation>Bir eklenti yüklendi:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="447"/>
+        <location filename="../src/fatrat.cpp" line="450"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation>UYARI: eklenti uyumsuz:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="452"/>
+        <location filename="../src/fatrat.cpp" line="455"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation>Bir eklenti yüklemesi başarısız oldu: %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="337"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="350"/>
         <source>Invalid URL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="58"/>
+        <location filename="../src/Settings.cpp" line="59"/>
         <source>Main</source>
         <translation type="unfinished">Ana</translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="64"/>
+        <location filename="../src/Settings.cpp" line="65"/>
         <source>Queue</source>
         <translation type="unfinished">Kuyruk</translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="70"/>
+        <location filename="../src/Settings.cpp" line="71"/>
         <source>Drop-box</source>
         <translation type="unfinished">Sepet</translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="76"/>
+        <location filename="../src/Settings.cpp" line="77"/>
         <source>Network</source>
         <translation type="unfinished">Ağ</translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="82"/>
+        <location filename="../src/Settings.cpp" line="83"/>
         <source>RSS</source>
         <translation type="unfinished">RSS</translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="89"/>
+        <location filename="../src/Settings.cpp" line="90"/>
         <source>Jabber</source>
         <translation type="unfinished">Jabber</translation>
+    </message>
+    <message>
+        <location filename="../src/Settings.cpp" line="97"/>
+        <source>Scheduler</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/XmlRpc.cpp" line="169"/>
@@ -1765,50 +1602,52 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     </message>
 </context>
 <context>
+    <name>Queue</name>
+    <message>
+        <location filename="../src/Queue.cpp" line="179"/>
+        <source>Queue</source>
+        <translation type="unfinished">Kuyruk</translation>
+    </message>
+    <message>
+        <location filename="../src/Queue.cpp" line="179"/>
+        <source>Failed to write the queue file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QueueDlg</name>
     <message>
         <location filename="../src/QueueDlg.ui" line="13"/>
-        <location filename="../ui_QueueDlg.h" line="210"/>
         <source>Queue properties</source>
         <translation>Kuyruk özellikleri</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation type="obsolete">Ad:</translation>
-    </message>
-    <message>
         <location filename="../src/QueueDlg.ui" line="74"/>
-        <location filename="../ui_QueueDlg.h" line="216"/>
         <source>Down speed limit (kiB/s):</source>
         <translation>İndirme hız limiti (kiB/s):</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="100"/>
-        <location filename="../ui_QueueDlg.h" line="217"/>
         <source>Up speed limit (kiB/s):</source>
         <translation>Gönderme hız limiti (kiB/s):</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="126"/>
-        <location filename="../ui_QueueDlg.h" line="218"/>
         <source>Limit active transfer count</source>
         <translation>Aktif transfer sayısını sınırla</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="135"/>
-        <location filename="../ui_QueueDlg.h" line="219"/>
         <source>Maximum active download transfers:</source>
         <translation>Maksimum aktif indirme transferleri</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="161"/>
-        <location filename="../ui_QueueDlg.h" line="220"/>
         <source>Maximum active upload transfers:</source>
         <translation>Maksimum aktif gönderme transferleri</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="171"/>
-        <location filename="../ui_QueueDlg.h" line="221"/>
         <source>Count as downloads</source>
         <translation>Download olarak say</translation>
     </message>
@@ -1820,27 +1659,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="19"/>
-        <location filename="../ui_QueueDlg.h" line="211"/>
         <source>Name</source>
         <translation type="unfinished">Ad</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="32"/>
-        <location filename="../ui_QueueDlg.h" line="212"/>
         <source>Destination directory</source>
         <translation type="unfinished">Hedef dizin</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="42"/>
         <location filename="../src/QueueDlg.ui" line="64"/>
-        <location filename="../ui_QueueDlg.h" line="213"/>
-        <location filename="../ui_QueueDlg.h" line="215"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
         <location filename="../src/QueueDlg.ui" line="49"/>
-        <location filename="../ui_QueueDlg.h" line="214"/>
         <source>Move transfers after completion</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1879,91 +1713,76 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="31"/>
-        <location filename="../ui_RapidTools.h" line="215"/>
         <source>Verify RS.com links</source>
         <translation>RS.com linklerini doğrula</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="37"/>
-        <location filename="../ui_RapidTools.h" line="210"/>
         <source>Links:</source>
         <translation>Linkler:</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="51"/>
-        <location filename="../ui_RapidTools.h" line="211"/>
         <source>Verify links</source>
         <translation>Linkleri doğrula</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="58"/>
-        <location filename="../ui_RapidTools.h" line="212"/>
         <source>Download working links</source>
         <translation>Çalışan linkleri indir</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="65"/>
-        <location filename="../ui_RapidTools.h" line="213"/>
         <source>Reset</source>
         <translation>Reset</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="101"/>
-        <location filename="../ui_RapidTools.h" line="220"/>
         <source>Decode RapidSafe links</source>
         <translation>RapidSafe linklerini deşifre et</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="107"/>
-        <location filename="../ui_RapidTools.h" line="216"/>
         <source>Enter RapidSafe/RapidSave links:</source>
         <translation>RapidSafe/RapidSave linkleri gir:</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="121"/>
-        <location filename="../ui_RapidTools.h" line="217"/>
         <source>Decoded links:</source>
         <translation>Deşifre edilen linkler:</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="138"/>
-        <location filename="../ui_RapidTools.h" line="218"/>
         <source>Decode</source>
         <translation>Deşifre et</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="145"/>
-        <location filename="../ui_RapidTools.h" line="219"/>
         <source>Download decoded</source>
         <translation>Deşifre edileni indir</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="174"/>
-        <location filename="../ui_RapidTools.h" line="224"/>
         <source>Extract files from a RS.com folder</source>
         <translation>Bir RS.com dizininden dosyaları çıkar</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="180"/>
-        <location filename="../ui_RapidTools.h" line="221"/>
         <source>RS.com folder URL:</source>
         <translation>RS.com dizin URL&apos;si:</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="190"/>
-        <location filename="../ui_RapidTools.h" line="222"/>
         <source>Extract</source>
         <translation>Çıkar</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="213"/>
-        <location filename="../ui_RapidTools.h" line="223"/>
         <source>Download extracted</source>
         <translation>Çıkarılanı indir</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="85"/>
-        <location filename="../ui_RapidTools.h" line="214"/>
         <source>Ignore invalid</source>
         <translation>Geçersizi yoksay</translation>
     </message>
@@ -1979,10 +1798,6 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="144"/>
         <source>Loading the first page</source>
         <translation>İlk sayfayı yüklüyor</translation>
-    </message>
-    <message>
-        <source>%1 seconds left</source>
-        <translation type="obsolete">%1 saniye kaldı</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="212"/>
@@ -2010,7 +1825,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>İndirmenin bekleme sayfasını ayrıştırma başarısız oldu.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="307"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="320"/>
         <source>Failed to download the file.</source>
         <translation>Dosyayı indirme başarısız oldu.</translation>
     </message>
@@ -2024,7 +1839,6 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <name>RapidshareFreeDownloadOptsForm</name>
     <message>
         <location filename="../src/engines/RapidshareFreeDownloadOptsForm.ui" line="16"/>
-        <location filename="../ui_RapidshareFreeDownloadOptsForm.h" line="63"/>
         <source>URL</source>
         <translation type="unfinished">URL</translation>
     </message>
@@ -2033,63 +1847,52 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <name>RapidshareOptsForm</name>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="13"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="164"/>
         <source>RapidShare.com</source>
         <translation>RapidShare.com</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="19"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="165"/>
         <source>RS.com account type</source>
         <translation>RS.com hesap türü</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="29"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="166"/>
         <source>User name</source>
         <translation>Kullanıcı adı</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="39"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="167"/>
         <source>Password</source>
         <translation>Şifre</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="60"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="168"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="70"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="169"/>
         <source>Save links to a file</source>
         <translation>Linkleri bir dosyaya kaydet</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="76"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="170"/>
         <source>Download links</source>
         <translation>Linkleri indir</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="86"/>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="103"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="171"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="173"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="93"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="172"/>
         <source>Kill links</source>
         <translation>Linkleri yok et</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareOptsForm.ui" line="126"/>
-        <location filename="../ui_RapidshareOptsForm.h" line="174"/>
         <source>Enable the status widget</source>
         <translation>Durum parçacığını etkinleştir</translation>
     </message>
@@ -2226,13 +2029,6 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     </message>
 </context>
 <context>
-    <name>RapidshareUploadDetailsForm</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
-</context>
-<context>
     <name>ReportBugDlg</name>
     <message>
         <location filename="../src/ReportBugDlg.cpp" line="52"/>
@@ -2261,37 +2057,31 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="14"/>
-        <location filename="../ui_ReportBugDlg.h" line="129"/>
         <source>Report a bug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="20"/>
-        <location filename="../ui_ReportBugDlg.h" line="130"/>
         <source>Thank you for your interest in reporting bugs in FatRat. Note that the bug report must be written in &lt;b&gt;English, Czech or Slovak&lt;/b&gt;!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="37"/>
-        <location filename="../ui_ReportBugDlg.h" line="131"/>
         <source>Your name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="47"/>
-        <location filename="../ui_ReportBugDlg.h" line="132"/>
         <source>Your e-mail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="64"/>
-        <location filename="../ui_ReportBugDlg.h" line="133"/>
         <source>Summary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="74"/>
-        <location filename="../ui_ReportBugDlg.h" line="134"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2313,19 +2103,16 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <name>RssDownloadedDlg</name>
     <message>
         <location filename="../src/rss/RssDownloadedDlg.ui" line="13"/>
-        <location filename="../ui_RssDownloadedDlg.h" line="85"/>
         <source>List of downloaded episodes</source>
         <translation>İndirilen bölümlerin listesi</translation>
     </message>
     <message>
         <location filename="../src/rss/RssDownloadedDlg.ui" line="22"/>
-        <location filename="../ui_RssDownloadedDlg.h" line="86"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../src/rss/RssDownloadedDlg.ui" line="29"/>
-        <location filename="../ui_RssDownloadedDlg.h" line="87"/>
         <source>Delete</source>
         <translation>Sil</translation>
     </message>
@@ -2335,8 +2122,6 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/rss/RssEpisodeNameDlg.ui" line="13"/>
         <location filename="../src/rss/RssEpisodeNameDlg.ui" line="19"/>
-        <location filename="../ui_RssEpisodeNameDlg.h" line="74"/>
-        <location filename="../ui_RssEpisodeNameDlg.h" line="75"/>
         <source>Episode name</source>
         <translation>Bölüm ismi</translation>
     </message>
@@ -2345,19 +2130,16 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <name>RssFeedDlg</name>
     <message>
         <location filename="../src/rss/RssFeedDlg.ui" line="13"/>
-        <location filename="../ui_RssFeedDlg.h" line="88"/>
         <source>RSS feed</source>
         <translation>RSS beslemesi</translation>
     </message>
     <message>
         <location filename="../src/rss/RssFeedDlg.ui" line="19"/>
-        <location filename="../ui_RssFeedDlg.h" line="89"/>
         <source>Name</source>
         <translation>Ad</translation>
     </message>
     <message>
         <location filename="../src/rss/RssFeedDlg.ui" line="29"/>
-        <location filename="../ui_RssFeedDlg.h" line="90"/>
         <source>URL</source>
         <translation>URL</translation>
     </message>
@@ -2384,179 +2166,277 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <source>Automatically adding a new transfer: %1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>The transfer wasn&apos;t accepted by any class: %1</source>
-        <translation type="obsolete">Transfer hiçbir tür tarafından kabul edilmedi: %1</translation>
-    </message>
-    <message>
-        <source>Automatically adding a new transfer: %1</source>
-        <translation type="obsolete">Otomatik olarak yeni bir transfer ekleniyor: %1</translation>
-    </message>
 </context>
 <context>
     <name>RssRegexpDlg</name>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="14"/>
-        <location filename="../ui_RssRegexpDlg.h" line="291"/>
         <source>Regular expression</source>
         <translation>Düzenli ifade</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="24"/>
-        <location filename="../ui_RssRegexpDlg.h" line="300"/>
         <source>Main</source>
         <translation>Ana</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="30"/>
-        <location filename="../ui_RssRegexpDlg.h" line="292"/>
         <source>RSS feed</source>
         <translation>RSS beslemesi</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="40"/>
-        <location filename="../ui_RssRegexpDlg.h" line="293"/>
         <source>Expression</source>
         <translation>İfade</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="50"/>
-        <location filename="../ui_RssRegexpDlg.h" line="294"/>
         <source>Destination queue</source>
         <translation>Hedef kuyruk</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="60"/>
-        <location filename="../ui_RssRegexpDlg.h" line="295"/>
         <source>Destination directory</source>
         <translation>Hedef dizin</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="70"/>
-        <location filename="../ui_RssRegexpDlg.h" line="296"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="77"/>
-        <location filename="../ui_RssRegexpDlg.h" line="297"/>
         <source>Expression test</source>
         <translation>İfade testi</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="83"/>
-        <location filename="../ui_RssRegexpDlg.h" line="298"/>
         <source>Input text</source>
         <translation>Girdi metni</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="115"/>
-        <location filename="../ui_RssRegexpDlg.h" line="299"/>
         <source>Add paused</source>
         <translation type="unfinished">Duraklamış olarak ekle</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="157"/>
-        <location filename="../ui_RssRegexpDlg.h" line="305"/>
         <source>From</source>
         <translation>Den</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="167"/>
-        <location filename="../ui_RssRegexpDlg.h" line="306"/>
         <source>To</source>
         <translation>E</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="177"/>
-        <location filename="../ui_RssRegexpDlg.h" line="307"/>
         <source>Download repacks</source>
         <translation>Yeniden paketlenmişleri indir</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="184"/>
-        <location filename="../ui_RssRegexpDlg.h" line="308"/>
         <source>Download trailers/teasers</source>
         <translation>İndir fragmanlar/kısa filmler</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="191"/>
-        <location filename="../ui_RssRegexpDlg.h" line="309"/>
         <source>Exclude episodes downloaded manually</source>
         <translation>Manuel olarak indirilmiş bölümleri hariç tut</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="198"/>
-        <location filename="../ui_RssRegexpDlg.h" line="310"/>
         <source>&lt;a href=&quot;manageDownloaded&quot;&gt;Manage the list of downloaded episodes&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;manageDownloaded&quot;&gt;İndirilen bölümlerin listesini yönet&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="206"/>
-        <location filename="../ui_RssRegexpDlg.h" line="315"/>
         <source>Link parsing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="212"/>
-        <location filename="../ui_RssRegexpDlg.h" line="312"/>
         <source>No parsing, use the main link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="222"/>
-        <location filename="../ui_RssRegexpDlg.h" line="313"/>
         <source>Extract links matched by the following regexp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="245"/>
-        <location filename="../ui_RssRegexpDlg.h" line="314"/>
         <source>Example: http://www.server.com/\S+</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="123"/>
-        <location filename="../ui_RssRegexpDlg.h" line="311"/>
         <source>TV show/podcast support</source>
         <translation>TV şovu/podcast desteği</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="129"/>
-        <location filename="../ui_RssRegexpDlg.h" line="301"/>
         <source>Not a TV serie or podcast</source>
         <translation>TV dizisi ya da podcast değil</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="136"/>
-        <location filename="../ui_RssRegexpDlg.h" line="302"/>
         <source>Season based</source>
         <translation>Sezon esaslı</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="143"/>
-        <location filename="../ui_RssRegexpDlg.h" line="303"/>
         <source>Episode based</source>
         <translation>Bölüm esaslı</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="150"/>
-        <location filename="../ui_RssRegexpDlg.h" line="304"/>
         <source>Date based</source>
         <translation>Zaman esaslı</translation>
+    </message>
+</context>
+<context>
+    <name>ScheduledActionDlg</name>
+    <message>
+        <location filename="../src/ScheduledActionDlg.cpp" line="40"/>
+        <source>Resume all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.cpp" line="40"/>
+        <source>Stop all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.cpp" line="40"/>
+        <source>Set speed limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.cpp" line="109"/>
+        <source>Enter the action name!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="14"/>
+        <source>Scheduled action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="20"/>
+        <source>Name</source>
+        <translation type="unfinished">Ad</translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="30"/>
+        <source>When</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="36"/>
+        <source>Repeated action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="43"/>
+        <source>One time action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="64"/>
+        <source>Monday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="75"/>
+        <source>Tuesday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="86"/>
+        <source>Wednesday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="97"/>
+        <source>Thursday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="108"/>
+        <source>Friday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="119"/>
+        <source>Saturday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="130"/>
+        <source>Sunday</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="197"/>
+        <source>d.M.yyyy H:mm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="227"/>
+        <source>Queue</source>
+        <translation type="unfinished">Kuyruk</translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="237"/>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="256"/>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="266"/>
+        <location filename="../src/ScheduledActionDlg.ui" line="276"/>
+        <source>kB/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ScheduledActionDlg.ui" line="283"/>
+        <source>Upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Scheduler</name>
+    <message>
+        <location filename="../src/Scheduler.cpp" line="141"/>
+        <location filename="../src/Scheduler.cpp" line="165"/>
+        <source>Scheduler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Scheduler.cpp" line="141"/>
+        <source>Executing a scheduled action: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Scheduler.cpp" line="165"/>
+        <source>Failed to execute a scheduled action: %1, the queue doesn&apos;t seem to exist any more</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SettingsDlg</name>
     <message>
         <location filename="../src/SettingsDlg.ui" line="13"/>
-        <location filename="../ui_SettingsDlg.h" line="105"/>
         <source>Settings</source>
         <translation>Ayarlar</translation>
     </message>
     <message>
         <location filename="../src/SettingsDlg.ui" line="31"/>
-        <location filename="../ui_SettingsDlg.h" line="106"/>
         <source>Some changes may require restart to take effect.</source>
         <translation>Bazı değişikliklerin etkinleşmesi için yeniden 
 başlatmanız gerekebilir.</translation>
@@ -2566,25 +2446,18 @@ başlatmanız gerekebilir.</translation>
     <name>SettingsDropBoxForm</name>
     <message>
         <location filename="../src/SettingsDropBoxForm.ui" line="17"/>
-        <location filename="../ui_SettingsDropBoxForm.h" line="73"/>
         <source>Height</source>
         <translation>Yükseklik</translation>
     </message>
     <message>
         <location filename="../src/SettingsDropBoxForm.ui" line="24"/>
-        <location filename="../ui_SettingsDropBoxForm.h" line="74"/>
         <source> px</source>
         <translation> px</translation>
     </message>
     <message>
         <location filename="../src/SettingsDropBoxForm.ui" line="40"/>
-        <location filename="../ui_SettingsDropBoxForm.h" line="75"/>
         <source>Unhide the main window on drop</source>
         <translation>Sepete atma işlemi esnasında ana pencere görünsün</translation>
-    </message>
-    <message>
-        <source>Drop-box</source>
-        <translation type="obsolete">Sepet</translation>
     </message>
 </context>
 <context>
@@ -2630,102 +2503,66 @@ başlatmanız gerekebilir.</translation>
         <translation>görünmez karakterler</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="obsolete">Hata</translation>
-    </message>
-    <message>
-        <source>The specified directory is inaccessible.</source>
-        <translation type="obsolete">Belirtilen dizine ulaşılamıyor</translation>
-    </message>
-    <message>
-        <source>Choose directory</source>
-        <translation type="obsolete">Dizin seç</translation>
-    </message>
-    <message>
-        <source>Default destination directory</source>
-        <translation type="obsolete">Öntanımlı hedef dizin</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
         <location filename="../src/SettingsGeneralForm.ui" line="41"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="195"/>
         <source>Display speed graphs for last</source>
         <translation>Sonuncu için hız grafiklerini göster</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="55"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="196"/>
         <source>minutes</source>
         <comment>last X minutes</comment>
         <translation>dakika</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="72"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="198"/>
         <source>Open files/directories by running</source>
         <translation>Şu komutu çalıştırarak dosyaları/dizinleri aç</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="93"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="200"/>
         <source>Display the tray icon</source>
         <translation>Tray ikonunu göster</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="102"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="201"/>
         <source>Hide by minimizing</source>
         <translation>Minimize ederek gizle</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="109"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="202"/>
         <source>Hide by closing</source>
         <translation>Kapatarak gizle</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="139"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="204"/>
         <source>A doubleclick on a transfer</source>
         <translation>Transfere çift tıklama</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="149"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="205"/>
         <source>When the current tab is closed</source>
         <translation>Güncel sekme kapatıldığında</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="159"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="206"/>
         <source>Links in a list are separated by</source>
         <translation>Listedeki linkleri birbirinden ayıran</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="17"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="193"/>
         <source>Refresh GUI every</source>
         <translation>Grafik arayüzü tazele her</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="34"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="194"/>
         <source>seconds</source>
         <comment>every X seconds</comment>
         <translation>saniyede</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="86"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="199"/>
         <source>Enable GUI CSS styling</source>
         <translation>Grafik arayüzü CSS dizaynını etkinleştir</translation>
-    </message>
-    <message>
-        <source>Main</source>
-        <translation type="obsolete">Ana</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="49"/>
@@ -2739,13 +2576,11 @@ başlatmanız gerekebilir.</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="62"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="197"/>
         <source>Speed graph style</source>
         <translation>Hız grafiği stili</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="129"/>
-        <location filename="../ui_SettingsGeneralForm.h" line="203"/>
         <source>Tray icon click hides an unfocused window</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2753,48 +2588,37 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>SettingsHttpForm</name>
     <message>
-        <source>HTTP/FTP</source>
-        <translation type="obsolete">HTTP/FTP</translation>
-    </message>
-    <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="17"/>
-        <location filename="../ui_SettingsHttpForm.h" line="128"/>
         <source>Default proxy</source>
         <translation>Öntanımlı proxy</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="27"/>
-        <location filename="../ui_SettingsHttpForm.h" line="129"/>
         <source>Automatic user credentials</source>
         <translation>Otomatik kullanıcı kimliği</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="39"/>
-        <location filename="../ui_SettingsHttpForm.h" line="130"/>
         <source>If new download&apos;s URI matches a certain regexp, defined user credentials will be set.</source>
         <translation>Eğer yeni indirmenin URI&apos;i  belirli regexp ile eşleşirse, tanımlanan kullanıcı kimliği kullanılacak.</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="49"/>
-        <location filename="../ui_SettingsHttpForm.h" line="131"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="61"/>
-        <location filename="../ui_SettingsHttpForm.h" line="132"/>
         <source>Edit</source>
         <translation>Düzenle</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="73"/>
-        <location filename="../ui_SettingsHttpForm.h" line="133"/>
         <source>Delete</source>
         <translation>Sil</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="104"/>
-        <location filename="../ui_SettingsHttpForm.h" line="134"/>
         <source>Forbid IPv6 unless used explicitly</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2809,67 +2633,53 @@ başlatmanız gerekebilir.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="17"/>
-        <location filename="../ui_SettingsJabberForm.h" line="163"/>
         <source>Enable remote control via Jabber</source>
         <translation>Jabber ile uzaktan kontrolü etkinleştir</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="24"/>
-        <location filename="../ui_SettingsJabberForm.h" line="164"/>
         <source>Account credentials</source>
         <translation>Hesap kimliği</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="30"/>
-        <location filename="../ui_SettingsJabberForm.h" line="165"/>
         <source>JID</source>
         <translation>JID</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="40"/>
-        <location filename="../ui_SettingsJabberForm.h" line="166"/>
         <source>Password</source>
         <translation>Şifre</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="54"/>
-        <location filename="../ui_SettingsJabberForm.h" line="167"/>
         <source>Priority</source>
         <translation>Öncelik</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="68"/>
-        <location filename="../ui_SettingsJabberForm.h" line="168"/>
         <source>Resource name</source>
         <translation>Kaynak adı</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="81"/>
-        <location filename="../ui_SettingsJabberForm.h" line="169"/>
         <source>Grant roster authorizations upon request</source>
         <translation>İsim listesi denetimlerini istek üzerine kabul et</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="88"/>
-        <location filename="../ui_SettingsJabberForm.h" line="170"/>
         <source>Restrict access to my own JID</source>
         <translation>Benim JID&apos;me erişimi engelle</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="95"/>
-        <location filename="../ui_SettingsJabberForm.h" line="171"/>
         <source>Restrict access using a password</source>
         <translation>Şifre kullanarak erişimi engelle</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="117"/>
-        <location filename="../ui_SettingsJabberForm.h" line="172"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
-    </message>
-    <message>
-        <source>Jabber</source>
-        <translation type="obsolete">Jabber</translation>
     </message>
 </context>
 <context>
@@ -2881,57 +2691,44 @@ başlatmanız gerekebilir.</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="17"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="151"/>
         <source>Line speed</source>
         <translation>Hat hızı</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="23"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="152"/>
         <source>Download</source>
         <translation>İndirme</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="46"/>
         <location filename="../src/SettingsNetworkForm.ui" line="76"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="153"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="155"/>
         <source>KB/s</source>
         <translation>KB/s</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="53"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="154"/>
         <source>Upload</source>
         <translation>Gönderme</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="86"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="156"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="95"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="157"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="106"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="158"/>
         <source>Edit</source>
         <translation>Düzenle</translation>
     </message>
     <message>
         <location filename="../src/SettingsNetworkForm.ui" line="117"/>
-        <location filename="../ui_SettingsNetworkForm.h" line="159"/>
         <source>Delete</source>
         <translation>Sil</translation>
-    </message>
-    <message>
-        <source>Network</source>
-        <translation type="obsolete">Ağ</translation>
     </message>
 </context>
 <context>
@@ -2948,89 +2745,71 @@ başlatmanız gerekebilir.</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="17"/>
-        <location filename="../ui_SettingsQueueForm.h" line="212"/>
         <source>If transfer fails</source>
         <translation>Transfer başarısız olursa</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="23"/>
-        <location filename="../ui_SettingsQueueForm.h" line="213"/>
         <source>Retry</source>
         <translation>Yeniden dene</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="33"/>
-        <location filename="../ui_SettingsQueueForm.h" line="214"/>
         <source>times</source>
         <translation>kere</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="53"/>
-        <location filename="../ui_SettingsQueueForm.h" line="215"/>
         <source>Always retry if the transfer has been working before</source>
         <translation>Eğer transfer daha önce çalıştıysa yeniden dene</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="63"/>
-        <location filename="../ui_SettingsQueueForm.h" line="216"/>
         <source>When transfer completes</source>
         <translation>Transfer tamamlanınca</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="69"/>
-        <location filename="../ui_SettingsQueueForm.h" line="217"/>
         <source>Remove from the queue</source>
         <translation>Kuyruktan kaldır</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="82"/>
-        <location filename="../ui_SettingsQueueForm.h" line="218"/>
         <source>Show a popup (requires the tray icon)</source>
         <translation>Bir popup göster (tray ikonu gerektirir)</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="102"/>
-        <location filename="../ui_SettingsQueueForm.h" line="219"/>
         <source>Popup display time</source>
         <translation>Popup gösterme süresi</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="125"/>
-        <location filename="../ui_SettingsQueueForm.h" line="220"/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="145"/>
-        <location filename="../ui_SettingsQueueForm.h" line="221"/>
         <source>Send an e-mail</source>
         <translation>Bir e-posta gönder</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="172"/>
-        <location filename="../ui_SettingsQueueForm.h" line="222"/>
         <source>Recipient address:</source>
         <translation>Alıcı adresi:</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="179"/>
-        <location filename="../ui_SettingsQueueForm.h" line="223"/>
         <source>Sender address:</source>
         <translation>Gönderici adresi:</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="186"/>
-        <location filename="../ui_SettingsQueueForm.h" line="224"/>
         <source>SMTP server:</source>
         <translation>SMTP sunucusu:</translation>
     </message>
     <message>
-        <source>Queue</source>
-        <translation type="obsolete">Kuyruk</translation>
-    </message>
-    <message>
         <location filename="../src/SettingsQueueForm.ui" line="212"/>
-        <location filename="../ui_SettingsQueueForm.h" line="225"/>
         <source>Enable tooltips</source>
         <translation>Araç ipuçlarını etkinleştir</translation>
     </message>
@@ -3039,250 +2818,230 @@ başlatmanız gerekebilir.</translation>
     <name>SettingsRssForm</name>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="33"/>
-        <location filename="../ui_SettingsRssForm.h" line="185"/>
         <source>Automatically download new stuff from RSS feeds</source>
         <translation>Otomatik olarak RSS beslemelerini güncelle</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="40"/>
-        <location filename="../ui_SettingsRssForm.h" line="186"/>
         <source>Update interval</source>
         <translation>Güncelleme aralığı</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="73"/>
-        <location filename="../ui_SettingsRssForm.h" line="187"/>
         <source>minutes</source>
         <translation>dakika</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="101"/>
-        <location filename="../ui_SettingsRssForm.h" line="193"/>
         <source>RSS feeds</source>
         <translation>RSS beslemeleri</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="110"/>
         <location filename="../src/rss/SettingsRssForm.ui" line="154"/>
-        <location filename="../ui_SettingsRssForm.h" line="190"/>
-        <location filename="../ui_SettingsRssForm.h" line="194"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="117"/>
         <location filename="../src/rss/SettingsRssForm.ui" line="161"/>
-        <location filename="../ui_SettingsRssForm.h" line="191"/>
-        <location filename="../ui_SettingsRssForm.h" line="195"/>
         <source>Edit</source>
         <translation>Düzenle</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="124"/>
         <location filename="../src/rss/SettingsRssForm.ui" line="168"/>
-        <location filename="../ui_SettingsRssForm.h" line="192"/>
-        <location filename="../ui_SettingsRssForm.h" line="196"/>
         <source>Delete</source>
         <translation>Sil</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="145"/>
-        <location filename="../ui_SettingsRssForm.h" line="197"/>
         <source>Regular expressions</source>
         <translation>Düzenli ifadeler</translation>
     </message>
     <message>
-        <source>RSS</source>
-        <translation type="obsolete">RSS</translation>
-    </message>
-    <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="80"/>
-        <location filename="../ui_SettingsRssForm.h" line="188"/>
         <source>Update</source>
         <translation>Güncelle</translation>
     </message>
     <message>
         <location filename="../src/rss/SettingsRssForm.ui" line="27"/>
-        <location filename="../ui_SettingsRssForm.h" line="189"/>
         <source>General</source>
         <translation type="unfinished">Genel</translation>
     </message>
 </context>
 <context>
-    <name>SettingsTorrentForm</name>
+    <name>SettingsSchedulerForm</name>
     <message>
-        <source>BitTorrent</source>
-        <translation type="obsolete">BitTorrent</translation>
+        <location filename="../src/SettingsSchedulerForm.ui" line="14"/>
+        <source>Scheduler</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/SettingsSchedulerForm.ui" line="23"/>
+        <source>Add</source>
+        <translation type="unfinished">Ekle</translation>
+    </message>
+    <message>
+        <location filename="../src/SettingsSchedulerForm.ui" line="30"/>
+        <source>Edit</source>
+        <translation type="unfinished">Düzenle</translation>
+    </message>
+    <message>
+        <location filename="../src/SettingsSchedulerForm.ui" line="37"/>
+        <source>Delete</source>
+        <translation type="unfinished">Sil</translation>
+    </message>
+    <message>
+        <location filename="../src/SettingsSchedulerForm.ui" line="57"/>
+        <source>This is where you can have your transfers automatically started, limited etc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/SettingsSchedulerForm.cpp" line="87"/>
+        <source>Do you really want to remove the selected scheduled action?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SettingsTorrentForm</name>
+    <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="24"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="423"/>
         <source>Main</source>
         <translation>Ana</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="44"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="410"/>
         <source>Listen port start</source>
         <translation>Port başlangıcını dinle</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="67"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="411"/>
         <source>Listen port end</source>
         <translation>Port sonunu dinle</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="92"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="412"/>
         <source>Seed up to ratio (default value)</source>
         <translation>Paylaşım oranı yüzdesi (öntanımlı değer)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="118"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="413"/>
         <source>Maximum connections (global/per torrent)</source>
         <translation>Maksimum bağlantı sayısı (global/torrent başına)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="139"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="414"/>
         <source>Maximum uploads (global/per torrent)</source>
         <translation>Maksimum gönderme sayısı (global/torrent başına)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="160"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="415"/>
         <source>Maximum open files</source>
         <translation>Maksimum açık dosyalar</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="177"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="416"/>
         <source>File allocation mode</source>
         <translation>Dosya atama modu</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="187"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="417"/>
         <source>External IP</source>
         <translation>Harici IP</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="197"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="418"/>
         <source>Enable distributed tracker (DHT)</source>
         <translation>Dağıtılmış izleyiciyi etkinleştir (DHT)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="204"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="419"/>
         <source>Enable uTorrent Peer Exchange</source>
         <translation>uTorrent eş takasını etkinleştir</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="251"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="422"/>
         <source>Identify as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="262"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="428"/>
         <source>Encryption</source>
         <translation>Şifreleme</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="268"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="424"/>
         <source>Encryption of incoming connections</source>
         <translation>Gelen bağlantıların şifrelenmesi</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="278"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="425"/>
         <source>Encryption of outgoing connections</source>
         <translation>Giden bağlantıların şifrelenmesi</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="288"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="426"/>
         <source>Encryption levels</source>
         <translation>Şifreleme seviyeleri</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="298"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="427"/>
         <source>Prefer RC4</source>
         <translation>RC4 tercih et</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="319"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="432"/>
         <source>Proxy</source>
         <translation>Proxy</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="325"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="429"/>
         <source>Tracker</source>
         <translation>İzleyici</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="335"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="430"/>
         <source>Peer</source>
         <translation>Eş</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="345"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="431"/>
         <source>Web seed</source>
         <translation>Web yayıncısı</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="369"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="435"/>
         <source>Port mapping</source>
         <translation>Port yönlendirmesi</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="375"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="433"/>
         <source>Enable UPnP</source>
         <translation>UPnP etkin</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="382"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="434"/>
         <source>Enable NAT-PMP</source>
         <translation>NAT-PMP etkin</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;cleanup&quot;&gt;Clean up the .torrent storage&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;cleanup&quot;&gt;.torrent depolamasını sil&lt;/a&gt;</translation>
-    </message>
-    <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="403"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="437"/>
         <source>Torrent search</source>
         <translation>Torrent araması</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="409"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="436"/>
         <source>Open pages with details</source>
         <translation>Sayfaları detayları ile aç</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="211"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="420"/>
         <source>Enable Local Service Discovery</source>
         <translation>Yerel Servis Keşfini etkinleştir</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="231"/>
-        <location filename="../ui_SettingsTorrentForm.h" line="421"/>
         <source>Clean up the .torrent storage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3290,41 +3049,19 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>SettingsWebForm</name>
     <message>
-        <source>Web interface</source>
-        <translation type="obsolete">Web arayüzü</translation>
-    </message>
-    <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="17"/>
-        <location filename="../ui_SettingsWebForm.h" line="91"/>
         <source>Enable remote web control</source>
         <translation>Uzaktan web kontrolünü etkinleştir</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="24"/>
-        <location filename="../ui_SettingsWebForm.h" line="92"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="54"/>
-        <location filename="../ui_SettingsWebForm.h" line="93"/>
         <source>Password</source>
         <translation>Şifre</translation>
-    </message>
-</context>
-<context>
-    <name>SftpEngine</name>
-    <message>
-        <source>Failed to open file</source>
-        <translation type="obsolete">Dosya açma başarısız</translation>
-    </message>
-    <message>
-        <source>Failed to open remote file</source>
-        <translation type="obsolete">Uzak dosyayı açma başarısız</translation>
-    </message>
-    <message>
-        <source>Error reading/writing data</source>
-        <translation type="obsolete">Data okumada/yazmada hata</translation>
     </message>
 </context>
 <context>
@@ -3360,16 +3097,12 @@ başlatmanız gerekebilir.</translation>
     <message>
         <location filename="../src/SpeedLimitWidget.ui" line="46"/>
         <location filename="../src/SpeedLimitWidget.ui" line="59"/>
-        <location filename="../ui_SpeedLimitWidget.h" line="85"/>
-        <location filename="../ui_SpeedLimitWidget.h" line="88"/>
         <source>Download speed limit</source>
         <translation>İndirme hız limiti</translation>
     </message>
     <message>
         <location filename="../src/SpeedLimitWidget.ui" line="84"/>
         <location filename="../src/SpeedLimitWidget.ui" line="97"/>
-        <location filename="../ui_SpeedLimitWidget.h" line="91"/>
-        <location filename="../ui_SpeedLimitWidget.h" line="94"/>
         <source>Upload speed limit</source>
         <translation>Gönderme hız limiti</translation>
     </message>
@@ -3431,111 +3164,93 @@ başlatmanız gerekebilir.</translation>
     <name>TorrentDetailsForm</name>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="31"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="362"/>
         <source>General</source>
         <translation>Genel</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="37"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="349"/>
         <source>&lt;b&gt;Total download:&lt;/b&gt;</source>
         <comment>Amount of downloaded data</comment>
         <translation>&lt;b&gt;Toplam indirilen:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="54"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="350"/>
         <source>&lt;b&gt;Total upload:&lt;/b&gt;</source>
         <comment>Amount of uploaded data</comment>
         <translation>&lt;b&gt;Toplam gönderilen:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="71"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="351"/>
         <source>Completition</source>
         <translation>Tamamlanma</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="102"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="352"/>
         <source>Availability</source>
         <translation>Elverişlilik</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="139"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="353"/>
         <source>&lt;b&gt;Tracker:</source>
         <translation>&lt;b&gt;İzleyici:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="156"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="354"/>
         <source>&lt;b&gt;Private torrent:</source>
         <translation>&lt;b&gt;Özel torrent:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="179"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="355"/>
         <source>&lt;b&gt;Availability:</source>
         <translation>&lt;b&gt;Elverişlilik:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="196"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="356"/>
         <source>&lt;b&gt;Share ratio:</source>
         <translation>&lt;b&gt;Paylaşım oranı:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="219"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="357"/>
         <source>&lt;b&gt;Piece length:</source>
         <translation>&lt;b&gt;Parça boyutu:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="242"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="358"/>
         <source>&lt;b&gt;Creator:</source>
         <translation>&lt;b&gt;Oluşturan:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="271"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="359"/>
         <source>&lt;b&gt;Creation date:</source>
         <translation>&lt;b&gt;Oluşturma zamanı:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="294"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="360"/>
         <source>&lt;b&gt;Comment:</source>
         <translation>&lt;b&gt;Yorum:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="353"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="363"/>
         <source>Peers</source>
         <translation>Eşler</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="387"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="364"/>
         <source>Pieces</source>
         <translation>Parçalar</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="418"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="365"/>
         <source>Files</source>
         <translation>Dosyalar</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="454"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="348"/>
         <source>Open</source>
         <translation>Aç</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="327"/>
-        <location filename="../ui_TorrentDetailsForm.h" line="361"/>
         <source>Magnet link:</source>
         <translation>Magnet link:</translation>
     </message>
@@ -3543,114 +3258,93 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>TorrentDownload</name>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="248"/>
-        <location filename="../TorrentDownload.cpp" line="242"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="267"/>
         <source>DHT started</source>
         <translation>DHT başladı</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="253"/>
-        <location filename="../TorrentDownload.cpp" line="247"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="272"/>
         <source>Failed to start DHT!</source>
         <translation>DHT başlatılamadı!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="417"/>
-        <location filename="../TorrentDownload.cpp" line="408"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="436"/>
         <source>Downloading the .torrent file...</source>
         <translation>.torrent dosyası indiriliyor...</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="463"/>
-        <location filename="../src/engines/TorrentDownload.cpp" line="819"/>
-        <location filename="../TorrentDownload.cpp" line="454"/>
-        <location filename="../TorrentDownload.cpp" line="776"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="482"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="838"/>
         <source>Unable to open the file!</source>
         <translation>Dosya açma başarısız!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="558"/>
-        <location filename="../TorrentDownload.cpp" line="549"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="577"/>
         <source>Cannot create a temporary file</source>
         <translation>Geçici bir dosya oluşturulamıyor </translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="536"/>
-        <location filename="../TorrentDownload.cpp" line="527"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="555"/>
         <source>The torrent file is invalid.</source>
         <translation>Torrent dosyası geçersiz</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="180"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="199"/>
         <source>BitTorrent</source>
         <translation type="unfinished">BitTorrent</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="646"/>
-        <location filename="../TorrentDownload.cpp" line="605"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="665"/>
         <source>Failed to download the .torrent file</source>
         <translation>.torrent dosyası indirilemedi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="682"/>
-        <location filename="../TorrentDownload.cpp" line="640"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="701"/>
         <source>Cannot change storage!</source>
         <translation>Depolama değiştirilemez!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="985"/>
-        <location filename="../TorrentDownload.cpp" line="940"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1004"/>
         <source>Downloading the .torrent file</source>
         <translation>.torrent dosyası indiriliyor</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="992"/>
-        <location filename="../TorrentDownload.cpp" line="947"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1011"/>
         <source>Queued for checking</source>
         <translation>Denetim için kuyruğa eklendi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="995"/>
-        <location filename="../TorrentDownload.cpp" line="950"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1014"/>
         <source>Checking files: %1%</source>
         <translation>Dosyalar denetleniyor: %1%</translation>
     </message>
     <message>
-        <source>Connecting to the tracker</source>
-        <translation type="obsolete">İzleyiciye bağlanılıyor</translation>
-    </message>
-    <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1023"/>
-        <location filename="../TorrentDownload.cpp" line="978"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1042"/>
         <source>Allocating: %1%</source>
         <translation>Atanıyor: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1029"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1048"/>
         <source>Checking resume data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1280"/>
-        <location filename="../TorrentDownload.cpp" line="1231"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1299"/>
         <source>Force announce</source>
         <translation>Anonsu zorla</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1282"/>
-        <location filename="../TorrentDownload.cpp" line="1233"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1301"/>
         <source>Recheck files</source>
         <translation>Dosyaları yeniden denetle</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="408"/>
-        <location filename="../TorrentDownload.cpp" line="399"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="427"/>
         <source>Downloading metadata: %1%</source>
         <translation>Metadata indiriliyor: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1026"/>
-        <location filename="../TorrentDownload.cpp" line="981"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1045"/>
         <source>Downloading metadata</source>
         <translation>Metadata indiriliyor</translation>
     </message>
@@ -3727,58 +3421,48 @@ başlatmanız gerekebilir.</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="61"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="221"/>
         <source>Files to download</source>
         <translation>İndirilecek dosyalar</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="95"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="226"/>
         <source>Seeding limits</source>
         <translation>Yayınlama limitleri</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="101"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="222"/>
         <source>Seed up to ratio</source>
         <translation>Şu yüzdeye kadar yayınla</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="118"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="223"/>
         <source>Seed until specified amount
 of data has been uploaded</source>
         <translation>Belirtilen miktarda data gönderilene kadar yayınla</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="133"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="225"/>
         <source>MB</source>
         <translation>MB</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="162"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="228"/>
         <source>URL seeds</source>
         <translation>URL yayıncıları</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="186"/>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="226"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="227"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="229"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="202"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="231"/>
         <source>Trackers</source>
         <translation>İzleyiciler</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="246"/>
-        <location filename="../ui_TorrentOptsWidget.h" line="230"/>
         <source>Remove</source>
         <translation>Kaldır</translation>
     </message>
@@ -3947,54 +3631,49 @@ of data has been uploaded</source>
         <translation>Torrent araması</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="266"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="277"/>
         <source>Please enable at least one search engine.</source>
         <translation>Lütfen en az bir arama motorunu etkinleştirin</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="413"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="424"/>
         <source>Stop searching</source>
         <translation>Aramayı durdur</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="413"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="424"/>
         <location filename="../src/tools/TorrentSearch.ui" line="36"/>
-        <location filename="../ui_TorrentSearch.h" line="117"/>
         <source>Search</source>
         <translation>Ara</translation>
     </message>
     <message>
         <location filename="../src/tools/TorrentSearch.ui" line="26"/>
-        <location filename="../ui_TorrentSearch.h" line="116"/>
         <source>Search string:</source>
         <translation>Arama karakter dizisi:</translation>
     </message>
     <message>
         <location filename="../src/tools/TorrentSearch.ui" line="74"/>
-        <location filename="../ui_TorrentSearch.h" line="118"/>
         <source>Progress:</source>
         <translation>İlerleme:</translation>
     </message>
     <message>
         <location filename="../src/tools/TorrentSearch.ui" line="90"/>
-        <location filename="../ui_TorrentSearch.h" line="119"/>
         <source>%v/%m</source>
         <translation>%v/%m</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="465"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="476"/>
         <location filename="../src/tools/TorrentSearch.ui" line="100"/>
-        <location filename="../ui_TorrentSearch.h" line="120"/>
         <source>Download</source>
         <translation>İndir</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="468"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="479"/>
         <source>Open details page</source>
         <translation>Ayrıntılar sayfasını aç</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="491"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="502"/>
         <source>Torrent details</source>
         <translation>Torrent detayları</translation>
     </message>
@@ -4087,74 +3766,62 @@ of data has been uploaded</source>
 <context>
     <name>TorrentWorker</name>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1103"/>
-        <location filename="../TorrentDownload.cpp" line="1055"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1122"/>
         <source>The torrent has been downloaded</source>
         <translation>Torrent indirildi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1108"/>
-        <location filename="../TorrentDownload.cpp" line="1060"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1127"/>
         <source>Requested parts of the torrent have been downloaded</source>
         <translation>Talep edilen torrent parçaları indirildi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1167"/>
-        <location filename="../TorrentDownload.cpp" line="1119"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1186"/>
         <source>File error: %1</source>
         <translation>Dosya hatası: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1171"/>
-        <location filename="../TorrentDownload.cpp" line="1123"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1190"/>
         <source>Tracker announce: %1</source>
         <translation>İzleyici anonsu: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1175"/>
-        <location filename="../TorrentDownload.cpp" line="1127"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1194"/>
         <source>Tracker failure: %1, %2 times in a row </source>
         <translation>İzleyici hatası: %1, bir sırada %2 kere</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1180"/>
-        <location filename="../TorrentDownload.cpp" line="1132"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1199"/>
         <source>(error %1)</source>
         <translation>(hata %1)</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1182"/>
-        <location filename="../TorrentDownload.cpp" line="1134"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1201"/>
         <source>(timeout)</source>
         <translation>(zaman aşımı)</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1187"/>
-        <location filename="../TorrentDownload.cpp" line="1139"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1206"/>
         <source>Tracker warning: %1</source>
         <translation>İzleyici uyarısı: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1191"/>
-        <location filename="../TorrentDownload.cpp" line="1143"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1210"/>
         <source>The fast-resume data have been rejected: %1</source>
         <translation>Hızlı-sürdür datası reddedildi: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1195"/>
-        <location filename="../TorrentDownload.cpp" line="1147"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1214"/>
         <source>Failed to retrieve the metadata</source>
         <translation>Metadata&apos;ya erişim başarısız oldu</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1199"/>
-        <location filename="../TorrentDownload.cpp" line="1151"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1218"/>
         <source>Successfully retrieved the metadata</source>
         <translation>Metadata&apos;ya başarıyla erişildi </translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1221"/>
-        <location filename="../TorrentDownload.cpp" line="1172"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1240"/>
         <source>&lt;b&gt;DHT:&lt;/b&gt; %1 nodes (%2 globally)</source>
         <translation>&lt;b&gt;DHT:&lt;/b&gt; %1 düğüm (%2 global olarak)</translation>
     </message>
@@ -4217,25 +3884,21 @@ of data has been uploaded</source>
     <name>UserAuthDlg</name>
     <message>
         <location filename="../src/UserAuthDlg.ui" line="13"/>
-        <location filename="../ui_UserAuthDlg.h" line="115"/>
         <source>User credentials</source>
         <translation>Kullanıcı kimliği</translation>
     </message>
     <message>
         <location filename="../src/UserAuthDlg.ui" line="21"/>
-        <location filename="../ui_UserAuthDlg.h" line="116"/>
         <source>URI RegExp:</source>
         <translation>URI RegExp:</translation>
     </message>
     <message>
         <location filename="../src/UserAuthDlg.ui" line="31"/>
-        <location filename="../ui_UserAuthDlg.h" line="117"/>
         <source>User:</source>
         <translation>Kullanıcı:</translation>
     </message>
     <message>
         <location filename="../src/UserAuthDlg.ui" line="41"/>
-        <location filename="../ui_UserAuthDlg.h" line="118"/>
         <source>Password:</source>
         <translation>Şifre:</translation>
     </message>
@@ -4264,25 +3927,21 @@ of data has been uploaded</source>
     </message>
     <message>
         <location filename="../src/tools/VideoFetcher.ui" line="16"/>
-        <location filename="../ui_VideoFetcher.h" line="91"/>
         <source>Enter links to flash video webpages (only &lt;a href=&quot;showServices&quot;&gt;certain services&lt;/a&gt; are supported!):</source>
         <translation>Flash video web sayfalarının liklerini girin (yalnız &lt;a href=&quot;showServices&quot;&gt;belirli servisler&lt;/a&gt; desteklenmektedir!):</translation>
     </message>
     <message>
         <location filename="../src/tools/VideoFetcher.ui" line="30"/>
-        <location filename="../ui_VideoFetcher.h" line="92"/>
         <source>Decoded links:</source>
         <translation>Deşifre edilen linkler:</translation>
     </message>
     <message>
         <location filename="../src/tools/VideoFetcher.ui" line="47"/>
-        <location filename="../ui_VideoFetcher.h" line="93"/>
         <source>Decode</source>
         <translation>Deşifre et</translation>
     </message>
     <message>
         <location filename="../src/tools/VideoFetcher.ui" line="54"/>
-        <location filename="../ui_VideoFetcher.h" line="94"/>
         <source>Download decoded</source>
         <translation>Deşifre edileni indir</translation>
     </message>
@@ -4291,7 +3950,6 @@ of data has been uploaded</source>
     <name>WidgetHostDlg</name>
     <message>
         <location filename="../src/WidgetHostDlg.ui" line="13"/>
-        <location filename="../ui_WidgetHostDlg.h" line="98"/>
         <source>Widget host</source>
         <translation>Widget host</translation>
     </message>
