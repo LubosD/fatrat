@@ -61,7 +61,7 @@
             </property>
             <item>
              <property name="text">
-              <string>Pondělí</string>
+              <string>Monday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -72,7 +72,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Úterý</string>
+              <string>Tuesday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -83,7 +83,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Středa</string>
+              <string>Wednesday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -94,7 +94,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Čtvrtek</string>
+              <string>Thursday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -105,7 +105,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Pátek</string>
+              <string>Friday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -116,7 +116,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Sobota</string>
+              <string>Saturday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -127,7 +127,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Neděle</string>
+              <string>Sunday</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>

@@ -46,7 +46,7 @@ StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent)
 
 void StatsWidget::refresh()
 {
-	if(!isVisible())
+	if(!isVisible() || size().isEmpty())
 		return;
 	
 	QPair<qint64, qint64> newv = QPair<qint64, qint64>(-1, -1);

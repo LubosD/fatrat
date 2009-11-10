@@ -84,7 +84,7 @@ void SettingsSchedulerForm::remove()
 	int index = listTasks->currentRow();
 	if(index < 0)
 		return;
-	if(QMessageBox::warning(pushAdd->parentWidget(), "FatRat", tr("Do you really want to remove the selected scheduled event?"),
+	if(QMessageBox::warning(pushAdd->parentWidget(), "FatRat", tr("Do you really want to remove the selected scheduled action?"),
 				QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes)
 	{
 		return;
