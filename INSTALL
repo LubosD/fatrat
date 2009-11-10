@@ -15,7 +15,7 @@ The prefix can be changed to /usr using -DCMAKE_INSTALL_PREFIX=/usr.
 +-------------------------------+-----------------------+----------------------------------------------+
 | Translations                  | WITH_NLS              | ---                                          |
 | HTTP(S)/FTP(S)/SFTP* support  | WITH_CURL             | libcurl 7.18.2, Linux 2.6.2 or newer         |
-| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.14.*, ASIO, QtWebKit  |
+| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.14.5, ASIO, QtWebKit  |
 | Jabber remote control         | WITH_JABBER           | gloox 0.9                                    |
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
 | Web interface                 | WITH_WEBINTERFACE     | QtScript, Linux 2.5.66 or newer              |
