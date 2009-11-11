@@ -142,67 +142,72 @@
         <translation>Vytvoriť</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="13"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="14"/>
         <source>Create a torrent</source>
         <translation>Vytvoriť torrent</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="19"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="20"/>
         <source>Data (a single file or a directory)</source>
         <translation>Dáta (jediný súbor alebo adresár)</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="49"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="50"/>
         <source>Piece size</source>
         <translation>Veľkosť kúsku</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="82"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="83"/>
         <source>Private torrent (disable DHT)</source>
         <translation>Súkromný torrent (zakázať DHT)</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="72"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="73"/>
         <source>Comment</source>
         <translation>Komentár</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="93"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="94"/>
         <source>Trackers</source>
         <translation>Trackery</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="99"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="100"/>
         <source>Private torrents need at least one tracker</source>
         <translation>Súkromné torrenty potrebujú aspoň jeden tracker</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="120"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="121"/>
         <source>DHT nodes</source>
         <translation>DHT uzly</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="140"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="127"/>
+        <source>Enter addresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="141"/>
         <source>Web seeds</source>
         <translation>Web seedy</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="29"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="30"/>
         <source>Browse files</source>
         <translation>Prechádzať súbory</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="32"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="33"/>
         <source>F</source>
         <translation>F</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="39"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="40"/>
         <source>Browse directories</source>
         <translation>Prechádzať adresáre</translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="42"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="43"/>
         <source>D</source>
         <translation>D</translation>
     </message>
@@ -215,11 +220,6 @@
         <location filename="../src/tools/CreateTorrentDlg.cpp" line="226"/>
         <source>Torrents (*.torrent)</source>
         <translation>Torrenty (*.torrent)</translation>
-    </message>
-    <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="126"/>
-        <source>Enter adresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</source>
-        <translation>Zadajte adresu v podobe &lt;code&gt;adresa:port&lt;/code&gt;, všetko ostatné bude ignorované</translation>
     </message>
 </context>
 <context>

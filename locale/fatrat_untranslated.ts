@@ -149,72 +149,72 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="13"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="14"/>
         <source>Create a torrent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="19"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="20"/>
         <source>Data (a single file or a directory)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="29"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="30"/>
         <source>Browse files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="32"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="33"/>
         <source>F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="39"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="40"/>
         <source>Browse directories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="42"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="43"/>
         <source>D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="49"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="50"/>
         <source>Piece size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="72"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="73"/>
         <source>Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="82"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="83"/>
         <source>Private torrent (disable DHT)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="93"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="94"/>
         <source>Trackers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="99"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="100"/>
         <source>Private torrents need at least one tracker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="120"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="121"/>
         <source>DHT nodes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="126"/>
-        <source>Enter adresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</source>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="127"/>
+        <source>Enter addresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/tools/CreateTorrentDlg.ui" line="140"/>
+        <location filename="../src/tools/CreateTorrentDlg.ui" line="141"/>
         <source>Web seeds</source>
         <translation type="unfinished"></translation>
     </message>
