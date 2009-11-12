@@ -88,7 +88,6 @@ void CurlPoller::run()
 		
 		int numEvents = m_poller->wait(timeout, events, sizeof(events) / sizeof(events[0]));
 		
-		m_usersLock.lock();
 		if(!numEvents)
 		{
 			//qDebug() << "No events";
@@ -117,6 +116,7 @@ void CurlPoller::run()
 		else
 			timeout = curl_timeout;
 		
+		m_usersLock.lock();
 		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int mask = 0;
