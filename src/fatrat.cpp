@@ -486,10 +486,11 @@ static void terminateHandler(int s)
 void installSignalHandler()
 {
 	struct sigaction act;
+	
+	memset(&act, 0, sizeof(act));
 
 	act.sa_handler = terminateHandler;
 	act.sa_flags = SA_NOMASK;
-	act.sa_restorer = 0;
 
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGTERM, &act, 0);
