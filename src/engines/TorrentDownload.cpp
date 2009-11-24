@@ -1020,7 +1020,7 @@ QString TorrentDownload::message() const
 		case libtorrent::torrent_status::seeding:
 		case libtorrent::torrent_status::downloading:
 		case libtorrent::torrent_status::finished:
-			state += QString("Seeds: %1 (%2) | Peers: %3 (%4)");
+			state += tr("Seeds: %1 (%2) | Peers: %3 (%4)");
 			
 			if(m_status.state == libtorrent::torrent_status::downloading)
 				state = state.arg(m_status.num_seeds);
@@ -1048,6 +1048,11 @@ QString TorrentDownload::message() const
 			state = tr("Checking resume data");
 			break;
 		}
+	}
+	else
+	{
+		if(m_status.num_complete >= 0 || m_status.num_incomplete >= 0)
+		   state = tr("Seeds: %1 | Peers: %2").arg(m_status.num_complete).arg(m_status.num_incomplete);
 	}
 	
 	return state;
