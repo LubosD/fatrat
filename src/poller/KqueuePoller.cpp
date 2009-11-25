@@ -79,7 +79,7 @@ int KqueuePoller::removeSocket(int socket)
 
 int KqueuePoller::wait(int msec, Event* ev, int max)
 {
-	struct kevent* evlist = (kevent*) alloca(sizeof(kevent) * max);
+	struct kevent* evlist = (kevent*) alloca(sizeof(struct kevent) * max);
 	struct timespec tspec = { msec/1000, (msec%1000)*1000000L };
 	
 	int nev = kevent(m_kqueue, 0, 0, evlist, max, &tspec);
