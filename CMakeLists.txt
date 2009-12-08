@@ -7,10 +7,11 @@ endif(COMMAND cmake_policy)
 
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckIncludeFiles)
+INCLUDE(FindPkgConfig)
+INCLUDE(FindBoost)
 
 find_package(Qt4 REQUIRED)
 
-set(CMAKE_MODULE_PATH cmake_modules)
 include_directories(src)
 
 ADD_CUSTOM_TARGET(uninstall
@@ -27,15 +28,25 @@ if(WITH_EVERYTHING)
 endif(WITH_EVERYTHING)
 
 if(WITH_BITTORRENT)
-	set(libtorrent_DIR ${CMAKE_MODULE_PATH})
-	find_package(libtorrent REQUIRED)
+	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.14.6")
 	
-	if(LIBTORRENTRB_FOUND)
-		message(STATUS "libtorrent found OK ${LIBTORRENTRB_LIBRARY}")
-		include_directories(${LIBTORRENTRB_INCLUDE_DIRS})
-	else(LIBTORRENTRB_FOUND)
+	if(libtorrent_FOUND)
+		message(STATUS "libtorrent found OK")
+		include_directories(${libtorrent_INCLUDE_DIRS})
+	else(libtorrent_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent")
-	endif(LIBTORRENTRB_FOUND)
+	endif(libtorrent_FOUND)
+	
+	SET(Boost_USE_MULTITHREAD ON)
+	SET(Boost_USE_STATIC_LIBS OFF)
+	find_package(Boost 1.33.0 COMPONENTS date_time REQUIRED)
+	
+	if(Boost_FOUND)
+		message(STATUS "boost-datetime found OK")
+		include_directories(${Boost_INCLUDE_DIRS})
+	else(Boost_FOUND)
+		message(FATAL_ERROR "No boost-datetime")
+	endif(Boost_FOUND)
 	
 	#set(asio_DIR ${CMAKE_MODULE_PATH})
 	#find_package(asio REQUIRED)
@@ -51,25 +62,24 @@ if(WITH_BITTORRENT)
 endif(WITH_BITTORRENT)
 
 if(WITH_JABBER)
-	set(gloox_DIR ${CMAKE_MODULE_PATH})
-	find_package(gloox REQUIRED)
+	pkg_check_modules(gloox REQUIRED "gloox >= 0.9.0.0 gloox < 1.0")
 	
-	if(GLOOX_FOUND)
+	if(gloox_FOUND)
 		message(STATUS "gloox found OK")
-		include_directories(${GLOOX_INCLUDE_DIRS})
-	else(GLOOX_FOUND)
+		include_directories(${gloox_INCLUDE_DIRS})
+	else(gloox_FOUND)
 		message(FATAL_ERROR "No gloox")
-	endif(GLOOX_FOUND)
+	endif(gloox_FOUND)
 endif(WITH_JABBER)
 
 if(WITH_CURL)
-	find_package(CURL 7.18.3 REQUIRED)
+	pkg_check_modules(curl REQUIRED "libcurl >= 7.18.2")
 	
-	if(CURL_FOUND)
-		include_directories(${CURL_INCLUDE_DIRS})
-	else(CURL_FOUND)
+	if(curl_FOUND)
+		include_directories(${curl_INCLUDE_DIRS})
+	else(curl_FOUND)
 		message(FATAR_ERROR "No curl")
-	endif(CURL_FOUND)
+	endif(curl_FOUND)
 endif(WITH_CURL)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -394,7 +404,7 @@ locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${LIBTORRENTRB_LIBRARIES} ${GLOOX_LIBRARIES} ${CURL_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
