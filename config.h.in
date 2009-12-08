@@ -13,6 +13,9 @@
 #cmakedefine HAVE_SYS_EPOLL_H
 #cmakedefine HAVE_KQUEUE
 
+#cmakedefine GLOOX_0_9
+#cmakedefine GLOOX_1_0
+
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 #define PLUGIN_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/fatrat/plugins"
 

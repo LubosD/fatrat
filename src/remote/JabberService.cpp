@@ -40,6 +40,12 @@ respects for all of the code used other than "OpenSSL".
 #include <gloox/connectionhttpproxy.h>
 #include <gloox/connectionsocks5proxy.h>
 #include <gloox/connectiontcpclient.h>
+
+#ifdef GLOOX_1_0
+#	include <gloox/presence.h>
+#	include <gloox/message.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <QSettings>
@@ -156,7 +162,12 @@ void JabberService::run()
 		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
 		m_pClient->disco()->setIdentity("client", "bot");
 		m_pClient->disco()->setVersion("FatRat", VERSION);
+		
+#if defined(GLOOX_0_9)
 		m_pClient->setPresence(gloox::PresenceAvailable, m_nPriority);
+#elif defined(GLOOX_1_0)
+		m_pClient->setPresence(gloox::Presence::Available, m_nPriority);
+#endif
 		
 		gloox::ConnectionBase* proxy = 0;
 		Proxy pdata = Proxy::getProxy(m_proxy);
@@ -199,10 +210,21 @@ void JabberService::run()
 	m_bTerminating = false;
 }
 
+#if defined(GLOOX_1_0)
+void JabberService::handleMessage(const gloox::Message& message, gloox::MessageSession* session)
+{
+	handleMessageGeneric(static_cast<gloox::Stanza*>(const_cast<gloox::Message*>(&message)), session, QString::fromUtf8( message.body().c_str() ));
+}
+#elif defined(GLOOX_0_9)
 void JabberService::handleMessage(gloox::Stanza* stanza, gloox::MessageSession* session)
 {
+	handleMessageGeneric(stanza, session, QString::fromUtf8( stanza->body().c_str() ));
+}
+#endif
+
+void JabberService::handleMessageGeneric(gloox::Stanza* stanza, gloox::MessageSession* session, QString message)
+{
 	ConnectionInfo* conn = getConnection(session, stanza);
-	QString message = QString::fromUtf8( stanza->body().c_str() );
 	bool bAuthed = conn != 0;
 	
 	gloox::JID from = stanza->from();

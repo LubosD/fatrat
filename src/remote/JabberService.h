@@ -62,7 +62,12 @@ public:
 	virtual void run();
 	
 	// gloox::MessageHandler
+#if defined(GLOOX_1_0)
+	virtual void handleMessage(const gloox::Message& message, gloox::MessageSession* session = 0);
+#elif defined(GLOOX_0_9)
 	virtual void handleMessage(gloox::Stanza* stanza, gloox::MessageSession* session = 0);
+#endif
+	void handleMessageGeneric(gloox::Stanza* stanza, gloox::MessageSession* session, QString body);
 	
 	// gloox::ConnectionListener
 	virtual void onConnect();
@@ -76,8 +81,6 @@ public:
 	virtual void handleChatState(const gloox::JID &from, gloox::ChatStateType state);
 	
 	// gloox::RosterListener
-	virtual void handleNonrosterPresence (gloox::Stanza *stanza) {}
-	virtual void handleRosterError (gloox::Stanza *stanza) {}
 	virtual void handleItemAdded (const gloox::JID &jid) {}
 	virtual void handleItemSubscribed (const gloox::JID &jid) {}
 	virtual void handleItemRemoved (const gloox::JID &jid) {}
@@ -86,8 +89,17 @@ public:
 	virtual void handleRoster (const gloox::Roster &roster) {}
 	virtual bool handleSubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return m_bGrantAuth; }
 	virtual bool handleUnsubscriptionRequest(const gloox::JID& jid, const std::string& msg) { return m_bGrantAuth; }
+#if defined(GLOOX_0_9)
 	virtual void handleRosterPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence presence, const std::string& msg) {}
 	virtual void handleSelfPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence presence, const std::string& msg) {}
+	virtual void handleNonrosterPresence (gloox::Stanza *stanza) {}
+	virtual void handleRosterError (gloox::Stanza *stanza) {}
+#elif defined(GLOOX_1_0)
+	virtual void handleRosterPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence::PresenceType presenceType, const std::string& msg) {}
+	virtual void handleSelfPresence(const gloox::RosterItem & item, const std::string& resource, gloox::Presence::PresenceType presence, const std::string& msg) {}
+	virtual void handleNonrosterPresence (const gloox::Presence& presence) {}
+	virtual void handleRosterError (const gloox::IQ& iq) {}
+#endif
 protected:
 	struct ConnectionInfo
 	{
