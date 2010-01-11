@@ -42,6 +42,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMessageBox>
 #include <QMenu>
 #include <QtDebug>
+#include <iostream>
 
 CurlDownload::CurlDownload()
 	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0), m_file(0)
@@ -290,7 +291,7 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
 		curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, true);
 		
-		if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
+		if(getSettingsValue("httpftp/forbidipv6").toBool())
 			curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		
 		// BUG (CRASH) WORKAROUND
@@ -317,12 +318,12 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	if(!isActive())
 		return false;
 	
-	if(m_curl && (!m_nTotal || m_nTotal == -1LL || lseek(m_file, 0, SEEK_CUR) == 0))
+	if(m_curl /**&& (!m_nTotal || m_nTotal == -1LL || lseek(m_file, 0, SEEK_CUR) == 0)*/)
 	{
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-		qDebug() << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
-		if(len != -1)
+		std::cout << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
+		if(len != -1 && len != 0)
 			m_nTotal = m_nStart + len;
 	}
 	
@@ -408,11 +409,13 @@ void CurlDownload::transferDone(CURLcode result)
 	if(!isActive())
 		return;
 	
-	if(result == CURLE_OK || (done() == total() && total()))
+	if(result == CURLE_OK && (done() == total() || !total()))
 		setState(Completed);
 	else
 	{
 		m_strMessage = m_errorBuffer;
+		m_strMessage += QString(" (%1)").arg(result);
+		
 		if(result == CURLE_OPERATION_TIMEDOUT)
 			m_strMessage = tr("Timeout");
 		
