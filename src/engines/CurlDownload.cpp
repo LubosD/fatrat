@@ -112,6 +112,7 @@ void CurlDownload::generateName()
 	QString name;
 	if(!m_urls.isEmpty())
 		name = QFileInfo(m_urls[0].url.path()).fileName();
+	name = QUrl::fromPercentEncoding(name.toUtf8());
 	m_strFile = (!name.isEmpty()) ? name : "default.html";
 	m_bAutoName = true;
 }
@@ -322,7 +323,7 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	{
 		double len;
 		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-		std::cout << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
+		//std::cout << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
 		if(len != -1 && len != 0)
 			m_nTotal = m_nStart + len;
 	}
