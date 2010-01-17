@@ -368,6 +368,7 @@ void CurlDownload::processHeaders()
 				
 				name.replace('/', '_');
 				qDebug() << "Automatically renaming to" << name;
+				name = QUrl::fromPercentEncoding(name.toUtf8());
 				setTargetName(name);
 			}
 		}
@@ -376,7 +377,10 @@ void CurlDownload::processHeaders()
 	{
 		QByteArray newurl = m_headers["location"];
 		if(m_bAutoName)
+		{
+			QString name = QUrl::fromPercentEncoding(newurl);
 			setTargetName(QFileInfo(newurl).fileName());
+		}
 	}
 	
 	m_headers.clear();
