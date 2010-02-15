@@ -509,8 +509,13 @@ bool RssFetcher::startElement(const QString& namespaceURI, const QString& localN
 			m_itemNextType = RssItem::Title;
 		else if(localName == "description")
 			m_itemNextType = RssItem::Descr;
-		else if(localName == "link")
+		else if(localName == "link" && m_itemNext.url.isEmpty())
 			m_itemNextType = RssItem::Url;
+		else if(localName == "enclosure")
+		{
+			m_itemNext.url = atts.value("url");
+			m_itemNextType = RssItem::None;
+		}
 		else
 			m_itemNextType = RssItem::None;
 	}
