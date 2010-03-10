@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,33 +25,16 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
-#include <QString>
-#include <QIcon>
-#include <QSettings>
-#include "WidgetHostChild.h"
 #include "DelayedIcon.h"
 
-struct SettingsItem;
-extern QVector<SettingsItem> g_settingsPages;
-extern QSettings* g_settings;
-
-struct SettingsItem
+DelayedIcon::DelayedIcon(QString iconPath)
+: m_iconPath(iconPath)
 {
-	DelayedIcon icon;
-	QString title;
-	WidgetHostChild* (*lpfnCreate)(QWidget*, QObject*);
-};
+}
 
-void initSettingsPages();
-void addSettingsPage(const SettingsItem& i);
+DelayedIcon::operator QIcon() const
+{
+	return QIcon(m_iconPath);
+}
 
-QVariant getSettingsDefault(QString id);
-QVariant getSettingsValue(QString id);
-void setSettingsValue(QString id, QVariant value);
 
-void initSettingsDefaults();
-void exitSettings();
-
-#endif

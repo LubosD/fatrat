@@ -83,7 +83,7 @@ void RapidshareUpload::globalInit()
 {
 	SettingsItem si;
 	
-	si.icon = QIcon(":/fatrat/rscom.png");
+	si.icon = DelayedIcon(":/fatrat/rscom.png");
 	si.title = tr("RapidShare.com");
 	si.lpfnCreate = RapidshareSettings::create;
 	

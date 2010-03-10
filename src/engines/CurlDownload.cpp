@@ -133,7 +133,7 @@ void CurlDownload::globalInit()
 	new CurlPoller;
 	
 	SettingsItem si;
-	si.icon = QIcon(":/fatrat/httpftp.png");
+	si.icon = DelayedIcon(":/fatrat/httpftp.png");
 	si.title = tr("HTTP/FTP");
 	si.lpfnCreate = HttpFtpSettings::create;
 	

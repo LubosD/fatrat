@@ -85,7 +85,7 @@ HttpService::HttpService()
 	SettingsItem si;
 	si.lpfnCreate = SettingsWebForm::create;
 	si.title = tr("Web Interface");
-	si.icon = QIcon(":/fatrat/webinterface.png");
+	si.icon = DelayedIcon(":/fatrat/webinterface.png");
 	
 	addSettingsPage(si);
 }

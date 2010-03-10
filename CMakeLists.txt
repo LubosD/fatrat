@@ -124,6 +124,7 @@ set(fatrat_SRCS
 	src/Auth.cpp
 	src/AboutDlg.cpp
 	src/AppTools.cpp
+	src/DelayedIcon.cpp
 	src/DropBox.cpp
 	src/fatrat.cpp
 	src/Proxy.cpp
@@ -414,6 +415,7 @@ target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLA
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/DelayedIcon.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/AppTools.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Transfer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/WidgetHostChild.h

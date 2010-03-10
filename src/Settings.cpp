@@ -55,45 +55,45 @@ void initSettingsPages()
 {
 	SettingsItem si;
 	
-	si.icon = QIcon(":/fatrat/fatrat.png");
+	si.icon = DelayedIcon(":/fatrat/fatrat.png");
 	si.title = QObject::tr("Main");
 	si.lpfnCreate = SettingsGeneralForm::create;
 	
 	g_settingsPages << si;
 	
-	si.icon = QIcon(":/fatrat/queue.png");
+	si.icon = DelayedIcon(":/fatrat/queue.png");
 	si.title = QObject::tr("Queue");
 	si.lpfnCreate = SettingsQueueForm::create;
 	
 	g_settingsPages << si;
 	
-	si.icon = QIcon(":/fatrat/miscellaneous.png");
+	si.icon = DelayedIcon(":/fatrat/miscellaneous.png");
 	si.title = QObject::tr("Drop-box");
 	si.lpfnCreate = SettingsDropBoxForm::create;
 	
 	g_settingsPages << si;
 	
-	si.icon = QIcon(":/menu/network.png");
+	si.icon = DelayedIcon(":/menu/network.png");
 	si.title = QObject::tr("Network");
 	si.lpfnCreate = SettingsNetworkForm::create;
 	
 	g_settingsPages << si;
 	
-	si.icon = QIcon(":/fatrat/rss.png");
+	si.icon = DelayedIcon(":/fatrat/rss.png");
 	si.title = QObject::tr("RSS");
 	si.lpfnCreate = SettingsRssForm::create;
 	
 	g_settingsPages << si;
 	
 #ifdef WITH_JABBER
-	si.icon = QIcon(":/fatrat/jabber.png");
+	si.icon = DelayedIcon(":/fatrat/jabber.png");
 	si.title = QObject::tr("Jabber");
 	si.lpfnCreate = SettingsJabberForm::create;
 	
 	g_settingsPages << si;
 #endif
 	
-	si.icon = QIcon(":/fatrat/scheduler.png");
+	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
 	si.lpfnCreate = SettingsSchedulerForm::create;
 	

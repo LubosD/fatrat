@@ -36,6 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QFile>
 #include <QIcon>
 #include <QNetworkProxy>
+#include "DelayedIcon.h"
 
 #define VERSION "1.1.2"
 
@@ -69,7 +70,7 @@ class Queue;
 
 struct MenuAction
 {
-	QIcon icon;
+	DelayedIcon icon;
 	QString strName;
 	void (*lpfnTriggered)(Transfer* t, Queue* q);
 };
