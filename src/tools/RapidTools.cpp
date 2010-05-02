@@ -272,7 +272,7 @@ void RapidTools::doneRSafe(bool)
 
 void RapidTools::extractRFLinks()
 {
-	QString url = lineURL->text();
+	QString url = lineURL->text().trimmed();
 	
 	if(!url.startsWith("http://rapidshare.com/users/"))
 	{
