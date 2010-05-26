@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -88,6 +88,7 @@ static void installSignalHandler();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
+static QString m_strUnitTest;
 
 class MyApplication;
 
@@ -204,6 +205,8 @@ QString argsToArg(int argc,char** argv)
 			m_bStartGUI = false;
 		else if(!strcasecmp(argv[i], "--help") || !strcasecmp(argv[i], "-h"))
 			showHelp();
+		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
+			m_strUnitTest = argv[++i];
 		else if(argv[i][0] == '-')
 			i++;
 		else

@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -71,6 +71,7 @@ TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
 QList<QRegExp> TorrentDownload::m_listBTLinks;
 QLabel* TorrentDownload::m_labelDHTStats = 0;
+QMutex TorrentDownload::m_mutexAlerts;
 
 const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
 const char* MAGNET_PREFIX = "magnet:?xt=urn:btih:";
@@ -260,7 +261,14 @@ void TorrentDownload::applySettings()
 		{
 			try
 			{
+#ifdef LIBTORRENT_0_15
+				libtorrent::lazy_entry e;
+				lazy_bdecode_simple(e, state);
+				m_session->load_state(e);
+				m_session->start_dht();
+#else
 				m_session->start_dht(bdecode_simple(state));
+#endif
 				m_session->add_dht_router(std::pair<std::string, int>("router.bittorrent.com", 6881));
 				m_bDHT = true;
 				
@@ -405,7 +413,12 @@ void TorrentDownload::globalExit()
 {
 	if(m_bDHT)
 	{
-		libtorrent::entry e = m_session->dht_state();
+		libtorrent::entry e;
+#ifdef LIBTORRENT_0_15
+		m_session->save_state(e, libtorrent::session::save_dht_state);
+#else
+		e = m_session->dht_state();
+#endif
 		setSettingsValue("torrent/dht_state", bencode_simple(e));
 	}
 
@@ -795,6 +808,12 @@ libtorrent::entry TorrentDownload::bdecode_simple(QByteArray array)
 		return libtorrent::bdecode(array.constData(), array.constData() + array.size());
 }
 
+void TorrentDownload::lazy_bdecode_simple(libtorrent::lazy_entry& e, QByteArray array)
+{
+	if(!array.isEmpty())
+		libtorrent::lazy_bdecode(array.constData(), array.constData() + array.size(), e);
+}
+
 libtorrent::entry TorrentDownload::bdecode(QString d)
 {
 	if(d.isEmpty())
@@ -844,6 +863,8 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
 		
+		std::cout << "Loaded " << getXMLProperty(map, "torrent_resume").size() << " bytes of resume data\n";
+		
 		libtorrent::add_torrent_params params;
 		std::vector<char> torrent_resume2 = std::vector<char>(torrent_resume.data(), torrent_resume.data()+torrent_resume.size());
 		
@@ -852,7 +873,8 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		QByteArray path = str.toUtf8();
 		params.save_path = path.constData();
-		params.resume_data = &torrent_resume2;
+		if(!torrent_resume2.empty())
+			params.resume_data = &torrent_resume2;
 		params.paused = true;
 		params.auto_managed = false;
 		
@@ -944,19 +966,42 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
 	
+	std::cout << "TorrentDownload::save()\n";
 	if(m_info != 0)
 	{
 		setXMLProperty(doc, map, "torrent_file", storedTorrentName());
 		
-		try
+		if(m_handle.is_valid())
 		{
-			if(m_handle.is_valid())
+			m_mutexAlerts.lock();
+			m_handle.save_resume_data();
+			
+			while(true)
 			{
-				libtorrent::entry e = m_handle.write_resume_data();
-				setXMLProperty(doc, map, "torrent_resume", bencode(e));
+				libtorrent::alert* aaa;
+				std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
+	
+				if((aaa = a.get()) == 0)
+				{
+					Sleeper::msleep(250);
+					continue;
+				}
+				
+				if(libtorrent::save_resume_data_alert* alert = dynamic_cast<libtorrent::save_resume_data_alert*>(aaa))
+				{
+					setXMLProperty(doc, map, "torrent_resume", bencode(*alert->resume_data));
+					break;
+				}
+				else if(dynamic_cast<libtorrent::save_resume_data_failed_alert*>(aaa))
+				{
+					std::cout << "Save data failed\n";
+					break;
+				}
+				else
+					m_worker->processAlert(aaa);
 			}
+			m_mutexAlerts.unlock();
 		}
-		catch(...) {}
 	}
 	
 	setXMLProperty(doc, map, "target", object());
@@ -1086,6 +1131,77 @@ TorrentDownload* TorrentWorker::getByHandle(libtorrent::torrent_handle handle) c
 	return 0;
 }
 
+void TorrentWorker::processAlert(libtorrent::alert* aaa)
+{
+#define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(aaa)
+#define IS_ALERT_S(type) dynamic_cast<libtorrent::type*>(aaa) != 0
+
+	if(IS_ALERT(torrent_alert))
+	{
+		TorrentDownload* d = getByHandle(alert->handle);
+		std::string smsg = aaa->message();
+		QString errmsg = QString::fromUtf8(smsg.c_str());
+			
+		if(!d)
+			return;
+			
+		if(IS_ALERT_S(file_error_alert))
+		{
+			d->setState(Transfer::Failed);
+			d->m_strError = errmsg;
+			d->enterLogMessage(tr("File error: %1").arg(errmsg));
+		}
+		else if(IS_ALERT_S(tracker_announce_alert))
+		{
+			d->enterLogMessage(tr("Tracker announce: %1").arg(errmsg));
+		}
+		else if(IS_ALERT(tracker_error_alert))
+		{
+			QString desc = tr("Tracker failure: %1, %2 times in a row ")
+					.arg(errmsg)
+					.arg(alert->times_in_row);
+				
+			if(alert->status_code != 0)
+				desc += tr("(error %1)").arg(alert->status_code);
+			else
+				desc += tr("(timeout)");
+			d->enterLogMessage(desc);
+		}
+		else if(IS_ALERT_S(tracker_warning_alert))
+		{
+			d->enterLogMessage(tr("Tracker warning: %1").arg(errmsg));
+		}
+		else if(IS_ALERT_S(fastresume_rejected_alert))
+		{
+			d->enterLogMessage(tr("The fast-resume data have been rejected: %1").arg(errmsg));
+		}
+		else if(IS_ALERT_S(metadata_failed_alert))
+		{
+			d->enterLogMessage(tr("Failed to retrieve the metadata"));
+		}
+		else if(IS_ALERT_S(metadata_received_alert))
+		{
+			d->enterLogMessage(tr("Successfully retrieved the metadata"));
+			d->storeTorrent();
+		}
+	}
+	else
+	{
+#ifdef LIBTORRENT_0_15
+		if (!IS_ALERT_S(dht_announce_alert) && !IS_ALERT_S(dht_get_peers_alert))
+		{
+			Logger::global()->enterLogMessage("BitTorrent", aaa->message().c_str());
+		}
+#else
+		Logger::global()->enterLogMessage("BitTorrent", aaa->message().c_str());
+#endif
+
+#undef IS_ALERT
+#undef IS_ALERT_S
+
+	}
+}
+
 void TorrentWorker::doWork()
 {
 	QMutexLocker l(&m_mutex);
@@ -1163,10 +1279,8 @@ void TorrentWorker::doWork()
 				d->setSpeedLimits(sdown, sup);
 		}
 	}
-
-#define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(aaa)
-#define IS_ALERT_S(type) dynamic_cast<libtorrent::type*>(aaa) != 0
 	
+	QMutexLocker ll(&TorrentDownload::m_mutexAlerts);
 	while(true)
 	{
 		libtorrent::alert* aaa;
@@ -1175,69 +1289,8 @@ void TorrentWorker::doWork()
 		if((aaa = a.get()) == 0)
 			break;
 		
-		if(IS_ALERT(torrent_alert))
-		{
-			TorrentDownload* d = getByHandle(alert->handle);
-			std::string smsg = static_cast<libtorrent::alert*>(a.get())->message();
-			QString errmsg = QString::fromUtf8(smsg.c_str());
-			
-			if(!d)
-				continue;
-			
-			if(IS_ALERT_S(file_error_alert))
-			{
-				d->setState(Transfer::Failed);
-				d->m_strError = errmsg;
-				d->enterLogMessage(tr("File error: %1").arg(errmsg));
-			}
-			else if(IS_ALERT_S(tracker_announce_alert))
-			{
-				d->enterLogMessage(tr("Tracker announce: %1").arg(errmsg));
-			}
-			else if(IS_ALERT(tracker_error_alert))
-			{
-				QString desc = tr("Tracker failure: %1, %2 times in a row ")
-						.arg(errmsg)
-						.arg(alert->times_in_row);
-				
-				if(alert->status_code != 0)
-					desc += tr("(error %1)").arg(alert->status_code);
-				else
-					desc += tr("(timeout)");
-				d->enterLogMessage(desc);
-			}
-			else if(IS_ALERT_S(tracker_warning_alert))
-			{
-				d->enterLogMessage(tr("Tracker warning: %1").arg(errmsg));
-			}
-			else if(IS_ALERT_S(fastresume_rejected_alert))
-			{
-				d->enterLogMessage(tr("The fast-resume data have been rejected: %1").arg(errmsg));
-			}
-			else if(IS_ALERT_S(metadata_failed_alert))
-			{
-				d->enterLogMessage(tr("Failed to retrieve the metadata"));
-			}
-			else if(IS_ALERT_S(metadata_received_alert))
-			{
-				d->enterLogMessage(tr("Successfully retrieved the metadata"));
-				d->storeTorrent();
-			}
-		}
-		else
-		{
-			Logger::global()->enterLogMessage("BitTorrent", aaa->message().c_str());
-			
-			/*if(IS_ALERT(peer_error_alert))
-			{
-				// TODO:
-				std::string ip = alert->ip.address().to_string();
-				qDebug() << "\tFor IP address" << ip.c_str() << alert->ip.port();
-			}*/
-		}
+		processAlert(aaa);
 	}
-#undef IS_ALERT
-#undef IS_ALERT_S
 	
 	libtorrent::session_status st = TorrentDownload::m_session->status();
 	if(TorrentDownload::m_bDHT && TorrentDownload::m_labelDHTStats)
@@ -1270,7 +1323,7 @@ void TorrentDownload::forceRecheck()
 		return;
 	
 	m_bHasHashCheck = false;
-	
+	/*
 	// dirty but simple
 	QDomDocument doc;
 	QDomElement root = doc.createElement("fake");
@@ -1294,7 +1347,9 @@ void TorrentDownload::forceRecheck()
 	}
 	
 	load(root);
-	setSpeedLimits(down, up);
+	setSpeedLimits(down, up);*/
+	
+	m_handle.force_recheck();
 }
 
 void TorrentDownload::fillContextMenu(QMenu& menu)

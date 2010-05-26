@@ -64,7 +64,7 @@ public:
 	void refresh(const libtorrent::bitfield* pieces);
 protected:
 	QList<libtorrent::file_entry> m_files;
-	std::vector<float> m_progresses;
+	std::vector<libtorrent::size_type> m_progresses;
 	const libtorrent::bitfield* m_pieces;
 private:
 	TorrentDownload* m_download;

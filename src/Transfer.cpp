@@ -147,12 +147,12 @@ Transfer* Transfer::createInstance(QString className)
 	for(int i=0;i<g_enginesDownload.size();i++)
 	{
 		if(className == g_enginesDownload[i].shortName)
-			return g_enginesDownload[i].lpfnCreate();
+			return g_enginesDownload[i].lpfnCreate2(&g_enginesDownload[i]);
 	}
 	for(int i=0;i<g_enginesUpload.size();i++)
 	{
 		if(className == g_enginesUpload[i].shortName)
-			return g_enginesUpload[i].lpfnCreate();
+			return g_enginesUpload[i].lpfnCreate2(&g_enginesUpload[i]);
 	}
 	
 	return 0;

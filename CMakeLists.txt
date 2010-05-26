@@ -31,8 +31,12 @@ if(WITH_BITTORRENT)
 	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.14.6")
 	
 	if(libtorrent_FOUND)
-		message(STATUS "libtorrent found OK")
+		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
 		include_directories(${libtorrent_INCLUDE_DIRS})
+		
+		if(libtorrent_VERSION GREATER 0.14.99)
+			set(LIBTORRENT_0_15 TRUE)
+		endif(libtorrent_VERSION GREATER 0.14.99)
 	else(libtorrent_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent")
 	endif(libtorrent_FOUND)

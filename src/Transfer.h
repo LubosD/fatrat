@@ -202,7 +202,11 @@ struct EngineEntry
 	const char* longName;
 	void (*lpfnInit)();
 	void (*lpfnExit)();
-	Transfer* (*lpfnCreate)();
+	union
+	{
+		Transfer* (*lpfnCreate)();
+		Transfer* (*lpfnCreate2)(EngineEntry*);
+	};
 	int (*lpfnAcceptable)(QString, bool);
 	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
 };

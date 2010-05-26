@@ -89,7 +89,7 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 				return formatSize(m_files[i].size);
 			case 2:
 				if(!m_progresses.empty())
-					return QString("%1%").arg(m_progresses[i]*100, 0, 'f', 1);
+					return QString("%1%").arg(100.0/m_files[i].size*m_progresses[i], 0, 'f', 1);
 				break;
 			case 3:
 				switch(m_download->m_vecPriorities[i])

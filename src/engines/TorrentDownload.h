@@ -69,6 +69,7 @@ public:
 	static QByteArray bencode_simple(libtorrent::entry& e);
 	static QString bencode(libtorrent::entry& e);
 	static libtorrent::entry bdecode_simple(QByteArray d);
+	static void lazy_bdecode_simple(libtorrent::lazy_entry& e, QByteArray array);
 	static libtorrent::entry bdecode(QString d);
 	
 	static libtorrent::proxy_settings proxyToLibtorrent(Proxy p);
@@ -130,6 +131,7 @@ protected:
 	static bool m_bDHT;
 	static QList<QRegExp> m_listBTLinks;
 	static QLabel* m_labelDHTStats;
+	static QMutex m_mutexAlerts;
 	
 	friend class TorrentWorker;
 	friend class TorrentDetails;
@@ -152,6 +154,7 @@ public:
 	// To reduce QTimer usage
 	void setDetailsObject(TorrentDetails* d);
 	TorrentDownload* getByHandle(libtorrent::torrent_handle handle) const;
+	void processAlert(libtorrent::alert* aaa);
 public slots:
 	void doWork();
 private:
