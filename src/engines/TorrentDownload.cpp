@@ -1183,6 +1183,7 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 		{
 			d->enterLogMessage(tr("Successfully retrieved the metadata"));
 			d->storeTorrent();
+			d->createDefaultPriorityList();
 		}
 	}
 	else
