@@ -29,7 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMessageBox>
 #include <QtDebug>
 
-const char* INDEX_URL = "qthelp://info.dolezel.fatrat.1_0/doc/index.html";
+const char* INDEX_URL = "qthelp://info.dolezel.fatrat.10/doc/index.html";
 
 HelpBrowser::HelpBrowser()
 {
