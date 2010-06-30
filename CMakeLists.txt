@@ -43,7 +43,7 @@ if(WITH_BITTORRENT)
 	
 	SET(Boost_USE_MULTITHREAD ON)
 	SET(Boost_USE_STATIC_LIBS OFF)
-	find_package(Boost 1.33.0 COMPONENTS date_time REQUIRED)
+	find_package(Boost COMPONENTS date_time REQUIRED)
 	
 	if(Boost_FOUND)
 		message(STATUS "boost-datetime found OK")

@@ -57,7 +57,7 @@ QList<Proxy> Proxy::loadProxys()
 }
 
 
-Proxy::Proxy Proxy::getProxy(QUuid uuid)
+Proxy Proxy::getProxy(QUuid uuid)
 {
 	if(uuid.isNull())
 		return Proxy();
