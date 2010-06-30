@@ -110,7 +110,7 @@ void Scheduler::doWork()
 	{
 		if(a.repeated)
 		{
-			QTime atime = a.whenOneTime.time();
+			const QTime& atime = a.whenRepeated;
 			if(a.daysRepeated[time.date().dayOfWeek()-1]
 			   && time.time().hour() == atime.hour() && time.time().minute() == atime.minute())
 			{
