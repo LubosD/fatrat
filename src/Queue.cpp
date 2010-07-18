@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "Queue.h"
 #include "QueueMgr.h"
+#include "Settings.h"
 #include <QList>
 #include <QReadWriteLock>
 #include <QDir>
@@ -437,4 +438,26 @@ void Queue::resumeAll()
 		if(state == Transfer::Paused || state == Transfer::Failed)
 			t->setState(Transfer::Active);
 	}
+}
+
+void Queue::updateGraph()
+{
+	int downq = 0, upq = 0;
+
+	lock();
+
+	for(int i=0;i<size();i++)
+	{
+		int up,down;
+		at(i)->speeds(down,up);
+
+		downq += down;
+		upq += up;
+	}
+
+	unlock();
+
+	if(m_qSpeedData.size() >= getSettingsValue("graphminutes").toInt()*60)
+		m_qSpeedData.dequeue();
+	m_qSpeedData.enqueue(QPair<int,int>(downq,upq));
 }

@@ -378,6 +378,8 @@ void MainWindow::updateUi()
 		actionNewTransfer->setEnabled(true);
 		actionStopAll->setEnabled(true);
 		actionResumeAll->setEnabled(true);
+
+		speedGraphQueue->setRenderSource(q);
 	}
 	else
 	{
@@ -478,7 +480,7 @@ void MainWindow::updateUi()
 		actionInfoBar->setEnabled(false);
 		actionProperties->setEnabled(false);
 		
-		speedGraph->setRenderSource(0);
+		speedGraph->setRenderSource((Queue*)NULL);
 		m_log->setLogSource(0);
 	}
 	

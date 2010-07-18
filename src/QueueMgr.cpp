@@ -69,6 +69,7 @@ void QueueMgr::doWork()
 		
 		q->transferLimits(lim_down,lim_up);
 		q->speedLimits(down,up);
+		q->updateGraph();
 		
 		q->lock();
 		

@@ -465,7 +465,7 @@ QByteArray HttpService::graph(QString queryString)
 	if(!q || !t)
 		return QByteArray();
 	
-	SpeedGraph::draw(t, QSize(640, 480), &image);
+	SpeedGraph::draw(t->speedData(), QSize(640, 480), &image);
 	
 	q->unlock();
 	g_queuesLock.unlock();

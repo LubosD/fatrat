@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,13 +26,15 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "SpeedGraph.h"
+#include "Queue.h"
+#include "Transfer.h"
 #include "Settings.h"
 #include "fatrat.h"
 #include <QtDebug>
 #include <QMenu>
 #include <QFileDialog>
 
-SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_transfer(0)
+SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_transfer(0), m_queue(0)
 {
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -44,10 +46,22 @@ void SpeedGraph::setRenderSource(Transfer* t)
 	if(m_transfer == t)
 		return;
 	disconnect(this, SLOT(setNull()));
-	
+
 	m_transfer = t;
 	if(m_transfer)
 		connect(m_transfer, SIGNAL(destroyed()), this, SLOT(setNull()));
+	update();
+}
+
+void SpeedGraph::setRenderSource(Queue* q)
+{
+	if(m_queue == q)
+		return;
+	disconnect(this, SLOT(setNull()));
+
+	m_queue = q;
+	if(m_queue)
+		connect(m_queue, SIGNAL(destroyed()), this, SLOT(setNull()));
 	update();
 }
 
@@ -55,9 +69,9 @@ void SpeedGraph::contextMenuEvent(QContextMenuEvent* event)
 {
 	QMenu menu;
 	QAction* act = menu.addAction(tr("Save as..."));
-	
+
 	connect(act, SIGNAL(triggered()), this, SLOT(saveScreenshot()));
-	
+
 	menu.exec(mapToGlobal(event->pos()));
 }
 
@@ -65,10 +79,16 @@ void SpeedGraph::saveScreenshot()
 {
 	QString file;
 	QImage image(size(), QImage::Format_RGB32);
-	draw(m_transfer, size(), &image);
-	
+
+	if(m_transfer)
+		draw(m_transfer->speedData(), size(), &image);
+	else if(m_queue)
+		draw(m_queue->speedData(), size(), &image);
+	else
+		return;
+
 	file = QFileDialog::getSaveFileName(this, "FatRat", QString(), "*.png");
-	
+
 	if(!file.isEmpty())
 	{
 		if(!file.endsWith(".png", Qt::CaseInsensitive))
@@ -77,16 +97,15 @@ void SpeedGraph::saveScreenshot()
 	}
 }
 
-void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPaintEvent* event)
+void SpeedGraph::draw(QQueue<QPair<int,int> > data, QSize size, QPaintDevice* device, QPaintEvent* event)
 {
 	int top = 0;
-	QQueue<QPair<int,int> > data;
 	QPainter painter(device);
 	int seconds = getSettingsValue("graphminutes").toInt()*60;
 	bool bFilled = getSettingsValue("graph_style").toInt() == 0;
-	
+
 	painter.setRenderHint(QPainter::Antialiasing);
-	
+
 	if(event != 0)
 	{
 		painter.setClipRegion(event->region());
@@ -94,35 +113,33 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 	}
 	else
 		painter.fillRect(QRect(QPoint(0, 0), size), QBrush(Qt::white));
-	
-	if(!transfer)
+
+	if(!data.size())
 	{
 		drawNoData(size, painter);
 		return;
 	}
-	
-	data = transfer->speedData();
-	
+
 	for(int i=0;i<data.size();i++)
 	{
-		top = std::max(top, std::max(data[i].first,data[i].second));
+		top = qMax(top, qMax(data[i].first,data[i].second));
 	}
 	if(!top || data.size()<2)
 	{
 		drawNoData(size, painter);
 		return;
 	}
-	
-	top = std::max(top/10*11,10*1024);
-	
+
+	top = qMax(top/10*11,10*1024);
+
 	const int height = size.height();
 	const int width = size.width();
 	const int elems = data.size();
-	qreal perpt = width / (qreal(std::max(elems,seconds))-1);
+	qreal perpt = width / (qreal(qMax(elems,seconds))-1);
 	qreal pos = width;
 	QVector<QLine> lines(elems);
 	QVector<QPoint> filler(elems+2);
-	
+
 	for(int i = 0;i<data.size();i++) // download speed
 	{
 		float y = height-height/qreal(top)*data[elems-i-1].first;
@@ -197,7 +214,10 @@ void SpeedGraph::draw(Transfer* transfer, QSize size, QPaintDevice* device, QPai
 
 void SpeedGraph::paintEvent(QPaintEvent* event)
 {
-	draw(m_transfer, size(), this, event);
+	if(m_transfer)
+		draw(m_transfer->speedData(), size(), this, event);
+        else if(m_queue)
+		draw(m_queue->speedData(), size(), this, event);
 }
 
 void SpeedGraph::drawNoData(QSize size, QPainter& painter)

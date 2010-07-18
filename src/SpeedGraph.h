@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,8 +30,11 @@ respects for all of the code used other than "OpenSSL".
 #include <QWidget>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QQueue>
 #include <QTimer>
-#include "Transfer.h"
+
+class Transfer;
+class Queue;
 
 class SpeedGraph : public QWidget
 {
@@ -39,15 +42,17 @@ Q_OBJECT
 public:
 	SpeedGraph(QWidget* parent);
 	void setRenderSource(Transfer* t);
-	static void draw(Transfer* transfer, QSize size, QPaintDevice* device, QPaintEvent* event = 0);
+	void setRenderSource(Queue* q);
+	static void draw(QQueue<QPair<int,int> > data, QSize size, QPaintDevice* device, QPaintEvent* event = 0);
 public slots:
-	void setNull() { setRenderSource(0); }
+	void setNull() { setRenderSource((Queue*)NULL); }
 	void saveScreenshot();
 protected:
 	virtual void paintEvent(QPaintEvent* event);
 	virtual void contextMenuEvent(QContextMenuEvent* event);
 	static void drawNoData(QSize size, QPainter& painter);
-	
+
+	Queue* m_queue;
 	Transfer* m_transfer;
 	QTimer* m_timer;
 };

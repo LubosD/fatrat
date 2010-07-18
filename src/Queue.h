@@ -28,8 +28,10 @@ respects for all of the code used other than "OpenSSL".
 #ifndef _FRQUEUE_H
 #define _FRQUEUE_H
 #include <QDomNode>
+#include <QQueue>
 #include <QReadWriteLock>
 #include <QList>
+#include <QPair>
 #include <QUuid>
 #include "Transfer.h"
 
@@ -102,6 +104,8 @@ public:
 	bool contains(Transfer* t) const;
 	void stopAll();
 	void resumeAll();
+
+	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
 private:
 	void loadQueue(const QDomNode& node);
 	void saveQueue(QDomNode& node,QDomDocument& doc);
@@ -120,7 +124,10 @@ public:
 		int down, up;
 	} m_stats;
 protected:
+	void updateGraph();
+
 	QList<Transfer*> m_transfers;
+	QQueue<QPair<int,int> > m_qSpeedData;
 	
 	friend class QueueMgr;
 };
