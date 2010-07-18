@@ -68,8 +68,6 @@ struct ClientData
 	time_t lastData;
 };
 
-class QScriptEngine;
-class QScriptValue;
 class Queue;
 class Transfer;
 class Poller;
@@ -87,7 +85,6 @@ public:
 	static void throwErrno();
 	void run();
 	
-	QScriptValue convertQueryString(const QMap<QString,QString>& queryString);
 	static QMap<QString,QString> processQueryString(QByteArray queryString);
 	
 	static int countLines(const QByteArray& ar, int left);
@@ -95,14 +92,11 @@ public:
 	
 	static long contentLength(const QList<QByteArray>& data);
 	
-	static QByteArray progressBar(QByteArray queryString);
 	static QByteArray graph(QString queryString);
 	static QString urlDecode(QByteArray arr);
 	static void findQueue(QString queueUUID, Queue** q);
 	static void findTransfer(QString transferUUID, Queue** q, Transfer** t);
 private:
-	void interpretScript(QFile* input, OutputBuffer* output, QByteArray queryString, QByteArray postData);
-	QByteArray handleException();
 	bool processClientRead(int fd);
 	bool processClientWrite(int fd);
 	void freeClient(int fd, Poller* poller);
@@ -113,7 +107,6 @@ private:
 	static HttpService* m_instance;
 	int m_server;
 	bool m_bAbort;
-	QScriptEngine* m_engine;
 	
 	QMap<int, ClientData> m_clients;
 };
