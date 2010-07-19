@@ -1,0 +1,122 @@
+html, body {
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color: white;
+	color: black;
+	height: 100%;
+	width: 100%;
+
+	padding: 0;
+	margin: 0;
+overflow: auto;
+}
+
+table#bigtable {
+	height: 100%;
+	width: 100%;
+}
+
+#toolbar {
+	padding: 1ex;
+	margin-top: 3ex;
+}
+
+#footer {
+	font-size: 75%;
+	text-align: center;
+	margin-top: 1em;
+}
+
+.top-title {
+	text-align: center;
+	padding: 0 1ex 0 1ex;
+	margin-bottom: 1ex;
+}
+
+#tabs {
+	height: 100%;
+	overflow: auto;
+}
+
+.ui-layout-resizer { background: #888; }
+
+.ui-layout-pane { padding: 1ex; }
+
+#tabs-transfers {
+	display: table;
+	width: 100%;
+	padding: 0;
+}
+
+#queues-pane {
+	display: table-cell;
+	max-width: 20%;
+	min-width: 200px;
+	padding: 1ex;
+	vertical-align: top;
+}
+
+#transfers-pane {
+	display: table-cell;
+	width: 80%;
+	padding: 1ex;
+	overflow: scroll;
+}
+
+.queue-item {
+	text-align: center;
+	padding-top: 1ex;
+	padding-bottom: 1ex;
+	cursor: pointer;
+}
+
+#queues .ui-selected, #queues .ui-selecting  {
+	background: #567dbc;
+	color: white;
+	border: 1px solid #567dbc;
+}
+
+.queue-item:not(.ui-selected):hover {
+	border: 1px solid #bfcde4 !important;
+	background: #cbdaf1 !important;
+}
+
+table#transfers {
+	background: white;
+	border-collapse:collapse;
+	height: 100%;
+	width: 100%;
+}
+
+table#transfers th {
+	text-align: left;
+	padding-left: 1ex;
+	border-bottom: 1px solid #DDD;
+}
+table#transfers th:nth-child(n+2) {
+	border-left: 1px solid #DDD;
+}
+
+table#transfers thead {
+	
+}
+
+table#transfers tr {
+	cursor: default;
+	border-spacing: 0;
+}
+
+table#transfers tr.ui-selected {
+	background: #418bd4;
+	color: white;
+}
+
+.progressbar {
+	text-align: center !important;
+	line-height: 2em;
+}
+
+.progressbar > span {
+	float: right;
+	width: 100%;
+}

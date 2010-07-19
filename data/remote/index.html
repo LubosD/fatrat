@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>FatRat Download Manager</title>
+
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/ui-lightness/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/icons.css" rel="stylesheet" type="text/css" media="all">    
+<script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.layout.min-1.2.0.js"></script>
+<script type="text/javascript" src="scripts/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="scripts/ui.js"></script>
+</head>
+
+<body>
+
+<!--<table id="bigtable">
+<tr><td>-->
+<div class="ui-layout-north">
+	<img src="img/logo.png" alt="FatRat" id="logo" />
+	<div id="toolbar" class="ui-widget-header ui-corner-all">
+		<span id="toolbar-set1">
+			<button id="toolbar-add">New Transfer</button>
+			<button id="toolbar-delete">Delete</button>
+			<button id="toolbar-delete-with-data">Delete with Data</button>
+			<button id="toolbar-delete-completed">Delete Completed</button>
+		</span>
+		<span id="toolbar-set2">
+			<button id="toolbar-resume">Resume</button>
+			<button id="toolbar-force-resume">Force Resume</button>
+			<button id="toolbar-pause">Pause</button>
+		</span>
+		<span id="toolbar-set3">
+			<button id="toolbar-move-top">Move to Top</button>
+			<button id="toolbar-move-up">Move Up</button>
+			<button id="toolbar-move-down">Move Down</button>
+			<button id="toolbar-move-bottom">Move to Bottom</button>
+		</span>
+		<span id="toolbar-set4">
+			<button id="toolbar-queue-add">New Queue</button>
+			<button id="toolbar-queue-delete">Delete Queue</button>
+		</span>
+	</div>
+</div>
+<!--
+</td></tr>
+<tr style="height:100%"><td>
+-->
+<div id="tabs" class="ui-layout-center">
+	<ul>
+		<li><a href="#tabs-transfers">Transfers</a></li>
+		<li><a href="#tabs-details">Details</a></li>
+		<li><a href="#tabs-tsg">Transfer Speed Graph</a></li>
+		<li><a href="#tabs-qsg">Queue Speed Graph</a></li>
+		<li><a href="#tabs-log">Log</a></li>
+	</ul>
+	<div id="tabs-transfers">
+		<div id="queues-pane">
+			<div id="queues-title" class="top-title ui-widget ui-corner-all ui-state-default">Queues</div>
+			<div id="queues">
+				<div class="queue-item ui-widget-content ui-selectee ui-hoverable">Queue 1</div>
+				<div class="queue-item ui-widget-content ui-selectee ui-hoverable">Queue 2</div>
+			</div>
+		</div>
+		<div id="transfers-pane" class="">
+			<div class="top-title ui-widget ui-corner-all ui-state-default ui-layout-north">Transfers</div>
+			<table id="transfers" class="ui-widget-content ui-layout-content ui-layout-center">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Progress</th>
+					<th>Size</th>
+					<th><img src="css/icons/download.png" alt="Download" /> Speed</th>
+					<th><img src="css/icons/upload.png" alt="Upload" /> Speed</th>
+					<th>Time Remaining</th>
+					<th>Message</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="transfer ui-selectee">
+					<td class="fatrat-transfer-active">Transfer name</td>
+					<td class="progressbar"><span>30%</span></td>
+					<td>300 MB</td>
+					<td>50 KB/s</td>
+					<td></td>
+					<td>1h</td>
+					<td>Running</td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+	</div>
+	<div id="tabs-details">
+	</div>
+	<div id="tabs-tsg">
+	</div>
+	<div id="tabs-qsg">
+	</div>
+	<div id="tabs-log">
+	</div>
+</div>
+
+<!--
+</td></tr>
+
+<tr><td>
+-->
+<div id="footer" class="ui-layout-south">
+	Copyright &copy; 2006-2010 Luboš Doležel
+</div>
+
+
+<!--</td></tr>
+</table>-->
+
+</body>
+
+</html>

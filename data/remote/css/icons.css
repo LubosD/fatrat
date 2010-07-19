@@ -1,0 +1,18 @@
+.fatrat-icon-add { background-image: url(icons/add.png); }
+.fatrat-icon-delete { background-image: url(icons/delete.png); }
+.fatrat-icon-delete-with-data { background-image: url(icons/delete_with_data.png); }
+.fatrat-icon-delete-completed { background-image: url(icons/states/completed.png); }
+
+.fatrat-icon-resume { background-image: url(icons/states/active.png); }
+.fatrat-icon-force-resume { background-image: url(icons/states/forcedactive.png); }
+.fatrat-icon-pause { background-image: url(icons/states/paused.png); }
+
+.fatrat-icon-move-top { background-image: url(icons/move/top.png); }
+.fatrat-icon-move-up { background-image: url(icons/move/up.png); }
+.fatrat-icon-move-down { background-image: url(icons/move/down.png); }
+.fatrat-icon-move-bottom { background-image: url(icons/move/bottom.png); }
+
+.fatrat-icon-queue-add { background-image: url(icons/queue/add.png); }
+.fatrat-icon-queue-delete { background-image: url(icons/queue/remove.png); }
+
+.fatrat-transfer-active { padding-left: 20px; background-image: url(icons/states/active.png); background-position: 2px; background-repeat: no-repeat }
