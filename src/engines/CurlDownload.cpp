@@ -43,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMenu>
 #include <QtDebug>
 #include <iostream>
+#include <errno.h>
 
 CurlDownload::CurlDownload()
 	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nUrl(0), m_file(0)
@@ -331,6 +332,7 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	if (write(m_file, buffer, bytes) != bytes)
 	{
 		m_strMessage = tr("Write failed");
+		enterLogMessage(tr("Write failed (%1)").arg(strerror(errno)));
 		return false;
 	}
 	
