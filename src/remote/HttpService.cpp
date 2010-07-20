@@ -560,9 +560,10 @@ void HttpService::serveClient(int fd)
 				data.buffer = new OutputBuffer;
 				XmlRpcService::serve(postData, data.buffer);
 
-				strcpy(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
+				sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
 						"Content-Type: text/xml; encoding=utf-8\r\n"
-						"Cache-Control: no-cache\r\nPragma: no-cache\r\n\r\n");
+						"Cache-Control: no-cache\r\nPragma: no-cache\r\n"
+						"Content-Length: %d\r\n\r\n", data.buffer->size());
 			}
 			else
 				throw "405 Method Not Allowed";

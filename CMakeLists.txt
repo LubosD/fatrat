@@ -473,26 +473,8 @@ if(WITH_BITTORRENT)
 endif(WITH_BITTORRENT)
 
 if(WITH_WEBINTERFACE)
-	FILE( GLOB rm_pngs ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/*.png )
-	install(FILES ${rm_pngs} DESTINATION share/fatrat/data/remote)
-	
-	FILE( GLOB rm_qsps ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/*.qsp )
-	install(FILES ${rm_qsps} DESTINATION share/fatrat/data/remote)
-	
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/index.js DESTINATION share/fatrat/data/remote)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/style.css DESTINATION share/fatrat/data/remote)
-	
-	FILE( GLOB rm_move ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/move/*.png )
-	install(FILES ${rm_move} DESTINATION share/fatrat/data/remote/move)
-	
-	FILE( GLOB rm_queue ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/queue/*.png )
-	install(FILES ${rm_queue} DESTINATION share/fatrat/data/remote/queue)
-	
-	FILE( GLOB rm_states ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/states/*.png )
-	install(FILES ${rm_states} DESTINATION share/fatrat/data/remote/states)
-	
-	FILE( GLOB rm_filedialog ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/filedialog/* )
-	install(FILES ${rm_filedialog} DESTINATION share/fatrat/data/remote/filedialog)
+	#FILE( GLOB_RECURSE remfiles ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/* )
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/remote DESTINATION share/fatrat/data)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)

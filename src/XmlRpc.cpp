@@ -329,7 +329,5 @@ void XmlRpc::parseCall(const QByteArray& call, QByteArray& function, QList<QVari
 			p = p.nextSiblingElement("param");
 		}
 	}
-	else
-		throw RuntimeException(QObject::tr("Not a valid XML-RPC call"));
 }
 

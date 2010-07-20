@@ -24,12 +24,15 @@ $(document).ready(function() {
 	//$('body').layout({ slidable: false, resizable: false; closable: false });
 	$('#tabs').tabs();
 	
-	$("#queues .ui-selectee").click(function(){
+	$("#queues .ui-selectee").click(function(e){
 		$(this).toggleClass("ui-selected").siblings().removeClass("ui-selected");
+		queueClicked(e.target);
 	});
 	
 	$(".progressbar").progressbar({ value: 30 });
 	$("#transfers tbody").selectable({ filter: 'tr' });
-	$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
+	//$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
+	
+	clientInit();
 });
 
