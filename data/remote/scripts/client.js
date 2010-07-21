@@ -140,6 +140,8 @@ function updateTransfers() {
 				x--;
 			}
 		}
+		
+		transfersSelectionChanged();
 	});
 }
 
@@ -241,5 +243,68 @@ function addTransferItem(item, addBefore) {
 		$(addBefore).before(ndiv);
 	else
 		$('#transfers tbody').append(ndiv);
+}
+
+function enableButton(btn, enable) {
+	if (enable) {
+		btn.removeAttr('disabled');
+		btn.removeClass('ui-state-disabled');
+	} else {
+		btn.attr('disabled', 'disabled');
+		btn.addClass('ui-state-disabled');
+	}
+}
+
+function transferResumable(state) {
+	return state != 'Waiting' && state != 'Active';
+}
+function transferPausable(state) {
+	return state != 'Paused';
+};
+function getTransfer(uuid) {
+	for (r=0;r<transfers.length;r++) {
+		if (transfers[r].uuid == uuid)
+			return transfers[r];
+	}
+	return undefined;
+}
+function getTransferPosition(uuid) {
+	for (r=0;r<transfers.length;r++) {
+		if (transfers[r].uuid == uuid)
+			return r;
+	}
+	return -1;
+}
+
+function transfersSelectionChanged() {
+	ntransfers = [];
+	$("#transfers .ui-selected").each(function() {
+		ntransfers.push($(this).attr('id'));
+	});
+	currentTransfers = ntransfers;
+
+	enableButton($('#toolbar-delete'), ntransfers.length > 0);
+	enableButton($('#toolbar-delete-with-data'), ntransfers.length > 0);
+	enableButton($('#toolbar-force-resume'), ntransfers.length > 0);
+	
+	resumable = false;
+	pausable = false;
+	up = false;
+	down = false;
+	
+	for (u=0;u<currentTransfers.length;u++) {
+		tpos = getTransferPosition(currentTransfers[u]);
+		tt = transfers[tpos];
+		resumable |= transferResumable(tt.state);
+		pausable |= transferPausable(tt.state);
+		up |= tpos > 0;
+		down |= tpos < transfers.length-1;
+	}
+	enableButton($('#toolbar-resume'), resumable);
+	enableButton($('#toolbar-pause'), pausable);
+	enableButton($('#toolbar-move-up'), up);
+	enableButton($('#toolbar-move-top'), up);
+	enableButton($('#toolbar-move-down'), down);
+	enableButton($('#toolbar-move-bottom'), down);
 }
 

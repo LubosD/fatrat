@@ -30,7 +30,7 @@ $(document).ready(function() {
 	});
 	
 	$(".progressbar").progressbar({ value: 30 });
-	$("#transfers tbody").selectable({ filter: 'tr' });
+	$("#transfers tbody").selectable({ filter: 'tr', selected: transfersSelectionChanged, unselected: transfersSelectionChanged });
 	//$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
 	
 	clientInit();
