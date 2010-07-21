@@ -22,7 +22,9 @@ $(document).ready(function() {
 	
 	//$('#tabs-transfers').layout({ slidable: true, resizable: true });
 	//$('body').layout({ slidable: false, resizable: false; closable: false });
-	$('#tabs').tabs();
+	$('#tabs').tabs({ show: function() { tabSwitched(true); } });
+	$("#tabs-tsg-img").load(function() { $("#tabs-tsg-img").attr('style','visibility: visible'); });
+	$("#tabs-qsg-img").load(function() { $("#tabs-qsg-img").attr('style','visibility: visible'); });
 	
 	$("#queues .ui-selectee").click(function(e){
 		$(this).toggleClass("ui-selected").siblings().removeClass("ui-selected");

@@ -229,11 +229,23 @@ QVariant parseValue(const QDomElement& where)
 		
 		QDomElement v = data.firstChildElement("value");
 		QList<QVariant> variantList;
+		bool allstring = true;
 		
 		while(!v.isNull())
 		{
-			variantList << parseValue(v);
+			QVariant parsed = parseValue(v);
+			variantList << parsed;
+
+			allstring &= parsed.type() == QVariant::String;
+
 			v = v.nextSiblingElement("value");
+		}
+
+		if (allstring && !variantList.empty())
+		{
+			QVariant var(variantList);
+			var.convert(QVariant::StringList);
+			return var;
 		}
 		
 		return variantList;

@@ -125,3 +125,10 @@ table#transfers tr.ui-selected {
 	float: right;
 	width: 100%;
 }
+
+#tabs-tsg-img, #tabs-qsg-img {
+	width: 640px;
+	height: 480px;
+	visibility: hidden;
+}
+

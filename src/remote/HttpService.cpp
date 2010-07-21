@@ -423,8 +423,25 @@ QByteArray HttpService::graph(QString queryString)
 	SpeedGraph::draw(t->speedData(), QSize(640, 480), &image);
 	
 	q->unlock();
-	g_queuesLock.unlock();
 	
+	image.save(&buf, "PNG");
+	return buf.data();
+}
+
+QByteArray HttpService::qgraph(QString queryString)
+{
+	QBuffer buf;
+	QImage image(QSize(640, 480), QImage::Format_RGB32);
+
+	QReadLocker locker(&g_queuesLock);
+	Queue* q;
+
+	findQueue(queryString, &q);
+	if(!q)
+		return QByteArray();
+
+	SpeedGraph::draw(q->speedData(), QSize(640, 480), &image);
+
 	image.save(&buf, "PNG");
 	return buf.data();
 }
@@ -480,11 +497,20 @@ void HttpService::serveClient(int fd)
 			if(!bHead)
 			{
 				QByteArray png;
-				QString q = urlDecode(queryString);
+				QString q;
+				int index;
+
 				data.buffer = new OutputBuffer;
+
+				q = urlDecode(queryString);
+
+				if ((index = q.indexOf('&')) != -1)
+					q = q.left(index);
 				
 				if(fileName.endsWith("/graph.png"))
 					png = graph(q);
+				else if(fileName.endsWith("/qgraph.png"))
+					png = qgraph(q);
 				else
 				{
 					delete data.buffer;
@@ -696,4 +722,21 @@ void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
 	}
 	
 	g_queuesLock.unlock();
+}
+
+void HttpService::findQueue(QString queueUUID, Queue** q)
+{
+	*q = 0;
+
+	QReadLocker r(&g_queuesLock);
+	for(int i=0;i<g_queues.size();i++)
+	{
+		Queue* c = g_queues[i];
+
+		if (c->uuid() == queueUUID)
+		{
+			*q = c;
+			return;
+		}
+	}
 }

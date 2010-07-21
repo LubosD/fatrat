@@ -144,7 +144,7 @@ function Request (url, content, callback) {
  checkRequestStatus(this) 
  }
  this.onnetworkerror = function (e) {
- alert(e)
+ alert('Network error: '+e.toSource())
  }
 }
 

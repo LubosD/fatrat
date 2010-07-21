@@ -93,6 +93,7 @@ public:
 	static long contentLength(const QList<QByteArray>& data);
 	
 	static QByteArray graph(QString queryString);
+	static QByteArray qgraph(QString queryString);
 	static QString urlDecode(QByteArray arr);
 	static void findQueue(QString queueUUID, Queue** q);
 	static void findTransfer(QString transferUUID, Queue** q, Transfer** t);

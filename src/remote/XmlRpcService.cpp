@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "XmlRpc.h"
 #include "Queue.h"
 #include <QReadWriteLock>
+#include <QStringList>
 #include <QtDebug>
 
 extern QList<Queue*> g_queues;
@@ -43,7 +44,7 @@ static void checkArguments(const QList<QVariant>& args, QVariant::Type* types, i
 	for(int i=0;i<ntypes;i++)
 	{
 		if(args[i].type() != types[i])
-			throw XmlRpcService::XmlRpcError(3, QString("Invalid argument type - #%1").arg(i));
+			throw XmlRpcService::XmlRpcError(3, QString("Invalid argument type - #%1, received %2, expected %3").arg(i).arg(args[i].type()).arg(types[i]));
 	}
 }
 
@@ -81,10 +82,10 @@ void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
 		}
 		else if(function == "Transfer.setProperties")
 		{
-			QVariant::Type aa[] = { QVariant::String, QVariant::Map };
+			QVariant::Type aa[] = { QVariant::StringList, QVariant::Map };
 			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
 
-			returnValue = Transfer_setProperties(args[0].toString(), args[1].toMap());
+			returnValue = Transfer_setProperties(args[0].toStringList(), args[1].toMap());
 		}
 		else
 			throw XmlRpcError(1, "Unknown method");
@@ -188,52 +189,55 @@ QVariant XmlRpcService::Queue_getTransfers(QString uuid)
 	return vlist;
 }
 
-QVariant XmlRpcService::Transfer_setProperties(QString uuid, QVariantMap properties)
+QVariant XmlRpcService::Transfer_setProperties(QStringList luuid, QVariantMap properties)
 {
 	Queue* q = 0;
 	Transfer* t = 0;
 
-	HttpService::findTransfer(uuid, &q, &t);
-
-	if(!t)
-		throw XmlRpcError(102, "Invalid transfer UUID");
-
-	for(QVariantMap::const_iterator it = properties.constBegin(); it != properties.constEnd(); it++)
+	foreach (QString uuid, luuid)
 	{
-		QString prop = it.key();
-		if(prop == "state")
-		{
-			checkType(it.value(), QVariant::String);
-			t->setState(Transfer::string2state(it.value().toString()));
-		}
-		else if(prop == "comment")
-		{
-			checkType(it.value(), QVariant::String);
-			t->setComment(it.value().toString());
-		}
-		else if(prop == "object")
-		{
-			checkType(it.value(), QVariant::String);
-			t->setObject(it.value().toString());
-		}
-		else if(prop == "userSpeedLimits")
-		{
-			checkType(it.value(), QVariant::List);
-			QVariantList list = it.value().toList();
+		HttpService::findTransfer(uuid, &q, &t);
 
-			if(list.size() != 2)
-				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
+		if(!t)
+			throw XmlRpcError(102, "Invalid transfer UUID");
 
-			checkType(list.at(0), QVariant::Int);
-			checkType(list.at(1), QVariant::Int);
+		for(QVariantMap::const_iterator it = properties.constBegin(); it != properties.constEnd(); it++)
+		{
+			QString prop = it.key();
+			if(prop == "state")
+			{
+				checkType(it.value(), QVariant::String);
+				t->setState(Transfer::string2state(it.value().toString()));
+			}
+			else if(prop == "comment")
+			{
+				checkType(it.value(), QVariant::String);
+				t->setComment(it.value().toString());
+			}
+			else if(prop == "object")
+			{
+				checkType(it.value(), QVariant::String);
+				t->setObject(it.value().toString());
+			}
+			else if(prop == "userSpeedLimits")
+			{
+				checkType(it.value(), QVariant::List);
+				QVariantList list = it.value().toList();
 
-			t->setUserSpeedLimits(list.at(0).toInt(), list.at(1).toInt());
+				if(list.size() != 2)
+					throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
+
+				checkType(list.at(0), QVariant::Int);
+				checkType(list.at(1), QVariant::Int);
+
+				t->setUserSpeedLimits(list.at(0).toInt(), list.at(1).toInt());
+			}
+			else
+				throw XmlRpcError(103, QString("Invalid transfer property: %1").arg(prop));
 		}
-		else
-			throw XmlRpcError(103, QString("Invalid transfer property: %1").arg(prop));
+
+		q->unlock();
 	}
-
-	q->unlock();
 	return QVariant();
 }
 

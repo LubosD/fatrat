@@ -5,7 +5,23 @@ var currentQueue, currentTransfers = [];
 
 function clientInit() {
 	client = XmlRpc.getObject("/xmlrpc", rpcMethods);
+	
+	$("#toolbar-add").click(actionAdd);
+	$("#toolbar-delete").click(actionDelete);
+	$("#toolbar-delete-with-data").click(actionDeleteWithData);
+	$("#toolbar-delete-completed").click(actionDeleteCompleted);
+	$("#toolbar-resume").click(function() { sendStateChange('Waiting'); });
+	$("#toolbar-force-resume").click(function() { sendStateChange('ForcedActive'); });
+	$("#toolbar-pause").click(function() { sendStateChange('Paused'); });
+	$("#toolbar-move-top").click(actionMoveTop);
+	$("#toolbar-move-up").click(actionMoveUp);
+	$("#toolbar-move-down").click(actionMoveDown);
+	$("#toolbar-move-bottom").click(actionMoveBottom);
+	$("#toolbar-queue-add").click(actionAddQueue);
+	$("#toolbar-queue-delete").click(actionDeleteQueue);
+	
 	updateQueues();
+	window.setInterval(updateQueues, 2000);
 }
 
 function updateQueues() {
@@ -16,12 +32,15 @@ function updateQueues() {
 		$('#queues .queue-item').each(function() {
 			xid = $(this).attr('id');
 			found = false;
-			for (q in queues) {
+			//try {
+			for (yy=0;yy<queues.length;yy++) {
+				q = queues[yy];
 				if (q.uuid == xid) {
 					found = true;
 					
 					// update the name
-					$(this).html(q.name);
+					if (q.name != this.innerHTML)
+						this.innerHTML = q.name;
 					added.push(q.uuid);
 					
 					break;
@@ -29,20 +48,25 @@ function updateQueues() {
 			}
 			if (!found)
 				$(this).remove();
+			//} catch (e) { alert(e); }
 		});
 		
 		i = 0;
 		$('#queues .queue-item').each(function() {
 			xid = $(this).attr('id');
+			//alert("Looking at xid "+xid);
 			while(queues[i].uuid != xid) {
+				//alert("Doing work, processing existing "+xid+", but I received "+queues[i].uuid);
 				q = queues[i];
-				if (added.indexOf(q.uuid) != -1)
-					$('#'+q.uuid).remove();
-				else
+				if (added.indexOf(q.uuid) != -1) {
+					rmv = document.getElementById(q.uuid);
+					rmv.parentNode.removeChild(rmv);
+				} else
 					added.push(q.uuid);
 				addQueueItem(q, this); // before this
 				i++;
 			}
+			i++;
 		});
 		
 		for(;i<queues.length;i++) {
@@ -50,9 +74,9 @@ function updateQueues() {
 		}
 		
 		if (currentQueue) {
-			q = $('#'+currentQueue);
-			if (q.length == 1) {
-				q.addClass("ui-selected");
+			q = document.getElementById(currentQueue);
+			if (q) {
+				$(q).addClass("ui-selected");
 				updateTransfers();
 				return;
 			} else
@@ -97,7 +121,8 @@ function updateTransfers() {
 		$('#transfers .transfer-item').each(function() {
 			xid = $(this).attr('id');
 			found = false;
-			for (t in transfers) {
+			for (yx=0;yx<transfers.length;yx++) {
+				t = transfers[yx];
 				if (t.uuid == xid) {
 					found = true;
 					
@@ -118,13 +143,16 @@ function updateTransfers() {
 			xid = $(this).attr('id');
 			while(transfers[i].uuid != xid) {
 				t = transfers[i];
-				if (added.indexOf(t.uuid) != -1)
-					$('#'+t.uuid).remove();
-				else
+				//alert("Doing work, "+t.uuid+" is not xid");
+				if (added.indexOf(t.uuid) != -1) {
+					rmv = document.getElementById(t.uuid);
+					rmv.parentNode.removeChild(rmv);
+				} else
 					added.push(t.uuid);
 				addTransferItem(t, this); // before this
 				i++;
 			}
+			i++;
 		});
 		
 		for(;i<transfers.length;i++) {
@@ -132,9 +160,9 @@ function updateTransfers() {
 		}
 		
 		for (x=0;x<currentTransfers.length;x++) {
-			t = $('#'+currentTransfers[x]);
-			if (t.length == 1)
-				t.addClass("ui-selected");
+			t = document.getElementById(currentTransfers[x]);
+			if (t)
+				$(t).addClass("ui-selected");
 			else {
 				currentTransfers.splice(x, 1);
 				x--;
@@ -142,7 +170,29 @@ function updateTransfers() {
 		}
 		
 		transfersSelectionChanged();
+		tabSwitched(false);
 	});
+}
+
+function tabSwitched(reallySwitched) {
+	d = new Date();
+	if ($("#tabs-tsg").is(':visible')) {
+		
+		if (currentTransfers.length == 1) {
+			if (reallySwitched)
+				$("#tabs-tsg-img").attr('style','visibility: hidden');
+			$("#tabs-tsg-img").attr('src', '/generate/graph.png?'+currentTransfers[0]+'&'+d.getTime());
+		} else
+			$("#tabs").tabs("option", "selected", 0);
+	}
+	if ($("#tabs-qsg").is(':visible')) {
+		if (currentQueue) {
+			if (reallySwitched)
+				$("#tabs-qsg-img").attr('style','visibility: hidden');
+			$("#tabs-qsg-img").attr('src', '/generate/qgraph.png?'+currentQueue+'&'+d.getTime());
+		} else
+			$("#tabs").tabs("option", "selected", 0);
+	}
 }
 
 function singleDecimalDigit(num) {
@@ -189,24 +239,42 @@ function fillTransferRow(row, data) {
 	if (data.total > 0)
 		progress = singleDecimalDigit(100.0*data.done/data.total);
 	
-	tds[0].innerHTML = data.name;
-	tds[1].innerHTML = '<span>'+progress + ' %</span>';
-	$(tds[1]).progressbar({ value: progress });
+	if (tds[0].innerHTML != data.name)
+		tds[0].innerHTML = data.name;
+	
+	span = tds[1].getElementsByTagName('span');
+	if (span && span.length > 0) {
+		text = progress+' %';
+		if (text != span[0].innerHTML) {
+			span[0].innerHTML = text;
+			$(tds[1]).progressbar({ value: progress });
+		}
+	} else {
+		tds[1].innerHTML = '<span>'+progress + ' %</span>';
+		$(tds[1]).progressbar({ value: progress });
+	}
 	
 	if (data.total > 0)
-		tds[2].innerHTML = formatSize(data.total);
+		txt = formatSize(data.total);
 	else
-		tds[2].innerHTML = '';
+		txt = '';
+	if (txt != tds[2].innerHTML)
+		tds[2].innerHTML = txt;
 	
 	isactive = data.state == 'Active' || data.state == 'ForcedActive';
 	if (data.speeds[0] > 0 || isactive)
-		tds[3].innerHTML = formatSize(data.speeds[0])+'/s';
+		txt = formatSize(data.speeds[0])+'/s';
 	else
-		tds[3].innerHTML = '';
+		txt = '';
+	if (txt != tds[3].innerHTML)
+		tds[3].innerHTML = txt;
+	
 	if (data.speeds[1] > 0 || (isactive && data.mode == 'Upload'))
-		tds[4].innerHTML = formatSize(data.speeds[1])+'/s';
+		txt = formatSize(data.speeds[1])+'/s';
 	else
-		tds[4].innerHTML = '';
+		txt = '';
+	if (txt != tds[4].innerHTML)
+		tds[4].innerHTML = txt;
 	
 	var speed;
 	if (data.primaryMode == 'Download')
@@ -214,15 +282,20 @@ function fillTransferRow(row, data) {
 	else
 		speed = data.speeds[1];
 	if (isactive && data.mode == data.primaryMode && speed > 0)
-		tds[5].innerHTML = formatTime( (data.total - data.done) / speed );
+		txt = formatTime( (data.total - data.done) / speed );
 	else
-		tds[5].innerHTML = '';
-	tds[6].innerHTML = data.message;
+		txt = '';
+	if (txt != tds[5].innerHTML)
+		tds[5].innerHTML = txt;
+	
+	if (data.message != tds[6].innerHTML)
+		tds[6].innerHTML = data.message;
 	
 	cls = 'fatrat-transfer-state fatrat-transfer-'+data.state.toLowerCase();
 	if (data.mode == 'Upload' && (data.primaryMode == 'Upload' || data.state != 'Completed'))
 		cls = cls + '-ul';
-	tds[0].setAttribute('class', cls);
+	if (tds[0].getAttribute('class') != cls)
+		tds[0].setAttribute('class', cls);
 }
 
 function addTransferItem(item, addBefore) {
@@ -306,5 +379,50 @@ function transfersSelectionChanged() {
 	enableButton($('#toolbar-move-top'), up);
 	enableButton($('#toolbar-move-down'), down);
 	enableButton($('#toolbar-move-bottom'), down);
+	
+	var dtabs = [];
+	if (ntransfers.length != 1)
+		dtabs = [1, 2];
+	$('#tabs').tabs("option", "disabled", dtabs);
 }
 
+function sendStateChange(newState) {
+	if (!currentTransfers.length)
+		return;
+	
+	properties = { state: newState };
+	client.Transfer_setProperties(currentTransfers, properties, function(data) {
+		updateTransfers();
+	});
+}
+
+function actionAdd() {
+}
+
+function actionDelete() {
+}
+
+function actionDeleteWithData() {
+}
+
+function actionDeleteCompleted() {
+}
+
+function actionMoveTop() {
+}
+
+function actionMoveUp() {
+}
+
+function actionMoveDown() {
+}
+
+function actionMoveBottom() {
+}
+
+function actionAddQueue() {
+}
+
+function actionDeleteQueue() {
+}
+	
