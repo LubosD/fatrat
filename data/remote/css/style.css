@@ -32,6 +32,11 @@ table#bigtable {
 	line-height: 2.4em;
 }
 
+#credits {
+	display: none;
+	width: 640px;
+}
+
 #footer {
 	font-size: 75%;
 	text-align: center;

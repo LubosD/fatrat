@@ -29,3 +29,4 @@
 .fatrat-transfer-completed { background-image: url(icons/states/completed.png); }
 .fatrat-transfer-completed-ul { background-image: url(icons/states/completed_upload.png); }
 
+.ui-icon-closethick { background-image: url(icons/close.png) !important; background-position: 0px 0px !important; }

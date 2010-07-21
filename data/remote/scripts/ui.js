@@ -35,6 +35,18 @@ $(document).ready(function() {
 	$("#transfers tbody").selectable({ filter: 'tr', selected: transfersSelectionChanged, unselected: transfersSelectionChanged });
 	//$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
 	
+	$("#credits-link").click(function() {
+		$.get('/copyrights', function(data) {
+			$("#credits-text").html(data);
+			window.location = '#logo'; // to workaround fucked-up Firefox
+			$("#credits").dialog({
+				width: 600,
+				height: 300,
+				modal: true
+			});
+		});
+	});
+	
 	clientInit();
 });
 

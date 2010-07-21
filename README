@@ -1,6 +1,6 @@
 FatRat is an open source download manager for Linux written in C++ and built on top of the Trolltech Qt 4 library.
 
-Copyright © 2006-2009 Luboš Doležel <lubos at dolezel.info>
+Copyright © 2006-2010 Luboš Doležel <lubos at dolezel.info>
 
 === GRAPHICS ===
 
@@ -37,3 +37,24 @@ Copyright © 2006-2009 Luboš Doležel <lubos at dolezel.info>
 * cURL
   Copyright © 1996-2008 Daniel Stenberg <daniel at haxx.se>
   MIT/X derivate license
+
+=== WEB INTERFACE ===
+
+Web interface utilizes the following 3rd party JavaScript libraries:
+
+* jQuery JavaScript Library
+  Copyright © 2010 John Resig <http://jquery.org>
+  Dual licensed under the MIT or GPL Version 2 licenses.
+
+* jquery.layout
+  Copyright © 2008 Fabrizio Balliano <http://www.fabrizioballiano.net>, Kevin Dalman <http://allpro.net>
+  Dual licensed under the GPL and MIT licenses.
+
+* jQuery UI
+  Copyright © 2010 Authors of jQuery UI <http://jqueryui.com/about>
+  Dual licensed under the GPL and MIT licenses.
+
+* jsxmlrpc
+  Copyright © 2006 Tim Becker <tim@kuriositaet.de>
+  BSD license
+

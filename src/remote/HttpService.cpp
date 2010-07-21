@@ -446,6 +446,15 @@ QByteArray HttpService::qgraph(QString queryString)
 	return buf.data();
 }
 
+QByteArray HttpService::copyrights()
+{
+	const char* loc = DATA_LOCATION "/README";
+	QFile file;
+	file.setFileName(loc);
+	file.open(QIODevice::ReadOnly);
+	return file.readAll();
+}
+
 void HttpService::serveClient(int fd)
 {
 	char buffer[4096];
@@ -524,6 +533,13 @@ void HttpService::serveClient(int fd)
 					fileSize = data.buffer->size();
 				}
 			}
+		}
+		else if(fileName == "/copyrights")
+		{
+			QByteArray file = copyrights();
+			data.buffer = new OutputBuffer;
+			data.buffer->putData(file.constData(), file.size());
+			fileSize = data.buffer->size();
 		}
 		else if(fileName == "/download")
 		{

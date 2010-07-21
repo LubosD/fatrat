@@ -104,6 +104,7 @@ private:
 	void serveClient(int fd);
 	void initScriptEngine();
 	void timet2lastModified(time_t t, char* buffer, size_t size);
+	static QByteArray copyrights();
 private:
 	static HttpService* m_instance;
 	int m_server;
