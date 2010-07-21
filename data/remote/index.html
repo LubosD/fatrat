@@ -12,6 +12,7 @@
 <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="scripts/jquery.layout.min-1.2.0.js"></script>
 <script type="text/javascript" src="scripts/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.cookie.js"></script>
 <script type="text/javascript" src="scripts/jsxmlrpc.js"></script>
 <script type="text/javascript" src="scripts/ui.js"></script>
 <script type="text/javascript" src="scripts/client.js"></script>
@@ -24,6 +25,15 @@
 <div class="ui-layout-north">
 	<img src="img/logo.png" alt="FatRat" id="logo" />
 	<div id="toolbar" class="ui-widget-header ui-corner-all">
+		<div id="refresh-settings">
+			<label>Refresh every
+			<select id="refresh">
+				<option value="2">2 seconds</option>
+				<option value="5">5 seconds</option>
+				<option value="15">15 seconds</option>
+				<option value="30">30 seconds</option>
+			</select></label>
+		</div>
 		<span id="toolbar-set1">
 			<button id="toolbar-add">New Transfer</button>
 			<button id="toolbar-delete">Delete</button>

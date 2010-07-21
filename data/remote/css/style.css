@@ -16,9 +16,20 @@ table#bigtable {
 	width: 100%;
 }
 
+#logo {
+	padding-left: 2ex;
+	padding-top: 2ex;
+	margin-bottom: -2ex;
+}
+
 #toolbar {
 	padding: 1ex;
 	margin-top: 3ex;
+}
+
+#refresh-settings {
+	float: right;
+	line-height: 2.4em;
 }
 
 #footer {

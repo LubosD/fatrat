@@ -2,6 +2,7 @@ var client;
 var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties"];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
+var interval;
 
 function clientInit() {
 	client = XmlRpc.getObject("/xmlrpc", rpcMethods);
@@ -21,7 +22,19 @@ function clientInit() {
 	$("#toolbar-queue-delete").click(actionDeleteQueue);
 	
 	updateQueues();
-	window.setInterval(updateQueues, 2000);
+	
+	iv = $.cookie("refreshInterval");
+	if (!iv)
+		iv = 2;
+	$("#refresh").val(''+iv);
+	interval = window.setInterval(updateQueues, iv*1000);
+	
+	$("#refresh").change(function() {
+		val = $(this).val();
+		$.cookie("refreshInterval", val, { expires: 90 } );
+		window.clearInterval(interval);
+		interval = window.setInterval(updateQueues, val*1000);
+	});
 }
 
 function updateQueues() {
