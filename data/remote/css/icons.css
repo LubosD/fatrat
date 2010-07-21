@@ -15,4 +15,17 @@
 .fatrat-icon-queue-add { background-image: url(icons/queue/add.png); }
 .fatrat-icon-queue-delete { background-image: url(icons/queue/remove.png); }
 
-.fatrat-transfer-active { padding-left: 20px; background-image: url(icons/states/active.png); background-position: 2px; background-repeat: no-repeat }
+.fatrat-transfer-state { padding-left: 24px; background-position: 2px; background-repeat: no-repeat }
+.fatrat-transfer-active { background-image: url(icons/states/active.png); }
+.fatrat-transfer-active-ul { background-image: url(icons/states/active_upload.png); }
+.fatrat-transfer-forcedactive { background-image: url(icons/states/forcedactive.png); }
+.fatrat-transfer-forcedactive-ul { background-image: url(icons/states/forcedactive_upload.png); }
+.fatrat-transfer-waiting { background-image: url(icons/states/waiting.png); }
+.fatrat-transfer-waiting-ul { background-image: url(icons/states/waiting_upload.png); }
+.fatrat-transfer-paused { background-image: url(icons/states/paused.png); }
+.fatrat-transfer-paused-ul { background-image: url(icons/states/paused_upload.png); }
+.fatrat-transfer-failed { background-image: url(icons/states/failed.png); }
+.fatrat-transfer-failed-ul { background-image: url(icons/states/failed_upload.png); }
+.fatrat-transfer-completed { background-image: url(icons/states/completed.png); }
+.fatrat-transfer-completed-ul { background-image: url(icons/states/completed_upload.png); }
+

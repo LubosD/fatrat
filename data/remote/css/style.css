@@ -93,8 +93,13 @@ table#transfers th {
 	padding-left: 1ex;
 	border-bottom: 1px solid #DDD;
 }
+
 table#transfers th:nth-child(n+2) {
 	border-left: 1px solid #DDD;
+}
+
+table#transfers tr:nth-child(2n) {
+	background: #F7F7F7;
 }
 
 table#transfers thead {
