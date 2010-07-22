@@ -1,5 +1,5 @@
 var client;
-var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties"];
+var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete"];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
@@ -208,13 +208,13 @@ function tabSwitched(reallySwitched) {
 	}
 	if ($("#global-log").is(':visible')) {
 		$.get('/log', function(data) {
-			$("#global-log").html(data);
+			$("#global-log").text(data);
 			if (reallySwitched)
 				$("#global-log").scrollTop($("#global-log")[0].scrollHeight);
 		});
 		if (currentTransfers.length == 1) {
 			$.get('/log/'+currentTransfers[0], function(data) {
-				$("#transfer-log").html(data);
+				$("#transfer-log").text(data);
 				if (reallySwitched)
 					$("#transfer-log").scrollTop($("#transfer-log")[0].scrollHeight);
 			});
@@ -429,9 +429,51 @@ function actionAdd() {
 }
 
 function actionDelete() {
+	if (currentTransfers.length == 0)
+		return;
+	
+	$("#delete-dialog").dialog({
+		resizable: false,
+		height:190,
+		modal: true,
+		buttons: {
+			'No': function() {
+				$(this).dialog('close');
+			},
+			'Yes': function() {
+				$(this).dialog('close');
+				
+				client.Transfer_delete(currentTransfers, false, function(data) {
+					updateTransfers();
+					$("#tabs").tabs("option", "selected", 0);
+				});
+			}
+		}
+	});
 }
 
 function actionDeleteWithData() {
+	if (currentTransfers.length == 0)
+		return;
+	
+	$("#delete-dialog-with-data").dialog({
+		resizable: false,
+		height:190,
+		modal: true,
+		buttons: {
+			'No': function() {
+				$(this).dialog('close');
+			},
+			'Yes': function() {
+				$(this).dialog('close');
+				
+				client.Transfer_delete(currentTransfers, true, function(data) {
+					updateTransfers();
+					$("#tabs").tabs("option", "selected", 0);
+				});
+			}
+		}
+	});
 }
 
 function actionDeleteCompleted() {

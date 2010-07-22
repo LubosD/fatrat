@@ -730,7 +730,7 @@ QString HttpService::urlDecode(QByteArray arr)
 	return QUrl::fromPercentEncoding(arr);
 }
 
-void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
+int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
 {
 	*q = 0;
 	*t = 0;
@@ -739,7 +739,10 @@ void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
 	for(int i=0;i<g_queues.size();i++)
 	{
 		Queue* c = g_queues[i];
-		c->lock();
+		if (lockForWrite)
+			c->lockW();
+		else
+			c->lock();
 		
 		for(int j=0;j<c->size();j++)
 		{
@@ -747,7 +750,7 @@ void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
 			{
 				*q = c;
 				*t = c->at(j);
-				return;
+				return j;
 			}
 		}
 		
@@ -755,6 +758,7 @@ void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
 	}
 
 	g_queuesLock.unlock();
+	return -1;
 }
 
 void HttpService::findQueue(QString queueUUID, Queue** q)

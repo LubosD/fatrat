@@ -37,7 +37,7 @@ $(document).ready(function() {
 	
 	$("#credits-link").click(function() {
 		$.get('/copyrights', function(data) {
-			$("#credits-text").html(data);
+			$("#credits-text").text(data);
 			window.location = '#logo'; // to workaround fucked-up Firefox
 			$("#credits").dialog({
 				width: 600,

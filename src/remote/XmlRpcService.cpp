@@ -87,6 +87,13 @@ void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
 
 			returnValue = Transfer_setProperties(args[0].toStringList(), args[1].toMap());
 		}
+		else if(function == "Transfer.delete")
+		{
+			QVariant::Type aa[] = { QVariant::StringList, QVariant::Bool };
+			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
+
+			returnValue = Transfer_delete(args[0].toStringList(), args[1].toBool());
+		}
 		else
 			throw XmlRpcError(1, "Unknown method");
 
@@ -102,7 +109,7 @@ void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
 		throw "400 Bad Request";
 	}
 
-	qDebug() << "XML-RPC response:" << data;
+	//qDebug() << "XML-RPC response:" << data;
 
 	output->putData(data.data(), data.size());
 }
@@ -237,7 +244,30 @@ QVariant XmlRpcService::Transfer_setProperties(QStringList luuid, QVariantMap pr
 		}
 
 		q->unlock();
+		g_queuesLock.unlock();
 	}
 	return QVariant();
 }
 
+QVariant XmlRpcService::Transfer_delete(QStringList luuid, bool withData)
+{
+	Queue* q = 0;
+	Transfer* t = 0;
+
+	foreach (QString uuid, luuid)
+	{
+		int pos = HttpService::findTransfer(uuid, &q, &t);
+		qDebug() << "Found transfer at" << pos;
+
+		if(!t)
+			throw XmlRpcError(102, "Invalid transfer UUID");
+
+		if (withData)
+			q->removeWithData(pos, true);
+		else
+			q->remove(pos, true);
+
+		q->unlock();
+		g_queuesLock.unlock();
+	}
+}

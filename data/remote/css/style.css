@@ -162,3 +162,12 @@ pre {
 	overflow: scroll;
 }
 
+#delete-dialog, #delete-dialog-with-data {
+	display: none;
+}
+
+#delete-dialog img, #delete-dialog-with-data img {
+	float: left;
+	margin-right: 3ex;
+}
+

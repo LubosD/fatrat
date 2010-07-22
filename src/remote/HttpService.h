@@ -96,7 +96,7 @@ public:
 	static QByteArray qgraph(QString queryString);
 	static QString urlDecode(QByteArray arr);
 	static void findQueue(QString queueUUID, Queue** q);
-	static void findTransfer(QString transferUUID, Queue** q, Transfer** t);
+	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 private:
 	bool processClientRead(int fd);
 	bool processClientWrite(int fd);
