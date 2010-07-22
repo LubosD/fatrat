@@ -48,13 +48,17 @@ Web interface utilizes the following 3rd party JavaScript libraries:
 
 * jquery.layout
   Copyright © 2008 Fabrizio Balliano <http://www.fabrizioballiano.net>, Kevin Dalman <http://allpro.net>
-  Dual licensed under the GPL and MIT licenses.
+  Dual licensed under the GPL Version 2 and MIT licenses.
 
 * jQuery UI
   Copyright © 2010 Authors of jQuery UI <http://jqueryui.com/about>
-  Dual licensed under the GPL and MIT licenses.
+  Dual licensed under the GPL Version 2 and MIT licenses.
 
 * jsxmlrpc
-  Copyright © 2006 Tim Becker <tim@kuriositaet.de>
+  Copyright © 2006 Tim Becker <tim at kuriositaet.de>
   BSD license
+
+* jsTree
+  Copyright © 2010 Ivan Bozhanov <vakata.com>
+  Dual licensed under the GPL and MIT licenses.
 

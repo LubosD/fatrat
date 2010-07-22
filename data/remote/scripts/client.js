@@ -217,8 +217,9 @@ function fillTransferRow(row, data) {
 	if (data.total > 0)
 		progress = singleDecimalDigit(100.0*data.done/data.total);
 	
-	if (tds[0].innerHTML != data.name)
-		tds[0].innerHTML = data.name;
+	span = tds[0].getElementsByTagName('span');
+	if (span[0].innerHTML != data.name)
+		span[0].innerHTML = data.name;
 	
 	span = tds[1].getElementsByTagName('span');
 	if (span && span.length > 0) {
@@ -283,10 +284,23 @@ function addTransferItem(item, addBefore) {
 	
 	for(var j=0;j<7;j++) {
 		td = document.createElement('td');
-		if (j == 1)
+		if (j == 0) {
+			img = document.createElement('img');
+			img.setAttribute('alt', 'Properties');
+			img.setAttribute('title', 'Properties');
+			img.setAttribute('src', 'css/icons/queue/properties.png');
+			img.setAttribute('class', 'transfer-properties');
+			$(img).click(function() {
+				transferProperties(this.parentNode.parentNode.id);
+			});
+			
+			td.appendChild(img);
+			td.appendChild(document.createElement('span'));
+		} else if (j == 1)
 			td.setAttribute('class', 'progressbar');
 		ndiv.appendChild(td);
 	}
+
 	
 	fillTransferRow(ndiv, item);
 	
@@ -467,5 +481,51 @@ function actionAddQueue() {
 }
 
 function actionDeleteQueue() {
+}
+
+function transferProperties(uuid) {
+	var xtr;
+	
+	for (rz=0;rz<transfers.length;rz++) {
+		if (transfers[rz].uuid == uuid)
+			xtr = transfers[rz];
+	}
+	if (!xtr)
+		return;
+	
+	$("#transfer-properties-target").val(xtr.object);
+	$("#transfer-properties-comment").val(xtr.comment);
+	$("#transfer-properties-speed-down").val(xtr.userSpeedLimits[0]/1024);
+	$("#transfer-properties-speed-up").val(xtr.userSpeedLimits[1]/1024);
+	
+	$("#transfer-properties").dialog({
+		resizable: true,
+		height:400,
+		width:400,
+		modal: true,
+		buttons: {
+			Cancel: function() {
+				$(this).dialog('close');
+			},
+			Ok: function() {
+				obj = $("#transfer-properties-target").val();
+				down = parseInt($("#transfer-properties-speed-down").val());
+				up = parseInt($("#transfer-properties-speed-up").val());
+				cmt = $("#transfer-properties-comment").val();
+				
+				if (obj == '' || isNaN(down) || isNaN(up) || down < 0 || up < 0) {
+					alert('Please enter valid values!');
+					return;
+				}
+				
+				$(this).dialog('close');
+				
+				properties = { object: obj, userSpeedLimits: [down*1024,up*1024], comment: cmt };
+				client.Transfer_setProperties([uuid], properties, function(data) {
+					updateTransfers();
+				});
+			}
+		}
+	});
 }
 	

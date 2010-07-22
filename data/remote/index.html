@@ -14,6 +14,7 @@
 <script type="text/javascript" src="scripts/jquery-ui-1.8.2.custom.min.js"></script>
 <script type="text/javascript" src="scripts/jquery.cookie.js"></script>
 <script type="text/javascript" src="scripts/jsxmlrpc.js"></script>
+<script type="text/javascript" src="scripts/jquery.jstree.js"></script>
 <script type="text/javascript" src="scripts/ui.js"></script>
 <script type="text/javascript" src="scripts/client.js"></script>
 </head>
@@ -149,6 +150,27 @@
 		<img src="/img/warning.png" alt="Warning" />
 		Do you really want to delete the selected transfers <b>including the data</b>?
 	</p>
+</div>
+
+<div id="transfer-properties" title="Transfer properties">
+	<table>
+		<tr>
+			<td>Target:</td>
+			<td><input type="text" id="transfer-properties-target" /></td>
+		</tr>
+		<tr>
+			<td>Max download speed (KB/s):</td>
+			<td><input type="text" id="transfer-properties-speed-down" size="4" /></td>
+		</tr>
+		<tr>
+			<td>Max upload speed (KB/s):</td>
+			<td><input type="text" id="transfer-properties-speed-up" size="4" /></td>
+		</tr>
+		<tr>
+			<td>Comment:</td>
+			<td><textarea id="transfer-properties-comment" rows="10"></textarea></td>
+		</tr>
+	</table>
 </div>
 
 <!--</td></tr>

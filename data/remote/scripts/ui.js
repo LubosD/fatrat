@@ -32,7 +32,7 @@ $(document).ready(function() {
 	});
 	
 	$(".progressbar").progressbar({ value: 30 });
-	$("#transfers tbody").selectable({ filter: 'tr', selected: transfersSelectionChanged, unselected: transfersSelectionChanged });
+	$("#transfers tbody").selectable({ filter: 'tr', selected: transfersSelectionChanged, unselected: transfersSelectionChanged, cancel: 'img' });
 	//$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
 	
 	$("#credits-link").click(function() {
@@ -46,6 +46,9 @@ $(document).ready(function() {
 			});
 		});
 	});
+	
+	//$("#transfer-properties-speed-down").spinner({ min: 0 });
+	//$("#transfer-properties-speed-up").spinner({ min: 0 });
 	
 	clientInit();
 });

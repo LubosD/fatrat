@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include <QReadWriteLock>
 #include <QStringList>
+#include <QFileInfo>
 #include <QtDebug>
 
 extern QList<Queue*> g_queues;
@@ -183,6 +184,7 @@ QVariant XmlRpcService::Queue_getTransfers(QString uuid)
 		vmap["mode"] = (t->mode() == Transfer::Download) ? "Download" : "Upload";
 		vmap["primaryMode"] = (t->primaryMode() == Transfer::Download) ? "Download" : "Upload";
 		vmap["dataPath"] = t->dataPath();
+		vmap["dataPathIsDir"] = QFileInfo(t->dataPath()).isDir();
 		vmap["total"] = double(t->total());
 		vmap["done"] = double(t->done());
 		vmap["uuid"] = t->uuid();
