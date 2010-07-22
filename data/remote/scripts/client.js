@@ -206,6 +206,22 @@ function tabSwitched(reallySwitched) {
 		} else
 			$("#tabs").tabs("option", "selected", 0);
 	}
+	if ($("#global-log").is(':visible')) {
+		$.get('/log', function(data) {
+			$("#global-log").html(data);
+			if (reallySwitched)
+				$("#global-log").scrollTop($("#global-log")[0].scrollHeight);
+		});
+		if (currentTransfers.length == 1) {
+			$.get('/log/'+currentTransfers[0], function(data) {
+				$("#transfer-log").html(data);
+				if (reallySwitched)
+					$("#transfer-log").scrollTop($("#transfer-log")[0].scrollHeight);
+			});
+		} else {
+			$("#transfer-log").html('');
+		}
+	}
 }
 
 function singleDecimalDigit(num) {

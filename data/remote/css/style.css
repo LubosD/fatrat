@@ -148,3 +148,17 @@ table#transfers tr.ui-selected {
 	visibility: hidden;
 }
 
+/* http://labnol.blogspot.com/2006/10/html-css-trick-for-displaying-code.html */
+pre {
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+#transfer-log, #global-log {
+	height: 40ex;
+	overflow: scroll;
+}
+

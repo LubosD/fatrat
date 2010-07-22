@@ -412,7 +412,6 @@ QByteArray HttpService::graph(QString queryString)
 	QBuffer buf;
 	QImage image(QSize(640, 480), QImage::Format_RGB32);
 	
-	QReadLocker locker(&g_queuesLock);
 	Queue* q;
 	Transfer* t;
 	
@@ -423,6 +422,7 @@ QByteArray HttpService::graph(QString queryString)
 	SpeedGraph::draw(t->speedData(), QSize(640, 480), &image);
 	
 	q->unlock();
+	g_queuesLock.unlock();
 	
 	image.save(&buf, "PNG");
 	return buf.data();
@@ -540,6 +540,23 @@ void HttpService::serveClient(int fd)
 			data.buffer = new OutputBuffer;
 			data.buffer->putData(file.constData(), file.size());
 			fileSize = data.buffer->size();
+		}
+		else if(fileName.startsWith("/log"))
+		{
+			int pos = fileName.indexOf('/', 1);
+			QString uuid;
+
+			if (pos != -1)
+				uuid = urlDecode(fileName.mid(pos+1));
+
+			QByteArray file = copyLog(uuid);
+			data.buffer = new OutputBuffer;
+			data.buffer->putData(file.constData(), file.size());
+
+			sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
+					"Content-Type: text/plain; encoding=utf-8\r\n"
+					"Cache-Control: no-cache\r\nPragma: no-cache\r\n"
+					"Content-Length: %d\r\n\r\n", data.buffer->size());
 		}
 		else if(fileName == "/download")
 		{
@@ -736,7 +753,7 @@ void HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t)
 		
 		c->unlock();
 	}
-	
+
 	g_queuesLock.unlock();
 }
 
@@ -756,3 +773,26 @@ void HttpService::findQueue(QString queueUUID, Queue** q)
 		}
 	}
 }
+
+QByteArray HttpService::copyLog(QString uuidTransfer)
+{
+	if (uuidTransfer.isEmpty())
+		return Logger::global()->logContents().toUtf8();
+	else
+	{
+		Queue* q = 0;
+		Transfer* t = 0;
+		findTransfer(uuidTransfer, &q, &t);
+
+		if (!q || !t)
+			return QByteArray();
+
+		QByteArray rv = t->logContents().toUtf8();
+
+		q->unlock();
+		g_queuesLock.unlock();
+
+		return rv;
+	}
+}
+
