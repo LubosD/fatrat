@@ -1,5 +1,5 @@
 var client;
-var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete"];
+var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete", "Queue.moveTransfers"];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
@@ -40,44 +40,17 @@ function clientInit() {
 function updateQueues() {
 	client.getQueues(function(data) {
 		queues = data;
-		added = [];
-		
-		$('#queues .queue-item').each(function() {
-			xid = $(this).attr('id');
-			found = false;
-			//try {
-			for (yy=0;yy<queues.length;yy++) {
-				q = queues[yy];
-				if (q.uuid == xid) {
-					found = true;
-					
-					// update the name
-					if (q.name != this.innerHTML)
-						this.innerHTML = q.name;
-					added.push(q.uuid);
-					
-					break;
-				}
-			}
-			if (!found)
-				$(this).remove();
-			//} catch (e) { alert(e); }
-		});
 		
 		i = 0;
 		$('#queues .queue-item').each(function() {
-			xid = $(this).attr('id');
-			//alert("Looking at xid "+xid);
-			while(queues[i].uuid != xid) {
-				//alert("Doing work, processing existing "+xid+", but I received "+queues[i].uuid);
-				q = queues[i];
-				if (added.indexOf(q.uuid) != -1) {
-					rmv = document.getElementById(q.uuid);
-					rmv.parentNode.removeChild(rmv);
-				} else
-					added.push(q.uuid);
-				addQueueItem(q, this); // before this
-				i++;
+			if (i >= queues.length)
+				$(this).remove();
+			else {
+				if (this.id != queues[i].uuid)
+					this.id = queues[i].uuid;
+				if (queues[i].uuid != currentQueue)
+					$(this).removeClass('ui-selected');
+				$(this).text(queues[i].name);
 			}
 			i++;
 		});
@@ -129,41 +102,15 @@ function updateTransfers() {
 	}
 	client.Queue_getTransfers(currentQueue, function(data) {
 		transfers = data;
-		added = [];
-		
-		$('#transfers .transfer-item').each(function() {
-			xid = $(this).attr('id');
-			found = false;
-			for (yx=0;yx<transfers.length;yx++) {
-				t = transfers[yx];
-				if (t.uuid == xid) {
-					found = true;
-					
-					// update all properties
-					fillTransferRow(this, t);
-					added.push(t.uuid);
-					
-					break;
-				}
-			}
-			
-			if (!found)
-				$(this).remove();
-		});
 		
 		i = 0;
 		$('#transfers .transfer-item').each(function() {
-			xid = $(this).attr('id');
-			while(transfers[i].uuid != xid) {
-				t = transfers[i];
-				//alert("Doing work, "+t.uuid+" is not xid");
-				if (added.indexOf(t.uuid) != -1) {
-					rmv = document.getElementById(t.uuid);
-					rmv.parentNode.removeChild(rmv);
-				} else
-					added.push(t.uuid);
-				addTransferItem(t, this); // before this
-				i++;
+			if (i >= transfers.length)
+				$(this).remove();
+			else {
+				if (currentTransfers.indexOf(transfers[i].uuid) == -1)
+					$(this).removeClass('ui-selected');
+				fillTransferRow(this, transfers[i]);
 			}
 			i++;
 		});
@@ -262,6 +209,8 @@ function formatTime(seconds) {
 
 function fillTransferRow(row, data) {
 	//alert(data.toSource());
+	if (row.id != data.uuid)
+		row.id = data.uuid;
 	tds = row.getElementsByTagName('td');
 	progress = 0;
 	
@@ -477,18 +426,41 @@ function actionDeleteWithData() {
 }
 
 function actionDeleteCompleted() {
+	toRemove = [];
+	for (b=0;b<transfers.length;b++) {
+		if (transfers[b].state == 'Completed')
+			toRemove.push(transfers[b].uuid);
+	}
+	
+	client.Transfer_delete(toRemove, false, function(data) {
+		updateTransfers();
+		$("#tabs").tabs("option", "selected", 0);
+	});
+}
+
+function actionMove(dir) {
+	if (currentTransfers.length == 0)
+		return;
+	
+	client.Queue_moveTransfers(currentQueue, currentTransfers, dir, function(data) {
+		updateTransfers();
+	});
 }
 
 function actionMoveTop() {
+	actionMove('top');
 }
 
 function actionMoveUp() {
+	actionMove('up');
 }
 
 function actionMoveDown() {
+	actionMove('down');
 }
 
 function actionMoveBottom() {
+	actionMove('bottom');
 }
 
 function actionAddQueue() {

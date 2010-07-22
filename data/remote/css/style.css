@@ -159,7 +159,7 @@ pre {
 
 #transfer-log, #global-log {
 	height: 40ex;
-	overflow: scroll;
+	overflow: auto;
 }
 
 #delete-dialog, #delete-dialog-with-data {

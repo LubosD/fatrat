@@ -271,13 +271,15 @@ void Queue::add(QList<Transfer*> d)
 	m_lock.unlock();
 }
 
-int Queue::moveDown(int n)
+int Queue::moveDown(int n, bool nolock)
 {
 	if(m_transfers.size()>n+1)
 	{
-		m_lock.lockForWrite();
+		if (!nolock)
+			m_lock.lockForWrite();
 		m_transfers.swap(n,n+1);
-		m_lock.unlock();
+		if (!nolock)
+			m_lock.unlock();
 		
 		return n+1;
 	}
@@ -285,44 +287,52 @@ int Queue::moveDown(int n)
 		return n;
 }
 
-int Queue::moveUp(int n)
+int Queue::moveUp(int n, bool nolock)
 {
 	if(n > 0)
 	{
-		m_lock.lockForWrite();
+		if (!nolock)
+			m_lock.lockForWrite();
 		m_transfers.swap(n-1,n);
-		m_lock.unlock();
+		if (!nolock)
+			m_lock.unlock();
 		return n-1;
 	}
 	else
 		return n;
 }
 
-void Queue::moveToPos(int from, int to)
+void Queue::moveToPos(int from, int to, bool nolock)
 {
 	Transfer* t;
 	
 	if(to > from)
 		to--;
 	
-	m_lock.lockForWrite();
+	if (!nolock)
+		m_lock.lockForWrite();
 	t = m_transfers.takeAt(from);
 	m_transfers.insert(to, t);
-	m_lock.unlock();
+	if (!nolock)
+		m_lock.unlock();
 }
 
-void Queue::moveToTop(int n)
+void Queue::moveToTop(int n, bool nolock)
 {
-	m_lock.lockForWrite();
+	if (!nolock)
+		m_lock.lockForWrite();
 	m_transfers.prepend(m_transfers.takeAt(n));
-	m_lock.unlock();
+	if (!nolock)
+		m_lock.unlock();
 }
 
-void Queue::moveToBottom(int n)
+void Queue::moveToBottom(int n, bool nolock)
 {
-	m_lock.lockForWrite();
+	if (!nolock)
+		m_lock.lockForWrite();
 	m_transfers.append(m_transfers.takeAt(n));
-	m_lock.unlock();
+	if (!nolock)
+		m_lock.unlock();
 }
 
 Transfer* Queue::take(int n, bool nolock)

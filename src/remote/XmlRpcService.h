@@ -42,6 +42,7 @@ namespace XmlRpcService
 
 	QVariant getQueues();
 	QVariant Queue_getTransfers(QString uuid);
+	QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
 	QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
 	QVariant Transfer_delete(QStringList uuid, bool withData);
 

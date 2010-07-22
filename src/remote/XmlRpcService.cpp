@@ -80,6 +80,13 @@ void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
 
 			returnValue = Queue_getTransfers(args[0].toString());
 		}
+		else if(function == "Queue.moveTransfers")
+		{
+			QVariant::Type aa[] = { QVariant::String, QVariant::StringList, QVariant::String };
+			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
+
+			returnValue = Queue_moveTransfers(args[0].toString(), args[1].toStringList(), args[2].toString());
+		}
 		else if(function == "Transfer.setProperties")
 		{
 			QVariant::Type aa[] = { QVariant::StringList, QVariant::Map };
@@ -270,4 +277,74 @@ QVariant XmlRpcService::Transfer_delete(QStringList luuid, bool withData)
 		q->unlock();
 		g_queuesLock.unlock();
 	}
+}
+
+QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction)
+{
+	Queue* q;
+	HttpService::findQueue(uuidQueue, &q);
+
+	if (!q)
+		throw XmlRpcError(101, "Invalid queue UUID");
+
+	QList<int> positions;
+	q->lockW();
+	for(int i=0;i<q->size();i++)
+	{
+		for(int j=0;j<uuidTransfers.size();j++)
+		{
+			if (uuidTransfers[j] == q->at(i)->uuid())
+			{
+				positions << i;
+				uuidTransfers.removeAt(j);
+				break;
+			}
+		}
+	}
+
+	if (!uuidTransfers.empty())
+	{
+		q->unlock();
+		g_queuesLock.unlock();
+		throw XmlRpcError(102, "One or more invalid transfer UUIDs");
+	}
+
+	qSort(positions.begin(), positions.end());
+
+	direction = direction.toLower();
+	if (direction == "up")
+	{
+		foreach(int pos, positions)
+			q->moveUp(pos, true);
+	}
+	else if (direction == "bottom")
+	{
+		int x = 0;
+		foreach(int pos, positions)
+		{
+			q->moveToBottom(pos-x, true);
+			x++;
+		}
+	}
+	else if (direction == "top")
+	{
+		for(int i=positions.size()-1,x=0;i >= 0;i--,x++)
+			q->moveToTop(positions[i]+x, true);
+	}
+	else if (direction == "down")
+	{
+		for(int i=positions.size()-1;i >= 0;i--)
+			q->moveDown(positions[i], true);
+	}
+	else
+	{
+		q->unlock();
+		g_queuesLock.unlock();
+		throw XmlRpcError(105, "Invalid move direction");
+	}
+
+	q->unlock();
+	g_queuesLock.unlock();
+
+	return QVariant();
 }

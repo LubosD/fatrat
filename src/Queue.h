@@ -88,11 +88,11 @@ public:
 	Q_INVOKABLE void add(Transfer* d);
 	void add(QList<Transfer*> d);
 	
-	Q_INVOKABLE int moveDown(int n);
-	Q_INVOKABLE int moveUp(int n);
-	Q_INVOKABLE void moveToTop(int n);
-	Q_INVOKABLE void moveToBottom(int n);
-	Q_INVOKABLE void moveToPos(int from, int to);
+	Q_INVOKABLE int moveDown(int n, bool nolock = false);
+	Q_INVOKABLE int moveUp(int n, bool nolock = false);
+	Q_INVOKABLE void moveToTop(int n, bool nolock = false);
+	Q_INVOKABLE void moveToBottom(int n, bool nolock = false);
+	Q_INVOKABLE void moveToPos(int from, int to, bool nolock = false);
 	
 	Q_INVOKABLE void remove(int n, bool nolock = false);
 	Q_INVOKABLE void removeWithData(int n, bool nolock = false);
