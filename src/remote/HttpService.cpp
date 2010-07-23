@@ -578,6 +578,8 @@ void HttpService::serveClient(int fd)
 				if(!qo || !to)
 					throw 0;
 				
+				if (!path.startsWith("/"))
+					path.prepend('/');
 				path.prepend(to->dataPath(true));
 				
 				QFileInfo info(path);
@@ -601,16 +603,36 @@ void HttpService::serveClient(int fd)
 			if(!path.isEmpty() && !bHead)
 			{
 				int last = path.lastIndexOf('/');
-				if(last != -1)
+				if(last > 0)
 				{
 					disposition = path.mid(last+1).toUtf8();
 					if(disposition.size() > 100)
 						disposition.resize(100);
 				}
 				
+				qDebug() << "Sending" << path;
 				data.file = new QFile(path);
 				data.file->open(QIODevice::ReadOnly);
 			}
+		}
+		else if(fileName.startsWith("/browse"))
+		{
+			int last = fileName.lastIndexOf('/');
+			QString uuid;
+			QByteArray xml;
+			QMap<QString,QString> gets = processQueryString(queryString);
+
+			if(last > 0)
+				uuid = urlDecode(fileName.mid(last+1));
+
+			data.buffer = new OutputBuffer;
+			xml = listDirectory(uuid, gets["path"]);
+			data.buffer->putData(xml.constData(), xml.size());
+
+			sprintf(buffer, "HTTP/1.0 200 OK\r\n" HTTP_HEADERS
+					"Content-Type: text/xml; encoding=utf-8\r\n"
+					"Cache-Control: no-cache\r\nPragma: no-cache\r\n"
+					"Content-Length: %d\r\n\r\n", data.buffer->size());
 		}
 		else if(fileName == "/xmlrpc")
 		{
@@ -679,6 +701,10 @@ void HttpService::serveClient(int fd)
 			}
 			
 			strcat(buffer, "\r\n");
+		}
+		else if(!data.buffer)
+		{
+			throw "503 Service Unavailable";
 		}
 	}
 	catch(const char* errorMsg)
@@ -798,5 +824,71 @@ QByteArray HttpService::copyLog(QString uuidTransfer)
 
 		return rv;
 	}
+}
+
+QByteArray HttpService::listDirectory(QString uuidTransfer, QString path)
+{
+	Queue* q = 0;
+	Transfer* t = 0;
+
+	if (path.contains("/..") || path.contains("../"))
+		return QByteArray();
+
+	findTransfer(uuidTransfer, &q, &t);
+
+	if (!q || !t)
+		return QByteArray();
+
+	QDomDocument doc;
+	QDomElement root, item;
+	QFileInfoList infoList;
+	QDir dir(t->dataPath());
+
+	if (path.startsWith("/"))
+		path = path.mid(1);
+	dir.cd(path);
+
+	root = doc.createElement("root");
+	doc.appendChild(root);
+
+	infoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+	foreach (QFileInfo info, infoList)
+	{
+		item = doc.createElement("item");
+		item.setAttribute("id", path+"/"+info.fileName());
+		item.setAttribute("state", "closed");
+		item.setAttribute("type", "folder");
+
+		QDomElement content, name;
+		content = doc.createElement("content");
+		name = doc.createElement("name");
+
+		name.appendChild(doc.createTextNode(info.fileName()));
+		content.appendChild(name);
+		item.appendChild(content);
+		root.appendChild(item);
+	}
+
+	infoList = dir.entryInfoList(QDir::Files);
+	foreach (QFileInfo info, infoList)
+	{
+		item = doc.createElement("item");
+		item.setAttribute("id", path+"/"+info.fileName());
+		item.setAttribute("type", "default");
+
+		QDomElement content, name;
+		content = doc.createElement("content");
+		name = doc.createElement("name");
+
+		name.appendChild(doc.createTextNode(info.fileName()));
+		content.appendChild(name);
+		item.appendChild(content);
+		root.appendChild(item);
+	}
+
+	q->unlock();
+	g_queuesLock.unlock();
+
+	return doc.toString(0).toUtf8();
 }
 

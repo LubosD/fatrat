@@ -19,12 +19,15 @@ table#bigtable {
 #logo {
 	padding-left: 2ex;
 	padding-top: 2ex;
-	margin-bottom: -2ex;
 }
 
 #toolbar {
 	padding: 1ex;
-	margin-top: 3ex;
+}
+
+#errors {
+	padding: 1ex;
+	display: none;
 }
 
 #refresh-settings {

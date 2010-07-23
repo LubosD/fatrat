@@ -8,7 +8,8 @@
 
 <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
 <link href="css/ui-lightness/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" media="all">
-<link href="css/icons.css" rel="stylesheet" type="text/css" media="all">    
+<link href="css/icons.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/jstree/style.css" rel="stylesheet" type="text/css" media="all">        
 <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="scripts/jquery.layout.min-1.2.0.js"></script>
 <script type="text/javascript" src="scripts/jquery-ui-1.8.2.custom.min.js"></script>
@@ -25,6 +26,7 @@
 <tr><td>-->
 <div class="ui-layout-north">
 	<img src="img/logo.png" alt="FatRat" id="logo" />
+	<div id="errors" class="ui-state-error"></div>
 	<div id="toolbar" class="ui-widget-header ui-corner-all">
 		<div id="refresh-settings">
 			<label>Refresh every
@@ -107,6 +109,12 @@
 		</div>
 	</div>
 	<div id="tabs-details">
+		<div class="top-title ui-widget ui-corner-all ui-state-default ui-layout-north">Download transfer data from the server</div>
+		<div id="details-download">
+		</div>
+		<div id="details-download-tree">
+			
+		</div>
 	</div>
 	<div id="tabs-tsg">
 		<img src="" id="tabs-tsg-img" alt="Transfer Speed Graph" />

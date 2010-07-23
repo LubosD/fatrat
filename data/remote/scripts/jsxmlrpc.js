@@ -144,7 +144,7 @@ function Request (url, content, callback) {
  checkRequestStatus(this) 
  }
  this.onnetworkerror = function (e) {
- alert('Network error: '+e.toSource())
+	showError(e);
  }
 }
 
@@ -448,7 +448,7 @@ function XmlRpc (url) {
  }
  
  this.handleAnswer=function(xml) {
- if (xml == null) throw "ERROR: no xml returned"
+ if (xml == null) throw "ERROR: communication with the server failed"
  var node = xml.getElementsByTagName("fault")
  if (node.length!=0){this.handleFault(node[0])}
  

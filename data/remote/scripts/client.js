@@ -131,6 +131,7 @@ function updateTransfers() {
 		
 		transfersSelectionChanged();
 		tabSwitched(false);
+		clearError();
 	});
 }
 
@@ -145,7 +146,7 @@ function tabSwitched(reallySwitched) {
 		} else
 			$("#tabs").tabs("option", "selected", 0);
 	}
-	if ($("#tabs-qsg").is(':visible')) {
+	else if ($("#tabs-qsg").is(':visible')) {
 		if (currentQueue) {
 			if (reallySwitched)
 				$("#tabs-qsg-img").attr('style','visibility: hidden');
@@ -153,7 +154,7 @@ function tabSwitched(reallySwitched) {
 		} else
 			$("#tabs").tabs("option", "selected", 0);
 	}
-	if ($("#global-log").is(':visible')) {
+	else if ($("#global-log").is(':visible')) {
 		$.get('/log', function(data) {
 			$("#global-log").text(data);
 			if (reallySwitched)
@@ -167,6 +168,70 @@ function tabSwitched(reallySwitched) {
 			});
 		} else {
 			$("#transfer-log").html('');
+		}
+	}
+	else if ($("#details-download").is(':visible')) {
+		var text;
+		t = getTransfer(currentTransfers[0]);
+		
+		if (t.primaryMode == 'Upload')
+			text = '<div class="ui-state-error">This feature is available only for download-oriented transfers.</div>';
+		//else if (t.state != 'Completed' && t.mode == 'Download')
+		//	text = '<div class="ui-state-error">Please wait until the transfer completes.</div>';
+		else {
+			if (t.dataPathIsDir) {
+				//text = 'DataPathIsDir - not implemented yet';
+				if (reallySwitched) {
+					$("#details-download-tree").html('');
+					$("#details-download-tree").jstree({
+						plugins: ["themes", "xml_data", "types", "ui"],
+						xml_data: {
+							ajax: {
+								url: "/browse/"+currentTransfers[0],
+								data: function(n) {
+									return {
+										path: n.attr ? n.attr("id") : ""
+									}
+								}
+							}
+						},
+						"types" : {
+							"type_attr": "type",
+							"max_depth" : -2,
+							"max_children" : -2,
+							"valid_children" : [ "folder", "file" ],
+							"types" : {
+								"folder" : {
+									"valid_children" : [ "default", "folder" ],
+									"icon" : {
+										"image" : "css/jstree/folder.png"
+									},
+									select_node: function() { return false; },
+									hover_node: false
+								},
+								"default" : {
+									"valid_children" : "none",
+									"icon" : {
+										"image" : "css/jstree/file.png"
+									},
+									"select_node": function() {
+										window.location = '/download?transfer='+currentTransfers[0]+'&path='+$(".jstree-hovered")[0].parentNode.id;
+										return true; 
+									},
+									"hover_node": true
+								}
+							}
+						}
+					});
+				}
+			} else
+				text = '<a class="downlink" href="/download?transfer='+currentTransfers[0]+'">Download the file ('+t.name+')</a>';
+		}
+		
+		if (text) {
+			$("#details-download-tree").html('');
+			$("#details-download").html(text);
+			$("#details-download .downlink").button();
 		}
 	}
 }
@@ -300,7 +365,6 @@ function addTransferItem(item, addBefore) {
 			td.setAttribute('class', 'progressbar');
 		ndiv.appendChild(td);
 	}
-
 	
 	fillTransferRow(ndiv, item);
 	
@@ -528,4 +592,20 @@ function transferProperties(uuid) {
 		}
 	});
 }
+
+function showError(e) {
+	var msg;
+	if (e.message)
+		msg = e.message;
+	else if (e.faultString)
+		msg = e.faultString;
+	else
+		msg = e.toString();
+	$("#errors").text(msg);
+	$("#errors").show('slow');
+}
+
 	
+function clearError() {
+	$("#errors").hide('slow');
+}

@@ -75,7 +75,7 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 	switch(what.type())
 	{
 	case QMetaType::Bool:
-		insertValue(doc, where, "boolean", what.toString());
+		insertValue(doc, where, "boolean", what.toBool() ? "1" : "0");
 		break;
 	case QMetaType::Int:
 	case QMetaType::UInt:

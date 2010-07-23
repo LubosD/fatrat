@@ -30,3 +30,10 @@
 .fatrat-transfer-completed-ul { background-image: url(icons/states/completed_upload.png); }
 
 .ui-icon-closethick { background-image: url(icons/close.png) !important; background-position: 0px 0px !important; }
+
+.downlink {
+	background-image: url(icons/down.png) !important;
+	padding-left: 26px !important;
+	background-repeat: no-repeat !important;
+	background-position: 8px !important;
+}
