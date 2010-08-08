@@ -21,4 +21,8 @@
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 #define PLUGIN_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/fatrat/plugins"
 
+#ifndef _LARGEFILE64_SOURCE
+#	define _LARGEFILE64_SOURCE
+#endif
+
 #endif

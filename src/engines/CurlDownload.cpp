@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 
+#include "config.h"
 #include "CurlDownload.h"
 #include "Settings.h"
 #include "RuntimeException.h"
@@ -200,14 +201,14 @@ void CurlDownload::changeActive(bool bActive)
 			m_nUrl = 0;
 		
 		std::string spath = filePath().toStdString();
-		m_file = open(spath.c_str(), O_CREAT|O_RDWR, 0666);
-		if(!m_file)
+		m_file = open(spath.c_str(), O_CREAT|O_RDWR|O_LARGEFILE, 0666);
+		if(m_file < 0)
 		{
 			enterLogMessage(m_strMessage = strerror(errno));
 			setState(Failed);
 			return;
 		}
-		lseek(m_file, 0, SEEK_END);
+		lseek64(m_file, 0, SEEK_END);
 		
 		QByteArray ba, auth;
 		QUrl url = m_urls[m_nUrl].url;
@@ -263,7 +264,9 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
 		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
-		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart = lseek(m_file, 0, SEEK_CUR));
+
+		m_nStart = lseek64(m_file, 0, SEEK_CUR);
+		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_nStart);
 
 		qDebug() << "Resume from" << m_nStart;
 
@@ -309,7 +312,7 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_cleanup(m_curl);
 		m_curl = 0;
 		m_nStart = 0;
-		qDebug() << "Closing at pos" << lseek(m_file, 0, SEEK_CUR);
+		qDebug() << "Closing at pos" << lseek64(m_file, 0, SEEK_CUR);
 		close(m_file);
 		m_file = 0;
 	}
@@ -462,7 +465,7 @@ qulonglong CurlDownload::done() const
 		}
 	}
 	else
-		return lseek(m_file, 0, SEEK_CUR);
+		return lseek64(m_file, 0, SEEK_CUR);
 }
 
 void CurlDownload::load(const QDomNode& map)

@@ -84,8 +84,8 @@ private:
 protected:
 	CURL* m_curl;
 	QDir m_dir;
-	qulonglong m_nTotal;
-	mutable qulonglong m_nStart;
+	long long m_nTotal;
+	mutable long long m_nStart;
 	
 	QString m_strFile, m_strMessage;
 	int m_file;
