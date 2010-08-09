@@ -155,6 +155,21 @@ void HttpService::setup()
 		addr6.sin6_family = AF_INET6;
 		addr6.sin6_port = htons(port);
 		addr6.sin6_addr = in6addr_any;
+
+#ifdef POSIX_LINUX
+		{
+			int v6only;
+			socklen_t size = sizeof(v6only);
+			getsockopt(m_server, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, &size);
+
+			if (v6only)
+			{
+				const char* msg = "Beware: /proc/sys/net/ipv6/bindv6only is on, FatRat Web Interface won't be accessible via IPv4!";
+				qDebug() << msg;
+				Logger::global()->enterLogMessage("HttpService", msg);
+			}
+		}
+#endif
 		
 		if(bind(m_server, (sockaddr*) &addr6, sizeof addr6) < 0)
 			throwErrno();

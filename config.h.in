@@ -18,6 +18,10 @@
 
 #cmakedefine LIBTORRENT_0_15
 
+#cmakedefine POSIX_LINUX
+#cmakedefine POSIX_BSD
+#cmakedefine POSIX_SOLARIS
+
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 #define PLUGIN_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/fatrat/plugins"
 

@@ -179,8 +179,10 @@ set(fatrat_SRCS
 )
 
 if(HAVE_SYS_EPOLL_H)
+	set(POSIX_LINUX TRUE)
 	set(fatrat_SRCS ${fatrat_SRCS} src/poller/EpollPoller.cpp)
 elseif(HAVE_KQUEUE)
+	set(POSIX_BSD TRUE)
 	set(fatrat_SRCS ${fatrat_SRCS} src/poller/KqueuePoller.cpp)
 endif(HAVE_SYS_EPOLL_H)
 

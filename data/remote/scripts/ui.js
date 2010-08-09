@@ -22,7 +22,7 @@ $(document).ready(function() {
 	
 	//$('#tabs-transfers').layout({ slidable: true, resizable: true });
 	//$('body').layout({ slidable: false, resizable: false; closable: false });
-	$('#tabs').tabs({ show: function() { tabSwitched(true); } });
+	$('#tabs').tabs({ show: function() { updateSizes(); tabSwitched(true); } });
 	$("#tabs-tsg-img").load(function() { $("#tabs-tsg-img").attr('style','visibility: visible'); });
 	$("#tabs-qsg-img").load(function() { $("#tabs-qsg-img").attr('style','visibility: visible'); });
 	
@@ -50,6 +50,29 @@ $(document).ready(function() {
 	//$("#transfer-properties-speed-down").spinner({ min: 0 });
 	//$("#transfer-properties-speed-up").spinner({ min: 0 });
 	
+	$(window).resize(updateSizes);
+	
+	updateSizes();
 	clientInit();
 });
 
+function updateSizes() {
+	ids = ['transfers-pane' /*, 'tabs-details', 'tabs-log'*/];
+	curid = null;
+	for (ee=0;ee<ids.length;ee++) {
+		if ($('#'+ids[ee]).is(':visible')) {
+			curid = ids[ee];
+			break;
+		}
+	}
+
+	if (!curid)
+		return;
+	
+	pos = $('#footer').offset().top;
+	bot = pos + $('#footer').height();
+	newh = $('#'+curid).height() - (bot - $(window).height());
+	if (newh < 100)
+		newh = 100;
+	$('#'+curid).height(newh);
+}

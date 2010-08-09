@@ -453,6 +453,30 @@ function sendStateChange(newState) {
 }
 
 function actionAdd() {
+	sbox = $('#new-transfer-destination-queue')[0];
+	sbox.length = 0;
+	for (qw = 0; qw < queues.length; qw++) {
+		try {
+			sbox.add(new Option(queues[qw].name, queues[qw].uuid, null));
+		} catch (e) {
+			sbox.add(new Option(queues[qw].name, queues[qw].uuid));
+		}
+	}
+
+	$("#new-transfer").dialog({
+		resizable: true,
+		height: $(window).height()/2,
+		width: '80ex',
+		modal: true,
+		buttons: {
+			Cancel: function() {
+				$(this).dialog('close');
+			},
+			Ok: function() {
+
+			}
+		}
+	});
 }
 
 function actionDelete() {

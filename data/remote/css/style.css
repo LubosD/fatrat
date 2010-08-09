@@ -76,8 +76,9 @@ table#bigtable {
 }
 
 #transfers-pane {
-	display: table-cell;
-	width: 80%;
+	/*display: table-cell;*/
+	overflow: auto;
+	/*width: 80%;*/
 	padding: 1ex;
 	/*overflow: scroll;*/
 }
@@ -103,7 +104,7 @@ table#bigtable {
 table#transfers {
 	background: white;
 	border-collapse:collapse;
-	height: 100%;
+	/*height: 100%;*/
 	width: 100%;
 }
 
@@ -111,6 +112,7 @@ table#transfers th {
 	text-align: left;
 	padding-left: 1ex;
 	border-bottom: 1px solid #DDD;
+	height: 1ex;
 }
 
 table#transfers th:nth-child(n+2) {
@@ -128,6 +130,7 @@ table#transfers thead {
 table#transfers tr {
 	cursor: default;
 	border-spacing: 0;
+	max-height: 1ex;
 }
 
 table#transfers tr.ui-selected {
@@ -180,7 +183,7 @@ pre {
 	z-index: 10;
 }
 
-#transfer-properties {
+#transfer-properties, #new-transfer {
 	display: none;
 }
 
@@ -188,7 +191,18 @@ pre {
 	width: 100%;
 }
 
-#transfer-properties-target, #transfer-properties-comment {
+#transfer-properties-target, #transfer-properties-comment, #new-transfer-links, #new-transfer-destination-queue, #new-transfer-target {
 	width: 100%;
 }
 
+#tabs-details, #tabs-log {
+	overflow: auto;
+}
+
+#new-transfer {
+	width: 50%;
+}
+
+#new-transfer table {
+	width: 100%;
+}
