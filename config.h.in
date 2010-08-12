@@ -8,6 +8,10 @@
 #cmakedefine WITH_DOCUMENTATION
 #cmakedefine WITH_CURL
 
+#ifdef WITH_WEBINTERFACE
+#	define PION_NET_PLUGINS "${pion-net_LIBDIR}/pion/plugins"
+#endif
+
 #cmakedefine ENABLE_FAKEDOWNLOAD
 
 #cmakedefine HAVE_SYS_EPOLL_H

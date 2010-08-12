@@ -28,8 +28,6 @@ respects for all of the code used other than "OpenSSL".
 #ifndef HTTPSERVICE_H
 #define HTTPSERVICE_H
 #include "config.h"
-#include "engines/OutputBuffer.h"
-#include <QTcpServer>
 #include <QThread>
 #include <QMap>
 #include <QByteArray>
@@ -41,40 +39,13 @@ respects for all of the code used other than "OpenSSL".
 #	error This file is not supposed to be included!
 #endif
 
-struct HttpRequest
-{
-	HttpRequest() : contentLength(0) { }
-	
-	QList<QByteArray> lines;
-	QByteArray postData;
-	long contentLength; // remaining length to read
-};
-struct ClientData
-{
-	ClientData() : file(0), buffer(0), lastData(time(0)) {}
-	
-	QList<HttpRequest> requests;
-	// incoming lines
-	//QByteArray incoming;
-	QList<QByteArray> incoming;
-	
-	// file to send
-	QFile* file;
-	
-	// script output to send
-	OutputBuffer* buffer;
-	
-	// last reception/send
-	time_t lastData;
-};
+#include <pion/net/WebServer.hpp>
 
 class Queue;
 class Transfer;
-class Poller;
 
-class HttpService : public QThread
+class HttpService : public QObject
 {
-Q_OBJECT
 public:
 	HttpService();
 	~HttpService();
@@ -82,37 +53,33 @@ public:
 	void applySettings();
 	
 	void setup();
-	static void throwErrno();
-	void run();
-	
-	static QMap<QString,QString> processQueryString(QByteArray queryString);
-	
-	static int countLines(const QByteArray& ar, int left);
-	static bool authenticate(const QList<QByteArray>& data);
-	
-	static long contentLength(const QList<QByteArray>& data);
-	
-	static QByteArray graph(QString queryString);
-	static QByteArray qgraph(QString queryString);
-	static QString urlDecode(QByteArray arr);
+
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 private:
-	bool processClientRead(int fd);
-	bool processClientWrite(int fd);
-	void freeClient(int fd, Poller* poller);
-	void serveClient(int fd);
-	void initScriptEngine();
-	void timet2lastModified(time_t t, char* buffer, size_t size);
-	static QByteArray copyrights();
-	static QByteArray copyLog(QString uuidTransfer = QString());
-	static QByteArray listDirectory(QString uuidTransfer, QString path);
-private:
 	static HttpService* m_instance;
-	int m_server;
-	bool m_bAbort;
-	
-	QMap<int, ClientData> m_clients;
+	pion::net::WebServer* m_server;
+
+	class GraphService : public pion::net::WebService
+	{
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+	class QgraphService : public pion::net::WebService
+	{
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+	class LogService : public pion::net::WebService
+	{
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+	class TransferTreeBrowserService : public pion::net::WebService
+	{
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+	class TransferDownloadService : public pion::net::WebService
+	{
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
 };
 
 

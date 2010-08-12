@@ -33,7 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include <QReadWriteLock>
 #include <QStringList>
 #include <QFileInfo>
+#include <pion/net/HTTPResponseWriter.hpp>
 #include <QtDebug>
+
+using namespace pion::net;
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -58,11 +61,33 @@ static void checkType(QVariant var, QVariant::Type type)
 	}
 }
 
-void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
+void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
 {
+	if (request->getMethod() != pion::net::HTTPTypes::REQUEST_METHOD_POST)
+	{
+		static const std::string NOT_ALLOWED_HTML_START =
+				"<html><head>\n"
+				"<title>405 Method Not Allowed</title>\n"
+				"</head><body>\n"
+				"<h1>Not Allowed</h1>\n"
+				"<p>The requested method \n";
+		static const std::string NOT_ALLOWED_HTML_FINISH =
+				" is not allowed on this server.</p>\n"
+				"</body></html>\n";
+		HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn)));
+		writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_METHOD_NOT_ALLOWED);
+		writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
+		writer->writeNoCopy(NOT_ALLOWED_HTML_START);
+		writer << request->getMethod();
+		writer->writeNoCopy(NOT_ALLOWED_HTML_FINISH);
+		writer->getResponse().addHeader("Allow", "GET, HEAD");
+		writer->send();
+		return;
+	}
+
 	QByteArray data;
 
-	qDebug() << "XML-RPC call:" << postData;
+	qDebug() << "XML-RPC call:" << request->getContent();
 
 	try
 	{
@@ -70,7 +95,7 @@ void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
 		QList<QVariant> args;
 		QVariant returnValue;
 
-		XmlRpc::parseCall(postData, function, args);
+		XmlRpc::parseCall(request->getContent(), function, args);
 
 		if(function == "getQueues")
 			returnValue = getQueues();
@@ -117,9 +142,9 @@ void XmlRpcService::serve(QByteArray postData, OutputBuffer* output)
 		throw "400 Bad Request";
 	}
 
-	//qDebug() << "XML-RPC response:" << data;
-
-	output->putData(data.data(), data.size());
+	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn)));
+	writer->write(data.data(), data.size());
+	writer->send();
 }
 
 QVariant XmlRpcService::getQueues()

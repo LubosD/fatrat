@@ -36,16 +36,19 @@ respects for all of the code used other than "OpenSSL".
 #	error This file is not supposed to be included!
 #endif
 
-namespace XmlRpcService
-{
-	void serve(QByteArray postData, OutputBuffer* output);
+#include <pion/net/WebServer.hpp>
 
+class XmlRpcService : public pion::net::WebService
+{
+public:
+	void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+protected:
 	QVariant getQueues();
 	QVariant Queue_getTransfers(QString uuid);
 	QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
 	QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
 	QVariant Transfer_delete(QStringList uuid, bool withData);
-
+public:
 	struct XmlRpcError
 	{
 		XmlRpcError(int code, QString desc)
@@ -57,6 +60,6 @@ namespace XmlRpcService
 		int code;
 		QString desc;
 	};
-}
+};
 
 #endif

@@ -38,7 +38,7 @@ if(WITH_BITTORRENT)
 			set(LIBTORRENT_0_15 TRUE)
 		endif(libtorrent_VERSION GREATER 0.14.99)
 	else(libtorrent_FOUND)
-		message(FATAL_ERROR "No Rasterbar libtorrent")
+		message(FATAL_ERROR "No Rasterbar libtorrent found")
 	endif(libtorrent_FOUND)
 	
 	SET(Boost_USE_MULTITHREAD ON)
@@ -49,7 +49,7 @@ if(WITH_BITTORRENT)
 		message(STATUS "boost-datetime found OK")
 		include_directories(${Boost_INCLUDE_DIRS})
 	else(Boost_FOUND)
-		message(FATAL_ERROR "No boost-datetime")
+		message(FATAL_ERROR "No boost-datetime found")
 	endif(Boost_FOUND)
 	
 	#set(asio_DIR ${CMAKE_MODULE_PATH})
@@ -78,7 +78,7 @@ if(WITH_JABBER)
 			set(GLOOX_1_0 TRUE)
 		endif(gloox_VERSION LESS 1.0)
 	else(gloox_FOUND)
-		message(FATAL_ERROR "No gloox")
+		message(FATAL_ERROR "No libgloox found")
 	endif(gloox_FOUND)
 endif(WITH_JABBER)
 
@@ -88,7 +88,7 @@ if(WITH_CURL)
 	if(curl_FOUND)
 		include_directories(${curl_INCLUDE_DIRS})
 	else(curl_FOUND)
-		message(FATAR_ERROR "No curl")
+		message(FATAR_ERROR "No libcurl found")
 	endif(curl_FOUND)
 endif(WITH_CURL)
 
@@ -117,7 +117,19 @@ if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
-	set(QT_USE_QTSCRIPT TRUE)
+	pkg_check_modules(pion-net REQUIRED "pion-net >= 3.0.0")
+	
+	if(pion-net_FOUND)
+		include_directories(${pion-net_INCLUDE_DIRS})
+		#message(STATUS "Pion libdir: ${pion-net_LIBDIR}")
+		
+		#FILE(GLOB pion_FileService "${pion-net_LIBDIR}/pion/plugins/FileService.*")
+		#if(pion_FileService MATCHES "^$")
+		#	message(FATAL_ERROR "Pion-net FileService plugin not found (libpion-net-plugins?) - ${pion_FileService}")
+		#endif(pion_FileService MATCHES "^$")
+	else(pion-net_FOUND)
+		message(FATAL_ERROR "No pion-net library found")
+	endif(pion-net_FOUND)
 endif(WITH_WEBINTERFACE)
 
 include( ${QT_USE_FILE} )
@@ -376,11 +388,12 @@ if(WITH_WEBINTERFACE)
 		src/remote/HttpService.cpp
 		src/remote/SettingsWebForm.cpp
 		src/remote/XmlRpcService.cpp
+		src/remote/pion/FileService.cpp
 	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
-		src/remote/HttpService.h
-	)
+	#set(fatrat_MOC_HDRS
+	#	${fatrat_MOC_HDRS}
+	#	src/remote/HttpService.h
+	#)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/remote/SettingsWebForm.ui
@@ -418,7 +431,7 @@ locale/fatrat_uk_UA.ts)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 
-target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
