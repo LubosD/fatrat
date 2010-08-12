@@ -38,6 +38,9 @@ Copyright © 2006-2010 Luboš Doležel <lubos at dolezel.info>
   Copyright © 1996-2008 Daniel Stenberg <daniel at haxx.se>
   MIT/X derivate license
 
+* Pion Network Library
+  Copyright © 2007-2009 Atomic Labs, Inc. <http://www.pion.org>
+
 === WEB INTERFACE ===
 
 Web interface utilizes the following 3rd party JavaScript libraries:
