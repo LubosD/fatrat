@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -117,6 +117,13 @@ void CurlPoller::run()
 			timeout = curl_timeout;
 		
 		m_usersLock.lock();
+
+		while (!m_queueToDelete.isEmpty())
+		{
+			CURL* c = m_queueToDelete.dequeue();
+			curl_easy_cleanup(c);
+		}
+
 		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int mask = 0;
@@ -274,4 +281,10 @@ void CurlPoller::removeTransfer(CurlUser* obj)
 		curl_multi_remove_handle(m_curlm, handle);
 		m_users.remove(handle);
 	}
+}
+
+void CurlPoller::addForSafeDeletion(CURL* curl)
+{
+	QMutexLocker locker(&m_usersLock);
+	m_queueToDelete.enqueue(curl);
 }

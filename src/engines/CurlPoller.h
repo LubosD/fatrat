@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMutex>
 #include <QMap>
 #include <QHash>
+#include <QQueue>
 #include <curl/curl.h>
 #include "engines/CurlUser.h"
 #include "poller/Poller.h"
@@ -44,6 +45,8 @@ public:
 	
 	void addTransfer(CurlUser* obj);
 	void removeTransfer(CurlUser* obj);
+	// so that CURL objects don't get destroyed while there is an active multi call
+	void addForSafeDeletion(CURL* curl);
 	
 	void run();
 	
@@ -63,6 +66,7 @@ private:
 	QMap<CURL*, CurlUser*> m_users;
 	sockets_hash m_sockets;
 	QMutex m_usersLock;
+	QQueue<CURL*> m_queueToDelete;
 	
 	QList<int> m_socketsToRemove;
 	sockets_hash m_socketsToAdd;

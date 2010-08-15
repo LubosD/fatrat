@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -309,7 +309,7 @@ void CurlDownload::changeActive(bool bActive)
 	{
 		resetStatistics();
 		CurlPoller::instance()->removeTransfer(this);
-		curl_easy_cleanup(m_curl);
+		CurlPoller::instance()->addForSafeDeletion(m_curl);
 		m_curl = 0;
 		m_nStart = 0;
 		qDebug() << "Closing at pos" << lseek64(m_file, 0, SEEK_CUR);
