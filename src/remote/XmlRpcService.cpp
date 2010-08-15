@@ -41,7 +41,9 @@ using namespace pion::net;
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
-static void checkArguments(const QList<QVariant>& args, QVariant::Type* types, int ntypes)
+QMap<QString,XmlRpcService::FunctionInfo> XmlRpcService::m_mapFunctions;
+
+static void checkArguments(const QList<QVariant>& args, const QVariant::Type* types, int ntypes)
 {
 	if(args.size() != ntypes)
 		throw XmlRpcService::XmlRpcError(2, "Invalid argument count");
@@ -59,6 +61,11 @@ static void checkType(QVariant var, QVariant::Type type)
 		throw XmlRpcService::XmlRpcError(4, QString("Invalid subargument type - %1 instead of %2")
 						 .arg(var.type()).arg(type));
 	}
+}
+
+void XmlRpcService::globalInit()
+{
+	registerFunction("getQueues", XmlRpcService::getQueues, QVector<QVariant::Type>());
 }
 
 void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
@@ -97,9 +104,7 @@ void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TC
 
 		XmlRpc::parseCall(request->getContent(), function, args);
 
-		if(function == "getQueues")
-			returnValue = getQueues();
-		else if(function == "Queue.getTransfers")
+		if(function == "Queue.getTransfers")
 		{
 			QVariant::Type aa[] = { QVariant::String };
 			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
@@ -127,6 +132,16 @@ void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TC
 
 			returnValue = Transfer_delete(args[0].toStringList(), args[1].toBool());
 		}
+		else if(function == "system.listMethods")
+		{
+			returnValue = QVariant(m_mapFunctions.keys());
+		}
+		else if(m_mapFunctions.contains(function))
+		{
+			const FunctionInfo& fi = m_mapFunctions[function];
+			checkArguments(args, fi.arguments.constData(), fi.arguments.size());
+			returnValue = fi.function(args);
+		}
 		else
 			throw XmlRpcError(1, "Unknown method");
 
@@ -147,7 +162,7 @@ void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TC
 	writer->send();
 }
 
-QVariant XmlRpcService::getQueues()
+QVariant XmlRpcService::getQueues(QList<QVariant>&)
 {
 	QVariantList qlist;
 	QReadLocker l(&g_queuesLock);
@@ -374,4 +389,18 @@ QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidT
 	g_queuesLock.unlock();
 
 	return QVariant();
+}
+
+void XmlRpcService::registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments)
+{
+	FunctionInfo fi;
+	fi.arguments = arguments;
+	fi.function = func;
+
+	m_mapFunctions[name] = fi;
+}
+
+void XmlRpcService::deregisterFunction(QString name)
+{
+	m_mapFunctions.remove(name);
 }

@@ -176,8 +176,8 @@ function tabSwitched(reallySwitched) {
 		
 		if (t.primaryMode == 'Upload')
 			text = '<div class="ui-state-error">This feature is available only for download-oriented transfers.</div>';
-		//else if (t.state != 'Completed' && t.mode == 'Download')
-		//	text = '<div class="ui-state-error">Please wait until the transfer completes.</div>';
+		else if (t.state != 'Completed' && t.mode == 'Download' && !t.dataPathIsDir)
+			text = '<div class="ui-state-error">Please wait until the transfer completes.</div>';
 		else {
 			if (t.dataPathIsDir) {
 				//text = 'DataPathIsDir - not implemented yet';
@@ -465,8 +465,8 @@ function actionAdd() {
 
 	$("#new-transfer").dialog({
 		resizable: true,
-		height: $(window).height()/2,
-		width: '80ex',
+		//height: 500,
+		width: 600,
 		modal: true,
 		buttons: {
 			Cancel: function() {

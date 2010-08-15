@@ -69,7 +69,7 @@ table#bigtable {
 
 #queues-pane {
 	display: table-cell;
-	max-width: 20%;
+	width: 20%;
 	min-width: 200px;
 	padding: 1ex;
 	vertical-align: top;

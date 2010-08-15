@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
 <title>FatRat Download Manager</title>
 
+<link rel="icon" href="/favicon.png" />
 <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
 <link href="css/ui-lightness/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" media="all">
 <link href="css/icons.css" rel="stylesheet" type="text/css" media="all">
@@ -201,14 +202,37 @@
 		<tr>
 			<td>Local file (i.e. torrent):</td>
 			<td>
-				<form>
-					<input type="file" name="new-transfer-file" id="new-transfer-file" />
+				<form enctype="multipart/form-data">
+					<input disabled="disabled" type="file" name="new-transfer-file" id="new-transfer-file" />
 				</form>
 			</td>
 		</tr>
 		<tr>
 			<td>Target:</td>
 			<td><input type="text" id="new-transfer-target" /></td>
+		</tr>
+		<tr>
+			<td>Download as:</td>
+			<td><select id="new-transfer-class"></select></td>
+		</tr>
+		<tr>
+			<td>
+				Max download speed (KB/s):
+			</td>
+			<td style="text-align: left">
+				<label style="float: right"><input type="checkbox" id="new-transfer-paused" />Add paused</label>
+				<input id="new-transfer-speed-down" type="text" size="4" value="0" />
+			<!--</td>
+			<td>-->
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Max upload speed (KB/s):
+			</td>
+			<td style="text-align: left">
+				<input id="new-transfer-speed-up" type="text" size="4" value="0" />
+			</td>
 		</tr>
 	</table>
 </div>

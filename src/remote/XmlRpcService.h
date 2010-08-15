@@ -29,6 +29,8 @@ respects for all of the code used other than "OpenSSL".
 #define XMLRPCSERVICE_H
 #include "config.h"
 #include <QByteArray>
+#include <QVector>
+#include <QMap>
 #include <QVariantMap>
 #include "engines/OutputBuffer.h"
 
@@ -42,12 +44,15 @@ class XmlRpcService : public pion::net::WebService
 {
 public:
 	void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	static void globalInit();
+	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
+	static void deregisterFunction(QString name);
 protected:
-	QVariant getQueues();
-	QVariant Queue_getTransfers(QString uuid);
-	QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
-	QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
-	QVariant Transfer_delete(QStringList uuid, bool withData);
+	static QVariant getQueues(QList<QVariant>&);
+	static QVariant Queue_getTransfers(QString uuid);
+	static QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
+	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
+	static QVariant Transfer_delete(QStringList uuid, bool withData);
 public:
 	struct XmlRpcError
 	{
@@ -60,6 +65,13 @@ public:
 		int code;
 		QString desc;
 	};
+private:
+	struct FunctionInfo
+	{
+		QVariant (*function)(QList<QVariant>&);
+		QVector<QVariant::Type> arguments;
+	};
+	static QMap<QString,FunctionInfo> m_mapFunctions;
 };
 
 #endif
