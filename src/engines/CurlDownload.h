@@ -64,6 +64,7 @@ public:
 	
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	virtual void fillContextMenu(QMenu& menu);
+	virtual QString remoteURI() const;
 protected:
 	virtual CURL* curlHandle();
 	virtual bool writeData(const char* buffer, size_t bytes);
@@ -102,7 +103,7 @@ protected:
 		QUuid proxy;
 	};
 	QList<UrlObject> m_urls;
-	int m_nUrl;
+	mutable int m_nUrl;
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;

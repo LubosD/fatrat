@@ -95,6 +95,7 @@ public:
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QObject* createDetailsWidget(QWidget* widget);
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+	virtual QString remoteURI() const;
 	
 	qint64 totalDownload() const { return m_nPrevDownload + m_status.total_payload_download; }
 	qint64 totalUpload() const { return m_nPrevUpload + m_status.total_payload_upload; }

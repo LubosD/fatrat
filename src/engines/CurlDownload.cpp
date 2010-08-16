@@ -592,3 +592,13 @@ WidgetHostChild* CurlDownload::createOptionsWidget(QWidget* w)
 	return new HttpOptsWidget(w, this);
 }
 
+QString CurlDownload::remoteURI() const
+{
+	if (m_urls.isEmpty())
+		return QString();
+	if (m_nUrl >= m_urls.size())
+		m_nUrl = 0;
+	QUrl url = m_urls[m_nUrl].url;
+	url.setUserInfo(QString());
+	return url.toString();
+}

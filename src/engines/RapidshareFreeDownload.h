@@ -60,6 +60,7 @@ public:
 	
 	virtual qulonglong done() const;
 	virtual void setState(State newState);
+	virtual QString remoteURI() const;
 	
 	static Transfer* createInstance() { return new RapidshareFreeDownload; }
 	static int acceptable(QString uri, bool);

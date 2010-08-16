@@ -330,6 +330,11 @@ WidgetHostChild* RapidshareFreeDownload::createOptionsWidget(QWidget* w)
 	return new RapidshareFreeDownloadOptsForm(w, this);
 }
 
+QString RapidshareFreeDownload::remoteURI() const
+{
+	return m_strOriginal;
+}
+
 //////////////////////////////////////////////////////////////
 
 RapidshareFreeDownloadOptsForm::RapidshareFreeDownloadOptsForm(QWidget* w, RapidshareFreeDownload* d)

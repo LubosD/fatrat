@@ -68,6 +68,7 @@ public:
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
 	
 	virtual void fillContextMenu(QMenu& menu);
+	virtual QString remoteURI() const;
 protected slots:
 	void computeHash();
 protected:

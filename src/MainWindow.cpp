@@ -38,6 +38,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QProcess>
 #include <QSettings>
 #include <QUrl>
+#include <QApplication>
+#include <QClipboard>
 
 #include "MainWindow.h"
 #include "QueueDlg.h"
@@ -235,6 +237,7 @@ void MainWindow::connectActions()
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
 	connect(actionBugReport, SIGNAL(triggered()), this, SLOT(reportBug()));
+	connect(actionCopyRemoteURI, SIGNAL(triggered()), this, SLOT(copyRemoteURI()));
 }
 
 void MainWindow::restoreWindowState(bool bStartHidden)
@@ -1389,6 +1392,8 @@ void MainWindow::transferItemContext(const QPoint&)
 		menu.addAction(actionDown);
 		menu.addAction(actionBottom);
 		menu.addSeparator();
+		menu.addAction(actionCopyRemoteURI);
+		menu.addSeparator();
 		
 		Queue* q = getCurrentQueue();
 		if(q != 0)
@@ -1649,6 +1654,31 @@ void MainWindow::menuActionTriggered()
 void MainWindow::reportBug()
 {
 	ReportBugDlg(this).exec();
+}
+
+void MainWindow::copyRemoteURI()
+{
+	Queue* q = getCurrentQueue();
+	QList<int> sel = getSelection();
+	QString uris;
+
+	if(!q) return;
+
+	foreach(int i,sel)
+	{
+		Transfer* t = q->at(i);
+		QString uri = t->remoteURI();
+
+		if (!uri.isEmpty())
+		{
+			if (!uris.isEmpty())
+				uris += '\n';
+			uris += uri;
+		}
+	}
+
+	doneQueue(q);
+	QApplication::clipboard()->setText(uris);
 }
 
 void addMenuAction(const MenuAction& action)

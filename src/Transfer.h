@@ -59,11 +59,14 @@ public:
 	
 	virtual void init(QString source, QString target) = 0;
 	
-	// For Upload-oriented classes: target = local file
-	// For Download-oriented classes: target = local directory
+	// For Upload-oriented classes: object = local file
+	// For Download-oriented classes: object = local directory
 	Q_INVOKABLE virtual void setObject(QString object) = 0;
 	Q_INVOKABLE virtual QString object() const = 0;
 	Q_PROPERTY(QString object WRITE setObject READ object)
+
+	Q_INVOKABLE virtual QString remoteURI() const { return QString(); }
+	Q_PROPERTY(QString remoteURI READ remoteURI)
 	
 	// TRANSFER STATES
 	Q_INVOKABLE bool isActive() const;

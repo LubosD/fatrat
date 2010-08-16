@@ -1376,6 +1376,14 @@ WidgetHostChild* TorrentDownload::createOptionsWidget(QWidget* w)
 	return new TorrentOptsWidget(w, this);
 }
 
+QString TorrentDownload::remoteURI() const
+{
+	if (!m_handle.is_valid())
+		return QString();
+	else
+		return QString::fromStdString(libtorrent::make_magnet_uri(m_handle));
+}
+
 void TorrentWorker::setDetailsObject(TorrentDetails* d)
 {
 	connect(&m_timer, SIGNAL(timeout()), d, SLOT(refresh()));

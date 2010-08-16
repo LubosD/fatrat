@@ -84,6 +84,7 @@ public slots:
 	void forcedResumeTransfer();
 	void pauseTransfer();
 	void setTransfer(Transfer::State state);
+	void copyRemoteURI();
 	
 	void transferOptions();
 	void removeCompleted();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>733</width>
-    <height>516</height>
+    <width>731</width>
+    <height>514</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -456,7 +456,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>733</width>
+     <width>731</width>
      <height>21</height>
     </rect>
    </property>
@@ -822,6 +822,11 @@
   <action name="actionBugReport">
    <property name="text">
     <string>Report a bug</string>
+   </property>
+  </action>
+  <action name="actionCopyRemoteURI">
+   <property name="text">
+    <string>Copy remote URI</string>
    </property>
   </action>
  </widget>

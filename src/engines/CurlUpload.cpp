@@ -352,6 +352,13 @@ void CurlUpload::computeHash()
 	dlg.exec();
 }
 
+QString CurlUpload::remoteURI() const
+{
+	QUrl url = m_strTarget;
+	url.setUserInfo(QString());
+	return url.toString();
+}
+
 ///////////////////////////////////////////
 
 FtpUploadOptsForm::FtpUploadOptsForm(QWidget* me, CurlUpload* myobj)
