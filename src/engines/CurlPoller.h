@@ -55,8 +55,11 @@ protected:
 	void epollEnable(int socket, int events);
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
 	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
+	static void setTransferTimeout(int timeout);
 private:
 	static CurlPoller* m_instance;
+	static int m_nTransferTimeout;
+
 	bool m_bAbort;
 	CURLM* m_curlm;
 	Poller* m_poller;
@@ -70,6 +73,8 @@ private:
 	
 	QList<int> m_socketsToRemove;
 	sockets_hash m_socketsToAdd;
+
+	friend class HttpFtpSettings;
 };
 
 #endif

@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpFtpSettings.h"
 #include "UserAuthDlg.h"
 #include "Settings.h"
+#include "engines/CurlPoller.h"
 #include <QMessageBox>
 
 HttpFtpSettings::HttpFtpSettings(QWidget* w, QObject* parent)
@@ -72,6 +73,8 @@ void HttpFtpSettings::load()
 	listAuths->clear();
 	foreach(Auth a, m_listAuth)
 		listAuths->addItem(a.strRegExp);
+
+	lineConnectionTimeout->setText(getSettingsValue("httpftp/timeout").toString());
 }
 
 void HttpFtpSettings::accepted()
@@ -85,6 +88,16 @@ void HttpFtpSettings::accepted()
 	
 	Auth::saveAuths(m_listAuth);
 	setSettingsValue("httpftp/forbidipv6", checkForbidIPv6->isChecked());
+
+	bool ok;
+	int timeout = lineConnectionTimeout->text().toInt(&ok);
+	if (!ok || timeout <= 0)
+		timeout = 20;
+
+	setSettingsValue("httpftp/timeout", timeout);
+	lineConnectionTimeout->setText(QString::number(timeout));
+
+	CurlPoller::setTransferTimeout(timeout);
 }
 
 void HttpFtpSettings::authAdd()

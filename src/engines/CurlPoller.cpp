@@ -31,7 +31,7 @@ respects for all of the code used other than "OpenSSL".
 
 CurlPoller* CurlPoller::m_instance = 0;
 
-static const int TRANSFER_TIMEOUT = 20;
+int CurlPoller::m_nTransferTimeout = 20;
 
 CurlPoller::CurlPoller()
 	: m_bAbort(false), m_usersLock(QMutex::Recursive)
@@ -132,7 +132,7 @@ void CurlPoller::run()
 			
 			int seconds = tvNow.tv_sec - lastOp.tv_sec;
 			
-			if(seconds > TRANSFER_TIMEOUT)
+			if(seconds > m_nTransferTimeout)
 				timedOut << user;
 			else if(seconds > 1)
 			{
@@ -287,4 +287,9 @@ void CurlPoller::addForSafeDeletion(CURL* curl)
 {
 	QMutexLocker locker(&m_usersLock);
 	m_queueToDelete.enqueue(curl);
+}
+
+void CurlPoller::setTransferTimeout(int timeout)
+{
+	m_nTransferTimeout = timeout;
 }
