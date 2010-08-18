@@ -289,8 +289,8 @@ void CurlDownload::changeActive(bool bActive)
 		curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD);
 		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_NONE);
 		
-		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 10);
-		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
+		int timeout = getSettingsValue("httpftp/timeout").toInt();
+		curl_easy_setopt(m_curl, CURLOPT_TIMEOUT, timeout);
 		
 		curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);

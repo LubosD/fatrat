@@ -155,8 +155,8 @@ void CurlUpload::changeActive(bool nowActive)
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
 		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
 		
-		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 10);
-		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
+		int timeout = getSettingsValue("httpftp/timeout").toInt();
+		curl_easy_setopt(m_curl, CURLOPT_TIMEOUT, timeout);
 		
 		{
 			QByteArray ba;
