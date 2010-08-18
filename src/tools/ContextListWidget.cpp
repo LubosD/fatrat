@@ -25,13 +25,33 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "fatrat.h"
 #include "ContextListWidget.h"
 #include <QContextMenuEvent>
+#include <QFile>
+#include <cstring>
 
 ContextListWidget::ContextListWidget(QWidget* parent)
 	: QListWidget(parent)
 {
 	QAction* action;
+	QFile knownTrackers;
+	QMenu* submenu = m_menu.addMenu(tr("Add known"));
+
+	if (openDataFile(&knownTrackers, "/data/bttrackers.txt"))
+	{
+		char buf[512];
+		while (knownTrackers.readLine(buf, sizeof(buf)) > 0)
+		{
+			if (!buf[0])
+				continue;
+			char* p = strrchr(buf, '\n');
+			if (p)
+				*p = 0;
+			submenu->addAction(buf, this, SLOT(addKnownItem()));
+		}
+	}
+
 	action = m_menu.addAction(tr("Add"));
 	connect(action, SIGNAL(triggered()), this, SLOT(addItem()));
 	
@@ -53,6 +73,14 @@ void ContextListWidget::addItem()
 	QListWidget::addItem(item);
 	item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
 	QListWidget::editItem(item);
+}
+
+void ContextListWidget::addKnownItem()
+{
+	QAction* s = (QAction*) sender();
+	QListWidgetItem* item = new QListWidgetItem(QIcon(":/fatrat/miscellaneous.png"), s->text(), this);
+	QListWidget::addItem(item);
+	item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
 }
 
 void ContextListWidget::editItem()

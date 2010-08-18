@@ -1,0 +1,8 @@
+http://tracker.openbittorrent.com/announce
+udp://tracker.openbittorrent.com:80/announce
+http://tracker.openbittorrent.kg:2710/announce
+udp://tracker.openbittorrent.kg:2710/announce
+http://tracker.publicbt.com:80/announce
+udp://tracker.publicbt.com:80/announce
+http://tracker.mytorrenttracker.com:6099/announce
+udp://tracker.mytorrenttracker.com:6099/announce

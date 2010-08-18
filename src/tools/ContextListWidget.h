@@ -38,6 +38,7 @@ public:
 	void contextMenuEvent(QContextMenuEvent* event);
 public slots:
 	void addItem();
+	void addKnownItem();
 	void editItem();
 	void deleteItem();
 private:

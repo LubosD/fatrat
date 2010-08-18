@@ -470,6 +470,7 @@ endif(WITH_NLS)
 if(WITH_BITTORRENT)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btsearch.xml DESTINATION share/fatrat/data)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btlinks.txt DESTINATION share/fatrat/data)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/bttrackers.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
 
 if(WITH_WEBINTERFACE)
