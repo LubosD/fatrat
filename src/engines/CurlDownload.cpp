@@ -133,6 +133,8 @@ int CurlDownload::acceptable(QString uri, bool)
 void CurlDownload::globalInit()
 {
 	new CurlPoller;
+
+	CurlPoller::setTransferTimeout(getSettingsValue("httpftp/timeout").toInt());
 	
 	SettingsItem si;
 	si.icon = DelayedIcon(":/fatrat/httpftp.png");

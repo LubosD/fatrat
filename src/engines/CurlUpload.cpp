@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "tools/HashDlg.h"
 #include "Proxy.h"
 #include "Auth.h"
+#include "Settings.h"
 #include <QFileInfo>
 #include <QMenu>
 

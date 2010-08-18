@@ -75,6 +75,7 @@ private:
 	sockets_hash m_socketsToAdd;
 
 	friend class HttpFtpSettings;
+	friend class CurlDownload;
 };
 
 #endif
