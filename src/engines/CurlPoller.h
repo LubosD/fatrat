@@ -30,7 +30,6 @@ respects for all of the code used other than "OpenSSL".
 #define CURL_POLLER
 #include <QThread>
 #include <QMutex>
-#include <QReadWriteLock>
 #include <QMap>
 #include <QHash>
 #include <QQueue>
@@ -47,7 +46,6 @@ public:
 	void addTransfer(CurlUser* obj);
 	// will handle the underlying CURL* too
 	void removeTransfer(CurlUser* obj);
-	bool hasTransfer(CurlUser* obj);
 	
 	void run();
 	
@@ -68,10 +66,8 @@ private:
 	typedef QHash<int, QPair<int,CurlUser*> > sockets_hash;
 	
 	QMap<CURL*, CurlUser*> m_users;
-	// this exists only to get a faster lookup time
-	QList<CurlUser*> m_usersList;
 	sockets_hash m_sockets;
-	QReadWriteLock m_usersLock;
+	QMutex m_usersLock;
 	QQueue<CURL*> m_queueToDelete;
 	
 	QList<int> m_socketsToRemove;

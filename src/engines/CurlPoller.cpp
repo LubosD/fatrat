@@ -34,7 +34,7 @@ CurlPoller* CurlPoller::m_instance = 0;
 int CurlPoller::m_nTransferTimeout = 20;
 
 CurlPoller::CurlPoller()
-	: m_bAbort(false), m_usersLock(QReadWriteLock::Recursive)
+	: m_bAbort(false), m_usersLock(QMutex::Recursive)
 {
 	if(m_instance)
 		abort();
@@ -116,7 +116,7 @@ void CurlPoller::run()
 		else
 			timeout = curl_timeout;
 		
-		m_usersLock.lockForRead();
+		m_usersLock.lock();
 
 		while (!m_queueToDelete.isEmpty())
 		{
@@ -261,20 +261,19 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 
 void CurlPoller::addTransfer(CurlUser* obj)
 {
-	QWriteLocker locker(&m_usersLock);
+	QMutexLocker locker(&m_usersLock);
 	
 	qDebug() << "CurlPoller::addTransfer" << obj;
 	
 	obj->resetStatistics();
 	CURL* handle = obj->curlHandle();
 	m_users[handle] = obj;
-	m_usersList << obj;
 	curl_multi_add_handle(m_curlm, handle);
 }
 
 void CurlPoller::removeTransfer(CurlUser* obj)
 {
-	QWriteLocker locker(&m_usersLock);
+	QMutexLocker locker(&m_usersLock);
 	
 	qDebug() << "CurlPoller::removeTransfer" << obj;
 	
@@ -284,13 +283,6 @@ void CurlPoller::removeTransfer(CurlUser* obj)
 		m_queueToDelete.enqueue(handle);
 		m_users.remove(handle);
 	}
-	m_usersList.removeAll(obj);
-}
-
-bool CurlPoller::hasTransfer(CurlUser* obj)
-{
-	QReadLocker locker(&m_usersLock);
-	return m_usersList.contains(obj);
 }
 
 void CurlPoller::setTransferTimeout(int timeout)
