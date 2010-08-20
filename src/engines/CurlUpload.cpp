@@ -212,9 +212,8 @@ void CurlUpload::changeActive(bool nowActive)
 		m_nDone = done();
 		
 		resetStatistics();
-		CurlPoller::instance()->removeTransfer(this);
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
-		curl_easy_cleanup(m_curl);
+		CurlPoller::instance()->removeTransfer(this);
 		m_curl = 0;
 		m_file.close();
 	}

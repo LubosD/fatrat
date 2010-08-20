@@ -312,7 +312,6 @@ void CurlDownload::changeActive(bool bActive)
 	{
 		resetStatistics();
 		CurlPoller::instance()->removeTransfer(this);
-		CurlPoller::instance()->addForSafeDeletion(m_curl);
 		m_curl = 0;
 		m_nStart = 0;
 		qDebug() << "Closing at pos" << lseek64(m_file, 0, SEEK_CUR);
@@ -326,11 +325,10 @@ bool CurlDownload::writeData(const char* buffer, size_t bytes)
 	if(!isActive())
 		return false;
 	
-	if(m_curl /**&& (!m_nTotal || m_nTotal == -1LL || lseek(m_file, 0, SEEK_CUR) == 0)*/)
+	if(CURL* c = m_curl)
 	{
 		double len;
-		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-		//std::cout << "total = " << m_nStart << " + " << qlonglong(len) << "(was" << m_nTotal << ")";
+		curl_easy_getinfo(c, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
 		if(len != -1 && len != 0)
 			m_nTotal = m_nStart + len;
 	}

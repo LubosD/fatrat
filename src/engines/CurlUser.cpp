@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "CurlUser.h"
+#include "CurlPoller.h"
 #include <QtDebug>
 
 const int CurlUser::MAX_STATS = 5;
@@ -66,6 +67,9 @@ timeval CurlUser::lastOperation() const
 
 size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This)
 {
+	if (!CurlPoller::instance()->hasTransfer(This))
+		return 0;
+
 	size_t bytes = This->readData(ptr, size*nmemb);
 	
 	This->m_statsMutex.lockForWrite();
@@ -77,11 +81,15 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 
 size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This)
 {
-	bool ok = This->writeData(ptr, size*nmemb);
-	
-	This->m_statsMutex.lockForWrite();
-	timeProcess(This->m_down, size*nmemb);
-	This->m_statsMutex.unlock();
+	bool ok = true;
+	if (CurlPoller::instance()->hasTransfer(This))
+	{
+		ok = This->writeData(ptr, size*nmemb);
+
+		This->m_statsMutex.lockForWrite();
+		timeProcess(This->m_down, size*nmemb);
+		This->m_statsMutex.unlock();
+	}
 	
 	return ok ? size*nmemb : 0;
 }
