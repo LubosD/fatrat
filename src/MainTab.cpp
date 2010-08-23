@@ -32,7 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QSettings>
 
 extern QList<AppTool> g_tools;
-const int FIXED_TAB_COUNT = 4;
+const int FIXED_TAB_COUNT = 5;
 
 MainTab::MainTab(QWidget* parent) : QTabWidget(parent), m_lastIndex(0), m_lastIndexCur(0)
 {
