@@ -195,8 +195,8 @@ void MainWindow::applySystemTheme()
 	applySystemIcon(actionDown, "go-down");
 	applySystemIcon(actionBottom, "go-bottom");
 	applySystemIcon(actionNewTransfer, "list-add");
-	applySystemIcon(actionDeleteTransfer, "list-remove");
-	applySystemIcon(actionDeleteTransferData, "edit-delete");
+	applySystemIcon(actionDeleteTransfer, "edit-delete");
+	//applySystemIcon(actionDeleteTransferData, "edit-delete");
 	applySystemIcon(actionQuit, "application-exit");
 	applySystemIcon(actionProperties, "document-properties");
 	applySystemIcon(actionQueueProperties, "document-properties");
@@ -1206,13 +1206,13 @@ void MainWindow::transferOptions()
 {
 	WidgetHostDlg dlg(this);
 	
+	QList<int> sel = getSelection();
 	Queue* q = getCurrentQueue();
 	Transfer* d;
-	QModelIndex ctrans = treeTransfers->currentIndex();
 	
 	if(!q) return;
 	
-	d = q->at(ctrans.row());
+	d = q->at(sel[0]);
 	
 	if(d != 0)
 	{
@@ -1592,7 +1592,7 @@ QList<int> MainWindow::getSelection()
 	
 	if(Queue* q = getCurrentQueue())
 	{
-		int size = q->size();
+		int size = qMin(q->size(), m_modelTransfers->rowCount());
 		
 		doneQueue(q, true, false);
 		
@@ -1601,7 +1601,7 @@ QList<int> MainWindow::getSelection()
 			int row = in.row();
 			
 			if(row < size)
-				result << row;
+				result << m_modelTransfers->remapIndex(row);
 		}
 		
 		qSort(result);

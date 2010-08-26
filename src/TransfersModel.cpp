@@ -189,6 +189,7 @@ void TransfersModel::refresh()
 
 	if(w)
 		filter = w->getFilterText();
+	m_filterMapping.clear();
 	
 	if(q != 0)
 	{
@@ -200,6 +201,8 @@ void TransfersModel::refresh()
 			Transfer* t = q->at(i);
 			RowData newData;
 
+			if (!filter.isEmpty())
+				m_filterMapping[j] = i;
 			if (!filter.isEmpty() && !t->name().contains(filter, Qt::CaseInsensitive))
 			{
 				filtered++;
@@ -361,6 +364,14 @@ QMimeData* TransfersModel::mimeData(const QModelIndexList&) const
 	mimeData->setData("text/uri-list", files);
 	
 	return mimeData;
+}
+
+int TransfersModel::remapIndex(int index)
+{
+	if (m_filterMapping.contains(index))
+		return m_filterMapping[index];
+	else
+		return index;
 }
 
 void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const

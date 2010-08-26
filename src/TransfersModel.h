@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QItemDelegate>
 #include "Queue.h"
 #include <QPixmap>
+#include <QMap>
 
 class ProgressDelegate : public QItemDelegate
 {
@@ -63,11 +64,13 @@ public:
 	
 	void setQueue(int q);
 	void refresh();
+	int remapIndex(int index);
 protected:
 	int m_queue;
 private:
 	int m_nLastRowCount;
 	QIcon* m_states[12];
+	QMap<int,int> m_filterMapping;
 	
 	struct RowData
 	{
