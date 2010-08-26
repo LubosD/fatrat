@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>417</height>
+    <width>446</width>
+    <height>415</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -175,6 +175,13 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QCheckBox" name="checkSystemTheme">
+     <property name="text">
+      <string>Use system theme</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

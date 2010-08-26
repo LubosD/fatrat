@@ -69,6 +69,7 @@ void SettingsGeneralForm::load()
 	
 	spinRefreshGUI->setValue( getSettingsValue("gui_refresh").toInt() / 1000);
 	checkCSS->setChecked( getSettingsValue("css").toBool() );
+	checkSystemTheme->setChecked( getSettingsValue("gui/systemtheme").toBool() );
 }
 
 void SettingsGeneralForm::accepted()
@@ -88,6 +89,7 @@ void SettingsGeneralForm::accepted()
 	
 	setSettingsValue("gui_refresh", spinRefreshGUI->value()*1000);
 	setSettingsValue("css", checkCSS->isChecked());
+	setSettingsValue("gui/systemtheme", checkSystemTheme->isChecked());
 	
 	((MainWindow*) getMainWindow())->applySettings();
 }

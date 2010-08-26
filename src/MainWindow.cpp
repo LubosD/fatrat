@@ -111,6 +111,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupUi()
 {
+	bool useSystemTheme;
 	Ui_MainWindow::setupUi(this);
 	
 	m_dropBox = new DropBox(this);
@@ -129,9 +130,15 @@ void MainWindow::setupUi()
 	
 	m_log = new LogManager(this, textTransferLog, textGlobalLog);
 	
+	useSystemTheme = getSettingsValue("gui/systemtheme").toBool();
 #ifdef WITH_DOCUMENTATION
 	QAction* action;
-	action = new QAction(QIcon(":/menu/about.png"), tr("Help"), menuHelp);
+	QIcon xicon;
+	if (useSystemTheme)
+		xicon = QIcon::fromTheme("help-contents", QIcon(":/menu/about.png"));
+	else
+		xicon = QIcon(":/menu/about.png");
+	action = new QAction(xicon, tr("Help"), menuHelp);
 	menuHelp->insertAction(actionAboutQt, action);
 	menuHelp->insertSeparator(actionAboutQt);
 	connect(action, SIGNAL(triggered()), this, SLOT(showHelp()));
@@ -156,6 +163,36 @@ void MainWindow::setupUi()
 	}
 
 	fillSettingsMenu();
+	if (useSystemTheme)
+		applySystemTheme();
+}
+
+void MainWindow::applySystemTheme()
+{
+	applySystemIcon(actionResume, "media-playback-start");
+	applySystemIcon(actionForcedResume, "media-seek-forward");
+	applySystemIcon(actionPause, "media-playback-pause");
+	applySystemIcon(actionTop, "go-top");
+	applySystemIcon(actionUp, "go-up");
+	applySystemIcon(actionDown, "go-down");
+	applySystemIcon(actionBottom, "go-bottom");
+	applySystemIcon(actionNewTransfer, "list-add");
+	applySystemIcon(actionDeleteTransfer, "list-remove");
+	applySystemIcon(actionDeleteTransferData, "edit-delete");
+	applySystemIcon(actionQuit, "application-exit");
+	applySystemIcon(actionProperties, "document-properties");
+	applySystemIcon(actionQueueProperties, "document-properties");
+	//applySystemIcon(actionNewQueue, "window-new");
+	//applySystemIcon(actionDeleteQueue, "window-close");
+	//applySystemIcon(actionRemoveCompleted, "tools-check-spelling");
+	applySystemIcon(actionSettings, "preferences-other");
+}
+
+void MainWindow::applySystemIcon(QAction* action, QString path)
+{
+	QIcon icon = QIcon::fromTheme(path);
+	if (!icon.isNull())
+		action->setIcon(icon);
 }
 
 void MainWindow::fillSettingsMenu()

@@ -52,6 +52,7 @@ public:
 	void changeAll(bool resume);
 	QList<int> getSelection();
 	void applySettings();
+	void applySystemTheme();
 	void loadCSS();
 public slots:
 	void about();
@@ -117,6 +118,7 @@ protected:
 	static Queue* getQueue(int index, bool lock = true);
 	Queue* getCurrentQueue(bool lock = true);
 	void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
+	static void applySystemIcon(QAction* action, QString path);
 
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void hideEvent(QHideEvent* event);
