@@ -159,6 +159,8 @@ set(fatrat_SRCS
 	src/ReportBugDlg.cpp
 	src/Settings.cpp
 	src/QueueDlg.cpp
+	src/filterlineedit.cpp
+	src/fancylineedit.cpp
 	src/engines/OutputBuffer.cpp
 	src/poller/Poller.cpp
 	
@@ -221,6 +223,8 @@ set(fatrat_MOC_HDRS
 	src/Logger.h
 	src/MyApplication.h
 	src/ReportBugDlg.h
+	src/filterlineedit.h
+	src/fancylineedit.h
 	src/engines/OutputBuffer.h
 	
 	src/tools/HashDlg.h

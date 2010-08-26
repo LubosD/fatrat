@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -113,7 +113,11 @@ public slots:
 	
 	void showHelp();
 	void reportBug();
+	void filterTextChanged(const QString& text);
 protected:
+	virtual void resizeEvent(QResizeEvent* event);
+	QString getFilterText() const { return filterLineEdit->text(); }
+
 	int getSelectedQueue();
 	static Queue* getQueue(int index, bool lock = true);
 	Queue* getCurrentQueue(bool lock = true);
@@ -142,6 +146,7 @@ private:
 	DropBox* m_dropBox;
 	Transfer* m_lastTransfer;
 	NewTransferDlg* m_dlgNewTransfer;
+	QLineEdit* filterLineEdit;
 	
 	QList<QAction*> m_menuActionObjects;
 public:
@@ -150,6 +155,7 @@ public:
 	friend class DropBox;
 	friend class SpeedLimitWidget;
 	friend class RightClickLabel;
+	friend class TransfersModel;
 };
 
 #endif

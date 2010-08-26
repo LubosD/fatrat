@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -184,22 +184,36 @@ void TransfersModel::refresh()
 	m_lastData.resize(count);
 	
 	QList<bool> changes;
+	MainWindow* w = static_cast<MainWindow*>(getMainWindow());
+	QString filter;
+
+	if(w)
+		filter = w->getFilterText();
 	
 	if(q != 0)
 	{
 		q->lock();
 		
-		for(int i=0;i<count;i++)
+		int filtered = 0;
+		for(int i=0,j=0;i<count;i++,j++)
 		{
 			Transfer* t = q->at(i);
 			RowData newData;
+
+			if (!filter.isEmpty() && !t->name().contains(filter, Qt::CaseInsensitive))
+			{
+				filtered++;
+				j--;
+				continue;
+			}
 			
 			if(t != 0)
 				newData = createDataSet(t);
 			
-			changes << (newData != m_lastData[i]);
-			m_lastData[i] = newData;
+			changes << (newData != m_lastData[j]);
+			m_lastData[j] = newData;
 		}
+		count -= filtered;
 		q->unlock();
 	}
 	g_queuesLock.unlock();

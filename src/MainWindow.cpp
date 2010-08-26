@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -61,6 +61,7 @@ respects for all of the code used other than "OpenSSL".
 #include "AppTools.h"
 #include "AboutDlg.h"
 #include "ReportBugDlg.h"
+#include "filterlineedit.h"
 
 #ifdef WITH_DOCUMENTATION
 #	include "tools/HelpBrowser.h"
@@ -162,9 +163,26 @@ void MainWindow::setupUi()
 		m_statusWidgets[i].first->show();
 	}
 
+	filterLineEdit = new Utils::FilterLineEdit(labelTransfers);
+	QSize ss = labelTransfers->size();
+
+	filterLineEdit->move(ss.width()-2-200,2);
+	filterLineEdit->resize(200, ss.height()-12);
+	connect(filterLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(filterTextChanged(const QString&)));
+	filterLineEdit->setFrame(false);
+	filterLineEdit->show();
+
 	fillSettingsMenu();
 	if (useSystemTheme)
 		applySystemTheme();
+}
+
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+	if (event)
+		QMainWindow::resizeEvent(event);
+	QSize ss = labelTransfers->size();
+	filterLineEdit->move(ss.width()-2-200,2);
 }
 
 void MainWindow::applySystemTheme()
@@ -319,6 +337,7 @@ void MainWindow::restoreWindowState(bool bStartHidden)
 	
 	if(bStartHidden)
 		actionDisplay->setChecked(false);
+	resizeEvent(0);
 }
 
 void MainWindow::saveWindowState()
@@ -433,6 +452,8 @@ void MainWindow::updateUi()
 	// transfer view
 	Transfer* d = 0;
 	int currentTab = tabMain->currentIndex();
+
+	bool hasFilter = !getFilterText().isEmpty();
 	
 	if(!sel.empty())
 	{
@@ -453,8 +474,8 @@ void MainWindow::updateUi()
 		
 		if(bSingle)
 		{
-			actionTop->setEnabled(sel[0]);
-			actionBottom->setEnabled(sel[0] < rcount-1);
+			actionTop->setEnabled(sel[0] && !hasFilter);
+			actionBottom->setEnabled(sel[0] < rcount-1 && !hasFilter);
 			
 			q->lock();
 			
@@ -477,14 +498,14 @@ void MainWindow::updateUi()
 			actionResume->setEnabled(true);
 			actionPause->setEnabled(true);
 			
-			actionTop->setEnabled(true);
-			actionUp->setEnabled(false);
-			actionDown->setEnabled(false);
-			actionBottom->setEnabled(true);
+			actionTop->setEnabled(!hasFilter);
+			//actionUp->setEnabled(false);
+			//actionDown->setEnabled(false);
+			actionBottom->setEnabled(!hasFilter);
 		}
 		
-		actionUp->setEnabled(true);
-		actionDown->setEnabled(true);
+		actionUp->setEnabled(!hasFilter);
+		actionDown->setEnabled(!hasFilter);
 		
 		actionDeleteTransfer->setEnabled(true);
 		actionDeleteTransferData->setEnabled(true);
@@ -1716,6 +1737,12 @@ void MainWindow::copyRemoteURI()
 
 	doneQueue(q);
 	QApplication::clipboard()->setText(uris);
+}
+
+void MainWindow::filterTextChanged(const QString& text)
+{
+	treeTransfers->selectionModel()->clearSelection();
+	updateUi();
 }
 
 void addMenuAction(const MenuAction& action)

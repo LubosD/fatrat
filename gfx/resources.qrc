@@ -259,6 +259,7 @@
     <file>rscom.png</file>
     <file>rss.png</file>
     <file>scheduler.png</file>
+    <file>editclear.png</file>
   </qresource>
   <qresource prefix="/menu" >
     <file>about.png</file>
