@@ -51,7 +51,8 @@ DbusImpl::DbusImpl()
 void DbusImpl::addTransfers(QString uris)
 {
 	MainWindow* wnd = (MainWindow*) getMainWindow();
-	wnd->addTransfer(uris);
+	if (wnd)
+		wnd->addTransfer(uris);
 }
 
 QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, int queueID)

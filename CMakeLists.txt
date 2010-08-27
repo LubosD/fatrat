@@ -159,6 +159,8 @@ set(fatrat_SRCS
 	src/ReportBugDlg.cpp
 	src/Settings.cpp
 	src/QueueDlg.cpp
+	src/ClipboardMonitor.cpp
+	src/SettingsClipboardMonitorForm.cpp
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
 	src/engines/OutputBuffer.cpp
@@ -223,6 +225,8 @@ set(fatrat_MOC_HDRS
 	src/Logger.h
 	src/MyApplication.h
 	src/ReportBugDlg.h
+	src/ClipboardMonitor.h
+	src/SettingsClipboardMonitorForm.h
 	src/filterlineedit.h
 	src/fancylineedit.h
 	src/engines/OutputBuffer.h
@@ -257,6 +261,7 @@ set(fatrat_UIS
 	src/SettingsNetworkForm.ui
 	src/SettingsQueueForm.ui
 	src/SettingsSchedulerForm.ui
+	src/SettingsClipboardMonitorForm.ui
 	src/ScheduledActionDlg.ui
 	src/SpeedLimitWidget.ui
 	src/UserAuthDlg.ui

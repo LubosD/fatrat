@@ -171,11 +171,16 @@ void NewTransferDlg::setDestination(QString p)
 
 void NewTransferDlg::addLinks(QString links)
 {
-	m_mode = radioDownload->isChecked() ? Transfer::Download : Transfer::Upload;
-	if(m_mode == Transfer::Download)
-		textURIs->append(links);
-	else
-		textFiles->append(links);
+	QTextEdit* target;
+	target = /*radioDownload->isChecked() ?*/ textURIs /*: textFiles*/;
+
+	QStringList sl = links.split('\n');
+	foreach (QString s, sl)
+	{
+		s = s.trimmed();
+		if (!target->toPlainText().contains(s))
+			target->append(s);
+	}
 }
 
 void NewTransferDlg::load()

@@ -40,6 +40,7 @@ respects for all of the code used other than "OpenSSL".
 #include "SettingsNetworkForm.h"
 #include "SettingsQueueForm.h"
 #include "SettingsSchedulerForm.h"
+#include "SettingsClipboardMonitorForm.h"
 #include "rss/SettingsRssForm.h"
 
 #ifdef WITH_JABBER
@@ -96,6 +97,10 @@ void initSettingsPages()
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
 	si.lpfnCreate = SettingsSchedulerForm::create;
+
+	si.icon = DelayedIcon(":/fatrat/clipboard.png");
+	si.title = QObject::tr("Clipboard monitor");
+	si.lpfnCreate = SettingsClipboardMonitorForm::create;
 	
 	g_settingsPages << si;
 }

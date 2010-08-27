@@ -39,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 
 class SpeedGraph;
 class NewTransferDlg;
+class ClipboardMonitor;
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -149,6 +150,7 @@ private:
 	QLineEdit* filterLineEdit;
 	
 	QList<QAction*> m_menuActionObjects;
+	ClipboardMonitor* m_clipboardMonitor;
 public:
 	int m_nStatusWidgetsLeft, m_nStatusWidgetsRight;
 	

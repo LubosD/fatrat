@@ -62,6 +62,7 @@ respects for all of the code used other than "OpenSSL".
 #include "AboutDlg.h"
 #include "ReportBugDlg.h"
 #include "filterlineedit.h"
+#include "ClipboardMonitor.h"
 
 #ifdef WITH_DOCUMENTATION
 #	include "tools/HelpBrowser.h"
@@ -101,6 +102,8 @@ MainWindow::MainWindow(bool bStartHidden)
 	}
 	
 	updateUi();
+
+	m_clipboardMonitor = new ClipboardMonitor;
 }
 
 MainWindow::~MainWindow()
@@ -108,6 +111,7 @@ MainWindow::~MainWindow()
 	saveWindowState();
 	
 	delete m_modelTransfers;
+	delete m_clipboardMonitor;
 }
 
 void MainWindow::setupUi()
