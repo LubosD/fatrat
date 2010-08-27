@@ -183,15 +183,15 @@ pre {
 	z-index: 10;
 }
 
-#transfer-properties, #new-transfer {
+#transfer-properties, #new-transfer, #queue-properties {
 	display: none;
 }
 
-#transfer-properties table {
+#transfer-properties table, #queue-properties table {
 	width: 100%;
 }
 
-#transfer-properties-target, #transfer-properties-comment, #new-transfer-links, #new-transfer-destination-queue, #new-transfer-target {
+#transfer-properties-target, #transfer-properties-comment, #new-transfer-links, #new-transfer-destination-queue, #new-transfer-target, #queue-properties {
 	width: 100%;
 }
 

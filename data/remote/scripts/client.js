@@ -1,5 +1,5 @@
 var client;
-var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete", "Queue.moveTransfers"];
+var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete", "Queue.moveTransfers", "Queue.setProperties"];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
@@ -50,7 +50,7 @@ function updateQueues() {
 					this.id = queues[i].uuid;
 				if (queues[i].uuid != currentQueue)
 					$(this).removeClass('ui-selected');
-				$(this).text(queues[i].name);
+				this.innerHTML = queues[i].name;
 			}
 			i++;
 		});
@@ -82,6 +82,81 @@ function addQueueItem(item, addBefore) {
 		document.getElementById('queues').insertBefore(ndiv, addBefore);
 	else
 		document.getElementById('queues').appendChild(ndiv);
+	$(ndiv).dblclick(function(e){
+		cq = getQueue(currentQueue);
+		$("#queue-properties-name").val(cq.name);
+		$("#queue-properties-target-directory").val(cq.defaultDirectory);
+		$("#queue-properties-move-directory").val(cq.moveDirectory);
+		$("#queue-properties-move").attr("checked", (cq.moveDirectory == "")?"":"checked");
+		$("#queue-properties-move-directory").attr("disabled", (cq.moveDirectory != "")?"":"disabled");
+		$("#queue-properties-speed-down").val(cq.speedLimits[0]/1024);
+		$("#queue-properties-speed-up").val(cq.speedLimits[1]/1024);
+		
+		tcl = cq.transferLimits[0] > 0 || cq.transferLimits[1] > 0;
+		$("#queue-properties-count-down, #queue-properties-count-up, #queue-propeties-upasdown").attr("disabled", (tcl)?"":"disabled");
+		$("#queue-propeties-upasdown").attr("checked", cq.upAsDown ? "checked" : "");
+		$("#queue-properties-transfer-limits").attr("checked", tcl ? "checked" : "");
+		
+		if (tcl) {
+			$("#queue-properties-count-down").val(cq.transferLimits[0]);
+			if (!cq.upAsDown) {
+				$("#queue-properties-count-up").val(cq.transferLimits[1]);
+				$("#queue-properties-count-up").attr("disabled", "");
+			} else {
+				$("#queue-properties-count-up").val("1");
+				$("#queue-properties-count-up").attr("disabled", "disabled");
+			}
+		} else {
+			$("#queue-properties-count-down").val("1");
+			$("#queue-properties-count-up").val("1");
+		}
+		
+		$("#queue-properties").dialog({
+			resizable: true,
+			//height: 500,
+			width: 600,
+			modal: true,
+			buttons: {
+				Cancel: function() {
+					$(this).dialog('close');
+				},
+				Ok: function() {
+					sdown = parseInt($("#queue-properties-speed-down").val());
+					sup = parseInt($("#queue-properties-speed-up").val());
+					
+					properties = {
+						name: $("#queue-properties-name").val(),
+						upAsDown : $("#queue-propeties-upasdown").is(":checked"),
+						defaultDirectory: $("#queue-properties-target-directory").val()
+					};
+					
+					properties.moveDirectory = $("#queue-properties-move").is(":checked") ? $("#queue-properties-move-directory").val() : "";
+					
+					if (!isNaN(sup) && !isNaN(sdown) && sup >= 0 && sdown >= 0)
+						properties.speedLimits = [ sdown*1024, sup*1024 ];
+					
+					tdown = tup = -1;
+					if ($("#queue-properties-transfer-limits").is(":checked")) {
+						tdown = parseInt($("#queue-properties-count-down").val());
+						if (properties.upAsDown)
+							tup = tdown;
+						else
+							tup = parseInt($("#queue-properties-count-up").val());
+						if (isNaN(tdown) || tdown <= 0)
+							tdown = 1;
+						if (isNaN(up) || tup <= 0)
+							tup = 1;
+					}
+					properties.transferLimits = [ tdown, tup ];
+					
+					$(this).dialog('close');
+					client.Queue_setProperties(currentQueue, properties, function(data) {
+						updateQueues();
+					});
+				}
+			}
+		});
+	});
 	$(ndiv).click(function(e){
 		$(this).toggleClass("ui-selected").siblings().removeClass("ui-selected");
 		queueClicked(e.target);
@@ -394,6 +469,13 @@ function getTransfer(uuid) {
 	for (r=0;r<transfers.length;r++) {
 		if (transfers[r].uuid == uuid)
 			return transfers[r];
+	}
+	return undefined;
+}
+function getQueue(uuid) {
+	for (wr=0;wr<queues.length;wr++) {
+		if (queues[wr].uuid == uuid)
+			return queues[wr];
 	}
 	return undefined;
 }

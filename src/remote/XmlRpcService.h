@@ -49,6 +49,7 @@ public:
 	static void deregisterFunction(QString name);
 protected:
 	static QVariant getQueues(QList<QVariant>&);
+	static QVariant Queue_setProperties(QList<QVariant>&);
 	static QVariant Queue_getTransfers(QString uuid);
 	static QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
 	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);

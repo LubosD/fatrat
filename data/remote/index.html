@@ -237,6 +237,50 @@
 	</table>
 </div>
 
+<div id="queue-properties" title="Queue properties">
+	<table>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" id="queue-properties-name" /></td>
+		</tr>
+		<tr>
+			<td>Target directory:</td>
+			<td><input type="text" id="queue-properties-target-directory" /></td>
+		</tr>
+		<tr>
+			<td><label><input type="checkbox" id="queue-properties-move" />Move transfers after completion:</label></td>
+			<td><input type="text" id="queue-properties-move-directory" /></td>
+		</tr>
+		<tr>
+			<td>Download speed limit (KB/s):</td>
+			<td><input id="queue-properties-speed-down" type="text" size="4" value="0" /></td>
+		</tr>
+		<tr>
+			<td>Upload speed limit (KB/s):</td>
+			<td><input id="queue-properties-speed-up" type="text" size="4" value="0" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<fieldset>
+					<legend><label><input type="checkbox" id="queue-properties-transfer-limits" /> Limit active transfer count</label></legend>
+					
+					<table>
+						<tr>
+							<td>Maximum active download transfers:</td>
+							<td><input id="queue-properties-count-down" type="text" size="4" value="0" /></td>
+						</tr>
+						<tr>
+							<td>Maximum active upload transfers:</td>
+							<td><input id="queue-properties-count-up" type="text" size="4" value="0" /></td>
+							<td><label><input type="checkbox" id="queue-propeties-upasdown" /> Count as downloads</label></td>
+						</tr>
+					</table>
+				</fieldset>
+			</td>
+		</tr>
+	</table>
+</div>
+
 <!--</td></tr>
 </table>-->
 

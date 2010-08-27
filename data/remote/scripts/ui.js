@@ -47,6 +47,15 @@ $(document).ready(function() {
 		});
 	});
 	
+	$("#queue-properties-transfer-limits").click(function() {
+		checked = $(this).is(':checked');
+		$("#queue-properties-count-down, #queue-properties-count-up, #queue-propeties-upasdown").attr("disabled", (checked)?"":"disabled");
+	});
+	$("#queue-properties-move").click(function() {
+		checked = $(this).is(':checked');
+		$("#queue-properties-move-directory").attr("disabled", (checked)?"":"disabled");
+	});
+	
 	//$("#transfer-properties-speed-down").spinner({ min: 0 });
 	//$("#transfer-properties-speed-up").spinner({ min: 0 });
 	

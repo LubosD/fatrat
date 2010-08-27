@@ -435,7 +435,7 @@ target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLA
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/config.h
+	${CMAKE_CURRENT_SOURCE_DIR}/config.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/DelayedIcon.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/AppTools.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Transfer.h

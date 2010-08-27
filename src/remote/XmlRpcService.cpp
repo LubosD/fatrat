@@ -46,7 +46,7 @@ QMap<QString,XmlRpcService::FunctionInfo> XmlRpcService::m_mapFunctions;
 static void checkArguments(const QList<QVariant>& args, const QVariant::Type* types, int ntypes)
 {
 	if(args.size() != ntypes)
-		throw XmlRpcService::XmlRpcError(2, "Invalid argument count");
+		throw XmlRpcService::XmlRpcError(2, QString("Invalid argument count - received %1, expected %2").arg(args.size()).arg(ntypes));
 	for(int i=0;i<ntypes;i++)
 	{
 		if(args[i].type() != types[i])
@@ -66,6 +66,12 @@ static void checkType(QVariant var, QVariant::Type type)
 void XmlRpcService::globalInit()
 {
 	registerFunction("getQueues", XmlRpcService::getQueues, QVector<QVariant::Type>());
+
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::String << QVariant::Map;
+		registerFunction("Queue.setProperties", Queue_setProperties, aa);
+	}
 }
 
 void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
@@ -243,6 +249,72 @@ QVariant XmlRpcService::Queue_getTransfers(QString uuid)
 
 	q->unlock();
 	return vlist;
+}
+
+QVariant XmlRpcService::Queue_setProperties(QList<QVariant>& args)
+{
+	QString uuid = args[0].toString();
+	QVariantMap properties = args[1].toMap();
+	Queue* q = 0;
+	QReadLocker r(&g_queuesLock);
+
+	HttpService::findQueue(uuid, &q);
+
+	if(!q)
+		throw XmlRpcError(101, "Invalid queue UUID");
+
+	for(QVariantMap::const_iterator it = properties.constBegin(); it != properties.constEnd(); it++)
+	{
+		QString prop = it.key();
+		if(prop == "name")
+		{
+			checkType(it.value(), QVariant::String);
+			q->setName(it.value().toString());
+		}
+		else if(prop == "defaultDirectory")
+		{
+			checkType(it.value(), QVariant::String);
+			q->setDefaultDirectory(it.value().toString());
+		}
+		else if(prop == "moveDirectory")
+		{
+			checkType(it.value(), QVariant::String);
+			q->setMoveDirectory(it.value().toString());
+		}
+		else if(prop == "speedLimits")
+		{
+			checkType(it.value(), QVariant::List);
+			QVariantList list = it.value().toList();
+
+			if(list.size() != 2)
+				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
+
+			checkType(list.at(0), QVariant::Int);
+			checkType(list.at(1), QVariant::Int);
+
+			q->setSpeedLimits(list.at(0).toInt(), list.at(1).toInt());
+		}
+		else if(prop == "transferLimits")
+		{
+			checkType(it.value(), QVariant::List);
+			QVariantList list = it.value().toList();
+
+			if(list.size() != 2)
+				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
+
+			checkType(list.at(0), QVariant::Int);
+			checkType(list.at(1), QVariant::Int);
+
+			q->setTransferLimits(list.at(0).toInt(), list.at(1).toInt());
+		}
+		else if(prop == "upAsDown")
+		{
+			checkType(it.value(), QVariant::Bool);
+			q->setUpAsDown(it.value().toBool());
+		}
+		else
+			throw XmlRpcError(103, QString("Invalid transfer property: %1").arg(prop));
+	}
 }
 
 QVariant XmlRpcService::Transfer_setProperties(QStringList luuid, QVariantMap properties)
