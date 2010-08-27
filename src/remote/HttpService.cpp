@@ -263,6 +263,9 @@ void HttpService::TransferTreeBrowserService::operator()(pion::net::HTTPRequestP
 	QString uuidTransfer = QString::fromStdString(getRelativeResource(request->getResource()));
 	QString path = QString::fromStdString(request->getQuery("path"));
 
+	path = path.replace("+", " ");
+	path = QUrl::fromPercentEncoding(path.toUtf8());
+
 	if (uuidTransfer.startsWith("/"))
 		uuidTransfer = uuidTransfer.mid(1);
 
@@ -294,7 +297,14 @@ void HttpService::TransferTreeBrowserService::operator()(pion::net::HTTPRequestP
 
 	if (path.startsWith("/"))
 		path = path.mid(1);
-	dir.cd(path);
+
+	if (!dir.cd(path))
+	{
+		writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+		writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+		writer->send();
+		return;
+	}
 
 	root = doc.createElement("root");
 	doc.appendChild(root);
@@ -346,6 +356,9 @@ void HttpService::TransferDownloadService::operator()(pion::net::HTTPRequestPtr 
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn)));
 	QString transfer = QString::fromStdString(request->getQuery("transfer"));
 	QString path = QString::fromStdString(request->getQuery("path"));
+
+	path = path.replace("+", " ");
+	path = QUrl::fromPercentEncoding(path.toUtf8());
 
 	transfer = QUrl::fromPercentEncoding(transfer.toUtf8());
 
