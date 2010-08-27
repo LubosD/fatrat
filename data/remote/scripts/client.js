@@ -1,5 +1,5 @@
 var client;
-var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete", "Queue.moveTransfers", "Queue.setProperties"];
+var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete", "Queue.moveTransfers", "Queue.setProperties", "Queue.create"];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
@@ -121,33 +121,7 @@ function addQueueItem(item, addBefore) {
 					$(this).dialog('close');
 				},
 				Ok: function() {
-					sdown = parseInt($("#queue-properties-speed-down").val());
-					sup = parseInt($("#queue-properties-speed-up").val());
-					
-					properties = {
-						name: $("#queue-properties-name").val(),
-						upAsDown : $("#queue-propeties-upasdown").is(":checked"),
-						defaultDirectory: $("#queue-properties-target-directory").val()
-					};
-					
-					properties.moveDirectory = $("#queue-properties-move").is(":checked") ? $("#queue-properties-move-directory").val() : "";
-					
-					if (!isNaN(sup) && !isNaN(sdown) && sup >= 0 && sdown >= 0)
-						properties.speedLimits = [ sdown*1024, sup*1024 ];
-					
-					tdown = tup = -1;
-					if ($("#queue-properties-transfer-limits").is(":checked")) {
-						tdown = parseInt($("#queue-properties-count-down").val());
-						if (properties.upAsDown)
-							tup = tdown;
-						else
-							tup = parseInt($("#queue-properties-count-up").val());
-						if (isNaN(tdown) || tdown <= 0)
-							tdown = 1;
-						if (isNaN(up) || tup <= 0)
-							tup = 1;
-					}
-					properties.transferLimits = [ tdown, tup ];
+					properties = getQueueDlgPropertyMap();
 					
 					$(this).dialog('close');
 					client.Queue_setProperties(currentQueue, properties, function(data) {
@@ -161,6 +135,45 @@ function addQueueItem(item, addBefore) {
 		$(this).toggleClass("ui-selected").siblings().removeClass("ui-selected");
 		queueClicked(e.target);
 	});
+}
+
+function getQueueDlgPropertyMap() {
+	sdown = parseInt($("#queue-properties-speed-down").val());
+	sup = parseInt($("#queue-properties-speed-up").val());
+	
+	properties = {
+		name: $("#queue-properties-name").val(),
+		upAsDown : $("#queue-propeties-upasdown").is(":checked")
+	};
+	dir = $("#queue-properties-target-directory").val();
+	if (dir != "")
+		properties.defaultDirectory = dir;
+	
+	if (properties.name == "") {
+		alert("Enter queue name");
+		return null;
+	}
+	
+	properties.moveDirectory = $("#queue-properties-move").is(":checked") ? $("#queue-properties-move-directory").val() : "";
+	
+	if (!isNaN(sup) && !isNaN(sdown) && sup >= 0 && sdown >= 0)
+		properties.speedLimits = [ sdown*1024, sup*1024 ];
+	
+	tdown = tup = -1;
+	if ($("#queue-properties-transfer-limits").is(":checked")) {
+		tdown = parseInt($("#queue-properties-count-down").val());
+		if (properties.upAsDown)
+			tup = tdown;
+		else
+			tup = parseInt($("#queue-properties-count-up").val());
+		if (isNaN(tdown) || tdown <= 0)
+			tdown = 1;
+		if (isNaN(up) || tup <= 0)
+			tup = 1;
+	}
+	properties.transferLimits = [ tdown, tup ];
+	
+	return properties;
 }
 
 function queueClicked(elem) {
@@ -648,6 +661,43 @@ function actionMoveBottom() {
 }
 
 function actionAddQueue() {
+	$("#queue-properties-name").val("");
+	$("#queue-properties-target-directory").val("");
+	$("#queue-properties-move-directory").val("");
+	$("#queue-properties-move").attr("checked", "");
+	$("#queue-properties-move-directory").attr("disabled", "disabled");
+	$("#queue-properties-speed-down").val(0);
+	$("#queue-properties-speed-up").val(0);
+	
+	$("#queue-properties-count-down, #queue-properties-count-up, #queue-propeties-upasdown").attr("disabled", "disabled");
+	$("#queue-propeties-upasdown").attr("checked", "");
+	$("#queue-properties-transfer-limits").attr("checked", "");
+	
+	$("#queue-properties-count-down").val("1");
+	$("#queue-properties-count-up").val("1");
+	
+	$("#queue-properties").dialog({
+		resizable: true,
+		//height: 500,
+		width: 600,
+		modal: true,
+		buttons: {
+			Cancel: function() {
+				$(this).dialog('close');
+			},
+			Ok: function() {
+				properties = getQueueDlgPropertyMap();
+				
+				if (properties)
+				{
+					$(this).dialog('close');
+					client.Queue_create(properties, function(data) {
+						updateQueues();
+					});
+				}
+			}
+		}
+	});
 }
 
 function actionDeleteQueue() {
