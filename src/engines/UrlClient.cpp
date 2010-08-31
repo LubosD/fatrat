@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CurlPollingMaster.h"
 #include "Settings.h"
 #include <QFileInfo>
+#include <cstring>
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -72,9 +73,9 @@ void UrlClient::start()
 	QUrl url = m_source.url;
 	bool bWatchHeaders = false;
 	
-	if(lseek64(m_target, SEEK_SET, m_rangeFrom) == (off_t) -1)
+	if(lseek64(m_target, m_rangeFrom, SEEK_SET) == (off_t) -1)
 	{
-		emit failure(tr("Failed to seek in the file"));
+		emit failure(tr("Failed to seek in the file - %1").arg(strerror(errno)));
 		return;
 	}
 	qDebug() << "Position in file:" << lseek64(m_target, SEEK_CUR, 0);
@@ -287,6 +288,7 @@ void UrlClient::transferDone(CURLcode result)
 			err = QString::fromUtf8(m_errorBuffer);
 		else
 			err = curl_easy_strerror(result);
+		qDebug() << "The transfer has failed, firing an event";
 		emit done(err);
 	}
 }

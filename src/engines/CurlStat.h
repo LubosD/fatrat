@@ -16,13 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-In addition, as a special exemption, Luboš Doležel gives permission
-to link the code of FatRat with the OpenSSL project's
-"OpenSSL" library (or with modified versions of it that use the; same
-license as the "OpenSSL" library), and distribute the linked
-executables. You must obey the GNU General Public License in all
-respects for all of the code used other than "OpenSSL".
 */
 
 #ifndef CURLSTAT_H
@@ -36,25 +29,25 @@ class CurlStat
 public:
 	CurlStat();
 	virtual ~CurlStat();
-	
+
 	void speeds(int& down, int& up) const;
 	void setMaxUp(int bytespersec);
 	void setMaxDown(int bytespersec);
-	
+
 	bool hasNextReadTime() const;
 	bool hasNextWriteTime() const;
 	timeval nextReadTime() const;
 	timeval nextWriteTime() const;
-	
+
 	bool performsLimiting() const;
-	
+
 	timeval lastOperation() const;
 	void resetStatistics();
 
 	virtual bool idleCycle(const timeval& tvNow) = 0;
-	
+
 	typedef QPair<long long,long> timedata_pair;
-	
+
 	struct SpeedData
 	{
 		timedata_pair* stats;
@@ -63,19 +56,18 @@ public:
 		int max;
 		int nextStat;
 	};
-	
+
 	static const int MAX_STATS;
 protected:
 	static int computeSpeed(const timedata_pair* data);
 	static void timeProcess(SpeedData& data, size_t bytes);
 	static bool isNull(const timeval& t);
-	
+
 	void timeProcessDown(size_t bytes);
 	void timeProcessUp(size_t bytes);
 protected:
 	SpeedData m_down, m_up;
-	mutable QReadWriteLock m_statsMutex;
-	
+
 	friend class CurlUser;
 	friend class UrlClient;
 };

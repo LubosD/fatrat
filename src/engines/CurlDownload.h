@@ -78,6 +78,7 @@ private slots:
 	void clientLogMessage(QString msg);
 	void clientDone(QString error);
 	void clientTotalSizeKnown(qlonglong bytes);
+	void clientFailure(QString err);
 	void updateSegmentProgress();
 private:
 	void generateName();

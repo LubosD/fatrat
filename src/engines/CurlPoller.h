@@ -53,10 +53,12 @@ public:
 	void removeTransfer(CurlPollingMaster* obj);
 	
 	void run();
+	void checkErrors(timeval tvNow);
 	
 	static CurlPoller* instance() { return m_instance; }
 protected:
 	void epollEnable(int socket, int events);
+	void pollingCycle(bool oneshot);
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
 	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
 	static void setTransferTimeout(int timeout);
@@ -68,6 +70,8 @@ protected:
 	bool m_bAbort;
 	CURLM* m_curlm;
 	Poller* m_poller;
+	int m_curlTimeout;
+	long m_timeout;
 	
 	typedef QHash<int, QPair<int,CurlStat*> > sockets_hash;
 	

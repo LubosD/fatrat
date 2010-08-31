@@ -52,7 +52,7 @@ static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::m
 	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
 
 CurlDownload::CurlDownload()
-	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nameChanger(0)
+	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nameChanger(0), m_master(0)
 {
 	m_errorBuffer[0] = 0;
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateSegmentProgress()));
@@ -257,6 +257,7 @@ run_segments:
 			connect(client, SIGNAL(renameTo(QString)), this, SLOT(clientRenameTo(QString)));
 			connect(client, SIGNAL(logMessage(QString)), this, SLOT(clientLogMessage(QString)));
 			connect(client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
+			connect(client, SIGNAL(failure(QString)), this, SLOT(clientFailure(QString)));
 			connect(client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
 
 			Segment sg;
@@ -303,7 +304,7 @@ run_segments:
 				continue;
 			m_master->removeTransfer(m_segments[i].client);
 			m_segments[i].client->stop();
-			m_segments[i].client->deleteLater();
+			//m_segments[i].client->deleteLater();
 			m_segments[i].client = 0;
 			m_segments[i].color = QColor();
 		}
@@ -628,7 +629,15 @@ void CurlDownload::clientLogMessage(QString msg)
 
 void CurlDownload::clientTotalSizeKnown(qlonglong bytes)
 {
+	qDebug() << "CurlDownload::clientTotalSizeKnown()" << bytes;
 	m_nTotal = bytes;
+}
+
+void CurlDownload::clientFailure(QString err)
+{
+	qDebug() << "CurlDownload::clientFailure()" << err;
+	m_strMessage = err;
+	setState(Failed);
 }
 
 void CurlDownload::clientDone(QString error)
@@ -685,6 +694,8 @@ void CurlDownload::clientDone(QString error)
 			setState(Failed);
 			m_strMessage = error;
 		}
+
+		// TODO: Replace segment?
 	}
 }
 
