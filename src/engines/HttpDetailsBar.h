@@ -36,6 +36,7 @@ class CurlDownload;
 
 class HttpDetailsBar : public QWidget
 {
+Q_OBJECT
 public:
 	HttpDetailsBar(QWidget* parent);
 	void setDownload(CurlDownload* d);

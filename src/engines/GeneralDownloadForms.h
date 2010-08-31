@@ -44,7 +44,7 @@ public:
 	virtual void accept();
 
 	QString m_strURL, m_strReferrer, m_strUser, m_strPassword, m_strBindAddress;
-	FtpMode m_ftpMode;
+	UrlClient::FtpMode m_ftpMode;
 	QUuid m_proxy;
 	QList<Transfer*>* m_multi;
 };
@@ -63,7 +63,7 @@ public slots:
 	void deleteUrl();
 private:
 	CurlDownload* m_download;
-	QList<CurlDownload::UrlObject> m_urls;
+	QList<UrlClient::UrlObject> m_urls;
 };
 
 #endif

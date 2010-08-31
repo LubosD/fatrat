@@ -296,6 +296,7 @@ if(WITH_CURL)
 		src/engines/UrlClient.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
+		src/engines/HttpDetailsBar.cpp
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
 		src/engines/RapidshareFreeDownload.cpp
@@ -307,6 +308,7 @@ if(WITH_CURL)
 		src/engines/CurlUpload.h
 		src/engines/UrlClient.h
 		src/engines/HttpFtpSettings.h
+		src/engines/HttpDetailsBar.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
 		src/engines/RapidshareFreeDownload.h
