@@ -50,6 +50,8 @@ public:
 	
 	timeval lastOperation() const;
 	void resetStatistics();
+
+	virtual bool idleCycle(const timeval& tvNow) = 0;
 	
 	typedef QPair<long long,long> timedata_pair;
 	
@@ -72,6 +74,7 @@ protected:
 	void timeProcessUp(size_t bytes);
 protected:
 	SpeedData m_down, m_up;
+	mutable QReadWriteLock m_statsMutex;
 	
 	friend class CurlUser;
 	friend class UrlClient;

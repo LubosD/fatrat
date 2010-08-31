@@ -6,7 +6,8 @@ Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
-version 2 as published by the Free Software Foundation.
+version 2 as published by the Free Software Foundation
+with the OpenSSL special exemption.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,42 +26,19 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#ifndef CurlStatCALLBACK_H
+#define CurlStatCALLBACK_H
 
-#ifndef CURLUSER_H
-#define CURLUSER_H
-#include "CurlStat.h"
 #include <curl/curl.h>
-#include <sys/time.h>
-#include <QReadWriteLock>
-#include <QList>
-#include <QPair>
 
-class CurlUser : public CurlStat
+class CurlStatCallback
 {
 public:
-	CurlUser();
-	virtual ~CurlUser();
-
-	virtual bool idleCycle(const timeval& tvNow);
-
-protected:
 	virtual CURL* curlHandle() = 0;
 	virtual void transferDone(CURLcode result) = 0;
 	
-	virtual size_t readData(char* buffer, size_t maxData);
-	virtual bool writeData(const char* buffer, size_t bytes);
-	
-	static size_t read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This);
-	static size_t write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This);
-
-	void setSegmentMaster(CurlStat* master);
-	CurlStat* segmentMaster() const;
-
-private:
-	CurlStat* m_master;
-	
-	friend class CurlPoller;
-	friend class CurlPollingMaster;
+	virtual size_t readData(char* buffer, size_t maxData) { return 0;}
+	virtual bool writeData(const char* buffer, size_t bytes) { return false; }
 };
 
 #endif

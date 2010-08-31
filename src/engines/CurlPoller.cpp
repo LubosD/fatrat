@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 
 
 #include "CurlPoller.h"
+#include "CurlPollingMaster.h"
 #include <QtDebug>
 
 CurlPoller* CurlPoller::m_instance = 0;
@@ -84,7 +85,7 @@ void CurlPoller::run()
 	{
 		int dummy;
 		timeval tvNow;
-		QList<CurlUser*> timedOut;
+		QList<CurlStat*> timedOut;
 		
 		int numEvents = m_poller->wait(timeout, events, sizeof(events) / sizeof(events[0]));
 		
@@ -96,17 +97,22 @@ void CurlPoller::run()
 		
 		for(int i=0;i<numEvents;i++)
 		{
-			int mask = 0;
-			
-			if(events[i].flags & Poller::PollerIn)
-				mask |= CURL_CSELECT_IN;
-			if(events[i].flags & Poller::PollerOut)
-				mask |= CURL_CSELECT_OUT;
-			if(events[i].flags & (Poller::PollerError | Poller::PollerHup))
-				mask |= CURL_CSELECT_ERR;
-			
-			//qDebug() << "Events:" << mask;
-			curl_multi_socket_action(m_curlm, events[i].socket, mask, &dummy);
+			if(!m_masters.contains(events[i].socket))
+			{
+				int mask = 0;
+
+				if(events[i].flags & Poller::PollerIn)
+					mask |= CURL_CSELECT_IN;
+				if(events[i].flags & Poller::PollerOut)
+					mask |= CURL_CSELECT_OUT;
+				if(events[i].flags & (Poller::PollerError | Poller::PollerHup))
+					mask |= CURL_CSELECT_ERR;
+
+				//qDebug() << "Events:" << mask;
+				curl_multi_socket_action(m_curlm, events[i].socket, mask, &dummy);
+			}
+			else
+				m_masters[events[i].socket]->handle();
 		}
 		
 		gettimeofday(&tvNow, 0);
@@ -126,21 +132,16 @@ void CurlPoller::run()
 			curl_easy_cleanup(c);
 		}
 
-		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		for(QHash<int,QPair<int, CurlStat*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int mask = 0;
-			CurlUser* user = it.value().second;
+			CurlStat* user = it.value().second;
 			timeval lastOp = user->lastOperation();
 			
 			int seconds = tvNow.tv_sec - lastOp.tv_sec;
 			
-			if(seconds > m_nTransferTimeout)
+			if(!user->idleCycle(tvNow))
 				timedOut << user;
-			else if(seconds > 1)
-			{
-				CurlUser::read_function(0, 0, 0, user);
-				CurlUser::write_function(0, 0, 0, user);
-			}
 			
 			if(user->hasNextReadTime())
 			{
@@ -156,10 +157,10 @@ void CurlPoller::run()
 			if(mask)
 				curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
 		}
-		for(QHash<int,QPair<int, CurlUser*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		for(QHash<int,QPair<int, CurlStat*> >::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 		{
 			int msec = -1;
-			CurlUser* user = it.value().second;
+			CurlStat* user = it.value().second;
 			
 			if(user->hasNextReadTime())
 			{
@@ -215,8 +216,11 @@ void CurlPoller::run()
 			m_sockets[it.key()] = it.value();
 		m_socketsToAdd.clear();
 		
-		foreach(CurlUser* user, timedOut)
-			user->transferDone(CURLE_OPERATION_TIMEDOUT);
+		foreach(CurlStat* stat, timedOut)
+		{
+			if(CurlUser* user = dynamic_cast<CurlUser*>(stat))
+				user->transferDone(CURLE_OPERATION_TIMEDOUT);
+		}
 		
 		m_usersLock.unlock();
 	}
@@ -253,7 +257,7 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 	{
 		qDebug() << "CurlPoller::socket_callback - add/mod";
 		
-		This->m_socketsToAdd[s] = QPair<int,CurlUser*>(flags, This->m_users[easy]); 
+		This->m_socketsToAdd[s] = QPair<int,CurlStat*>(flags, This->m_users[easy]);
 		
 		return This->m_poller->addSocket(s, flags);
 	}
@@ -285,7 +289,37 @@ void CurlPoller::removeTransfer(CurlUser* obj)
 	}
 }
 
+void CurlPoller::removeSafely(CURL* curl)
+{
+	QMutexLocker locker(&m_usersLock);
+	m_queueToDelete.enqueue(curl);
+}
+
 void CurlPoller::setTransferTimeout(int timeout)
 {
 	m_nTransferTimeout = timeout;
 }
+
+void CurlPoller::addTransfer(CurlPollingMaster* obj)
+{
+	QMutexLocker locker(&m_usersLock);
+
+	int handle = obj->handle();
+	int mask = Poller::PollerError | Poller::PollerHup | Poller::PollerIn | Poller::PollerOut;
+
+	qDebug() << "Adding a polling master" << handle << obj;
+	m_masters[handle] = obj;
+	m_sockets[handle] = QPair<int,CurlStat*>(mask, obj);
+	m_poller->addSocket(handle, mask);
+}
+
+void CurlPoller::removeTransfer(CurlPollingMaster* obj)
+{
+	QMutexLocker locker(&m_usersLock);
+
+	int handle = obj->handle();
+	m_masters.remove(handle);
+	m_sockets.remove(handle);
+	m_poller->removeSocket(handle);
+}
+

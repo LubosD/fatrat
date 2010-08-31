@@ -179,10 +179,12 @@ void CurlStat::setMaxDown(int bytespersec)
 
 void CurlStat::timeProcessDown(size_t bytes)
 {
+	QWriteLocker l(&m_statsMutex);
 	timeProcess(m_down, bytes);
 }
 
 void CurlStat::timeProcessUp(size_t bytes)
 {
+	QWriteLocker l(&m_statsMutex);
 	timeProcess(m_up, bytes);
 }

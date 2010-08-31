@@ -37,6 +37,8 @@ respects for all of the code used other than "OpenSSL".
 #include "engines/CurlUser.h"
 #include "poller/Poller.h"
 
+class CurlPollingMaster;
+
 class CurlPoller : public QThread
 {
 public:
@@ -46,6 +48,9 @@ public:
 	void addTransfer(CurlUser* obj);
 	// will handle the underlying CURL* too
 	void removeTransfer(CurlUser* obj);
+	void removeSafely(CURL* curl);
+	void addTransfer(CurlPollingMaster* obj);
+	void removeTransfer(CurlPollingMaster* obj);
 	
 	void run();
 	
@@ -55,7 +60,8 @@ protected:
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
 	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
 	static void setTransferTimeout(int timeout);
-private:
+	static int getTransferTimeout() { return m_nTransferTimeout; }
+protected:
 	static CurlPoller* m_instance;
 	static int m_nTransferTimeout;
 
@@ -63,9 +69,10 @@ private:
 	CURLM* m_curlm;
 	Poller* m_poller;
 	
-	typedef QHash<int, QPair<int,CurlUser*> > sockets_hash;
+	typedef QHash<int, QPair<int,CurlStat*> > sockets_hash;
 	
 	QMap<CURL*, CurlUser*> m_users;
+	QMap<int, CurlPollingMaster*> m_masters;
 	sockets_hash m_sockets;
 	QMutex m_usersLock;
 	QQueue<CURL*> m_queueToDelete;
@@ -75,6 +82,8 @@ private:
 
 	friend class HttpFtpSettings;
 	friend class CurlDownload;
+	friend class CurlPollingMaster;
+	friend class CurlUser;
 };
 
 #endif

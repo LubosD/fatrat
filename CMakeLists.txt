@@ -292,6 +292,8 @@ if(WITH_CURL)
 		src/engines/CurlPoller.cpp
 		src/engines/CurlUser.cpp
 		src/engines/CurlStat.cpp
+		src/engines/CurlPollingMaster.cpp
+		src/engines/UrlClient.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/RapidshareUpload.cpp
@@ -303,6 +305,7 @@ if(WITH_CURL)
 		${fatrat_MOC_HDRS}
 		src/engines/CurlDownload.h
 		src/engines/CurlUpload.h
+		src/engines/UrlClient.h
 		src/engines/HttpFtpSettings.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
