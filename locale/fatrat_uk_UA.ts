@@ -121,7 +121,7 @@
     <message>
         <location filename="../src/tools/ContextListWidget.cpp" line="39"/>
         <source>Add known</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати відоме</translation>
     </message>
     <message>
         <location filename="../src/tools/ContextListWidget.cpp" line="55"/>
@@ -262,7 +262,7 @@
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="339"/>
         <source>Write failed (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка запису (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="431"/>
@@ -1100,12 +1100,12 @@ add/new - Додати нові завантаження
     <message>
         <location filename="../src/MainWindow.ui" line="326"/>
         <source>Transfer speed graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Графік швидкості передачі</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="346"/>
         <source>Queue speed graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Графік черги швидкості</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="363"/>
@@ -1278,7 +1278,7 @@ add/new - Додати нові завантаження
     <message>
         <location filename="../src/MainWindow.ui" line="829"/>
         <source>Copy remote URI</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати URI</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="999"/>
@@ -1606,7 +1606,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/Settings.cpp" line="102"/>
         <source>Clipboard monitor</source>
-        <translation type="unfinished"></translation>
+        <translation>Монітор буферу обміну</translation>
     </message>
     <message>
         <location filename="../src/XmlRpc.cpp" line="169"/>
@@ -2473,37 +2473,37 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="14"/>
         <source>Clipboard monitor</source>
-        <translation type="unfinished"></translation>
+        <translation>Монітор буферу обміну</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="20"/>
         <source>Enable for global clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути глобально для буферу обміну</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="27"/>
         <source>Enable for selection clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути вибірково для буферу обміну</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="34"/>
         <source>Regular expressions to catch</source>
-        <translation type="unfinished"></translation>
+        <translation>Перехоплювати регулярний вираз</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="43"/>
         <source>Add</source>
-        <translation type="unfinished">Додати</translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="50"/>
         <source>Edit</source>
-        <translation type="unfinished">Редагувати</translation>
+        <translation>Редагувати</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="57"/>
         <source>Delete</source>
-        <translation type="unfinished">Видалити</translation>
+        <translation>Видалити</translation>
     </message>
 </context>
 <context>
@@ -2628,7 +2628,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="182"/>
         <source>Use system theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати системну тему</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="17"/>
@@ -2707,12 +2707,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="111"/>
         <source>Connection timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Тайм-аут підключення</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="134"/>
         <source>seconds</source>
-        <translation type="unfinished">секунд</translation>
+        <translation>секунд</translation>
     </message>
 </context>
 <context>
@@ -3413,7 +3413,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1070"/>
         <source>Seeders: %1 (%2) | Leechers: %3 (%4)</source>
-        <translation type="unfinished"></translation>
+        <translation>Сідери: %1 (%2) | Лічери: %3 (%4)</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1089"/>
@@ -3428,7 +3428,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1102"/>
         <source>Seeders: %1 | Leechers: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Сідери: %1 | Лічери: %2</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1362"/>
@@ -4016,12 +4016,12 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/filterlineedit.cpp" line="51"/>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр</translation>
     </message>
     <message>
         <location filename="../src/filterlineedit.cpp" line="53"/>
         <source>Clear text</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистити текст</translation>
     </message>
 </context>
 <context>
