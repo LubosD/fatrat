@@ -53,6 +53,8 @@ public:
 	void setTargetObject(int fd);
 	void setRange(qlonglong from, qlonglong to);
 	qlonglong progress() const;
+	qlonglong rangeFrom() const { return m_rangeFrom; }
+	qlonglong rangeTo() const { return m_rangeTo; }
 	void setPollingMaster(CurlPollingMaster* master);
 	
 	virtual CURL* curlHandle();
@@ -66,7 +68,7 @@ signals:
 	void failure(QString msg);
 	void renameTo(QString name);
 	void logMessage(QString msg);
-	void done(QString error);
+	void done(QString error = QString());
 	void totalSizeKnown(qlonglong bytes);
 private:
 	UrlObject m_source;
@@ -76,6 +78,7 @@ private:
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	QHash<QByteArray, QByteArray> m_headers;
 	CurlPollingMaster* m_master;
+	bool m_bTerminating;
 };
 
 #endif

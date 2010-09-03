@@ -48,7 +48,7 @@ public:
 	void addTransfer(CurlUser* obj);
 	// will handle the underlying CURL* too
 	void removeTransfer(CurlUser* obj);
-	void removeSafely(CURL* curl);
+	//void removeSafely(CURL* curl);
 	void addTransfer(CurlPollingMaster* obj);
 	void removeTransfer(CurlPollingMaster* obj);
 	
@@ -79,7 +79,7 @@ protected:
 	QMap<int, CurlPollingMaster*> m_masters;
 	sockets_hash m_sockets;
 	QMutex m_usersLock;
-	QQueue<CURL*> m_queueToDelete;
+	QQueue<CurlUser*> m_queueToDelete;
 	
 	QList<int> m_socketsToRemove;
 	sockets_hash m_socketsToAdd;

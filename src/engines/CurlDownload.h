@@ -102,19 +102,34 @@ protected:
 		// pointer to a UrlClient instance, if the segment is active
 		UrlClient* client;
 		QColor color;
+
+		bool operator<(const Segment& s2) const;
+		operator QString() const
+		{
+			return QString("(struct Segment): offset: %1; bytes: %2; urlIndex: %3").arg(offset).arg(bytes).arg(urlIndex);
+		}
 	};
 	// Represents a blank spot in the file, i.e. a candidate for a new download thread
 	// .first = offset
 	// .second = bytes
-	typedef QPair<qlonglong,qlonglong> FreeSegment;
+	struct FreeSegment
+	{
+		FreeSegment(qlonglong _offset, qlonglong _bytes) : offset(_offset), bytes(_bytes), affectedClient(0) {}
 
-	static bool freeSegmentLessThan(const FreeSegment& s1, const FreeSegment& s2);
+		qlonglong offset;
+		qlonglong bytes;
+		UrlClient* affectedClient;
+
+		bool operator<(const FreeSegment& s2) const;
+	};
 
 	void autoCreateSegment();
 	void removeLostSegments();
 	static void simplifySegments(QList<Segment>& in);
 	void fixActiveSegmentsList();
 	QColor allocateSegmentColor();
+	void startSegment(Segment& seg, qlonglong bytes);
+	void startSegment(int urlIndex);
 protected:
 	CURL* m_curl;
 	QDir m_dir;

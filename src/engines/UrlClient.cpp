@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h>
 
 UrlClient::UrlClient()
-	: m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0)
+	: m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0), m_bTerminating(false)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -39,9 +39,12 @@ UrlClient::UrlClient()
 UrlClient::~UrlClient()
 {
 	if (m_target)
+	{
 		close(m_target);
-	if (m_curl != 0)
-		CurlPoller::instance()->removeSafely(m_curl);
+		m_target = 0;
+	}
+//	if (m_curl != 0)
+//		CurlPoller::instance()->removeSafely(m_curl);
 }
 
 void UrlClient::setSourceObject(const UrlObject& obj)
@@ -78,7 +81,7 @@ void UrlClient::start()
 		emit failure(tr("Failed to seek in the file - %1").arg(strerror(errno)));
 		return;
 	}
-	qDebug() << "Position in file:" << lseek64(m_target, SEEK_CUR, 0);
+	qDebug() << "Position in file:" << lseek64(m_target, 0, SEEK_CUR);
 	
 	m_curl = curl_easy_init();
 	
@@ -131,7 +134,14 @@ void UrlClient::start()
 	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
 	curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 	curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
-	curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, m_rangeFrom);
+
+	char range[128];
+	if(m_rangeTo != -1)
+		sprintf(range, "%ld-%ld", m_rangeFrom, m_rangeTo);
+	else
+		sprintf(range, "%ld-", m_rangeFrom);
+
+	curl_easy_setopt(m_curl, CURLOPT_RANGE, range);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
 	
@@ -165,9 +175,9 @@ void UrlClient::start()
 
 void UrlClient::stop()
 {
-	CurlPoller::instance()->removeSafely(m_curl);
+	//m_master->removeTransfer(this);
 	//curl_easy_cleanup(m_curl);
-	m_curl = 0;
+	//m_curl = 0;
 	m_progress = 0;
 }
 
@@ -239,6 +249,8 @@ int UrlClient::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t
 bool UrlClient::writeData(const char* buffer, size_t bytes)
 {
 	size_t towrite = bytes;
+	if(m_bTerminating)
+		return true;
 	
 	if(m_rangeTo == -1)
 	{
@@ -254,14 +266,28 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	if(m_rangeTo != -1)
 	{
 		qlonglong maximum = m_rangeTo - m_rangeFrom - m_progress;
+		if (maximum < 0)
+			maximum = 0;
 		if(qlonglong(towrite) > maximum)
 			towrite = maximum;
 	}
 	
-	if (write(m_target, buffer, towrite) != towrite)
+	if (towrite > 0)
 	{
-		emit failure(tr("Write failed (%1)").arg(strerror(errno)));
-		return false;
+		if (write(m_target, buffer, towrite) != towrite && !m_bTerminating)
+		{
+			emit failure(tr("Write failed (%1)").arg(strerror(errno)));
+			m_bTerminating = true;
+			return false;
+		}
+	}
+
+	if(m_progress+bytes > m_rangeTo-m_rangeFrom && m_rangeTo != -1 && !m_bTerminating)
+	{
+		// The range has apparently been shrinked since the thread was started
+		qDebug() << "----------- Prematurely ending a shortened segment - m_rangeTo:" << m_rangeTo << "; progress:" << (m_progress+bytes);
+		m_bTerminating = true;
+		emit done(QString());
 	}
 	m_progress += towrite;
 	
@@ -273,10 +299,15 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 
 void UrlClient::transferDone(CURLcode result)
 {
+	if (m_bTerminating)
+		return;
+
 	qDebug() << "UrlClient::transferDone" << result;
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
 	if(result == CURLE_OK || (m_rangeFrom + m_progress >= m_rangeTo && m_rangeTo > 0))
 	{
+		qDebug() << "Segment finished, rangeTo:" << m_rangeTo;
+		m_bTerminating = true;
 		emit done(QString());
 	}
 	else
@@ -289,6 +320,7 @@ void UrlClient::transferDone(CURLcode result)
 		else
 			err = curl_easy_strerror(result);
 		qDebug() << "The transfer has failed, firing an event";
+		m_bTerminating = true;
 		emit done(err);
 	}
 }

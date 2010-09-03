@@ -134,9 +134,9 @@ void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 	
 	if(event->button() == Qt::RightButton && m_download != 0 /*&& m_download->isActive()*/)
 	{
-		QReadLocker l(&m_download->m_segmentsLock);
 		QMenu menu(this);
 		
+		m_download->m_segmentsLock.lockForRead();
 		if(m_sel >= 0 && m_sel < m_segs.size())
 		{
 			if(!m_download->m_segments[m_sel].client)
@@ -173,6 +173,7 @@ void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 				seg->addAction(text, this, SLOT(createSegment()))->setData(i);
 			}
 		}
+		m_download->m_segmentsLock.unlock();
 		
 		menu.exec(QCursor::pos());
 	}
@@ -182,6 +183,9 @@ void HttpDetailsBar::createSegment()
 {
 	QAction* act = static_cast<QAction*>(sender());
 	int url = act->data().toInt();
+	m_download->m_listActiveSegments << url;
+	if (m_download->isActive() && m_download->total())
+		m_download->startSegment(url);
 }
 
 void HttpDetailsBar::stopSegment()

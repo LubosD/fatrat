@@ -237,62 +237,45 @@ void CurlDownload::changeActive(bool bActive)
 		}
 		if (lastEnd < m_nTotal)
 			freeSegs << FreeSegment(lastEnd, m_nTotal - lastEnd);
-		if (!m_nTotal)
+		if (!m_nTotal && freeSegs.isEmpty())
 			freeSegs << FreeSegment(lastEnd, -1);
 		// 2) sort them
-		qSort(freeSegs.begin(), freeSegs.end(), freeSegmentLessThan);
+		qSort(freeSegs.begin(), freeSegs.end());
 
 		// 3) make enough free spots
 		qDebug() << "Found" << freeSegs.size() << "free spots";
-		while(freeSegs.size() < m_listActiveSegments.size())
+		while(freeSegs.size() < m_listActiveSegments.size() && m_nTotal)
 		{
 			int pos = freeSegs.size()-1;
 
 			// 4) split the largest segment into halves
-			int odd = freeSegs[pos].second % 2;
-			freeSegs[pos].second = freeSegs[pos].second / 2 + odd;
-			freeSegs << FreeSegment(freeSegs[pos].first + freeSegs[pos].second, freeSegs[pos].second - odd);
+			int odd = freeSegs[pos].bytes % 2;
+			freeSegs[pos].bytes = freeSegs[pos].bytes / 2 + odd;
+			freeSegs << FreeSegment(freeSegs[pos].offset + freeSegs[pos].bytes, freeSegs[pos].bytes - odd);
 
-			qSort(freeSegs.begin(), freeSegs.end(), freeSegmentLessThan);
+			qSort(freeSegs.begin(), freeSegs.end());
 		}
 		qDebug() << freeSegs.size() << "free spots after splitting work";
 
 		// 5) now allot the free spots to active segments
+
 		for(int i=0, j=freeSegs.size()-1;i<m_listActiveSegments.size();i++,j--)
 		{
 			// 6) create a written segment for every active segment
 			Segment seg;
-			seg.offset = freeSegs[j].first;
+			seg.offset = freeSegs[j].offset;
 			seg.bytes = 0;
 			seg.color = allocateSegmentColor();
 			seg.urlIndex = m_listActiveSegments[i];
 
 			// 7) now let's start a download thread for that segment
-			std::string spath = filePath().toStdString();
-			int file = open(spath.c_str(), O_CREAT|O_RDWR|O_LARGEFILE, 0666);
-			if(file < 0)
-			{
-				enterLogMessage(m_strMessage = strerror(errno));
-				setState(Failed);
-				return;
-			}
-
-			seg.client = new UrlClient;
-			seg.client->setRange(seg.offset, freeSegs[j].second);
-			seg.client->setSourceObject(m_urls[seg.urlIndex]);
-			seg.client->setTargetObject(file);
-
-			connect(seg.client, SIGNAL(renameTo(QString)), this, SLOT(clientRenameTo(QString)));
-			connect(seg.client, SIGNAL(logMessage(QString)), this, SLOT(clientLogMessage(QString)));
-			connect(seg.client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
-			connect(seg.client, SIGNAL(failure(QString)), this, SLOT(clientFailure(QString)));
-			connect(seg.client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
+			startSegment(seg, freeSegs[j].bytes);
 
 			m_segments << seg;
 
-			seg.client->setPollingMaster(m_master);
-			seg.client->start();
-			m_master->addTransfer(seg.client);
+			// allow only one segment if we don't know the file size yet
+			if(!m_nTotal)
+				break;
 		}
 
 		// 8) update the segment progress every 500 miliseconds
@@ -309,24 +292,63 @@ void CurlDownload::changeActive(bool bActive)
 				continue;
 			m_master->removeTransfer(m_segments[i].client);
 			m_segments[i].client->stop();
-			//m_segments[i].client->deleteLater();
+			//delete m_segments[i].client;
 			m_segments[i].client = 0;
-			m_segments[i].color = QColor();
+			m_segments[i].color = Qt::black;
 		}
+		qDebug() << "Before final simplify segments:" << m_segments;
 		simplifySegments(m_segments);
+		qDebug() << "After final simplify segments:" << m_segments;
 		m_segmentsLock.unlock();
 		m_nameChanger = 0;
 		m_timer.stop();
 
 		CurlPoller::instance()->removeTransfer(m_master);
-		delete m_master;
+		//delete m_master;
 		m_master = 0;
 	}
 }
 
-bool CurlDownload::freeSegmentLessThan(const FreeSegment& s1, const FreeSegment& s2)
+void CurlDownload::startSegment(Segment& seg, qlonglong bytes)
 {
-	return s1.second < s2.second;
+	qDebug() << "CurlDownload::startSegment(): seg offset:" << seg.offset << "; bytes:" << bytes;
+
+	if (!bytes)
+		abort(); // this is a serious bug
+
+	std::string spath = filePath().toStdString();
+	int file = open(spath.c_str(), O_CREAT|O_RDWR|O_LARGEFILE, 0666);
+	if(file < 0)
+	{
+		enterLogMessage(m_strMessage = strerror(errno));
+		setState(Failed);
+		return;
+	}
+
+	seg.client = new UrlClient;
+	seg.client->setRange(seg.offset, (bytes > 0) ? seg.offset+bytes : -1);
+	seg.client->setSourceObject(m_urls[seg.urlIndex]);
+	seg.client->setTargetObject(file);
+
+	connect(seg.client, SIGNAL(renameTo(QString)), this, SLOT(clientRenameTo(QString)));
+	connect(seg.client, SIGNAL(logMessage(QString)), this, SLOT(clientLogMessage(QString)));
+	connect(seg.client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
+	connect(seg.client, SIGNAL(failure(QString)), this, SLOT(clientFailure(QString)));
+	connect(seg.client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
+
+	seg.client->setPollingMaster(m_master);
+	seg.client->start();
+	m_master->addTransfer(static_cast<CurlUser*>(seg.client));
+}
+
+bool CurlDownload::Segment::operator<(const Segment& s2) const
+{
+	return this->offset < s2.offset;
+}
+
+bool CurlDownload::FreeSegment::operator <(const FreeSegment& s2) const
+{
+	return this->bytes < s2.bytes;
 }
 
 void CurlDownload::setTargetName(QString newFileName)
@@ -473,19 +495,21 @@ void CurlDownload::autoCreateSegment()
 {
 	if(m_segments.isEmpty())
 	{
-		Segment s;
 		QFileInfo fi(filePath());
 
-		s.offset = s.bytes = 0;
-		s.urlIndex = 0;
-		s.client = 0;
-
 		if(fi.exists())
-			s.bytes = fi.size();
+		{
+			Segment s;
 
-		m_segments << s;
+			s.offset = s.bytes = 0;
+			s.urlIndex = 0;
+			s.client = 0;
+
+			s.bytes = fi.size();
+			m_segments << s;
+		}
 	}
-	else
+	/*else
 	{
 		// we have to find some free space and allocate a URL
 		qlonglong pos = 0;
@@ -522,7 +546,7 @@ void CurlDownload::autoCreateSegment()
 
 			m_segments << sg;
 		}
-	}
+	}*/
 }
 
 void CurlDownload::updateSegmentProgress()
@@ -623,6 +647,8 @@ QString CurlDownload::remoteURI() const
 
 void CurlDownload::simplifySegments(QList<CurlDownload::Segment>& retval)
 {
+	qSort(retval);
+
 	for(int i=1;i<retval.size();i++)
 	{
 		qlonglong pos = retval[i-1].offset+retval[i-1].bytes;
@@ -669,11 +695,22 @@ void CurlDownload::clientLogMessage(QString msg)
 void CurlDownload::clientTotalSizeKnown(qlonglong bytes)
 {
 	qDebug() << "CurlDownload::clientTotalSizeKnown()" << bytes;
-	m_nTotal = bytes;
+	if (!m_nTotal && m_listActiveSegments.size() > 1)
+	{
+		m_nTotal = bytes;
+		// there are active segments we need to initialize now
+		for(int i=1;i<m_listActiveSegments.size();i++)
+			startSegment(m_listActiveSegments[i]);
+	}
+	else
+		m_nTotal = bytes;
 }
 
 void CurlDownload::clientFailure(QString err)
 {
+	if (!isActive() || !m_master)
+		return;
+
 	qDebug() << "CurlDownload::clientFailure()" << err;
 	m_strMessage = err;
 	setState(Failed);
@@ -681,12 +718,17 @@ void CurlDownload::clientFailure(QString err)
 
 void CurlDownload::clientDone(QString error)
 {
+	if (!isActive() || !m_master)
+		return;
+
 	UrlClient* client = static_cast<UrlClient*>(sender());
+	int urlIndex = 0;
+
 	updateSegmentProgress();
 
 	m_segmentsLock.lockForWrite();
 
-	qDebug() << "CurlDownload::clientDone" << error;
+	qDebug() << "---------- CurlDownload::clientDone():" << error << client;
 
 	for(int i=0;i<m_segments.size();i++)
 	{
@@ -694,8 +736,9 @@ void CurlDownload::clientDone(QString error)
 		{
 			m_segments[i].bytes = client->progress();
 			m_segments[i].client = 0;
+			urlIndex = m_segments[i].urlIndex;
 			m_segments[i].urlIndex = -1;
-			m_segments[i].color = QColor();
+			m_segments[i].color = Qt::black;
 		}
 	}
 
@@ -704,7 +747,8 @@ void CurlDownload::clientDone(QString error)
 	m_segmentsLock.unlock();
 
 	m_master->removeTransfer(client);
-	client->deleteLater();
+	client->stop();
+	//client->deleteLater();
 
 	qulonglong d = done();
 	if(d == total() && d)
@@ -713,7 +757,6 @@ void CurlDownload::clientDone(QString error)
 	}
 	else if(!error.isNull())
 	{
-		// TODO: show error
 		m_segmentsLock.lockForRead();
 		bool allfailed = true;
 
@@ -733,9 +776,106 @@ void CurlDownload::clientDone(QString error)
 			setState(Failed);
 			m_strMessage = error;
 		}
-
-		// TODO: Replace segment?
+		else
+		{
+			// TODO: show error
+			// TODO: Replace segment?
+		}
 	}
+	else
+	{
+		// The segment has been completed and the download is still incomplete
+		// We need to find another free spot or split an allocated one
+		//int down, up;
+		//speeds(down, up);
+
+		// Only if it has a meaning
+		//if (total()-done() / down >= 30)
+			startSegment(urlIndex);
+	}
+}
+
+void CurlDownload::startSegment(int urlIndex)
+{
+	QWriteLocker l(&m_segmentsLock);
+	qDebug() << "----------- CurlDownload::startSegment():" << urlIndex;
+
+	// 1) find free spots, prefer unallocated free spots
+	QList<FreeSegment> freeSegs, freeSegsUnallocated;
+	qlonglong lastEnd = 0;
+	for(int i=0;i<m_segments.size();i++)
+	{
+		if (m_segments[i].offset > lastEnd)
+		{
+			FreeSegment fs(lastEnd, m_segments[i].offset-lastEnd);
+			if(i == 0 || !m_segments[i-1].client)
+				freeSegsUnallocated << fs;
+			else
+			{
+				fs.affectedClient = m_segments[i-1].client;
+				freeSegs << fs;
+			}
+		}
+		lastEnd = m_segments[i].offset + m_segments[i].bytes;
+	}
+	if (lastEnd < m_nTotal)
+	{
+		FreeSegment fs(lastEnd, m_nTotal - lastEnd);
+		if (m_segments[m_segments.size()-1].client)
+		{
+			fs.affectedClient = m_segments[m_segments.size()-1].client;
+			freeSegs << fs;
+		}
+		else
+			freeSegsUnallocated << fs;
+	}
+
+	// 2) sort them
+	qSort(freeSegs.begin(), freeSegs.end());
+	qSort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
+
+	Segment seg;
+	qlonglong bytes;
+
+	seg.color = allocateSegmentColor();
+	seg.bytes = 0;
+	seg.urlIndex = urlIndex;
+
+	if (!freeSegsUnallocated.isEmpty())
+	{
+		// 3) use the smallest unallocated segment
+		seg.offset = freeSegsUnallocated[0].offset;
+		bytes = freeSegsUnallocated[0].bytes;
+	}
+	else if(!freeSegs.isEmpty())
+	{
+		// 4) split the biggest free spot into halves
+		FreeSegment& fs = freeSegs[freeSegs.size()-1];
+		//int odd = fs.bytes % 2;
+		int half = fs.bytes / 2;
+
+		// notify the active thread of the change
+		qlonglong from = fs.affectedClient->rangeFrom();
+		qlonglong to = fs.affectedClient->rangeTo();
+		if (to == -1)
+			to = m_nTotal;
+		fs.affectedClient->setRange(from, to = to - half);
+
+		seg.offset = to;
+		bytes = half;
+	}
+	else
+	{
+		// This should never happen
+		return;
+	}
+
+	if (bytes <= 1024*1024)
+		return; // we don't do bullshit segments
+
+	// start a new download thread
+	startSegment(seg, bytes);
+	m_segments << seg;
 }
 
 QColor CurlDownload::allocateSegmentColor()
