@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QPainter>
 #include <QPaintEvent>
 #include <QMouseEvent>
+#include <QColor>
 #include "CurlDownload.h"
 #include "Settings.h"
 
@@ -53,6 +54,7 @@ void HttpDetailsBar::paintEvent(QPaintEvent* event)
 	const int height = this->height();
 	
 	painter.setClipRegion(event->region());
+	painter.fillRect(QRect(0,0,width,height), Qt::white);
 	painter.drawRect(QRect(0, 0, width+1, height-1));
 	
 	m_segs.clear();
@@ -130,7 +132,7 @@ void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 		update();
 	}
 	
-	if(event->button() == Qt::RightButton && m_download != 0 && m_download->isActive())
+	if(event->button() == Qt::RightButton && m_download != 0 /*&& m_download->isActive()*/)
 	{
 		QReadLocker l(&m_download->m_segmentsLock);
 		QMenu menu(this);
@@ -185,12 +187,3 @@ void HttpDetailsBar::createSegment()
 void HttpDetailsBar::stopSegment()
 {
 }
-
-void HttpDetailsBar::pauseSegment()
-{
-}
-
-void HttpDetailsBar::resumeSegment()
-{
-}
-

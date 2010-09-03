@@ -38,8 +38,8 @@ UrlClient::UrlClient()
 
 UrlClient::~UrlClient()
 {
-	//if(m_curl != 0)
-	//	curl_easy_cleanup(m_curl);
+	if (m_target)
+		close(m_target);
 	if (m_curl != 0)
 		CurlPoller::instance()->removeSafely(m_curl);
 }

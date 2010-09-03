@@ -224,17 +224,52 @@ void CurlDownload::changeActive(bool bActive)
 
 		qDebug() << "The limit is" << m_nDownLimitInt;
 
-run_segments:
+		fixActiveSegmentsList();
+
+		// 1) find free spots
+		QList<FreeSegment> freeSegs;
+		qlonglong lastEnd = 0;
 		for(int i=0;i<m_segments.size();i++)
 		{
-			Segment& csg = m_segments[i];
+			if (m_segments[i].offset > lastEnd)
+				freeSegs << FreeSegment(lastEnd, m_segments[i].offset-lastEnd);
+			lastEnd = m_segments[i].offset + m_segments[i].bytes;
+		}
+		if (lastEnd < m_nTotal)
+			freeSegs << FreeSegment(lastEnd, m_nTotal - lastEnd);
+		if (!m_nTotal)
+			freeSegs << FreeSegment(lastEnd, -1);
+		// 2) sort them
+		qSort(freeSegs.begin(), freeSegs.end(), freeSegmentLessThan);
+
+		// 3) make enough free spots
+		qDebug() << "Found" << freeSegs.size() << "free spots";
+		while(freeSegs.size() < m_listActiveSegments.size())
+		{
+			int pos = freeSegs.size()-1;
+
+			// 4) split the largest segment into halves
+			int odd = freeSegs[pos].second % 2;
+			freeSegs[pos].second = freeSegs[pos].second / 2 + odd;
+			freeSegs << FreeSegment(freeSegs[pos].first + freeSegs[pos].second, freeSegs[pos].second - odd);
+
+			qSort(freeSegs.begin(), freeSegs.end(), freeSegmentLessThan);
+		}
+		qDebug() << freeSegs.size() << "free spots after splitting work";
+
+		// 5) now allot the free spots to active segments
+		for(int i=0, j=freeSegs.size()-1;i<m_listActiveSegments.size();i++,j--)
+		{
+			// 6) create a written segment for every active segment
+			Segment seg;
+			seg.offset = freeSegs[j].first;
+			seg.bytes = 0;
+			seg.color = allocateSegmentColor();
+			seg.urlIndex = m_listActiveSegments[i];
+
+			// 7) now let's start a download thread for that segment
 			std::string spath = filePath().toStdString();
-			int file;
-
-			if(csg.urlIndex < 0 || csg.urlIndex >= m_urls.size() || csg.client != 0)
-				continue;
-
-			file = open(spath.c_str(), O_CREAT|O_RDWR|O_LARGEFILE, 0666);
+			int file = open(spath.c_str(), O_CREAT|O_RDWR|O_LARGEFILE, 0666);
 			if(file < 0)
 			{
 				enterLogMessage(m_strMessage = strerror(errno));
@@ -242,56 +277,26 @@ run_segments:
 				return;
 			}
 
-			UrlClient* client = new UrlClient;
+			seg.client = new UrlClient;
+			seg.client->setRange(seg.offset, freeSegs[j].second);
+			seg.client->setSourceObject(m_urls[seg.urlIndex]);
+			seg.client->setTargetObject(file);
 
-			qlonglong rangeFrom, rangeTo = -1;
+			connect(seg.client, SIGNAL(renameTo(QString)), this, SLOT(clientRenameTo(QString)));
+			connect(seg.client, SIGNAL(logMessage(QString)), this, SLOT(clientLogMessage(QString)));
+			connect(seg.client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
+			connect(seg.client, SIGNAL(failure(QString)), this, SLOT(clientFailure(QString)));
+			connect(seg.client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
 
-			rangeFrom = csg.offset+csg.bytes;
-			if(i+1 < m_segments.size())
-				rangeTo = m_segments[i+1].offset;
+			m_segments << seg;
 
-			client->setRange(rangeFrom, rangeTo);
-			client->setSourceObject(m_urls[csg.urlIndex]);
-			client->setTargetObject(file);
-
-			connect(client, SIGNAL(renameTo(QString)), this, SLOT(clientRenameTo(QString)));
-			connect(client, SIGNAL(logMessage(QString)), this, SLOT(clientLogMessage(QString)));
-			connect(client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
-			connect(client, SIGNAL(failure(QString)), this, SLOT(clientFailure(QString)));
-			connect(client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
-
-			Segment sg;
-			sg.offset = rangeFrom;
-			sg.bytes = 0;
-			sg.urlIndex = csg.urlIndex;
-			sg.client = client;
-			sg.color = allocateSegmentColor();
-
-			client->setPollingMaster(m_master);
-			client->start();
-			m_master->addTransfer(client);
-
-			if(csg.bytes)
-			{
-				m_segments.insert(++i, sg);
-				csg.urlIndex = -1;
-			}
-			else
-				m_segments.replace(i, sg);
-
-			active++;
+			seg.client->setPollingMaster(m_master);
+			seg.client->start();
+			m_master->addTransfer(seg.client);
 		}
 
-		if(!active)
-		{
-			autoCreateSegment();
-			goto run_segments;
-		}
-
+		// 8) update the segment progress every 500 miliseconds
 		m_timer.start(500);
-
-		for(int i=0;i<m_segments.size();i++)
-			qDebug() << "Segment " << i << ": " << m_segments[i].offset << ", +" << m_segments[i].bytes;
 	}
 	else if(m_master != 0)
 	{
@@ -317,6 +322,11 @@ run_segments:
 		delete m_master;
 		m_master = 0;
 	}
+}
+
+bool CurlDownload::freeSegmentLessThan(const FreeSegment& s1, const FreeSegment& s2)
+{
+	return s1.second < s2.second;
 }
 
 void CurlDownload::setTargetName(QString newFileName)
@@ -358,6 +368,11 @@ void CurlDownload::load(const QDomNode& map)
 	m_nTotal = getXMLProperty(map, "knowntotal").toULongLong();
 	m_strFile = getXMLProperty(map, "filename");
 	m_bAutoName = getXMLProperty(map, "autoname").toInt() != 0;
+
+	QStringList activeSegments = getXMLProperty(map, "activesegments").split(',');
+	m_listActiveSegments.clear();
+	foreach(QString seg, activeSegments)
+		m_listActiveSegments << seg.toInt();
 	
 	QDomElement url = map.firstChildElement("url");
 	while(!url.isNull())
@@ -386,7 +401,8 @@ void CurlDownload::load(const QDomNode& map)
 
 		data.offset = getXMLProperty(segment, "offset").toLongLong();
 		data.bytes = getXMLProperty(segment, "bytes").toLongLong();
-		data.urlIndex = getXMLProperty(segment, "urlindex").toInt();
+		//data.urlIndex = getXMLProperty(segment, "urlindex").toInt();
+		data.urlIndex = -1;
 		data.client = 0;
 
 		segment = segment.nextSiblingElement("segment");
@@ -436,12 +452,21 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 
 		setXMLProperty(doc, sub, "offset", QString::number(s.offset));
 		setXMLProperty(doc, sub, "bytes", QString::number(s.bytes));
-		setXMLProperty(doc, sub, "urlindex", QString::number(s.urlIndex));
+		//setXMLProperty(doc, sub, "urlindex", QString::number(s.urlIndex));
 
 		subSegments.appendChild(sub);
 	}
 	m_segmentsLock.unlock();
 	map.appendChild(subSegments);
+
+	QString activeSegments;
+	foreach(int index, m_listActiveSegments)
+	{
+		if(!activeSegments.isEmpty())
+			activeSegments += ',';
+		activeSegments += index;
+	}
+	setXMLProperty(doc, map, "activesegments", activeSegments);
 }
 
 void CurlDownload::autoCreateSegment()
@@ -601,13 +626,27 @@ void CurlDownload::simplifySegments(QList<CurlDownload::Segment>& retval)
 	for(int i=1;i<retval.size();i++)
 	{
 		qlonglong pos = retval[i-1].offset+retval[i-1].bytes;
-		if(retval[i].offset <= pos && retval[i-1].urlIndex < 0 && retval[i].urlIndex < 0)
+		if(retval[i].offset <= pos && !retval[i-1].client && !retval[i].client)
 		{
 			retval[i].bytes += retval[i].offset - retval[i-1].offset;
 			retval[i].offset = retval[i-1].offset;
 			retval.removeAt(--i);
 		}
 	}
+}
+
+void CurlDownload::fixActiveSegmentsList()
+{
+	for(int i = 0;i < m_listActiveSegments.size(); i++)
+	{
+		if (m_listActiveSegments[i] < 0 ||m_listActiveSegments[i] >= m_urls.size())
+		{
+			m_listActiveSegments.removeAt(i);
+			i--;
+		}
+	}
+	if(m_listActiveSegments.isEmpty())
+		m_listActiveSegments << 0;
 }
 
 void CurlDownload::clientRenameTo(QString name)

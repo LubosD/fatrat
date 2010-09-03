@@ -467,7 +467,7 @@ bool programHasGUI()
 void showHelp()
 {
 	std::cout << "FatRat download manager ("VERSION")\n\n"
-			"Copyright (C) 2006-2008 Lubos Dolezel\n"
+			"Copyright (C) 2006-2010 Lubos Dolezel\n"
 			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
 			"-f, --force \tRun the program even if an instance already exists\n"
 			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"

@@ -90,6 +90,7 @@ private:
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
 protected:
+	// Represents a written segment, i.e. what's really been written to the on-disk file
 	struct Segment
 	{
 		// the start
@@ -102,10 +103,17 @@ protected:
 		UrlClient* client;
 		QColor color;
 	};
+	// Represents a blank spot in the file, i.e. a candidate for a new download thread
+	// .first = offset
+	// .second = bytes
+	typedef QPair<qlonglong,qlonglong> FreeSegment;
+
+	static bool freeSegmentLessThan(const FreeSegment& s1, const FreeSegment& s2);
 
 	void autoCreateSegment();
 	void removeLostSegments();
 	static void simplifySegments(QList<Segment>& in);
+	void fixActiveSegmentsList();
 	QColor allocateSegmentColor();
 protected:
 	CURL* m_curl;
@@ -124,6 +132,7 @@ protected:
 	CurlPollingMaster* m_master;
 	QTimer m_timer;
 	UrlClient* m_nameChanger;
+	QList<int> m_listActiveSegments;
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;

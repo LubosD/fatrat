@@ -42,9 +42,7 @@ public:
 	void setDownload(CurlDownload* d);
 protected slots:
 	void createSegment();
-	void pauseSegment();
 	void stopSegment();
-	void resumeSegment();
 protected:
 	virtual void paintEvent(QPaintEvent* event);
 	virtual void mousePressEvent(QMouseEvent* event);
