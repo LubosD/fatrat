@@ -110,6 +110,7 @@ void CurlDownload::init(QString uri, QString dest)
 	
 	m_urls.clear();
 	m_urls << obj;
+	m_listActiveSegments << 0;
 	
 	if(m_strFile.isEmpty())
 		generateName();
@@ -262,7 +263,7 @@ void CurlDownload::changeActive(bool bActive)
 
 		// 5) now allot the free spots to active segments
 
-		if (freeSegs.size() < m_listActiveSegments.size())
+		if (freeSegs.size() < m_listActiveSegments.size() && m_nTotal)
 		{
 			// the free spots were too small, remove some active segments
 			QSet<int> set = m_listActiveSegments.toSet();
@@ -704,9 +705,10 @@ void CurlDownload::clientLogMessage(QString msg)
 
 void CurlDownload::clientTotalSizeKnown(qlonglong bytes)
 {
-	qDebug() << "CurlDownload::clientTotalSizeKnown()" << bytes;
+	qDebug() << "CurlDownload::clientTotalSizeKnown()" << bytes << "segs:" << m_listActiveSegments.size();
 	if (!m_nTotal && m_listActiveSegments.size() > 1)
 	{
+		qDebug() << "Starting aditional segments";
 		m_nTotal = bytes;
 		// there are active segments we need to initialize now
 		for(int i=1;i<m_listActiveSegments.size();i++)
