@@ -51,6 +51,7 @@ public:
 	
 	void setSourceObject(const UrlObject& obj);
 	void setTargetObject(int fd);
+	// The range is in form <from, to)
 	void setRange(qlonglong from, qlonglong to);
 	qlonglong progress() const;
 	qlonglong rangeFrom() const { return m_rangeFrom; }

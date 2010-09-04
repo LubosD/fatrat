@@ -43,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #include <cstdlib>
 #include <signal.h>
 #include <iostream>
+#include <ctime>
 
 #include "MainWindow.h"
 #include "QueueMgr.h"
@@ -100,6 +101,8 @@ int main(int argc,char** argv)
 	QString arg = argsToArg(argc, argv);
 	
 	app = new MyApplication(argc, argv, m_bStartGUI);
+
+	qsrand(time(0));
 	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
