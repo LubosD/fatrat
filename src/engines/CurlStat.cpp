@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "CurlStat.h"
+#include <QtDebug>
 
 const int CurlStat::MAX_STATS = 5;
 
@@ -76,7 +77,6 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 			data.accum = timedata_pair(0,0);
 		}
 
-		memset(&data.next, 0, sizeof data.next);
 		if(data.max > 0)
 		{
 			long delta = bytes*1000000LL/data.max - usec/2;
@@ -84,12 +84,14 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 			if(delta > 0)
 			{
 				delta *= 2;
-				//qDebug() << "Sleeping for" << delta;
-				data.next = tvNow;
+				if (isNull(data.next))
+					data.next = tvNow;
 				data.next.tv_sec += delta/1000000LL;
 				data.next.tv_usec += delta%1000000LL;
 			}
 		}
+		else
+			memset(&data.next, 0, sizeof data.next);
 
 		data.last = tvNow;
 	}
