@@ -202,8 +202,7 @@ void CurlDownload::changeActive(bool bActive)
 			return;
 		}
 
-		if(m_segments.isEmpty())
-			autoCreateSegment();
+		autoCreateSegment();
 
 		m_nameChanger = 0;
 
@@ -434,8 +433,7 @@ void CurlDownload::load(const QDomNode& map)
 	if(m_strFile.isEmpty())
 		generateName();
 
-	if(m_segments.isEmpty())
-		autoCreateSegment();
+	autoCreateSegment();
 	m_segmentsLock.unlock();
 	
 	Transfer::load(map);
@@ -493,60 +491,39 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 
 void CurlDownload::autoCreateSegment()
 {
+	QFileInfo fi(filePath());
+
+	if(!fi.exists())
+	{
+		m_segments.clear();
+		return;
+	}
+
 	if(m_segments.isEmpty())
 	{
-		QFileInfo fi(filePath());
+		Segment s;
 
-		if(fi.exists())
-		{
-			Segment s;
+		s.offset = s.bytes = 0;
+		s.urlIndex = 0;
+		s.client = 0;
 
-			s.offset = s.bytes = 0;
-			s.urlIndex = 0;
-			s.client = 0;
-
-			s.bytes = fi.size();
+		s.bytes = fi.size();
+		if (s.bytes)
 			m_segments << s;
+	}
+	else
+	{
+		// check for segments beyond the EOF (truncated file)
+		qSort(m_segments);
+		for (int i=0;i<m_segments.size();i++)
+		{
+			Segment& s = m_segments[i];
+			if (s.offset >= fi.size())
+				m_segments.removeAt(i--);
+			else if (s.offset + s.bytes > fi.size())
+				s.bytes = fi.size() - s.offset;
 		}
 	}
-	/*else
-	{
-		// we have to find some free space and allocate a URL
-		qlonglong pos = 0;
-		bool solved = false;
-
-		for(int i=0;i<m_segments.size();i++)
-		{
-			if(m_segments[i].offset > pos)
-			{
-				// a free spot
-				solved = true;
-
-				Segment sg;
-				sg.offset = sg.bytes = 0;
-				sg.client = 0;
-				sg.urlIndex = 0;
-
-				if(i > 0)
-					sg.offset = m_segments[i-1].offset + m_segments[i-1].bytes;
-
-				m_segments.insert(i, sg);
-				break;
-			}
-		}
-
-		if(!solved)
-		{
-			// create a segment at the end
-			Segment sg;
-			sg.bytes = 0;
-			sg.client = 0;
-			sg.urlIndex = 0;
-			sg.offset = m_segments.last().offset + m_segments.last().bytes;
-
-			m_segments << sg;
-		}
-	}*/
 }
 
 void CurlDownload::updateSegmentProgress()
@@ -854,6 +831,9 @@ void CurlDownload::startSegment(int urlIndex)
 		//int odd = fs.bytes % 2;
 		int half = fs.bytes / 2;
 
+		if (half <= getSettingsValue("httpftp/minsegsize").toInt())
+			return;
+
 		// notify the active thread of the change
 		qlonglong from = fs.affectedClient->rangeFrom();
 		qlonglong to = fs.affectedClient->rangeTo();
@@ -869,9 +849,6 @@ void CurlDownload::startSegment(int urlIndex)
 		// This should never happen
 		return;
 	}
-
-	if (bytes <= 1024*1024)
-		return; // we don't do bullshit segments
 
 	// start a new download thread
 	startSegment(seg, bytes);

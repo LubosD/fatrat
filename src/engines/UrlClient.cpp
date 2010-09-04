@@ -137,9 +137,9 @@ void UrlClient::start()
 
 	char range[128];
 	if(m_rangeTo != -1)
-		sprintf(range, "%ld-%ld", m_rangeFrom, m_rangeTo);
+		snprintf(range, sizeof(range), "%ld-%ld", m_rangeFrom, m_rangeTo-1);
 	else
-		sprintf(range, "%ld-", m_rangeFrom);
+		snprintf(range, sizeof(range), "%ld-", m_rangeFrom);
 
 	curl_easy_setopt(m_curl, CURLOPT_RANGE, range);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
