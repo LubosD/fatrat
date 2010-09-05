@@ -905,6 +905,18 @@ void CurlDownload::stopSegment(int index)
 	s.client->stop();
 	s.client = 0;
 	simplifySegments(m_segments);
+
+	bool hasActive = false;
+	for (int i=0;i<m_segments.size();i++)
+	{
+		if (m_segments[i].client)
+		{
+			hasActive = true;
+			break;
+		}
+	}
+	if (!hasActive)
+		setState(Paused);
 }
 
 QColor CurlDownload::allocateSegmentColor()
@@ -925,7 +937,7 @@ QColor CurlDownload::allocateSegmentColor()
 			return g_colors[i];
 	}
 
-	return QColor(rand()%256, rand()%256, rand()%256);
+	return QColor(qrand()%256, qrand()%256, qrand()%256);
 }
 
 QObject* CurlDownload::createDetailsWidget(QWidget* w)

@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "CurlDownload.h"
 #include "Settings.h"
 #include "fatrat.h"
+#include "GeneralDownloadForms.h"
 #include <QPainter>
 #include <QLinearGradient>
 
@@ -83,22 +84,120 @@ void HttpDetails::deleteSegment()
 
 void HttpDetails::addUrl()
 {
+	HttpUrlOptsDlg dlg(treeActiveSegments->parentWidget());
+	if (dlg.exec() != QDialog::Accepted)
+		return;
 
+	UrlClient::UrlObject obj;
+
+	obj.url = dlg.m_strURL;
+	obj.url.setUserName(dlg.m_strUser);
+	obj.url.setPassword(dlg.m_strPassword);
+	obj.strReferrer = dlg.m_strReferrer;
+	obj.ftpMode = dlg.m_ftpMode;
+	obj.proxy = dlg.m_proxy;
+	obj.strBindAddress = dlg.m_strBindAddress;
+
+	listUrls->addItem(dlg.m_strURL);
+	m_download->m_urls << obj;
 }
 
 void HttpDetails::editUrl()
 {
+	HttpUrlOptsDlg dlg(treeActiveSegments->parentWidget());
+	int row = listUrls->currentRow();
+	if (row < 0)
+		return;
+	UrlClient::UrlObject& obj = m_download->m_urls[row];
 
+	QUrl temp = obj.url;
+	temp.setUserInfo(QString());
+	dlg.m_strURL = temp.toString();
+	dlg.m_strUser = obj.url.userName();
+	dlg.m_strPassword = obj.url.password();
+	dlg.m_strReferrer = obj.strReferrer;
+	dlg.m_ftpMode = obj.ftpMode;
+	dlg.m_proxy = obj.proxy;
+	dlg.m_strBindAddress = obj.strBindAddress;
+
+	if(dlg.exec() == QDialog::Accepted)
+	{
+		obj.url = dlg.m_strURL;
+		obj.url.setUserName(dlg.m_strUser);
+		obj.url.setPassword(dlg.m_strPassword);
+		obj.strReferrer = dlg.m_strReferrer;
+		obj.ftpMode = dlg.m_ftpMode;
+		obj.proxy = dlg.m_proxy;
+		obj.strBindAddress = dlg.m_strBindAddress;
+
+		listUrls->item(row)->setText(dlg.m_strURL);
+
+		if (m_download->isActive())
+		{
+			int stopped = 0;
+			for (int i = 0; i < m_download->m_segments.size(); i++)
+			{
+				CurlDownload::Segment& s = m_download->m_segments[i];
+				if (s.client && s.urlIndex == row)
+				{
+					// restart active segments
+					m_download->stopSegment(i);
+					stopped++;
+				}
+			}
+			for (int i = 0; i < stopped; i++)
+				m_download->startSegment(row);
+		}
+	}
 }
 
 void HttpDetails::deleteUrl()
 {
+	int row = listUrls->currentRow();
+	if (m_download->m_urls.size() <= 1)
+		return;
 
+	if(row >= 0)
+	{
+		delete listUrls->takeItem(row);
+		m_download->m_urls.removeAt(row);
+
+		if (m_download->isActive())
+		{
+			// stop active segments
+			for (int i = 0; i < m_download->m_segments.size(); i++)
+			{
+				CurlDownload::Segment& s = m_download->m_segments[i];
+				if (s.urlIndex == row && s.client)
+				{
+					m_download->stopSegment(i);
+					i = 0;
+				}
+			}
+			// renumber segments
+			for (int i = 0; i < m_download->m_segments.size(); i++)
+			{
+				CurlDownload::Segment& s = m_download->m_segments[i];
+				if (s.urlIndex > row)
+					s.urlIndex--;
+			}
+		}
+		for (int i = 0; i < m_download->m_listActiveSegments.size(); i++)
+		{
+			int& n = m_download->m_listActiveSegments[i];
+			if (n > row)
+				n--;
+			else if (n == row)
+				m_download->m_listActiveSegments.removeAt(i--);
+		}
+	}
 }
 
 void HttpDetails::addSegmentUrl()
 {
-
+	HttpUrlOptsDlg dlg(treeActiveSegments->parentWidget());
+	if (dlg.exec() != QDialog::Accepted)
+		return;
 }
 
 
@@ -171,7 +270,6 @@ void HttpDetails::refresh()
 			int urlIndex = m_download->m_listActiveSegments[i];
 			QTreeWidgetItem* item;
 			QString url = m_download->m_urls[urlIndex].url.toString();
-			GradientWidget* gradient;
 
 			if (i < treeActiveSegments->topLevelItemCount())
 				item = treeActiveSegments->topLevelItem(i);
