@@ -91,7 +91,7 @@ void UrlClient::start()
 		url.setUserInfo(QString());
 	}
 	
-	ba = url.toString().toUtf8();
+	ba = url.toEncoded();
 	bWatchHeaders = ba.startsWith("http");
 	curl_easy_setopt(m_curl, CURLOPT_URL, ba.constData());
 	
@@ -135,13 +135,16 @@ void UrlClient::start()
 	curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 	curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
 
-	char range[128];
-	if(m_rangeTo != -1)
-		snprintf(range, sizeof(range), "%ld-%ld", m_rangeFrom, m_rangeTo-1);
-	else
-		snprintf(range, sizeof(range), "%ld-", m_rangeFrom);
+	if(m_rangeFrom || m_rangeTo != -1)
+	{
+		char range[128];
+		if(m_rangeTo != -1)
+			snprintf(range, sizeof(range), "%ld-%ld", m_rangeFrom, m_rangeTo-1);
+		else
+			snprintf(range, sizeof(range), "%ld-", m_rangeFrom);
 
-	curl_easy_setopt(m_curl, CURLOPT_RANGE, range);
+		curl_easy_setopt(m_curl, CURLOPT_RANGE, range);
+	}
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_function);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, static_cast<CurlUser*>(this));
 	
@@ -255,11 +258,17 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	if(m_rangeTo == -1)
 	{
 		double len;
-		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-		if(len > 0)
+		//long code;
+
+		//curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &code);
+		//if (code/100 == 2)
 		{
-			m_rangeTo = m_rangeFrom + len;
-			emit totalSizeKnown(m_rangeTo);
+			curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
+			if(len > 0)
+			{
+				m_rangeTo = m_rangeFrom + len;
+				emit totalSizeKnown(m_rangeTo);
+			}
 		}
 	}
 	
