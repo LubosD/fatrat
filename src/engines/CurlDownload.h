@@ -110,8 +110,6 @@ protected:
 		}
 	};
 	// Represents a blank spot in the file, i.e. a candidate for a new download thread
-	// .first = offset
-	// .second = bytes
 	struct FreeSegment
 	{
 		FreeSegment(qlonglong _offset, qlonglong _bytes) : offset(_offset), bytes(_bytes), affectedClient(0) {}
@@ -124,12 +122,12 @@ protected:
 	};
 
 	void autoCreateSegment();
-	void removeLostSegments();
 	static void simplifySegments(QList<Segment>& in);
 	void fixActiveSegmentsList();
 	QColor allocateSegmentColor();
 	void startSegment(Segment& seg, qlonglong bytes);
 	void startSegment(int urlIndex);
+	void stopSegment(int index);
 protected:
 	CURL* m_curl;
 	QDir m_dir;
@@ -152,6 +150,7 @@ protected:
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;
 	friend class HttpDetailsBar;
+	friend class HttpDetails;
 };
 
 #endif

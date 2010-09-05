@@ -137,21 +137,11 @@ void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 		QMenu menu(this);
 		
 		m_download->m_segmentsLock.lockForRead();
-		if(m_sel >= 0 && m_sel < m_segs.size())
+		if(m_sel >= 0 && m_sel < m_segs.size() && m_download->m_segments[m_sel].client)
 		{
-			if(!m_download->m_segments[m_sel].client)
-			{
-				//if(m_download->m_segments[m_sel].urlIndex < 0)
-					return;
-				//menu.addAction(tr("Resume this segment"), this, SLOT(resumeSegment()));
-			}
-			else
-			{
-				//menu.addAction(tr("Pause this segment"), this, SLOT(pauseSegment()));
-				menu.addAction(tr("Stop this segment"), this, SLOT(stopSegment()));
-			}
+			menu.addAction(tr("Delete this segment"), this, SLOT(stopSegment()));
 		}
-		else
+		//else
 		{
 			QMenu* seg = menu.addMenu(tr("New segment"));
 			
@@ -190,4 +180,7 @@ void HttpDetailsBar::createSegment()
 
 void HttpDetailsBar::stopSegment()
 {
+	m_download->m_listActiveSegments.removeOne(m_download->m_segments[m_sel].urlIndex);
+	m_download->stopSegment(m_sel);
+	update();
 }

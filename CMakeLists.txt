@@ -296,6 +296,7 @@ if(WITH_CURL)
 		src/engines/UrlClient.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
+		src/engines/HttpDetails.cpp
 		src/engines/HttpDetailsBar.cpp
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
@@ -308,6 +309,7 @@ if(WITH_CURL)
 		src/engines/CurlUpload.h
 		src/engines/UrlClient.h
 		src/engines/HttpFtpSettings.h
+		src/engines/HttpDetails.h
 		src/engines/HttpDetailsBar.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
@@ -316,6 +318,7 @@ if(WITH_CURL)
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
+		src/engines/HttpDetails.ui
 		src/engines/RapidshareOptsForm.ui
 		src/engines/RapidshareUploadDetailsForm.ui
 		src/engines/RapidshareFreeDownloadOptsForm.ui

@@ -894,6 +894,19 @@ void CurlDownload::startSegment(int urlIndex)
 	m_segments << seg;
 }
 
+void CurlDownload::stopSegment(int index)
+{
+	Segment& s = m_segments[index];
+	if (!s.client)
+		return;
+	updateSegmentProgress();
+	s.urlIndex = -1;
+	m_master->removeTransfer(s.client);
+	s.client->stop();
+	s.client = 0;
+	simplifySegments(m_segments);
+}
+
 QColor CurlDownload::allocateSegmentColor()
 {
 	for(size_t i=0;i<sizeof(g_colors)/sizeof(g_colors[0]);i++)
@@ -913,11 +926,6 @@ QColor CurlDownload::allocateSegmentColor()
 	}
 
 	return QColor(rand()%256, rand()%256, rand()%256);
-}
-
-void CurlDownload::removeLostSegments()
-{
-	// TODO
 }
 
 QObject* CurlDownload::createDetailsWidget(QWidget* w)
