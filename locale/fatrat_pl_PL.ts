@@ -1529,9 +1529,8 @@ Jeśli pomimo tego chcesz uruchomić FatRat, dodaj parametr --force do opcji uru
         <translation>Kolejka główna</translation>
     </message>
     <message>
-        <location filename="../src/AppTools.cpp" line="51"/>
         <source>Video fetcher</source>
-        <translation>Pobieranie filmów flash</translation>
+        <translation type="obsolete">Pobieranie filmów flash</translation>
     </message>
     <message>
         <location filename="../src/AppTools.cpp" line="52"/>

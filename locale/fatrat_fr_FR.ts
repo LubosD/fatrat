@@ -1542,9 +1542,8 @@ Si vous souhaitez quand même lancer FatRat, utilisez --force comme argument.</t
         <translation>File d&apos;attente principale</translation>
     </message>
     <message>
-        <location filename="../src/AppTools.cpp" line="51"/>
         <source>Video fetcher</source>
-        <translation>Téléchargeur de vidéo</translation>
+        <translation type="obsolete">Téléchargeur de vidéo</translation>
     </message>
     <message>
         <location filename="../src/AppTools.cpp" line="52"/>

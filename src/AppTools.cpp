@@ -48,7 +48,7 @@ void initAppTools()
 	g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
 #endif
 	g_tools << AppTool(QObject::tr("RapidShare tools"), RapidTools::create);
-	g_tools << AppTool(QObject::tr("Video fetcher"), VideoFetcher::create);
+	//g_tools << AppTool(QObject::tr("Video fetcher"), VideoFetcher::create);
 	g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);
 }
 

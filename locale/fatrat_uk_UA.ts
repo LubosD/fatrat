@@ -1539,9 +1539,8 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Основна черга</translation>
     </message>
     <message>
-        <location filename="../src/AppTools.cpp" line="51"/>
         <source>Video fetcher</source>
-        <translation>Отримання відео</translation>
+        <translation type="obsolete">Отримання відео</translation>
     </message>
     <message>
         <location filename="../src/AppTools.cpp" line="52"/>
