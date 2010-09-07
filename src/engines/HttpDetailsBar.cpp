@@ -31,8 +31,11 @@ respects for all of the code used other than "OpenSSL".
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QColor>
+#include <QToolTip>
+#include <QCursor>
 #include "CurlDownload.h"
 #include "Settings.h"
+#include "fatrat.h"
 
 HttpDetailsBar::HttpDetailsBar(QWidget* parent)
 	: QWidget(parent), m_download(0), m_sel(-1)
@@ -107,31 +110,75 @@ void HttpDetailsBar::paintEvent(QPaintEvent* event)
 	}
 }
 
-void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
+void HttpDetailsBar::mouseMoveEvent(QMouseEvent* event)
 {
-	int x = event->x();
-	bool found = false;
-	
+	if (!m_download)
+		return;
+
+	int seg = getSegment(event->x());
+
+	if (seg == -1)
+	{
+		QToolTip::hideText();
+		return;
+	}
+
+	QReadLocker l(&m_download->m_segmentsLock);
+	if (seg >= m_download->m_segments.size())
+	{
+		QToolTip::hideText();
+		return;
+	}
+
+	const CurlDownload::Segment& ss = m_download->m_segments[seg];
+	QString text;
+	if (ss.client)
+	{
+		QString url = m_download->m_urls[ss.urlIndex].url.toString();
+		if (url.size() > 47)
+		{
+			url.resize(47);
+			url += "...";
+		}
+		qlonglong progress;
+		QString size = "?";
+		int down, up;
+		ss.client->speeds(down, up);
+		progress = ss.client->progress();
+
+		if (ss.client->rangeTo() != -1)
+			size = formatSize(ss.client->rangeTo() - ss.client->rangeFrom());
+
+		text = tr("Segment #%1\nDownload in progress\nURL: %2\nSize: %3\nSpeed: %4\nDone: %5")
+		       .arg(seg).arg(url).arg(size).arg(formatSize(down)+"/s").arg(formatSize(progress));
+	}
+	else
+	{
+		text = tr("Segment #%1\nDownloaded data").arg(seg) + "\n" + formatSize(ss.bytes);
+	}
+	QToolTip::showText(mapToGlobal(event->pos()), text, this);
+}
+
+int HttpDetailsBar::getSegment(int x)
+{
 	for(int i=0;i<m_segs.size();i++)
 	{
 		if(x >= m_segs[i].first && x <= m_segs[i].second)
-		{
-			found = true;
-			if(m_sel != i)
-			{
-				m_sel = i;
-				update();
-			}
-			break;
-		}
+			return i;
 	}
-	
-	if(!found && m_sel != -1)
+	return -1;
+}
+
+void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
+{
+	int n = getSegment(event->x());
+
+	if (n != m_sel)
 	{
-		m_sel = -1;
+		m_sel = n;
 		update();
 	}
-	
+
 	if(event->button() == Qt::RightButton && m_download != 0 /*&& m_download->isActive()*/)
 	{
 		QMenu menu(this);

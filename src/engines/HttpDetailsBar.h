@@ -46,6 +46,9 @@ protected slots:
 protected:
 	virtual void paintEvent(QPaintEvent* event);
 	virtual void mousePressEvent(QMouseEvent* event);
+	virtual void mouseMoveEvent(QMouseEvent* event);
+
+	int getSegment(int x);
 private:
 	CurlDownload* m_download;
 	QTimer m_timer;
