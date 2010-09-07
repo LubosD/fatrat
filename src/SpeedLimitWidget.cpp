@@ -30,6 +30,8 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "fatrat.h"
 #include <QMenu>
+#include <QLineEdit>
+#include <QWidgetAction>
 
 extern MainWindow* g_wndMain;
 
@@ -98,17 +100,54 @@ void RightClickLabel::setLimit()
 	}
 }
 
+void RightClickLabel::customSpeedEntered()
+{
+	QLineEdit* line = static_cast<QLineEdit*>(sender());
+	QString s = line->text();
+	int speed = 0;
+
+	if (!s.isEmpty())
+		speed = s.toInt() * 1024;
+
+	Queue* q = g_wndMain->getCurrentQueue();
+	if(q != 0)
+	{
+		int down, up;
+
+		q->speedLimits(down,up);
+
+		if(m_bUpload)
+			up = speed;
+		else
+			down = speed;
+
+		q->setSpeedLimits(down, up);
+
+		g_wndMain->doneQueue(q);
+	}
+}
+
 void RightClickLabel::mousePressEvent(QMouseEvent* event)
 {
 	if(event->button() == Qt::RightButton)
 	{
 		QMenu menu;
 		QAction* action;
+		QLineEdit* lineEdit = new QLineEdit(&menu);
+		QWidgetAction* wa = new QWidgetAction(&menu);
 		int speed = (m_nSpeed) ? (m_nSpeed/1024) : 200;
+
+		lineEdit->setText(QString::number(m_nSpeed/1024));
+		//lineEdit->setInputMask("00000");
+		wa->setDefaultWidget(lineEdit);
+		connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(customSpeedEntered()));
+		connect(lineEdit, SIGNAL(returnPressed()), &menu, SLOT(close()));
 		
 		menu.setSeparatorsCollapsible(false);
 		action = menu.addSeparator();
 		action->setText(m_bUpload ? tr("Upload") : tr("Download"));
+		menu.addAction(wa);
+		menu.addSeparator();
 		
 		action = menu.addAction(QString::fromUtf8("∞ kB/s"));
 		action->setData(0);
