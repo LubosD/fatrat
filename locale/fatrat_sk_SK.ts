@@ -230,67 +230,49 @@
 <context>
     <name>CurlDownload</name>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="89"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="95"/>
         <source>Loaded stored authentication data, matched regexp %1</source>
         <translation>Načítané uložené prihlasovacie údaje, URL zodpovedá regexpu %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="103"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="109"/>
         <source>Unsupported protocol: &quot;%1&quot;</source>
         <translation>Nepodporovaný protokol &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="141"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="148"/>
         <source>HTTP/FTP</source>
         <translation type="unfinished">HTTP/FTP</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="197"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="201"/>
         <source>No URLs have been given</source>
         <translation>Nebola zadaná žiadna URL</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="338"/>
-        <source>Write failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="339"/>
-        <source>Write failed (%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="431"/>
-        <source>Timeout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="529"/>
         <source>Switch mirror</source>
-        <translation>Zmeniť zrkadlo</translation>
+        <translation type="obsolete">Zmeniť zrkadlo</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="532"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="582"/>
         <source>Compute hash...</source>
         <translation>Vypočítať hash...</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="546"/>
         <source>No mirror to switch to!</source>
-        <translation>Nie je zrkadlo na prepnutie!</translation>
+        <translation type="obsolete">Nie je zrkadlo na prepnutie!</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="549"/>
         <source>Switching mirror: %1 -&gt; %2</source>
-        <translation>Prepínam zrkadlá: %1 -&gt; %2</translation>
+        <translation type="obsolete">Prepínam zrkadlá: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="564"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="616"/>
         <source>You&apos;re about to compute hash from an incomplete download.</source>
         <translation>Chystáte se počítať hash z nedokončeného sťahovania.</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="158"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="165"/>
         <source>Cannot move the file.</source>
         <translation>Nemôžem presunúť súbor.</translation>
     </message>
@@ -540,14 +522,90 @@
     </message>
 </context>
 <context>
-    <name>HttpDetailsBar</name>
+    <name>HttpDetails</name>
     <message>
-        <location filename="../src/engines/HttpDetailsBar.cpp" line="149"/>
-        <source>Stop this segment</source>
+        <location filename="../src/engines/HttpDetails.ui" line="36"/>
+        <source>Active segments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/HttpDetailsBar.cpp" line="154"/>
+        <location filename="../src/engines/HttpDetails.ui" line="49"/>
+        <source>URL</source>
+        <translation type="unfinished">URL</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="54"/>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="59"/>
+        <source>Size</source>
+        <translation type="unfinished">Veľkosť</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="64"/>
+        <source>Progress</source>
+        <translation type="unfinished">Priebeh</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="69"/>
+        <source>Speed</source>
+        <translation type="unfinished">Rýchlosť</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="77"/>
+        <location filename="../src/engines/HttpDetails.ui" line="116"/>
+        <source>Add</source>
+        <translation type="unfinished">Pridať</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="84"/>
+        <location filename="../src/engines/HttpDetails.ui" line="130"/>
+        <source>Delete</source>
+        <translation type="unfinished">Odstrániť</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="107"/>
+        <source>Known URLs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.ui" line="123"/>
+        <source>Edit</source>
+        <translation type="unfinished">Upraviť</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.cpp" line="46"/>
+        <source>Add new URL...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HttpDetailsBar</name>
+    <message>
+        <location filename="../src/engines/HttpDetailsBar.cpp" line="152"/>
+        <source>Segment #%1
+Download in progress
+URL: %2
+Size: %3
+Speed: %4
+Done: %5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetailsBar.cpp" line="157"/>
+        <source>Segment #%1
+Downloaded data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetailsBar.cpp" line="189"/>
+        <source>Delete this segment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetailsBar.cpp" line="193"/>
         <source>New segment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1502,7 +1560,7 @@ Message: %2</source>
         <translation>Hlavný front</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="241"/>
+        <location filename="../src/fatrat.cpp" line="244"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>V systéme je už bežiaca inštancia. Ak chcete FatRat aj napriek tomu spustiť, pridajte --force medzi argumenty.</translation>
@@ -1523,7 +1581,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Nástroje pre RapidShare</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="402"/>
+        <location filename="../src/fatrat.cpp" line="405"/>
         <source>Unable to load a data file:</source>
         <translation>Nemôžem načítať dátový súbor:</translation>
     </message>
@@ -1538,17 +1596,17 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Vypočítať hash súboru</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="442"/>
+        <location filename="../src/fatrat.cpp" line="445"/>
         <source>Loaded a plugin:</source>
         <translation>Načítaný plugin:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="453"/>
+        <location filename="../src/fatrat.cpp" line="456"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation>VAROVANIE: plugin je nekompatibilný:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="458"/>
+        <location filename="../src/fatrat.cpp" line="461"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation>Nepodarilo sa načítať plugin: %1: %2</translation>
     </message>
@@ -1854,9 +1912,8 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Nepodarilo sa rozparsovať stránku s čakaním na download.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="320"/>
         <source>Failed to download the file.</source>
-        <translation>Nepodarilo sa stiahnuť súbor.</translation>
+        <translation type="obsolete">Nepodarilo sa stiahnuť súbor.</translation>
     </message>
     <message>
         <location filename="../src/engines/RapidshareFreeDownload.cpp" line="198"/>
@@ -3970,6 +4027,24 @@ uploadnutý nasledujúci objem</translation>
         <location filename="../src/TransfersView.h" line="61"/>
         <source>%1 transfers</source>
         <translation>%1 prenosov</translation>
+    </message>
+</context>
+<context>
+    <name>UrlClient</name>
+    <message>
+        <location filename="../src/engines/UrlClient.cpp" line="81"/>
+        <source>Failed to seek in the file - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/UrlClient.cpp" line="288"/>
+        <source>Write failed (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/UrlClient.cpp" line="326"/>
+        <source>Timeout</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
