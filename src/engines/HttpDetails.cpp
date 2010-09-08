@@ -30,8 +30,11 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "fatrat.h"
 #include "GeneralDownloadForms.h"
+#include "HttpMirrorsDlg.h"
 #include <QPainter>
 #include <QLinearGradient>
+#include <QFile>
+#include <QMessageBox>
 
 HttpDetails::HttpDetails(QWidget* w) : m_download(0)
 {
@@ -42,6 +45,7 @@ HttpDetails::HttpDetails(QWidget* w) : m_download(0)
 	connect(pushUrlEdit, SIGNAL(clicked()), this, SLOT(editUrl()));
 	connect(pushUrlDelete, SIGNAL(clicked()), this, SLOT(deleteUrl()));
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
+	connect(pushMirrors, SIGNAL(clicked()), this, SLOT(mirrorSearch()));
 
 	m_menu.addAction(tr("Add new URL..."), this, SLOT(addSegmentUrl()));
 	m_separator = m_menu.addSeparator();
@@ -354,3 +358,93 @@ void HttpDetails::GradientWidget::paintEvent(QPaintEvent* event)
 	painter.fillRect(rect(), QBrush(gradient));
 }
 
+void HttpDetails::mirrorSearch()
+{
+	// get source and effective URLs
+	QSet<QString> urls;
+
+	for (int i=0;i<m_download->m_urls.size();i++)
+	{
+		UrlClient::UrlObject& obj = m_download->m_urls[i];
+		if (!obj.effective.isEmpty())
+			urls << obj.effective.toString();
+		else
+			urls << obj.url.toString();
+	}
+	// find compatible mirror groups
+	QSet<QString> groups;
+	QMap<QString,QStringList> mirrors = loadMirrors();
+	QMap<QString,QString> append;
+
+	foreach (QString url, urls)
+	{
+		for(QMap<QString,QStringList>::iterator it=mirrors.begin(); it != mirrors.end(); it++)
+		{
+			foreach (QString murl, it.value())
+			{
+				if (url.startsWith(murl))
+				{
+					groups << it.key();
+					append[it.key()] = url.mid(murl.size());
+					it.value().removeAll(murl);
+					break;
+				}
+			}
+		}
+	}
+
+	if (groups.isEmpty())
+		QMessageBox::warning(listUrls->parentWidget(), "FatRat", tr("No mirrors found."));
+	else
+	{
+		HttpMirrorsDlg dlg(listUrls->parentWidget());
+		dlg.load(mirrors, groups);
+		if (dlg.exec() == QDialog::Accepted)
+		{
+			QMap<QString,QStringList> urls = dlg.pickedUrls();
+			for(QMap<QString,QStringList>::iterator it=urls.begin();it!=urls.end();it++)
+			{
+				QString app = append[it.key()];
+				foreach (QString url, it.value())
+				{
+					UrlClient::UrlObject obj;
+					obj.url = url + app;
+					m_download->m_urls << obj;
+				}
+			}
+			refresh();
+		}
+	}
+}
+
+QMap<QString,QStringList> HttpDetails::loadMirrors()
+{
+	QFile file;
+	QMap<QString,QStringList> rv;
+
+	if(!openDataFile(&file, "/data/mirrors.txt"))
+		return rv;
+	QString nextGrp;
+	QStringList list;
+	QRegExp re("\\[([^\\]]+)\\]");
+
+	while (!file.atEnd())
+	{
+		QString line = file.readLine().trimmed();
+		if (line.isEmpty())
+			continue;
+		if (re.exactMatch(line))
+		{
+			if (!nextGrp.isEmpty())
+				rv[nextGrp] = list;
+			list.clear();
+			nextGrp = re.cap(1);
+		}
+		else
+			list << line;
+	}
+	if (!list.isEmpty())
+		rv[nextGrp] = list;
+
+	return rv;
+}

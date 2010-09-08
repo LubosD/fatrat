@@ -439,6 +439,7 @@ void CurlDownload::load(const QDomNode& map)
 		obj.proxy = getXMLProperty(url, "proxy");
 		obj.ftpMode = (UrlClient::FtpMode) getXMLProperty(url, "ftpmode").toInt();
 		obj.strBindAddress = getXMLProperty(url, "bindip");
+		obj.effective = getXMLProperty(url, "effective");
 		
 		url = url.nextSiblingElement("url");
 		
@@ -486,12 +487,14 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 	{
 		QDomElement sub = doc.createElement("url");
 		//sub.setAttribute("id", QString::number(i));
+		const UrlClient::UrlObject& url = m_urls[i];
 		
-		setXMLProperty(doc, sub, "address", QString(m_urls[i].url.toEncoded()));
-		setXMLProperty(doc, sub, "referrer", m_urls[i].strReferrer);
-		setXMLProperty(doc, sub, "proxy", m_urls[i].proxy.toString());
-		setXMLProperty(doc, sub, "ftpmode", QString::number( (int) m_urls[i].ftpMode ));
-		setXMLProperty(doc, sub, "bindip", m_urls[i].strBindAddress);
+		setXMLProperty(doc, sub, "address", QString(url.url.toEncoded()));
+		setXMLProperty(doc, sub, "effective", QString(url.effective.toEncoded()));
+		setXMLProperty(doc, sub, "referrer", url.strReferrer);
+		setXMLProperty(doc, sub, "proxy", url.proxy.toString());
+		setXMLProperty(doc, sub, "ftpmode", QString::number( (int) url.ftpMode ));
+		setXMLProperty(doc, sub, "bindip", url.strBindAddress);
 		
 		map.appendChild(sub);
 	}

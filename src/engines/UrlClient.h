@@ -40,7 +40,7 @@ public:
 	enum FtpMode { FtpActive = 0, FtpPassive };
 	struct UrlObject
 	{
-		QUrl url;
+		QUrl url, effective;
 		QString strReferrer, strBindAddress;
 		FtpMode ftpMode;
 		QUuid proxy;
@@ -49,7 +49,7 @@ public:
 	void start();
 	void stop();
 	
-	void setSourceObject(const UrlObject& obj);
+	void setSourceObject(UrlObject& obj);
 	void setTargetObject(int fd);
 	// The range is in form <from, to)
 	void setRange(qlonglong from, qlonglong to);
@@ -72,7 +72,7 @@ signals:
 	void done(QString error = QString());
 	void totalSizeKnown(qlonglong bytes);
 private:
-	UrlObject m_source;
+	UrlObject* m_source;
 	int m_target;
 	qlonglong m_rangeFrom, m_rangeTo, m_progress;
 	CURL* m_curl;

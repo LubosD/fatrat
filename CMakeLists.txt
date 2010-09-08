@@ -298,6 +298,7 @@ if(WITH_CURL)
 		src/engines/HttpFtpSettings.cpp
 		src/engines/HttpDetails.cpp
 		src/engines/HttpDetailsBar.cpp
+		src/engines/HttpMirrorsDlg.cpp
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
 		src/engines/RapidshareFreeDownload.cpp
@@ -311,6 +312,7 @@ if(WITH_CURL)
 		src/engines/HttpFtpSettings.h
 		src/engines/HttpDetails.h
 		src/engines/HttpDetailsBar.h
+		src/engines/HttpMirrorsDlg.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
 		src/engines/RapidshareFreeDownload.h
@@ -319,6 +321,7 @@ if(WITH_CURL)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/engines/HttpDetails.ui
+		src/engines/HttpMirrorsDlg.ui
 		src/engines/RapidshareOptsForm.ui
 		src/engines/RapidshareUploadDetailsForm.ui
 		src/engines/RapidshareFreeDownloadOptsForm.ui
@@ -483,6 +486,10 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/poller/Poller.h DESTINATION includ
 if(WITH_NLS)
 	install(FILES ${lrelease_outputs} DESTINATION share/fatrat/lang)
 endif(WITH_NLS)
+
+if(WITH_CURL)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/mirrors.txt DESTINATION share/fatrat/data)
+endif(WITH_CURL)
 
 if(WITH_BITTORRENT)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btsearch.xml DESTINATION share/fatrat/data)

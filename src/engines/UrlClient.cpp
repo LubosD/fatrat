@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h>
 
 UrlClient::UrlClient()
-	: m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0), m_bTerminating(false)
+	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0), m_bTerminating(false)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -47,9 +47,9 @@ UrlClient::~UrlClient()
 //		CurlPoller::instance()->removeSafely(m_curl);
 }
 
-void UrlClient::setSourceObject(const UrlObject& obj)
+void UrlClient::setSourceObject(UrlObject& obj)
 {
-	m_source = obj;
+	m_source = &obj;
 }
 
 void UrlClient::setTargetObject(int fd)
@@ -73,7 +73,7 @@ int anti_crash_fun();
 void UrlClient::start()
 {
 	QByteArray ba, auth;
-	QUrl url = m_source.url;
+	QUrl url = m_source->url;
 	bool bWatchHeaders = false;
 	
 	if(lseek64(m_target, m_rangeFrom, SEEK_SET) == (off_t) -1)
@@ -98,7 +98,7 @@ void UrlClient::start()
 	if(!auth.isEmpty())
 		curl_easy_setopt(m_curl, CURLOPT_USERPWD, auth.constData());
 	
-	Proxy proxy = Proxy::getProxy(m_source.proxy);
+	Proxy proxy = Proxy::getProxy(m_source->proxy);
 	if(proxy.nType != Proxy::ProxyNone)
 	{
 		QByteArray p;
@@ -121,7 +121,7 @@ void UrlClient::start()
 	else
 		curl_easy_setopt(m_curl, CURLOPT_PROXY, "");
 		
-	ba = m_source.strBindAddress.toUtf8();
+	ba = m_source->strBindAddress.toUtf8();
 	if(!ba.isEmpty())
 		curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
 	
@@ -269,6 +269,17 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 				m_rangeTo = m_rangeFrom + len;
 				emit totalSizeKnown(m_rangeTo);
 			}
+		}
+	}
+	if(!m_progress)
+	{
+		char url[1024];
+		if (curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, url) == CURLE_OK)
+		{
+			QString surl = m_source->url.toString();
+			QString enc = m_source->url.toEncoded();
+			if (surl.compare(QLatin1String(url)) && enc.compare(QLatin1String(url)))
+				m_source->effective = url;
 		}
 	}
 	

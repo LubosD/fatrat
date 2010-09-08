@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>661</width>
-    <height>593</height>
+    <width>659</width>
+    <height>591</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
@@ -107,7 +107,7 @@
       <string>Known URLs</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" rowspan="4">
+      <item row="0" column="0" rowspan="5">
        <widget class="QListWidget" name="listUrls"/>
       </item>
       <item row="0" column="1">
@@ -143,6 +143,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="pushMirrors">
+        <property name="text">
+         <string>Mirror search...</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

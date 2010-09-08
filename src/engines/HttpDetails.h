@@ -49,6 +49,9 @@ private slots:
 	void deleteUrl();
 	void refresh();
 	void addSegmentUrl();
+	void mirrorSearch();
+protected:
+	static QMap<QString,QStringList> loadMirrors();
 private:
 	QTimer m_timer;
 	CurlDownload* m_download;
