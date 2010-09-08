@@ -1,17 +1,18 @@
 <search>
 	<engine name="The Pirate Bay">
 		<param name="query">http://thepiratebay.org/search.php?q=%1</param>
-		<param name="beginning">&lt;td class="vertTh"&gt;</param>
+		<param name="beginning">&lt;div id="SearchResults"&gt;</param>
 		<param name="splitter">&lt;/tr&gt;</param>
 		<param name="ending">&lt;/table&gt;</param>
 		
-		<regexp name="name">class="detLink" title="[^"]+"&gt;([^"]+)&lt;/a&gt;</regexp>
-		<regexp name="link" match="1">&lt;td&gt;&lt;a href="([^"]+)"</regexp>
-		<regexp name="info">&lt;a href="([^"]+)" class="detLink"</regexp>
-		<regexp name="size">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
-		<regexp name="seeders" match="1">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
-		<regexp name="leechers" match="2">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
+		<regexp name="name">&lt;a href="/torrent/[^"]+" class="detLink" title="[^"]+"&gt;([^&lt;]+)&lt;/a&gt;</regexp>
+		<regexp name="link">&lt;a href="(http://torrents.thepiratebay.org/[^"]+)" </regexp>
+		<regexp name="info">&lt;a href="(/torrent/[^"]+)" class="detLink" title="[^"]+"&gt;[^&lt;]+&lt;/a&gt;</regexp>
+		<regexp name="size">, Size ([^,]+), ULed</regexp>
+		<regexp name="seeders">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="1">&lt;td align="right"&gt;([^"]+)&lt;/td&gt;</regexp>
 	</engine>
+	<!--
 	<engine name="Mininova">
 		<param name="query">http://www.mininova.org/search/?search=%1</param>
 		<param name="beginning">Leechers&lt;/a&gt;&lt;/th&gt;&lt;/tr&gt;</param>
@@ -25,6 +26,7 @@
 		<regexp name="seeders">&lt;span class="."&gt;([^"]+)&lt;/span&gt;</regexp>
 		<regexp name="leechers" match="1">&lt;span class="."&gt;([^"]+)&lt;/span&gt;</regexp>
 	</engine>
+	-->
 	<engine name="BtJunkie">
 		<param name="query">http://btjunkie.org/search?q=%1</param>
 		<param name="beginning">class="tab_results"&gt;</param>
@@ -51,20 +53,18 @@
 		<regexp name="seeders">&lt;td align="center" width="30" class="[^"]+" style="text-align: center;">(\d+)&lt;/td&gt;</regexp>
 		<regexp name="leechers" match="1">&lt;td align="center" width="30" class="[^"]+" style="text-align: center;">(\d+)&lt;/td&gt;</regexp>
 	</engine>
-	<!--<engine name="CZTorrent">
-		<param name="query">http://tracker.cztorrent.net/torrents.php?search=%1&amp;category=0&amp;active=0&amp;v2=1</param>
-		<param name="beginning">&lt;TD colspan="12" class="lista"&gt;&lt;/TD&gt;&lt;/TR&gt;</param>
-		<param name="splitter">&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;</param>
-		<param name="ending">&lt;b&gt;&amp;lt;&amp;lt;&amp;nbsp;Prev.&lt;/b&gt;</param>
+	<engine name="CZTorrent">
+		<param name="query">http://tracker.cztorrent.net/torrents/?s=%1&amp;t=0</param>
+		<param name="beginning">&lt;table id='torrenty'</param>
+		<param name="splitter">&lt;/tr&gt;</param>
+		<param name="ending">&lt;/table&gt;</param>
 		
-		<regexp name="name">class='new_torrent'&gt;([^&lt;]+)</regexp>
-		<regexp name="link">href='([^']+)'&gt;&lt;img src=images/download.gif</regexp>
-		<regexp name="size">&lt;td align="center" class="lista"&gt;([^&lt;]+)&lt;</regexp>
-		<regexp name="seeders" field="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
-		<regexp name="leechers" field="1" match="1">&lt;td align="center" class="([^"]+)"&gt;([0-9]+)&lt;</regexp>
-	</engine>-->
+		<regexp name="name">&lt;td class='detaily'&gt;&lt;a href='http://tracker\.cztorrent\.net/[^']+'&gt;([^&lt;]+)&lt;/a&gt;</regexp>
+		<regexp name="link">href='(http://tracker\.cztorrent\.net/download/[^']+)'</regexp>
+		<regexp name="size">Velikost: ([^\|]+)</regexp>
+		<regexp name="seeders">&lt;span class='peers_\d'&gt;(\d+)&lt;</regexp>
+		<regexp name="leechers" match="1">&lt;span class='peers_\d'&gt;(\d+)&lt;</regexp>
+	</engine>
 	<engine name="TorrentReactor">
 		<param name="query">http://www.torrentreactor.net/search.php?words=%1</param>
 		<param name="beginning">Torrentreactor search results:</param>
@@ -80,16 +80,16 @@
 	</engine>
 	<engine name="BitTorrentMonster">
 		<param name="query">http://www.btmon.com/torrent/%1</param>
-		<param name="beginning">Words statistics</param>
-		<param name="splitter">&lt;tr class="table-list-hl"&gt;</param>
-		<param name="ending">Pages(</param>
+		<param name="beginning">&lt;table class="torr_table"&gt;</param>
+		<param name="splitter">&lt;tr&gt;</param>
+		<param name="ending">&lt;/table&gt;</param>
 		
 		<regexp name="name">.torrent.html"&gt;([^&lt;]+)&lt;/a&gt;</regexp>
-		<regexp name="link">&lt;a href="([^"]+\.torrent)"</regexp>
+		<regexp name="link">&lt;a class="down_torr" href="([^"]+\.torrent)"</regexp>
 		<regexp name="info"> href="([^"]+\.torrent\.html)"&gt;</regexp>
-		<regexp name="size">&lt;td align="right" nowrap="nowrap"&gt;([^&lt;]+)&lt;/td&gt;</regexp>
-		<regexp name="seeders">&lt;td align="center"&gt;&lt;strong&gt;([0-9]+)&lt;/strong&gt;&lt;/td&gt;</regexp>
-		<regexp name="leechers" match="1">&lt;td align="center"&gt;([0-9]+)&lt;/td&gt;</regexp>
+		<regexp name="size" match="1">&lt;td class="nw"&gt;([^&lt;]+)&lt;/td&gt;</regexp>
+		<regexp name="seeders">&lt;td class="seeders"&gt;([0-9]+)&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="1">&lt;td&gt;([0-9]+)&lt;/td&gt;</regexp>
 	</engine>
 	<engine name="EZTV">
 		<param name="query">http://eztv.it/search/</param>
@@ -98,7 +98,7 @@
 		<param name="ending">&lt;center&gt;</param>
 		<param name="postdata">SearchString1=%1&amp;SearchString=&amp;search=Search</param>
 		
-		<regexp name="name">&lt;span class="epinfo"&gt;([^&lt;]+)&lt;/span&gt;</regexp>
+		<regexp name="name">class="epinfo"&gt;([^&lt;]+)&lt;</regexp>
 		<regexp name="link">&lt;a href="(http://torrent\.zoink\.it/[^"]+)"</regexp>
 		<regexp name="info">&lt;a href="(/shows/[^"]+)"</regexp>
 	</engine>

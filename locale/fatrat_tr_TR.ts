@@ -1528,9 +1528,8 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Ana kuyruk</translation>
     </message>
     <message>
-        <location filename="../src/AppTools.cpp" line="51"/>
         <source>Video fetcher</source>
-        <translation>Video yakalayıcı</translation>
+        <translation type="obsolete">Video yakalayıcı</translation>
     </message>
     <message>
         <location filename="../src/AppTools.cpp" line="52"/>

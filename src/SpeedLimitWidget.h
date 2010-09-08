@@ -42,6 +42,7 @@ public:
 	void refresh(int speed) { m_nSpeed = speed; }
 public slots:
 	void setLimit();
+	void customSpeedEntered();
 protected:
 	void mousePressEvent(QMouseEvent* event);
 	void mouseDoubleClickEvent(QMouseEvent* event);

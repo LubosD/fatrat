@@ -1515,11 +1515,6 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppTools.cpp" line="51"/>
-        <source>Video fetcher</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/AppTools.cpp" line="52"/>
         <source>File hasher</source>
         <translation type="unfinished"></translation>

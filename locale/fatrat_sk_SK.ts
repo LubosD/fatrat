@@ -1528,9 +1528,8 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Nemôžem načítať dátový súbor:</translation>
     </message>
     <message>
-        <location filename="../src/AppTools.cpp" line="51"/>
         <source>Video fetcher</source>
-        <translation>Sťahovač videí</translation>
+        <translation type="obsolete">Sťahovač videí</translation>
     </message>
     <message>
         <location filename="../src/AppTools.cpp" line="52"/>
