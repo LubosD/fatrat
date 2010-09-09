@@ -33,6 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QPair>
 #include <QUuid>
+#include <QThread>
 #include "Transfer.h"
 
 class Queue;
@@ -49,6 +50,7 @@ public:
 	static void stopQueues();
 	static void loadQueues();
 	static void saveQueues();
+	static void saveQueuesAsync();
 	static void unloadQueues();
 	
 	Q_INVOKABLE void setSpeedLimits(int down,int up) { m_nDownLimit=down; m_nUpLimit=up; }
@@ -130,6 +132,12 @@ protected:
 	QQueue<QPair<int,int> > m_qSpeedData;
 	
 	friend class QueueMgr;
+
+	class BackgroundSaver : public QThread
+	{
+	public:
+		virtual void run();
+	};
 };
 
 #endif

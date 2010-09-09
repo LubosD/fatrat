@@ -139,6 +139,18 @@ void Queue::loadQueues()
 	}
 }
 
+void Queue::BackgroundSaver::run()
+{
+	Queue::saveQueues();
+}
+
+void Queue::saveQueuesAsync()
+{
+	BackgroundSaver* t = new BackgroundSaver;
+	connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
+	t->start();
+}
+
 void Queue::saveQueues()
 {
 	QDomDocument doc;
