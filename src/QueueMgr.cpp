@@ -204,7 +204,7 @@ void QueueMgr::doWork()
 	if(++m_nCycle > 60)
 	{
 		m_nCycle = 0;
-		Queue::saveQueues();
+		Queue::saveQueuesAsync();
 		g_settings->sync();
 	}
 }

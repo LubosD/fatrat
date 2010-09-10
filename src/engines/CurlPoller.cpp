@@ -166,6 +166,11 @@ void CurlPoller::pollingCycle(bool oneshot)
 		if(mask)
 			curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
 	}
+
+	for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
+		m_sockets[it.key()] = it.value();
+	m_socketsToAdd.clear();
+
 	for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 	{
 		int msec = -1;
@@ -198,6 +203,8 @@ void CurlPoller::pollingCycle(bool oneshot)
 				flags |= Poller::PollerOneShot;
 			else if(flags & Poller::PollerOneShot)
 				flags ^= Poller::PollerOneShot;
+			else
+				continue;
 			m_poller->addSocket(it.key(), flags);
 		}
 	}
@@ -213,10 +220,6 @@ void CurlPoller::pollingCycle(bool oneshot)
 		if(user)
 			user->transferDone(msg->data.result);
 	}
-
-	for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
-		m_sockets[it.key()] = it.value();
-	m_socketsToAdd.clear();
 
 	foreach(CurlStat* stat, timedOut)
 	{
@@ -304,11 +307,12 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 	}
 	else
 	{
-		qDebug() << "CurlPoller::socket_callback - add/mod";
+		qDebug() << "CurlPoller::socket_callback - add/mod" << s << flags;
+		socket(AF_INET, SOCK_DGRAM, PF_INET);
 		
 		This->m_socketsToAdd[s] = QPair<int,CurlStat*>(flags, static_cast<CurlStat*>(This->m_users[easy]));
 		
-		return This->m_poller->addSocket(s, flags);
+		This->m_poller->addSocket(s, flags);
 	}
 }
 
