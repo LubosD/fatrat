@@ -34,7 +34,9 @@ CurlUser::~CurlUser()
 
 size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* This)
 {
-	size_t bytes = This->readData(ptr, size*nmemb);
+	size_t bytes = 0;
+	if (ptr)
+		bytes = This->readData(ptr, size*nmemb);
 
 	This->timeProcessUp(size*nmemb);
 
@@ -46,7 +48,9 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 
 size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This)
 {
-	bool ok = This->writeData(ptr, size*nmemb);
+	bool ok = true;
+	if (ptr)
+		ok = This->writeData(ptr, size*nmemb);
 
 	This->timeProcessDown(size*nmemb);
 

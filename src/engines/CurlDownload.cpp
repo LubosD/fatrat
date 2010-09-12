@@ -897,7 +897,7 @@ void CurlDownload::startSegment(int urlIndex)
 	m_segments << seg;
 }
 
-void CurlDownload::stopSegment(int index)
+void CurlDownload::stopSegment(int index, bool restarting)
 {
 	Segment& s = m_segments[index];
 	if (!s.client)
@@ -918,7 +918,7 @@ void CurlDownload::stopSegment(int index)
 			break;
 		}
 	}
-	if (!hasActive)
+	if (!hasActive && !restarting)
 		setState(Paused);
 }
 

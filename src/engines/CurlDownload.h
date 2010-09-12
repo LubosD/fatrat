@@ -127,7 +127,7 @@ protected:
 	QColor allocateSegmentColor();
 	void startSegment(Segment& seg, qlonglong bytes);
 	void startSegment(int urlIndex);
-	void stopSegment(int index);
+	void stopSegment(int index, bool restarting = false);
 protected:
 	CURL* m_curl;
 	QDir m_dir;

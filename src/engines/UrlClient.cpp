@@ -181,6 +181,7 @@ void UrlClient::stop()
 	//m_master->removeTransfer(this);
 	//curl_easy_cleanup(m_curl);
 	//m_curl = 0;
+	m_bTerminating = true;
 	m_progress = 0;
 }
 

@@ -145,11 +145,12 @@ void HttpDetails::editUrl()
 				if (s.client && s.urlIndex == row)
 				{
 					// restart active segments
-					m_download->stopSegment(i);
+					m_download->stopSegment(i, true);
 					stopped++;
+					i = 0;
 				}
 			}
-			for (int i = 0; i < stopped; i++)
+			while (stopped--)
 				m_download->startSegment(row);
 		}
 	}

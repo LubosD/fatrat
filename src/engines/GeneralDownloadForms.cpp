@@ -66,8 +66,64 @@ void HttpOptsWidget::accepted()
 		m_download->setTargetName(newFileName);
 		m_download->m_bAutoName = false;
 	}
+
+	// walk through the operations and make them happen
+	for(int i=0;i<m_operations.size();i++)
+	{
+		Operation& op = m_operations[i];
+		switch (op.operation)
+		{
+		case Operation::OpAdd:
+			m_download->m_urls << op.object;
+			break;
+		case Operation::OpEdit:
+			m_download->m_urls[op.index] = op.object;
+
+			if (m_download->isActive())
+			{
+				int stopped = 0;
+				for (int i=0;i<m_download->m_segments.size(); i++)
+				{
+					CurlDownload::Segment& s = m_download->m_segments[i];
+					if (s.client && s.urlIndex == op.index)
+					{
+						m_download->stopSegment(i, true);
+						i = 0;
+						stopped++;
+					}
+				}
+				while (stopped--)
+					m_download->startSegment(op.index);
+			}
+			break;
+		case Operation::OpDelete:
+			m_download->m_urls.removeAt(op.index);
+
+			if (m_download->isActive())
+			{
+				for (int i=0;i<m_download->m_segments.size(); i++)
+				{
+					CurlDownload::Segment& s = m_download->m_segments[i];
+					if (s.client && s.urlIndex == op.index)
+					{
+						m_download->stopSegment(i);
+						i = 0;
+					}
+				}
+			}
+			for(QList<int>::iterator it = m_download->m_listActiveSegments.begin();
+			it != m_download->m_listActiveSegments.end(); it++)
+			{
+				if (*it == op.index)
+					it = m_download->m_listActiveSegments.erase(it);
+				else if (*it > op.index)
+					*it--;
+			}
+			break;
+		}
+	}
 	
-	m_download->m_urls = m_urls;
+	//m_download->m_urls = m_urls;
 }
 
 void HttpOptsWidget::addUrl()
@@ -88,6 +144,11 @@ void HttpOptsWidget::addUrl()
 		
 		listUrls->addItem(dlg.m_strURL);
 		m_urls << obj;
+
+		Operation op;
+		op.operation = Operation::OpAdd;
+		op.object = obj;
+		m_operations << op;
 	}
 }
 
@@ -120,6 +181,12 @@ void HttpOptsWidget::editUrl()
 		obj.ftpMode = dlg.m_ftpMode;
 		obj.proxy = dlg.m_proxy;
 		obj.strBindAddress = dlg.m_strBindAddress;
+
+		Operation op;
+		op.operation = Operation::OpEdit;
+		op.object = obj;
+		op.index = row;
+		m_operations << op;
 		
 		listUrls->item(row)->setText(dlg.m_strURL);
 	}
@@ -133,6 +200,11 @@ void HttpOptsWidget::deleteUrl()
 	{
 		delete listUrls->takeItem(row);
 		m_urls.removeAt(row);
+
+		Operation op;
+		op.operation = Operation::OpDelete;
+		op.index = row;
+		m_operations << op;
 	}
 }
 
