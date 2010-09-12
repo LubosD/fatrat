@@ -118,7 +118,7 @@ protected:
 	QString m_strError, m_strTarget;
 	qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<int> m_vecPriorities;
-	bool m_bHasHashCheck, m_bAuto;
+	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
 	
 	QHttp* m_pFileDownload;
 	QTemporaryFile* m_pFileDownloadTemp;

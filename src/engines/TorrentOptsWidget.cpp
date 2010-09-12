@@ -163,6 +163,7 @@ void TorrentOptsWidget::load()
 	m_trackers = m_download->m_handle.trackers();
 	for(size_t i=0;i<m_trackers.size();i++)
 		listTrackers->addItem(QString::fromUtf8(m_trackers[i].url.c_str()));
+	checkSuperSeeding->setChecked(m_download->m_bSuperSeeding);
 }
 
 void TorrentOptsWidget::accepted()
@@ -207,6 +208,7 @@ void TorrentOptsWidget::accepted()
 	
 	m_download->m_seedLimitRatio = (checkSeedRatio->isChecked()) ? doubleSeed->value() : 0.0;
 	m_download->m_seedLimitUpload = (checkSeedUpload->isChecked()) ? lineSeed->text().toInt() : 0;
+	m_download->m_bSuperSeeding = checkSuperSeeding->isChecked();
 }
 
 void TorrentOptsWidget::addUrlSeed()

@@ -84,7 +84,7 @@ const char* (*GeoIP_country_code_by_addr_imp)(void*, const char*);
 void (*GeoIP_delete_imp)(void*);
 
 TorrentDownload::TorrentDownload(bool bAuto)
-	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_pFileDownload(0)
+	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_bSuperSeeding(false), m_pFileDownload(0)
 		, m_pFileDownloadTemp(0)
 {
 	m_worker->addObject(this);
@@ -848,6 +848,8 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		str = getXMLProperty(map, "seedlimitupload");
 		m_seedLimitUpload = str.toInt();
+
+		m_bSuperSeeding = getXMLProperty(map, "superseeding").toInt() != 0;
 		
 		m_strTarget = str = getXMLProperty(map, "target");
 		
@@ -1012,6 +1014,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 	
 	setXMLProperty(doc, map, "seedlimitratio", QString::number(m_seedLimitRatio));
 	setXMLProperty(doc, map, "seedlimitupload", QString::number(m_seedLimitUpload));
+	setXMLProperty(doc, map, "superseeding", QString::number(m_bSuperSeeding));
 	
 	QString prio;
 	
@@ -1252,6 +1255,7 @@ void TorrentWorker::doWork()
 					d->setMode(Transfer::Upload);
 					d->m_handle.set_ratio(0);
 				}
+				d->m_handle.super_seeding(d->m_bSuperSeeding);
 			}
 			if(d->mode() == Transfer::Upload)
 			{
@@ -1266,6 +1270,8 @@ void TorrentWorker::doWork()
 						d->setMode(Transfer::Download);
 					}
 				}
+				if (d->m_handle.super_seeding() != d->m_bSuperSeeding)
+					d->m_handle.super_seeding(d->m_bSuperSeeding);
 			}
 			
 			int down, up, sdown, sup;
