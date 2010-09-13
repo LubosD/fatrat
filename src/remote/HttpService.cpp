@@ -47,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QBuffer>
 #include <QImage>
 #include <QPainter>
+#include <QMultiMap>
 #include <pion/net/PionUser.hpp>
 #include <pion/net/HTTPBasicAuth.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
@@ -142,6 +143,7 @@ void HttpService::setup()
 		m_server->addService("/xmlrpc", new XmlRpcService);
 		m_server->addService("/generate/graph.png", new GraphService);
 		m_server->addService("/generate/qgraph.png", new QgraphService);
+		m_server->addService("/subclass", new SubclassService);
 		m_server->addService("/log", new LogService);
 		m_server->addService("/browse", new TransferTreeBrowserService);
 		m_server->addService("/", new pion::plugins::FileService);
@@ -410,6 +412,54 @@ void HttpService::TransferDownloadService::operator()(pion::net::HTTPRequestPtr 
 	pion::plugins::DiskFileSenderPtr sender_ptr(pion::plugins::DiskFileSender::create(response_file, request, tcp_conn, 8192));
 	sender_ptr->getWriter()->getResponse().addHeader("Content-Disposition", disposition.toStdString());
 	sender_ptr->send();
+}
+
+void HttpService::SubclassService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
+{
+	m_writer = HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn));
+	QString transfer = QString::fromStdString(request->getQuery("transfer"));
+	QString method = QString::fromStdString(getRelativeResource(request->getResource()));
+
+	Queue* q = 0;
+	Transfer* t = 0;
+
+	findTransfer(transfer, &q, &t);
+
+	if (!q || !t || !dynamic_cast<TransferHttpService*>(t))
+	{
+		if (t)
+		{
+			q->unlock();
+			g_queuesLock.unlock();
+		}
+
+		m_writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+		m_writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+		m_writer->send();
+		return;
+	}
+
+	QMultiMap<QString,QString> map;
+	pion::net::HTTPTypes::QueryParams params = request->getQueryParams();
+	for (pion::net::HTTPTypes::QueryParams::iterator it = params.begin(); it != params.end(); it++)
+	{
+		map.insert(QString::fromStdString(it->first), QString::fromStdString(it->second));
+	}
+
+	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
+	s->process(method, map, this);
+	m_writer->send();
+}
+
+void HttpService::SubclassService::write(const char* data, size_t bytes)
+{
+	m_writer->write(data, bytes);
+}
+
+void HttpService::SubclassService::writeFail(QString error)
+{
+	m_writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+	m_writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
 }
 
 int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)

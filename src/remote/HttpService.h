@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2009 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,6 +34,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariantMap>
 #include <QFile>
 #include <ctime>
+#include <pion/net/HTTPResponseWriter.hpp>
+#include "remote/TransferHttpService.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -79,6 +81,15 @@ private:
 	class TransferDownloadService : public pion::net::WebService
 	{
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+	class SubclassService : public pion::net::WebService, public TransferHttpService::WriteBack
+	{
+	public:
+		void write(const char* data, size_t bytes);
+		void writeBack(QString error);
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	private:
+		pion::net::HTTPResponseWriterPtr m_writer;
 	};
 };
 

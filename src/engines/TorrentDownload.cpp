@@ -57,6 +57,11 @@ respects for all of the code used other than "OpenSSL".
 #include <QLabel>
 #include <QtDebug>
 
+#ifdef WITH_WEBINTERFACE
+#	define XMLRPCSERVICE_AVOID_SHA_CONFLICT
+#	include "remote/XmlRpcService.h"
+#endif
+
 #if (!defined(NDEBUG) && !defined(DEBUG))
 #	error Define NDEBUG or DEBUG!
 #endif
@@ -201,6 +206,10 @@ void TorrentDownload::globalInit()
 	si.lpfnCreate = TorrentSettings::create;
 	
 	addSettingsPage(si);
+
+#ifdef WITH_WEBINTERFACE
+	// register XML-RPC functions
+#endif
 }
 
 void TorrentDownload::applySettings()
@@ -1105,6 +1114,19 @@ QString TorrentDownload::message() const
 	return state;
 }
 
+
+void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteBack* wb)
+{
+	if (method == "progress")
+	{
+
+	}
+	else if (method == "availability")
+	{
+
+	}
+}
+
 TorrentWorker::TorrentWorker()
 {
 	m_timer.start(1000);
@@ -1326,31 +1348,6 @@ void TorrentDownload::forceRecheck()
 		return;
 	
 	m_bHasHashCheck = false;
-	/*
-	// dirty but simple
-	QDomDocument doc;
-	QDomElement root = doc.createElement("fake");
-	doc.appendChild(root);
-	
-	save(doc, root);
-	
-	int up = m_handle.upload_limit();
-	int down = m_handle.download_limit();
-	
-	m_session->remove_torrent(m_handle);
-	
-	QDomNodeList list = root.childNodes();
-	for(int i=0;i<list.size();i++)
-	{
-		if(list.at(i).nodeName() == "torrent_resume")
-		{
-			root.removeChild(list.at(i));
-			break;
-		}
-	}
-	
-	load(root);
-	setSpeedLimits(down, up);*/
 	
 	m_handle.force_recheck();
 }

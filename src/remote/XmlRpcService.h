@@ -32,12 +32,13 @@ respects for all of the code used other than "OpenSSL".
 #include <QVector>
 #include <QMap>
 #include <QVariantMap>
-#include "engines/OutputBuffer.h"
+//#include "engines/OutputBuffer.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
 
+#if !defined(XMLRPCSERVICE_AVOID_SHA_CONFLICT)
 #include <pion/net/WebServer.hpp>
 
 class XmlRpcService : public pion::net::WebService
@@ -75,5 +76,16 @@ private:
 	};
 	static QMap<QString,FunctionInfo> m_mapFunctions;
 };
+
+#else // XMLRPCSERVICE_AVOID_SHA_CONFLICT
+
+class XmlRpcService
+{
+public:
+	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
+	static void deregisterFunction(QString name);
+};
+
+#endif // XMLRPCSERVICE_AVOID_SHA_CONFLICT
 
 #endif
