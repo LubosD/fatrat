@@ -723,8 +723,6 @@ QString TorrentDownload::object() const
 
 void TorrentDownload::changeActive(bool nowActive)
 {
-	bool bEnableRecheck = false;
-	
 	if(m_handle.is_valid())
 	{
 		if(nowActive)
@@ -734,17 +732,9 @@ void TorrentDownload::changeActive(bool nowActive)
 		}
 		else
 		{
-			m_nPrevDownload = totalDownload();
-			m_nPrevUpload = totalUpload();
-			bEnableRecheck = true;
 			m_handle.pause();
 		}
 	}
-	/*else if(m_pFileDownload == 0)
-	{
-		qDebug() << "changeActive() and the handle is not valid";
-		//setState(Failed);
-	}*/
 }
 
 void TorrentDownload::setSpeedLimits(int down, int up)
