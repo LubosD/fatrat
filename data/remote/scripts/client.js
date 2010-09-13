@@ -262,6 +262,21 @@ function tabSwitched(reallySwitched) {
 		var text;
 		t = getTransfer(currentTransfers[0]);
 		
+		if (reallySwitched)
+		{
+			$('#details-subclass')[0].innerHTML = '';
+			
+			if (t.detailsScript)
+			{
+				sc = document.createElement('script');
+				sc.type = 'text/javascript';
+				sc.src = t.detailsScript;
+				$('#details-subclass').append(sc);
+			}
+		} else if (t.detailsScript && subclassPerformReload) {
+			subclassPerformReload(t);
+		}
+		
 		if (t.primaryMode == 'Upload')
 			text = '<div class="ui-state-error">This feature is available only for download-oriented transfers.</div>';
 		else if (t.state != 'Completed' && t.mode == 'Download' && !t.dataPathIsDir)
@@ -320,7 +335,8 @@ function tabSwitched(reallySwitched) {
 			$("#details-download-tree").html('');
 			$("#details-download").html(text);
 			$("#details-download .downlink").button();
-		}
+		} else
+			$("#details-download").html('')
 	}
 }
 

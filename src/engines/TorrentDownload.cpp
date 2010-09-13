@@ -35,6 +35,7 @@ respects for all of the code used other than "OpenSSL".
 #include "TorrentOptsWidget.h"
 #include "RuntimeException.h"
 #include "rss/RssFetcher.h"
+#include "TorrentProgressWidget.h"
 
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
@@ -46,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include <fstream>
 #include <stdexcept>
+#include <alloca.h>
 
 #include <QIcon>
 #include <QMenu>
@@ -55,6 +57,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QFile>
 #include <QVector>
 #include <QLabel>
+#include <QBuffer>
+#include <QImage>
 #include <QtDebug>
 
 #ifdef WITH_WEBINTERFACE
@@ -1114,18 +1118,63 @@ QString TorrentDownload::message() const
 	return state;
 }
 
-
+#ifdef WITH_WEBINTERFACE
 void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteBack* wb)
 {
-	if (method == "progress")
-	{
+	qDebug() << "TorrentDownload::process" << method;
 
-	}
-	else if (method == "availability")
+	if (m_handle.is_valid())
 	{
+		const int WIDTH = 640;
+		if (method == "progress")
+		{
+			quint32* buf = (quint32*) alloca(sizeof(quint32) * WIDTH);
+			libtorrent::bitfield pieces = m_handle.status().pieces;
+			QImage img;
 
+			if(pieces.empty() && m_info->total_size() == m_status.total_done)
+			{
+				pieces.resize(m_info->num_pieces());
+				pieces.set_all();
+			}
+			if (!pieces.empty())
+			{
+				img = TorrentProgressWidget::generate(pieces, WIDTH, buf);
+			}
+			else
+			{
+				memset(buf, 0xff, sizeof(quint32) * WIDTH);
+				img = QImage((uchar*) buf, WIDTH, 1, QImage::Format_RGB32);
+			}
+			QBuffer bbuf;
+
+			img.save(&bbuf, "PNG");
+			wb->setContentType("image/png");
+			wb->write(bbuf.data().constData(), bbuf.data().size());
+		}
+		else if (method == "availability")
+		{
+			std::vector<int> avail;
+			quint32* buf = (quint32*) alloca(sizeof(quint32) * WIDTH);
+			QBuffer bbuf;
+
+			m_handle.piece_availability(avail);
+
+			QImage img = TorrentProgressWidget::generate(avail, WIDTH, buf);
+			img.save(&bbuf, "PNG");
+			wb->setContentType("image/png");
+			wb->write(bbuf.data().constData(), bbuf.data().size());
+		}
+		else
+			wb->writeFail("Unknown request");
 	}
 }
+
+const char* TorrentDownload::detailsScript() const
+{
+	return "/scripts/transfers/TorrentDownload.js";
+}
+#endif
 
 TorrentWorker::TorrentWorker()
 {

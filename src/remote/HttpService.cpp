@@ -449,11 +449,19 @@ void HttpService::SubclassService::operator()(pion::net::HTTPRequestPtr &request
 	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
 	s->process(method, map, this);
 	m_writer->send();
+
+	q->unlock();
+	g_queuesLock.unlock();
 }
 
 void HttpService::SubclassService::write(const char* data, size_t bytes)
 {
 	m_writer->write(data, bytes);
+}
+
+void HttpService::SubclassService::setContentType(const char* type)
+{
+	m_writer->getResponse().addHeader("Content-Type", type);
 }
 
 void HttpService::SubclassService::writeFail(QString error)

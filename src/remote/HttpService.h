@@ -86,7 +86,8 @@ private:
 	{
 	public:
 		void write(const char* data, size_t bytes);
-		void writeBack(QString error);
+		void writeFail(QString error);
+		void setContentType(const char* type);
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
 	private:
 		pion::net::HTTPResponseWriterPtr m_writer;

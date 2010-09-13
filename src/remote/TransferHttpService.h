@@ -36,11 +36,13 @@ public:
 	class WriteBack
 	{
 	public:
+		virtual void setContentType(const char* type) = 0;
 		virtual void write(const char* data, size_t bytes) = 0;
 		virtual void writeFail(QString error) = 0;
 	};
 
 	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb) = 0;
+	virtual const char* detailsScript() const = 0;
 };
 
 #endif // TRANSFERHTTPSERVICE_H

@@ -52,6 +52,7 @@ void TorrentProgressWidget::generate(const std::vector<int>& data)
 	update();
 }
 
+// blue colored
 QImage TorrentProgressWidget::generate(const libtorrent::bitfield& data, int width, quint32* buf, float sstart, float send)
 {
 	double fact = (data.size()-send-sstart)/float(width);
@@ -80,6 +81,7 @@ QImage TorrentProgressWidget::generate(const libtorrent::bitfield& data, int wid
 	return QImage((uchar*) buf, width, 1, QImage::Format_RGB32);
 }
 
+// grey colored
 QImage TorrentProgressWidget::generate(const std::vector<int>& data, int width, quint32* buf, float sstart, float send)
 {
 	if(send < 0)

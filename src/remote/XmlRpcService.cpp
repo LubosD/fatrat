@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include "XmlRpc.h"
 #include "Queue.h"
+#include "TransferHttpService.h"
 #include <QReadWriteLock>
 #include <QStringList>
 #include <QFileInfo>
@@ -248,6 +249,10 @@ QVariant XmlRpcService::Queue_getTransfers(QString uuid)
 
 		t->userSpeedLimits(down, up);
 		vmap["userSpeedLimits"] = QVariantList() << down << up;
+
+		TransferHttpService* srv = dynamic_cast<TransferHttpService*>(t);
+		if (srv)
+			vmap["detailsScript"] = srv->detailsScript();
 
 		vlist << vmap;
 	}

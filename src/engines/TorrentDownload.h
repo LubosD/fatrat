@@ -107,8 +107,11 @@ public:
 	qint64 totalDownload() const { return m_nPrevDownload + m_status.total_payload_download; }
 	qint64 totalUpload() const { return m_nPrevUpload + m_status.total_payload_upload; }
 
+#ifdef WITH_WEBINTERFACE
 	// TransferHttpService
 	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb);
+	virtual const char* detailsScript() const;
+#endif
 public slots:
 	void downloadTorrent(QString source);
 private:
