@@ -97,6 +97,7 @@ void initSettingsPages()
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
 	si.lpfnCreate = SettingsSchedulerForm::create;
+	g_settingsPages << si;
 
 	si.icon = DelayedIcon(":/fatrat/clipboard.png");
 	si.title = QObject::tr("Clipboard monitor");
