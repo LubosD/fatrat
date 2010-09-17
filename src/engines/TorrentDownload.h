@@ -38,7 +38,6 @@ respects for all of the code used other than "OpenSSL".
 #include "WidgetHostChild.h"
 #include <QTimer>
 #include <QMutex>
-#include <QHttp>
 #include <QTemporaryFile>
 #include <QRegExp>
 #include <vector>
@@ -50,6 +49,8 @@ class TorrentWorker;
 class TorrentDetails;
 class RssFetcher;
 class QLabel;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class TorrentDownload : public Transfer
 {
@@ -107,7 +108,8 @@ private:
 	bool storeTorrent();
 	QString storedTorrentName() const;
 private slots:
-	void torrentFileDone(bool error);
+	void torrentFileDone(QNetworkReply* reply);
+	void torrentFileReadyRead();
 	void forceReannounce();
 	void forceRecheck();
 protected:
@@ -120,7 +122,8 @@ protected:
 	std::vector<int> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
 	
-	QHttp* m_pFileDownload;
+	QNetworkAccessManager* m_pFileDownload;
+	QNetworkReply* m_pReply;
 	QTemporaryFile* m_pFileDownloadTemp;
 	
 	// seeding limits

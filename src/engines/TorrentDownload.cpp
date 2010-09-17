@@ -56,6 +56,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QVector>
 #include <QLabel>
 #include <QtDebug>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #if (!defined(NDEBUG) && !defined(DEBUG))
 #	error Define NDEBUG or DEBUG!
@@ -575,12 +577,11 @@ void TorrentDownload::init(QString source, QString target)
 
 void TorrentDownload::downloadTorrent(QString source)
 {
-	QString error,name;
-	QDir dir;
+	QString error;
 	
 	qDebug() << "downloadTorrent()";
 	
-	m_pFileDownload = new QHttp(this);
+	m_pFileDownload = new QNetworkAccessManager(this);
 	m_pFileDownloadTemp = new QTemporaryFile(m_pFileDownload);
 	
 	if(!m_pFileDownloadTemp->open())
@@ -591,21 +592,9 @@ void TorrentDownload::downloadTorrent(QString source)
 		setState(Failed);
 		return;
 	}
-	
-	dir = m_pFileDownloadTemp->fileName();
-	name = dir.dirName();
-	
-	dir.cdUp();
-	
-	QUrl url(source);
-	m_pFileDownload->setHost(url.host(), url.port(80));
-	connect(m_pFileDownload, SIGNAL(done(bool)), this, SLOT(torrentFileDone(bool)), Qt::QueuedConnection);
-	
-	int id;
-	if(url.hasQuery())
-		id = m_pFileDownload->get(url.path() + '?' + url.encodedQuery(), m_pFileDownloadTemp);
-	else
-		id = m_pFileDownload->get(url.path(), m_pFileDownloadTemp);
+	connect(m_pFileDownload, SIGNAL(finished(QNetworkReply*)), this, SLOT(torrentFileDone(QNetworkReply*)), Qt::QueuedConnection);
+	m_pReply = m_pFileDownload->get(QNetworkRequest(source));
+	connect(m_pReply, SIGNAL(readyRead()), this, SLOT(torrentFileReadyRead()));
 }
 
 bool TorrentDownload::storeTorrent(QString orig)
@@ -670,26 +659,53 @@ QString TorrentDownload::storedTorrentName() const
 	return QString("%1 - %2.torrent").arg(name()).arg(hash);
 }
 
-void TorrentDownload::torrentFileDone(bool error)
+void TorrentDownload::torrentFileReadyRead()
+{
+	if (!m_pReply->rawHeader("Location").isEmpty())
+		return;
+	m_pFileDownloadTemp->write(m_pReply->readAll());
+}
+
+void TorrentDownload::torrentFileDone(QNetworkReply* reply)
 {
 	qDebug() << "TorrentDownload::torrentFileDone";
-	if(error)
+	reply->deleteLater();
+	m_pReply = 0;
+
+	if(reply->error() != QNetworkReply::NoError)
 	{
 		m_strError = tr("Failed to download the .torrent file");
 		setState(Failed);
 	}
 	else
 	{
-		try
+		// working around a Qt bug here, rawHeader() is a necessity!
+		QUrl redir = QUrl::fromEncoded(reply->rawHeader("Location"));
+		qDebug() << "Redirect URL:" << redir;
+		if (!redir.isEmpty())
 		{
-			m_pFileDownloadTemp->flush();
-			init(m_pFileDownloadTemp->fileName(), m_strTarget);
+			QUrl newUrl = reply->url().resolved(redir);
+			qDebug() << "Redirected to another URL:" << newUrl;
+			QNetworkRequest nr(newUrl);
+			nr.setRawHeader("Referer", reply->url().toEncoded());
+			m_pReply = m_pFileDownload->get(nr);
+			connect(m_pReply, SIGNAL(readyRead()), this, SLOT(torrentFileReadyRead()));
+			return;
 		}
-		catch(const RuntimeException& e)
+		else
 		{
-			qDebug() << "Failed to load torrent:" << e.what();
-			m_strError = e.what();
-			setState(Failed);
+			try
+			{
+				m_pFileDownloadTemp->flush();
+				qDebug() << "Loading" << m_pFileDownloadTemp->fileName();
+				init(m_pFileDownloadTemp->fileName(), m_strTarget);
+			}
+			catch(const RuntimeException& e)
+			{
+				qDebug() << "Failed to load torrent:" << e.what();
+				m_strError = e.what();
+				setState(Failed);
+			}
 		}
 	}
 	
