@@ -1,11 +1,16 @@
 var client;
-var rpcMethods = ["getQueues", "Queue.getTransfers", "Transfer.setProperties", "Transfer.delete", "Queue.moveTransfers", "Queue.setProperties", "Queue.create"];
+var rpcMethods = ["getQueues", "getTransferClasses", "Queue.getTransfers", "Transfer.setProperties", "Transfer.getAdvancedProperties", "Transfer.delete", "Queue.moveTransfers", "Queue.setProperties", "Queue.create"];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
+var transferClasses;
 
 function clientInit() {
 	client = XmlRpc.getObject("/xmlrpc", rpcMethods);
+	
+	client.getTransferClasses(function(data) {
+		transferClasses = data;
+	});
 	
 	$("#toolbar-add").click(actionAdd);
 	$("#toolbar-delete").click(actionDelete);
@@ -336,7 +341,8 @@ function tabSwitched(reallySwitched) {
 			$("#details-download").html(text);
 			$("#details-download .downlink").button();
 		} else
-			$("#details-download").html('')
+			$("#details-download").html('');
+		$('#accordion').accordion();
 	}
 }
 

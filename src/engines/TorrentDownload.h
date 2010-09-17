@@ -111,6 +111,7 @@ public:
 	// TransferHttpService
 	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb);
 	virtual const char* detailsScript() const;
+	virtual QVariantMap properties() const;
 #endif
 public slots:
 	void downloadTorrent(QString source);

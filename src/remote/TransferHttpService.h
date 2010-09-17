@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #define TRANSFERHTTPSERVICE_H
 #include <QString>
 #include <QMultiMap>
+#include <QVariant>
 
 class TransferHttpService
 {
@@ -43,6 +44,7 @@ public:
 
 	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb) = 0;
 	virtual const char* detailsScript() const = 0;
+	virtual QVariantMap properties() const = 0;
 };
 
 #endif // TRANSFERHTTPSERVICE_H

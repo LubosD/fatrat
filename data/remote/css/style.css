@@ -206,3 +206,8 @@ pre {
 #new-transfer table {
 	width: 100%;
 }
+
+#details-subclass {
+	height: 100% !important;
+}
+

@@ -1128,7 +1128,7 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 		const int WIDTH = 640;
 		if (method == "progress")
 		{
-			quint32* buf = (quint32*) alloca(sizeof(quint32) * WIDTH);
+			quint32* buf = new quint32[WIDTH];
 			libtorrent::bitfield pieces = m_handle.status().pieces;
 			QImage img;
 
@@ -1151,11 +1151,13 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 			img.save(&bbuf, "PNG");
 			wb->setContentType("image/png");
 			wb->write(bbuf.data().constData(), bbuf.data().size());
+
+			delete [] buf;
 		}
 		else if (method == "availability")
 		{
 			std::vector<int> avail;
-			quint32* buf = (quint32*) alloca(sizeof(quint32) * WIDTH);
+			quint32* buf = new quint32[WIDTH];
 			QBuffer bbuf;
 
 			m_handle.piece_availability(avail);
@@ -1164,6 +1166,8 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 			img.save(&bbuf, "PNG");
 			wb->setContentType("image/png");
 			wb->write(bbuf.data().constData(), bbuf.data().size());
+
+			delete [] buf;
 		}
 		else
 			wb->writeFail("Unknown request");
@@ -1173,6 +1177,34 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 const char* TorrentDownload::detailsScript() const
 {
 	return "/scripts/transfers/TorrentDownload.js";
+}
+
+QVariantMap TorrentDownload::properties() const
+{
+	QVariantMap rv;
+	qint64 d, u;
+	QString ratio;
+
+	d = totalDownload();
+	u = totalUpload();
+
+	rv["totalDownload"] = formatSize(d);
+	rv["totalUpload"] = formatSize(u);
+
+	QString comment = m_info->comment().c_str();
+	comment.replace('\n', "<br>");
+	rv["comment"] = comment;
+
+	QString magnet = QString::fromStdString(libtorrent::make_magnet_uri(m_handle));
+	rv["magnetLink"] = magnet;
+
+	if(!d)
+		ratio = QString::fromUtf8("∞");
+	else
+		ratio = QString::number(double(u)/double(d));
+	rv["ratio"] = ratio;
+
+	return rv;
 }
 #endif
 

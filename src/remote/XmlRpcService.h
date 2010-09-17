@@ -49,11 +49,13 @@ public:
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);
 protected:
+	static QVariant getTransferClasses(QList<QVariant>&);
 	static QVariant getQueues(QList<QVariant>&);
 	static QVariant Queue_create(QList<QVariant>&);
 	static QVariant Queue_setProperties(QList<QVariant>&);
 	static QVariant Queue_getTransfers(QString uuid);
 	static QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
+	static QVariant Transfer_getAdvancedProperties(QList<QVariant>&);
 	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
 	static QVariant Transfer_delete(QStringList uuid, bool withData);
 public:

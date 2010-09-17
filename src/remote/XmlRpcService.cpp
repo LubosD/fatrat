@@ -41,6 +41,8 @@ using namespace pion::net;
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
+extern QVector<EngineEntry> g_enginesDownload;
+extern QVector<EngineEntry> g_enginesUpload;
 
 QMap<QString,XmlRpcService::FunctionInfo> XmlRpcService::m_mapFunctions;
 
@@ -77,6 +79,12 @@ void XmlRpcService::globalInit()
 		QVector<QVariant::Type> aa;
 		aa << QVariant::Map;
 		registerFunction("Queue.create", Queue_create, aa);
+	}
+	registerFunction("getTransferClasses", getTransferClasses, QVector<QVariant::Type>());
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::String;
+		registerFunction("Transfer.getAdvancedProperties", Transfer_getAdvancedProperties, aa);
 	}
 }
 
@@ -172,6 +180,43 @@ void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TC
 	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn)));
 	writer->write(data.data(), data.size());
 	writer->send();
+}
+
+QVariant XmlRpcService::getTransferClasses(QList<QVariant>&)
+{
+	QVariantList rv;
+	QVector<EngineEntry>* e = &g_enginesDownload;
+
+	foreach(EngineEntry x, *e)
+	{
+		QVariantMap map;
+		map["shortName"] = x.shortName;
+		map["longName"] = x.longName;
+		rv << map;
+	}
+
+	return rv;
+}
+
+QVariant XmlRpcService::Transfer_getAdvancedProperties(QList<QVariant>& args)
+{
+	QString uuid = args[0].toString();
+	Queue* q = 0;
+	Transfer* t = 0;
+	QVariantMap vmap;
+
+	HttpService::findTransfer(uuid, &q, &t);
+	if (!t)
+		throw XmlRpcError(102, "Invalid transfer UUID");
+
+	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
+	if (s)
+		vmap = s->properties();
+
+	q->unlock();
+	g_queuesLock.unlock();
+
+	return vmap;
 }
 
 QVariant XmlRpcService::getQueues(QList<QVariant>&)
