@@ -580,9 +580,15 @@ void TorrentDownload::downloadTorrent(QString source)
 	QString error;
 	
 	qDebug() << "downloadTorrent()";
+
+	QUuid webseed = getSettingsValue("torrent/proxy_webseed").toString();
+	Proxy pr = Proxy::getProxy(webseed);
 	
 	m_pFileDownload = new QNetworkAccessManager(this);
 	m_pFileDownloadTemp = new QTemporaryFile(m_pFileDownload);
+
+	if (pr.nType != Proxy::ProxyNone)
+		m_pFileDownload->setProxy(pr);
 	
 	if(!m_pFileDownloadTemp->open())
 	{
