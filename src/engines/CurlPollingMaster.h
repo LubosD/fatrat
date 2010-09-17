@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,35 +25,20 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef HTTPDETAILSBAR_H
-#define HTTPDETAILSBAR_H
-#include <QWidget>
-#include <QTimer>
-#include <QList>
-#include <QPair>
+#ifndef CURLPOLLINGMASTER_H
+#define CURLPOLLINGMASTER_H
+#include "CurlPoller.h"
+#include "CurlStat.h"
 
-class CurlDownload;
+class CurlPoller;
+class CurlStat;
 
-class HttpDetailsBar : public QWidget
+class CurlPollingMaster : public CurlPoller, public CurlStat
 {
-Q_OBJECT
 public:
-	HttpDetailsBar(QWidget* parent);
-	void setDownload(CurlDownload* d);
-protected slots:
-	void createSegment();
-	void stopSegment();
-protected:
-	virtual void paintEvent(QPaintEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
-	virtual void mouseMoveEvent(QMouseEvent* event);
-
-	int getSegment(int x);
-private:
-	CurlDownload* m_download;
-	QTimer m_timer;
-	int m_sel, m_createX;
-	QList<QPair<int,int> > m_segs;
+	void doWork();
+	int handle();
+	virtual bool idleCycle(const timeval& tvNow);
 };
 
 #endif

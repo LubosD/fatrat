@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,8 +30,12 @@ respects for all of the code used other than "OpenSSL".
 #include <QPainter>
 #include <QPaintEvent>
 #include <QMouseEvent>
+#include <QColor>
+#include <QToolTip>
+#include <QCursor>
 #include "CurlDownload.h"
 #include "Settings.h"
+#include "fatrat.h"
 
 HttpDetailsBar::HttpDetailsBar(QWidget* parent)
 	: QWidget(parent), m_download(0), m_sel(-1)
@@ -53,6 +57,7 @@ void HttpDetailsBar::paintEvent(QPaintEvent* event)
 	const int height = this->height();
 	
 	painter.setClipRegion(event->region());
+	painter.fillRect(QRect(0,0,width,height), Qt::white);
 	painter.drawRect(QRect(0, 0, width+1, height-1));
 	
 	m_segs.clear();
@@ -105,51 +110,85 @@ void HttpDetailsBar::paintEvent(QPaintEvent* event)
 	}
 }
 
-void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
+void HttpDetailsBar::mouseMoveEvent(QMouseEvent* event)
 {
-	int x = event->x();
-	bool found = false;
-	
+	if (!m_download)
+		return;
+
+	int seg = getSegment(event->x());
+
+	if (seg == -1)
+	{
+		QToolTip::hideText();
+		return;
+	}
+
+	QReadLocker l(&m_download->m_segmentsLock);
+	if (seg >= m_download->m_segments.size())
+	{
+		QToolTip::hideText();
+		return;
+	}
+
+	const CurlDownload::Segment& ss = m_download->m_segments[seg];
+	QString text;
+	if (ss.client)
+	{
+		QString url = m_download->m_urls[ss.urlIndex].url.toString();
+		if (url.size() > 47)
+		{
+			url.resize(47);
+			url += "...";
+		}
+		qlonglong progress;
+		QString size = "?";
+		int down, up;
+		ss.client->speeds(down, up);
+		progress = ss.client->progress();
+
+		if (ss.client->rangeTo() != -1)
+			size = formatSize(ss.client->rangeTo() - ss.client->rangeFrom());
+
+		text = tr("Segment #%1\nDownload in progress\nURL: %2\nSize: %3\nSpeed: %4\nDone: %5")
+		       .arg(seg).arg(url).arg(size).arg(formatSize(down)+"/s").arg(formatSize(progress));
+	}
+	else
+	{
+		text = tr("Segment #%1\nDownloaded data").arg(seg) + "\n" + formatSize(ss.bytes);
+	}
+	QToolTip::showText(mapToGlobal(event->pos()), text, this);
+}
+
+int HttpDetailsBar::getSegment(int x)
+{
 	for(int i=0;i<m_segs.size();i++)
 	{
 		if(x >= m_segs[i].first && x <= m_segs[i].second)
-		{
-			found = true;
-			if(m_sel != i)
-			{
-				m_sel = i;
-				update();
-			}
-			break;
-		}
+			return i;
 	}
-	
-	if(!found && m_sel != -1)
+	return -1;
+}
+
+void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
+{
+	int n = getSegment(event->x());
+
+	if (n != m_sel)
 	{
-		m_sel = -1;
+		m_sel = n;
 		update();
 	}
-	
-	if(event->button() == Qt::RightButton && m_download != 0 && m_download->isActive())
+
+	if(event->button() == Qt::RightButton && m_download != 0 /*&& m_download->isActive()*/)
 	{
-		QReadLocker l(&m_download->m_segmentsLock);
 		QMenu menu(this);
 		
-		if(m_sel >= 0 && m_sel < m_segs.size())
+		m_download->m_segmentsLock.lockForRead();
+		if(m_sel >= 0 && m_sel < m_segs.size() && m_download->m_segments[m_sel].client)
 		{
-			if(!m_download->m_segments[m_sel].client)
-			{
-				//if(m_download->m_segments[m_sel].urlIndex < 0)
-					return;
-				//menu.addAction(tr("Resume this segment"), this, SLOT(resumeSegment()));
-			}
-			else
-			{
-				//menu.addAction(tr("Pause this segment"), this, SLOT(pauseSegment()));
-				menu.addAction(tr("Stop this segment"), this, SLOT(stopSegment()));
-			}
+			menu.addAction(tr("Delete this segment"), this, SLOT(stopSegment()));
 		}
-		else
+		//else
 		{
 			QMenu* seg = menu.addMenu(tr("New segment"));
 			
@@ -171,6 +210,7 @@ void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 				seg->addAction(text, this, SLOT(createSegment()))->setData(i);
 			}
 		}
+		m_download->m_segmentsLock.unlock();
 		
 		menu.exec(QCursor::pos());
 	}
@@ -180,17 +220,14 @@ void HttpDetailsBar::createSegment()
 {
 	QAction* act = static_cast<QAction*>(sender());
 	int url = act->data().toInt();
+	m_download->m_listActiveSegments << url;
+	if (m_download->isActive() && m_download->total())
+		m_download->startSegment(url);
 }
 
 void HttpDetailsBar::stopSegment()
 {
+	m_download->m_listActiveSegments.removeOne(m_download->m_segments[m_sel].urlIndex);
+	m_download->stopSegment(m_sel);
+	update();
 }
-
-void HttpDetailsBar::pauseSegment()
-{
-}
-
-void HttpDetailsBar::resumeSegment()
-{
-}
-

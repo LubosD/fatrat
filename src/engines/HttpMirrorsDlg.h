@@ -25,35 +25,42 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef HTTPDETAILSBAR_H
-#define HTTPDETAILSBAR_H
-#include <QWidget>
-#include <QTimer>
-#include <QList>
-#include <QPair>
+#ifndef HTTPMIRRORSDLG_H
+#define HTTPMIRRORSDLG_H
+#include <QDialog>
+#include <QMap>
+#include <QSet>
+#include <QThread>
+#include "ui_HttpMirrorsDlg.h"
 
-class CurlDownload;
-
-class HttpDetailsBar : public QWidget
+class HttpMirrorsDlg : public QDialog, Ui_HttpMirrorsDlg
 {
 Q_OBJECT
 public:
-	HttpDetailsBar(QWidget* parent);
-	void setDownload(CurlDownload* d);
-protected slots:
-	void createSegment();
-	void stopSegment();
-protected:
-	virtual void paintEvent(QPaintEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
-	virtual void mouseMoveEvent(QMouseEvent* event);
-
-	int getSegment(int x);
+	HttpMirrorsDlg(QWidget* parent);
+	~HttpMirrorsDlg();
+	void load(const QMap<QString, QStringList>& mirrors, QSet<QString> compatible);
+	QMap<QString,QStringList> pickedUrls() const;
 private:
-	CurlDownload* m_download;
-	QTimer m_timer;
-	int m_sel, m_createX;
-	QList<QPair<int,int> > m_segs;
+
+	class ProbeThread : public QThread
+	{
+	public:
+		ProbeThread(QMap<QString,QTreeWidgetItem*>& servers, QObject* parent);
+		~ProbeThread();
+		void stop() { m_bStop = true; }
+		virtual void run();
+	private:
+		QMap<QString,QTreeWidgetItem*> m_servers;
+		bool m_bStop;
+	} *m_probeThread;
+
+	class CSTreeWidgetItem : public QTreeWidgetItem
+	{
+	public:
+		CSTreeWidgetItem(QTreeWidgetItem* parent);
+		virtual bool operator<(const QTreeWidgetItem& other) const;
+	};
 };
 
-#endif
+#endif // HTTPMIRRORSDLG_H

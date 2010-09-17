@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>539</width>
-    <height>376</height>
+    <width>537</width>
+    <height>374</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,7 +85,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</string>
+          <string>&lt;center&gt;Copyright © 2006-2010 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::AutoText</enum>

@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "ui_HttpUrlOptsDlg.h"
 #include "WidgetHostChild.h"
 #include <QDialog>
+#include <QList>
 #include "CurlDownload.h"
 
 class HttpUrlOptsDlg : public QDialog, Ui_HttpUrlOptsDlg
@@ -44,7 +45,7 @@ public:
 	virtual void accept();
 
 	QString m_strURL, m_strReferrer, m_strUser, m_strPassword, m_strBindAddress;
-	FtpMode m_ftpMode;
+	UrlClient::FtpMode m_ftpMode;
 	QUuid m_proxy;
 	QList<Transfer*>* m_multi;
 };
@@ -63,7 +64,16 @@ public slots:
 	void deleteUrl();
 private:
 	CurlDownload* m_download;
-	QList<CurlDownload::UrlObject> m_urls;
+	QList<UrlClient::UrlObject> m_urls;
+	QList<int> m_deleted;
+
+	struct Operation
+	{
+		enum Op { OpEdit, OpDelete, OpAdd } operation;
+		UrlClient::UrlObject object;
+		int index;
+	};
+	QList<Operation> m_operations;
 };
 
 #endif

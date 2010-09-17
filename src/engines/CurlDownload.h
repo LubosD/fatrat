@@ -30,12 +30,15 @@ respects for all of the code used other than "OpenSSL".
 #include <Transfer.h>
 #include <fatrat.h>
 #include "engines/CurlUser.h"
+#include "engines/UrlClient.h"
+#include "engines/CurlPollingMaster.h"
 #include <QHash>
 #include <QUuid>
 #include <QDir>
 #include <QUrl>
+#include <QTimer>
 
-class CurlDownload : public Transfer, public CurlUser
+class CurlDownload : public Transfer
 {
 Q_OBJECT
 public:
@@ -65,14 +68,18 @@ public:
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QString remoteURI() const;
+	virtual QObject* createDetailsWidget(QWidget* w);
 protected:
-	virtual CURL* curlHandle();
-	virtual bool writeData(const char* buffer, size_t bytes);
-	virtual void transferDone(CURLcode result);
 	QString filePath() const;
 private slots:
-	void switchMirror();
+	//void switchMirror();
 	void computeHash();
+	void clientRenameTo(QString name);
+	void clientLogMessage(QString msg);
+	void clientDone(QString error);
+	void clientTotalSizeKnown(qlonglong bytes);
+	void clientFailure(QString err);
+	void updateSegmentProgress();
 private:
 	void generateName();
 	void init2(QString uri, QString dest);
@@ -83,30 +90,67 @@ private:
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
 protected:
+	// Represents a written segment, i.e. what's really been written to the on-disk file
+	struct Segment
+	{
+		// the start
+		qlonglong offset;
+		// how many bytes have already been transfered
+		qlonglong bytes;
+		// the last url object used for this segment
+		int urlIndex;
+		// pointer to a UrlClient instance, if the segment is active
+		UrlClient* client;
+		QColor color;
+
+		bool operator<(const Segment& s2) const;
+		operator QString() const
+		{
+			return QString("(struct Segment): offset: %1; bytes: %2; urlIndex: %3").arg(offset).arg(bytes).arg(urlIndex);
+		}
+	};
+	// Represents a blank spot in the file, i.e. a candidate for a new download thread
+	struct FreeSegment
+	{
+		FreeSegment(qlonglong _offset, qlonglong _bytes) : offset(_offset), bytes(_bytes), affectedClient(0) {}
+
+		qlonglong offset;
+		qlonglong bytes;
+		UrlClient* affectedClient;
+
+		bool operator<(const FreeSegment& s2) const;
+	};
+
+	void autoCreateSegment();
+	static void simplifySegments(QList<Segment>& in);
+	void fixActiveSegmentsList();
+	QColor allocateSegmentColor();
+	void startSegment(Segment& seg, qlonglong bytes);
+	void startSegment(int urlIndex);
+	void stopSegment(int index, bool restarting = false);
+protected:
 	CURL* m_curl;
 	QDir m_dir;
 	long long m_nTotal;
 	mutable long long m_nStart;
 	
 	QString m_strFile, m_strMessage;
-	int m_file;
 	bool m_bAutoName;
-	QHash<QByteArray, QByteArray> m_headers;
 	
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	
-	struct UrlObject
-	{
-		QUrl url;
-		QString strReferrer, strBindAddress;
-		FtpMode ftpMode;
-		QUuid proxy;
-	};
-	QList<UrlObject> m_urls;
-	mutable int m_nUrl;
+	QList<UrlClient::UrlObject> m_urls;
+	QList<Segment> m_segments;
+	mutable QReadWriteLock m_segmentsLock;
+	CurlPollingMaster* m_master;
+	QTimer m_timer;
+	UrlClient* m_nameChanger;
+	QList<int> m_listActiveSegments;
 	
 	friend class HttpOptsWidget;
 	friend class HttpUrlOptsDlg;
+	friend class HttpDetailsBar;
+	friend class HttpDetails;
 };
 
 #endif

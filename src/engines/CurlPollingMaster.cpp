@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,35 +25,48 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef HTTPDETAILSBAR_H
-#define HTTPDETAILSBAR_H
-#include <QWidget>
-#include <QTimer>
-#include <QList>
-#include <QPair>
+#include "CurlPollingMaster.h"
+#include <QtDebug>
 
-class CurlDownload;
-
-class HttpDetailsBar : public QWidget
+int CurlPollingMaster::handle()
 {
-Q_OBJECT
-public:
-	HttpDetailsBar(QWidget* parent);
-	void setDownload(CurlDownload* d);
-protected slots:
-	void createSegment();
-	void stopSegment();
-protected:
-	virtual void paintEvent(QPaintEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
-	virtual void mouseMoveEvent(QMouseEvent* event);
+	return m_poller->handle();
+}
 
-	int getSegment(int x);
-private:
-	CurlDownload* m_download;
-	QTimer m_timer;
-	int m_sel, m_createX;
-	QList<QPair<int,int> > m_segs;
-};
-
-#endif
+bool CurlPollingMaster::idleCycle(const timeval& tvNow)
+{
+	int dummy;
+	QList<CurlStat*> timedOut;
+	
+	curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
+	
+	m_usersLock.lock();
+	for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+	{
+		CurlStat* user = it.value().second;
+		
+		if(!user->idleCycle(tvNow))
+			timedOut << user;
+	}
+	
+	foreach(CurlStat* stat, timedOut)
+	{
+		if(CurlUser* user = dynamic_cast<CurlUser*>(stat))
+			user->transferDone(CURLE_OPERATION_TIMEDOUT);
+	}
+	
+	/*while(CURLMsg* msg = curl_multi_info_read(m_curlm, &dummy))
+	{
+		qDebug() << "CURL message:" << msg->msg;
+		if(msg->msg != CURLMSG_DONE)
+			continue;
+		
+		CurlUser* user = m_users[msg->easy_handle];
+		
+		if(user)
+			user->transferDone(msg->data.result);
+	}*/
+	m_usersLock.unlock();
+	
+	return true;
+}

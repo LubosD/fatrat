@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "CurlStat.h"
+#include <QtDebug>
 
 const int CurlStat::MAX_STATS = 5;
 
@@ -58,7 +59,7 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 {
 	timeval tvNow;
 	gettimeofday(&tvNow, 0);
-	
+
 	if(isNull(data.last))
 		data.last = tvNow;
 	else
@@ -66,34 +67,36 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 		long usec = (tvNow.tv_sec-data.last.tv_sec)*1000000LL + (tvNow.tv_usec-data.last.tv_usec);
 		data.accum.first += usec;
 		data.accum.second += bytes;
-		
+
 		if(data.accum.first > 1000000LL)
 		{
 			if(data.nextStat >= MAX_STATS)
 				data.nextStat = 0;
 			data.stats[data.nextStat++] = data.accum;
-			
+
 			data.accum = timedata_pair(0,0);
 		}
-		
-		memset(&data.next, 0, sizeof data.next);
+
 		if(data.max > 0)
 		{
 			long delta = bytes*1000000LL/data.max - usec/2;
-			
+
 			if(delta > 0)
 			{
 				delta *= 2;
-				//qDebug() << "Sleeping for" << delta;
-				data.next = tvNow;
+				if (isNull(data.next))
+					data.next = tvNow;
+				delta = qMin<long>(delta, 2000000); // prevent download stalling
 				data.next.tv_sec += delta/1000000LL;
 				data.next.tv_usec += delta%1000000LL;
 			}
 		}
-		
+		else
+			memset(&data.next, 0, sizeof data.next);
+
 		data.last = tvNow;
 	}
-	
+
 	if(bytes)
 		data.lastOp = tvNow;
 }
@@ -101,16 +104,16 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 void CurlStat::resetStatistics()
 {
 	m_down.accum = m_up.accum = timedata_pair(0,0);
-	
+
 	memset(&m_down.last, 0, sizeof(m_down.last));
 	memset(&m_up.last, 0, sizeof(m_up.last));
-	
+
 	memset(&m_down.next, 0, sizeof m_down.next);
 	memset(&m_up.next, 0, sizeof m_up.next);
-	
+
 	memset(m_down.stats, 0, sizeof(*m_down.stats)*MAX_STATS);
 	memset(m_up.stats, 0, sizeof(*m_up.stats)*MAX_STATS);
-	
+
 	gettimeofday(&m_down.lastOp, 0);
 	m_up.lastOp = m_down.lastOp;
 }
@@ -118,13 +121,13 @@ void CurlStat::resetStatistics()
 int CurlStat::computeSpeed(const timedata_pair* data)
 {
 	long long time = 0, bytes = 0;
-	
+
 	for(int i=0;i<MAX_STATS;i++)
 	{
 		time += data[i].first;
 		bytes += data[i].second;
 	}
-	
+
 	if(time)
 		return double(bytes)/(double(time)/1000000);
 	else

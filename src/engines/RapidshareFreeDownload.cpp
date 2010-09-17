@@ -293,7 +293,7 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::setState(State state)
 {
-	if(state == Transfer::Completed && done() < 10*1024 && m_file != 0)
+	/*if(state == Transfer::Completed && done() < 10*1024)
 	{
 		char* data = 0;
 		bool fail = false;
@@ -320,7 +320,7 @@ void RapidshareFreeDownload::setState(State state)
 			m_strMessage = tr("Failed to download the file.");
 			return;
 		}
-	}
+	}*/
 	
 	Transfer::setState(state);
 }

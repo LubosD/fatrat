@@ -646,7 +646,7 @@ void MainWindow::newQueue()
 		g_queues << q;
 		g_queuesLock.unlock();
 		
-		Queue::saveQueues();
+		Queue::saveQueuesAsync();
 		refreshQueues();
 	}
 }
@@ -667,7 +667,7 @@ void MainWindow::deleteQueue()
 		delete g_queues.takeAt(queue);
 		g_queuesLock.unlock();
 		
-		Queue::saveQueues();
+		Queue::saveQueuesAsync();
 		refreshQueues();
 	}
 }
@@ -718,7 +718,7 @@ void MainWindow::queueItemProperties()
 		q->setMoveDirectory(dlg.m_strMoveDirectory);
 		treeQueues->currentItem()->setText(0, dlg.m_strName);
 		
-		Queue::saveQueues();
+		Queue::saveQueuesAsync();
 	}
 	
 	doneQueue(q, false);
@@ -881,7 +881,7 @@ void MainWindow::move(int i)
 	}
 	
 	doneQueue(q,false);
-	Queue::saveQueues();
+	Queue::saveQueuesAsync();
 	
 	treeTransfers->scrollTo(eVisible);
 }
@@ -1095,7 +1095,7 @@ show_dialog:
 	if(queue != 0)
 		doneQueue(queue,false);
 	
-	Queue::saveQueues();
+	Queue::saveQueuesAsync();
 }
 
 void MainWindow::deleteTransfer()
@@ -1117,7 +1117,7 @@ void MainWindow::deleteTransfer()
 			for(int i=0;i<sel.size();i++)
 				q->remove(sel[i]-i, true);
 			q->unlock();
-			Queue::saveQueues();
+			Queue::saveQueuesAsync();
 		}
 	}
 	
@@ -1145,7 +1145,7 @@ void MainWindow::deleteTransferData()
 			for(int i=0;i<sel.size();i++)
 				/*bOK &=*/ q->removeWithData(sel[i]-i, true);
 			q->unlock();
-			Queue::saveQueues();
+			Queue::saveQueuesAsync();
 			
 			/*if(!bOK)
 			{
@@ -1256,7 +1256,7 @@ void MainWindow::transferOptions()
 			}
 			d->setUserSpeedLimits(wgt->m_nDownLimit*1024,wgt->m_nUpLimit*1024);
 			updateUi();
-			Queue::saveQueues();
+			Queue::saveQueuesAsync();
 		}
 	}
 	doneQueue(q);

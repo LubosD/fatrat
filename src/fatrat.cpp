@@ -43,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #include <cstdlib>
 #include <signal.h>
 #include <iostream>
+#include <ctime>
 
 #include "MainWindow.h"
 #include "QueueMgr.h"
@@ -100,6 +101,8 @@ int main(int argc,char** argv)
 	QString arg = argsToArg(argc, argv);
 	
 	app = new MyApplication(argc, argv, m_bStartGUI);
+
+	qsrand(time(0));
 	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
@@ -467,7 +470,7 @@ bool programHasGUI()
 void showHelp()
 {
 	std::cout << "FatRat download manager ("VERSION")\n\n"
-			"Copyright (C) 2006-2008 Lubos Dolezel\n"
+			"Copyright (C) 2006-2010 Lubos Dolezel\n"
 			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
 			"-f, --force \tRun the program even if an instance already exists\n"
 			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"
