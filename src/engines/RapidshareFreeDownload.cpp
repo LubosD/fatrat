@@ -293,34 +293,21 @@ int RapidshareFreeDownload::acceptable(QString uri, bool)
 
 void RapidshareFreeDownload::setState(State state)
 {
-	/*if(state == Transfer::Completed && done() < 10*1024)
+	if(state == Transfer::Completed && done() < 10*1024)
 	{
-		char* data = 0;
-		bool fail = false;
-		
-		lseek(m_file, 0, SEEK_SET);
-		data = new char[10*1024];
-		
-		int bread = read(m_file, data, 10*1024);
-		if(bread < 0)
-			fail = true;
-		else
+		QFile file(filePath());
+		if (file.open(QIODevice::ReadOnly))
 		{
-			data[bread] = 0;
-			if (strstr(data, "<h1>Error</h1>"))
-				fail = true;
+			if (file.readAll().contains("<h1>Error</h1>"))
+			{
+				file.remove();
+				setState(Failed);
+				m_nTotal = 0;
+				m_strMessage = tr("Failed to download the file.");
+				return;
+			}
 		}
-		delete [] data;
-		
-		if(fail)
-		{
-			QFile(filePath()).remove();
-			setState(Failed);
-			m_nTotal = 0;
-			m_strMessage = tr("Failed to download the file.");
-			return;
-		}
-	}*/
+	}
 	
 	Transfer::setState(state);
 }

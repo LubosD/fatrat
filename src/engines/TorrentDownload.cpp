@@ -577,8 +577,6 @@ void TorrentDownload::init(QString source, QString target)
 
 void TorrentDownload::downloadTorrent(QString source)
 {
-	QString error;
-	
 	qDebug() << "downloadTorrent()";
 
 	QUuid webseed = getSettingsValue("torrent/proxy_webseed").toString();
