@@ -459,6 +459,7 @@ set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlPoller.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/OutputBuffer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlStat.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/UrlClient.h
 	)
 
 install(FILES

@@ -97,6 +97,18 @@ void UrlClient::start()
 	
 	if(!auth.isEmpty())
 		curl_easy_setopt(m_curl, CURLOPT_USERPWD, auth.constData());
+
+	if (!m_source->cookies.isEmpty())
+	{
+		QByteArray ba;
+		foreach (QNetworkCookie c, m_source->cookies)
+		{
+			if (!ba.isEmpty())
+				ba += "; ";
+			ba += c.toRawForm(QNetworkCookie::NameAndValueOnly);
+		}
+		curl_easy_setopt(m_curl, CURLOPT_COOKIE, ba.constData());
+	}
 	
 	Proxy proxy = Proxy::getProxy(m_source->proxy);
 	if(proxy.nType != Proxy::ProxyNone)

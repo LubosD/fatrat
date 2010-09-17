@@ -31,12 +31,13 @@ respects for all of the code used other than "OpenSSL".
 #include <fatrat.h>
 #include "engines/CurlUser.h"
 #include "engines/UrlClient.h"
-#include "engines/CurlPollingMaster.h"
 #include <QHash>
 #include <QUuid>
 #include <QDir>
 #include <QUrl>
 #include <QTimer>
+
+class CurlPollingMaster;
 
 class CurlDownload : public Transfer
 {

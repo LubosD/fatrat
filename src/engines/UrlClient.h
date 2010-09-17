@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QUuid>
 #include <QHash>
 #include <QByteArray>
+#include <QNetworkCookie>
 #include <curl/curl.h>
 #include "engines/CurlUser.h"
 
@@ -44,6 +45,7 @@ public:
 		QString strReferrer, strBindAddress;
 		FtpMode ftpMode;
 		QUuid proxy;
+		QList<QNetworkCookie> cookies;
 	};
 	
 	void start();

@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 
 
 #include "config.h"
+#include "engines/CurlPollingMaster.h"
 #include "CurlDownload.h"
 #include "Settings.h"
 #include "RuntimeException.h"
@@ -766,7 +767,7 @@ void CurlDownload::clientDone(QString error)
 	//client->deleteLater();
 
 	qulonglong d = done();
-	if(d == total() && d)
+	if( (d == total() && d) || !total())
 	{
 		setState(Completed);
 	}
