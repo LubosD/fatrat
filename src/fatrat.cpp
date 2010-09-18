@@ -89,6 +89,7 @@ static void installSignalHandler();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
+static bool m_bManualGraphicsSystem = false;
 static QString m_strUnitTest;
 
 class MyApplication;
@@ -99,6 +100,9 @@ int main(int argc,char** argv)
 	int rval;
 	QueueMgr* qmgr;
 	QString arg = argsToArg(argc, argv);
+
+	if (!m_bManualGraphicsSystem)
+		QApplication::setGraphicsSystem("raster"); // native is too slow on Linux
 	
 	app = new MyApplication(argc, argv, m_bStartGUI);
 
@@ -211,7 +215,11 @@ QString argsToArg(int argc,char** argv)
 		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
 			m_strUnitTest = argv[++i];
 		else if(argv[i][0] == '-')
+		{
+			if (!strcasecmp(argv[i], "-graphicssystem"))
+				m_bManualGraphicsSystem = true;
 			i++;
+		}
 		else
 		{
 			if(!arg.isEmpty())
