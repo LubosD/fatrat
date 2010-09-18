@@ -25,22 +25,44 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef MYAPPLICATION_H
-#define MYAPPLICATION_H
 #include <QApplication>
-#include "RuntimeException.h"
+#include <QMessageBox>
+#include <typeinfo>
+#include "MyApplication.h"
+#include "Queue.h"
 
-class MyApplication : public QApplication
+MyApplication::MyApplication(int& argc, char** argv, bool gui)
+	: QApplication(argc, argv, gui)
 {
-Q_OBJECT
-public:
-	MyApplication(int& argc, char** argv, bool gui);
+}
 
-	virtual bool notify(QObject* receiver, QEvent* e);
-	virtual void saveState(QSessionManager&);
+bool MyApplication::notify(QObject* receiver, QEvent* e)
+{
+	try
+	{
+		QApplication::notify(receiver, e);
+	}
+	catch(const std::exception& e)
+	{
+		reportException(QString::fromUtf8(e.what()), typeid(e).name());
+	}
+	catch(const RuntimeException& e)
+	{
+		reportException(e.what(), "RuntimeException");
+	}
 
-private:
-	static void reportException(QString text, QString type);
-};
+	return false;
+}
 
-#endif
+void MyApplication::saveState(QSessionManager&)
+{
+	Queue::saveQueues();
+}
+
+void MyApplication::reportException(QString text, QString type)
+{
+	QMessageBox::critical(0, tr("Unhandled exception"),
+				       tr("The main handler has caught the following exception."
+				       " This is a bug and should be reported as such.\n\n"
+				       "Type of exception: %1\nMessage: %2").arg(type).arg(text));
+}
