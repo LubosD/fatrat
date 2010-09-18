@@ -28,8 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #ifndef RAPIDSHARESTATUSWIDGET_H
 #define RAPIDSHARESTATUSWIDGET_H
 #include <QLabel>
-#include <QHttp>
-#include <QBuffer>
+#include <QNetworkAccessManager>
 #include <QTimer>
 
 class RapidshareStatusWidget : public QLabel
@@ -40,11 +39,10 @@ public:
 	void applySettings();
 private slots:
 	void refresh();
-	void done(bool error);
+	void done(QNetworkReply* reply);
 private:
-	QHttp m_http;
-	QBuffer* m_buffer;
-	QByteArray m_dataLogin;
+	QNetworkAccessManager* m_network;
+	QString m_strUser, m_strPassword;
 	QTimer m_timer;
 };
 

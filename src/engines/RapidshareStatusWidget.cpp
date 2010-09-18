@@ -28,14 +28,15 @@ respects for all of the code used other than "OpenSSL".
 #include "RapidshareStatusWidget.h"
 #include "Settings.h"
 #include "fatrat.h"
-#include <QRegExp>
+#include <ctime>
+#include <QNetworkReply>
 
 RapidshareStatusWidget::RapidshareStatusWidget()
-	: m_http("ssl.rapidshare.com", QHttp::ConnectionModeHttps), m_buffer(0)
 {
+	m_network = new QNetworkAccessManager(this);
+
+	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(done(QNetworkReply*)));
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-	connect(&m_http, SIGNAL(done(bool)), this, SLOT(done(bool)));
-	connect(&m_http, SIGNAL(sslErrors(const QList<QSslError>&)), &m_http, SLOT(ignoreSslErrors()));
 	
 	applySettings();
 	m_timer.start(1000*60*10); // every 10 minutes
@@ -43,38 +44,60 @@ RapidshareStatusWidget::RapidshareStatusWidget()
 
 void RapidshareStatusWidget::applySettings()
 {
-	m_dataLogin = "login=";
-	m_dataLogin += getSettingsValue("rapidshare/username").toString();
-	m_dataLogin += "&password=";
-	m_dataLogin += getSettingsValue("rapidshare/password").toString();
+	m_strUser = getSettingsValue("rapidshare/username").toString();
+	m_strPassword = getSettingsValue("rapidshare/password").toString();
 	
 	refresh();
 }
 
 void RapidshareStatusWidget::refresh()
 {
-	m_buffer = new QBuffer(this);
-	m_http.post("/cgi-bin/premiumzone.cgi", m_dataLogin, m_buffer);
+	QString url = QString("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=getaccountdetails_v1&withpublicid=1&withcookie=0&type=prem&login=%1&password=%2").arg(m_strUser).arg(m_strPassword);
+	m_network->get(QNetworkRequest(url));
 }
 
-void RapidshareStatusWidget::done(bool error)
+void RapidshareStatusWidget::done(QNetworkReply* reply)
 {
-	m_buffer->deleteLater();
+	reply->deleteLater();
 	
-	if(!error)
+	if (reply->error() != QNetworkReply::NoError)
+		setText(QString("<b>RS</b>: <font color=red>%1").arg(tr("Network error")));
+	else
 	{
-		QRegExp re("setzeTT\\(\"\"\\+Math\\.ceil\\((\\d+)/(\\d+)");
-		QRegExp re2(">\\+(\\d+) GB</a>");
-		if(re.indexIn(m_buffer->data()) != -1)
+		QByteArray arr = reply->readAll();
+		if (arr.startsWith("ERROR"))
+			setText(QString("<b>RS</b>: <font color=red>%1").arg(tr("Login error")));
+		else
 		{
-			qint64 bytes = re.cap(1).toDouble()/re.cap(2).toDouble()*1024LL*1024LL;
-			if(re2.indexIn(m_buffer->data()) != -1)
-				bytes += re2.cap(1).toLongLong()*1024LL*1024LL*1024LL;
-			setText(QString("<b>RS</b>: ") + formatSize(bytes));
-			return;
+			QList<QByteArray> pairs = arr.split('\n');
+			QMap<QString,QString> values;
+
+			foreach (QByteArray pair, pairs)
+			{
+				int pos = pair.indexOf('=');
+				if (pos < 0)
+					continue;
+				values[pair.left(pos)] = QString(pair.mid(pos+1)).trimmed();
+			}
+
+			if (!values.contains("billeduntil"))
+			{
+				setText(QString("<b>RS</b>: <font color=red>%1").arg(tr("Unknown error")));
+				return;
+			}
+
+			time_t tt = values["billeduntil"].toLongLong() - time(0);
+			qint64 bytes = values["tskb"].toLongLong() * 1024;
+
+			QString text = "<b>RS</b>: ";
+			text += formatSize(bytes);
+
+			if (tt < 60*60*24*20) // less than 20 days
+			{
+				text += QString(" [<font color=red>%L1 %2</font>]").arg(double(tt)/(60*60*24), 0, 'f', 1).arg(tr("days"));
+			}
+			setText(text);
 		}
 	}
-	
-	setText("<b>RS</b>: <font color=red>ERROR");
 }
 
