@@ -37,6 +37,8 @@ Q_OBJECT
 public:
 	RapidshareStatusWidget();
 	void applySettings();
+protected:
+	virtual void mousePressEvent(QMouseEvent* event);
 private slots:
 	void refresh();
 	void done(QNetworkReply* reply);

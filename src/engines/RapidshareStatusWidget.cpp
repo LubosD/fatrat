@@ -30,6 +30,10 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include <ctime>
 #include <QNetworkReply>
+#include <QProcess>
+#include <QMouseEvent>
+
+const char* RAPIDSHARE_PREMIUM_URL = "https://ssl.rapidshare.com/premzone.html";
 
 RapidshareStatusWidget::RapidshareStatusWidget()
 {
@@ -40,6 +44,19 @@ RapidshareStatusWidget::RapidshareStatusWidget()
 	
 	applySettings();
 	m_timer.start(1000*60*10); // every 10 minutes
+
+	setCursor(Qt::PointingHandCursor);
+}
+
+void RapidshareStatusWidget::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::LeftButton)
+	{
+		QString command = QString("%1 \"%2\"")
+				.arg(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString())
+				.arg(RAPIDSHARE_PREMIUM_URL);
+		QProcess::startDetached(command);
+	}
 }
 
 void RapidshareStatusWidget::applySettings()
