@@ -52,7 +52,7 @@ void RapidshareStatusWidget::applySettings()
 
 void RapidshareStatusWidget::refresh()
 {
-	QString url = QString("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=getaccountdetails_v1&withpublicid=1&withcookie=0&type=prem&login=%1&password=%2").arg(m_strUser).arg(m_strPassword);
+	QString url = QString("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=getaccountdetails_v1&login=%1&password=%2").arg(m_strUser).arg(m_strPassword);
 	m_network->get(QNetworkRequest(url));
 }
 
