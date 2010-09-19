@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 #include "Transfer.h"
 #include "Settings.h"
+#include "Queue.h"
 
 #ifdef WITH_BITTORRENT
 #	include "engines/TorrentDownload.h"
@@ -42,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #	include "engines/CurlUpload.h"
 #	include "engines/RapidshareUpload.h"
 #	include "engines/RapidshareFreeDownload.h"
+#	include "engines/MetalinkDownload.h"
 #endif
 
 #include <QtDebug>
@@ -54,6 +56,9 @@ Q_GLOBAL_STATIC(TransferNotifier, transferNotifier);
 
 QVector<EngineEntry> g_enginesDownload;
 QVector<EngineEntry> g_enginesUpload;
+
+extern QList<Queue*> g_queues;
+extern QReadWriteLock g_queuesLock;
 
 void initTransferClasses()
 {
@@ -84,6 +89,10 @@ void initTransferClasses()
 	}
 	{
 		EngineEntry e = { "RapidshareFreeDownload", "RapidShare.com FREE download", 0, 0, RapidshareFreeDownload::createInstance, RapidshareFreeDownload::acceptable, 0 };
+		g_enginesDownload << e;
+	}
+	{
+		EngineEntry e = { "MetalinkDownload", "Metalink file handler", MetalinkDownload::globalInit, 0, MetalinkDownload::createInstance, MetalinkDownload::acceptable, 0 };
 		g_enginesDownload << e;
 	}
 #endif
@@ -488,6 +497,30 @@ void Transfer::setSpeedLimits(int down,int up)
 QString Transfer::uuid() const
 {
 	return m_uuid.toString();
+}
+
+void Transfer::replaceItself(Transfer* newObject)
+{
+	QReadLocker l(&g_queuesLock);
+	foreach (Queue* q, g_queues)
+	{
+		if (q->contains(this))
+		{
+			q->replace(this, newObject);
+			break;
+		}
+	}
+}
+
+Queue* Transfer::myQueue() const
+{
+	QReadLocker l(&g_queuesLock);
+	foreach (Queue* q, g_queues)
+	{
+		if (q->contains(const_cast<Transfer*>(this)))
+			return q;
+	}
+	return 0;
 }
 
 //////////////////

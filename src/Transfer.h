@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -43,6 +43,7 @@ class WidgetHostChild;
 class QIcon;
 class QMenu;
 class QDialog;
+class Queue;
 
 class Transfer : public Logger
 {
@@ -166,6 +167,9 @@ protected:
 	void setMode(Mode mode);
 	void fireCompleted();
 	void updateGraph();
+
+	void replaceItself(Transfer* newObject);
+	Queue* myQueue() const;
 	
 	State m_state;
 	Mode m_mode;

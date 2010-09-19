@@ -429,6 +429,16 @@ bool Queue::contains(Transfer* t) const
 	return m_transfers.contains(t);
 }
 
+bool Queue::replace(Transfer* old, Transfer* _new)
+{
+	QWriteLocker l(&m_lock);
+	int i = m_transfers.indexOf(old);
+	if (i == -1)
+		return false;
+	m_transfers[i] = _new;
+	return true;
+}
+
 void Queue::stopAll()
 {
 	QReadLocker l(&m_lock);

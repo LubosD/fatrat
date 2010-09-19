@@ -261,6 +261,7 @@
     <file>scheduler.png</file>
     <file>editclear.png</file>
     <file>clipboard.png</file>
+    <file>metalink.png</file>
   </qresource>
   <qresource prefix="/menu" >
     <file>about.png</file>

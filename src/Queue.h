@@ -104,6 +104,7 @@ public:
 	void setAutoLimits(int down, int up);
 	
 	bool contains(Transfer* t) const;
+	bool replace(Transfer* old, Transfer* _new);
 	void stopAll();
 	void resumeAll();
 

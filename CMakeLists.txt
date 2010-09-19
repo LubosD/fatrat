@@ -125,6 +125,7 @@ add_definitions(${QT_DEFINITIONS})
 include_directories(./ ../ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
 
 set(fatrat_SRCS
+	src/MyApplication.cpp
 	src/Auth.cpp
 	src/AboutDlg.cpp
 	src/AppTools.cpp
@@ -164,6 +165,7 @@ set(fatrat_SRCS
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
 	src/engines/OutputBuffer.cpp
+	src/engines/MetalinkSettings.cpp
 	src/poller/Poller.cpp
 	
 	src/rss/RssFetcher.cpp
@@ -230,6 +232,7 @@ set(fatrat_MOC_HDRS
 	src/filterlineedit.h
 	src/fancylineedit.h
 	src/engines/OutputBuffer.h
+	src/engines/MetalinkSettings.h
 	
 	src/tools/HashDlg.h
 	src/tools/RapidTools.h
@@ -282,6 +285,7 @@ set(fatrat_UIS
 	src/engines/HttpOptsWidget.ui
 	src/engines/HttpUrlOptsDlg.ui
 	src/engines/SettingsHttpForm.ui
+	src/engines/SettingsMetalinkForm.ui
 )
 
 if(WITH_CURL)
@@ -303,6 +307,7 @@ if(WITH_CURL)
 		src/engines/RapidshareUploadProgress.cpp
 		src/engines/RapidshareFreeDownload.cpp
 		src/engines/RapidshareStatusWidget.cpp
+		src/engines/MetalinkDownload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}

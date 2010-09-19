@@ -152,6 +152,7 @@ protected:
 	friend class HttpUrlOptsDlg;
 	friend class HttpDetailsBar;
 	friend class HttpDetails;
+	friend class MetalinkDownload;
 };
 
 #endif

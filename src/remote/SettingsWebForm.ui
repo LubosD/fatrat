@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>298</height>
+    <width>396</width>
+    <height>296</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -62,7 +62,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="2">
+   <item row="4" column="1" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -74,6 +74,13 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Username: Use &quot;admin&quot; or &quot;fatrat&quot;, both are equivalent.</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
