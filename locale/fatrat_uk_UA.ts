@@ -534,59 +534,59 @@
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="36"/>
         <source>Active segments</source>
-        <translation type="unfinished"></translation>
+        <translation>Активні сегменти</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="49"/>
         <source>URL</source>
-        <translation type="unfinished">URL</translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="54"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Колір</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="59"/>
         <source>Size</source>
-        <translation type="unfinished">Розмір</translation>
+        <translation>Розмір</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="64"/>
         <source>Progress</source>
-        <translation type="unfinished">Прогрес</translation>
+        <translation>Прогрес</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="69"/>
         <source>Speed</source>
-        <translation type="unfinished">Швидкість</translation>
+        <translation>Швидкість</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="77"/>
         <location filename="../src/engines/HttpDetails.ui" line="116"/>
         <source>Add</source>
-        <translation type="unfinished">Додати</translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="84"/>
         <location filename="../src/engines/HttpDetails.ui" line="130"/>
         <source>Delete</source>
-        <translation type="unfinished">Видалити</translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="107"/>
         <source>Known URLs</source>
-        <translation type="unfinished"></translation>
+        <translation>Відомі URL-и</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="123"/>
         <source>Edit</source>
-        <translation type="unfinished">Редагувати</translation>
+        <translation>Редагувати</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.cpp" line="46"/>
         <source>Add new URL...</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати новий URL...</translation>
     </message>
 </context>
 <context>
@@ -603,18 +603,24 @@ URL: %2
 Size: %3
 Speed: %4
 Done: %5</source>
-        <translation type="unfinished"></translation>
+        <translation>Сегмент #%1
+Завантаження в процесі
+URL: %2
+Розмір: %3
+Швидкість: %4
+Виконано: %5</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetailsBar.cpp" line="157"/>
         <source>Segment #%1
 Downloaded data</source>
-        <translation type="unfinished"></translation>
+        <translation>Сегмент #%1
+Завантажено даних</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetailsBar.cpp" line="189"/>
         <source>Delete this segment</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити цей сегмент</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetailsBar.cpp" line="193"/>
@@ -4055,17 +4061,17 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/UrlClient.cpp" line="81"/>
         <source>Failed to seek in the file - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка пошуку у файлі - %1</translation>
     </message>
     <message>
         <location filename="../src/engines/UrlClient.cpp" line="288"/>
         <source>Write failed (%1)</source>
-        <translation type="unfinished">Помилка запису (%1)</translation>
+        <translation>Помилка запису (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/UrlClient.cpp" line="326"/>
         <source>Timeout</source>
-        <translation type="unfinished">Час вийшов</translation>
+        <translation>Час вийшов</translation>
     </message>
 </context>
 <context>
