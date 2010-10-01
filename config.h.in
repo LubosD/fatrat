@@ -19,7 +19,7 @@
 #cmakedefine LIBTORRENT_0_15
 
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
-#define PLUGIN_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/fatrat/plugins"
+#define PLUGIN_LOCATION "${CMAKE_INSTALL_LIBDIR}/fatrat/plugins"
 
 #ifndef _LARGEFILE64_SOURCE
 #	define _LARGEFILE64_SOURCE
