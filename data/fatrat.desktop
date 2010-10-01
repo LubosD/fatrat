@@ -1,10 +1,10 @@
 [Desktop Entry]
-Categories=Application;Network;
+Categories=Network;
 Comment=Qt-based download/upload manager
 Exec=fatrat
 Name=FatRat
 GenericName=Download/upload manager
-Icon=fatrat.png
+Icon=fatrat
 StartupNotify=true
 Terminal=false
 Type=Application
