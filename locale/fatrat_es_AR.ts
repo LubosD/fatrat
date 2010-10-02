@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.0" language="es_AR" sourcelanguage="en">
 <context>
     <name>AboutDlg</name>
     <message>
@@ -45,7 +47,7 @@
         <source>&lt;center&gt;&lt;font size=+5&gt;FatRat download manager</source>
         <translation>Gestor de descargas FatRat</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <source>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
         <translation>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</translation>
     </message>
