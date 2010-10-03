@@ -111,9 +111,12 @@ void addSettingsPage(const SettingsItem& i)
 	g_settingsPages << i;
 }
 
-QVariant getSettingsValue(QString id)
+QVariant getSettingsValue(QString id, QVariant def)
 {
-	return g_settings->value(id, getSettingsDefault(id));
+	QVariant mdef = getSettingsDefault(id);
+	if (mdef.isNull())
+		mdef = def;
+	return g_settings->value(id, def);
 }
 
 void setSettingsValue(QString id, QVariant value)
