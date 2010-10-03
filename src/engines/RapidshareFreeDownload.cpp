@@ -40,14 +40,6 @@ respects for all of the code used other than "OpenSSL".
 
 static QMutex m_mInstanceActive;
 
-// http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download_v1&fileid=103409659&filename=A.part1.rar&cbid=1&cbf=RSAPIDispatcher
-// ERROR: You need to wait 631 seconds until you can download another file without having RapidPro.
-// DL:$hostname,$dlauth,$countdown
-
-/*
- /cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid=103409659&filename=A.part1.rar&dlauth=6AD7128C1DEFA04AC4092E62D1B6603A04DF23A67ABA29476C78C1C8508BE2C2D0FACA5B85441C9BB2B2C76D634988791CF2998841CB5E37A24F1D7A4BAEEE5AAFCA64B0343F5B1DFD8540DA6B18B6EB5EA264B524B67099DA9E2E2334C7236D6281DFA7C27994B7FA6BB2E5C040EDCA
- */
-
 RapidshareFreeDownload::RapidshareFreeDownload()
 	: m_nSecondsLeft(-1), m_bHasLock(false)
 {
