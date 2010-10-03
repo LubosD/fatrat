@@ -116,7 +116,7 @@ QVariant getSettingsValue(QString id, QVariant def)
 	QVariant mdef = getSettingsDefault(id);
 	if (mdef.isNull())
 		mdef = def;
-	return g_settings->value(id, def);
+	return g_settings->value(id, mdef);
 }
 
 void setSettingsValue(QString id, QVariant value)
