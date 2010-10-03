@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JVM.h"
 #include "RuntimeException.h"
 #include "JString.h"
+#include "JArray.h"
 #include "JClass.h"
 #include <alloca.h>
 
@@ -117,18 +118,46 @@ JObject::~JObject()
 
 bool JObject::isString() const
 {
+	return instanceOf("java/lang/String");
+}
+
+JString JObject::toString() const
+{
+	if (!isString())
+		return JString();
+	return JString(jstring(m_object));
+}
+
+bool JObject::instanceOf(const char* cls) const
+{
 	if (!m_object)
 		return false;
 
 	JNIEnv* env = *JVM::instance();
-	jclass string_class = env->FindClass("Ljava/lang/String");
+	jclass clz = env->FindClass(cls);
+	if (!clz)
+		return false;
 
-	return env->IsInstanceOf(m_object, string_class);
+	return env->IsInstanceOf(m_object, clz);
 }
 
 bool JObject::isArray() const
 {
+	/*return instanceOf("[Z") ||
+			instanceOf("[B") ||
+			instanceOf("[C") ||
+			instanceOf("[S") ||
+			instanceOf("[I") ||
+			instanceOf("[J") ||
+			instanceOf("[F") ||
+			instanceOf("[D");*/
+	QString name = getClass().getClassName();
+	return name.endsWith("[]");
+}
 
+JArray JObject::toArray() const
+{
+	return JArray(jarray(m_object));
 }
 
 QVariant JObject::call(const char* name, const char* sig, QList<QVariant>& args)
@@ -157,7 +186,7 @@ QVariant JObject::call(const char* name, const char* sig, QList<QVariant>& args)
 		return QVariant();
 	case 'L':
 		{
-			jclass string_class = env->FindClass("Ljava/lang/String");
+			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
 			if (env->IsInstanceOf(obj, string_class))
 				return JString(jstring(obj)).str();
@@ -204,7 +233,7 @@ QVariant JObject::getValue(const char* name, const char* sig)
 		break;
 	case 'L':
 		{
-			jclass string_class = env->FindClass("Ljava/lang/String");
+			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->GetObjectField(m_object, fid);
 			if (env->IsInstanceOf(obj, string_class))
 				return JString(jstring(obj)).str();
@@ -288,4 +317,10 @@ void JObject::setValue(const char* name, const char* sig, QVariant value)
 	default:
 		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(sig[0]));
 	}
+}
+
+JClass JObject::getClass() const
+{
+	JNIEnv* env = *JVM::instance();
+	return JClass( env->GetObjectClass(m_object) );
 }

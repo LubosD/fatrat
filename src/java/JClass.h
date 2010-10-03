@@ -51,6 +51,8 @@ public:
 	QVariant getStaticValue(const char* name, const char* sig);
 	void setStaticValue(const char* name, const char* sig, QVariant value);
 
+	QString getClassName() const;
+
 	static jvalue variantToValue(QVariant& v);
 private:
 	jclass m_class;

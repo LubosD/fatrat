@@ -96,7 +96,7 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant>& 
 		return QVariant();
 	case 'L':
 		{
-			jclass string_class = env->FindClass("Ljava/lang/String");
+			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallStaticObjectMethodA(m_class, mid, jargs);
 			if (env->IsInstanceOf(obj, string_class))
 				return JString(jstring(obj)).str();
@@ -171,7 +171,7 @@ QVariant JClass::getStaticValue(const char* name, const char* sig)
 		break;
 	case 'L':
 		{
-			jclass string_class = env->FindClass("Ljava/lang/String");
+			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->GetStaticObjectField(m_class, fid);
 			if (env->IsInstanceOf(obj, string_class))
 				return JString(jstring(obj)).str();
@@ -253,4 +253,11 @@ void JClass::setStaticValue(const char* name, const char* sig, QVariant value)
 	default:
 		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(sig[0]));
 	}
+}
+
+QString JClass::getClassName() const
+{
+	JObject obj(m_class);
+	QList<QVariant> args;
+	return obj.call("getCanonicalName", "()Ljava/lang/String", args).toString();
 }

@@ -38,6 +38,9 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariant>
 #include "JClass.h"
 
+class JString;
+class JArray;
+
 class JObject
 {
 public:
@@ -50,8 +53,13 @@ public:
 
 	operator jobject();
 
+	bool instanceOf(const char* cls) const;
 	bool isString() const;
+	JString toString() const;
 	bool isArray() const;
+	JArray toArray() const;
+
+	JClass getClass() const;
 
 	QVariant call(const char* name, const char* sig, QList<QVariant>& args);
 	QVariant getValue(const char* name, const char* sig);
