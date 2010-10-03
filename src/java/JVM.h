@@ -50,7 +50,7 @@ private:
 private:
 	static JVM* m_instance;
 	JavaVM* m_jvm;
-	QThreadStorage<JNIEnv*> m_env;
+	QThreadStorage<JNIEnv**> m_env;
 };
 
 #endif // JVM_H

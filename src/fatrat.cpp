@@ -118,6 +118,10 @@ int main(int argc,char** argv)
 	QCoreApplication::setApplicationName("fatrat");
 	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
 	
+#ifdef WITH_JPLUGINS
+	new JVM;
+#endif
+
 	installSignalHandler();
 	
 	if(!m_bForceNewInstance)
@@ -138,10 +142,6 @@ int main(int argc,char** argv)
 	
 	if(m_bStartGUI)
 		initSettingsPages();
-
-#ifdef WITH_JPLUGINS
-	new JVM;
-#endif
 	
 	initTransferClasses();
 	loadPlugins();
@@ -197,7 +197,6 @@ int main(int argc,char** argv)
 	delete RssFetcher::instance();
 	delete Scheduler::instance();
 	delete g_wndMain;
-	delete app;
 	
 	Queue::stopQueues();
 	Queue::saveQueues();
@@ -212,6 +211,7 @@ int main(int argc,char** argv)
 	
 	delete qmgr;
 	exitSettings();
+	delete app;
 	
 	return rval;
 }

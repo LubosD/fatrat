@@ -48,9 +48,9 @@ JVM::JVM() : m_jvm(0)
 
 	QProcess prc;
 
-	qDebug() << "Locating the Java VM...";
+	qDebug() << "Locating the Java VM for Java-based plugins...";
 
-	prc.start(DATA_LOCATION "/java/findjvm.sh", QIODevice::ReadOnly);
+	prc.start(DATA_LOCATION "/data/java/findjvm.sh", QIODevice::ReadOnly);
 	prc.waitForFinished();
 
 	int code = prc.exitCode();
@@ -60,12 +60,15 @@ JVM::JVM() : m_jvm(0)
 		Logger::global()->enterLogMessage("JPlugin", QObject::tr("Java Runtime Environment located, but no libjvm found"));
 	else
 	{
-		QLibrary lib (prc.readAll());
+		QByteArray libname = prc.readAll().trimmed();
+		QLibrary lib (libname);
 		cjvm_fn fn = (cjvm_fn) lib.resolve("JNI_CreateJavaVM");
+
+		qDebug() << "libjvm found in" << libname;
 
 		if (!fn)
 		{
-			Logger::global()->enterLogMessage("JPlugin", QObject::tr("Failed to load the correct libjvm"));
+			Logger::global()->enterLogMessage("JPlugin", QObject::tr("Failed to load the correct libjvm: %1").arg(lib.errorString()));
 			return;
 		}
 
@@ -77,6 +80,8 @@ JVM::JVM() : m_jvm(0)
 		char opt[1024] = "-Djava.class.path=";
 
 		strcat(opt, cp.constData());
+
+		qDebug() << "Java Classpath set to" << cp;
 
 		options[0].optionString = opt;
 
@@ -91,7 +96,9 @@ JVM::JVM() : m_jvm(0)
 			Logger::global()->enterLogMessage("JPlugin", QObject::tr("Failed to create a Java VM"));
 			return;
 		}
-		m_env.setLocalData(env);
+		JNIEnv** penv = new JNIEnv*;
+		*penv = env;
+		m_env.setLocalData(penv);
 
 		registerNatives();
 	}
@@ -99,6 +106,7 @@ JVM::JVM() : m_jvm(0)
 
 JVM::~JVM()
 {
+	qDebug() << "Unloading the JVM...";
 	if (m_jvm)
 		m_jvm->DestroyJavaVM();
 	if (m_instance == this)
@@ -147,7 +155,7 @@ void JVM::registerNatives()
 QString JVM::getClassPath()
 {
 	QString rv;
-	rv = DATA_LOCATION "/java/fatrat-jplugins.jar:";
+	rv = DATA_LOCATION "/data/java/fatrat-jplugins.jar:";
 	rv += QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/*.jar";
 
 	return rv;
@@ -176,7 +184,9 @@ JVM::operator JNIEnv*()
 	{
 		JNIEnv *env;
 		m_jvm->AttachCurrentThread((void **)&env, 0);
-		m_env.setLocalData(env);
+		JNIEnv** penv = new JNIEnv*;
+		*penv = env;
+		m_env.setLocalData(penv);
 	}
-	return m_env.localData();
+	return *m_env.localData();
 }
