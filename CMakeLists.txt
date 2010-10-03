@@ -9,6 +9,7 @@ INCLUDE(CheckFunctionExists)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(FindPkgConfig)
 INCLUDE(FindBoost)
+INCLUDE(FindJNI)
 
 find_package(Qt4 REQUIRED)
 
@@ -29,7 +30,15 @@ if(WITH_EVERYTHING)
 	set(WITH_DOCUMENTATION ON)
 	set(WITH_WEBINTERFACE ON)
 	set(WITH_CURL ON)
+	set(WITH_JPLUGINS ON)
 endif(WITH_EVERYTHING)
+
+if(WITH_JPLUGINS)
+	set(WITH_CURL ON)
+
+	find_package(JNI REQUIRED)
+	include_directories(${JNI_INCLUDE_DIRS})
+endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
 	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.14.6")
@@ -337,6 +346,23 @@ if(WITH_CURL)
 	)
 endif(WITH_CURL)
 
+if(WITH_JPLUGINS)
+	set(fatrat_SRCS
+		${fatrat_SRCS}
+		src/java/JString.cpp
+		src/java/JClass.cpp
+		src/java/JObject.cpp
+		src/java/JArray.cpp
+		src/java/JVM.cpp
+		src/java/Natives.cpp
+		src/engines/JavaDownload.cpp
+	)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		src/engines/JavaDownload.h
+	)
+endif(WITH_JPLUGINS)
+
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
@@ -529,6 +555,12 @@ if(WITH_WEBINTERFACE)
 	FILE( GLOB rm_filedialog ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/filedialog/* )
 	install(FILES ${rm_filedialog} DESTINATION share/fatrat/data/remote/filedialog)
 endif(WITH_WEBINTERFACE)
+
+if(WITH_JPLUGINS)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/findjvm.sh DESTINATION share/fatrat/data/java PERMISSIONS
+		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/fatrat-jplugins.jar DESTINATION share/fatrat/data/java)
+endif(WITH_JPLUGINS)
 
 if(WITH_DOCUMENTATION)
 	execute_process(COMMAND qcollectiongenerator

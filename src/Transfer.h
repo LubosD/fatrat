@@ -214,7 +214,11 @@ struct EngineEntry
 		Transfer* (*lpfnCreate)();
 		Transfer* (*lpfnCreate2)(EngineEntry*);
 	};
-	int (*lpfnAcceptable)(QString, bool);
+	union
+	{
+		int (*lpfnAcceptable)(QString, bool);
+		int (*lpfnAcceptable2)(QString, bool, EngineEntry*);
+	};
 	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
 };
 

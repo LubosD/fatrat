@@ -67,6 +67,11 @@ respects for all of the code used other than "OpenSSL".
 #	include "remote/JabberService.h"
 #endif
 
+#ifdef WITH_JPLUGINS
+#	include "java/JVM.h"
+#	include "engines/JavaDownload.h"
+#endif
+
 using namespace std;
 
 MainWindow* g_wndMain = 0;
@@ -133,10 +138,19 @@ int main(int argc,char** argv)
 	
 	if(m_bStartGUI)
 		initSettingsPages();
+
+#ifdef WITH_JPLUGINS
+	new JVM;
+#endif
 	
 	initTransferClasses();
 	loadPlugins();
 	runEngines();
+
+#ifdef WITH_JPLUGINS
+	JavaDownload::globalInit();
+#endif
+
 	Queue::loadQueues();
 	initAppTools();
 	
@@ -191,6 +205,10 @@ int main(int argc,char** argv)
 	Queue::unloadQueues();
 	
 	runEngines(false);
+
+#ifdef WITH_JPLUGINS
+	delete JVM::instance();
+#endif
 	
 	delete qmgr;
 	exitSettings();
