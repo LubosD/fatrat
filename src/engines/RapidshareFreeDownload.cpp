@@ -30,8 +30,9 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include "Proxy.h"
 #include "fatrat.h"
-#include <QHttp>
-#include <QBuffer>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QRegExp>
 #include <QApplication>
 #include <QMessageBox>
@@ -39,10 +40,20 @@ respects for all of the code used other than "OpenSSL".
 
 static QMutex m_mInstanceActive;
 
+// http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download_v1&fileid=103409659&filename=A.part1.rar&cbid=1&cbf=RSAPIDispatcher
+// ERROR: You need to wait 631 seconds until you can download another file without having RapidPro.
+// DL:$hostname,$dlauth,$countdown
+
+/*
+ /cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid=103409659&filename=A.part1.rar&dlauth=6AD7128C1DEFA04AC4092E62D1B6603A04DF23A67ABA29476C78C1C8508BE2C2D0FACA5B85441C9BB2B2C76D634988791CF2998841CB5E37A24F1D7A4BAEEE5AAFCA64B0343F5B1DFD8540DA6B18B6EB5EA264B524B67099DA9E2E2334C7236D6281DFA7C27994B7FA6BB2E5C040EDCA
+ */
+
 RapidshareFreeDownload::RapidshareFreeDownload()
-	: m_http(0), m_buffer(0), m_nSecondsLeft(-1), m_bHasLock(false)
+	: m_nSecondsLeft(-1), m_bHasLock(false)
 {
 	m_proxy = getSettingsValue("rapidshare/proxy").toString();
+	m_network = new QNetworkAccessManager(this);
+	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpFinished(QNetworkReply*)));
 }
 
 RapidshareFreeDownload::~RapidshareFreeDownload()
@@ -64,7 +75,7 @@ void RapidshareFreeDownload::init(QString source, QString target)
 
 QString RapidshareFreeDownload::name() const
 {
-	if(m_curl)
+	if(isActive())
 		return CurlDownload::name();
 	else
 		return m_strName;
@@ -96,7 +107,7 @@ void RapidshareFreeDownload::deriveName()
 
 qulonglong RapidshareFreeDownload::done() const
 {
-	if(m_curl)
+	if(isActive())
 		return CurlDownload::done();
 	else if(m_state == Completed)
 		return m_nTotal;
@@ -106,7 +117,7 @@ qulonglong RapidshareFreeDownload::done() const
 
 void RapidshareFreeDownload::setObject(QString newdir)
 {
-	if(m_curl)
+	if(isActive())
 		CurlDownload::setObject(newdir);
 	m_strTarget = newdir;
 }
@@ -132,16 +143,22 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 		}
 		
 		m_bLongWaiting = false;
+
+		QRegExp re("http://(www\\.)?rapidshare\\.com/files/(\\d+)/(.+)");
+		if (!re.exactMatch(m_strOriginal))
+		{
+			m_strMessage = tr("The URL is invalid");
+			setState(Failed);
+			return;
+		}
+
+		QNetworkRequest request;
+		request.setUrl(QString("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download_v1&fileid=%1&filename=%2").arg(m_nFileID = re.cap(2).toLongLong()).arg(re.cap(3)));
+		m_network->setProxy(Proxy::getProxy(m_proxy));
 		
-		QUrl url(m_strOriginal);
-		m_http = new QHttp("rapidshare.com", 80, this);
-		m_buffer = new QBuffer(m_http);
+		m_network->get(request);
 		
-		m_http->setProxy(Proxy::getProxy(m_proxy));
-		connect(m_http, SIGNAL(done(bool)), this, SLOT(firstPageDone(bool)));
-		m_http->get(url.path(), m_buffer);
-		
-		m_strMessage = tr("Loading the first page");
+		m_strMessage = tr("Calling the API");
 		m_bHasLock = true;
 		m_nTotal = 0;
 	}
@@ -153,10 +170,66 @@ void RapidshareFreeDownload::changeActive(bool bActive)
 			m_bHasLock = false;
 		}
 		
-		if(m_curl)
-			CurlDownload::changeActive(false);
+		CurlDownload::changeActive(false);
 		m_nSecondsLeft = -1;
 		m_timer.stop();
+	}
+}
+
+void RapidshareFreeDownload::httpFinished(QNetworkReply* reply)
+{
+	reply->deleteLater();
+
+	if (reply->error() != QNetworkReply::NoError)
+	{
+		m_strMessage = reply->errorString();
+		setState(Failed);
+		return;
+	}
+
+	QByteArray response = reply->readAll();
+	if (response.startsWith("ERROR"))
+	{
+		QRegExp re("(\\d+) sec");
+		if (re.indexIn(response) != -1)
+		{
+			m_bLongWaiting = true;
+			m_nSecondsLeft = re.cap(1).toInt();
+			m_timer.start(1000);
+		}
+		else
+		{
+			int nl = response.indexOf('\n');
+			if (nl == -1)
+				m_strMessage = response;
+			else
+				m_strMessage = response.left(nl);
+			setState(Failed);
+		}
+	}
+	else if (response.startsWith("DL:"))
+	{
+		QList<QByteArray> parts = response.split(',');
+
+		if (parts.size() < 3)
+		{
+			m_strMessage = tr("Unknown server response");
+			setState(Failed);
+			return;
+		}
+
+		QByteArray hostname = parts[0].mid(3);
+		QByteArray& dlauth = parts[1];
+
+		m_downloadUrl = QString("http://%1/cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid=%2&filename=%3&dlauth=%4").arg(QString(hostname)).arg(m_nFileID).arg(m_strName).arg(QString(dlauth));
+
+		m_nSecondsLeft = parts[2].toInt();
+		m_timer.start(1000);
+	}
+	else
+	{
+		m_strMessage = tr("Unknown server response");
+		setState(Failed);
 	}
 }
 
@@ -199,88 +272,9 @@ void RapidshareFreeDownload::secondElapsed()
 	}
 }
 
-void RapidshareFreeDownload::firstPageDone(bool error)
-{
-	m_http->deleteLater();
-	
-	if(!isActive())
-		return;
-	
-	try
-	{
-		if(error)
-			throw tr("Failed to load the download's first page.");
-		
-		QRegExp re("form id=\"ff\" action=\"([^\"]+)");
-		if(re.indexIn(m_buffer->data()) < 0)
-			throw tr("Failed to parse the download's first page.");
-		
-		m_downloadUrl = re.cap(1);
-		
-		m_http = new QHttp(m_downloadUrl.host(), 80, this);
-		m_buffer = new QBuffer(m_http);
-		m_http->setProxy(Proxy::getProxy(m_proxy));
-		
-		connect(m_http, SIGNAL(done(bool)), this, SLOT(secondPageDone(bool)));
-		m_http->post(m_downloadUrl.path(), "dl.start=Free", m_buffer);
-		
-		m_strMessage = tr("Loading the second page");
-	}
-	catch(QString err)
-	{
-		enterLogMessage(m_strMessage = err);
-		setState(Failed);
-		m_http = 0;
-		m_buffer = 0;
-	}
-}
-
-void RapidshareFreeDownload::secondPageDone(bool error)
-{
-	m_http->deleteLater();
-	
-	if(!isActive())
-		return;
-	
-	try
-	{
-		if(error)
-			throw tr("Failed to load the download's waiting page.");
-		
-		QRegExp re("var c=(\\d+);");
-		if(re.indexIn(m_buffer->data()) < 0)
-		{
-			re.setPattern("(\\d+) minutes");
-			if(re.indexIn(m_buffer->data()) < 0)
-				m_nSecondsLeft = 30;
-			else
-				m_nSecondsLeft = re.cap(1).toInt() * 60;
-			m_bLongWaiting = true;
-		}
-		else
-		{
-			m_nSecondsLeft = re.cap(1).toInt();
-
-			QRegExp re2("<form name=\"dlf\" action=\"([^\"]+)");
-			if(re2.indexIn(m_buffer->data()) < 0)
-				throw tr("Failed to parse the download's waiting page.");
-
-			m_downloadUrl = re2.cap(1);
-		}
-		m_timer.start(1000);
-	}
-	catch(QString err)
-	{
-		m_strMessage = err;
-		setState(Failed);
-		m_http = 0;
-		m_buffer = 0;
-	}
-}
-
 int RapidshareFreeDownload::acceptable(QString uri, bool)
 {
-	QRegExp re("http://rapidshare\\.com/files/\\d+/.+");
+	QRegExp re("http://(www\\.)?rapidshare\\.com/files/\\d+/.+");
 	if(re.exactMatch(uri))
 	{
 		if(getSettingsValue("rapidshare/account").toInt() == 2)
@@ -298,7 +292,7 @@ void RapidshareFreeDownload::setState(State state)
 		QFile file(filePath());
 		if (file.open(QIODevice::ReadOnly))
 		{
-			if (file.readAll().contains("<h1>Error</h1>"))
+			if (file.readAll().contains("Error"))
 			{
 				file.remove();
 				setState(Failed);

@@ -34,8 +34,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QUuid>
 
-class QHttp;
-class QBuffer;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class RapidshareFreeDownload : public CurlDownload
 {
@@ -52,6 +52,7 @@ public:
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void changeActive(bool bActive);
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+	virtual QObject* createDetailsWidget(QWidget* w) { return 0; }
 	
 	virtual void fillContextMenu(QMenu& menu) {}
 	
@@ -65,16 +66,15 @@ public:
 	static Transfer* createInstance() { return new RapidshareFreeDownload; }
 	static int acceptable(QString uri, bool);
 protected slots:
-	void firstPageDone(bool error);
-	void secondPageDone(bool error);
+	void httpFinished(QNetworkReply* reply);
 	void secondElapsed();
 protected:
 	void deriveName();
 private:
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;
-	QHttp* m_http;
-	QBuffer* m_buffer;
+	QNetworkAccessManager* m_network;
+	qlonglong m_nFileID;
 	int m_nSecondsLeft;
 	QTimer m_timer;
 	bool m_bHasLock, m_bLongWaiting;

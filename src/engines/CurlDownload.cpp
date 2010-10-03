@@ -53,7 +53,7 @@ static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::m
 	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
 
 CurlDownload::CurlDownload()
-	: m_curl(0), m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nameChanger(0), m_master(0)
+	: m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nameChanger(0), m_master(0)
 {
 	m_errorBuffer[0] = 0;
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateSegmentProgress()));
@@ -767,7 +767,7 @@ void CurlDownload::clientDone(QString error)
 	//client->deleteLater();
 
 	qulonglong d = done();
-	if( (d == total() && d) || !total())
+	if( (d == total() && d) || (!total() && error.isNull()))
 	{
 		setState(Completed);
 	}
