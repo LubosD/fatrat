@@ -754,8 +754,8 @@ void TorrentDownload::changeActive(bool nowActive)
 		}
 		else
 		{
-			m_nPrevDownload = totalDownload();
-			m_nPrevUpload = totalUpload();
+			//m_nPrevDownload = totalDownload();
+			//m_nPrevUpload = totalUpload();
 			bEnableRecheck = true;
 			m_handle.pause();
 		}
