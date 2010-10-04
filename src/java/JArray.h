@@ -34,11 +34,14 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #include <jni.h>
+#include <QMetaType>
 #include "JObject.h"
 
 class JArray : public JObject
 {
 public:
+	JArray();
+	JArray(jobject arr);
 	JArray(jarray arr);
 	JArray(const char* type, size_t length);
 
@@ -82,5 +85,6 @@ public:
 	JObject getObject(int index) const;
 	void setObject(int index, JObject value);
 };
+Q_DECLARE_METATYPE(JArray)
 
 #endif // JARRAY_H

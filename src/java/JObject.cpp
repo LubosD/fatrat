@@ -31,12 +31,15 @@ respects for all of the code used other than "OpenSSL".
 #include "JString.h"
 #include "JArray.h"
 #include "JClass.h"
+#include "JScope.h"
+#include "JException.h"
 #include <alloca.h>
+#include <QtDebug>
 
 JObject::JObject()
-	: m_object(0), m_ref(0)
 {
-
+	m_object = 0;
+	m_ref = 0;
 }
 
 JObject::JObject(const JObject& obj)
@@ -54,9 +57,10 @@ JObject::JObject(jobject obj)
 	m_ref = env->NewGlobalRef(m_object);
 }
 
-JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant>& args)
+JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant> args)
 	: m_object(0), m_ref(0)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = xcls;
 
@@ -73,14 +77,28 @@ JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant>& args)
 		jargs[i] = JClass::variantToValue(args[i]);
 
 	m_object = env->NewObjectA(cls, mid, jargs);
+
+	JObject ex = env->ExceptionOccurred();
+
+	if (!ex.isNull())
+	{
+		ex.call("printStackTrace", "()V", QList<QVariant>());
+		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		QString className = ex.getClass().getClassName();
+		env->ExceptionClear();
+
+		throw JException(message, className);
+	}
+
 	if (!m_object)
 		throw RuntimeException(QObject::tr("Failed to create an instance").arg(sig));
 	m_ref = env->NewGlobalRef(m_object);
 }
 
-JObject::JObject(const char* clsName, const char* sig, QList<QVariant>& args)
+JObject::JObject(const char* clsName, const char* sig, QList<QVariant> args)
 		: m_object(0), m_ref(0)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = env->FindClass(clsName);
 
@@ -97,8 +115,28 @@ JObject::JObject(const char* clsName, const char* sig, QList<QVariant>& args)
 		jargs[i] = JClass::variantToValue(args[i]);
 
 	m_object = env->NewObjectA(cls, mid, jargs);
+
+	JObject ex = env->ExceptionOccurred();
+
+	if (!ex.isNull())
+	{
+		ex.call("printStackTrace", "()V", QList<QVariant>());
+		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		QString className = ex.getClass().getClassName();
+		env->ExceptionClear();
+
+		throw JException(message, className);
+	}
+
 	if (!m_object)
 		throw RuntimeException(QObject::tr("Failed to create an instance").arg(sig));
+	m_ref = env->NewGlobalRef(m_object);
+}
+
+void JObject::operator=(JObject& obj)
+{
+	JNIEnv* env = *JVM::instance();
+	m_object = obj.m_object;
 	m_ref = env->NewGlobalRef(m_object);
 }
 
@@ -121,15 +159,24 @@ bool JObject::isString() const
 	return instanceOf("java/lang/String");
 }
 
-JString JObject::toString() const
+JString JObject::toStringShallow() const
 {
 	if (!isString())
 		return JString();
 	return JString(jstring(m_object));
 }
 
+QString JObject::toString() const
+{
+	if (!m_object)
+		return JString();
+	return const_cast<JObject*>(this)->call("toString", "()Ljava/lang/String;", QList<QVariant>()).toString();
+}
+
 bool JObject::instanceOf(const char* cls) const
 {
+	JScope s;
+
 	if (!m_object)
 		return false;
 
@@ -143,6 +190,7 @@ bool JObject::instanceOf(const char* cls) const
 
 bool JObject::isArray() const
 {
+	JScope s;
 	/*return instanceOf("[Z") ||
 			instanceOf("[B") ||
 			instanceOf("[C") ||
@@ -157,11 +205,13 @@ bool JObject::isArray() const
 
 JArray JObject::toArray() const
 {
+	JScope s;
 	return JArray(jarray(m_object));
 }
 
-QVariant JObject::call(const char* name, const char* sig, QList<QVariant>& args)
+QVariant JObject::call(const char* name, const char* sig, QList<QVariant> args)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = env->GetObjectClass(m_object);
 
@@ -179,47 +229,78 @@ QVariant JObject::call(const char* name, const char* sig, QList<QVariant>& args)
 		throw RuntimeException(QObject::tr("Invalid method return type").arg(name).arg(sig));
 	rvtype++;
 
+	QVariant retval;
 	switch (*rvtype)
 	{
 	case 'V':
 		env->CallVoidMethodA(m_object, mid, jargs);
-		return QVariant();
+		break;
+	case '[':
+		{
+			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
+			retval.setValue<JArray>(JArray(obj));
+			break;
+		}
 	case 'L':
 		{
 			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
 			if (env->IsInstanceOf(obj, string_class))
-				return JString(jstring(obj)).str();
+				retval = JString(jstring(obj)).str();
 			else
 			{
 				QVariant var;
 				var.setValue<JObject>(JObject(obj));
-				return var;
+				retval = var;
 			}
+			break;
 		}
 	case 'Z':
-		return (bool) env->CallBooleanMethodA(m_object, mid, jargs);
+		retval = (bool) env->CallBooleanMethodA(m_object, mid, jargs);
+		break;
 	case 'B':
-		return env->CallByteMethodA(m_object, mid, jargs);
+		retval = env->CallByteMethodA(m_object, mid, jargs);
+		break;
 	case 'C':
-		return env->CallCharMethodA(m_object, mid, jargs);
+		retval = env->CallCharMethodA(m_object, mid, jargs);
+		break;
 	case 'S':
-		return env->CallShortMethodA(m_object, mid, jargs);
+		retval = env->CallShortMethodA(m_object, mid, jargs);
+		break;
 	case 'I':
-		return env->CallIntMethodA(m_object, mid, jargs);
+		retval = env->CallIntMethodA(m_object, mid, jargs);
+		break;
 	case 'J':
-		return (qlonglong) env->CallLongMethodA(m_object, mid, jargs);
+		retval = (qlonglong) env->CallLongMethodA(m_object, mid, jargs);
+		break;
 	case 'F':
-		return env->CallFloatMethodA(m_object, mid, jargs);
+		retval = env->CallFloatMethodA(m_object, mid, jargs);
+		break;
 	case 'D':
-		return env->CallDoubleMethodA(m_object, mid, jargs);
+		retval = env->CallDoubleMethodA(m_object, mid, jargs);
+		break;
 	default:
-		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(sig[0]));
+		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(rvtype));
 	}
+
+	JObject ex = env->ExceptionOccurred();
+
+	if (!ex.isNull())
+	{
+		ex.call("printStackTrace", "()V", QList<QVariant>());
+		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		QString className = ex.getClass().getClassName();
+		env->ExceptionClear();
+
+		throw JException(message, className);
+	}
+
+	return retval;
 }
 
 QVariant JObject::getValue(const char* name, const char* sig)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = env->GetObjectClass(m_object);
 
@@ -267,6 +348,7 @@ QVariant JObject::getValue(const char* name, const char* sig)
 
 void JObject::setValue(const char* name, const char* sig, QVariant value)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = env->GetObjectClass(m_object);
 
@@ -321,6 +403,7 @@ void JObject::setValue(const char* name, const char* sig, QVariant value)
 
 JClass JObject::getClass() const
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	return JClass( env->GetObjectClass(m_object) );
 }

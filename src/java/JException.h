@@ -25,52 +25,25 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JOBJECT_H
-#define JOBJECT_H
+
+#ifndef JEXCEPTION_H
+#define JEXCEPTION_H
+#include "RuntimeException.h"
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
-#include <jni.h>
-#include <QObject>
-#include <QMetaType>
-#include <QVariant>
-#include "JClass.h"
 
-class JString;
-class JArray;
+#include <QString>
 
-class JObject
+class JException : public RuntimeException
 {
 public:
-	JObject();
-	JObject(jobject obj);
-	JObject(const JObject& obj);
-	JObject(const JClass& cls, const char* sig, QList<QVariant> args = QList<QVariant>());
-	JObject(const char* clsName, const char* sig, QList<QVariant> args = QList<QVariant>());
-	virtual ~JObject();
-
-	void operator=(JObject& obj);
-	operator jobject();
-
-	bool instanceOf(const char* cls) const;
-	bool isString() const;
-	JString toStringShallow() const;
-	QString toString() const;
-	bool isArray() const;
-	JArray toArray() const;
-
-	bool isNull() const { return !m_object; }
-	JClass getClass() const;
-
-	QVariant call(const char* name, const char* sig, QList<QVariant> args = QList<QVariant>());
-	QVariant getValue(const char* name, const char* sig);
-	void setValue(const char* name, const char* sig, QVariant value);
-protected:
-	jobject m_object;
-	jobject m_ref;
+	JException(QString msg, QString javaType);
+	QString javaType() const;
+private:
+	QString m_strJavaType;
 };
-Q_DECLARE_METATYPE(JObject)
 
-#endif // JOBJECT_H
+#endif // JEXCEPTION_H

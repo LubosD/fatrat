@@ -29,8 +29,12 @@ respects for all of the code used other than "OpenSSL".
 #include "JString.h"
 #include "JObject.h"
 #include "JVM.h"
+#include "JArray.h"
+#include "JScope.h"
+#include "JException.h"
 #include "RuntimeException.h"
 #include <alloca.h>
+#include <QtDebug>
 
 JClass::JClass(const JClass& cls)
 		: m_ref(0)
@@ -41,6 +45,8 @@ JClass::JClass(const JClass& cls)
 JClass::JClass(QString clsName)
 	: m_ref(0)
 {
+	JScope s;
+
 	JNIEnv* env = *JVM::instance();
 	QByteArray name = clsName.toUtf8();
 
@@ -72,8 +78,10 @@ JClass::operator jclass() const
 	return m_class;
 }
 
-QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant>& args)
+QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> args)
 {
+	JScope s;
+
 	JNIEnv* env = *JVM::instance();
 	jmethodID mid = env->GetStaticMethodID(m_class, name, sig);
 	if (!mid)
@@ -89,47 +97,80 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant>& 
 		throw RuntimeException(QObject::tr("Invalid method return type").arg(name).arg(sig));
 	rvtype++;
 
+	QVariant retval;
+
 	switch (*rvtype)
 	{
 	case 'V':
 		env->CallStaticVoidMethodA(m_class, mid, jargs);
-		return QVariant();
+		break;
+	case '[':
+		{
+			jobject obj = env->CallStaticObjectMethodA(m_class, mid, jargs);
+			retval.setValue<JArray>(JArray(obj));
+			break;
+		}
 	case 'L':
 		{
 			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallStaticObjectMethodA(m_class, mid, jargs);
 			if (env->IsInstanceOf(obj, string_class))
-				return JString(jstring(obj)).str();
+				retval = JString(jstring(obj)).str();
 			else
 			{
 				QVariant var;
 				var.setValue<JObject>(JObject(obj));
-				return var;
+				retval = var;
 			}
+			break;
 		}
 	case 'Z':
-		return (bool) env->CallStaticBooleanMethodA(m_class, mid, jargs);
+		retval = (bool) env->CallStaticBooleanMethodA(m_class, mid, jargs);
+		break;
 	case 'B':
-		return env->CallStaticByteMethodA(m_class, mid, jargs);
+		retval = env->CallStaticByteMethodA(m_class, mid, jargs);
+		break;
 	case 'C':
-		return env->CallStaticCharMethodA(m_class, mid, jargs);
+		retval = env->CallStaticCharMethodA(m_class, mid, jargs);
+		break;
 	case 'S':
-		return env->CallStaticShortMethodA(m_class, mid, jargs);
+		retval = env->CallStaticShortMethodA(m_class, mid, jargs);
+		break;
 	case 'I':
-		return env->CallStaticIntMethodA(m_class, mid, jargs);
+		retval = env->CallStaticIntMethodA(m_class, mid, jargs);
+		break;
 	case 'J':
-		return (qlonglong) env->CallStaticLongMethodA(m_class, mid, jargs);
+		retval = (qlonglong) env->CallStaticLongMethodA(m_class, mid, jargs);
+		break;
 	case 'F':
-		return env->CallStaticFloatMethodA(m_class, mid, jargs);
+		retval = env->CallStaticFloatMethodA(m_class, mid, jargs);
+		break;
 	case 'D':
-		return env->CallStaticDoubleMethodA(m_class, mid, jargs);
+		retval = env->CallStaticDoubleMethodA(m_class, mid, jargs);
+		break;
 	default:
-		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(sig[0]));
+		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(*rvtype));
 	}
+
+	JObject ex = env->ExceptionOccurred();
+
+	if (!ex.isNull())
+	{
+		ex.call("printStackTrace", "()V", QList<QVariant>());
+		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		QString className = ex.getClass().getClassName();
+		env->ExceptionClear();
+
+		throw JException(message, className);
+	}
+
+	return retval;
 }
 
 jvalue JClass::variantToValue(QVariant& v)
 {
+	JScope s;
+
 	jvalue jv;
 	switch (v.type())
 	{
@@ -147,8 +188,11 @@ jvalue JClass::variantToValue(QVariant& v)
 		jv.z = v.toBool();
 		break;
 	case QVariant::String:
-		jv.l = (jobject) (jstring) JString(v.toString());
-		break;
+		{
+			JString str(v.toString());
+			jv.l = (jobject) str;
+			break;
+		}
 	default:
 		if (v.canConvert<JObject>())
 			jv.l = (jobject) v.value<JObject>();
@@ -160,6 +204,8 @@ jvalue JClass::variantToValue(QVariant& v)
 
 QVariant JClass::getStaticValue(const char* name, const char* sig)
 {
+	JScope s;
+
 	JNIEnv* env = *JVM::instance();
 	jfieldID fid = env->GetStaticFieldID(m_class, name, sig);
 	if (!fid)
@@ -205,6 +251,8 @@ QVariant JClass::getStaticValue(const char* name, const char* sig)
 
 void JClass::setStaticValue(const char* name, const char* sig, QVariant value)
 {
+	JScope s;
+
 	JNIEnv* env = *JVM::instance();
 	jfieldID fid = env->GetStaticFieldID(m_class, name, sig);
 	if (!fid)
@@ -257,7 +305,8 @@ void JClass::setStaticValue(const char* name, const char* sig, QVariant value)
 
 QString JClass::getClassName() const
 {
+	JScope s;
 	JObject obj(m_class);
 	QList<QVariant> args;
-	return obj.call("getCanonicalName", "()Ljava/lang/String", args).toString();
+	return obj.call("getCanonicalName", "()Ljava/lang/String;", args).toString();
 }

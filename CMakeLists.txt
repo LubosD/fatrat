@@ -353,6 +353,8 @@ if(WITH_JPLUGINS)
 		src/java/JClass.cpp
 		src/java/JObject.cpp
 		src/java/JArray.cpp
+		src/java/JScope.cpp
+		src/java/JException.cpp
 		src/java/JVM.cpp
 		src/java/Natives.cpp
 		src/engines/JavaDownload.cpp

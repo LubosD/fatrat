@@ -28,9 +28,12 @@ respects for all of the code used other than "OpenSSL".
 #include "JString.h"
 #include <jni.h>
 #include "JVM.h"
+#include "JScope.h"
+#include <QtDebug>
 
 JString::JString()
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	m_object = env->NewString(0, 0);
 	m_ref = env->NewGlobalRef(m_object);
@@ -38,6 +41,7 @@ JString::JString()
 
 JString::JString(const JString& str)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	m_object = str.m_object;
 	m_ref = env->NewGlobalRef(m_object);
@@ -45,13 +49,12 @@ JString::JString(const JString& str)
 
 JString::JString(const QString& str)
 {
-	JString(str.toUtf8());
+	*this = str.toUtf8();
 }
 
 JString::JString(const QByteArray& str)
 {
-	JString(str.constData());
-
+	*this = str.constData();
 }
 
 JString::JString(jstring str)
@@ -63,13 +66,10 @@ JString::JString(jstring str)
 
 JString::JString(const char* str)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	m_object = env->NewStringUTF(str);
 	m_ref = env->NewGlobalRef(m_object);
-}
-
-JString::~JString()
-{
 }
 
 void JString::operator=(const QString& str)
@@ -84,6 +84,7 @@ void JString::operator=(const QByteArray& str)
 
 void JString::operator=(const char* str)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	env->DeleteGlobalRef(m_ref);
 	m_object = env->NewStringUTF(str);
@@ -92,6 +93,7 @@ void JString::operator=(const char* str)
 
 void JString::operator=(const JString& str)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 	env->DeleteGlobalRef(m_ref);
 	m_object = str.m_object;

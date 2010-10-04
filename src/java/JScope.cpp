@@ -25,39 +25,18 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JCLASS_H
-#define JCLASS_H
-
-#include "config.h"
-#ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
-#endif
-
+#include "JScope.h"
+#include "JVM.h"
 #include <jni.h>
-#include <QVariant>
-#include <QList>
 
-class JClass
+JScope::JScope()
 {
-public:
-	JClass(const JClass& cls);
-	JClass(QString clsName);
-	JClass(jclass cls);
-	virtual ~JClass();
+	JNIEnv* env = *JVM::instance();
+	env->PushLocalFrame(30);
+}
 
-	operator jclass() const;
-
-	QVariant callStatic(const char* name, const char* sig, QList<QVariant> args = QList<QVariant>());
-	QVariant getStaticValue(const char* name, const char* sig);
-	void setStaticValue(const char* name, const char* sig, QVariant value);
-
-	bool isNull() const { return !m_class; }
-	QString getClassName() const;
-
-	static jvalue variantToValue(QVariant& v);
-private:
-	jclass m_class;
-	jobject m_ref;
-};
-
-#endif // JCLASS_H
+JScope::~JScope()
+{
+	JNIEnv* env = *JVM::instance();
+	env->PopLocalFrame(0);
+}

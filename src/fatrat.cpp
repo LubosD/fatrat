@@ -99,6 +99,28 @@ static QString m_strUnitTest;
 
 class MyApplication;
 
+#include "java/JClass.h"
+#include "java/JString.h"
+#include "java/JArray.h"
+
+void testJava()
+{
+	try
+	{
+		JClass system("java/lang/System");
+		JObject obj = system.getStaticValue("out", "Ljava/io/PrintStream;").value<JObject>();
+		QList<QVariant> args;
+
+		args << "Hello JNI world";
+
+		obj.call("println", "(Ljava/lang/String;)V", args);
+	}
+	catch (const RuntimeException& e)
+	{
+		qDebug() << e.what();
+	}
+}
+
 int main(int argc,char** argv)
 {
 	QApplication* app = 0;
@@ -120,6 +142,7 @@ int main(int argc,char** argv)
 	
 #ifdef WITH_JPLUGINS
 	new JVM;
+	testJava();
 #endif
 
 	installSignalHandler();

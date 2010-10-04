@@ -46,7 +46,6 @@ public:
 	JString(const QString& str);
 	JString(const QByteArray& str);
 	JString(const JString& str);
-	virtual ~JString();
 
 	void operator=(const char* str);
 	void operator=(const QString& str);

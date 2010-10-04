@@ -27,15 +27,27 @@ respects for all of the code used other than "OpenSSL".
 
 #include "JArray.h"
 #include "JVM.h"
+#include "JScope.h"
 #include "RuntimeException.h"
+
+JArray::JArray()
+	: JObject()
+{
+}
 
 JArray::JArray(jarray arr)
 	: JObject(arr)
 {
 }
 
+JArray::JArray(jobject arr)
+	: JObject(arr)
+{
+}
+
 JArray::JArray(const char* type, size_t length)
 {
+	JScope s;
 	JNIEnv* env = *JVM::instance();
 
 	switch (*type)

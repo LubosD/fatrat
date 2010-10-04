@@ -44,7 +44,7 @@ typedef jint (*cjvm_fn) (JavaVM **pvm, void **penv, void *args);
 JVM::JVM() : m_jvm(0)
 {
 	if (!m_instance)
-		m_instance = 0;
+		m_instance = this;
 
 	QProcess prc;
 

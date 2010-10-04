@@ -25,39 +25,15 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JCLASS_H
-#define JCLASS_H
+#include "JException.h"
 
-#include "config.h"
-#ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
-#endif
-
-#include <jni.h>
-#include <QVariant>
-#include <QList>
-
-class JClass
+JException::JException(QString msg, QString javaType)
+	: RuntimeException(msg), m_strJavaType(javaType)
 {
-public:
-	JClass(const JClass& cls);
-	JClass(QString clsName);
-	JClass(jclass cls);
-	virtual ~JClass();
 
-	operator jclass() const;
+}
 
-	QVariant callStatic(const char* name, const char* sig, QList<QVariant> args = QList<QVariant>());
-	QVariant getStaticValue(const char* name, const char* sig);
-	void setStaticValue(const char* name, const char* sig, QVariant value);
+QString JException::javaType() const
+{
 
-	bool isNull() const { return !m_class; }
-	QString getClassName() const;
-
-	static jvalue variantToValue(QVariant& v);
-private:
-	jclass m_class;
-	jobject m_ref;
-};
-
-#endif // JCLASS_H
+}

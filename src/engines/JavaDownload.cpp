@@ -27,6 +27,10 @@ respects for all of the code used other than "OpenSSL".
 
 #include "JavaDownload.h"
 #include "java/JVM.h"
+#include "java/JClass.h"
+#include "java/JArray.h"
+#include "RuntimeException.h"
+
 #include <QApplication>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
@@ -154,6 +158,21 @@ void JavaDownload::deriveName()
 void JavaDownload::globalInit()
 {
 	// search for plugins
+	try
+	{
+		JClass mainClass("info/dolezel/fatrat/plugins/DownloadPlugin");
+		QList<QVariant> args;
+
+		args << "info.dolezel.fatrat.plugins";
+		args << "info.dolezel.fatrat.plugins.PluginInfo";
+
+		JArray arr = mainClass.callStatic("findAnnotatedClasses", "(Ljava/lang/String;Ljava/lang/String;)[Ljava/lang/Class;", args).value<JArray>();
+		qDebug() << "Found" << arr.size() << "annotated classes";
+	}
+	catch (const RuntimeException& e)
+	{
+		qDebug() << e.what();
+	}
 }
 
 void JavaDownload::globalExit()
