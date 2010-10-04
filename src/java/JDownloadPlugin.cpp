@@ -46,7 +46,7 @@ JDownloadPlugin::JDownloadPlugin(const char* clsName, const char* sig, JArgs arg
 
 void JDownloadPlugin::registerNatives()
 {
-	JNIEnv* env = (JNIEnv*) JVM::instance();
+	JNIEnv* env = *JVM::instance();
 	jclass cls = env->FindClass("info/dolezel/fatrat/plugins/DownloadPlugin");
 	if (!cls)
 	{
@@ -61,7 +61,7 @@ void JDownloadPlugin::registerNatives()
 	nm[0].fnPtr = reinterpret_cast<void*>(setMessage);
 
 	nm[1].name = const_cast<char*>("setState");
-	nm[1].signature = const_cast<char*>("(Linfo/dolezel/fatrat/plugins/FRDownloadPlugin/State;)V");
+	nm[1].signature = const_cast<char*>("(Linfo/dolezel/fatrat/plugins/DownloadPlugin$State;)V");
 	nm[1].fnPtr = reinterpret_cast<void*>(setState);
 
 	nm[2].name = const_cast<char*>("fetchPage");

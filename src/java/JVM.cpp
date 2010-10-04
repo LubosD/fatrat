@@ -97,10 +97,10 @@ JVM::JVM() : m_jvm(0)
 		*penv = env;
 		m_env.setLocalData(penv);
 
-		JDownloadPlugin::registerNatives();
-
 		if (!m_instance)
 			m_instance = this;
+
+		JDownloadPlugin::registerNatives();
 	}
 }
 
