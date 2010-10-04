@@ -47,11 +47,11 @@ public:
 	JObject();
 	JObject(jobject obj);
 	JObject(const JObject& obj);
-	JObject(const JClass& cls, const char* sig, QList<QVariant> args = QList<QVariant>());
-	JObject(const char* clsName, const char* sig, QList<QVariant> args = QList<QVariant>());
+	JObject(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
+	JObject(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 	virtual ~JObject();
 
-	void operator=(JObject& obj);
+	JObject& operator=(JObject& obj);
 	operator jobject();
 
 	bool instanceOf(const char* cls) const;
@@ -64,7 +64,7 @@ public:
 	bool isNull() const { return !m_object; }
 	JClass getClass() const;
 
-	QVariant call(const char* name, const char* sig, QList<QVariant> args = QList<QVariant>());
+	QVariant call(const char* name, const char* sig, JArgs args = JArgs());
 	QVariant getValue(const char* name, const char* sig);
 	void setValue(const char* name, const char* sig, QVariant value);
 protected:

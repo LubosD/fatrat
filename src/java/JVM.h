@@ -45,7 +45,6 @@ public:
 	static JVM* instance();
 	operator JNIEnv*();
 private:
-	void registerNatives();
 	static QString getClassPath();
 private:
 	static JVM* m_instance;

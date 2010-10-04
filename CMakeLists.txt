@@ -356,7 +356,7 @@ if(WITH_JPLUGINS)
 		src/java/JScope.cpp
 		src/java/JException.cpp
 		src/java/JVM.cpp
-		src/java/Natives.cpp
+		src/java/JDownloadPlugin.cpp
 		src/engines/JavaDownload.cpp
 	)
 	set(fatrat_MOC_HDRS

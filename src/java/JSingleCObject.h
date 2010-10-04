@@ -25,41 +25,55 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "info_dolezel_fatrat_plugins_FRDownloadPlugin.h"
 
-JNIEXPORT void JNICALL Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_setMessage
-  (JNIEnv *, jobject, jstring)
+#ifndef JSINGLECOBJECT_H
+#define JSINGLECOBJECT_H
+
+#include "config.h"
+#ifndef WITH_JPLUGINS
+#	error This file is not supposed to be included!
+#endif
+
+#include <QReadWriteLock>
+#include <QMap>
+#include <memory>
+#include "JObject.h"
+
+template <typename T> class JSingleCObject
 {
+public:
+	JSingleCObject()
+	{
+		setCObject();
+	}
 
-}
+	void setCObject()
+	{
+		QWriteLocker w(m_mutex.get());
+		jobject obj = *static_cast<T*>(this);
+		if (obj)
+			m_instances[obj] = static_cast<T*>(this);
+	}
 
-JNIEXPORT void JNICALL Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_setState
-  (JNIEnv *, jobject, jobject)
-{
+	virtual ~JSingleCObject()
+	{
+		QWriteLocker w(m_mutex.get());
+		jobject obj = *static_cast<T*>(this);
+		m_instances.remove(obj);
+	}
 
-}
+	T* getCObject()
+	{
+		QReadLocker r(m_mutex.get());
+		jobject obj = *static_cast<T*>(this);
+		return static_cast<T*>(m_instances[obj]);
+	}
+private:
+	JSingleCObject(const JSingleCObject<T>&) {}
+	JSingleCObject<T>& operator=(const JSingleCObject<T>&) {}
+private:
+	static QMap<jobject, JObject*> m_instances;
+	static std::auto_ptr<QReadWriteLock> m_mutex;
+};
 
-JNIEXPORT void JNICALL Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_fetchPage
-  (JNIEnv *, jobject, jstring, jstring, jstring)
-{
-
-}
-
-JNIEXPORT void JNICALL Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_startDownload
-  (JNIEnv *, jobject, jstring)
-{
-
-}
-
-JNIEXPORT void JNICALL Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_startWait
-  (JNIEnv *, jobject, jint, jstring)
-{
-
-}
-
-JNIEXPORT void JNICALL Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_logMessage
-  (JNIEnv *, jobject, jstring)
-{
-
-}
-
+#endif // JSINGLECOBJECT_H

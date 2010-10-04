@@ -72,32 +72,38 @@ JString::JString(const char* str)
 	m_ref = env->NewGlobalRef(m_object);
 }
 
-void JString::operator=(const QString& str)
+JString& JString::operator=(const QString& str)
 {
-	(*this) = str.toUtf8();
+	return (*this) = str.toUtf8();
 }
 
-void JString::operator=(const QByteArray& str)
+JString& JString::operator=(const QByteArray& str)
 {
-	(*this) = str.constData();
+	return (*this) = str.constData();
 }
 
-void JString::operator=(const char* str)
+JString& JString::operator=(const char* str)
 {
 	JScope s;
+
 	JNIEnv* env = *JVM::instance();
 	env->DeleteGlobalRef(m_ref);
 	m_object = env->NewStringUTF(str);
 	m_ref = env->NewGlobalRef(m_object);
+
+	return *this;
 }
 
-void JString::operator=(const JString& str)
+JString& JString::operator=(const JString& str)
 {
 	JScope s;
+
 	JNIEnv* env = *JVM::instance();
 	env->DeleteGlobalRef(m_ref);
 	m_object = str.m_object;
 	m_ref = env->NewGlobalRef(m_object);
+
+	return *this;
 }
 
 JString::operator jstring() const

@@ -133,11 +133,12 @@ JObject::JObject(const char* clsName, const char* sig, QList<QVariant> args)
 	m_ref = env->NewGlobalRef(m_object);
 }
 
-void JObject::operator=(JObject& obj)
+JObject& JObject::operator=(JObject& obj)
 {
 	JNIEnv* env = *JVM::instance();
 	m_object = obj.m_object;
 	m_ref = env->NewGlobalRef(m_object);
+	return *this;
 }
 
 JObject::operator jobject()

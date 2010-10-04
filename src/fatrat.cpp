@@ -90,6 +90,7 @@ static void loadPlugins();
 static void loadPlugins(const char* dir);
 static void showHelp();
 static void installSignalHandler();
+static void testJava();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
@@ -102,24 +103,7 @@ class MyApplication;
 #include "java/JClass.h"
 #include "java/JString.h"
 #include "java/JArray.h"
-
-void testJava()
-{
-	try
-	{
-		JClass system("java/lang/System");
-		JObject obj = system.getStaticValue("out", "Ljava/io/PrintStream;").value<JObject>();
-		QList<QVariant> args;
-
-		args << "Hello JNI world";
-
-		obj.call("println", "(Ljava/lang/String;)V", args);
-	}
-	catch (const RuntimeException& e)
-	{
-		qDebug() << e.what();
-	}
-}
+#include "java/JScope.h"
 
 int main(int argc,char** argv)
 {
@@ -142,7 +126,7 @@ int main(int argc,char** argv)
 	
 #ifdef WITH_JPLUGINS
 	new JVM;
-	testJava();
+	//testJava();
 #endif
 
 	installSignalHandler();
@@ -549,5 +533,20 @@ void installSignalHandler()
 
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGTERM, &act, 0);
+}
+
+void testJava()
+{
+	try
+	{
+		JScope s;
+		JClass system("java/lang/System");
+		JObject obj = system.getStaticValue("out", "Ljava/io/PrintStream;").value<JObject>();
+		obj.call("println", "(Ljava/lang/String;)V", JArgs() << "Hello JNI world");
+	}
+	catch (const RuntimeException& e)
+	{
+		qDebug() << e.what();
+	}
 }
 

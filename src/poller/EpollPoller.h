@@ -28,8 +28,9 @@ respects for all of the code used other than "OpenSSL".
 #ifndef EPOLLPOLLER_H
 #define EPOLLPOLLER_H
 #include "Poller.h"
+#include "config.h"
 
-#ifndef linux
+#ifndef HAVE_SYS_EPOLL_H
 #	error This code is not supported on the current OS!
 #endif
 

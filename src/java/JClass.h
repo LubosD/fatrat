@@ -37,6 +37,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariant>
 #include <QList>
 
+typedef QList<QVariant> JArgs;
+
 class JClass
 {
 public:
@@ -47,7 +49,7 @@ public:
 
 	operator jclass() const;
 
-	QVariant callStatic(const char* name, const char* sig, QList<QVariant> args = QList<QVariant>());
+	QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
 	QVariant getStaticValue(const char* name, const char* sig);
 	void setStaticValue(const char* name, const char* sig, QVariant value);
 

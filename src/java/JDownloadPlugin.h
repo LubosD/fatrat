@@ -25,40 +25,33 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JSTRING_H
-#define JSTRING_H
+
+#ifndef JDOWNLOADPLUGIN_H
+#define JDOWNLOADPLUGIN_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
-#include <jni.h>
-#include <QString>
-#include <QByteArray>
-#include "JObject.h"
 
-class JString : public JObject
+#include "JObject.h"
+#include "JSingleCObject.h"
+
+class JDownloadPlugin : public JObject, public JSingleCObject<JDownloadPlugin>
 {
 public:
-	JString();
-	JString(jstring str);
-	JString(const char* str);
-	JString(const QString& str);
-	JString(const QByteArray& str);
-	JString(const JString& str);
+	JDownloadPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
+	JDownloadPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
-	JString& operator=(const char* str);
-	JString& operator=(const QString& str);
-	JString& operator=(const QByteArray& str);
-	JString& operator=(const JString& str);
+	static void registerNatives();
 
-	operator jstring() const;
-	operator QString() const;
-	operator QByteArray() const;
+	static void setMessage(JNIEnv *, jobject, jstring);
+	static void setState(JNIEnv *, jobject, jobject);
+	static void fetchPage(JNIEnv *, jobject, jstring, jstring, jstring);
+	static void startDownload(JNIEnv *, jobject, jstring);
+	static void startWait(JNIEnv *, jobject, jint, jstring);
+	static void logMessage(JNIEnv *, jobject, jstring);
 
-	QString str() const;
-	size_t size() const;
-	size_t length() const { return size(); }
 };
 
-#endif // JSTRING_H
+#endif // JDOWNLOADPLUGIN_H

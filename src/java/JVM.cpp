@@ -32,7 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QLibrary>
 #include <QDir>
 
-#include "info_dolezel_fatrat_plugins_FRDownloadPlugin.h"
+#include "JDownloadPlugin.h"
 
 #include <QtDebug>
 
@@ -43,9 +43,6 @@ typedef jint (*cjvm_fn) (JavaVM **pvm, void **penv, void *args);
 
 JVM::JVM() : m_jvm(0)
 {
-	if (!m_instance)
-		m_instance = this;
-
 	QProcess prc;
 
 	qDebug() << "Locating the Java VM for Java-based plugins...";
@@ -85,7 +82,7 @@ JVM::JVM() : m_jvm(0)
 
 		options[0].optionString = opt;
 
-		vm_args.version = 0x00010002;
+		vm_args.version = 0x00010006;
 		vm_args.options = options;
 		vm_args.nOptions = 1;
 		vm_args.ignoreUnrecognized = JNI_TRUE;
@@ -100,7 +97,10 @@ JVM::JVM() : m_jvm(0)
 		*penv = env;
 		m_env.setLocalData(penv);
 
-		registerNatives();
+		JDownloadPlugin::registerNatives();
+
+		if (!m_instance)
+			m_instance = this;
 	}
 }
 
@@ -111,45 +111,6 @@ JVM::~JVM()
 		m_jvm->DestroyJavaVM();
 	if (m_instance == this)
 		m_instance = 0;
-}
-
-void JVM::registerNatives()
-{
-	JNIEnv* env = (JNIEnv*) *this;
-	jclass cls = env->FindClass("info/dolezel/fatrat/plugins/FRDownloadPlugin");
-	if (!cls)
-	{
-		Logger::global()->enterLogMessage("JPlugin", QObject::tr("Failed to register native methods"));
-		return;
-	}
-
-	JNINativeMethod nm[6];
-
-	nm[0].name = const_cast<char*>("setMessage");
-	nm[0].signature = const_cast<char*>("(Ljava/lang/String;)V");
-	nm[0].fnPtr = reinterpret_cast<void*>(Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_setMessage);
-
-	nm[1].name = const_cast<char*>("setState");
-	nm[1].signature = const_cast<char*>("(Linfo/dolezel/fatrat/plugins/FRDownloadPlugin/State;)V");
-	nm[1].fnPtr = reinterpret_cast<void*>(Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_setState);
-
-	nm[2].name = const_cast<char*>("fetchPage");
-	nm[2].signature = const_cast<char*>("(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-	nm[2].fnPtr = reinterpret_cast<void*>(Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_fetchPage);
-
-	nm[3].name = const_cast<char*>("startDownload");
-	nm[3].signature = const_cast<char*>("(Ljava/lang/String;)V");
-	nm[3].fnPtr = reinterpret_cast<void*>(Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_startDownload);
-
-	nm[4].name = const_cast<char*>("startWait");
-	nm[4].signature = const_cast<char*>("(ILjava/lang/String;)V");
-	nm[4].fnPtr = reinterpret_cast<void*>(Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_startWait);
-
-	nm[5].name = const_cast<char*>("logMessage");
-	nm[5].signature = const_cast<char*>("(Ljava/lang/String;)V");
-	nm[5].fnPtr = reinterpret_cast<void*>(Java_info_dolezel_fatrat_plugins_FRDownloadPlugin_logMessage);
-
-	env->RegisterNatives(cls, nm, 6);
 }
 
 QString JVM::getClassPath()

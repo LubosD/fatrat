@@ -185,7 +185,7 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 
 			if ( country != 0 )
 			{
-				char ct[3] = { tolower ( country[0] ), tolower ( country[1] ), 0 };
+				char ct[3] = { (char) tolower ( country[0] ), (char) tolower ( country[1] ), 0 };
 
 				if ( !g_mapFlags.contains ( ct ) )
 				{

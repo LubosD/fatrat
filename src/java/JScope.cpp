@@ -32,7 +32,7 @@ respects for all of the code used other than "OpenSSL".
 JScope::JScope()
 {
 	JNIEnv* env = *JVM::instance();
-	env->PushLocalFrame(30);
+	env->PushLocalFrame(16);
 }
 
 JScope::~JScope()
