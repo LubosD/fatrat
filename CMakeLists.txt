@@ -37,6 +37,7 @@ if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
 
 	find_package(JNI REQUIRED)
+	
 	include_directories(${JNI_INCLUDE_DIRS})
 endif(WITH_JPLUGINS)
 
