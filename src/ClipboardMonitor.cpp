@@ -62,8 +62,8 @@ void ClipboardMonitor::reloadSettings()
 
 void ClipboardMonitor::dataChanged(QClipboard::Mode mode)
 {
-	if(!m_bEnabledGlobal && mode == QClipboard::Clipboard ||
-	   !m_bEnabledSelection && mode == QClipboard::Selection)
+	if((!m_bEnabledGlobal && mode == QClipboard::Clipboard) ||
+	   (!m_bEnabledSelection && mode == QClipboard::Selection))
 		return;
 
 	QString text = m_clipboard->text(mode);

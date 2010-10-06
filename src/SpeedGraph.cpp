@@ -34,7 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMenu>
 #include <QFileDialog>
 
-SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_transfer(0), m_queue(0)
+SpeedGraph::SpeedGraph(QWidget* parent) : QWidget(parent), m_queue(0), m_transfer(0)
 {
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
