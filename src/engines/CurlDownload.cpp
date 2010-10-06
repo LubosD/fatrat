@@ -48,6 +48,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 #include <iostream>
 #include <errno.h>
+#include <cassert>
 
 static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::magenta, Qt::yellow, Qt::darkRed,
 	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
