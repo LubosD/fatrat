@@ -35,10 +35,10 @@ MetalinkSettings::MetalinkSettings(QWidget* w, QObject* p)
 	setupUi(w);
 
 #ifndef WITH_CURL
-	pushUseHTTP->setDisabled(true);
+	radioUseHTTP->setDisabled(true);
 #endif
 #ifndef WITH_BITTORRENT
-	pushUseTorrent->setDisabled(true);
+	radioUseTorrent->setDisabled(true);
 #endif
 }
 
