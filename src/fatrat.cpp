@@ -533,7 +533,7 @@ void installSignalHandler()
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGTERM, &act, 0);
 }
-
+/*
 void testJava()
 {
 	try
@@ -549,3 +549,4 @@ void testJava()
 	}
 }
 
+*/
