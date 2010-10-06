@@ -70,6 +70,10 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_JPLUGINS
 #	include "java/JVM.h"
 #	include "engines/JavaDownload.h"
+#	include "java/JClass.h"
+#	include "java/JString.h"
+#	include "java/JArray.h"
+#	include "java/JScope.h"
 #endif
 
 using namespace std;
@@ -99,11 +103,6 @@ static bool m_bManualGraphicsSystem = false;
 static QString m_strUnitTest;
 
 class MyApplication;
-
-#include "java/JClass.h"
-#include "java/JString.h"
-#include "java/JArray.h"
-#include "java/JScope.h"
 
 int main(int argc,char** argv)
 {
