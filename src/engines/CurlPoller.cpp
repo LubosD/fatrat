@@ -312,7 +312,7 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 		
 		This->m_socketsToAdd[s] = QPair<int,CurlStat*>(flags, static_cast<CurlStat*>(This->m_users[easy]));
 		
-		This->m_poller->addSocket(s, flags);
+		return This->m_poller->addSocket(s, flags);
 	}
 }
 

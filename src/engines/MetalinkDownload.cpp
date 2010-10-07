@@ -129,7 +129,7 @@ void MetalinkDownload::init(QString source, QString target)
 
 QString MetalinkDownload::name() const
 {
-	if (!isActive())
+	//if (!isActive())
 	{
 		QString path = QUrl(m_strSource).path();
 		int p = path.lastIndexOf('/');
@@ -212,7 +212,7 @@ void MetalinkDownload::processMetalink(QString fileName)
 			}
 			else if (tagName == "metaurl" && elem.attribute("mediatype") == "torrent")
 			{
-				int priority = priority = elem.attribute("priority", "5").toInt();
+				int priority = elem.attribute("priority", "5").toInt();
 				metaFile.urls << Link(elem.text(), priority, true);
 				metaFile.hasTorrent = true;
 			}

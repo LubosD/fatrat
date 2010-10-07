@@ -64,35 +64,35 @@ void initTransferClasses()
 {
 #ifdef ENABLE_FAKEDOWNLOAD
 	{ // couldn't look more lazy and lame
-		EngineEntry e = { "FakeDownload", "Fake engine", 0, 0, FakeDownload::createInstance, FakeDownload::acceptable, 0, 0 };
+		EngineEntry e = { "FakeDownload", "Fake engine", 0, 0, { FakeDownload::createInstance }, { FakeDownload::acceptable }, 0, 0 };
 		g_enginesDownload << e;
 	}
 #endif
 #ifdef WITH_BITTORRENT
 	{
-		EngineEntry e = { "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, TorrentDownload::createInstance, TorrentDownload::acceptable, 0 };
+		EngineEntry e = { "TorrentDownload", "BitTorrent download", TorrentDownload::globalInit, TorrentDownload::globalExit, { TorrentDownload::createInstance }, { TorrentDownload::acceptable }, 0 };
 		g_enginesDownload << e;
 	}
 #endif
 #ifdef WITH_CURL
 	{
-		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, CurlDownload::createInstance, CurlDownload::acceptable, CurlDownload::createMultipleOptionsWidget };
+		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, { CurlDownload::createInstance }, { CurlDownload::acceptable }, CurlDownload::createMultipleOptionsWidget };
 		g_enginesDownload << e;
 	}
 	{
-		EngineEntry e = { "FtpUpload", "CURL FTP(S)/SFTP upload", 0, 0, CurlUpload::createInstance, CurlUpload::acceptable, 0 };
+		EngineEntry e = { "FtpUpload", "CURL FTP(S)/SFTP upload", 0, 0, { CurlUpload::createInstance }, { CurlUpload::acceptable }, 0 };
 		g_enginesUpload << e;
 	}
 	{
-		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, RapidshareUpload::createInstance, RapidshareUpload::acceptable, RapidshareUpload::createMultipleOptionsWidget };
+		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, { RapidshareUpload::createInstance }, { RapidshareUpload::acceptable}, RapidshareUpload::createMultipleOptionsWidget };
 		g_enginesUpload << e;
 	}
 	{
-		EngineEntry e = { "RapidshareFreeDownload", "RapidShare.com FREE download", 0, 0, RapidshareFreeDownload::createInstance, RapidshareFreeDownload::acceptable, 0 };
+		EngineEntry e = { "RapidshareFreeDownload", "RapidShare.com FREE download", 0, 0, { RapidshareFreeDownload::createInstance }, { RapidshareFreeDownload::acceptable }, 0 };
 		g_enginesDownload << e;
 	}
 	{
-		EngineEntry e = { "MetalinkDownload", "Metalink file handler", MetalinkDownload::globalInit, 0, MetalinkDownload::createInstance, MetalinkDownload::acceptable, 0 };
+		EngineEntry e = { "MetalinkDownload", "Metalink file handler", MetalinkDownload::globalInit, 0, { MetalinkDownload::createInstance }, { MetalinkDownload::acceptable }, 0 };
 		g_enginesDownload << e;
 	}
 #endif

@@ -214,7 +214,12 @@ QVariant JClass::getStaticValue(const char* name, const char* sig)
 	switch (sig[0])
 	{
 	case '[':
-		break;
+		{
+			QVariant var;
+			jobject obj = env->GetStaticObjectField(m_class, fid);
+			var.setValue<JArray>(JArray(obj));
+			return var;
+		}
 	case 'L':
 		{
 			jclass string_class = env->FindClass("java/lang/String");

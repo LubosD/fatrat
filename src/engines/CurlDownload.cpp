@@ -54,7 +54,7 @@ static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::m
 	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
 
 CurlDownload::CurlDownload()
-	: m_nTotal(0), m_nStart(0), m_bAutoName(false), m_nameChanger(0), m_master(0)
+	: m_nTotal(0), m_nStart(0), m_bAutoName(false), m_master(0), m_nameChanger(0)
 {
 	m_errorBuffer[0] = 0;
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateSegmentProgress()));
@@ -196,7 +196,7 @@ void CurlDownload::changeActive(bool bActive)
 	qDebug() << this << "changeActive" << bActive;
 	if(bActive)
 	{
-		const qulonglong d = done();
+		const qlonglong d = done();
 		m_strMessage.clear();
 
 		if(m_urls.isEmpty())
@@ -211,7 +211,6 @@ void CurlDownload::changeActive(bool bActive)
 		m_nameChanger = 0;
 
 		QWriteLocker l(&m_segmentsLock);
-		int active = 0;
 
 		simplifySegments(m_segments);
 

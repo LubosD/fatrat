@@ -264,7 +264,7 @@ int UrlClient::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t
 
 bool UrlClient::writeData(const char* buffer, size_t bytes)
 {
-	size_t towrite = bytes;
+	int towrite = int(bytes);
 	if(m_bTerminating)
 		return true;
 	

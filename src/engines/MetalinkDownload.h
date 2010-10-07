@@ -65,7 +65,7 @@ protected:
 
 	struct Link
 	{
-		Link(QString _url, int _priority, bool _isTorrent) : url(_url), priority(_priority), isTorrent(_isTorrent)
+		Link(QString _url, int _priority, bool _isTorrent) : url(_url), isTorrent(_isTorrent), priority(_priority)
 		{
 		}
 
