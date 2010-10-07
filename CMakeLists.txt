@@ -357,6 +357,7 @@ if(WITH_JPLUGINS)
 		src/java/JArray.cpp
 		src/java/JScope.cpp
 		src/java/JException.cpp
+		src/java/JValue.cpp
 		src/java/JVM.cpp
 		src/java/JDownloadPlugin.cpp
 		src/engines/JavaDownload.cpp

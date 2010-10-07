@@ -125,7 +125,7 @@ int main(int argc,char** argv)
 	
 #ifdef WITH_JPLUGINS
 	new JVM;
-	//testJava();
+	testJava();
 #endif
 
 	installSignalHandler();
@@ -533,7 +533,8 @@ void installSignalHandler()
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGTERM, &act, 0);
 }
-/*
+
+#ifdef WITH_JPLUGINS
 void testJava()
 {
 	try
@@ -542,11 +543,13 @@ void testJava()
 		JClass system("java/lang/System");
 		JObject obj = system.getStaticValue("out", "Ljava/io/PrintStream;").value<JObject>();
 		obj.call("println", "(Ljava/lang/String;)V", JArgs() << "Hello JNI world");
+		JString str("aaa");
 	}
 	catch (const RuntimeException& e)
 	{
 		qDebug() << e.what();
 	}
+	qDebug() << "End test";
 }
+#endif
 
-*/

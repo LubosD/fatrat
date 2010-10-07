@@ -116,8 +116,16 @@ JVM::~JVM()
 QString JVM::getClassPath()
 {
 	QString rv;
-	rv = DATA_LOCATION "/data/java/fatrat-jplugins.jar:";
-	rv += QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/*.jar";
+	rv = DATA_LOCATION "/data/java/fatrat-jplugins.jar";
+
+	QString baseDir = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/";
+	QDir dir(baseDir);
+
+	// JNI does not support classpath globs, we need to search for files ourselves
+	QStringList list = dir.entryList(QStringList() << "*.jar", QDir::Files);
+
+	foreach (QString f, list)
+		rv += ":" + baseDir + f;
 
 	return rv;
 }

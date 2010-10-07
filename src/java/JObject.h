@@ -47,7 +47,7 @@ public:
 	JObject();
 	JObject(jobject obj);
 	JObject(const JObject& obj);
-	JObject(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
+	JObject(const JClass& cls, const char* sig /*= "()V"*/, JArgs args = JArgs());
 	JObject(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 	virtual ~JObject();
 
@@ -69,7 +69,6 @@ public:
 	void setValue(const char* name, const char* sig, QVariant value);
 protected:
 	jobject m_object;
-	jobject m_ref;
 };
 Q_DECLARE_METATYPE(JObject)
 

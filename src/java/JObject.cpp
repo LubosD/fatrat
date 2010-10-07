@@ -39,7 +39,6 @@ respects for all of the code used other than "OpenSSL".
 JObject::JObject()
 {
 	m_object = 0;
-	m_ref = 0;
 }
 
 JObject::JObject(const JObject& obj)
@@ -47,20 +46,19 @@ JObject::JObject(const JObject& obj)
 	JNIEnv* env = *JVM::instance();
 	m_object = obj.m_object;
 	if (m_object)
-		m_ref = env->NewGlobalRef(m_object);
+		m_object = env->NewGlobalRef(m_object);
 }
 
 JObject::JObject(jobject obj)
 {
 	JNIEnv* env = *JVM::instance();
 	m_object = obj;
-	m_ref = env->NewGlobalRef(m_object);
+	m_object = env->NewGlobalRef(m_object);
 }
 
 JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant> args)
-	: m_object(0), m_ref(0)
+	: m_object(0)
 {
-	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = xcls;
 
@@ -71,13 +69,16 @@ JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant> args)
 	if (!mid)
 		throw RuntimeException(QObject::tr("Constructor %1 not found").arg(sig));
 
-	jvalue* jargs = (jvalue*) alloca(args.size()*sizeof(jvalue));
+	jvalue jargs[args.size()];
+	JValue vals[args.size()];
 
 	for(int i=0;i<args.size();i++)
-		jargs[i] = JClass::variantToValue(args[i]);
+	{
+		vals[i] = JClass::variantToValue(args[i]);
+		jargs[i] = vals[i];
+	}
 
-	m_object = env->NewObjectA(cls, mid, jargs);
-
+	jobject obj = env->NewObjectA(cls, mid, jargs);
 	JObject ex = env->ExceptionOccurred();
 
 	if (!ex.isNull())
@@ -92,13 +93,13 @@ JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant> args)
 
 	if (!m_object)
 		throw RuntimeException(QObject::tr("Failed to create an instance").arg(sig));
-	m_ref = env->NewGlobalRef(m_object);
+	m_object = env->NewGlobalRef(obj);
+	env->DeleteLocalRef(obj);
 }
 
 JObject::JObject(const char* clsName, const char* sig, QList<QVariant> args)
-		: m_object(0), m_ref(0)
+		: m_object(0)
 {
-	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = env->FindClass(clsName);
 
@@ -109,13 +110,16 @@ JObject::JObject(const char* clsName, const char* sig, QList<QVariant> args)
 	if (!mid)
 		throw RuntimeException(QObject::tr("Constructor %1 not found").arg(sig));
 
-	jvalue* jargs = (jvalue*) alloca(args.size()*sizeof(jvalue));
+	jvalue jargs[args.size()];
+	JValue vals[args.size()];
 
 	for(int i=0;i<args.size();i++)
-		jargs[i] = JClass::variantToValue(args[i]);
+	{
+		vals[i] = JClass::variantToValue(args[i]);
+		jargs[i] = vals[i];
+	}
 
-	m_object = env->NewObjectA(cls, mid, jargs);
-
+	jobject obj = env->NewObjectA(cls, mid, jargs);
 	JObject ex = env->ExceptionOccurred();
 
 	if (!ex.isNull())
@@ -130,14 +134,16 @@ JObject::JObject(const char* clsName, const char* sig, QList<QVariant> args)
 
 	if (!m_object)
 		throw RuntimeException(QObject::tr("Failed to create an instance").arg(sig));
-	m_ref = env->NewGlobalRef(m_object);
+
+	m_object = env->NewGlobalRef(obj);
+	env->DeleteLocalRef(obj);
 }
 
 JObject& JObject::operator=(JObject& obj)
 {
 	JNIEnv* env = *JVM::instance();
 	m_object = obj.m_object;
-	m_ref = env->NewGlobalRef(m_object);
+	m_object = env->NewGlobalRef(m_object);
 	return *this;
 }
 
@@ -148,10 +154,10 @@ JObject::operator jobject()
 
 JObject::~JObject()
 {
-	if (m_ref)
+	if (m_object)
 	{
 		JNIEnv* env = *JVM::instance();
-		env->DeleteGlobalRef(m_ref);
+		env->DeleteGlobalRef(m_object);
 	}
 }
 
@@ -220,10 +226,14 @@ QVariant JObject::call(const char* name, const char* sig, QList<QVariant> args)
 	if (!mid)
 		throw RuntimeException(QObject::tr("Method %1 %2 not found").arg(name).arg(sig));
 
-	jvalue* jargs = (jvalue*) alloca(args.size()*sizeof(jvalue));
+	jvalue jargs[args.size()];
+	JValue vals[args.size()];
 
 	for(int i=0;i<args.size();i++)
-		jargs[i] = JClass::variantToValue(args[i]);
+	{
+		vals[i] = JClass::variantToValue(args[i]);
+		jargs[i] = vals[i];
+	}
 
 	const char* rvtype = strchr(sig, ')');
 	if (!rvtype)
@@ -312,7 +322,12 @@ QVariant JObject::getValue(const char* name, const char* sig)
 	switch (sig[0])
 	{
 	case '[':
-		break;
+		{
+			QVariant var;
+			jobject obj = env->GetObjectField(m_object, fid);
+			var.setValue<JArray>(JArray(obj));
+			return var;
+		}
 	case 'L':
 		{
 			jclass string_class = env->FindClass("java/lang/String");
@@ -359,6 +374,7 @@ void JObject::setValue(const char* name, const char* sig, QVariant value)
 
 	switch (sig[0])
 	{
+	case '[':
 	case 'L':
 		{
 			if (value.type() == QVariant::String)

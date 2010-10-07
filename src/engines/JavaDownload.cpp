@@ -165,12 +165,26 @@ void JavaDownload::globalInit()
 	{
 		JClass mainClass("info/dolezel/fatrat/plugins/DownloadPlugin");
 		QList<QVariant> args;
+		JClass annotation("info/dolezel/fatrat/plugins/PluginInfo");
 
-		args << "info.dolezel.fatrat.plugins";
-		args << "info.dolezel.fatrat.plugins.PluginInfo";
+		args << "info";
+		args << QVariant::fromValue<JObject>(JObject(annotation));
 
-		JArray arr = mainClass.callStatic("findAnnotatedClasses", "(Ljava/lang/String;Ljava/lang/String;)[Ljava/lang/Class;", args).value<JArray>();
+		JArray arr = mainClass.callStatic("findAnnotatedClasses", "(Ljava/lang/String;Ljava/lang/Class;)[Ljava/lang/Class;", args).value<JArray>();
 		qDebug() << "Found" << arr.size() << "annotated classes";
+
+		int classes = arr.size();
+		for (int i = 0; i < classes; i++)
+		{
+			JClass obj = (jobject) arr.getObject(i);
+			JObject ann = obj.getAnnotation(annotation);
+			QString regexp = ann.call("regexp", "()Ljava/lang/String;").toString();
+			QString name = ann.call("name", "()Ljava/lang/String;").toString();
+
+			qDebug() << "Class name:" << obj.getClassName();
+			qDebug() << "Name:" << name;
+			qDebug() << "Regexp:" << regexp;
+		}
 	}
 	catch (const RuntimeException& e)
 	{

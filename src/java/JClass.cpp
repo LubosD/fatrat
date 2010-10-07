@@ -39,7 +39,9 @@ respects for all of the code used other than "OpenSSL".
 JClass::JClass(const JClass& cls)
 		: m_ref(0)
 {
-	JClass(cls.m_class);
+	JNIEnv* env = *JVM::instance();
+	m_class = cls.m_class;
+	m_class = (jclass) env->NewGlobalRef(m_class);
 }
 
 JClass::JClass(QString clsName)
@@ -53,23 +55,28 @@ JClass::JClass(QString clsName)
 	m_class = env->FindClass(name.constData());
 	if (!m_class)
 		throw RuntimeException(QObject::tr("Java class %1 not found or failed to load").arg(clsName));
-	m_ref = env->NewGlobalRef(m_class);
+	m_class = (jclass) env->NewGlobalRef(m_class);
 }
 
 JClass::JClass(jclass cls)
 	: m_ref(0)
 {
 	JNIEnv* env = *JVM::instance();
-	m_class = cls;
-	m_ref = env->NewGlobalRef(m_class);
+	m_class = (jclass) env->NewGlobalRef(cls);
+}
+
+JClass::JClass(jobject cls)
+{
+	JNIEnv* env = *JVM::instance();
+	m_class = (jclass) env->NewGlobalRef(cls);
 }
 
 JClass::~JClass()
 {
-	if (m_ref)
+	if (m_class)
 	{
 		JNIEnv* env = *JVM::instance();
-		env->DeleteGlobalRef(m_ref);
+		env->DeleteGlobalRef(m_class);
 	}
 }
 
@@ -87,10 +94,14 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> a
 	if (!mid)
 		throw RuntimeException(QObject::tr("Method %1 %2 not found").arg(name).arg(sig));
 
-	jvalue* jargs = (jvalue*) alloca(args.size()*sizeof(jvalue));
+	JValue vals[args.size()];
+	jvalue jargs[args.size()];
 
 	for(int i=0;i<args.size();i++)
-		jargs[i] = variantToValue(args[i]);
+	{
+		vals[i] = variantToValue(args[i]);
+		jargs[i] = vals[i];
+	}
 
 	const char* rvtype = strchr(sig, ')');
 	if (!rvtype)
@@ -167,39 +178,45 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> a
 	return retval;
 }
 
-jvalue JClass::variantToValue(QVariant& v)
+JValue JClass::variantToValue(QVariant& v)
 {
-	JScope s;
+	//JScope s;
 
-	jvalue jv;
 	switch (v.type())
 	{
 	case QVariant::Int:
 	case QVariant::UInt:
-		jv.i = v.toInt();
-		break;
+		return JValue(v.toInt());
 	case QVariant::Double:
-		jv.d = v.toDouble();
-		break;
+		return JValue(v.toDouble());
 	case QVariant::LongLong:
-		jv.j = v.toLongLong();
-		break;
+		return JValue(v.toLongLong());
 	case QVariant::Bool:
-		jv.z = v.toBool();
-		break;
+		return JValue(v.toBool());
 	case QVariant::String:
 		{
-			JString str(v.toString());
-			jv.l = (jobject) str;
-			break;
+			JString str = JString(v.toString());
+			return JValue(str);
 		}
 	default:
 		if (v.canConvert<JObject>())
-			jv.l = (jobject) v.value<JObject>();
+		{
+			JObject obj = v.value<JObject>();
+			return JValue(obj);
+		}
+		else if (v.canConvert<JArray>())
+		{
+			JArray arr = v.value<JArray>();
+			return JValue(arr);
+		}
 		else
 			throw RuntimeException(QObject::tr("Unknown data type"));
 	}
-	return jv;
+}
+
+JObject JClass::toClassObject() const
+{
+	return JObject(m_class);
 }
 
 QVariant JClass::getStaticValue(const char* name, const char* sig)
@@ -265,6 +282,7 @@ void JClass::setStaticValue(const char* name, const char* sig, QVariant value)
 
 	switch (sig[0])
 	{
+	case '[':
 	case 'L':
 		{
 			if (value.type() == QVariant::String)
@@ -314,4 +332,16 @@ QString JClass::getClassName() const
 	JObject obj(m_class);
 	QList<QVariant> args;
 	return obj.call("getCanonicalName", "()Ljava/lang/String;", args).toString();
+}
+
+JObject JClass::getAnnotation(JClass cls)
+{
+	return toClassObject().call("getAnnotation", "(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;",
+				    JArgs() << QVariant::fromValue<JObject>(cls.toClassObject())).value<JObject>();
+}
+
+JObject JClass::getAnnotation(QString className)
+{
+	JClass ann(className);
+	return getAnnotation(ann);
 }

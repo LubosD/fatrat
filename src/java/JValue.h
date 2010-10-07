@@ -25,8 +25,8 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JCLASS_H
-#define JCLASS_H
+#ifndef JVALUE_H
+#define JVALUE_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
@@ -34,38 +34,31 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #include <jni.h>
-#include <QVariant>
-#include <QList>
-#include "JValue.h"
 
-typedef QList<QVariant> JArgs;
-class JObject;
-
-class JClass
+class JValue
 {
 public:
-	JClass(const JClass& cls);
-	JClass(QString clsName);
-	JClass(jclass cls);
-	JClass(jobject cls);
-	virtual ~JClass();
+	JValue();
+	JValue(const JValue& v);
+	JValue(jobject obj);
+	JValue(bool b);
+	JValue(char c);
+	JValue(wchar_t c);
+	JValue(short s);
+	JValue(int i);
+	JValue(long long l);
+	JValue(float f);
+	JValue(double d);
 
-	operator jclass() const;
+	JValue& operator=(const JValue& v);
 
-	QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
-	QVariant getStaticValue(const char* name, const char* sig);
-	void setStaticValue(const char* name, const char* sig, QVariant value);
+	virtual ~JValue();
 
-	bool isNull() const { return !m_class; }
-	QString getClassName() const;
-	JObject toClassObject() const;
-	JObject getAnnotation(QString className);
-	JObject getAnnotation(JClass cls);
-
-	static JValue variantToValue(QVariant& v);
+	operator jvalue() const { return val(); }
+	jvalue val() const { return m_value; }
 private:
-	jclass m_class;
-	jobject m_ref;
+	jvalue m_value;
+	bool m_bHasObject;
 };
 
-#endif // JCLASS_H
+#endif // JVALUE_H

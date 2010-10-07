@@ -33,18 +33,16 @@ respects for all of the code used other than "OpenSSL".
 
 JString::JString()
 {
-	JScope s;
 	JNIEnv* env = *JVM::instance();
-	m_object = env->NewString(0, 0);
-	m_ref = env->NewGlobalRef(m_object);
+	jstring str = env->NewString(0, 0);
+	m_object = env->NewGlobalRef(str);
+	env->DeleteLocalRef(str);
 }
 
 JString::JString(const JString& str)
 {
-	JScope s;
 	JNIEnv* env = *JVM::instance();
-	m_object = str.m_object;
-	m_ref = env->NewGlobalRef(m_object);
+	m_object = env->NewGlobalRef(str.m_object);
 }
 
 JString::JString(const QString& str)
@@ -60,16 +58,15 @@ JString::JString(const QByteArray& str)
 JString::JString(jstring str)
 {
 	JNIEnv* env = *JVM::instance();
-	m_object = str;
-	m_ref = env->NewGlobalRef(m_object);
+	m_object = env->NewGlobalRef(str);
 }
 
 JString::JString(const char* str)
 {
-	JScope s;
 	JNIEnv* env = *JVM::instance();
-	m_object = env->NewStringUTF(str);
-	m_ref = env->NewGlobalRef(m_object);
+	jstring jstr = env->NewStringUTF(str);
+	m_object = env->NewGlobalRef(jstr);
+	env->DeleteLocalRef(jstr);
 }
 
 JString& JString::operator=(const QString& str)
@@ -84,24 +81,22 @@ JString& JString::operator=(const QByteArray& str)
 
 JString& JString::operator=(const char* str)
 {
-	JScope s;
-
 	JNIEnv* env = *JVM::instance();
-	env->DeleteGlobalRef(m_ref);
-	m_object = env->NewStringUTF(str);
-	m_ref = env->NewGlobalRef(m_object);
+	if (m_object)
+		env->DeleteGlobalRef(m_object);
+	jstring jstr = env->NewStringUTF(str);
+	m_object = env->NewGlobalRef(jstr);
+	env->DeleteLocalRef(jstr);
 
 	return *this;
 }
 
 JString& JString::operator=(const JString& str)
 {
-	JScope s;
-
 	JNIEnv* env = *JVM::instance();
-	env->DeleteGlobalRef(m_ref);
-	m_object = str.m_object;
-	m_ref = env->NewGlobalRef(m_object);
+	if (m_object)
+		env->DeleteGlobalRef(m_object);
+	m_object = env->NewGlobalRef(str.m_object);
 
 	return *this;
 }
