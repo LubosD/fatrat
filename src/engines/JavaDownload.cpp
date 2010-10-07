@@ -164,13 +164,14 @@ void JavaDownload::globalInit()
 	try
 	{
 		JClass mainClass("info/dolezel/fatrat/plugins/DownloadPlugin");
-		QList<QVariant> args;
 		JClass annotation("info/dolezel/fatrat/plugins/PluginInfo");
+		QList<QVariant> args;
 
-		args << "info";
-		args << QVariant::fromValue<JObject>(JObject(annotation));
+		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-		JArray arr = mainClass.callStatic("findAnnotatedClasses", "(Ljava/lang/String;Ljava/lang/Class;)[Ljava/lang/Class;", args).value<JArray>();
+		JArray arr = mainClass.callStatic("findAnnotatedClasses",
+						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
+						  args).value<JArray>();
 		qDebug() << "Found" << arr.size() << "annotated classes";
 
 		int classes = arr.size();
@@ -178,8 +179,8 @@ void JavaDownload::globalInit()
 		{
 			JClass obj = (jobject) arr.getObject(i);
 			JObject ann = obj.getAnnotation(annotation);
-			QString regexp = ann.call("regexp", "()Ljava/lang/String;").toString();
-			QString name = ann.call("name", "()Ljava/lang/String;").toString();
+			QString regexp = ann.call("regexp", JSignature().retString()).toString();
+			QString name = ann.call("name", JSignature().retString()).toString();
 
 			qDebug() << "Class name:" << obj.getClassName();
 			qDebug() << "Name:" << name;

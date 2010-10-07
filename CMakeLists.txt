@@ -358,6 +358,8 @@ if(WITH_JPLUGINS)
 		src/java/JScope.cpp
 		src/java/JException.cpp
 		src/java/JValue.cpp
+		src/java/JSignature.cpp
+		src/java/JByteBuffer.cpp
 		src/java/JVM.cpp
 		src/java/JDownloadPlugin.cpp
 		src/engines/JavaDownload.cpp

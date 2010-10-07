@@ -25,53 +25,35 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JCLASS_H
-#define JCLASS_H
+#ifndef JSYNCHRONIZED_H
+#define JSYNCHRONIZED_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
-
 #include <jni.h>
-#include <QVariant>
-#include <QList>
-#include "JValue.h"
-#include "JSignature.h"
+#include "JObject.h"
+#include "JVM.h"
 
-typedef QList<QVariant> JArgs;
-class JObject;
-
-class JClass
+class JSynchronized
 {
 public:
-	JClass(const JClass& cls);
-	JClass(QString clsName);
-	JClass(jclass cls);
-	JClass(jobject cls);
-	virtual ~JClass();
+	JSynchronized(JObject* obj)
+		: m_object(obj)
+	{
+		JNIEnv* env = JVM::instance();
+		env->MonitorEnter(obj);
+	}
 
-	operator jclass() const;
+	~JSynchronized()
+	{
+		JNIEnv* env = JVM::instance();
+		env->MonitorExit(m_object);
+	}
 
-	QVariant callStatic(const char* name, JSignature sig, JArgs args);
-	QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
-	QVariant getStaticValue(const char* name, JSignature sig) const;
-	QVariant getStaticValue(const char* name, const char* sig) const;
-	void setStaticValue(const char* name, JSignature sig, QVariant value);
-	void setStaticValue(const char* name, const char* sig, QVariant value);
-
-	bool isNull() const { return !m_class; }
-	QString getClassName() const;
-	JObject toClassObject() const;
-	JObject getAnnotation(QString className);
-	JObject getAnnotation(JClass cls);
-
-	QVariant toVariant() const;
-
-	static JValue variantToValue(QVariant& v);
 private:
-	jclass m_class;
-	jobject m_ref;
+	JObject* m_object;
 };
 
-#endif // JCLASS_H
+#endif // JSYNCHRONIZED_H

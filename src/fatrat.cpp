@@ -541,8 +541,8 @@ void testJava()
 	{
 		JScope s;
 		JClass system("java/lang/System");
-		JObject obj = system.getStaticValue("out", "Ljava/io/PrintStream;").value<JObject>();
-		obj.call("println", "(Ljava/lang/String;)V", JArgs() << "Hello JNI world");
+		JObject obj = system.getStaticValue("out", JSignature::sig("java.io.PrintStream")).value<JObject>();
+		obj.call("println", JSignature().addString(), JArgs() << "Hello JNI world");
 		JString str("aaa");
 	}
 	catch (const RuntimeException& e)

@@ -216,7 +216,13 @@ JArray JObject::toArray() const
 	return JArray(jarray(m_object));
 }
 
-QVariant JObject::call(const char* name, const char* sig, QList<QVariant> args)
+QVariant JObject::call(const char* name, JSignature sig, JArgs args)
+{
+	QByteArray ba = sig.str().toLatin1();
+	return call(name, ba.data(), args);
+}
+
+QVariant JObject::call(const char* name, const char* sig, JArgs args)
 {
 	JScope s;
 	JNIEnv* env = *JVM::instance();
@@ -309,7 +315,13 @@ QVariant JObject::call(const char* name, const char* sig, QList<QVariant> args)
 	return retval;
 }
 
-QVariant JObject::getValue(const char* name, const char* sig)
+QVariant JObject::getValue(const char* name, JSignature sig) const
+{
+	QByteArray ba = sig.str().toLatin1();
+	return getValue(name, ba.data());
+}
+
+QVariant JObject::getValue(const char* name, const char* sig) const
 {
 	JScope s;
 	JNIEnv* env = *JVM::instance();
@@ -360,6 +372,12 @@ QVariant JObject::getValue(const char* name, const char* sig)
 	default:
 		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(sig[0]));
 	}
+}
+
+void JObject::setValue(const char* name, JSignature sig, QVariant value)
+{
+	QByteArray ba = sig.str().toLatin1();
+	setValue(name, ba.data(), value);
 }
 
 void JObject::setValue(const char* name, const char* sig, QVariant value)
@@ -423,4 +441,9 @@ JClass JObject::getClass() const
 	JScope s;
 	JNIEnv* env = *JVM::instance();
 	return JClass( env->GetObjectClass(m_object) );
+}
+
+QVariant JObject::toVariant() const
+{
+	return QVariant::fromValue<JObject>(*this);
 }

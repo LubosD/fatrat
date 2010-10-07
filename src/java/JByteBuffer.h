@@ -25,53 +25,35 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JCLASS_H
-#define JCLASS_H
+
+#ifndef JBYTEBUFFER_H
+#define JBYTEBUFFER_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
+#include "JObject.h"
+#include <tr1/memory>
 
-#include <jni.h>
-#include <QVariant>
-#include <QList>
-#include "JValue.h"
-#include "JSignature.h"
-
-typedef QList<QVariant> JArgs;
-class JObject;
-
-class JClass
+class JByteBuffer : public JObject
 {
 public:
-	JClass(const JClass& cls);
-	JClass(QString clsName);
-	JClass(jclass cls);
-	JClass(jobject cls);
-	virtual ~JClass();
+	JByteBuffer(jobject obj);
+	JByteBuffer(void* mem, size_t len);
+	JByteBuffer(const JByteBuffer& b);
+	JByteBuffer(size_t len);
+	JByteBuffer() {}
 
-	operator jclass() const;
+	void* allocate(size_t len);
 
-	QVariant callStatic(const char* name, JSignature sig, JArgs args);
-	QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
-	QVariant getStaticValue(const char* name, JSignature sig) const;
-	QVariant getStaticValue(const char* name, const char* sig) const;
-	void setStaticValue(const char* name, JSignature sig, QVariant value);
-	void setStaticValue(const char* name, const char* sig, QVariant value);
+	void* getBuffer();
+	size_t getLength();
 
-	bool isNull() const { return !m_class; }
-	QString getClassName() const;
-	JObject toClassObject() const;
-	JObject getAnnotation(QString className);
-	JObject getAnnotation(JClass cls);
-
-	QVariant toVariant() const;
-
-	static JValue variantToValue(QVariant& v);
+	JByteBuffer& operator=(JByteBuffer& buf);
+	JByteBuffer& operator=(jobject obj);
 private:
-	jclass m_class;
-	jobject m_ref;
+	std::tr1::shared_ptr<char> m_buffer;
 };
 
-#endif // JCLASS_H
+#endif // JBYTEBUFFER_H

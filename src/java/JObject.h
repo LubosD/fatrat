@@ -37,6 +37,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMetaType>
 #include <QVariant>
 #include "JClass.h"
+#include "JSignature.h"
 
 class JString;
 class JArray;
@@ -64,9 +65,14 @@ public:
 	bool isNull() const { return !m_object; }
 	JClass getClass() const;
 
+	QVariant call(const char* name, JSignature sig, JArgs args = JArgs());
 	QVariant call(const char* name, const char* sig, JArgs args = JArgs());
-	QVariant getValue(const char* name, const char* sig);
+	QVariant getValue(const char* name, JSignature sig) const;
+	QVariant getValue(const char* name, const char* sig) const;
+	void setValue(const char* name, JSignature sig, QVariant value);
 	void setValue(const char* name, const char* sig, QVariant value);
+
+	QVariant toVariant() const;
 protected:
 	jobject m_object;
 };

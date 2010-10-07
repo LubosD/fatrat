@@ -85,6 +85,13 @@ JClass::operator jclass() const
 	return m_class;
 }
 
+QVariant JClass::callStatic(const char* name, JSignature sig, JArgs args)
+{
+	QByteArray ba = sig.str().toLatin1();
+	return callStatic(name, ba.data(), args);
+}
+
+
 QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> args)
 {
 	JScope s;
@@ -219,7 +226,13 @@ JObject JClass::toClassObject() const
 	return JObject(m_class);
 }
 
-QVariant JClass::getStaticValue(const char* name, const char* sig)
+QVariant JClass::getStaticValue(const char* name, JSignature sig) const
+{
+	QByteArray ba = sig.str().toLatin1();
+	return getStaticValue(name, ba.data());
+}
+
+QVariant JClass::getStaticValue(const char* name, const char* sig) const
 {
 	JScope s;
 
@@ -269,6 +282,12 @@ QVariant JClass::getStaticValue(const char* name, const char* sig)
 	default:
 		throw RuntimeException(QObject::tr("Unknown Java data type: %1").arg(sig[0]));
 	}
+}
+
+void JClass::setStaticValue(const char* name, JSignature sig, QVariant value)
+{
+	QByteArray ba = sig.str().toLatin1();
+	setStaticValue(name, ba.data(), value);
 }
 
 void JClass::setStaticValue(const char* name, const char* sig, QVariant value)
@@ -331,17 +350,23 @@ QString JClass::getClassName() const
 	JScope s;
 	JObject obj(m_class);
 	QList<QVariant> args;
-	return obj.call("getCanonicalName", "()Ljava/lang/String;", args).toString();
+	return obj.call("getCanonicalName", JSignature().retString(), args).toString();
 }
 
 JObject JClass::getAnnotation(JClass cls)
 {
-	return toClassObject().call("getAnnotation", "(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;",
-				    JArgs() << QVariant::fromValue<JObject>(cls.toClassObject())).value<JObject>();
+	return toClassObject().call("getAnnotation",
+				    JSignature().add("java.lang.Class").ret("java.lang.annotation.Annotation"),
+				    JArgs() << cls.toVariant()).value<JObject>();
 }
 
 JObject JClass::getAnnotation(QString className)
 {
 	JClass ann(className);
 	return getAnnotation(ann);
+}
+
+QVariant JClass::toVariant() const
+{
+	return QVariant::fromValue<JObject>(toClassObject());
 }
