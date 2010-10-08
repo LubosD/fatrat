@@ -60,8 +60,8 @@ void Scheduler::loadActions(QList<ScheduledAction>& list)
 		a.name = g_settings->value("name").toString();
 		a.queue = g_settings->value("queueUUID").toString();
 		a.action = (ScheduledAction::ActionType) g_settings->value("action").toInt();
-		a.whenOneTime = g_settings->value("whenOneTime").toDateTime();
-		a.whenRepeated = g_settings->value("whenRepeated").toTime();
+		a.whenOneTime = QDateTime::fromString(g_settings->value("whenOneTime").toString(), Qt::ISODate);
+		a.whenRepeated = QTime::fromString(g_settings->value("whenRepeated").toString(), Qt::ISODate);
 		a.repeated = g_settings->value("repeated").toBool();
 		a.actionArgument = g_settings->value("actionArgument");
 		
@@ -87,8 +87,8 @@ void Scheduler::saveActions(const QList<ScheduledAction>& items)
 		g_settings->setValue("name", a.name);
 		g_settings->setValue("queueUUID", a.queue.toString());
 		g_settings->setValue("action", int(a.action));
-		g_settings->setValue("whenOneTime", a.whenOneTime);
-		g_settings->setValue("whenRepeated", a.whenRepeated);
+		g_settings->setValue("whenOneTime", a.whenOneTime.toString(Qt::ISODate));
+		g_settings->setValue("whenRepeated", a.whenRepeated.toString(Qt::ISODate));
 		g_settings->setValue("repeated", a.repeated);
 		g_settings->setValue("actionArgument", a.actionArgument);
 		
