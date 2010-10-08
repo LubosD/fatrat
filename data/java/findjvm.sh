@@ -10,7 +10,7 @@ if [ ! $JAVA_HOME ]; then
 	JAVA_HOME="$(java -cp "$(_dirname $0)/fatrat-jplugins.jar" info.dolezel.fatrat.plugins.GetJavaHome)"
 fi
 
-libjvm=$(find "$JAVA_HOME" -name libjvm.so)
+libjvm=$(find "$JAVA_HOME" -name libjvm.so | head -n1)
 
 if [ "x$libjvm" = "x" ]; then
 	exit 2
