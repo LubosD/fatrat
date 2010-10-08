@@ -163,8 +163,8 @@ void JavaDownload::globalInit()
 	// search for plugins
 	try
 	{
-		JClass mainClass("info/dolezel/fatrat/plugins/DownloadPlugin");
-		JClass annotation("info/dolezel/fatrat/plugins/PluginInfo");
+		JClass mainClass("info.dolezel.fatrat.plugins.DownloadPlugin");
+		JClass annotation("info.dolezel.fatrat.plugins.PluginInfo");
 		QList<QVariant> args;
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();

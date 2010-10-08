@@ -78,7 +78,7 @@ void* JByteBuffer::allocate(size_t len)
 	return m_buffer.get();
 }
 
-void* JByteBuffer::getBuffer()
+void* JByteBuffer::buffer()
 {
 	if (!m_object)
 		return 0;
@@ -86,7 +86,7 @@ void* JByteBuffer::getBuffer()
 	return env->GetDirectBufferAddress(m_object);
 }
 
-size_t JByteBuffer::getLength()
+size_t JByteBuffer::length() const
 {
 	if (!m_object)
 		return 0;

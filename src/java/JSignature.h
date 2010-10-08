@@ -51,7 +51,7 @@ public:
 	inline JSignature& addDouble() { return addPrimitive("D"); }
 
 	// arrays
-	inline JSignature& addA(QString cls) { return add("["+cls); }
+	JSignature& addA(QString cls);
 	inline JSignature& addStringA() { return add("[java/lang/String"); }
 	inline JSignature& addBooleanA() { return addPrimitive("[Z"); }
 	inline JSignature& addByteA() { return addPrimitive("[B"); }
@@ -75,7 +75,7 @@ public:
 	inline JSignature& retDouble() { return retPrimitive("D"); }
 
 	// return arrays
-	inline JSignature& retA(QString cls) { return ret("["+cls); }
+	JSignature& retA(QString cls);
 	inline JSignature& retStringA() { return ret("[java/lang/String"); }
 	inline JSignature& retBooleanA() { return retPrimitive("[Z"); }
 	inline JSignature& retByteA() { return retPrimitive("[B"); }
@@ -98,7 +98,7 @@ public:
 	static const char* sigDouble() { return "D"; }
 
 	// array variables
-	static JSignature sigA(QString cls) { return sig('['+cls); }
+	static JSignature sigA(QString cls);
 	static const char* sigBooleanA() { return "[Z"; }
 	static const char* sigByteA() { return "[B"; }
 	static const char* sigCharA() { return "[C"; }

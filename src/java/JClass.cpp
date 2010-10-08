@@ -37,29 +37,26 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 
 JClass::JClass(const JClass& cls)
-		: m_ref(0)
 {
 	JNIEnv* env = *JVM::instance();
-	m_class = cls.m_class;
-	m_class = (jclass) env->NewGlobalRef(m_class);
+	m_class = (jclass) env->NewGlobalRef(cls.m_class);
 }
 
 JClass::JClass(QString clsName)
-	: m_ref(0)
 {
-	JScope s;
-
 	JNIEnv* env = *JVM::instance();
+
+	clsName.replace('.', '/');
 	QByteArray name = clsName.toUtf8();
 
-	m_class = env->FindClass(name.constData());
-	if (!m_class)
+	jclass obj = env->FindClass(name.constData());
+	if (!obj)
 		throw RuntimeException(QObject::tr("Java class %1 not found or failed to load").arg(clsName));
-	m_class = (jclass) env->NewGlobalRef(m_class);
+	m_class = (jclass) env->NewGlobalRef(obj);
+	env->DeleteLocalRef(obj);
 }
 
 JClass::JClass(jclass cls)
-	: m_ref(0)
 {
 	JNIEnv* env = *JVM::instance();
 	m_class = (jclass) env->NewGlobalRef(cls);

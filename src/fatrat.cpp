@@ -539,11 +539,9 @@ void testJava()
 {
 	try
 	{
-		JScope s;
 		JClass system("java/lang/System");
 		JObject obj = system.getStaticValue("out", JSignature::sig("java.io.PrintStream")).value<JObject>();
 		obj.call("println", JSignature().addString(), JArgs() << "Hello JNI world");
-		JString str("aaa");
 	}
 	catch (const RuntimeException& e)
 	{

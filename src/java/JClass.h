@@ -71,7 +71,6 @@ public:
 	static JValue variantToValue(QVariant& v);
 private:
 	jclass m_class;
-	jobject m_ref;
 };
 
 #endif // JCLASS_H

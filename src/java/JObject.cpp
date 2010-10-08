@@ -56,8 +56,7 @@ JObject::JObject(jobject obj)
 	m_object = env->NewGlobalRef(m_object);
 }
 
-JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant> args)
-	: m_object(0)
+void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
 {
 	JNIEnv* env = *JVM::instance();
 	jclass cls = xcls;
@@ -97,46 +96,32 @@ JObject::JObject(const JClass& xcls, const char* sig, QList<QVariant> args)
 	env->DeleteLocalRef(obj);
 }
 
-JObject::JObject(const char* clsName, const char* sig, QList<QVariant> args)
+JObject::JObject(const JClass& xcls, const char* sig, JArgs args)
+	: m_object(0)
+{
+	construct(xcls, sig, args);
+}
+
+JObject::JObject(const char* clsName, const char* sig, JArgs args)
 		: m_object(0)
 {
-	JNIEnv* env = *JVM::instance();
-	jclass cls = env->FindClass(clsName);
+	JClass cls(clsName);
+	construct(cls, sig, args);
+}
 
-	if (!cls)
-		throw RuntimeException(QObject::tr("Class %1 not found").arg(clsName));
+JObject::JObject(const JClass& xcls, JSignature sig, JArgs args)
+	: m_object(0)
+{
+	QByteArray ba = sig.str().toLatin1();
+	construct(xcls, ba.data(), args);
+}
 
-	jmethodID mid = env->GetMethodID(cls, "<init>", sig);
-	if (!mid)
-		throw RuntimeException(QObject::tr("Constructor %1 not found").arg(sig));
-
-	jvalue jargs[args.size()];
-	JValue vals[args.size()];
-
-	for(int i=0;i<args.size();i++)
-	{
-		vals[i] = JClass::variantToValue(args[i]);
-		jargs[i] = vals[i];
-	}
-
-	jobject obj = env->NewObjectA(cls, mid, jargs);
-	JObject ex = env->ExceptionOccurred();
-
-	if (!ex.isNull())
-	{
-		ex.call("printStackTrace", "()V", QList<QVariant>());
-		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
-		QString className = ex.getClass().getClassName();
-		env->ExceptionClear();
-
-		throw JException(message, className);
-	}
-
-	if (!m_object)
-		throw RuntimeException(QObject::tr("Failed to create an instance").arg(sig));
-
-	m_object = env->NewGlobalRef(obj);
-	env->DeleteLocalRef(obj);
+JObject::JObject(const char* clsName, JSignature sig, JArgs args)
+		: m_object(0)
+{
+	JClass cls(clsName);
+	QByteArray ba = sig.str().toLatin1();
+	construct(cls, ba.data(), args);
 }
 
 JObject& JObject::operator=(JObject& obj)

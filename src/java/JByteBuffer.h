@@ -47,8 +47,9 @@ public:
 
 	void* allocate(size_t len);
 
-	void* getBuffer();
-	size_t getLength();
+	void* buffer();
+	size_t length() const;
+	size_t size() const { return length(); }
 
 	JByteBuffer& operator=(JByteBuffer& buf);
 	JByteBuffer& operator=(jobject obj);

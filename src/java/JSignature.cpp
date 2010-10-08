@@ -45,6 +45,13 @@ JSignature& JSignature::add(QString cls)
 	return *this;
 }
 
+JSignature& JSignature::addA(QString cls)
+{
+	cls.replace('.', '/');
+	m_strArguments += "[L"+cls+';';
+	return *this;
+}
+
 JSignature& JSignature::addPrimitive(QString c)
 {
 	m_strArguments += c;
@@ -56,6 +63,13 @@ JSignature& JSignature::ret(QString cls)
 {
 	cls.replace('.', '/');
 	m_strReturnValue =  'L'+cls+';';
+	return *this;
+}
+
+JSignature& JSignature::retA(QString cls)
+{
+	cls.replace('.', '/');
+	m_strReturnValue =  "[L"+cls+';';
 	return *this;
 }
 
@@ -78,3 +92,10 @@ JSignature JSignature::sig(QString cls)
 	QString name = "L" + cls.replace('.', '/')+';';
 	return JSignature(name);
 }
+
+JSignature JSignature::sigA(QString cls)
+{
+	QString name = "[L" + cls.replace('.', '/')+';';
+	return JSignature(name);
+}
+
