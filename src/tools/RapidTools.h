@@ -28,8 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #ifndef RAPIDTOOLS_H
 #define RAPIDTOOLS_H
 #include <QWidget>
-#include <QHttp>
-#include <QBuffer>
+#include <QNetworkAccessManager>
 #include <QMap>
 #include "ui_RapidTools.h"
 
@@ -43,29 +42,20 @@ public:
 public slots:
 	void checkRShareLinks();
 	void downloadRShareLinks();
-	void doneRShare(bool error);
+	void doneRShare(QNetworkReply* reply);
 	void reserRShare();
-	
-	void decodeRSafeLinks();
-	void downloadRSafeLinks();
-	void doneRSafe(int r, bool error);
-	void doneRSafe(bool);
 	
 	void extractRFLinks();
 	void downloadRFLinks();
-	void doneRF(bool error);
+	void doneRF(QNetworkReply* reply);
 private:
 	bool doRShareCheck();
 	
-	QHttp *m_httpRShare, *m_httpRSafe, *m_httpRF;
-	QBuffer *m_bufRShare, *m_bufRF;
+	QNetworkAccessManager *m_httpRShare, *m_httpRF;
 	
 	QMap<unsigned long, QString> m_mapRShare;
 	QString m_strRShareWorking;
 	QStringList m_listRSharePending;
-	
-	QMap<int, QString> m_listRSafeSrc;
-	QMap<int, QBuffer*> m_mapRSafeBufs;
 };
 
 #endif
