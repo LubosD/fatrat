@@ -157,7 +157,7 @@ void JavaDownload::deriveName()
 
 void JavaDownload::globalInit()
 {
-	if (!JVM::instance())
+	if (!JVM::JVMAvailable())
 		return;
 
 	// search for plugins

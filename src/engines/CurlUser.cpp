@@ -78,8 +78,8 @@ bool CurlUser::idleCycle(const timeval& tvNow)
 		return false;
 	else if(seconds > 1)
 	{
-		read_function(0, 0, 0, this);
-		write_function(0, 0, 0, this);
+		timeProcessDown(0);
+		timeProcessUp(0);
 	}
 	return true;
 }

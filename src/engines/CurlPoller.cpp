@@ -148,6 +148,11 @@ void CurlPoller::pollingCycle(bool oneshot)
 	{
 		int mask = 0;
 		CurlStat* user = it.value().second;
+		if (!m_users.contains(user))
+		{
+			it = m_sockets.erase(it);
+			continue;
+		}
 
 		if(!user->idleCycle(tvNow))
 			timedOut << user;
