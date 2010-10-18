@@ -197,16 +197,23 @@ void CurlPoller::pollingCycle(bool oneshot)
 				msec = mmsec;
 		}
 
+		int& flags = it.value().first;
 		if(msec > 0)
 		{
 			if(msec < m_timeout)
 				m_timeout = msec;
+			if (! (flags & Poller::PollerOneShot))
+			{
+				m_poller->removeSocket(it.key());
+				flags |= Poller::PollerOneShot;
+			}
 		}
 		else
 		{
-			int& flags = it.value().first;
 			if(user->performsLimiting())
+			{
 				flags |= Poller::PollerOneShot;
+			}
 			else if(flags & Poller::PollerOneShot)
 				flags ^= Poller::PollerOneShot;
 			else
