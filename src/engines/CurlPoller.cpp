@@ -134,6 +134,12 @@ void CurlPoller::pollingCycle(bool oneshot)
 		qDebug() << "Deleting a queued CURL object:" << c << handle;
 		assert(!m_users.contains(handle));
 
+		for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
+		{
+			if (it.value().second == c)
+				m_socketsToRemove << it.key();
+		}
+
 		curl_multi_remove_handle(m_curlm, handle);
 		curl_easy_cleanup(handle);
 		delete c;
@@ -148,11 +154,6 @@ void CurlPoller::pollingCycle(bool oneshot)
 	{
 		int mask = 0;
 		CurlStat* user = it.value().second;
-		if (!m_users.contains(user))
-		{
-			it = m_sockets.erase(it);
-			continue;
-		}
 
 		if(!user->idleCycle(tvNow))
 			timedOut << user;
