@@ -45,7 +45,7 @@ protected:
 	CurlStat* segmentMaster() const;
 
 	friend class CurlPoller;
-private:
+protected:
 	CurlStat* m_master;
 };
 

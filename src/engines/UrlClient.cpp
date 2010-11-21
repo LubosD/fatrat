@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h>
 
 UrlClient::UrlClient()
-	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_master(0), m_bTerminating(false)
+	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_bTerminating(false)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -315,7 +315,7 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 		}
 	}
 
-	if(m_progress+bytes > m_rangeTo-m_rangeFrom && m_rangeTo != -1 && !m_bTerminating)
+	if(m_progress+qlonglong(bytes) > m_rangeTo-m_rangeFrom && m_rangeTo != -1 && !m_bTerminating)
 	{
 		// The range has apparently been shrinked since the thread was started
 		qDebug() << "----------- Prematurely ending a shortened segment - m_rangeTo:" << m_rangeTo << "; progress:" << (m_progress+bytes);
@@ -324,8 +324,8 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	}
 	m_progress += towrite;
 	
-	if(m_master != 0)
-		m_master->timeProcessDown(towrite);
+	//if(m_master != 0)
+	//	m_master->timeProcessDown(towrite);
 	
 	return true;
 }

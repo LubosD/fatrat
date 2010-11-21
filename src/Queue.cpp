@@ -194,10 +194,7 @@ void Queue::saveQueues()
 		file.close();
 		
 		if(dir.exists("queues.xml.new"))
-		{
-			dir.remove("queues.xml");
 			dir.rename("queues.xml.new", "queues.xml");
-		}
 	}
 }
 

@@ -99,7 +99,7 @@ static void testJava();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
-static bool m_bManualGraphicsSystem = false;
+static bool m_bManualGraphicsSystem = false, m_bDisableJava = false;
 static QString m_strUnitTest;
 
 class MyApplication;
@@ -124,8 +124,11 @@ int main(int argc,char** argv)
 	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
 	
 #ifdef WITH_JPLUGINS
-	new JVM;
-	testJava();
+	if (!m_bDisableJava)
+	{
+		new JVM;
+		testJava();
+	}
 #endif
 
 	installSignalHandler();
@@ -154,7 +157,8 @@ int main(int argc,char** argv)
 	runEngines();
 
 #ifdef WITH_JPLUGINS
-	JavaDownload::globalInit();
+	if (m_bDisableJava)
+		JavaDownload::globalInit();
 #endif
 
 	Queue::loadQueues();
@@ -212,7 +216,8 @@ int main(int argc,char** argv)
 	runEngines(false);
 
 #ifdef WITH_JPLUGINS
-	delete JVM::instance();
+	if (!m_bDisableJava)
+		delete JVM::instance();
 #endif
 	
 	delete qmgr;
@@ -238,6 +243,11 @@ QString argsToArg(int argc,char** argv)
 			showHelp();
 		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
 			m_strUnitTest = argv[++i];
+		else if(!strcasecmp(argv[i], "--no-java"))
+		{
+			qDebug() << "Disabling Java support";
+			m_bDisableJava = true;
+		}
 		else if(argv[i][0] == '-')
 		{
 			if (!strcasecmp(argv[i], "-graphicssystem"))

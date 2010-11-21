@@ -73,7 +73,7 @@ protected:
 	int m_curlTimeout;
 	long m_timeout;
 	
-	typedef QHash<int, QPair<int,CurlStat*> > sockets_hash;
+	typedef QMap<int, QPair<int,CurlStat*> > sockets_hash;
 	
 	QMap<CURL*, CurlUser*> m_users;
 	QMap<int, CurlPollingMaster*> m_masters;

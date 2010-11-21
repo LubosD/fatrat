@@ -80,7 +80,7 @@ private:
 	CURL* m_curl;
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	QHash<QByteArray, QByteArray> m_headers;
-	CurlPollingMaster* m_master;
+	//CurlPollingMaster* m_master;
 	bool m_bTerminating;
 };
 

@@ -71,7 +71,7 @@ protected slots:
 protected:
 	void deriveName();
 private:
-	QString m_strOriginal, m_strName, m_strTarget;
+	QString m_strOriginal, m_strTarget;
 	QUrl m_downloadUrl;
 	QNetworkAccessManager* m_network;
 	qlonglong m_nFileID;

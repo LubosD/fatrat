@@ -70,7 +70,7 @@ QString RapidshareFreeDownload::name() const
 	if(isActive())
 		return CurlDownload::name();
 	else
-		return m_strName;
+		return m_strFile;
 }
 
 void RapidshareFreeDownload::load(const QDomNode& map)
@@ -88,12 +88,12 @@ void RapidshareFreeDownload::deriveName()
 {
 	int x = m_strOriginal.lastIndexOf('/');
 	if(x < 0)
-		m_strName = m_strOriginal;
+		m_strFile = m_strOriginal;
 	else
 	{
-		m_strName = m_strOriginal.mid(x+1);
-		if(m_strName.endsWith(".html"))
-			m_strName.resize(m_strName.size()-5);
+		m_strFile = m_strOriginal.mid(x+1);
+		if(m_strFile.endsWith(".html"))
+			m_strFile.resize(m_strFile.size()-5);
 	}
 }
 
@@ -213,7 +213,7 @@ void RapidshareFreeDownload::httpFinished(QNetworkReply* reply)
 		QByteArray hostname = parts[0].mid(3);
 		QByteArray& dlauth = parts[1];
 
-		m_downloadUrl = QString("http://%1/cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid=%2&filename=%3&dlauth=%4").arg(QString(hostname)).arg(m_nFileID).arg(m_strName).arg(QString(dlauth));
+		m_downloadUrl = QString("http://%1/cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid=%2&filename=%3&dlauth=%4").arg(QString(hostname)).arg(m_nFileID).arg(m_strFile).arg(QString(dlauth));
 
 		m_nSecondsLeft = parts[2].toInt();
 		m_timer.start(1000);

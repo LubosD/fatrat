@@ -457,7 +457,7 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 			
 			Queue* q = g_queues[conn->nQueue];
 			
-			Transfer::State state;
+			Transfer::State state = Transfer::Failed;
 			if(args[0] == "pause")
 				state = Transfer::Paused;
 			else if(args[0] == "resume")
@@ -465,22 +465,27 @@ QString JabberService::processCommand(ConnectionInfo* conn, QString cmd)
 			
 			response = tr("Set transfer states:");
 			
-			q->lock();
-			
-			for(int i=1;i<args.size();i++)
+			if (state != Transfer::Failed)
 			{
-				int id = args[i].toInt();
-				
-				if(id >= 0 && id < q->size())
+				q->lock();
+
+				for(int i=1;i<args.size();i++)
 				{
-					q->at(id)->setState(state);
-					response += tr("\n#%1 %2").arg(id).arg(transferInfo(q->at(id)));
+					int id = args[i].toInt();
+
+					if(id >= 0 && id < q->size())
+					{
+						q->at(id)->setState(state);
+						response += tr("\n#%1 %2").arg(id).arg(transferInfo(q->at(id)));
+					}
+					else
+						response += tr("\n#%1 Invalid transfer ID").arg(id);
 				}
-				else
-					response += tr("\n#%1 Invalid transfer ID").arg(id);
+
+				q->unlock();
 			}
-			
-			q->unlock();
+			else
+				response += tr("\nInvalid transfer state");
 		}
 		else if(args[0] == "remove" || args[0] == "delete")
 		{

@@ -88,19 +88,12 @@ void CurlPoller::pollingCycle(bool oneshot)
 	m_usersLock.lock();
 	if(!numEvents)
 	{
-		//qDebug() << "No events";
 		curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	}
-
-	//for(QMap<int, CurlPollingMaster*>::iterator it = m_masters.begin(); it != m_masters.end(); it++)
-	//{
-	//	it.value()->pollingCycle(true);
-	//}
 
 	for(int i=0;i<numEvents;i++)
 	{
 		int socket = events[i].socket;
-		//qDebug() << "Activity on" << socket;
 		if(!m_masters.contains(socket))
 		{
 			int mask = 0;
@@ -112,7 +105,6 @@ void CurlPoller::pollingCycle(bool oneshot)
 			if(events[i].flags & (Poller::PollerError | Poller::PollerHup))
 				mask |= CURL_CSELECT_ERR;
 
-			//qDebug() << "Events:" << mask;
 			curl_multi_socket_action(m_curlm, socket, mask, &dummy);
 		}
 		else
@@ -150,9 +142,14 @@ void CurlPoller::pollingCycle(bool oneshot)
 		m_sockets.remove(m_socketsToRemove[i]);
 	m_socketsToRemove.clear();
 
+	for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
+		m_sockets[it.key()] = it.value();
+	m_socketsToAdd.clear();
+
 	for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
 	{
 		int mask = 0;
+		int msec = -1;
 		CurlStat* user = it.value().second;
 
 		if(!user->idleCycle(tvNow))
@@ -162,33 +159,13 @@ void CurlPoller::pollingCycle(bool oneshot)
 		{
 			if(user->nextReadTime() < tvNow)
 				mask |= CURL_CSELECT_IN;
-		}
-		if(user->hasNextWriteTime())
-		{
-			if(user->nextWriteTime() < tvNow)
-				mask |= CURL_CSELECT_OUT;
-		}
-
-		if(mask)
-			curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
-	}
-
-	for(sockets_hash::iterator it = m_socketsToAdd.begin(); it != m_socketsToAdd.end(); it++)
-		m_sockets[it.key()] = it.value();
-	m_socketsToAdd.clear();
-
-	for(sockets_hash::iterator it = m_sockets.begin(); it != m_sockets.end(); it++)
-	{
-		int msec = -1;
-		CurlStat* user = it.value().second;
-
-		if(user->hasNextReadTime())
-		{
 			timeval tv = user->nextReadTime();
 			msec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
 		}
 		if(user->hasNextWriteTime())
 		{
+			if(user->nextWriteTime() < tvNow)
+				mask |= CURL_CSELECT_OUT;
 			int mmsec;
 			timeval tv = user->nextWriteTime();
 			mmsec = (tv.tv_sec-tvNow.tv_sec)*1000 + (tv.tv_usec-tvNow.tv_usec)/1000;
@@ -196,6 +173,9 @@ void CurlPoller::pollingCycle(bool oneshot)
 			if(mmsec < msec || msec < 0)
 				msec = mmsec;
 		}
+
+		if(mask)
+			curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
 
 		int& flags = it.value().first;
 		if(msec > 0)
@@ -321,7 +301,6 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 	else
 	{
 		qDebug() << "CurlPoller::socket_callback - add/mod" << s << flags;
-		socket(AF_INET, SOCK_DGRAM, PF_INET);
 		
 		This->m_socketsToAdd[s] = QPair<int,CurlStat*>(flags, static_cast<CurlStat*>(This->m_users[easy]));
 		

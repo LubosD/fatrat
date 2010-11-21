@@ -697,6 +697,8 @@ void CurlDownload::clientRenameTo(QString name)
 	if(m_nameChanger && client != m_nameChanger)
 		return;
 
+	name = QUrl::fromPercentEncoding(name.toUtf8());
+
 	m_nameChanger = client;
 	if(m_bAutoName)
 		setTargetName(name);

@@ -35,5 +35,5 @@ JException::JException(QString msg, QString javaType)
 
 QString JException::javaType() const
 {
-
+	return m_strJavaType;
 }
