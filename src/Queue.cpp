@@ -194,9 +194,11 @@ void Queue::saveQueues()
 		Logger::global()->enterLogMessage(tr("Queue"), tr("Failed to write the queue file!"));
 	else {
 		file.close();
+
+		QByteArray path = (dir.path() + "/queues.xml.new").toUtf8();
+		QByteArray dpath = (dir.path() + "/queues.xml").toUtf8();
 		
-		if(dir.exists("queues.xml.new"))
-			dir.rename("queues.xml.new", "queues.xml");
+		rename(path.data(), dpath.data());
 	}
 }
 
