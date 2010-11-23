@@ -49,6 +49,7 @@ void SettingsQueueForm::load()
 	checkPopup->setEnabled(QSystemTrayIcon::supportsMessages());
 	checkAutoRemove->setChecked( getSettingsValue("autoremove").toBool() );
 	checkTooltips->setChecked(getSettingsValue("queue_tooltips").toBool());
+	checkSync->setChecked( getSettingsValue("queue_synconwrite").toBool() );
 }
 
 void SettingsQueueForm::accepted()
@@ -63,6 +64,7 @@ void SettingsQueueForm::accepted()
 	setSettingsValue("emailrcpt", lineRecipient->text());
 	setSettingsValue("autoremove", checkAutoRemove->isChecked());
 	setSettingsValue("queue_tooltips", checkTooltips->isChecked());
+	setSettingsValue("queue_synconwrite", checkSync->isChecked());
 }
 
 bool SettingsQueueForm::accept()

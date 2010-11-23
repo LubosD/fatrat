@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
-    <height>401</height>
+    <width>506</width>
+    <height>432</height>
    </rect>
   </property>
-  <layout class="QGridLayout">
-   <item row="0" column="0">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>If transfer fails</string>
@@ -57,7 +57,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>When transfer completes</string>
@@ -193,7 +193,21 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="checkTooltips">
+     <property name="text">
+      <string>Enable tooltips</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkSync">
+     <property name="text">
+      <string>Perform a filesystem sync after the queue file is saved</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -205,13 +219,6 @@
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="checkTooltips">
-     <property name="text">
-      <string>Enable tooltips</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

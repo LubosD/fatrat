@@ -142,6 +142,8 @@ void Queue::loadQueues()
 void Queue::BackgroundSaver::run()
 {
 	Queue::saveQueues();
+	if (getSettingsValue("queue_synconwrite").toBool())
+		sync();
 }
 
 void Queue::saveQueuesAsync()
