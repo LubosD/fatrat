@@ -68,6 +68,13 @@ public:
 		jobject obj = *static_cast<T*>(this);
 		return static_cast<T*>(m_instances[obj]);
 	}
+
+	static T* getCObject(jobject jobj)
+	{
+		QReadLocker r(m_mutex.get());
+		return static_cast<T*>(m_instances[jobj]);
+	}
+
 private:
 	JSingleCObject(const JSingleCObject<T>&) {}
 	JSingleCObject<T>& operator=(const JSingleCObject<T>&) {}

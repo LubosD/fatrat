@@ -55,7 +55,11 @@ public:
 	virtual ~JObject();
 
 	JObject& operator=(JObject& obj);
+	JObject& operator=(jobject obj);
 	operator jobject();
+	operator QVariant() { return toVariant(); }
+
+	void setNull();
 
 	bool instanceOf(const char* cls) const;
 	bool isString() const;

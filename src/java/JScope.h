@@ -33,12 +33,18 @@ respects for all of the code used other than "OpenSSL".
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
+#include <jni.h>
+
+class JObject;
 
 class JScope
 {
 public:
 	JScope();
 	~JScope();
+	jobject popWithRef(jobject ref);
+private:
+	bool m_bPopped;
 };
 
 #endif // JSCOPE_H

@@ -127,10 +127,22 @@ JObject::JObject(const char* clsName, JSignature sig, JArgs args)
 JObject& JObject::operator=(JObject& obj)
 {
 	JNIEnv* env = *JVM::instance();
-	m_object = obj.m_object;
-	m_object = env->NewGlobalRef(m_object);
+
+	setNull();
+
+	m_object = env->NewGlobalRef(obj.m_object);
 	return *this;
 }
+
+JObject& JObject::operator=(jobject obj)
+{
+	JNIEnv* env = *JVM::instance();
+
+	setNull();
+	m_object = env->NewGlobalRef(obj);
+	return *this;
+}
+
 
 JObject::operator jobject()
 {
@@ -231,6 +243,7 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 		throw RuntimeException(QObject::tr("Invalid method return type").arg(name).arg(sig));
 	rvtype++;
 
+	JScope callScope;
 	QVariant retval;
 	switch (*rvtype)
 	{
@@ -240,7 +253,7 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 	case '[':
 		{
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
-			retval.setValue<JArray>(JArray(obj));
+			retval.setValue<JArray>(JArray(callScope.popWithRef(obj)));
 			break;
 		}
 	case 'L':
@@ -248,11 +261,11 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
 			if (env->IsInstanceOf(obj, string_class))
-				retval = JString(jstring(obj)).str();
+				retval = JString(jstring(callScope.popWithRef(obj))).str();
 			else
 			{
 				QVariant var;
-				var.setValue<JObject>(JObject(obj));
+				var.setValue<JObject>(JObject(callScope.popWithRef(obj)));
 				retval = var;
 			}
 			break;
@@ -431,4 +444,16 @@ JClass JObject::getClass() const
 QVariant JObject::toVariant() const
 {
 	return QVariant::fromValue<JObject>(*this);
+}
+
+void JObject::setNull()
+{
+	if (m_object)
+	{
+		JNIEnv* env = *JVM::instance();
+		jobject o = m_object;
+		m_object = 0;
+
+		env->DeleteGlobalRef(o);
+	}
 }

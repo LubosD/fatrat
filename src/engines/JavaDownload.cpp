@@ -197,3 +197,8 @@ void JavaDownload::globalExit()
 {
 
 }
+
+void JavaDownload::setMessage(QString msg)
+{
+	m_strMessage = msg;
+}

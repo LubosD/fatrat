@@ -76,6 +76,7 @@ protected slots:
 	void secondElapsed();
 protected:
 	void deriveName();
+	void setMessage(QString msg);
 private:
 	QString m_strClass;
 	QString m_strOriginal, m_strName, m_strTarget;
@@ -87,6 +88,8 @@ private:
 	bool m_bHasLock;
 
 	static QMap<QString,QMutex*> m_mutexes;
+
+	friend class JDownloadPlugin;
 };
 
 #endif // JAVADOWNLOAD_H

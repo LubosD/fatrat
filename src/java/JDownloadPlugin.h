@@ -36,22 +36,50 @@ respects for all of the code used other than "OpenSSL".
 
 #include "JObject.h"
 #include "JSingleCObject.h"
+#include "Transfer.h"
+#include <QTimer>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QMap>
 
-class JDownloadPlugin : public JObject, public JSingleCObject<JDownloadPlugin>
+class JavaDownload;
+
+class JDownloadPlugin : public QObject, public JObject, public JSingleCObject<JDownloadPlugin>
 {
+Q_OBJECT
 public:
 	JDownloadPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
 	JDownloadPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
+	inline void setTransfer(JavaDownload* t) { m_transfer = t; }
+	inline JavaDownload* transfer() const { return m_transfer; }
+
 	static void registerNatives();
 
+	// JNI methods
 	static void setMessage(JNIEnv *, jobject, jstring);
 	static void setState(JNIEnv *, jobject, jobject);
-	static void fetchPage(JNIEnv *, jobject, jstring, jstring, jstring);
+	static void fetchPage(JNIEnv *, jobject, jstring, jobject, jstring);
 	static void startDownload(JNIEnv *, jobject, jstring);
-	static void startWait(JNIEnv *, jobject, jint, jstring);
+	static void startWait(JNIEnv *, jobject, jint, jobject);
 	static void logMessage(JNIEnv *, jobject, jstring);
+private slots:
+	void fetchFinished(QNetworkReply*);
+	void secondElapsed();
+private:
+	JavaDownload* m_transfer;
+	QTimer m_timer;
+	QMap<QNetworkReply*,JObject> m_fetchCallbacks;
+	JObject m_waitCallback;
+	int m_nSecondsLeft;
+	QNetworkAccessManager* m_network;
 
+	class JStateEnum : public JObject
+	{
+	public:
+		JStateEnum(jobject obj);
+		Transfer::State value() const;
+	};
 };
 
 #endif // JDOWNLOADPLUGIN_H

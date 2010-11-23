@@ -368,6 +368,7 @@ if(WITH_JPLUGINS)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/JavaDownload.h
+		src/java/JDownloadPlugin.h
 	)
 endif(WITH_JPLUGINS)
 
