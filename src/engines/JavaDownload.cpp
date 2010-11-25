@@ -30,30 +30,37 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JClass.h"
 #include "java/JArray.h"
 #include "RuntimeException.h"
+#include "java/JDownloadPlugin.h"
 
 #include <QApplication>
-#include <QNetworkReply>
-#include <QNetworkAccessManager>
+#include <cassert>
 
 QMap<QString,QMutex*> JavaDownload::m_mutexes;
+QMap<QString,JavaDownload::JavaEngine> JavaDownload::m_engines;
 
 JavaDownload::JavaDownload(const char* cls)
-	: m_bHasLock(false)
+	: m_bHasLock(false), m_plugin(0)
 {
+	assert(m_engines.contains(cls));
+
 	m_strClass = cls;
+	m_plugin = new JDownloadPlugin(cls);
 }
 
 JavaDownload::~JavaDownload()
 {
 	if(isActive())
 		changeActive(false);
+
+	delete m_plugin;
 }
 
 void JavaDownload::init(QString source, QString target)
 {
 	if(QThread::currentThread() != QApplication::instance()->thread())
 		moveToThread(QApplication::instance()->thread());
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
+	m_strOriginal = source;
+	m_strTarget = target;
 }
 
 QString JavaDownload::myClass() const
@@ -72,6 +79,10 @@ QString JavaDownload::name() const
 void JavaDownload::load(const QDomNode& map)
 {
 	Transfer::load(map);
+
+	m_strOriginal = getXMLProperty(map, "jplugin_original");
+	m_strTarget = getXMLProperty(map, "jplugin_target");
+	//m_nTotal = getXMLProperty(map, "jplugin_knowntotal");
 }
 
 void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
@@ -80,26 +91,39 @@ void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
 
 	setXMLProperty(doc, map, "jplugin_original", m_strOriginal);
 	setXMLProperty(doc, map, "jplugin_target", m_strTarget);
-	setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
+	//setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
 }
 
 void JavaDownload::changeActive(bool bActive)
 {
 	if (bActive)
 	{
+		if (m_plugin->call("forceSingleTransfer", JSignature().retBoolean()).toBool())
+		{
+			if (!m_mutexes[m_strClass])
+				m_mutexes[m_strClass] = new QMutex;
 
+			if (!m_bHasLock && !m_mutexes[m_strClass]->tryLock())
+			{
+				enterLogMessage(m_strMessage = tr("You cannot have multiple active transfers from this server."));
+				setState(Failed);
+				return;
+			}
+			else
+				m_bHasLock = true;
+		}
+		m_plugin->call("processLink", JSignature().addString(), JArgs() << m_strOriginal);
 	}
 	else
 	{
 		if(m_bHasLock)
 		{
+			assert(m_mutexes.contains(m_strClass));
 			m_mutexes[m_strClass]->unlock();
 			m_bHasLock = false;
 		}
 
 		CurlDownload::changeActive(false);
-		m_nSecondsLeft = -1;
-		m_timer.stop();
 	}
 }
 
@@ -122,9 +146,9 @@ qulonglong JavaDownload::done() const
 
 void JavaDownload::setState(State newState)
 {
-	if(newState == Transfer::Completed && done() < 10*1024)
+	if(newState == Transfer::Completed)
 	{
-		// Java call
+		m_plugin->call("finalCheck", JSignature().addString(), JArgs() << dataPath(true));
 	}
 
 	Transfer::setState(newState);
@@ -135,24 +159,27 @@ QString JavaDownload::remoteURI() const
 	return m_strOriginal;
 }
 
-int JavaDownload::acceptable(QString uri, bool)
+int JavaDownload::acceptable(QString uri, bool, EngineEntry* e)
 {
+	assert(m_engines.contains(e->shortName));
 
+	const JavaEngine& en = m_engines[e->shortName];
+	if (en.regexp.exactMatch(uri))
+		return 3;
+	return 0;
 }
 
-void JavaDownload::httpFinished(QNetworkReply* reply)
+void JavaDownload::startDownload(QString url)
 {
-	reply->deleteLater();
-}
-
-void JavaDownload::secondElapsed()
-{
-
+	m_downloadUrl = url;
+	// TODO
+	CurlDownload::init(url, m_strTarget);
+	CurlDownload::changeActive(true);
 }
 
 void JavaDownload::deriveName()
 {
-
+	// TODO
 }
 
 void JavaDownload::globalInit()
@@ -181,10 +208,22 @@ void JavaDownload::globalInit()
 			JObject ann = obj.getAnnotation(annotation);
 			QString regexp = ann.call("regexp", JSignature().retString()).toString();
 			QString name = ann.call("name", JSignature().retString()).toString();
+			QString clsName = obj.getClassName();
 
-			qDebug() << "Class name:" << obj.getClassName();
+			qDebug() << "Class name:" << clsName;
 			qDebug() << "Name:" << name;
 			qDebug() << "Regexp:" << regexp;
+
+			JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+			m_engines[clsName] = e;
+
+			EngineEntry entry;
+			entry.longName = e.name.c_str();
+			entry.shortName = e.shortName.c_str();
+			entry.lpfnAcceptable2 = JavaDownload::acceptable;
+			entry.lpfnCreate2 = JavaDownload::createInstance;
+
+			addTransferClass(entry, Transfer::Download);
 		}
 	}
 	catch (const RuntimeException& e)
@@ -195,7 +234,7 @@ void JavaDownload::globalInit()
 
 void JavaDownload::globalExit()
 {
-
+	qDeleteAll(m_mutexes);
 }
 
 void JavaDownload::setMessage(QString msg)

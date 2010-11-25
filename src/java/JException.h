@@ -36,14 +36,17 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #include <QString>
+#include "JObject.h"
 
 class JException : public RuntimeException
 {
 public:
-	JException(QString msg, QString javaType);
+	JException(QString msg, QString javaType, JObject obj);
 	QString javaType() const;
+	JObject javaObject() const { return m_javaObject; }
 private:
 	QString m_strJavaType;
+	JObject m_javaObject;
 };
 
 #endif // JEXCEPTION_H

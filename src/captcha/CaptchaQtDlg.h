@@ -25,15 +25,32 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JException.h"
+#ifndef CAPTCHAQTDLG_H
+#define CAPTCHAQTDLG_H
+#include <QDialog>
+#include <QTimer>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include "ui_CaptchaQtDlg.h"
 
-JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(msg), m_strJavaType(javaType), m_javaObject(obj)
+class CaptchaQtDlg : public QDialog, Ui_CaptchaQtDlg
 {
+Q_OBJECT
+public:
+	CaptchaQtDlg(QWidget* parent = 0);
+	void load(QString url);
+signals:
+	void captchaEntered(QString text = QString());
+private slots:
+	void secondElapsed();
+	void imageLoaded(QNetworkReply* reply);
+private:
+	void updateInfo();
+private:
+	QString m_strUrl;
+	QTimer m_timer;
+	int m_nSecondsLeft;
+	QNetworkAccessManager m_network;
+};
 
-}
-
-QString JException::javaType() const
-{
-	return m_strJavaType;
-}
+#endif // CAPTCHAQTDLG_H

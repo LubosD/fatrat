@@ -72,7 +72,7 @@ public:
 	JClass getClass() const;
 
 	QVariant call(const char* name, JSignature sig, JArgs args = JArgs());
-	QVariant call(const char* name, const char* sig, JArgs args = JArgs());
+	QVariant call(const char* name, const char* sig = "()V", JArgs args = JArgs());
 	QVariant getValue(const char* name, JSignature sig) const;
 	QVariant getValue(const char* name, const char* sig) const;
 	void setValue(const char* name, JSignature sig, QVariant value);

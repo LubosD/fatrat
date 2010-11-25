@@ -171,12 +171,12 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> a
 
 	if (!ex.isNull())
 	{
-		ex.call("printStackTrace", "()V", QList<QVariant>());
-		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		ex.call("printStackTrace");
+		QString message = ex.call("getMessage", JSignature().retString()).toString();
 		QString className = ex.getClass().getClassName();
 		env->ExceptionClear();
 
-		throw JException(message, className);
+		throw JException(message, className, ex);
 	}
 
 	return retval;
@@ -366,4 +366,20 @@ JObject JClass::getAnnotation(QString className)
 QVariant JClass::toVariant() const
 {
 	return QVariant::fromValue<JObject>(toClassObject());
+}
+
+void JClass::registerNativeMethods(const QList<JNativeMethod>& m)
+{
+	if (m.isEmpty())
+		return;
+
+	JNINativeMethod* nm = new JNINativeMethod[m.size()];
+
+	for (int i = 0; i < m.size(); i++)
+		nm[i] = m[i].toStruct();
+
+	JNIEnv* env = *JVM::instance();
+	env->RegisterNatives(m_class, nm, m.size());
+
+	delete [] nm;
 }

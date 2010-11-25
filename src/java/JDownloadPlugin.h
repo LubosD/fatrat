@@ -63,6 +63,9 @@ public:
 	static void startDownload(JNIEnv *, jobject, jstring);
 	static void startWait(JNIEnv *, jobject, jint, jobject);
 	static void logMessage(JNIEnv *, jobject, jstring);
+	static void solveCaptcha(JNIEnv *, jobject, jstring, jobject);
+
+	static void captchaSolved(QString url, QString solution);
 private slots:
 	void fetchFinished(QNetworkReply*);
 	void secondElapsed();
@@ -70,6 +73,7 @@ private:
 	JavaDownload* m_transfer;
 	QTimer m_timer;
 	QMap<QNetworkReply*,JObject> m_fetchCallbacks;
+	static QMap<QString,JObject> m_captchaCallbacks;
 	JObject m_waitCallback;
 	int m_nSecondsLeft;
 	QNetworkAccessManager* m_network;

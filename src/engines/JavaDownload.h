@@ -38,8 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMap>
 #include <QMutex>
 
-class QNetworkReply;
-class QNetworkAccessManager;
+class JDownloadPlugin;
 
 class JavaDownload : public CurlDownload
 {
@@ -70,24 +69,30 @@ public:
 	virtual QString remoteURI() const;
 
 	static Transfer* createInstance(EngineEntry* e) { return new JavaDownload(e->shortName); }
-	static int acceptable(QString uri, bool);
-protected slots:
-	void httpFinished(QNetworkReply* reply);
-	void secondElapsed();
+	static int acceptable(QString uri, bool, EngineEntry* e);
 protected:
 	void deriveName();
 	void setMessage(QString msg);
+	void startDownload(QString url);
 private:
 	QString m_strClass;
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;
-	QNetworkAccessManager* m_network;
 	int m_nSecondsLeft;
-	QTimer m_timer;
 	QUuid m_proxy;
 	bool m_bHasLock;
 
+	JDownloadPlugin* m_plugin;
+
 	static QMap<QString,QMutex*> m_mutexes;
+
+	struct JavaEngine
+	{
+		std::string name, shortName;
+		QRegExp regexp;
+	};
+
+	static QMap<QString,JavaEngine> m_engines;
 
 	friend class JDownloadPlugin;
 };

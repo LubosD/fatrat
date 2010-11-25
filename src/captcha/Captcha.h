@@ -25,15 +25,39 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JException.h"
+#ifndef CAPTCHA_H
+#define CAPTCHA_H
 
-JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(msg), m_strJavaType(javaType), m_javaObject(obj)
+#include <QString>
+#include <QMutex>
+#include <QList>
+#include <QMap>
+
+class Captcha
 {
+public:
+	typedef void (*CallbackFn)(QString /* url */, QString /* solution */);
+	static void processCaptcha(QString url, CallbackFn fn);
+protected:
+	// Captcha subclasses call its superclass
+	void returnResult(int id, QString solution);
+	// Captcha calls its subclasses
+	virtual bool process(int id, QString url) = 0;
+	static void registerCaptchaDecoder(Captcha* c);
+private:
+	struct CaptchaProcess
+	{
+		QString url, solution;
+		CallbackFn cb;
+		int decodersLeft;
+	};
 
-}
+	static QMap<int,CaptchaProcess> m_cb;
+	// TODO: Implement decoder priorities?
+	static QList<Captcha*> m_decoders;
+	static int m_next;
+	static QMutex m_mutex;
+};
 
-QString JException::javaType() const
-{
-	return m_strJavaType;
-}
+#endif
+

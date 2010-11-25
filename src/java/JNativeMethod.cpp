@@ -25,15 +25,40 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JException.h"
+#include "JNativeMethod.h"
+#include <cassert>
 
-JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(msg), m_strJavaType(javaType), m_javaObject(obj)
+JNativeMethod::JNativeMethod()
+	: m_function(0)
 {
-
 }
 
-QString JException::javaType() const
+void JNativeMethod::setName(QString name)
 {
-	return m_strJavaType;
+	m_strName = name.toStdString();
+}
+
+void JNativeMethod::setSignature(JSignature sig)
+{
+	m_strSignature = sig.str().toStdString();
+}
+
+void JNativeMethod::setSignature(const char* sig)
+{
+	m_strSignature = sig;
+}
+
+JNINativeMethod JNativeMethod::toStruct() const
+{
+	JNINativeMethod nm;
+
+	assert(!m_strName.empty());
+	assert(!m_strSignature.empty());
+	assert(m_function != 0);
+
+	nm.name = const_cast<char*>(m_strName.c_str());
+	nm.signature = const_cast<char*>(m_strSignature.c_str());
+	nm.fnPtr = m_function;
+
+	return nm;
 }

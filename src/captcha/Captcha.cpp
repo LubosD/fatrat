@@ -25,15 +25,57 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JException.h"
+#include "Captcha.h"
+#include <cassert>
 
-JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(msg), m_strJavaType(javaType), m_javaObject(obj)
+QMap<int,Captcha::CaptchaProcess> Captcha::m_cb;
+QList<Captcha*> Captcha::m_decoders;
+int Captcha::m_next = 1;
+QMutex Captcha::m_mutex (QMutex::Recursive);
+
+void Captcha::processCaptcha(QString url, CallbackFn callback)
 {
+	QMutexLocker l(&m_mutex);
 
+	if (m_decoders.isEmpty())
+		callback(url, QString());
+	else
+	{
+		int id = m_next++;
+		CaptchaProcess& prc = m_cb[id];
+
+		prc.decodersLeft = 0;
+		prc.url = url;
+		prc.cb = callback;
+
+		foreach (Captcha* c, m_decoders)
+		{
+			if (c->process(id, url))
+				prc.decodersLeft++;
+		}
+	}
 }
 
-QString JException::javaType() const
+void Captcha::registerCaptchaDecoder(Captcha* c)
 {
-	return m_strJavaType;
+	m_decoders << c;
+}
+
+void Captcha::returnResult(int id, QString solution)
+{
+	QMutexLocker l(&m_mutex);
+
+	assert(m_cb.contains(id));
+
+	CaptchaProcess& prc = m_cb[id];
+	prc.decodersLeft--;
+
+	if (!solution.isEmpty())
+		prc.solution = solution;
+
+	if (!prc.decodersLeft)
+	{
+		prc.cb(prc.url, prc.solution);
+		m_cb.remove(id);
+	}
 }

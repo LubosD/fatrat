@@ -25,15 +25,26 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JException.h"
+#ifndef CAPTCHAQT_H
+#define CAPTCHAQT_H
 
-JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(msg), m_strJavaType(javaType), m_javaObject(obj)
+#include <QObject>
+#include <QMap>
+#include "Captcha.h"
+#include "CaptchaQtDlg.h"
+
+class CaptchaQt : public QObject, public Captcha
 {
+Q_OBJECT
+public:
+	CaptchaQt();
+private slots:
+	void showDialog(int id, QString url);
+	void captchaEntered(QString text);
+protected:
+	virtual bool process(int id, QString url);
+private:
+	QMap<CaptchaQtDlg*,int> m_dlgs;
+};
 
-}
-
-QString JException::javaType() const
-{
-	return m_strJavaType;
-}
+#endif // CAPTCHAQT_H

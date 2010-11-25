@@ -82,12 +82,12 @@ void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
 
 	if (!ex.isNull())
 	{
-		ex.call("printStackTrace", "()V", QList<QVariant>());
-		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		ex.call("printStackTrace");
+		QString message = ex.call("getMessage", JSignature().retString()).toString();
 		QString className = ex.getClass().getClassName();
 		env->ExceptionClear();
 
-		throw JException(message, className);
+		throw JException(message, className, ex);
 	}
 
 	if (!m_object)
@@ -253,31 +253,28 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 	case '[':
 		{
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
-			retval.setValue<JArray>(JArray(callScope.popWithRef(obj)));
+			retval = JArray(callScope.popWithRef(obj)).toVariant();
 			break;
 		}
 	case 'L':
 		{
-			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
-			if (env->IsInstanceOf(obj, string_class))
-				retval = JString(jstring(callScope.popWithRef(obj))).str();
+			JObject jobj(callScope.popWithRef(obj));
+
+			if (jobj.isString())
+				retval = jobj.toString();
 			else
-			{
-				QVariant var;
-				var.setValue<JObject>(JObject(callScope.popWithRef(obj)));
-				retval = var;
-			}
+				retval = jobj.toVariant();
 			break;
 		}
 	case 'Z':
-		retval = (bool) env->CallBooleanMethodA(m_object, mid, jargs);
+		retval = env->CallBooleanMethodA(m_object, mid, jargs) == JNI_TRUE;
 		break;
 	case 'B':
 		retval = env->CallByteMethodA(m_object, mid, jargs);
 		break;
 	case 'C':
-		retval = env->CallCharMethodA(m_object, mid, jargs);
+		retval = QChar(env->CallCharMethodA(m_object, mid, jargs));
 		break;
 	case 'S':
 		retval = env->CallShortMethodA(m_object, mid, jargs);
@@ -302,12 +299,12 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 
 	if (!ex.isNull())
 	{
-		ex.call("printStackTrace", "()V", QList<QVariant>());
-		QString message = ex.call("getMessage", "()Ljava/lang/String;", QList<QVariant>()).toString();
+		ex.call("printStackTrace");
+		QString message = ex.call("getMessage", JSignature().retString()).toString();
 		QString className = ex.getClass().getClassName();
 		env->ExceptionClear();
 
-		throw JException(message, className);
+		throw JException(message, className, ex);
 	}
 
 	return retval;
@@ -352,11 +349,11 @@ QVariant JObject::getValue(const char* name, const char* sig) const
 			}
 		}
 	case 'Z':
-		return (bool) env->GetBooleanField(m_object, fid);
+		return env->GetBooleanField(m_object, fid) == JNI_TRUE;
 	case 'B':
 		return env->GetByteField(m_object, fid);
 	case 'C':
-		return env->GetCharField(m_object, fid);
+		return QChar(env->GetCharField(m_object, fid));
 	case 'S':
 		return env->GetShortField(m_object, fid);
 	case 'I':

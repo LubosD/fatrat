@@ -25,15 +25,44 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JException.h"
+#include "CaptchaQt.h"
+#include "fatrat.h"
+#include <cassert>
 
-JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(msg), m_strJavaType(javaType), m_javaObject(obj)
+CaptchaQt::CaptchaQt()
 {
-
+	Captcha::registerCaptchaDecoder(this);
 }
 
-QString JException::javaType() const
+bool CaptchaQt::process(int id, QString url)
 {
-	return m_strJavaType;
+	if (!programHasGUI())
+		return false;
+
+	QMetaObject::invokeMethod(static_cast<QObject*>(this), "showDialog", Qt::QueuedConnection, Q_ARG(int, id), Q_ARG(QString, url));
+	return true;
+}
+
+void CaptchaQt::showDialog(int id, QString url)
+{
+	CaptchaQtDlg* dlg = new CaptchaQtDlg;
+	m_dlgs[dlg] = id;
+
+	connect(dlg, SIGNAL(captchaEntered(QString)), this, SLOT(captchaEntered(QString)));
+	dlg->show();
+}
+
+void CaptchaQt::captchaEntered(QString text)
+{
+	CaptchaQtDlg* dlg = static_cast<CaptchaQtDlg*>(sender());
+
+	assert(m_dlgs.contains(dlg));
+
+	int id = m_dlgs[dlg];
+	m_dlgs.remove(dlg);
+
+	dlg->hide();
+	dlg->deleteLater();
+
+	returnResult(id, text);
 }

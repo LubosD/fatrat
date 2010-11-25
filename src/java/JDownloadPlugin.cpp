@@ -31,9 +31,13 @@ respects for all of the code used other than "OpenSSL".
 #include "JString.h"
 #include "JByteBuffer.h"
 #include "engines/JavaDownload.h"
+#include "captcha/Captcha.h"
+#include <cassert>
 
 template <> QMap<jobject, JObject*> JSingleCObject<JDownloadPlugin>::m_instances = QMap<jobject, JObject*>();
 template <> std::auto_ptr<QReadWriteLock> JSingleCObject<JDownloadPlugin>::m_mutex = std::auto_ptr<QReadWriteLock>(new QReadWriteLock);
+
+QMap<QString,JObject> JDownloadPlugin::m_captchaCallbacks;
 
 JDownloadPlugin::JDownloadPlugin(const JClass& cls, const char* sig, JArgs args)
 	: JObject(cls, sig, args), m_transfer(0)
@@ -57,41 +61,36 @@ JDownloadPlugin::JDownloadPlugin(const char* clsName, const char* sig, JArgs arg
 
 void JDownloadPlugin::registerNatives()
 {
-	JNIEnv* env = *JVM::instance();
-	jclass cls = env->FindClass("info/dolezel/fatrat/plugins/DownloadPlugin");
-	if (!cls)
-	{
-		Logger::global()->enterLogMessage("JPlugin", QObject::tr("Failed to register native methods"));
-		return;
-	}
+	QList<JNativeMethod> natives;
 
-	JNINativeMethod nm[6];
+	natives << JNativeMethod("setMessage", JSignature().addString(), setMessage);
+	natives << JNativeMethod("setState", JSignature().add("info.dolezel.fatrat.plugins.DownloadPlugin$State"), setState);
+	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString(), fetchPage);
+	natives << JNativeMethod("startDownload", JSignature().addString(), startDownload);
+	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
+	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
+	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
 
-	nm[0].name = const_cast<char*>("setMessage");
-	nm[0].signature = const_cast<char*>("(Ljava/lang/String;)V");
-	nm[0].fnPtr = reinterpret_cast<void*>(setMessage);
+	JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
+}
 
-	nm[1].name = const_cast<char*>("setState");
-	nm[1].signature = const_cast<char*>("(Linfo/dolezel/fatrat/plugins/DownloadPlugin$State;)V");
-	nm[1].fnPtr = reinterpret_cast<void*>(setState);
+void JDownloadPlugin::captchaSolved(QString url, QString solution)
+{
+	assert(m_captchaCallbacks.contains(url));
 
-	nm[2].name = const_cast<char*>("fetchPage");
-	nm[2].signature = const_cast<char*>("(Ljava/lang/String;Linfo/dolezel/fatrat/plugins/listeners/PageFetchListener;Ljava/lang/String;)V");
-	nm[2].fnPtr = reinterpret_cast<void*>(fetchPage);
+	JObject& obj = m_captchaCallbacks[url];
+	if (!solution.isEmpty())
+		obj.call("onSolved", JSignature().addString(), JArgs() << solution);
+	else
+		obj.call("onFailed");
+}
 
-	nm[3].name = const_cast<char*>("startDownload");
-	nm[3].signature = const_cast<char*>("(Ljava/lang/String;)V");
-	nm[3].fnPtr = reinterpret_cast<void*>(startDownload);
+void JDownloadPlugin::solveCaptcha(JNIEnv* env, jobject jthis, jstring jurl, jobject cb)
+{
+	QString url = JString(jurl);
+	m_captchaCallbacks[url] = JObject(cb);
 
-	nm[4].name = const_cast<char*>("startWait");
-	nm[4].signature = const_cast<char*>("(ILinfo/dolezel/fatrat/plugins/listeners/WaitListener;)V");
-	nm[4].fnPtr = reinterpret_cast<void*>(startWait);
-
-	nm[5].name = const_cast<char*>("logMessage");
-	nm[5].signature = const_cast<char*>("(Ljava/lang/String;)V");
-	nm[5].fnPtr = reinterpret_cast<void*>(logMessage);
-
-	env->RegisterNatives(cls, nm, 6);
+	Captcha::processCaptcha(url, captchaSolved);
 }
 
 void JDownloadPlugin::setMessage(JNIEnv* env, jobject jthis, jstring msg)
@@ -124,7 +123,8 @@ void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobjec
 
 void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url)
 {
-
+	JDownloadPlugin* This = getCObject(jthis);
+	This->m_transfer->startDownload(JString(url));
 }
 
 void JDownloadPlugin::startWait(JNIEnv* env, jobject jthis, jint seconds, jobject cbInterface)

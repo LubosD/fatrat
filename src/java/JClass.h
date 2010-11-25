@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include "JValue.h"
 #include "JSignature.h"
+#include "JNativeMethod.h"
 
 typedef QList<QVariant> JArgs;
 class JObject;
@@ -65,6 +66,8 @@ public:
 	JObject toClassObject() const;
 	JObject getAnnotation(QString className);
 	JObject getAnnotation(JClass cls);
+
+	void registerNativeMethods(const QList<JNativeMethod>& m);
 
 	QVariant toVariant() const;
 

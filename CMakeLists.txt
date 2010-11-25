@@ -183,6 +183,9 @@ set(fatrat_SRCS
 	src/engines/OutputBuffer.cpp
 	src/engines/MetalinkSettings.cpp
 	src/poller/Poller.cpp
+	src/captcha/Captcha.cpp
+	src/captcha/CaptchaQt.cpp
+	src/captcha/CaptchaQtDlg.cpp
 	
 	src/rss/RssFetcher.cpp
 	src/rss/SettingsRssForm.cpp
@@ -249,6 +252,8 @@ set(fatrat_MOC_HDRS
 	src/fancylineedit.h
 	src/engines/OutputBuffer.h
 	src/engines/MetalinkSettings.h
+	src/captcha/CaptchaQt.h
+	src/captcha/CaptchaQtDlg.h
 	
 	src/tools/HashDlg.h
 	src/tools/RapidTools.h
@@ -286,6 +291,7 @@ set(fatrat_UIS
 	src/UserAuthDlg.ui
 	src/WidgetHostDlg.ui
 	src/ReportBugDlg.ui
+	src/captcha/CaptchaQtDlg.ui
 
 	src/tools/HashDlg.ui
 	src/tools/RapidTools.ui
@@ -363,6 +369,7 @@ if(WITH_JPLUGINS)
 		src/java/JByteBuffer.cpp
 		src/java/JVM.cpp
 		src/java/JDownloadPlugin.cpp
+		src/java/JNativeMethod.cpp
 		src/engines/JavaDownload.cpp
 	)
 	set(fatrat_MOC_HDRS
