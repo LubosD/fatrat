@@ -81,3 +81,15 @@ void CaptchaQtDlg::imageLoaded(QNetworkReply* reply)
 		labelImage->setText(tr("Failed to load the captcha image."));
 	}
 }
+
+void CaptchaQtDlg::accept()
+{
+	emit captchaEntered(lineText->text());
+	QDialog::accept();
+}
+
+void CaptchaQtDlg::reject()
+{
+	emit captchaEntered();
+	QDialog::reject();
+}

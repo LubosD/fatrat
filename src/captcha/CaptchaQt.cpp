@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include "CaptchaQt.h"
 #include "fatrat.h"
+#include "CaptchaQtDlg.h"
 #include <cassert>
 
 CaptchaQt::CaptchaQt()
@@ -47,6 +48,8 @@ void CaptchaQt::showDialog(int id, QString url)
 {
 	CaptchaQtDlg* dlg = new CaptchaQtDlg;
 	m_dlgs[dlg] = id;
+
+	dlg->load(url);
 
 	connect(dlg, SIGNAL(captchaEntered(QString)), this, SLOT(captchaEntered(QString)));
 	dlg->show();

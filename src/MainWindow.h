@@ -36,6 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include "LogManager.h"
 #include "DropBox.h"
 #include "MyTrayIcon.h"
+#include "captcha/CaptchaQt.h"
 
 class SpeedGraph;
 class NewTransferDlg;
@@ -148,6 +149,7 @@ private:
 	Transfer* m_lastTransfer;
 	NewTransferDlg* m_dlgNewTransfer;
 	QLineEdit* filterLineEdit;
+	CaptchaQt m_captcha;
 	
 	QList<QAction*> m_menuActionObjects;
 	ClipboardMonitor* m_clipboardMonitor;

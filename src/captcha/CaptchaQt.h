@@ -31,7 +31,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QObject>
 #include <QMap>
 #include "Captcha.h"
-#include "CaptchaQtDlg.h"
+
+class CaptchaQtDlg;
 
 class CaptchaQt : public QObject, public Captcha
 {

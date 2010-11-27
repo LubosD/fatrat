@@ -39,6 +39,8 @@ Q_OBJECT
 public:
 	CaptchaQtDlg(QWidget* parent = 0);
 	void load(QString url);
+	virtual void accept();
+	virtual void reject();
 signals:
 	void captchaEntered(QString text = QString());
 private slots:

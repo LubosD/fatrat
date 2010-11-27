@@ -37,7 +37,9 @@ class Captcha
 {
 public:
 	typedef void (*CallbackFn)(QString /* url */, QString /* solution */);
+
 	static void processCaptcha(QString url, CallbackFn fn);
+	static void globalExit();
 protected:
 	// Captcha subclasses call its superclass
 	void returnResult(int id, QString solution);

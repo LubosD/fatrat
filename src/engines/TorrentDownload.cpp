@@ -990,7 +990,6 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
 	
-	std::cout << "TorrentDownload::save()\n";
 	if(m_info != 0)
 	{
 		setXMLProperty(doc, map, "torrent_file", storedTorrentName());
