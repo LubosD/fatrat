@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "RuntimeException.h"
 #include "Settings.h"
+#include "TransferFactory.h"
 #include <QRegExp>
 #include <QReadWriteLock>
 #include <QtDBus/QtDBus>
@@ -116,7 +117,7 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 		
 		foreach(QString uri, listUris)
 		{
-			Transfer* t = _class->lpfnCreate();
+			Transfer* t = TransferFactory::instance()->createInstance(_class->shortName);
 			
 			if(!t)
 				throw RuntimeException("Failed to create an instance of the chosen class");
