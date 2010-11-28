@@ -370,6 +370,7 @@ void CurlDownload::startSegment(Segment& seg, qlonglong bytes)
 	connect(seg.client, SIGNAL(done(QString)), this, SLOT(clientDone(QString)));
 	connect(seg.client, SIGNAL(failure(QString)), this, SLOT(clientFailure(QString)));
 	connect(seg.client, SIGNAL(totalSizeKnown(qlonglong)), this, SLOT(clientTotalSizeKnown(qlonglong)));
+	connect(seg.client, SIGNAL(rangesUnsupported()), this, SLOT(clientRangesUnsupported()));
 
 	seg.client->setPollingMaster(m_master);
 	seg.client->start();
@@ -723,6 +724,65 @@ void CurlDownload::clientTotalSizeKnown(qlonglong bytes)
 	}
 	else
 		m_nTotal = bytes;
+}
+
+void CurlDownload::clientRangesUnsupported()
+{
+	// Several considerations:
+	// 1) This error may be caused by a merely one invalid link in the mirror list,
+	//    the resume may be actually supported elsewhere
+	// 2) Ranges are apparently supported if we already have multiple downloaded
+	//    segments
+
+	UrlClient* client = static_cast<UrlClient*>(sender());
+
+	m_segmentsLock.lockForWrite();
+	bool allfailed = true;
+	int urlIndex = 0;
+
+	// TODO: copy pasted from clientDone(), find a better way...
+	for(int i=0;i<m_segments.size();i++)
+	{
+		if(m_segments[i].client == client)
+		{
+			m_segments[i].bytes = client->progress();
+			m_segments[i].client = 0;
+			urlIndex = m_segments[i].urlIndex;
+			m_segments[i].urlIndex = -1;
+			m_segments[i].color = Qt::black;
+		}
+	}
+
+	simplifySegments(m_segments);
+
+	for(int i=0;i<m_segments.size();i++)
+	{
+		if(m_segments[i].client != 0)
+		{
+			allfailed = false;
+			break;
+		}
+	}
+
+	m_segmentsLock.unlock();
+
+	m_master->removeTransfer(client);
+	client->stop();
+
+	if (allfailed)
+	{
+		if (m_segments.size() == 1)
+		{
+			// restart the download from 0
+			m_segments[0].bytes = 0;
+			startSegment(urlIndex);
+		}
+		else
+		{
+			m_strMessage = tr("Unable to resume the download");
+			setState(Failed);
+		}
+	}
 }
 
 void CurlDownload::clientFailure(QString err)

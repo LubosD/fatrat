@@ -73,6 +73,7 @@ signals:
 	void logMessage(QString msg);
 	void done(QString error = QString());
 	void totalSizeKnown(qlonglong bytes);
+	void rangesUnsupported();
 private:
 	UrlObject* m_source;
 	int m_target;

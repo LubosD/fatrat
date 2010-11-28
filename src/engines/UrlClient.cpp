@@ -343,6 +343,10 @@ void UrlClient::transferDone(CURLcode result)
 		m_bTerminating = true;
 		emit done(QString());
 	}
+	else if (result == CURLE_RANGE_ERROR)
+	{
+		emit rangesUnsupported();
+	}
 	else
 	{
 		QString err;
