@@ -60,8 +60,6 @@ void RapidshareFreeDownload::init(QString source, QString target)
 	m_strTarget = target;
 	deriveName();
 	
-	if(QThread::currentThread() != QApplication::instance()->thread())
-		moveToThread(QApplication::instance()->thread());
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
 }
 

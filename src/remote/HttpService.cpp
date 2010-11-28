@@ -36,6 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "fatrat.h"
 #include "Logger.h"
+#include "TransferFactory.h"
 #include "dbus/DbusImpl.h"
 #include "poller/Poller.h"
 #include "remote/XmlRpcService.h"
@@ -1062,7 +1063,7 @@ QScriptValue addTransfersFunction(QScriptContext* context, QScriptEngine* engine
 			else
 				_class = &g_enginesDownload[classIndex];
 		
-			Transfer* t = _class->lpfnCreate();
+			Transfer* t = TransferFactory::instance()->createInstance(_class->shortName);
 			
 			if(!t)
 				throw RuntimeException("Failed to create an instance of the chosen class");

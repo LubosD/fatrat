@@ -57,8 +57,6 @@ JavaDownload::~JavaDownload()
 
 void JavaDownload::init(QString source, QString target)
 {
-	if(QThread::currentThread() != QApplication::instance()->thread())
-		moveToThread(QApplication::instance()->thread());
 	m_strOriginal = source;
 	m_strTarget = target;
 }
@@ -159,7 +157,7 @@ QString JavaDownload::remoteURI() const
 	return m_strOriginal;
 }
 
-int JavaDownload::acceptable(QString uri, bool, EngineEntry* e)
+int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 {
 	assert(m_engines.contains(e->shortName));
 

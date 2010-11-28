@@ -178,6 +178,7 @@ set(fatrat_SRCS
 	src/QueueDlg.cpp
 	src/ClipboardMonitor.cpp
 	src/SettingsClipboardMonitorForm.cpp
+	src/TransferFactory.cpp
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
 	src/engines/OutputBuffer.cpp
@@ -248,6 +249,7 @@ set(fatrat_MOC_HDRS
 	src/ReportBugDlg.h
 	src/ClipboardMonitor.h
 	src/SettingsClipboardMonitorForm.h
+	src/TransferFactory.h
 	src/filterlineedit.h
 	src/fancylineedit.h
 	src/engines/OutputBuffer.h

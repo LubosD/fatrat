@@ -556,13 +556,7 @@ void TorrentDownload::init(QString source, QString target)
 		}
 		else
 		{
-			if(QThread::currentThread() != QApplication::instance()->thread())
-			{
-				moveToThread(QApplication::instance()->thread());
-				QMetaObject::invokeMethod(this, "downloadTorrent", Qt::QueuedConnection, Q_ARG(QString, source));
-			}
-			else
-				downloadTorrent(source);
+			downloadTorrent(source);
 		}
 	}
 	catch(const libtorrent::invalid_encoding&)

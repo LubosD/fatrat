@@ -68,8 +68,8 @@ public:
 	virtual void setState(State newState);
 	virtual QString remoteURI() const;
 
-	static Transfer* createInstance(EngineEntry* e) { return new JavaDownload(e->shortName); }
-	static int acceptable(QString uri, bool, EngineEntry* e);
+	static Transfer* createInstance(const EngineEntry* e) { return new JavaDownload(e->shortName); }
+	static int acceptable(QString uri, bool, const EngineEntry* e);
 protected:
 	void deriveName();
 	void setMessage(QString msg);

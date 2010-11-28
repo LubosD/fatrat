@@ -171,7 +171,7 @@ Transfer* Transfer::createInstance(Mode mode, int classID)
 {
 	const EngineEntry* entries = engines(mode);
 	
-	return entries[classID].lpfnCreate();
+	return entries[classID].lpfnCreate2(&entries[classID]);
 }
 
 bool Transfer::runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects)

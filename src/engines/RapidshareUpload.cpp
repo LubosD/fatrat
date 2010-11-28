@@ -124,9 +124,6 @@ void RapidshareUpload::init(QString source, QString target)
 {
 	setObject(source);
 	
-	if(QThread::currentThread() != QApplication::instance()->thread())
-		moveToThread(QApplication::instance()->thread());
-	
 	m_proxy = getSettingsValue("rapidshare/proxy").toString();
 }
 
