@@ -370,7 +370,7 @@ void Queue::removeWithData(int n, bool nolock)
 	
 	QString path = d->dataPath(true);
 	
-	if(!path.isEmpty())
+	if(!path.isEmpty() && d->primaryMode() == Transfer::Download)
 		recursiveRemove(path);
 	
 	d->deleteLater();
