@@ -46,8 +46,9 @@ respects for all of the code used other than "OpenSSL".
 #include <gloox/rosterlistener.h>
 
 class Transfer;
+class QSocketNotifier;
 
-class JabberService : public QThread, public gloox::MessageHandler, public gloox::ConnectionListener, public gloox::ChatStateHandler, public gloox::RosterListener
+class JabberService : public QObject, public gloox::MessageHandler, public gloox::ConnectionListener, public gloox::ChatStateHandler, public gloox::RosterListener
 {
 Q_OBJECT
 public:
@@ -57,9 +58,6 @@ public:
 	static JabberService* instance() { return m_instance; }
 	static std::string qstring2stdstring(QString str);
 	void applySettings();
-	
-	// QThread
-	virtual void run();
 	
 	// gloox::MessageHandler
 #if defined(GLOOX_1_0)
@@ -120,6 +118,9 @@ protected:
 	void validateQueue(ConnectionInfo* conn);
 	static QStringList parseCommand(QString input, QString* extargs = 0);
 	static QString transferInfo(Transfer* t);
+private slots:
+	void socketActivated();
+	void run();
 private:
 	QString m_strJID, m_strPassword, m_strResource;
 	bool m_bRestrictSelf, m_bRestrictPassword;
@@ -129,6 +130,7 @@ private:
 	QUuid m_proxy;
 	
 	gloox::Client* m_pClient;
+	QSocketNotifier* m_pNotifier;
 	bool m_bTerminating;
 	static JabberService* m_instance;
 	

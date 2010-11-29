@@ -49,6 +49,8 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <QSettings>
+#include <QTimer>
+#include <QSocketNotifier>
 #include <QtDebug>
 
 extern QSettings* g_settings;
@@ -60,7 +62,7 @@ const int SESSION_MINUTES = 10;
 JabberService* JabberService::m_instance = 0;
 
 JabberService::JabberService()
-	: m_pClient(0), m_bTerminating(false)
+	: m_pClient(0), m_pNotifier(0), m_bTerminating(false)
 {
 	m_instance = this;
 	applySettings();
@@ -68,16 +70,20 @@ JabberService::JabberService()
 
 JabberService::~JabberService()
 {
-	if(isRunning())
+	if(m_pClient)
 	{
 		m_bTerminating = true;
-		if(m_pClient != 0)
-			m_pClient->disconnect();
-		wait();
 		delete m_pClient;
 	}
 	
 	m_instance = 0;
+	delete m_pNotifier;
+}
+
+void JabberService::socketActivated()
+{
+	if (m_pClient)
+		m_pClient->recv();
 }
 
 void JabberService::applySettings()
@@ -126,88 +132,86 @@ void JabberService::applySettings()
 	
 	if(getSettingsValue("jabber/enabled").toBool())
 	{
-		if(!isRunning())
-			start();
+		if(!m_pClient)
+			run();
 		else if(bChanged)
 		{
 			if(m_pClient)
 				m_pClient->disconnect();
 		}
 	}
-	else if(isRunning())
+	else if(m_pClient)
 	{
 		m_bTerminating = true;
 		if(m_pClient)
-			m_pClient->disconnect();
-		wait();
-		delete m_pClient;
-		m_pClient = 0;
+		{
+			delete m_pClient;
+			m_pClient = 0;
+		}
 	}
 }
 
 void JabberService::run()
 {
-	while(!m_bTerminating)
-	{
-		sleep(2);
-		
-		gloox::JID jid( (m_strJID + '/' + m_strResource).toStdString());
-		
-		Logger::global()->enterLogMessage("Jabber", tr("Connecting..."));
-		
+
+	gloox::JID jid( (m_strJID + '/' + m_strResource).toStdString());
+
+	Logger::global()->enterLogMessage("Jabber", tr("Connecting..."));
+
+	if (!m_pClient)
 		m_pClient = new gloox::Client(jid, m_strPassword.toStdString());
-		m_pClient->registerMessageHandler(this);
-		m_pClient->registerConnectionListener(this);
-		m_pClient->rosterManager()->registerRosterListener(this);
-		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
-		m_pClient->disco()->setIdentity("client", "bot");
-		m_pClient->disco()->setVersion("FatRat", VERSION);
-		
-#if defined(GLOOX_0_9)
-		m_pClient->setPresence(gloox::PresenceAvailable, m_nPriority);
-#elif defined(GLOOX_1_0)
-		m_pClient->setPresence(gloox::Presence::Available, m_nPriority);
-#endif
-		
-		gloox::ConnectionBase* proxy = 0;
-		Proxy pdata = Proxy::getProxy(m_proxy);
-		
-		if(pdata.nType == Proxy::ProxyHttp)
-		{
-			gloox::ConnectionHTTPProxy* p;
-			proxy = p = new gloox::ConnectionHTTPProxy(m_pClient,
-				new gloox::ConnectionTCPClient(m_pClient->logInstance(), pdata.strIP.toStdString(), pdata.nPort),
-                                m_pClient->logInstance(), m_pClient->server(), m_pClient->port());
-			
-			if(!pdata.strUser.isEmpty())
-				p->setProxyAuth(pdata.strUser.toStdString(), pdata.strPassword.toStdString());
-		}
-		else if(pdata.nType == Proxy::ProxySocks5)
-		{
-			gloox::ConnectionSOCKS5Proxy* p;
-			proxy = p = new gloox::ConnectionSOCKS5Proxy(m_pClient,
-				new gloox::ConnectionTCPClient(m_pClient->logInstance(), pdata.strIP.toStdString(), pdata.nPort),
-                                m_pClient->logInstance(), m_pClient->server(), m_pClient->port());
-			
-			if(!pdata.strUser.isEmpty())
-				p->setProxyAuth(pdata.strUser.toStdString(), pdata.strPassword.toStdString());
-		}
-		
-		if(proxy != 0)
-			m_pClient->setConnectionImpl(proxy);
-		
-		m_pClient->connect();
-		
-		if(!m_bTerminating)
-		{
-			gloox::Client* c = m_pClient;
-			m_pClient = 0;
-			delete c;
-			
-			sleep(3);
-		}
+
+	if (m_pNotifier)
+	{
+		delete m_pNotifier;
+		m_pNotifier = 0;
 	}
-	m_bTerminating = false;
+
+	m_pClient->registerMessageHandler(this);
+	m_pClient->registerConnectionListener(this);
+	m_pClient->rosterManager()->registerRosterListener(this);
+	m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
+	m_pClient->disco()->setIdentity("client", "bot");
+	m_pClient->disco()->setVersion("FatRat", VERSION);
+
+#if defined(GLOOX_0_9)
+	m_pClient->setPresence(gloox::PresenceAvailable, m_nPriority);
+#elif defined(GLOOX_1_0)
+	m_pClient->setPresence(gloox::Presence::Available, m_nPriority);
+#endif
+
+	gloox::ConnectionBase* proxy = 0;
+	Proxy pdata = Proxy::getProxy(m_proxy);
+
+	if(pdata.nType == Proxy::ProxyHttp)
+	{
+		gloox::ConnectionHTTPProxy* p;
+		proxy = p = new gloox::ConnectionHTTPProxy(m_pClient,
+			new gloox::ConnectionTCPClient(m_pClient->logInstance(), pdata.strIP.toStdString(), pdata.nPort),
+			m_pClient->logInstance(), m_pClient->server(), m_pClient->port());
+
+		if(!pdata.strUser.isEmpty())
+			p->setProxyAuth(pdata.strUser.toStdString(), pdata.strPassword.toStdString());
+	}
+	else if(pdata.nType == Proxy::ProxySocks5)
+	{
+		gloox::ConnectionSOCKS5Proxy* p;
+		proxy = p = new gloox::ConnectionSOCKS5Proxy(m_pClient,
+			new gloox::ConnectionTCPClient(m_pClient->logInstance(), pdata.strIP.toStdString(), pdata.nPort),
+			m_pClient->logInstance(), m_pClient->server(), m_pClient->port());
+
+		if(!pdata.strUser.isEmpty())
+			p->setProxyAuth(pdata.strUser.toStdString(), pdata.strPassword.toStdString());
+	}
+
+	if(proxy != 0)
+		m_pClient->setConnectionImpl(proxy);
+
+	m_pClient->connect(false);
+	int sock = static_cast<gloox::ConnectionTCPClient*>( m_pClient->connectionImpl() )->socket();
+
+	m_pNotifier = new QSocketNotifier(sock, QSocketNotifier::Read, this);
+	connect(m_pNotifier, SIGNAL(activated(int)), this, SLOT(socketActivated()));
 }
 
 #if defined(GLOOX_1_0)
@@ -568,7 +572,7 @@ QString JabberService::transferInfo(Transfer* t)
 		percent = 0;
 	
 	return tr("[%2] - \"%3\"; %5 down, %6 up; %7% out of %8").arg(t->state2string(t->state())).arg(t->name())
-			.arg(formatSize(down, true)).arg(formatSize(up, true)).arg(percent, 0, 'g', 2).arg(formatSize(size, false));
+			.arg(formatSize(down, true)).arg(formatSize(up, true)).arg(percent, 0, 'f', 2).arg(formatSize(size, false));
 }
 
 void JabberService::validateQueue(ConnectionInfo* conn)
@@ -693,6 +697,16 @@ void JabberService::onDisconnect(gloox::ConnectionError e)
 	}
 	
 	Logger::global()->enterLogMessage("Jabber", err);
+
+	if (m_pNotifier)
+	{
+		delete m_pNotifier;
+		m_pNotifier = 0;
+	}
+
+	// reconnect in 3 secs
+	if (!m_bTerminating)
+		QTimer::singleShot(3000, this, SLOT(run()));
 }
 
 void JabberService::onResourceBindError(gloox::ResourceBindError error)
