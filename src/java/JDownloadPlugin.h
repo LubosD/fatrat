@@ -69,6 +69,8 @@ public:
 private slots:
 	void fetchFinished(QNetworkReply*);
 	void secondElapsed();
+protected:
+	static QMap<QString,QString> cookiesToMap(const QList<QNetworkCookie>& list);
 private:
 	JavaDownload* m_transfer;
 	QTimer m_timer;

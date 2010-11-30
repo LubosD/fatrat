@@ -174,7 +174,7 @@ QString JObject::toString() const
 {
 	if (!m_object)
 		return JString();
-	return const_cast<JObject*>(this)->call("toString", "()Ljava/lang/String;", QList<QVariant>()).toString();
+	return const_cast<JObject*>(this)->call("toString", JSignature().retString()).toString();
 }
 
 bool JObject::instanceOf(const char* cls) const

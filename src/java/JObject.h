@@ -71,6 +71,52 @@ public:
 	bool isNull() const { return !m_object; }
 	JClass getClass() const;
 
+	template<typename T1> QVariant call(const char *name, const JSignature& sig, T1 a1)
+	{
+		return call(name, sig, JArgs() << a1);
+	}
+	template<typename T1, typename T2> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2)
+	{
+		return call(name, sig, JArgs() << a1 << a2);
+	}
+	template<typename T1, typename T2, typename T3> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3)
+	{
+		return call(name, sig, JArgs() << a1 << a2 << a3);
+	}
+	template<typename T1, typename T2, typename T3, typename T4> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3, T4 a4)
+	{
+		return call(name, sig, JArgs() << a1 << a2 << a3 << a4);
+	}
+	template<typename T1, typename T2, typename T3, typename T4, typename T5> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+	{
+		return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5);
+	}
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
+	{
+		return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5 << a6);
+	}
+
+	/*
+	 The following C++0x code will replace the broken mess above:
+
+	 template<typename T> void addArg(JArgs& args, T arg)
+	 {
+		args << arg;
+	 }
+	 template<typename T, typename... Args> void addArg(JArgs& args, T arg, Args... xargs)
+	 {
+		addArg(args, arg);
+		addArg(args, xargs);
+	 }
+	 template<typename... Args> QVariant call(const char *name, const JSignature& sig, Args... xargs)
+	 {
+		JArgs ja;
+		addArg(ja, xargs);
+		return call(name, sig, ja);
+	 }
+
+	 */
+
 	QVariant call(const char* name, JSignature sig, JArgs args = JArgs());
 	QVariant call(const char* name, const char* sig = "()V", JArgs args = JArgs());
 	QVariant getValue(const char* name, JSignature sig) const;

@@ -369,6 +369,7 @@ if(WITH_JPLUGINS)
 		src/java/JValue.cpp
 		src/java/JSignature.cpp
 		src/java/JByteBuffer.cpp
+		src/java/JMap.cpp
 		src/java/JVM.cpp
 		src/java/JDownloadPlugin.cpp
 		src/java/JNativeMethod.cpp

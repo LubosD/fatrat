@@ -167,11 +167,12 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 	return 0;
 }
 
-void JavaDownload::startDownload(QString url)
+void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 {
 	m_downloadUrl = url;
 	// TODO
 	CurlDownload::init(url, m_strTarget);
+	m_urls[0].cookies = cookies;
 	CurlDownload::changeActive(true);
 }
 

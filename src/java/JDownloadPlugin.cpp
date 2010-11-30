@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JVM.h"
 #include "JString.h"
 #include "JByteBuffer.h"
+#include "JMap.h"
 #include "engines/JavaDownload.h"
 #include "captcha/Captcha.h"
 #include <cassert>
@@ -44,6 +45,7 @@ JDownloadPlugin::JDownloadPlugin(const JClass& cls, const char* sig, JArgs args)
 {
 	setCObject();
 	m_network = new QNetworkAccessManager(this);
+	m_network->setCookieJar(new QNetworkCookieJar(m_network));
 	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(fetchFinished(QNetworkReply*)));
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
@@ -54,6 +56,7 @@ JDownloadPlugin::JDownloadPlugin(const char* clsName, const char* sig, JArgs arg
 {
 	setCObject();
 	m_network = new QNetworkAccessManager(this);
+	m_network->setCookieJar(new QNetworkCookieJar(m_network));
 	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(fetchFinished(QNetworkReply*)));
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
@@ -80,7 +83,7 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 
 	JObject& obj = m_captchaCallbacks[url];
 	if (!solution.isEmpty())
-		obj.call("onSolved", JSignature().addString(), JArgs() << solution);
+		obj.call("onSolved", JSignature().addString(), solution);
 	else
 		obj.call("onFailed");
 }
@@ -124,7 +127,17 @@ void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobjec
 void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url)
 {
 	JDownloadPlugin* This = getCObject(jthis);
-	This->m_transfer->startDownload(JString(url));
+	JString str(url);
+	QList<QNetworkCookie> c = This->m_network->cookieJar()->cookiesForUrl(str.str());
+	This->m_transfer->startDownload(str, c);
+}
+
+QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>& list)
+{
+	QMap<QString,QString> rv;
+	foreach (QNetworkCookie c, list)
+		rv[c.name()] = c.value();
+	return rv;
 }
 
 void JDownloadPlugin::startWait(JNIEnv* env, jobject jthis, jint seconds, jobject cbInterface)
@@ -143,7 +156,7 @@ void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
 	JObject iface = m_fetchCallbacks[reply];
 	if (reply->error() != QNetworkReply::NoError)
 	{
-		iface.call("onFailed", JSignature().addString(), JArgs() << reply->errorString());
+		iface.call("onFailed", JSignature().addString(), reply->errorString());
 	}
 	else
 	{
@@ -153,14 +166,25 @@ void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
 
 		reply->read(static_cast<char*>(mem), bytes);
 
-		iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer"), JArgs() << buf);
+		QList<QByteArray> list = reply->rawHeaderList();
+		JMap map(list.size());
+
+		foreach (QByteArray ba, list)
+		{
+			int p = ba.indexOf(':');
+			if (p < 0)
+				continue;
+			map.put(QString(ba.left(p)).toLower(), QString(ba.mid(p+1)).trimmed());
+		}
+
+		iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
 	}
 	m_fetchCallbacks.remove(reply);
 }
 
 void JDownloadPlugin::secondElapsed()
 {
-	m_waitCallback.call("onSecondElapsed", JSignature().addInt(), JArgs() << m_nSecondsLeft);
+	m_waitCallback.call("onSecondElapsed", JSignature().addInt(), m_nSecondsLeft);
 
 	if (!(--m_nSecondsLeft))
 	{
