@@ -145,6 +145,7 @@ void JabberService::applySettings()
 		m_bTerminating = true;
 		if(m_pClient)
 		{
+			m_pClient->disconnect();
 			delete m_pClient;
 			m_pClient = 0;
 		}
