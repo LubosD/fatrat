@@ -189,13 +189,13 @@ void JavaDownload::globalInit()
 	// search for plugins
 	try
 	{
-		JClass mainClass("info.dolezel.fatrat.plugins.DownloadPlugin");
+		JClass helper("info.dolezel.fatrat.plugins.NativeHelpers");
 		JClass annotation("info.dolezel.fatrat.plugins.PluginInfo");
 		QList<QVariant> args;
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-		JArray arr = mainClass.callStatic("findAnnotatedClasses",
+		JArray arr = helper.callStatic("findAnnotatedClasses",
 						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
 						  args).value<JArray>();
 		qDebug() << "Found" << arr.size() << "annotated classes";
