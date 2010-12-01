@@ -160,20 +160,22 @@ void JabberService::run()
 	Logger::global()->enterLogMessage("Jabber", tr("Connecting..."));
 
 	if (!m_pClient)
+	{
 		m_pClient = new gloox::Client(jid, m_strPassword.toStdString());
+		m_pClient->registerMessageHandler(this);
+		m_pClient->registerConnectionListener(this);
+		m_pClient->rosterManager()->registerRosterListener(this);
+		
+		m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
+		m_pClient->disco()->setIdentity("client", "bot");
+		m_pClient->disco()->setVersion("FatRat", VERSION);
+	}
 
 	if (m_pNotifier)
 	{
 		delete m_pNotifier;
 		m_pNotifier = 0;
 	}
-
-	m_pClient->registerMessageHandler(this);
-	m_pClient->registerConnectionListener(this);
-	m_pClient->rosterManager()->registerRosterListener(this);
-	m_pClient->disco()->addFeature(gloox::XMLNS_CHAT_STATES);
-	m_pClient->disco()->setIdentity("client", "bot");
-	m_pClient->disco()->setVersion("FatRat", VERSION);
 
 #if defined(GLOOX_0_9)
 	m_pClient->setPresence(gloox::PresenceAvailable, m_nPriority);
@@ -208,11 +210,13 @@ void JabberService::run()
 	if(proxy != 0)
 		m_pClient->setConnectionImpl(proxy);
 
-	m_pClient->connect(false);
-	int sock = static_cast<gloox::ConnectionTCPClient*>( m_pClient->connectionImpl() )->socket();
+	if (m_pClient->connect(false))
+	{
+		int sock = static_cast<gloox::ConnectionTCPClient*>( m_pClient->connectionImpl() )->socket();
 
-	m_pNotifier = new QSocketNotifier(sock, QSocketNotifier::Read, this);
-	connect(m_pNotifier, SIGNAL(activated(int)), this, SLOT(socketActivated()));
+		m_pNotifier = new QSocketNotifier(sock, QSocketNotifier::Read, this);
+		connect(m_pNotifier, SIGNAL(activated(int)), this, SLOT(socketActivated()));
+	}
 }
 
 #if defined(GLOOX_1_0)
@@ -707,7 +711,7 @@ void JabberService::onDisconnect(gloox::ConnectionError e)
 
 	// reconnect in 3 secs
 	if (!m_bTerminating)
-		QTimer::singleShot(3000, this, SLOT(run()));
+		QTimer::singleShot(10*1000, this, SLOT(run()));
 }
 
 void JabberService::onResourceBindError(gloox::ResourceBindError error)

@@ -44,6 +44,9 @@ void Logger::enterLogMessage(QString msg)
 		m_strLog += '\n';
 	
 	m_strLog += text;
+	
+	if (m_strLog.size() > 2*1024*1024)
+		m_strLog = m_strLog.mid(1024*1024);
 }
 
 void Logger::enterLogMessage(QString sender, QString msg)

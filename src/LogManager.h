@@ -49,6 +49,7 @@ public:
 		if(m_last != 0)
 		{
 			disconnect(m_last, SIGNAL(logMessage(QString)), m_text, SLOT(append(const QString&)));
+			disconnect(m_last, SIGNAL(logMessage(QString)), this, SLOT(onLogMessage()));
 			disconnect(m_last, SIGNAL(destroyed()), this, SLOT(onDeleteSource()));
 		}
 		m_last = t;
@@ -58,6 +59,7 @@ public:
 			m_text->setEnabled(true);
 			m_text->setPlainText(t->logContents());
 			connect(t, SIGNAL(logMessage(QString)), m_text, SLOT(append(const QString&)));
+			connect(t, SIGNAL(logMessage(QString)), this, SLOT(onLogMessage()));
 			connect(t, SIGNAL(destroyed()), this, SLOT(onDeleteSource()));
 		}
 		else
@@ -70,6 +72,11 @@ public slots:
 	void onDeleteSource()
 	{
 		m_last = 0;
+	}
+	void onLogMessage()
+	{
+		if (m_text->toPlainText().size() > 2*1024*1024)
+			m_text->setPlainText(m_last->logContents());
 	}
 private:
 	QTextEdit *m_text, *m_textG;
