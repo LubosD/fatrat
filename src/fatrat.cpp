@@ -123,6 +123,9 @@ int main(int argc,char** argv)
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
 	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
+
+	if(!m_bForceNewInstance)
+		processSession(arg);
 	
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)
@@ -132,10 +135,7 @@ int main(int argc,char** argv)
 	}
 #endif
 
-	installSignalHandler();
-	
-	if(!m_bForceNewInstance)
-		processSession(arg);
+	installSignalHandler();	
 	
 #ifdef WITH_NLS
 	QTranslator translator;
