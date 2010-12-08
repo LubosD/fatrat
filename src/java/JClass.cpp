@@ -171,10 +171,10 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> a
 
 	if (!ex.isNull())
 	{
+		env->ExceptionClear();
 		ex.call("printStackTrace");
 		QString message = ex.call("getMessage", JSignature().retString()).toString();
 		QString className = ex.getClass().getClassName();
-		env->ExceptionClear();
 
 		throw JException(message, className, ex);
 	}

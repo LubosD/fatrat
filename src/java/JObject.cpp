@@ -86,10 +86,10 @@ void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
 
 	if (!ex.isNull())
 	{
+		env->ExceptionClear();
 		ex.call("printStackTrace");
 		QString message = ex.call("getMessage", JSignature().retString()).toString();
 		QString className = ex.getClass().getClassName();
-		env->ExceptionClear();
 
 		throw JException(message, className, ex);
 	}
@@ -309,10 +309,10 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 
 	if (!ex.isNull())
 	{
+		env->ExceptionClear();
 		ex.call("printStackTrace");
 		QString message = ex.call("getMessage", JSignature().retString()).toString();
 		QString className = ex.getClass().getClassName();
-		env->ExceptionClear();
 
 		throw JException(message, className, ex);
 	}
