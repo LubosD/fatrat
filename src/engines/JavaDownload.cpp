@@ -84,9 +84,11 @@ void JavaDownload::load(const QDomNode& map)
 
 	m_strOriginal = getXMLProperty(map, "jplugin_original");
 	m_strTarget = getXMLProperty(map, "jplugin_target");
-	//m_nTotal = getXMLProperty(map, "jplugin_knowntotal");
+	m_strName = getXMLProperty(map, "jplugin_name");
+	m_nTotal = getXMLProperty(map, "knowntotal").toLongLong();
 
-	deriveName();
+	if (m_strName.isEmpty())
+		deriveName();
 }
 
 void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
@@ -95,7 +97,8 @@ void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
 
 	setXMLProperty(doc, map, "jplugin_original", m_strOriginal);
 	setXMLProperty(doc, map, "jplugin_target", m_strTarget);
-	//setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
+	setXMLProperty(doc, map, "jplugin_name", m_strName);
+	setXMLProperty(doc, map, "knowntotal", QString::number(m_nTotal));
 }
 
 void JavaDownload::changeActive(bool bActive)
@@ -127,7 +130,11 @@ void JavaDownload::changeActive(bool bActive)
 			m_bHasLock = false;
 		}
 
+		if (!m_downloadUrl.isEmpty())
+			m_strName = CurlDownload::name();
+
 		m_downloadUrl = QUrl();
+		m_plugin->abort();
 
 		CurlDownload::changeActive(false);
 	}

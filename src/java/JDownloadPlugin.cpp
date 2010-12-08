@@ -39,7 +39,7 @@ respects for all of the code used other than "OpenSSL".
 template <> QList<JObject*> JSingleCObject<JDownloadPlugin>::m_instances = QList<JObject*>();
 template <> std::auto_ptr<QReadWriteLock> JSingleCObject<JDownloadPlugin>::m_mutex = std::auto_ptr<QReadWriteLock>(new QReadWriteLock);
 
-QMap<QString,JObject> JDownloadPlugin::m_captchaCallbacks;
+QMap<QString,JDownloadPlugin::RequesterReceiver> JDownloadPlugin::m_captchaCallbacks;
 
 JDownloadPlugin::JDownloadPlugin(const JClass& cls, const char* sig, JArgs args)
 	: JObject(cls, sig, args), m_transfer(0)
@@ -82,7 +82,7 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 {
 	assert(m_captchaCallbacks.contains(url));
 
-	JObject& obj = m_captchaCallbacks[url];
+	JObject& obj = m_captchaCallbacks[url].second;
 	if (!solution.isEmpty())
 		obj.call("onSolved", JSignature().addString(), solution);
 	else
@@ -93,7 +93,8 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 void JDownloadPlugin::solveCaptcha(JNIEnv* env, jobject jthis, jstring jurl, jobject cb)
 {
 	QString url = JString(jurl);
-	m_captchaCallbacks[url] = JObject(cb);
+
+	m_captchaCallbacks[url] = RequesterReceiver(getCObject(jthis), cb);
 
 	Captcha::processCaptcha(url, captchaSolved);
 }
@@ -125,7 +126,7 @@ void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobjec
 		reply = This->m_network->post(QNetworkRequest(url), pd);
 	}
 
-	This->m_fetchCallbacks[reply] = cbInterface;
+	This->m_fetchCallbacks[reply] = RequesterReceiver(This, cbInterface);
 }
 
 void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url)
@@ -157,7 +158,10 @@ void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
 {
 	reply->deleteLater();
 
-	JObject iface = m_fetchCallbacks[reply];
+	if (!m_fetchCallbacks.contains(reply))
+		return; // The transfer has been stopped
+
+	JObject& iface = m_fetchCallbacks[reply].second;
 	if (reply->error() != QNetworkReply::NoError)
 	{
 		iface.call("onFailed", JSignature().addString(), reply->errorString());
@@ -214,3 +218,26 @@ Transfer::State JDownloadPlugin::JStateEnum::value() const
 	return Transfer::State( state );
 }
 
+void JDownloadPlugin::abort()
+{
+	// prune m_captchaCallbacks and m_fetchCallbacks
+	for(QMap<QString,RequesterReceiver>::iterator it = m_captchaCallbacks.begin(); it != m_captchaCallbacks.end();)
+	{
+		if (it.value().first == this)
+		{
+			qDebug() << "Aborting captcha for" << it.key();
+			Captcha::abortCaptcha(it.key());
+			it = m_captchaCallbacks.erase(it);
+		}
+		else
+			it++;
+	}
+
+	for(QMap<QNetworkReply*,RequesterReceiver>::iterator it = m_fetchCallbacks.begin(); it != m_fetchCallbacks.end();)
+	{
+		if (it.value().first == this)
+			it = m_fetchCallbacks.erase(it);
+		else
+			it++;
+	}
+}

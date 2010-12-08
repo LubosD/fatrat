@@ -41,6 +41,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QMap>
+#include <QPair>
 
 class JavaDownload;
 
@@ -50,6 +51,8 @@ Q_OBJECT
 public:
 	JDownloadPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
 	JDownloadPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+
+	void abort();
 
 	inline void setTransfer(JavaDownload* t) { m_transfer = t; }
 	inline JavaDownload* transfer() const { return m_transfer; }
@@ -72,10 +75,12 @@ private slots:
 protected:
 	static QMap<QString,QString> cookiesToMap(const QList<QNetworkCookie>& list);
 private:
+	typedef QPair<JDownloadPlugin*,JObject> RequesterReceiver;
+
 	JavaDownload* m_transfer;
 	QTimer m_timer;
-	QMap<QNetworkReply*,JObject> m_fetchCallbacks;
-	static QMap<QString,JObject> m_captchaCallbacks;
+	QMap<QNetworkReply*,RequesterReceiver> m_fetchCallbacks;
+	static QMap<QString,RequesterReceiver> m_captchaCallbacks;
 	JObject m_waitCallback;
 	int m_nSecondsLeft;
 	QNetworkAccessManager* m_network;

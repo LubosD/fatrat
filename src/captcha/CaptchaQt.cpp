@@ -69,3 +69,18 @@ void CaptchaQt::captchaEntered(QString text)
 
 	returnResult(id, text);
 }
+
+void CaptchaQt::abort(int id)
+{
+	qDebug() << "CaptchaQt::abort():" << id;
+	for(QMap<CaptchaQtDlg*,int>::iterator it = m_dlgs.begin(); it != m_dlgs.end();)
+	{
+		if (it.value() == id)
+		{
+			it.key()->deleteLater();
+			it = m_dlgs.erase(it);
+		}
+		else
+			it++;
+	}
+}

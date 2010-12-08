@@ -33,12 +33,15 @@ QList<Captcha*> Captcha::m_decoders;
 int Captcha::m_next = 1;
 QMutex Captcha::m_mutex (QMutex::Recursive);
 
-void Captcha::processCaptcha(QString url, CallbackFn callback)
+int Captcha::processCaptcha(QString url, CallbackFn callback)
 {
 	QMutexLocker l(&m_mutex);
 
 	if (m_decoders.isEmpty())
+	{
 		callback(url, QString());
+		return 0;
+	}
 	else
 	{
 		int id = m_next++;
@@ -53,6 +56,34 @@ void Captcha::processCaptcha(QString url, CallbackFn callback)
 			if (c->process(id, url))
 				prc.decodersLeft++;
 		}
+
+		return id;
+	}
+}
+
+void Captcha::abortCaptcha(int id)
+{
+	if (m_cb.contains(id))
+	{
+		// abort where available
+		foreach (Captcha* c, m_decoders)
+			c->abort(id);
+		m_cb.remove(id);
+	}
+}
+
+void Captcha::abortCaptcha(QString url)
+{
+	for(QMap<int,CaptchaProcess>::iterator it = m_cb.begin(); it != m_cb.end();)
+	{
+		if (it.value().url == url)
+		{
+			foreach (Captcha* c, m_decoders)
+				c->abort(it.key());
+			it = m_cb.erase(it);
+		}
+		else
+			it++;
 	}
 }
 

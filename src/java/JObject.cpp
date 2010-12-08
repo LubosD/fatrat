@@ -128,7 +128,7 @@ JObject::JObject(const char* clsName, JSignature sig, JArgs args)
 	construct(cls, ba.data(), args);
 }
 
-JObject& JObject::operator=(JObject& obj)
+JObject& JObject::operator=(const JObject& obj)
 {
 	JNIEnv* env = *JVM::instance();
 

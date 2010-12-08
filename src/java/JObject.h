@@ -54,7 +54,7 @@ public:
 	JObject(const char* clsName, JSignature sig, JArgs args = JArgs());
 	virtual ~JObject();
 
-	JObject& operator=(JObject& obj);
+	JObject& operator=(const JObject& obj);
 	JObject& operator=(jobject obj);
 	operator jobject();
 	operator QVariant() { return toVariant(); }

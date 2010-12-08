@@ -44,6 +44,7 @@ private slots:
 	void captchaEntered(QString text);
 protected:
 	virtual bool process(int id, QString url);
+	virtual void abort(int id);
 private:
 	QMap<CaptchaQtDlg*,int> m_dlgs;
 };
