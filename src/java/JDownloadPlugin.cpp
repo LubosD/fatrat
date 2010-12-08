@@ -33,9 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include "JMap.h"
 #include "engines/JavaDownload.h"
 #include "captcha/Captcha.h"
+#include <QBuffer>
 #include <cassert>
 
-template <> QMap<jobject, JObject*> JSingleCObject<JDownloadPlugin>::m_instances = QMap<jobject, JObject*>();
+template <> QList<JObject*> JSingleCObject<JDownloadPlugin>::m_instances = QList<JObject*>();
 template <> std::auto_ptr<QReadWriteLock> JSingleCObject<JDownloadPlugin>::m_mutex = std::auto_ptr<QReadWriteLock>(new QReadWriteLock);
 
 QMap<QString,JObject> JDownloadPlugin::m_captchaCallbacks;
@@ -86,6 +87,7 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 		obj.call("onSolved", JSignature().addString(), solution);
 	else
 		obj.call("onFailed");
+	m_captchaCallbacks.remove(url);
 }
 
 void JDownloadPlugin::solveCaptcha(JNIEnv* env, jobject jthis, jstring jurl, jobject cb)
@@ -112,6 +114,8 @@ void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobjec
 	JDownloadPlugin* This = getCObject(jthis);
 	QString url = JString(jurl).toString();
 	QNetworkReply* reply;
+
+	qDebug() << "JDownloadPlugin::fetchPage():" << url;
 
 	if (!postData)
 		reply = This->m_network->get(QNetworkRequest(url));
@@ -160,22 +164,23 @@ void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
 	}
 	else
 	{
-		JByteBuffer buf;
-		qint64 bytes = reply->bytesAvailable();
-		void* mem = buf.allocate(bytes);
-
-		reply->read(static_cast<char*>(mem), bytes);
+		QByteArray qbuf = reply->readAll();
+		JByteBuffer buf (qbuf.data(), qbuf.size());
 
 		QList<QByteArray> list = reply->rawHeaderList();
 		JMap map(list.size());
 
 		foreach (QByteArray ba, list)
 		{
-			int p = ba.indexOf(':');
-			if (p < 0)
-				continue;
-			map.put(QString(ba.left(p)).toLower(), QString(ba.mid(p+1)).trimmed());
+			QString k, v;
+
+			k = QString(ba).toLower();
+			v = QString(reply->rawHeader(ba)).trimmed();
+			qDebug() << "Header:" << k << v;
+			map.put(k, v);
 		}
+
+		qDebug() << "fetchFinished.onCompleted:" << buf.toString();
 
 		iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
 	}

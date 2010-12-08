@@ -41,5 +41,5 @@ JMap::JMap(int initialCapacity)
 
 void JMap::put(JObject key, JObject value)
 {
-	call("put", JSignature().add("java.lang.Object").add("java.lang.Object"), key, value);
+	call("put", JSignature().add("java.lang.Object").add("java.lang.Object").ret("java.lang.Object"), key, value);
 }

@@ -153,6 +153,7 @@ bool Transfer::isActive() const
 
 Transfer* Transfer::createInstance(QString className)
 {
+	qDebug() << "Transfer::createInstance():" << className;
 	for(int i=0;i<g_enginesDownload.size();i++)
 	{
 		if(className == g_enginesDownload[i].shortName)

@@ -33,6 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JDownloadPlugin.h"
 
 #include <QApplication>
+#include <QtDebug>
 #include <cassert>
 
 QMap<QString,QMutex*> JavaDownload::m_mutexes;
@@ -41,10 +42,12 @@ QMap<QString,JavaDownload::JavaEngine> JavaDownload::m_engines;
 JavaDownload::JavaDownload(const char* cls)
 	: m_bHasLock(false), m_plugin(0)
 {
+	qDebug() << "JavaDownload::JavaDownload(): " << cls;
 	assert(m_engines.contains(cls));
 
 	m_strClass = cls;
 	m_plugin = new JDownloadPlugin(cls);
+	m_plugin->setTransfer(this);
 }
 
 JavaDownload::~JavaDownload()
@@ -59,6 +62,7 @@ void JavaDownload::init(QString source, QString target)
 {
 	m_strOriginal = source;
 	m_strTarget = target;
+	deriveName();
 }
 
 QString JavaDownload::myClass() const
@@ -68,7 +72,7 @@ QString JavaDownload::myClass() const
 
 QString JavaDownload::name() const
 {
-	if(isActive())
+	if(!m_downloadUrl.isEmpty())
 		return CurlDownload::name();
 	else
 		return m_strName;
@@ -81,6 +85,8 @@ void JavaDownload::load(const QDomNode& map)
 	m_strOriginal = getXMLProperty(map, "jplugin_original");
 	m_strTarget = getXMLProperty(map, "jplugin_target");
 	//m_nTotal = getXMLProperty(map, "jplugin_knowntotal");
+
+	deriveName();
 }
 
 void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
@@ -121,6 +127,8 @@ void JavaDownload::changeActive(bool bActive)
 			m_bHasLock = false;
 		}
 
+		m_downloadUrl = QUrl();
+
 		CurlDownload::changeActive(false);
 	}
 }
@@ -159,6 +167,7 @@ QString JavaDownload::remoteURI() const
 
 int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 {
+	qDebug() << "JavaDownload::acceptable():" << uri << e->shortName;
 	assert(m_engines.contains(e->shortName));
 
 	const JavaEngine& en = m_engines[e->shortName];
@@ -178,7 +187,10 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 
 void JavaDownload::deriveName()
 {
-	// TODO
+	QString name;
+	name = QFileInfo(m_strOriginal).fileName();
+	name = QUrl::fromPercentEncoding(name.toUtf8());
+	m_strName = (!name.isEmpty() && name != "/" && name != ".") ? name : "default.html";
 }
 
 void JavaDownload::globalInit()
@@ -216,11 +228,16 @@ void JavaDownload::globalInit()
 			JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
 			m_engines[clsName] = e;
 
+			qDebug() << "createInstance of " << clsName;
+
 			EngineEntry entry;
-			entry.longName = e.name.c_str();
-			entry.shortName = e.shortName.c_str();
+			entry.longName = m_engines[clsName].name.c_str();
+			entry.shortName = m_engines[clsName].shortName.c_str();
 			entry.lpfnAcceptable2 = JavaDownload::acceptable;
 			entry.lpfnCreate2 = JavaDownload::createInstance;
+			entry.lpfnInit = 0;
+			entry.lpfnExit = 0;
+			entry.lpfnMultiOptions = 0;
 
 			addTransferClass(entry, Transfer::Download);
 		}

@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JScope.h"
 #include "JException.h"
 #include <alloca.h>
+#include <cassert>
 #include <QtDebug>
 
 JObject::JObject()
@@ -77,7 +78,10 @@ void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
 		jargs[i] = vals[i];
 	}
 
-	jobject obj = env->NewObjectA(cls, mid, jargs);
+	jobject obj;
+
+	obj = env->NewObjectA(cls, mid, jargs);
+	assert(!env->ExceptionOccurred());
 	JObject ex = env->ExceptionOccurred();
 
 	if (!ex.isNull())
@@ -90,8 +94,8 @@ void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
 		throw JException(message, className, ex);
 	}
 
-	if (!m_object)
-		throw RuntimeException(QObject::tr("Failed to create an instance").arg(sig));
+	if (!obj)
+		throw RuntimeException(QObject::tr("Failed to create an instance - constructor %1").arg(sig));
 	m_object = env->NewGlobalRef(obj);
 	env->DeleteLocalRef(obj);
 }
@@ -213,6 +217,12 @@ JArray JObject::toArray() const
 	return JArray(jarray(m_object));
 }
 
+bool JObject::isSameObject(jobject that) const
+{
+	JNIEnv* env = *JVM::instance();
+	return env->IsSameObject(m_object, that) == JNI_TRUE;
+}
+
 QVariant JObject::call(const char* name, JSignature sig, JArgs args)
 {
 	QByteArray ba = sig.str().toLatin1();
@@ -262,7 +272,7 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 			JObject jobj(callScope.popWithRef(obj));
 
 			if (jobj.isString())
-				retval = jobj.toString();
+				retval = jobj.toStringShallow().str();
 			else
 				retval = jobj.toVariant();
 			break;

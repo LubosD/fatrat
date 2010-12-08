@@ -62,6 +62,7 @@ public:
 	void setNull();
 
 	bool instanceOf(const char* cls) const;
+	bool isSameObject(jobject that) const;
 	bool isString() const;
 	JString toStringShallow() const;
 	QString toString() const;

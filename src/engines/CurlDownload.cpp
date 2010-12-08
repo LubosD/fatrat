@@ -124,9 +124,16 @@ void CurlDownload::generateName()
 	if(!m_urls.isEmpty())
 		name = QFileInfo(m_urls[0].url.path()).fileName();
 	name = QUrl::fromPercentEncoding(name.toUtf8());
+
+	int pos = name.indexOf('?');
+	if (pos != -1)
+		name = name.left(pos);
+
 	m_strFile = (!name.isEmpty() && name != "/" && name != ".") ? name : "default.html";
 	assert(!m_strFile.isEmpty());
 	m_bAutoName = true;
+
+	qDebug() << "Generated file name:" << m_strFile;
 }
 
 int CurlDownload::acceptable(QString uri, bool)
@@ -699,6 +706,10 @@ void CurlDownload::clientRenameTo(QString name)
 		return;
 
 	name = QUrl::fromPercentEncoding(name.toUtf8());
+
+	int pos = name.indexOf('?');
+	if (pos != -1)
+		name = name.left(pos);
 
 	m_nameChanger = client;
 	if(m_bAutoName)

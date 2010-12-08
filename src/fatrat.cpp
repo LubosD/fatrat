@@ -132,6 +132,7 @@ int main(int argc,char** argv)
 	{
 		new JVM;
 		testJava();
+		JavaDownload::globalInit();
 	}
 #endif
 

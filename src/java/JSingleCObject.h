@@ -35,7 +35,8 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #include <QReadWriteLock>
-#include <QMap>
+#include <QList>
+#include <QtDebug>
 #include <memory>
 #include "JObject.h"
 
@@ -50,36 +51,39 @@ public:
 	void setCObject()
 	{
 		QWriteLocker w(m_mutex.get());
-		jobject obj = *static_cast<T*>(this);
-		if (obj)
-			m_instances[obj] = static_cast<T*>(this);
+		m_instances << static_cast<T*>(this);
 	}
 
 	virtual ~JSingleCObject()
 	{
 		QWriteLocker w(m_mutex.get());
-		jobject obj = *static_cast<T*>(this);
-		m_instances.remove(obj);
+		m_instances.removeAll(static_cast<T*>(this));
 	}
 
 	T* getCObject()
 	{
 		QReadLocker r(m_mutex.get());
 		jobject obj = *static_cast<T*>(this);
-		return static_cast<T*>(m_instances[obj]);
+		return getCObject(obj);
 	}
 
 	static T* getCObject(jobject jobj)
 	{
 		QReadLocker r(m_mutex.get());
-		return static_cast<T*>(m_instances[jobj]);
+		foreach (JObject* obj, m_instances)
+		{
+			if (obj->isSameObject(jobj))
+				return static_cast<T*>(obj);
+		}
+		QString name = JObject(jobj).getClass().getClassName();
+		return 0;
 	}
 
 private:
 	JSingleCObject(const JSingleCObject<T>&) {}
 	JSingleCObject<T>& operator=(const JSingleCObject<T>&) {}
 private:
-	static QMap<jobject, JObject*> m_instances;
+	static QList<JObject*> m_instances;
 	static std::auto_ptr<QReadWriteLock> m_mutex;
 };
 
