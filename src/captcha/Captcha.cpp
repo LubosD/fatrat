@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include "Captcha.h"
 #include <cassert>
+#include <QtDebug>
 
 QMap<int,Captcha::CaptchaProcess> Captcha::m_cb;
 QList<Captcha*> Captcha::m_decoders;
@@ -36,6 +37,8 @@ QMutex Captcha::m_mutex (QMutex::Recursive);
 int Captcha::processCaptcha(QString url, CallbackFn callback)
 {
 	QMutexLocker l(&m_mutex);
+
+	qDebug() << "Captcha::processCaptcha():" << url;
 
 	if (m_decoders.isEmpty())
 	{

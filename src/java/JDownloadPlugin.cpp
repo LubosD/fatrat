@@ -193,9 +193,10 @@ void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
 
 void JDownloadPlugin::secondElapsed()
 {
+	m_nSecondsLeft--;
 	m_waitCallback.call("onSecondElapsed", JSignature().addInt(), m_nSecondsLeft);
 
-	if (!(--m_nSecondsLeft))
+	if (!m_nSecondsLeft)
 	{
 		m_timer.stop();
 		m_waitCallback.setNull();

@@ -67,6 +67,7 @@ void CaptchaQtDlg::imageLoaded(QNetworkReply* reply)
 	if (reply->error() != QNetworkReply::NoError)
 	{
 		labelImage->setText(tr("Failed to load the captcha image."));
+		m_timer.start(1000);
 		return;
 	}
 

@@ -80,8 +80,6 @@ QString JavaDownload::name() const
 
 void JavaDownload::load(const QDomNode& map)
 {
-	Transfer::load(map);
-
 	m_strOriginal = getXMLProperty(map, "jplugin_original");
 	m_strTarget = getXMLProperty(map, "jplugin_target");
 	m_strName = getXMLProperty(map, "jplugin_name");
@@ -89,6 +87,8 @@ void JavaDownload::load(const QDomNode& map)
 
 	if (m_strName.isEmpty())
 		deriveName();
+
+	Transfer::load(map);
 }
 
 void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
@@ -119,6 +119,8 @@ void JavaDownload::changeActive(bool bActive)
 			else
 				m_bHasLock = true;
 		}
+
+		assert(!m_strOriginal.isEmpty());
 		m_plugin->call("processLink", JSignature().addString(), JArgs() << m_strOriginal);
 	}
 	else
@@ -186,7 +188,6 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 {
 	m_downloadUrl = url;
-	// TODO
 	CurlDownload::init(url, m_strTarget);
 	m_urls[0].cookies = cookies;
 	CurlDownload::changeActive(true);
@@ -209,7 +210,7 @@ void JavaDownload::globalInit()
 	try
 	{
 		JClass helper("info.dolezel.fatrat.plugins.NativeHelpers");
-		JClass annotation("info.dolezel.fatrat.plugins.PluginInfo");
+		JClass annotation("info.dolezel.fatrat.plugins.annotations.PluginInfo");
 		QList<QVariant> args;
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
