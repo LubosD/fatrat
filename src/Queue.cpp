@@ -41,6 +41,8 @@ using namespace std;
 QList<Queue*> g_queues;
 QReadWriteLock g_queuesLock(QReadWriteLock::Recursive);
 
+bool Queue::m_bLoaded = false;
+
 Queue::Queue()
 	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1),
 	m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(false), m_lock(QReadWriteLock::Recursive)
@@ -95,6 +97,7 @@ void Queue::loadQueues()
 	QString errmsg;
 	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file, false, &errmsg))
 	{
+		qDebug() << "Failed to open " << file.fileName();
 		if(!errmsg.isEmpty())
 			qDebug() << "PARSE ERROR!" << errmsg;
 		
@@ -137,6 +140,8 @@ void Queue::loadQueues()
 		
 		g_queuesLock.unlock();
 	}
+
+	m_bLoaded = true;
 }
 
 void Queue::BackgroundSaver::run()
@@ -155,6 +160,12 @@ void Queue::saveQueuesAsync()
 
 void Queue::saveQueues()
 {
+	if (!m_bLoaded)
+	{
+		qDebug() << "Not saving queues as they haven't been loaded yet.";
+		return;
+	}
+
 	QDomDocument doc;
 	QDomElement root;
 	QFile file;
@@ -198,6 +209,7 @@ void Queue::saveQueues()
 		QByteArray path = (dir.path() + "/queues.xml.new").toUtf8();
 		QByteArray dpath = (dir.path() + "/queues.xml").toUtf8();
 		
+		qDebug() << "Saving queue to" << dpath;
 		rename(path.data(), dpath.data());
 	}
 }

@@ -139,6 +139,8 @@ protected:
 	public:
 		virtual void run();
 	};
+
+	static bool m_bLoaded;
 };
 
 #endif
