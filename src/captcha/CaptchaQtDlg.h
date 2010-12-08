@@ -46,6 +46,7 @@ signals:
 private slots:
 	void secondElapsed();
 	void imageLoaded(QNetworkReply* reply);
+	void textChanged();
 private:
 	void updateInfo();
 private:

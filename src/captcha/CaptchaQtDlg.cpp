@@ -34,6 +34,7 @@ CaptchaQtDlg::CaptchaQtDlg(QWidget* parent)
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
 	connect(&m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(imageLoaded(QNetworkReply*)));
+	connect(lineText, SIGNAL(textChanged(const QString&)), this, SLOT(textChanged()));
 }
 
 void CaptchaQtDlg::load(QString url)
@@ -81,6 +82,11 @@ void CaptchaQtDlg::imageLoaded(QNetworkReply* reply)
 	{
 		labelImage->setText(tr("Failed to load the captcha image."));
 	}
+}
+
+void CaptchaQtDlg::textChanged()
+{
+	m_nSecondsLeft = 30;
 }
 
 void CaptchaQtDlg::accept()
