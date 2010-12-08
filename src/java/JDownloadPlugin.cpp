@@ -117,12 +117,14 @@ void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobjec
 	QNetworkReply* reply;
 
 	qDebug() << "JDownloadPlugin::fetchPage():" << url;
+	if (postData)
+		qDebug() << "postData:" << JString(postData).str();
 
 	if (!postData)
 		reply = This->m_network->get(QNetworkRequest(url));
 	else
 	{
-		QByteArray pd = JString(postData).toString().toUtf8();
+		QByteArray pd = JString(postData).str().toUtf8();
 		reply = This->m_network->post(QNetworkRequest(url), pd);
 	}
 
@@ -241,4 +243,7 @@ void JDownloadPlugin::abort()
 		else
 			it++;
 	}
+
+	m_timer.stop();
+	m_waitCallback.setNull();
 }
