@@ -189,6 +189,8 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 {
 	m_downloadUrl = url;
 	CurlDownload::init(url, m_strTarget);
+	if (!m_segments.isEmpty())
+		m_segments[0].bytes = 0;
 	m_urls[0].cookies = cookies;
 	CurlDownload::changeActive(true);
 }
