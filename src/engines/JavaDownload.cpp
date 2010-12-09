@@ -229,8 +229,8 @@ void JavaDownload::globalInit()
 	// search for plugins
 	try
 	{
-		JClass helper("info.dolezel.fatrat.plugins.NativeHelpers");
-		JClass annotation("info.dolezel.fatrat.plugins.annotations.PluginInfo");
+		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+		JClass annotation("info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo");
 		QList<QVariant> args;
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
@@ -277,7 +277,7 @@ void JavaDownload::globalInit()
 			}
 		}
 	}
-	catch (const JException& e)
+	catch (const RuntimeException& e)
 	{
 		qDebug() << e.what();
 	}
