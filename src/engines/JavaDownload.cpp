@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JVM.h"
 #include "java/JClass.h"
 #include "java/JArray.h"
+#include "java/JException.h"
 #include "RuntimeException.h"
 #include "java/JDownloadPlugin.h"
 
@@ -105,23 +106,32 @@ void JavaDownload::changeActive(bool bActive)
 {
 	if (bActive)
 	{
-		if (m_plugin->call("forceSingleTransfer", JSignature().retBoolean()).toBool())
+		try
 		{
-			if (!m_mutexes[m_strClass])
-				m_mutexes[m_strClass] = new QMutex;
-
-			if (!m_bHasLock && !m_mutexes[m_strClass]->tryLock())
+			if (m_plugin->call("forceSingleTransfer", JSignature().retBoolean()).toBool())
 			{
-				enterLogMessage(m_strMessage = tr("You cannot have multiple active transfers from this server."));
-				setState(Failed);
-				return;
-			}
-			else
-				m_bHasLock = true;
-		}
+				if (!m_mutexes[m_strClass])
+					m_mutexes[m_strClass] = new QMutex;
 
-		assert(!m_strOriginal.isEmpty());
-		m_plugin->call("processLink", JSignature().addString(), JArgs() << m_strOriginal);
+				if (!m_bHasLock && !m_mutexes[m_strClass]->tryLock())
+				{
+					enterLogMessage(m_strMessage = tr("You cannot have multiple active transfers from this server."));
+					setState(Failed);
+					return;
+				}
+				else
+					m_bHasLock = true;
+			}
+
+			assert(!m_strOriginal.isEmpty());
+
+			m_plugin->call("processLink", JSignature().addString(), JArgs() << m_strOriginal);
+		}
+		catch (const JException& e)
+		{
+			setMessage(tr("Java exception: %1").arg(e.what()));
+			setState(Failed);
+		}
 	}
 	else
 	{
@@ -163,7 +173,15 @@ void JavaDownload::setState(State newState)
 {
 	if(newState == Transfer::Completed)
 	{
-		m_plugin->call("finalCheck", JSignature().addString(), JArgs() << dataPath(true));
+		try
+		{
+			m_plugin->call("finalCheck", JSignature().addString(), JArgs() << dataPath(true));
+		}
+		catch (const JException& e)
+		{
+			setMessage(tr("Java exception: %1").arg(e.what()));
+			setState(Failed);
+		}
 	}
 
 	Transfer::setState(newState);
@@ -225,34 +243,41 @@ void JavaDownload::globalInit()
 		int classes = arr.size();
 		for (int i = 0; i < classes; i++)
 		{
-			JClass obj = (jobject) arr.getObject(i);
-			JObject ann = obj.getAnnotation(annotation);
-			QString regexp = ann.call("regexp", JSignature().retString()).toString();
-			QString name = ann.call("name", JSignature().retString()).toString();
-			QString clsName = obj.getClassName();
+			try
+			{
+				JClass obj = (jobject) arr.getObject(i);
+				JObject ann = obj.getAnnotation(annotation);
+				QString regexp = ann.call("regexp", JSignature().retString()).toString();
+				QString name = ann.call("name", JSignature().retString()).toString();
+				QString clsName = obj.getClassName();
 
-			qDebug() << "Class name:" << clsName;
-			qDebug() << "Name:" << name;
-			qDebug() << "Regexp:" << regexp;
+				qDebug() << "Class name:" << clsName;
+				qDebug() << "Name:" << name;
+				qDebug() << "Regexp:" << regexp;
 
-			JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
-			m_engines[clsName] = e;
+				JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+				m_engines[clsName] = e;
 
-			qDebug() << "createInstance of " << clsName;
+				qDebug() << "createInstance of " << clsName;
 
-			EngineEntry entry;
-			entry.longName = m_engines[clsName].name.c_str();
-			entry.shortName = m_engines[clsName].shortName.c_str();
-			entry.lpfnAcceptable2 = JavaDownload::acceptable;
-			entry.lpfnCreate2 = JavaDownload::createInstance;
-			entry.lpfnInit = 0;
-			entry.lpfnExit = 0;
-			entry.lpfnMultiOptions = 0;
+				EngineEntry entry;
+				entry.longName = m_engines[clsName].name.c_str();
+				entry.shortName = m_engines[clsName].shortName.c_str();
+				entry.lpfnAcceptable2 = JavaDownload::acceptable;
+				entry.lpfnCreate2 = JavaDownload::createInstance;
+				entry.lpfnInit = 0;
+				entry.lpfnExit = 0;
+				entry.lpfnMultiOptions = 0;
 
-			addTransferClass(entry, Transfer::Download);
+				addTransferClass(entry, Transfer::Download);
+			}
+			catch (const JException& e)
+			{
+				qDebug() << e.what();
+			}
 		}
 	}
-	catch (const RuntimeException& e)
+	catch (const JException& e)
 	{
 		qDebug() << e.what();
 	}

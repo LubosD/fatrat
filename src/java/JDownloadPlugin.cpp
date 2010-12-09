@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JString.h"
 #include "JByteBuffer.h"
 #include "JMap.h"
+#include "JException.h"
 #include "engines/JavaDownload.h"
 #include "captcha/Captcha.h"
 #include <QBuffer>
@@ -68,11 +69,16 @@ void JDownloadPlugin::registerNatives()
 	QList<JNativeMethod> natives;
 
 	natives << JNativeMethod("setMessage", JSignature().addString(), setMessage);
-	natives << JNativeMethod("setState", JSignature().add("info.dolezel.fatrat.plugins.DownloadPlugin$State"), setState);
+	natives << JNativeMethod("setState", JSignature().add("info.dolezel.fatrat.plugins.TransferPlugin$State"), setState);
+	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
+
+	JClass("info.dolezel.fatrat.plugins.TransferPlugin").registerNativeMethods(natives);
+
+	natives.clear();
+
 	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString(), fetchPage);
 	natives << JNativeMethod("startDownload", JSignature().addString(), startDownload);
 	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
-	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
 	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
 	natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
 
@@ -84,10 +90,21 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 	assert(m_captchaCallbacks.contains(url));
 
 	JObject& obj = m_captchaCallbacks[url].second;
-	if (!solution.isEmpty())
-		obj.call("onSolved", JSignature().addString(), solution);
-	else
-		obj.call("onFailed");
+
+	try
+	{
+		if (!solution.isEmpty())
+			obj.call("onSolved", JSignature().addString(), solution);
+		else
+			obj.call("onFailed");
+	}
+	catch (const JException& e)
+	{
+		JDownloadPlugin* This = m_captchaCallbacks[url].first;
+		This->m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
+		This->m_transfer->setState(Transfer::Failed);
+	}
+
 	m_captchaCallbacks.remove(url);
 }
 
@@ -170,32 +187,42 @@ void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
 		return; // The transfer has been stopped
 
 	JObject& iface = m_fetchCallbacks[reply].second;
-	if (reply->error() != QNetworkReply::NoError)
-	{
-		iface.call("onFailed", JSignature().addString(), reply->errorString());
-	}
-	else
-	{
-		QByteArray qbuf = reply->readAll();
-		JByteBuffer buf (qbuf.data(), qbuf.size());
 
-		QList<QByteArray> list = reply->rawHeaderList();
-		JMap map(list.size());
-
-		foreach (QByteArray ba, list)
+	try
+	{
+		if (reply->error() != QNetworkReply::NoError)
 		{
-			QString k, v;
-
-			k = QString(ba).toLower();
-			v = QString(reply->rawHeader(ba)).trimmed();
-			qDebug() << "Header:" << k << v;
-			map.put(k, v);
+			iface.call("onFailed", JSignature().addString(), reply->errorString());
 		}
+		else
+		{
+			QByteArray qbuf = reply->readAll();
+			JByteBuffer buf (qbuf.data(), qbuf.size());
 
-		qDebug() << "fetchFinished.onCompleted:" << buf.toString();
+			QList<QByteArray> list = reply->rawHeaderList();
+			JMap map(list.size());
 
-		iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
+			foreach (QByteArray ba, list)
+			{
+				QString k, v;
+
+				k = QString(ba).toLower();
+				v = QString(reply->rawHeader(ba)).trimmed();
+				qDebug() << "Header:" << k << v;
+				map.put(k, v);
+			}
+
+			qDebug() << "fetchFinished.onCompleted:" << buf.toString();
+
+			iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
+		}
 	}
+	catch (const JException& e)
+	{
+		m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
+		m_transfer->setState(Transfer::Failed);
+	}
+
 	m_fetchCallbacks.remove(reply);
 }
 
