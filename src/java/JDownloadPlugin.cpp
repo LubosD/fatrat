@@ -74,6 +74,7 @@ void JDownloadPlugin::registerNatives()
 	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
 	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
 	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
+	natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
 
 	JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
 }
@@ -108,6 +109,11 @@ void JDownloadPlugin::setState(JNIEnv* env, jobject jthis, jobject state)
 {
 	JStateEnum e(state);
 	getCObject(jthis)->m_transfer->setState(e.value());
+}
+
+void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring name)
+{
+	getCObject(jthis)->m_transfer->setName(JString(name).str());
 }
 
 void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInterface, jstring postData)

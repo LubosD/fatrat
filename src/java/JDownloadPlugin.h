@@ -67,6 +67,7 @@ public:
 	static void startWait(JNIEnv *, jobject, jint, jobject);
 	static void logMessage(JNIEnv *, jobject, jstring);
 	static void solveCaptcha(JNIEnv *, jobject, jstring, jobject);
+	static void reportFileName(JNIEnv *, jobject, jstring);
 
 	static void captchaSolved(QString url, QString solution);
 private slots:
