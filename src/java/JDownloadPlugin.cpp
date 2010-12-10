@@ -71,12 +71,12 @@ void JDownloadPlugin::registerNatives()
 	natives << JNativeMethod("setMessage", JSignature().addString(), setMessage);
 	natives << JNativeMethod("setState", JSignature().add("info.dolezel.fatrat.plugins.TransferPlugin$State"), setState);
 	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
+	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString(), fetchPage);
 
 	JClass("info.dolezel.fatrat.plugins.TransferPlugin").registerNativeMethods(natives);
 
 	natives.clear();
 
-	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString(), fetchPage);
 	natives << JNativeMethod("startDownload", JSignature().addString(), startDownload);
 	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
 	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
