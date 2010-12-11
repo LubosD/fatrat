@@ -32,8 +32,10 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JException.h"
 #include "RuntimeException.h"
 #include "java/JDownloadPlugin.h"
+#include "fatrat.h"
 
 #include <QApplication>
+#include <QMessageBox>
 #include <QtDebug>
 #include <cassert>
 
@@ -307,5 +309,44 @@ void JavaDownload::setMessage(QString msg)
 
 WidgetHostChild* JavaDownload::createOptionsWidget(QWidget* w)
 {
-	return 0;
+	return new JavaDownloadOptsForm(w, this);
+}
+
+JavaDownloadOptsForm::JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj)
+	: m_download(myobj)
+{
+	setupUi(me);
+}
+
+void JavaDownloadOptsForm::load()
+{
+	labelClass->setText(m_download->m_strClass);
+	lineURL->setText(m_download->m_strOriginal);
+}
+
+void JavaDownloadOptsForm::accepted()
+{
+	QString newUrl = lineURL->text();
+
+	if (newUrl != m_download->m_strOriginal)
+	{
+		m_download->m_strOriginal = newUrl;
+		if (m_download->isActive())
+			m_download->setState(Transfer::Waiting); // restart
+	}
+}
+
+bool JavaDownloadOptsForm::accept()
+{
+	QString newUrl = lineURL->text();
+
+	if (newUrl != m_download->m_strOriginal)
+	{
+		if (!JavaDownload::m_engines[m_download->m_strClass].regexp.exactMatch(newUrl))
+		{
+			QMessageBox::warning(getMainWindow(), "FatRat", tr("Invalid URL."));
+			return false;
+		}
+	}
+	return true;
 }

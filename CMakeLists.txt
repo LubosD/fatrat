@@ -384,6 +384,10 @@ if(WITH_JPLUGINS)
 		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
 	)
+	set(fatrat_UIS
+		${fatrat_UIS}
+		src/engines/JavaDownloadOptsForm.ui
+	)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)

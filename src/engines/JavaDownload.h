@@ -37,6 +37,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QMap>
 #include <QMutex>
+#include "WidgetHostChild.h"
+#include "ui_JavaDownloadOptsForm.h"
 
 class JDownloadPlugin;
 
@@ -100,6 +102,19 @@ private:
 	friend class JPlugin;
 	friend class JTransferPlugin;
 	friend class JDownloadPlugin;
+	friend class JavaDownloadOptsForm;
+};
+
+class JavaDownloadOptsForm : public QObject, public WidgetHostChild, Ui_JavaDownloadOptsForm
+{
+Q_OBJECT
+public:
+	JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj);
+	virtual void load();
+	virtual void accepted();
+	virtual bool accept();
+private:
+	JavaDownload* m_download;
 };
 
 #endif // JAVADOWNLOAD_H
