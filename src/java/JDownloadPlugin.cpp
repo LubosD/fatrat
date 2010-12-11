@@ -37,45 +37,23 @@ respects for all of the code used other than "OpenSSL".
 #include <QBuffer>
 #include <cassert>
 
-template <> QList<JObject*> JSingleCObject<JDownloadPlugin>::m_instances = QList<JObject*>();
-template <> std::auto_ptr<QReadWriteLock> JSingleCObject<JDownloadPlugin>::m_mutex = std::auto_ptr<QReadWriteLock>(new QReadWriteLock);
-
 QMap<QString,JDownloadPlugin::RequesterReceiver> JDownloadPlugin::m_captchaCallbacks;
 
 JDownloadPlugin::JDownloadPlugin(const JClass& cls, const char* sig, JArgs args)
-	: JObject(cls, sig, args), m_transfer(0)
+	: JTransferPlugin(cls, sig, args)
 {
-	setCObject();
-	m_network = new QNetworkAccessManager(this);
-	m_network->setCookieJar(new QNetworkCookieJar(m_network));
-	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(fetchFinished(QNetworkReply*)));
-
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
 }
 
 JDownloadPlugin::JDownloadPlugin(const char* clsName, const char* sig, JArgs args)
-	: JObject(clsName, sig, args), m_transfer(0)
+	: JTransferPlugin(clsName, sig, args)
 {
-	setCObject();
-	m_network = new QNetworkAccessManager(this);
-	m_network->setCookieJar(new QNetworkCookieJar(m_network));
-	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(fetchFinished(QNetworkReply*)));
-
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
 }
 
 void JDownloadPlugin::registerNatives()
 {
 	QList<JNativeMethod> natives;
-
-	natives << JNativeMethod("setMessage", JSignature().addString(), setMessage);
-	natives << JNativeMethod("setState", JSignature().add("info.dolezel.fatrat.plugins.TransferPlugin$State"), setState);
-	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
-	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString(), fetchPage);
-
-	JClass("info.dolezel.fatrat.plugins.TransferPlugin").registerNativeMethods(natives);
-
-	natives.clear();
 
 	natives << JNativeMethod("startDownload", JSignature().addString(), startDownload);
 	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
@@ -100,7 +78,7 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 	}
 	catch (const JException& e)
 	{
-		JDownloadPlugin* This = m_captchaCallbacks[url].first;
+		JDownloadPlugin* This = static_cast<JDownloadPlugin*>(m_captchaCallbacks[url].first);
 		This->m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
 		This->m_transfer->setState(Transfer::Failed);
 	}
@@ -117,46 +95,15 @@ void JDownloadPlugin::solveCaptcha(JNIEnv* env, jobject jthis, jstring jurl, job
 	Captcha::processCaptcha(url, captchaSolved);
 }
 
-void JDownloadPlugin::setMessage(JNIEnv* env, jobject jthis, jstring msg)
-{
-	getCObject(jthis)->m_transfer->setMessage(JString(msg));
-}
-
-void JDownloadPlugin::setState(JNIEnv* env, jobject jthis, jobject state)
-{
-	JStateEnum e(state);
-	getCObject(jthis)->m_transfer->setState(e.value());
-}
-
 void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring name)
 {
-	getCObject(jthis)->m_transfer->setName(JString(name).str());
+	getCObject(jthis)->transfer()->setName(JString(name).str());
 }
 
-void JDownloadPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInterface, jstring postData)
-{
-	JDownloadPlugin* This = getCObject(jthis);
-	QString url = JString(jurl).toString();
-	QNetworkReply* reply;
-
-	qDebug() << "JDownloadPlugin::fetchPage():" << url;
-	if (postData)
-		qDebug() << "postData:" << JString(postData).str();
-
-	if (!postData)
-		reply = This->m_network->get(QNetworkRequest(url));
-	else
-	{
-		QByteArray pd = JString(postData).str().toUtf8();
-		reply = This->m_network->post(QNetworkRequest(url), pd);
-	}
-
-	This->m_fetchCallbacks[reply] = RequesterReceiver(This, cbInterface);
-}
 
 void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url)
 {
-	JDownloadPlugin* This = getCObject(jthis);
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	JString str(url);
 	QList<QNetworkCookie> c = This->m_network->cookieJar()->cookiesForUrl(str.str());
 	This->m_transfer->startDownload(str, c);
@@ -172,59 +119,13 @@ QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>&
 
 void JDownloadPlugin::startWait(JNIEnv* env, jobject jthis, jint seconds, jobject cbInterface)
 {
-	JDownloadPlugin* This = getCObject(jthis);
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 
 	This->m_nSecondsLeft = seconds;
 	This->m_waitCallback = cbInterface;
 	This->m_timer.start(1000);
 }
 
-void JDownloadPlugin::fetchFinished(QNetworkReply* reply)
-{
-	reply->deleteLater();
-
-	if (!m_fetchCallbacks.contains(reply))
-		return; // The transfer has been stopped
-
-	JObject& iface = m_fetchCallbacks[reply].second;
-
-	try
-	{
-		if (reply->error() != QNetworkReply::NoError)
-		{
-			iface.call("onFailed", JSignature().addString(), reply->errorString());
-		}
-		else
-		{
-			QByteArray qbuf = reply->readAll();
-			JByteBuffer buf (qbuf.data(), qbuf.size());
-
-			QList<QByteArray> list = reply->rawHeaderList();
-			JMap map(list.size());
-
-			foreach (QByteArray ba, list)
-			{
-				QString k, v;
-
-				k = QString(ba).toLower();
-				v = QString(reply->rawHeader(ba)).trimmed();
-				qDebug() << "Header:" << k << v;
-				map.put(k, v);
-			}
-
-			qDebug() << "fetchFinished.onCompleted:" << buf.toString();
-
-			iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
-		}
-	}
-	catch (const JException& e)
-	{
-		m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
-		m_transfer->setState(Transfer::Failed);
-	}
-
-	m_fetchCallbacks.remove(reply);
-}
 
 void JDownloadPlugin::secondElapsed()
 {
@@ -238,24 +139,10 @@ void JDownloadPlugin::secondElapsed()
 	}
 }
 
-void JDownloadPlugin::logMessage(JNIEnv* env, jobject jthis, jstring msg)
-{
-	getCObject(jthis)->m_transfer->logMessage(JString(msg));
-}
-
-JDownloadPlugin::JStateEnum::JStateEnum(jobject obj)
-	: JObject(obj)
-{
-}
-
-Transfer::State JDownloadPlugin::JStateEnum::value() const
-{
-	int state = const_cast<JStateEnum*>(this)->call("value", JSignature().retInt()).toInt();
-	return Transfer::State( state );
-}
-
 void JDownloadPlugin::abort()
 {
+	JTransferPlugin::abort();
+
 	// prune m_captchaCallbacks and m_fetchCallbacks
 	for(QMap<QString,RequesterReceiver>::iterator it = m_captchaCallbacks.begin(); it != m_captchaCallbacks.end();)
 	{
@@ -265,14 +152,6 @@ void JDownloadPlugin::abort()
 			Captcha::abortCaptcha(it.key());
 			it = m_captchaCallbacks.erase(it);
 		}
-		else
-			it++;
-	}
-
-	for(QMap<QNetworkReply*,RequesterReceiver>::iterator it = m_fetchCallbacks.begin(); it != m_fetchCallbacks.end();)
-	{
-		if (it.value().first == this)
-			it = m_fetchCallbacks.erase(it);
 		else
 			it++;
 	}

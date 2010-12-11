@@ -25,50 +25,46 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
-#ifndef JDOWNLOADPLUGIN_H
-#define JDOWNLOADPLUGIN_H
+#ifndef JPLUGIN_H
+#define JPLUGIN_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
 
-#include "JTransferPlugin.h"
+#include "JObject.h"
+#include "JSingleCObject.h"
 #include "Transfer.h"
-#include <QTimer>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QMap>
-#include <QPair>
 
 class JavaDownload;
 
-class JDownloadPlugin : public JTransferPlugin
+class JPlugin : public QObject, public JObject, public JSingleCObject<JPlugin>
 {
 Q_OBJECT
 public:
-	JDownloadPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JDownloadPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+	JPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
+	JPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
-	void abort();
+	static void fetchPage(JNIEnv *, jobject, jstring, jobject, jstring);
+
+	inline void setTransfer(JavaDownload* t) { m_transfer = t; }
+	inline JavaDownload* transfer() const { return m_transfer; }
+
+	virtual void abort();
 
 	static void registerNatives();
-
-	// JNI methods
-	static void startDownload(JNIEnv *, jobject, jstring);
-	static void startWait(JNIEnv *, jobject, jint, jobject);
-	static void solveCaptcha(JNIEnv *, jobject, jstring, jobject);
-	static void reportFileName(JNIEnv *, jobject, jstring);
-
-	static void captchaSolved(QString url, QString solution);
 private slots:
-	void secondElapsed();
+	void fetchFinished(QNetworkReply*);
 protected:
-	static QMap<QString,QString> cookiesToMap(const QList<QNetworkCookie>& list);
-private:
-	QTimer m_timer;
-	static QMap<QString,RequesterReceiver> m_captchaCallbacks;
-	JObject m_waitCallback;
-	int m_nSecondsLeft;
+	typedef QPair<JPlugin*,JObject> RequesterReceiver;
+
+	JavaDownload* m_transfer;
+	QMap<QNetworkReply*,RequesterReceiver> m_fetchCallbacks;
+	QNetworkAccessManager* m_network;
 };
 
-#endif // JDOWNLOADPLUGIN_H
+#endif // JPLUGIN_H

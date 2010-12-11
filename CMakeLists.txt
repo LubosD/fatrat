@@ -371,6 +371,8 @@ if(WITH_JPLUGINS)
 		src/java/JByteBuffer.cpp
 		src/java/JMap.cpp
 		src/java/JVM.cpp
+		src/java/JPlugin.cpp
+		src/java/JTransferPlugin.cpp
 		src/java/JDownloadPlugin.cpp
 		src/java/JNativeMethod.cpp
 		src/engines/JavaDownload.cpp
@@ -378,6 +380,8 @@ if(WITH_JPLUGINS)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/JavaDownload.h
+		src/java/JPlugin.h
+		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
 	)
 endif(WITH_JPLUGINS)

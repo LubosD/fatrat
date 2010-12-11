@@ -108,7 +108,8 @@ void JavaDownload::changeActive(bool bActive)
 	{
 		try
 		{
-			if (m_plugin->call("forceSingleTransfer", JSignature().retBoolean()).toBool())
+			QString clsName = m_plugin->getClass().getClassName();
+			if (m_engines[clsName].forceSingleTransfer)
 			{
 				if (!m_mutexes[m_strClass])
 					m_mutexes[m_strClass] = new QMutex;
@@ -127,7 +128,7 @@ void JavaDownload::changeActive(bool bActive)
 
 			m_plugin->call("processLink", JSignature().addString(), JArgs() << m_strOriginal);
 		}
-		catch (const JException& e)
+		catch (const RuntimeException& e)
 		{
 			setMessage(tr("Java exception: %1").arg(e.what()));
 			setState(Failed);
@@ -207,8 +208,17 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 {
 	m_downloadUrl = url;
 	CurlDownload::init(url, m_strTarget);
-	if (!m_segments.isEmpty())
-		m_segments[0].bytes = 0;
+	QString clsName = m_plugin->getClass().getClassName();
+	if (m_engines[clsName].truncate)
+	{
+		if (!m_segments.isEmpty())
+		{
+			m_segments[0].bytes = 0;
+			m_segments[0].offset = 0;
+		}
+		if (m_segments.size() > 1)
+			m_segments = m_segments.mid(0, 1);
+	}
 	m_urls[0].cookies = cookies;
 	CurlDownload::changeActive(true);
 }
@@ -256,6 +266,8 @@ void JavaDownload::globalInit()
 				qDebug() << "Regexp:" << regexp;
 
 				JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+				e.forceSingleTransfer = ann.call("forceSingleTransfer", JSignature().retBoolean()).toBool();
+				e.truncate = ann.call("truncIncomplete", JSignature().retBoolean()).toBool();
 				m_engines[clsName] = e;
 
 				qDebug() << "createInstance of " << clsName;
@@ -291,4 +303,9 @@ void JavaDownload::globalExit()
 void JavaDownload::setMessage(QString msg)
 {
 	m_strMessage = msg;
+}
+
+WidgetHostChild* JavaDownload::createOptionsWidget(QWidget* w)
+{
+	return 0;
 }

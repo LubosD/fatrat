@@ -58,6 +58,7 @@ public:
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void changeActive(bool bActive);
 	virtual QObject* createDetailsWidget(QWidget* w) { return 0; }
+	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 
 	virtual void fillContextMenu(QMenu& menu) {}
 
@@ -91,10 +92,13 @@ private:
 	{
 		std::string name, shortName;
 		QRegExp regexp;
+		bool forceSingleTransfer, truncate;
 	};
 
 	static QMap<QString,JavaEngine> m_engines;
 
+	friend class JPlugin;
+	friend class JTransferPlugin;
 	friend class JDownloadPlugin;
 };
 

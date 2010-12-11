@@ -100,6 +100,8 @@ JVM::JVM() : m_jvm(0)
 		if (!m_instance)
 			m_instance = this;
 
+		JPlugin::registerNatives();
+		JTransferPlugin::registerNatives();
 		JDownloadPlugin::registerNatives();
 	}
 }
