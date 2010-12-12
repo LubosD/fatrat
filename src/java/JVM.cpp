@@ -34,6 +34,8 @@ respects for all of the code used other than "OpenSSL".
 
 #include "JDownloadPlugin.h"
 #include "JMap.h"
+#include "Settings.h"
+#include <alloca.h>
 
 #include <QtDebug>
 
@@ -72,20 +74,25 @@ JVM::JVM() : m_jvm(0)
 
 		jint res;
 		JavaVMInitArgs vm_args;
-		JavaVMOption options[1];
+		JavaVMOption options[2];
 		JNIEnv* env;
-		QByteArray cp = getClassPath().toUtf8();
-		char opt[1024] = "-Djava.class.path=";
+		QByteArray classpath = getClassPath().toUtf8();
+		int mb = getSettingsValue("java/maxheap").toInt();
 
-		strcat(opt, cp.constData());
+		if (!mb)
+			mb = 16;
 
-		qDebug() << "Java Classpath set to" << cp;
+		classpath.prepend("-Djava.class.path=");
+		qDebug() << "Java Classpath set to" << classpath;
 
-		options[0].optionString = opt;
+		options[0].optionString = classpath.data();
+		options[1].optionString = static_cast<char*>(alloca(24));
+
+		snprintf(options[1].optionString, 24, "-Xmx%dm", mb);
 
 		vm_args.version = 0x00010006;
 		vm_args.options = options;
-		vm_args.nOptions = 1;
+		vm_args.nOptions = sizeof(options)/sizeof(options[0]);
 		vm_args.ignoreUnrecognized = JNI_TRUE;
 
 		res = fn(&m_jvm, (void**)&env, &vm_args);
