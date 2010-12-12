@@ -54,7 +54,7 @@ public:
 
 	operator jclass() const;
 
-	QVariant callStatic(const char* name, JSignature sig, JArgs args);
+	QVariant callStatic(const char* name, JSignature sig, JArgs args = JArgs());
 	QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
 	QVariant getStaticValue(const char* name, JSignature sig) const;
 	QVariant getStaticValue(const char* name, const char* sig) const;

@@ -231,6 +231,8 @@ QVariant JObject::call(const char* name, JSignature sig, JArgs args)
 
 QVariant JObject::call(const char* name, const char* sig, JArgs args)
 {
+	assert(m_object != 0);
+
 	JScope s;
 	JNIEnv* env = *JVM::instance();
 	jclass cls = env->GetObjectClass(m_object);
@@ -271,7 +273,7 @@ QVariant JObject::call(const char* name, const char* sig, JArgs args)
 			jobject obj = env->CallObjectMethodA(m_object, mid, jargs);
 			JObject jobj(callScope.popWithRef(obj));
 
-			if (jobj.isString())
+			if (jobj.isString() && !strcmp(rvtype+1, "java/lang/String;"))
 				retval = jobj.toStringShallow().str();
 			else
 				retval = jobj.toVariant();
@@ -443,6 +445,8 @@ void JObject::setValue(const char* name, const char* sig, QVariant value)
 
 JClass JObject::getClass() const
 {
+	assert(m_object != 0);
+
 	JScope s;
 	JNIEnv* env = *JVM::instance();
 	return JClass( env->GetObjectClass(m_object) );

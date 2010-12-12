@@ -47,6 +47,7 @@ QWidget* getMainWindow();
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);
 bool programHasGUI();
+void restartApplication();
 
 void addStatusWidget(QWidget* widget, bool bRight);
 void removeStatusWidget(QWidget* widget);

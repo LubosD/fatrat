@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>249</height>
+    <width>392</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,7 +67,7 @@
    <item row="3" column="0" colspan="3">
     <widget class="QLineEdit" name="lineText"/>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="4" column="0" colspan="3">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

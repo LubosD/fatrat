@@ -39,6 +39,12 @@ JMap::JMap(int initialCapacity)
 
 }
 
+JMap::JMap(const JObject& that)
+	: JObject(that)
+{
+
+}
+
 void JMap::put(JObject key, JObject value)
 {
 	call("put", JSignature().add("java.lang.Object").add("java.lang.Object").ret("java.lang.Object"), key, value);

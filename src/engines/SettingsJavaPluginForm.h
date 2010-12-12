@@ -25,35 +25,42 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JVM_H
-#define JVM_H
-
-#include "config.h"
-#ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
-#endif
-
-#include <jni.h>
-#include <QThreadStorage>
+#ifndef SETTINGSJAVAPLUGIN_H
+#define SETTINGSJAVAPLUGIN_H
+#include <QObject>
+#include "WidgetHostChild.h"
+#include "ui_SettingsJavaPluginForm.h"
+#include <QNetworkAccessManager>
+#include <QList>
 #include <QMap>
-#include <QString>
 
-class JVM
+class QNetworkReply;
+
+class SettingsJavaPluginForm : public QObject, Ui_SettingsJavaPluginForm, public WidgetHostChild
 {
+Q_OBJECT
 public:
-	JVM();
-	virtual ~JVM();
-	static bool JVMAvailable();
-	static JVM* instance();
-	operator JNIEnv*();
+	SettingsJavaPluginForm(QWidget* me, QObject* parent);
+	virtual void load();
+	virtual void accepted();
+	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsJavaPluginForm(me, parent); }
+private slots:
+	void finished(QNetworkReply* reply);
+	void uninstall();
+	void install();
+private:
+	void setError(QString error);
+	void loadInstalled();
+	void askRestart();
+private:
+	QNetworkAccessManager* m_network;
 
-	QMap<QString,QString> getPackageVersions();
-private:
-	static QString getClassPath();
-private:
-	static JVM* m_instance;
-	JavaVM* m_jvm;
-	QThreadStorage<JNIEnv**> m_env;
+	struct Plugin
+	{
+		QString name, version, desc;
+	};
+	QList<Plugin> m_availablePlugins;
+	QMap<QString,QString> m_installedPlugins;
 };
 
-#endif // JVM_H
+#endif // SETTINGSJAVAPLUGIN_H

@@ -376,6 +376,7 @@ if(WITH_JPLUGINS)
 		src/java/JDownloadPlugin.cpp
 		src/java/JNativeMethod.cpp
 		src/engines/JavaDownload.cpp
+		src/engines/SettingsJavaPluginForm.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -383,10 +384,12 @@ if(WITH_JPLUGINS)
 		src/java/JPlugin.h
 		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
+		src/engines/SettingsJavaPluginForm.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/engines/JavaDownloadOptsForm.ui
+		src/engines/SettingsJavaPluginForm.ui
 	)
 endif(WITH_JPLUGINS)
 

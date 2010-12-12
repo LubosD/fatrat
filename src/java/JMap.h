@@ -36,12 +36,15 @@ respects for all of the code used other than "OpenSSL".
 #include "JObject.h"
 #include "JSignature.h"
 #include "JString.h"
+#include <cassert>
+#include <QtDebug>
 
 class JMap : public JObject
 {
 public:
 	// Constructs a java.util.HashMap
 	JMap();
+	JMap(const JObject& that);
 	JMap(int initialCapacity);
 
 	// TODO: add all Java methods
@@ -58,6 +61,29 @@ public:
 		for (myiter it = map.constBegin(); it != map.constEnd(); it++)
 			rv.put(it.key(), it.value());
 		return rv;
+	}
+	template<typename Key, typename T> void toQMap(QMap<Key,T>& map)
+	{
+		JObject set = this->call("entrySet", JSignature().ret("java.util.Set")).value<JObject>();
+		JObject iter = set.call("iterator", JSignature().ret("java.util.Iterator")).value<JObject>();
+
+		map.clear();
+
+		while (iter.call("hasNext", JSignature().retBoolean()).toBool())
+		{
+			JObject entry = iter.call("next", JSignature().ret("java.lang.Object")).value<JObject>();
+			JObject key = entry.call("getKey", JSignature().ret("java.lang.Object")).value<JObject>();
+			JObject value = entry.call("getValue", JSignature().ret("java.lang.Object")).value<JObject>();
+
+			assert(!key.isNull());
+
+			Key k;
+			T v;
+
+			boxedToNative(key, k);
+			boxedToNative(value, v);
+			map[k] = v;
+		}
 	}
 	static JObject nativeToBoxed(int i)
 	{
@@ -94,6 +120,43 @@ public:
 	static JObject nativeToBoxed(QString s)
 	{
 		return JString(s);
+	}
+
+	static void boxedToNative(JObject& val, QString& out)
+	{
+		out = val.toStringShallow().str();
+	}
+	static void boxedToNative(JObject& val, int& out)
+	{
+		out = val.call("intValue", JSignature().retInt()).toInt();
+	}
+	static void boxedToNative(JObject& val, short& out)
+	{
+		out = val.call("shortValue", JSignature().retShort()).toInt();
+	}
+	static void boxedToNative(JObject& val, long long& out)
+	{
+		out = val.call("longValue", JSignature().retLong()).toLongLong();
+	}
+	static void boxedToNative(JObject& val, double& out)
+	{
+		out = val.call("doubleValue", JSignature().retDouble()).toDouble();
+	}
+	static void boxedToNative(JObject& val, float& out)
+	{
+		out = val.call("floatValue", JSignature().retFloat()).toFloat();
+	}
+	static void boxedToNative(JObject& val, wchar_t& out)
+	{
+		out = val.call("charValue", JSignature().retChar()).toInt();
+	}
+	static void boxedToNative(JObject& val, jbyte& out)
+	{
+		out = val.call("byteValue", JSignature().retByte()).toInt();
+	}
+	static void boxedToNative(JObject& val, bool& out)
+	{
+		out = val.call("booleanValue", JSignature().retBoolean()).toBool();
 	}
 };
 

@@ -33,6 +33,8 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include "java/JDownloadPlugin.h"
 #include "fatrat.h"
+#include "Settings.h"
+#include "SettingsJavaPluginForm.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -235,6 +237,8 @@ void JavaDownload::deriveName()
 
 void JavaDownload::globalInit()
 {
+	new JVM;
+
 	if (!JVM::JVMAvailable())
 		return;
 
@@ -295,6 +299,12 @@ void JavaDownload::globalInit()
 	{
 		qDebug() << e.what();
 	}
+
+	SettingsItem si;
+	si.title = tr("Extensions");
+	si.icon = DelayedIcon(":/menu/java_plugin.png");
+	si.lpfnCreate = SettingsJavaPluginForm::create;
+	addSettingsPage(si);
 }
 
 void JavaDownload::globalExit()

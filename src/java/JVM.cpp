@@ -33,6 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QDir>
 
 #include "JDownloadPlugin.h"
+#include "JMap.h"
 
 #include <QtDebug>
 
@@ -160,4 +161,14 @@ JVM::operator JNIEnv*()
 		m_env.setLocalData(penv);
 	}
 	return *m_env.localData();
+}
+
+QMap<QString,QString> JVM::getPackageVersions()
+{
+	JClass cls("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+	JMap map = cls.callStatic("getPackageVersions", JSignature().ret("java.util.Map")).value<JObject>();
+	QMap<QString,QString> rv;
+
+	map.toQMap(rv);
+	return rv;
 }

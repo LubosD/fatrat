@@ -42,8 +42,11 @@ respects for all of the code used other than "OpenSSL".
 #include <dlfcn.h>
 #include <cstdlib>
 #include <signal.h>
+#include <unistd.h>
 #include <iostream>
 #include <ctime>
+#include <cstring>
+#include <errno.h>
 
 #include "MainWindow.h"
 #include "QueueMgr.h"
@@ -103,19 +106,25 @@ static bool m_bStartGUI = true;
 static bool m_bManualGraphicsSystem = false, m_bDisableJava = false;
 static QString m_strUnitTest;
 
+static int g_argc = -1;
+static char** g_argv = 0;
+static QueueMgr* g_qmgr = 0;
+
 class MyApplication;
 
 int main(int argc,char** argv)
 {
 	QApplication* app = 0;
 	int rval;
-	QueueMgr* qmgr;
 	QString arg = argsToArg(argc, argv);
 
 	if (!m_bManualGraphicsSystem)
 		QApplication::setGraphicsSystem("raster"); // native is too slow on Linux
 	
 	app = new MyApplication(argc, argv, m_bStartGUI);
+
+	g_argc = argc;
+	g_argv = argv;
 
 	qsrand(time(0));
 	
@@ -126,17 +135,6 @@ int main(int argc,char** argv)
 
 	if(!m_bForceNewInstance)
 		processSession(arg);
-	
-#ifdef WITH_JPLUGINS
-	if (!m_bDisableJava)
-	{
-		new JVM;
-		testJava();
-		JavaDownload::globalInit();
-	}
-#endif
-
-	installSignalHandler();	
 	
 #ifdef WITH_NLS
 	QTranslator translator;
@@ -153,7 +151,13 @@ int main(int argc,char** argv)
 	
 	if(m_bStartGUI)
 		initSettingsPages();
+
+#ifdef WITH_JPLUGINS
+	if (!m_bDisableJava)
+		JavaDownload::globalInit();
+#endif
 	
+	installSignalHandler();
 	initTransferClasses();
 	loadPlugins();
 	runEngines();
@@ -169,7 +173,7 @@ int main(int argc,char** argv)
 	qRegisterMetaType<QString*>("QString*");
 	qRegisterMetaType<QByteArray*>("QByteArray*");
 	
-	qmgr = new QueueMgr;
+	g_qmgr = new QueueMgr;
 
 	TransferFactory factory;
 
@@ -212,9 +216,9 @@ int main(int argc,char** argv)
 	delete Scheduler::instance();
 	delete g_wndMain;
 	
+	g_qmgr->exit();
 	Queue::stopQueues();
 	Queue::saveQueues();
-	qmgr->exit();
 	Queue::unloadQueues();
 	
 	runEngines(false);
@@ -224,7 +228,7 @@ int main(int argc,char** argv)
 		delete JVM::instance();
 #endif
 	
-	delete qmgr;
+	delete g_qmgr;
 	exitSettings();
 	delete app;
 	
@@ -546,6 +550,20 @@ void installSignalHandler()
 
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGTERM, &act, 0);
+}
+
+void restartApplication()
+{
+#ifdef WITH_WEBINTERFACE
+	delete HttpService::instance();
+#endif
+
+	g_qmgr->exit();
+	Queue::stopQueues();
+	Queue::saveQueues();
+
+	if (execvp(g_argv[0], g_argv) == -1)
+		qDebug() << "execvp() failed: " << strerror(errno);
 }
 
 #ifdef WITH_JPLUGINS
