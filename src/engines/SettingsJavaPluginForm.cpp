@@ -167,6 +167,9 @@ void SettingsJavaPluginForm::finished(QNetworkReply* reply)
 			treeAvailable->addTopLevelItem(i);
 		}
 	}
+
+	toolBox->setItemText(0, QString("%1 (%2)").arg(toolBox->itemText(0)).arg(treeAvailable->topLevelItemCount()));
+	toolBox->setItemText(1, QString("%1 (%2)").arg(toolBox->itemText(1)).arg(treeUpdates->topLevelItemCount()));
 }
 
 void SettingsJavaPluginForm::uninstall()
