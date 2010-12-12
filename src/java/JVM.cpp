@@ -125,8 +125,8 @@ JVM::~JVM()
 
 QString JVM::getClassPath()
 {
+	bool hasCore = false;
 	QString rv;
-	rv = DATA_LOCATION "/data/java/fatrat-jplugins.jar";
 
 	QString baseDir = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/";
 	QDir dir(baseDir);
@@ -135,7 +135,16 @@ QString JVM::getClassPath()
 	QStringList list = dir.entryList(QStringList() << "*.jar", QDir::Files);
 
 	foreach (QString f, list)
-		rv += ":" + baseDir + f;
+	{
+		if (f == "fatrat-jplugins.jar")
+			hasCore = true;
+		if (!rv.isEmpty())
+			rv += ':';
+		rv += dir.filePath(f);
+	}
+
+	if (!hasCore)
+		rv += ":" DATA_LOCATION "/data/java/fatrat-jplugins.jar";
 
 	return rv;
 }

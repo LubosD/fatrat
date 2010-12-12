@@ -25,49 +25,10 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef SETTINGSJAVAPLUGIN_H
-#define SETTINGSJAVAPLUGIN_H
-#include <QObject>
-#include "WidgetHostChild.h"
-#include "ui_SettingsJavaPluginForm.h"
 #include "ExtensionDownloadDlg.h"
-#include <QNetworkAccessManager>
-#include <QList>
-#include <QMap>
 
-class QNetworkReply;
-
-class SettingsJavaPluginForm : public QObject, Ui_SettingsJavaPluginForm, public WidgetHostChild
+ExtensionDownloadDlg::ExtensionDownloadDlg(QWidget *parent) :
+    QDialog(parent)
 {
-Q_OBJECT
-public:
-	SettingsJavaPluginForm(QWidget* me, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsJavaPluginForm(me, parent); }
-private slots:
-	void finished(QNetworkReply* reply);
-	void finishedDownload(QNetworkReply* reply);
-	void uninstall();
-	void install();
-	void cancelDownload();
-private:
-	void setError(QString error);
-	void loadInstalled();
-	void askRestart();
-	void downloadNext();
-private:
-	QNetworkAccessManager* m_network;
-	QNetworkReply* m_reply;
-
-	struct Plugin
-	{
-		QString name, version, desc;
-	};
-	QList<Plugin> m_availablePlugins;
-	QMap<QString,QString> m_installedPlugins;
-	QList<QPair<QString,bool> > m_toInstall;
-	ExtensionDownloadDlg m_dlgProgress;
-};
-
-#endif // SETTINGSJAVAPLUGIN_H
+	setupUi(this);
+}

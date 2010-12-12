@@ -129,7 +129,7 @@ QVariant JClass::callStatic(const char* name, const char* sig, QList<QVariant> a
 		{
 			jclass string_class = env->FindClass("java/lang/String");
 			jobject obj = env->CallStaticObjectMethodA(m_class, mid, jargs);
-			if (env->IsInstanceOf(obj, string_class))
+			if (obj && env->IsInstanceOf(obj, string_class) && !strcmp(rvtype+1, "java/lang/String;"))
 				retval = JString(jstring(obj)).str();
 			else
 			{

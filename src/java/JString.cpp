@@ -108,6 +108,12 @@ JString::operator jstring() const
 
 QString JString::str() const
 {
+	if (isNull())
+	{
+		qDebug() << "WARNING: JString::str() on a null string";
+		return QString();
+	}
+
 	QString val;
 	JNIEnv* env = *JVM::instance();
 

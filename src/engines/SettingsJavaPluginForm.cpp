@@ -27,27 +27,36 @@ respects for all of the code used other than "OpenSSL".
 
 #include "SettingsJavaPluginForm.h"
 #include "java/JVM.h"
+#include "java/JClass.h"
 #include "fatrat.h"
 #include <QNetworkReply>
 #include <QMessageBox>
 #include <QDir>
 
 extern const char* USER_PROFILE_PATH;
-static const char* UPDATE_URL = "http://fatrat.dolezel.info/update/plugins/Index";
+static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 
-SettingsJavaPluginForm::SettingsJavaPluginForm(QWidget* me, QObject* parent) : QObject(parent)
+SettingsJavaPluginForm::SettingsJavaPluginForm(QWidget* me, QObject* parent)
+	: QObject(parent), m_reply(0), m_dlgProgress(me)
 {
 	setupUi(me);
 	m_network = new QNetworkAccessManager(this);
-	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
+
 	connect(pushUninstall, SIGNAL(clicked()), this, SLOT(uninstall()));
 	connect(pushInstall, SIGNAL(clicked()), this, SLOT(install()));
+	connect(&m_dlgProgress, SIGNAL(rejected()), this, SLOT(cancelDownload()));
 }
 
 void SettingsJavaPluginForm::load()
 {
+	treeInstalled->clear();
+	treeAvailable->clear();
+	treeUpdates->clear();
+
 	QMap<QString,QString> packages = JVM::instance()->getPackageVersions();
-	m_network->get(QNetworkRequest(QUrl(UPDATE_URL)));
+
+	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
+	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + "Index")));
 
 	m_installedPlugins = JVM::instance()->getPackageVersions();
 
@@ -64,7 +73,6 @@ void SettingsJavaPluginForm::accepted()
 
 void SettingsJavaPluginForm::loadInstalled()
 {
-	treeInstalled->clear();
 	for (QMap<QString,QString>::iterator it = m_installedPlugins.begin(); it != m_installedPlugins.end(); it++)
 	{
 		QString name = it.key();
@@ -89,6 +97,9 @@ void SettingsJavaPluginForm::setError(QString error)
 void SettingsJavaPluginForm::finished(QNetworkReply* reply)
 {
 	reply->deleteLater();
+	m_reply = 0;
+
+	disconnect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
 
 	if (reply->error() != QNetworkReply::NoError)
 	{
@@ -168,8 +179,8 @@ void SettingsJavaPluginForm::finished(QNetworkReply* reply)
 		}
 	}
 
-	toolBox->setItemText(0, QString("%1 (%2)").arg(toolBox->itemText(0)).arg(treeAvailable->topLevelItemCount()));
-	toolBox->setItemText(1, QString("%1 (%2)").arg(toolBox->itemText(1)).arg(treeUpdates->topLevelItemCount()));
+	toolBox->setItemText(0, tr("Available extensions (%2)").arg(treeAvailable->topLevelItemCount()));
+	toolBox->setItemText(1, tr("Updates (%2)").arg(treeUpdates->topLevelItemCount()));
 }
 
 void SettingsJavaPluginForm::uninstall()
@@ -209,9 +220,94 @@ void SettingsJavaPluginForm::askRestart()
 
 	if (box.clickedButton() == now)
 		restartApplication();
+	else
+		load();
 }
 
 void SettingsJavaPluginForm::install()
 {
+	m_toInstall.clear();
 
+	for (int i = 0; i < treeAvailable->topLevelItemCount(); i++)
+	{
+		QTreeWidgetItem* item = treeAvailable->topLevelItem(i);
+		if (item->checkState(0) == Qt::Checked)
+			m_toInstall << QPair<QString,bool>(item->text(0), false);
+	}
+	for (int i = 0; i < treeUpdates->topLevelItemCount(); i++)
+	{
+		QTreeWidgetItem* item = treeUpdates->topLevelItem(i);
+		if (item->checkState(0) == Qt::Checked)
+			m_toInstall << QPair<QString,bool>(item->text(0), true);
+	}
+
+	if (!m_toInstall.isEmpty())
+	{
+		connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finishedDownload(QNetworkReply*)));
+		m_dlgProgress.setNumSteps(m_toInstall.size());
+		m_dlgProgress.show();
+
+		downloadNext();
+	}
+}
+
+void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
+{
+	reply->deleteLater();
+
+	QPair<QString,bool> item = m_toInstall.takeFirst();
+
+	if (reply->error() != QNetworkReply::NoError)
+	{
+		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to download an extension: %1").arg(reply->errorString()));
+		return;
+	}
+
+	QString baseDir = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/";
+	QDir dir(baseDir);
+
+	QString fullPath = dir.filePath(item.first+".jar");
+	QFile file(fullPath);
+
+	if (!file.open(QIODevice::WriteOnly))
+	{
+		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to write a file: %1").arg(file.errorString()));
+		return;
+	}
+
+	m_dlgProgress.incStep();
+	file.write(reply->readAll());
+	file.close();
+
+	if (!item.second)
+	{
+		// load it
+		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+		helper.callStatic("loadPackage", JSignature().addString(), JArgs() << fullPath);
+	}
+
+	downloadNext();
+}
+
+void SettingsJavaPluginForm::downloadNext()
+{
+	if (m_toInstall.isEmpty())
+	{
+		disconnect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finishedDownload(QNetworkReply*)));
+		m_dlgProgress.hide();
+		askRestart();
+	}
+	else if (m_dlgProgress.isVisible())
+	{
+		QString name = m_toInstall[0].first;
+		QString url = UPDATE_URL + name + ".jar";
+
+		m_reply = m_network->get(QNetworkRequest(url));
+	}
+}
+
+void SettingsJavaPluginForm::cancelDownload()
+{
+	m_reply->abort();
+	m_toInstall.clear();
 }

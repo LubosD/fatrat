@@ -375,6 +375,7 @@ if(WITH_JPLUGINS)
 		src/java/JTransferPlugin.cpp
 		src/java/JDownloadPlugin.cpp
 		src/java/JNativeMethod.cpp
+		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaDownload.cpp
 		src/engines/SettingsJavaPluginForm.cpp
 	)
@@ -384,10 +385,12 @@ if(WITH_JPLUGINS)
 		src/java/JPlugin.h
 		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
+		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
+		src/engines/ExtensionDownloadDlg.ui
 		src/engines/JavaDownloadOptsForm.ui
 		src/engines/SettingsJavaPluginForm.ui
 	)
