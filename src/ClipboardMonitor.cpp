@@ -74,13 +74,16 @@ void ClipboardMonitor::dataChanged(QClipboard::Mode mode)
 
 	foreach (const QRegExp& re, m_regexps)
 	{
-		int pos = 0;
+		int pos = 0, start = links.size();
 
 		while ( (pos = re.indexIn(text, pos)) != -1)
 		{
 			links << re.cap(0);
 			pos += re.cap(0).length();
 		}
+
+		for (int i=start;i<links.size();i++)
+			text.remove(links[i]);
 	}
 
 	if (!links.isEmpty())
