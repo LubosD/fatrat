@@ -117,6 +117,7 @@ public:
 	{
 		return JObject("java.lang.Boolean", JSignature().addBoolean(), JArgs() << b);
 	}
+	static JObject nativeToBoxed(QVariant var);
 	static JObject nativeToBoxed(QString s)
 	{
 		return JString(s);

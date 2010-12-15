@@ -525,6 +525,9 @@ void showHelp()
 			"-f, --force \tRun the program even if an instance already exists\n"
 			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"
 			"-n, --nogui \tStart with no GUI at all\n"
+#ifdef WITH_JPLUGINS
+			"--no-java   \tDisable support for Java extensions\n"
+#endif
 			"-h, --help  \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
 	exit(0);

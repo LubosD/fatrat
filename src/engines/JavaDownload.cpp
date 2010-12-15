@@ -202,9 +202,23 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 	qDebug() << "JavaDownload::acceptable():" << uri << e->shortName;
 	assert(m_engines.contains(e->shortName));
 
-	const JavaEngine& en = m_engines[e->shortName];
-	if (en.regexp.exactMatch(uri))
+	JavaEngine& en = m_engines[e->shortName];
+
+	if (!en.ownAcceptable.isNull())
+	{
+		try
+		{
+			return en.ownAcceptable.call("acceptable", JSignature().addString().retInt(), JArgs() << uri).toInt();
+		}
+		catch (RuntimeException& e)
+		{
+			Logger::global()->enterLogMessage("JavaDownload", QString("%1 threw an exception in acceptable(): %2")
+							  .arg(QString::fromStdString(en.name)).arg(e.what()));
+		}
+	}
+	else if (en.regexp.exactMatch(uri))
 		return 3;
+
 	return 0;
 }
 
@@ -266,6 +280,7 @@ void JavaDownload::globalInit()
 				QString regexp = ann.call("regexp", JSignature().retString()).toString();
 				QString name = ann.call("name", JSignature().retString()).toString();
 				QString clsName = obj.getClassName();
+				JObject instance(obj, JSignature());
 
 				qDebug() << "Class name:" << clsName;
 				qDebug() << "Name:" << name;
@@ -274,6 +289,9 @@ void JavaDownload::globalInit()
 				JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
 				e.forceSingleTransfer = ann.call("forceSingleTransfer", JSignature().retBoolean()).toBool();
 				e.truncate = ann.call("truncIncomplete", JSignature().retBoolean()).toBool();
+
+				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
+					e.ownAcceptable = instance;
 				m_engines[clsName] = e;
 
 				qDebug() << "createInstance of " << clsName;

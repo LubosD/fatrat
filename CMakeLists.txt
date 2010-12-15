@@ -375,6 +375,7 @@ if(WITH_JPLUGINS)
 		src/java/JTransferPlugin.cpp
 		src/java/JDownloadPlugin.cpp
 		src/java/JNativeMethod.cpp
+		src/java/JSettings.cpp
 		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaDownload.cpp
 		src/engines/SettingsJavaPluginForm.cpp

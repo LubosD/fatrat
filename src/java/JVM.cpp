@@ -33,6 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QDir>
 
 #include "JDownloadPlugin.h"
+#include "JSettings.h"
 #include "JMap.h"
 #include "Settings.h"
 #include <alloca.h>
@@ -108,6 +109,7 @@ JVM::JVM() : m_jvm(0)
 		if (!m_instance)
 			m_instance = this;
 
+		JSettings::registerNatives();
 		JPlugin::registerNatives();
 		JTransferPlugin::registerNatives();
 		JDownloadPlugin::registerNatives();

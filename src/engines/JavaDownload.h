@@ -37,6 +37,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QMap>
 #include <QMutex>
+#include "java/JObject.h"
 #include "WidgetHostChild.h"
 #include "ui_JavaDownloadOptsForm.h"
 
@@ -95,6 +96,7 @@ private:
 		std::string name, shortName;
 		QRegExp regexp;
 		bool forceSingleTransfer, truncate;
+		JObject ownAcceptable;
 	};
 
 	static QMap<QString,JavaEngine> m_engines;

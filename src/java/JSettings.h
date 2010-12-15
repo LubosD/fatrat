@@ -25,35 +25,26 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JMap.h"
 
-JMap::JMap()
-	: JObject("java.util.HashMap", JSignature())
+#ifndef JSETTINGS_H
+#define JSETTINGS_H
+
+#include "config.h"
+#ifndef WITH_JPLUGINS
+#	error This file is not supposed to be included!
+#endif
+#include <jni.h>
+
+class JSettings
 {
+public:
+	static void registerNatives();
+protected:
+	static void setValueString(JNIEnv *, jclass, jstring, jstring);
+	static void setValueLong(JNIEnv *, jclass, jstring, jlong);
+	static void setValueBoolean(JNIEnv *, jclass, jstring, jboolean);
+	static void setValueDouble(JNIEnv *, jclass, jstring, jdouble);
+	static jobject getValue(JNIEnv *, jclass, jstring, jobject);
+};
 
-}
-
-JMap::JMap(int initialCapacity)
-	: JObject("java.util.HashMap", JSignature().addInt(), JArgs() << initialCapacity)
-{
-
-}
-
-JMap::JMap(const JObject& that)
-	: JObject(that)
-{
-
-}
-
-void JMap::put(JObject key, JObject value)
-{
-	call("put", JSignature().add("java.lang.Object").add("java.lang.Object").ret("java.lang.Object"), key, value);
-}
-
-JObject JMap::nativeToBoxed(QVariant var)
-{
-	switch (var.type())
-	{
-
-	}
-}
+#endif // JSETTINGS_H
