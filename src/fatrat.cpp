@@ -238,6 +238,11 @@ int main(int argc,char** argv)
 QString argsToArg(int argc,char** argv)
 {
 	QString arg;
+
+	QString prg(argv[0]);
+
+	if (prg == "fatrat-nogui" || prg.endsWith("/fatrat-nogui"))
+		m_bStartGUI = false;
 	
 	for(int i=1;i<argc;i++)
 	{
