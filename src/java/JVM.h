@@ -41,7 +41,7 @@ respects for all of the code used other than "OpenSSL".
 class JVM
 {
 public:
-	JVM();
+	JVM(bool forceJreSearch = false);
 	virtual ~JVM();
 	static bool JVMAvailable();
 	static JVM* instance();
@@ -50,6 +50,7 @@ public:
 	QMap<QString,QString> getPackageVersions();
 private:
 	static QString getClassPath();
+	void jvmStartup(QString path);
 private:
 	static JVM* m_instance;
 	JavaVM* m_jvm;

@@ -188,12 +188,23 @@ bool JObject::instanceOf(const char* cls) const
 	if (!m_object)
 		return false;
 
-	JNIEnv* env = *JVM::instance();
-	jclass clz = env->FindClass(cls);
-	if (!clz)
-		return false;
+	if (strchr(cls, '.'))
+	{
+		char* corr = static_cast<char*>(alloca(strlen(cls)+1));
+		strcpy(corr, cls);
+		while (char* p = strchr(corr, '.'))
+			*p = '/';
+		return instanceOf(corr);
+	}
+	else
+	{
+		JNIEnv* env = *JVM::instance();
+		jclass clz = env->FindClass(cls);
+		if (!clz)
+			return false;
 
-	return env->IsInstanceOf(m_object, clz);
+		return env->IsInstanceOf(m_object, clz);
+	}
 }
 
 bool JObject::isArray() const

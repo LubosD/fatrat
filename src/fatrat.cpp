@@ -103,7 +103,7 @@ static void testJava();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
-static bool m_bManualGraphicsSystem = false, m_bDisableJava = false;
+static bool m_bManualGraphicsSystem = false, m_bDisableJava = false, m_bJavaForceSearch = false;
 static QString m_strUnitTest;
 
 static int g_argc = -1;
@@ -154,18 +154,13 @@ int main(int argc,char** argv)
 
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)
-		JavaDownload::globalInit();
+		JavaDownload::globalInit(m_bJavaForceSearch);
 #endif
 	
 	installSignalHandler();
 	initTransferClasses();
 	loadPlugins();
 	runEngines();
-
-#ifdef WITH_JPLUGINS
-	if (m_bDisableJava)
-		JavaDownload::globalInit();
-#endif
 
 	Queue::loadQueues();
 	initAppTools();
@@ -225,7 +220,7 @@ int main(int argc,char** argv)
 
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)
-		delete JVM::instance();
+		JavaDownload::globalExit();
 #endif
 	
 	delete g_qmgr;
@@ -237,9 +232,7 @@ int main(int argc,char** argv)
 
 QString argsToArg(int argc,char** argv)
 {
-	QString arg;
-
-	QString prg(argv[0]);
+	QString arg, prg(argv[0]);
 
 	if (prg == "fatrat-nogui" || prg.endsWith("/fatrat-nogui"))
 		m_bStartGUI = false;
@@ -260,6 +253,11 @@ QString argsToArg(int argc,char** argv)
 		{
 			qDebug() << "Disabling Java support";
 			m_bDisableJava = true;
+		}
+		else if(!strcasecmp(argv[i], "--force-jre-search"))
+		{
+			qDebug() << "Forcing the search for Java Runtime Environment\n";
+			m_bJavaForceSearch = true;
 		}
 		else if(argv[i][0] == '-')
 		{
@@ -532,6 +530,7 @@ void showHelp()
 			"-n, --nogui \tStart with no GUI at all\n"
 #ifdef WITH_JPLUGINS
 			"--no-java   \tDisable support for Java extensions\n"
+			"--force-jre-search\tIgnore the cached JRE location\n"
 #endif
 			"-h, --help  \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";

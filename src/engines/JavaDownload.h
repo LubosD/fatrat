@@ -50,7 +50,7 @@ public:
 	JavaDownload(const char* cls);
 	virtual ~JavaDownload();
 
-	static void globalInit();
+	static void globalInit(bool forceJreSearch);
 	static void globalExit();
 
 	virtual void init(QString source, QString target);

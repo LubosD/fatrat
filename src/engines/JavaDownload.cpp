@@ -249,9 +249,9 @@ void JavaDownload::deriveName()
 	m_strName = (!name.isEmpty() && name != "/" && name != ".") ? name : "default.html";
 }
 
-void JavaDownload::globalInit()
+void JavaDownload::globalInit(bool forceJreSearch)
 {
-	new JVM;
+	new JVM(forceJreSearch);
 
 	if (!JVM::JVMAvailable())
 		return;
@@ -328,6 +328,7 @@ void JavaDownload::globalInit()
 void JavaDownload::globalExit()
 {
 	qDeleteAll(m_mutexes);
+	delete JVM::instance();
 }
 
 void JavaDownload::setMessage(QString msg)
