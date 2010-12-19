@@ -46,6 +46,7 @@ QString getDataFileDir(QString dir, QString fileName = QString());
 QWidget* getMainWindow();
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);
+QStringList listDataDir(QString path);
 bool programHasGUI();
 void restartApplication();
 

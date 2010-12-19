@@ -32,8 +32,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QPair>
 #include "ui_TorrentSearch.h"
 
-class QHttp;
-class QBuffer;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class TorrentSearch : public QWidget, Ui_TorrentSearch
 {
@@ -58,15 +58,22 @@ protected:
 		QString beginning, splitter, ending;
 		
 		// parsing items
-		QList<QPair<QString, RegExpParam> > regexps;
+		QMap<QString,RegExpParam> regexps;
+
+		QMap<QString,QString> formats;
 		
-		QHttp* http;
-		QBuffer* buffer;
+		QNetworkReply* reply;
+
+		bool operator<(const Engine& e) const
+		{
+			return this->name < e.name;
+		}
 	};
 	
 	void updateUi();
 	void loadEngines();
-	void parseResults(Engine* e);
+	void loadEngines(QString path);
+	void parseResults(Engine* e, const QByteArray& data);
 	QString completeUrl(QString url, QString complete);
 	
 	static QList<QByteArray> splitArray(const QByteArray& src, QString sep);
@@ -74,13 +81,14 @@ signals:
 	void changeTabTitle(QString newTitle);
 public slots:
 	void search();
-	void searchDone(bool error);
+	void searchDone(QNetworkReply* reply);
 	void download();
 	void setSearchFocus();
 	void resultsContext(const QPoint&);
 	void openDetails();
 private:
 	QList<Engine> m_engines;
+	QNetworkAccessManager* m_network;
 	bool m_bSearching;
 	int m_nActiveTotal, m_nActiveDone;
 };

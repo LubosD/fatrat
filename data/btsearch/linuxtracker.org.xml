@@ -1,0 +1,15 @@
+<search>
+	<engine name="LinuxTracker">
+		<param name="query">http://linuxtracker.org/index.php?page=torrents&amp;search=%1&amp;category=0&amp;active=1</param>
+		<param name="beginning">Cat.</param>
+		<param name="splitter">&lt;/tr&gt;</param>
+		<param name="ending">&lt;/table&gt;</param>
+		
+		<regexp name="name">title="View details: ([^"]+)"&gt;</regexp>
+		<regexp name="link">&lt;a href="(/download.php\?id=[^"]+)"</regexp>
+		<regexp name="info">&lt;a href="(index.php\?page=torrent-details[^"]+)"</regexp>
+		<regexp name="size"></regexp>
+		<regexp name="seeders">&lt;td align="center" width="30" class="[^"]+" style="text-align: center;">(\d+)&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="1">&lt;td align="center" width="30" class="[^"]+" style="text-align: center;">(\d+)&lt;/td&gt;</regexp>
+	</engine>
+</search>

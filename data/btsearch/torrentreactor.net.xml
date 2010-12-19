@@ -1,0 +1,15 @@
+<search>
+	<engine name="TorrentReactor">
+		<param name="query">http://www.torrentreactor.net/search.php?words=%1</param>
+		<param name="beginning">Torrentreactor search results:</param>
+		<param name="splitter">&lt;tr class="torrent_</param>
+		<param name="ending">Search results on other respected sites</param>
+		
+		<regexp name="name">&lt;a href="/torrents/[^"]+"&gt;([^\n]+)</regexp>
+		<regexp name="link">&lt;a rel="nofollow" href="([^"]+)"</regexp>
+		<regexp name="info">&lt;a href="(/torrents/[^"]+)"</regexp>
+		<regexp name="size" match="1">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="seeders" match="2">&lt;td&gt;([^&lt;]+)</regexp>
+		<regexp name="leechers" match="3">&lt;td&gt;([^&lt;]+)</regexp>
+	</engine>
+</search>

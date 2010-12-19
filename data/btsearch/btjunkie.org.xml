@@ -1,0 +1,15 @@
+<search>
+	<engine name="BtJunkie">
+		<param name="query">http://btjunkie.org/search?q=%1</param>
+		<param name="beginning">class="tab_results"&gt;</param>
+		<param name="splitter">&lt;/tr&gt;&lt;tr bgcolor="#FFFFFF"&gt;</param>
+		<param name="ending">&lt;tr class="row_footer"&gt;</param>
+		
+		<regexp name="name">class="BlckUnd"&gt;([^;]+)</regexp>
+		<regexp name="link">&lt;a href="([^"]+)" rel="nofollow"&gt;&lt;img src="/images/down.gif"</regexp>
+		<regexp name="info">&lt;a href="([^"]+)" class="BlckUnd"&gt;</regexp>
+		<regexp name="size">&lt;th width="10%" align="center"&gt;&lt;font color="#808080" style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="seeders" match="2">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+		<regexp name="leechers" match="3">style="font-weight: bold;"&gt;([^&lt;]+)&lt;/font&gt;</regexp>
+	</engine>
+</search>

@@ -1,0 +1,15 @@
+<search>
+	<engine name="BitTorrentMonster">
+		<param name="query">http://www.btmon.com/torrent/%1</param>
+		<param name="beginning">&lt;table class="torr_table"&gt;</param>
+		<param name="splitter">&lt;tr&gt;</param>
+		<param name="ending">&lt;/table&gt;</param>
+		
+		<regexp name="name">.torrent.html"&gt;([^&lt;]+)&lt;/a&gt;</regexp>
+		<regexp name="link">&lt;a class="down_torr" href="([^"]+\.torrent)"</regexp>
+		<regexp name="info"> href="([^"]+\.torrent\.html)"&gt;</regexp>
+		<regexp name="size" match="1">&lt;td class="nw"&gt;([^&lt;]+)&lt;/td&gt;</regexp>
+		<regexp name="seeders">&lt;td class="seeders"&gt;([0-9]+)&lt;/td&gt;</regexp>
+		<regexp name="leechers" match="1">&lt;td&gt;([0-9]+)&lt;/td&gt;</regexp>
+	</engine>
+</search>

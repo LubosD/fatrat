@@ -476,6 +476,28 @@ QString getDataFileDir(QString dir, QString fileName)
 		return QLatin1String(DATA_LOCATION) + dir;
 }
 
+QStringList listDataDir(QString path)
+{
+	QMap<QString,QString> rv;
+	// list system-wide
+	QDir dir(QLatin1String(DATA_LOCATION) + path);
+	QStringList entries = dir.entryList(QDir::Files);
+
+	foreach (QString str, entries)
+		rv[str] = dir.filePath(str);
+
+	// list user's
+	dir.setPath(QDir::homePath() + USER_PROFILE_PATH + path);
+	if (dir.exists())
+	{
+		entries = dir.entryList(QDir::Files);
+		foreach (QString str, entries)
+			rv[str] = dir.filePath(str);
+	}
+
+	return rv.values();
+}
+
 void loadPlugins()
 {
 	loadPlugins(PLUGIN_LOCATION);

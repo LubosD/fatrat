@@ -38,8 +38,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QFile>
 #include <QDomDocument>
 #include <QMessageBox>
-#include <QHttp>
-#include <QBuffer>
+#include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include <QUrl>
 #include <QMap>
 #include <QRegExp>
@@ -50,10 +50,11 @@ respects for all of the code used other than "OpenSSL".
 #include <QSettings>
 #include <QCursor>
 #include <QtDebug>
+#include <QtAlgorithms>
 
 extern QSettings* g_settings;
 
-static const char* BTSEARCH_DATA = "/data/btsearch.xml";
+static const char* BTSEARCH_DIR = "/data/btsearch/";
 
 TorrentSearch::TorrentSearch()
 	: m_bSearching(false)
@@ -93,6 +94,9 @@ TorrentSearch::TorrentSearch()
 	phdr->resizeSection(0, 350);
 	
 	QTimer::singleShot(100, this, SLOT(setSearchFocus()));
+	m_network = new QNetworkAccessManager(this);
+	m_network->setProxy(Proxy::getProxy(g_settings->value("torrent/proxy_tracker").toString()));
+	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(searchDone(QNetworkReply*)));
 }
 
 TorrentSearch::~TorrentSearch()
@@ -115,12 +119,22 @@ void TorrentSearch::setSearchFocus()
 
 void TorrentSearch::loadEngines()
 {
-	QDomDocument doc;
-	QFile file;
-	
-	if(!openDataFile(&file, BTSEARCH_DATA) || !doc.setContent(&file))
+	QStringList files = listDataDir(BTSEARCH_DIR);
+	foreach (QString file, files)
 	{
-		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to load BitTorrent search engine information."));
+		if (file.endsWith(".xml"))
+			loadEngines(file);
+	}
+}
+
+void TorrentSearch::loadEngines(QString path)
+{
+	QDomDocument doc;
+	QFile file(path);
+	
+	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
+	{
+		qDebug() << "Failed to open/read " << path;
 		return;
 	}
 	
@@ -129,8 +143,7 @@ void TorrentSearch::loadEngines()
 	{
 		Engine e;
 		
-		e.http = 0;
-		e.buffer = 0;
+		e.reply = 0;
 		
 		e.name = n.attribute("name");
 		e.id = n.attribute("id");
@@ -161,19 +174,31 @@ void TorrentSearch::loadEngines()
 			RegExpParam param;
 			QString type = sn.attribute("name");
 			
-			param.regexp = sn.firstChild().toText().data();
+			param.regexp = sn.text();
 			param.field = sn.attribute("field", "0").toInt();
 			param.match = sn.attribute("match", "0").toInt();
 			
-			e.regexps << QPair<QString, RegExpParam>(type, param);
+			e.regexps[type] = param;
 			
 			sn = sn.nextSiblingElement("regexp");
+		}
+
+		sn = n.firstChildElement("format");
+		while(!sn.isNull())
+		{
+			QString format = sn.text();
+			QString type = sn.attribute("name");
+
+			e.formats[type] = format;
+
+			sn = sn.nextSiblingElement("format");
 		}
 		
 		m_engines << e;
 		
 		n = n.nextSiblingElement("engine");
 	}
+	qSort(m_engines.begin(), m_engines.end());
 }
 
 void TorrentSearch::search()
@@ -182,14 +207,11 @@ void TorrentSearch::search()
 	{
 		for(int i=0;i<m_engines.size();i++)
 		{
-			if(m_engines[i].http)
+			if(m_engines[i].reply)
 			{
-				m_engines[i].http->abort();
-				m_engines[i].http->deleteLater();
-				m_engines[i].http = 0;
-				
-				m_engines[i].buffer->deleteLater();
-				m_engines[i].buffer = 0;
+				m_engines[i].reply->abort();
+				m_engines[i].reply->deleteLater();
+				m_engines[i].reply = 0;
 			}
 		}
 		
@@ -224,38 +246,20 @@ void TorrentSearch::search()
 				
 				path.replace(' ', '+');
 				
-				m_engines[i].http = new QHttp(url.host(), url.port(80), this);
-				m_engines[i].buffer = new QBuffer(this);
-				
-				m_engines[i].buffer->open(QIODevice::ReadWrite);
-				
-				connect(m_engines[i].http, SIGNAL(done(bool)), this, SLOT(searchDone(bool)));
-				
-				m_engines[i].http->setProxy(Proxy::getProxy(g_settings->value("torrent/proxy_tracker").toString()));
-				
 				if(!m_engines[i].postData.isEmpty())
 				{
 					QString postQuery;
 					QByteArray postEnc;
-					
-					if(!url.encodedQuery().isEmpty())
-						path += "?"+url.encodedQuery();
-					
-					QHttpRequestHeader hdr ("POST", path);
 					
 					postQuery = m_engines[i].postData.arg(expr);
 					postQuery.replace(' ', '+');
 					
 					postEnc = postQuery.toUtf8();
 					
-					hdr.addValue("host", url.host());
-					hdr.addValue("content-length", QString::number(postEnc.size()));
-					hdr.addValue("content-type", "application/x-www-form-urlencoded");
-					
-					m_engines[i].http->request(hdr, postEnc, m_engines[i].buffer);
+					m_engines[i].reply = m_network->post(QNetworkRequest(url), postEnc);
 				}
 				else
-					m_engines[i].http->get(path+"?"+url.encodedQuery(), m_engines[i].buffer);
+					m_engines[i].reply = m_network->get(QNetworkRequest(url));
 				
 				bSel = true;
 				m_nActiveTotal++;
@@ -279,14 +283,13 @@ void TorrentSearch::search()
 	}
 }
 
-void TorrentSearch::parseResults(Engine* e)
+void TorrentSearch::parseResults(Engine* e, const QByteArray& data)
 {
 	pushDownload->setEnabled(true);
 	QList<QByteArray> results;
 	
 	try
 	{
-		const QByteArray& data = e->buffer->data();
 		int end, start;
 		
 		start = data.indexOf(e->beginning);
@@ -299,10 +302,7 @@ void TorrentSearch::parseResults(Engine* e)
 		
 		start += e->beginning.size();
 		results = splitArray(data.mid(start, end-start), e->splitter);
-		
-		delete e->buffer;
-		e->buffer = 0;
-		
+				
 		qDebug() << "Results:" << results.size();
 	}
 	catch(const RuntimeException& e)
@@ -317,24 +317,24 @@ void TorrentSearch::parseResults(Engine* e)
 		{
 			QMap<QString, QString> map;
 			
-			for(int i=0;i<e->regexps.size();i++)
+			for(QMap<QString,RegExpParam>::iterator it = e->regexps.begin(); it != e->regexps.end(); it++)
 			{
-				QRegExp re(e->regexps[i].second.regexp);
+				QRegExp re(it.value().regexp);
 				int pos = 0;
 				
-				for(int k=0;k<e->regexps[i].second.match+1;k++)
+				for(int k=0;k<it.value().match+1;k++)
 				{
 					pos = re.indexIn(ar, pos);
 					
 					if(pos < 0)
-						throw RuntimeException(QString("Failed to match \"%1\" in \"%2\"").arg(e->regexps[i].first).arg(QString(ar)));
+						throw RuntimeException(QString("Failed to match \"%1\" in \"%2\"").arg(it.key()).arg(QString(ar)));
 					else
 						pos++; // FIXME
 				}
 				
 				QTextDocument doc; // FIXME: ineffective?
-				doc.setHtml(re.cap(e->regexps[i].second.field+1));
-				map[e->regexps[i].first] = doc.toPlainText().trimmed();
+				doc.setHtml(re.cap(it.value().field+1));
+				map[it.key()] = doc.toPlainText().trimmed().replace('\n', ' ');
 			}
 			
 			SearchTreeWidgetItem* item = new SearchTreeWidgetItem(treeResults);
@@ -376,20 +376,21 @@ QString TorrentSearch::completeUrl(QString surl, QString complete)
 		}
 	}
 	
-	if(url.port(80) != 80) // some sites like Mininova hate ':80'
+	if(url.port(80) != 80) // some sites such as Mininova hate ':80'
 		return QString("%1://%2:%3%4").arg(url.scheme()).arg(url.host()).arg(url.port(80)).arg(surl);
 	else
 		return QString("%1://%2%3").arg(url.scheme()).arg(url.host()).arg(surl);
 }
 
-void TorrentSearch::searchDone(bool error)
+void TorrentSearch::searchDone(QNetworkReply* reply)
 {
-	QHttp* http = static_cast<QHttp*>(sender());
+	reply->deleteLater();
+
 	Engine* e = 0;
 	
 	for(int i=0;i<m_engines.size();i++)
 	{
-		if(m_engines[i].http == http)
+		if(m_engines[i].reply == reply)
 		{
 			e = &m_engines[i];
 			break;
@@ -399,16 +400,15 @@ void TorrentSearch::searchDone(bool error)
 	if(!e)
 		return;
 	
-	http->deleteLater();
-	e->http = 0;
+	e->reply = 0;
 	
-	if(!error)
-		parseResults(e);
+	if(reply->error() == QNetworkReply::NoError)
+		parseResults(e, reply->readAll());
 	
 	m_bSearching = false;
 	for(int i=0;i<m_engines.size();i++)
 	{
-		if(m_engines[i].http != 0)
+		if(m_engines[i].reply != 0)
 		{
 			m_bSearching = true;
 			break;

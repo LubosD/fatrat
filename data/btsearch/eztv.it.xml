@@ -1,0 +1,13 @@
+<search>
+	<engine name="EZTV">
+		<param name="query">http://eztv.it/search/</param>
+		<param name="beginning">Television Show Releases</param>
+		<param name="splitter">&lt;/tr&gt;</param>
+		<param name="ending">&lt;center&gt;</param>
+		<param name="postdata">SearchString1=%1&amp;SearchString=&amp;search=Search</param>
+		
+		<regexp name="name">class="epinfo"&gt;([^&lt;]+)&lt;</regexp>
+		<regexp name="link">&lt;a href="(http://torrent\.zoink\.it/[^"]+)"</regexp>
+		<regexp name="info">&lt;a href="(/shows/[^"]+)"</regexp>
+	</engine>
+</search>
