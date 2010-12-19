@@ -331,9 +331,21 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data)
 					else
 						pos++; // FIXME
 				}
+
+				QString text;
+				if (e->formats.contains(it.key()))
+				{
+					text = e->formats[it.key()];
+					for(int i = 0; i < re.captureCount(); i++)
+						text = text.arg(re.cap(i+1));
+				}
+				else
+				{
+					text = re.cap(it.value().field+1);
+				}
 				
 				QTextDocument doc; // FIXME: ineffective?
-				doc.setHtml(re.cap(it.value().field+1));
+				doc.setHtml(text);
 				map[it.key()] = doc.toPlainText().trimmed().replace('\n', ' ');
 			}
 			
@@ -344,6 +356,7 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data)
 			item->setText(2, map["seeders"]);
 			item->setText(3, map["leechers"]);
 			item->setText(4, e->name);
+
 			item->m_strLink = completeUrl(map["link"], e->query);
 			item->m_strInfo = completeUrl(map["info"], e->query);
 			
