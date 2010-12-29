@@ -33,11 +33,6 @@
         <source>About FatRat</source>
         <translation>Fatrat Hakkında</translation>
     </message>
-    <message utf8="true">
-        <location filename="../src/AboutDlg.ui" line="88"/>
-        <source>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="160"/>
         <source>Native Language Support</source>
@@ -62,6 +57,11 @@
         <location filename="../src/AboutDlg.ui" line="68"/>
         <source>&lt;center&gt;&lt;font size=+5&gt;FatRat download manager</source>
         <translation>&lt;center&gt;&lt;font size=+5&gt;Fatrat indirme yöneticisi</translation>
+    </message>
+    <message utf8="true">
+        <location filename="../src/AboutDlg.ui" line="88"/>
+        <source>&lt;center&gt;Copyright © 2006-2010 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="150"/>
@@ -106,6 +106,30 @@
 %T - transfer türü
 %D - hedef dizin
 %P - dosya yolu</translation>
+    </message>
+</context>
+<context>
+    <name>CaptchaQtDlg</name>
+    <message>
+        <location filename="../src/captcha/CaptchaQtDlg.ui" line="14"/>
+        <source>Captcha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/captcha/CaptchaQtDlg.ui" line="50"/>
+        <source>The image is being loaded...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/captcha/CaptchaQtDlg.cpp" line="61"/>
+        <source>Please re-type the characters seen in the picture below. This dialog will be automatically dismissed in &lt;b&gt;%1 seconds&lt;/b&gt; (queue blocking prevention).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/captcha/CaptchaQtDlg.cpp" line="70"/>
+        <location filename="../src/captcha/CaptchaQtDlg.cpp" line="83"/>
+        <source>Failed to load the captcha image.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -230,36 +254,41 @@
 <context>
     <name>CurlDownload</name>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="95"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="97"/>
         <source>Loaded stored authentication data, matched regexp %1</source>
         <translation>Saklanan kimlik bilgisi yüklendi, eşleşti regexp %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="109"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="111"/>
         <source>Unsupported protocol: &quot;%1&quot;</source>
         <translation>Desteklenmeyen protokol: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="148"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="158"/>
         <source>HTTP/FTP</source>
         <translation type="unfinished">HTTP/FTP</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="165"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="175"/>
         <source>Cannot move the file.</source>
         <translation>Dosya taşınamaz.</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="201"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="211"/>
         <source>No URLs have been given</source>
         <translation>Hiçbir URL verilmedi</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/CurlDownload.cpp" line="793"/>
+        <source>Unable to resume the download</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Switch mirror</source>
         <translation type="obsolete">Yansı değiştir</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="582"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="595"/>
         <source>Compute hash...</source>
         <translation>Hash hesapla...</translation>
     </message>
@@ -272,7 +301,7 @@
         <translation type="obsolete">Yansı değiştiriliyor: %1-&gt; %2</translation>
     </message>
     <message>
-        <location filename="../src/engines/CurlDownload.cpp" line="616"/>
+        <location filename="../src/engines/CurlDownload.cpp" line="629"/>
         <source>You&apos;re about to compute hash from an incomplete download.</source>
         <translation>Tamamlanmamış bir indirmenin hash hesaplamasını yapmak üzeresiniz.</translation>
     </message>
@@ -303,6 +332,24 @@
         <location filename="../src/engines/CurlUpload.cpp" line="346"/>
         <source>Compute hash...</source>
         <translation>Hash hesapla...</translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionDownloadDlg</name>
+    <message>
+        <location filename="../src/engines/ExtensionDownloadDlg.ui" line="14"/>
+        <source>Extension download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/ExtensionDownloadDlg.ui" line="20"/>
+        <source>Extensions are being downloaded and installed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/ExtensionDownloadDlg.ui" line="30"/>
+        <source>%v / %m</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -576,8 +623,18 @@
         <translation type="unfinished">Düzenle</translation>
     </message>
     <message>
-        <location filename="../src/engines/HttpDetails.cpp" line="46"/>
+        <location filename="../src/engines/HttpDetails.ui" line="150"/>
+        <source>Mirror search...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.cpp" line="50"/>
         <source>Add new URL...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpDetails.cpp" line="398"/>
+        <source>No mirrors found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -630,6 +687,29 @@ Downloaded data</source>
     </message>
 </context>
 <context>
+    <name>HttpMirrorsDlg</name>
+    <message>
+        <location filename="../src/engines/HttpMirrorsDlg.ui" line="14"/>
+        <source>Mirrors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpMirrorsDlg.ui" line="33"/>
+        <source>Server</source>
+        <translation type="unfinished">Sunucu</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpMirrorsDlg.ui" line="38"/>
+        <source>Ping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/HttpMirrorsDlg.ui" line="43"/>
+        <source>Hops</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>HttpOptsWidget</name>
     <message>
         <location filename="../src/engines/HttpOptsWidget.ui" line="13"/>
@@ -650,12 +730,12 @@ Downloaded data</source>
 <context>
     <name>HttpService</name>
     <message>
-        <location filename="../src/remote/HttpService.cpp" line="87"/>
+        <location filename="../src/remote/HttpService.cpp" line="88"/>
         <source>Web Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/HttpService.cpp" line="178"/>
+        <location filename="../src/remote/HttpService.cpp" line="179"/>
         <source>Listening on port %1</source>
         <translation>port %1 üzerinde dinleniyor</translation>
     </message>
@@ -663,17 +743,17 @@ Downloaded data</source>
 <context>
     <name>HttpUrlOptsDlg</name>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="157"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="229"/>
         <source>Active mode</source>
         <translation>Aktif mod</translation>
     </message>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="157"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="229"/>
         <source>Passive mode</source>
         <translation>Pasif mod</translation>
     </message>
     <message>
-        <location filename="../src/engines/GeneralDownloadForms.cpp" line="166"/>
+        <location filename="../src/engines/GeneralDownloadForms.cpp" line="238"/>
         <source>(none)</source>
         <comment>No proxy</comment>
         <translation>(Hiçbir)</translation>
@@ -725,14 +805,30 @@ Downloaded data</source>
     </message>
 </context>
 <context>
+    <name>JDownloadPlugin</name>
+    <message>
+        <location filename="../src/java/JDownloadPlugin.cpp" line="88"/>
+        <source>Java exception: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JPlugin</name>
+    <message>
+        <location filename="../src/java/JPlugin.cpp" line="143"/>
+        <source>Java exception: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>JabberService</name>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="156"/>
+        <location filename="../src/remote/JabberService.cpp" line="160"/>
         <source>Connecting...</source>
         <translation>Bağlanıyor...</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="261"/>
+        <location filename="../src/remote/JabberService.cpp" line="270"/>
         <source>This is a FatRat remote control bot.
 You are not authorized. You may login using a password, if enabled - send:
 
@@ -743,201 +839,207 @@ Yetkili değilsiniz. Etkinleştirildiyse şifrenizle giriş yapabilirsiniz - şu
 pass şifreniz</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="278"/>
+        <location filename="../src/remote/JabberService.cpp" line="287"/>
         <source>Password accepted, send &quot;help&quot; for the list of commands.</source>
         <translation>Şifre kabul edildi,  komut listesi için &quot;help&quot; yazıp yollayın.</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="282"/>
+        <location filename="../src/remote/JabberService.cpp" line="291"/>
         <source>Password rejected.</source>
         <translation>Şifre reddedildi.</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="290"/>
+        <location filename="../src/remote/JabberService.cpp" line="299"/>
         <source>Bye.</source>
         <translation>Hoşçakalın.</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="295"/>
+        <location filename="../src/remote/JabberService.cpp" line="304"/>
         <source>%1 logged out</source>
         <translation>%1 oturum kapatıldı</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="392"/>
+        <location filename="../src/remote/JabberService.cpp" line="401"/>
         <source>List of queues:</source>
         <translation>Kuyruktakilerin listesi:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="399"/>
+        <location filename="../src/remote/JabberService.cpp" line="408"/>
         <source>
 #%1 - &quot;%2&quot;; %3/%4 active; %5 down, %6 up</source>
         <translation>
 #%1 - &quot;%2&quot;; %3/%4 aktif; %5 indirme, %6 gönderme</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="405"/>
+        <location filename="../src/remote/JabberService.cpp" line="414"/>
         <source>no queues</source>
         <translation>kuyruk boş</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="413"/>
+        <location filename="../src/remote/JabberService.cpp" line="422"/>
         <source>OK.</source>
         <translation>TAMAM.</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="416"/>
-        <location filename="../src/remote/JabberService.cpp" line="572"/>
+        <location filename="../src/remote/JabberService.cpp" line="425"/>
+        <location filename="../src/remote/JabberService.cpp" line="586"/>
         <source>Invalid queue ID.</source>
         <translation>Geçersiz kuyruk ID&apos;si.</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="423"/>
+        <location filename="../src/remote/JabberService.cpp" line="432"/>
         <source>List of transfers:</source>
         <translation>Transfer listesi:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="431"/>
-        <location filename="../src/remote/JabberService.cpp" line="477"/>
+        <location filename="../src/remote/JabberService.cpp" line="440"/>
+        <location filename="../src/remote/JabberService.cpp" line="488"/>
         <source>
 #%1 %2</source>
         <translation>
 #%1 %2</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="434"/>
+        <location filename="../src/remote/JabberService.cpp" line="443"/>
         <source>no transfers</source>
         <translation>transfer yok</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="466"/>
+        <location filename="../src/remote/JabberService.cpp" line="475"/>
         <source>Set transfer states:</source>
         <translation>Transfer durumlarını ayarla:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="480"/>
-        <location filename="../src/remote/JabberService.cpp" line="508"/>
+        <location filename="../src/remote/JabberService.cpp" line="491"/>
+        <location filename="../src/remote/JabberService.cpp" line="522"/>
         <source>
 #%1 Invalid transfer ID</source>
         <translation>
 #%1 Geçersiz transfer ID&apos;si</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="500"/>
+        <location filename="../src/remote/JabberService.cpp" line="497"/>
+        <source>
+Invalid transfer state</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/remote/JabberService.cpp" line="514"/>
         <source>Removing transfers</source>
         <translation>Transferleri kaldırıyor</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="517"/>
+        <location filename="../src/remote/JabberService.cpp" line="531"/>
         <source>Nothing to add</source>
         <translation>Eklenecek birşey yok </translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="537"/>
+        <location filename="../src/remote/JabberService.cpp" line="551"/>
         <source>Unknown command</source>
         <translation>Bilinmeyen komut</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="565"/>
+        <location filename="../src/remote/JabberService.cpp" line="579"/>
         <source>[%2] - &quot;%3&quot;; %5 down, %6 up; %7% out of %8</source>
         <translation>[%2] - &quot;%3&quot;; %5 indirme, %6 gönderme; %7% kadarı %8</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="591"/>
+        <location filename="../src/remote/JabberService.cpp" line="605"/>
         <source>New chat session: %1</source>
         <translation>Yeni chat oturumu: %1</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="640"/>
+        <location filename="../src/remote/JabberService.cpp" line="654"/>
         <source>Connected</source>
         <translation>Bağlandı</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="654"/>
+        <location filename="../src/remote/JabberService.cpp" line="668"/>
         <source>Disconnected:</source>
         <translation>Bağlantı kesildi:</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="659"/>
+        <location filename="../src/remote/JabberService.cpp" line="673"/>
         <source>Stream error</source>
         <translation>Yayın hatası</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="661"/>
+        <location filename="../src/remote/JabberService.cpp" line="675"/>
         <source>Stream version error</source>
         <translation>Yayın versiyonu hatası</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="663"/>
+        <location filename="../src/remote/JabberService.cpp" line="677"/>
         <source>Stream closed</source>
         <translation>Yayın kapandı</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="665"/>
+        <location filename="../src/remote/JabberService.cpp" line="679"/>
         <source>Proxy authentication required</source>
         <translation>Proxy kimlik bilgisi gerekli</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="667"/>
+        <location filename="../src/remote/JabberService.cpp" line="681"/>
         <source>Proxy authentication failed</source>
         <translation>Proxy kimlik bilgisi geçersiz</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="669"/>
+        <location filename="../src/remote/JabberService.cpp" line="683"/>
         <source>The proxy requires an unsupported auth mechanism</source>
         <translation>Proxy desteklenmeyen bir kimlik doğrulama mekanizması gerektiriyor</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="671"/>
+        <location filename="../src/remote/JabberService.cpp" line="685"/>
         <source>I/O error</source>
         <translation>I/O hatası</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="673"/>
+        <location filename="../src/remote/JabberService.cpp" line="687"/>
         <source>XML parse error</source>
         <translation>XML işleme hatası</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="675"/>
+        <location filename="../src/remote/JabberService.cpp" line="689"/>
         <source>Failed to connect</source>
         <translation>Bağlantı kurulamadı</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="677"/>
+        <location filename="../src/remote/JabberService.cpp" line="691"/>
         <source>Failed to resolve the domain name</source>
         <translation>Domain ismi çözümlemesi başarısız</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="679"/>
+        <location filename="../src/remote/JabberService.cpp" line="693"/>
         <source>Out of memory</source>
         <translation>Bellek yetersiz</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="681"/>
+        <location filename="../src/remote/JabberService.cpp" line="695"/>
         <source>The server doesn&apos;t provide any supported authentication mechanism</source>
         <translation>Sunucu desteklenen hiçbir kimlik doğrulama mekanizması sağlamıyor</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="683"/>
+        <location filename="../src/remote/JabberService.cpp" line="697"/>
         <source>Authentication failed</source>
         <translation>Kimlik doğrulama başarısız</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="687"/>
+        <location filename="../src/remote/JabberService.cpp" line="701"/>
         <source>Other reason</source>
         <translation>Diğer sebep</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="272"/>
+        <location filename="../src/remote/JabberService.cpp" line="281"/>
         <source>Refusing login for %1 (I am %2)</source>
         <translation>%1 (Ben %2) için oturum açma reddediliyor</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="532"/>
+        <location filename="../src/remote/JabberService.cpp" line="546"/>
         <source>Transfer(s) added</source>
         <translation>Transfer(ler) eklendi</translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="379"/>
+        <location filename="../src/remote/JabberService.cpp" line="388"/>
         <source>List of commands:
 qlist - Show list of queues
 qset - Set current queue ID
@@ -953,8 +1055,50 @@ This command needs special arguments. See more in the documentation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/remote/JabberService.cpp" line="685"/>
+        <location filename="../src/remote/JabberService.cpp" line="699"/>
         <source>The user was disconnected</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JavaDownload</name>
+    <message>
+        <location filename="../src/engines/JavaDownload.cpp" line="123"/>
+        <source>You cannot have multiple active transfers from this server.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/JavaDownload.cpp" line="137"/>
+        <location filename="../src/engines/JavaDownload.cpp" line="187"/>
+        <source>Java exception: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/JavaDownload.cpp" line="322"/>
+        <source>Extensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JavaDownloadOptsForm</name>
+    <message>
+        <location filename="../src/engines/JavaDownloadOptsForm.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/JavaDownloadOptsForm.ui" line="20"/>
+        <source>This is a transfer controlled by an extension (Java plugin):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/JavaDownloadOptsForm.ui" line="37"/>
+        <source>URL:</source>
+        <translation type="unfinished">URL:</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/JavaDownload.cpp" line="376"/>
+        <source>Invalid URL.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1383,14 +1527,52 @@ This command needs special arguments. See more in the documentation.</source>
     </message>
 </context>
 <context>
+    <name>MetalinkDownload</name>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="74"/>
+        <source>Metalink</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="87"/>
+        <source>Failed to create a temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="112"/>
+        <source>Failed to download the metalink file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="166"/>
+        <source>Failed to read the metalink file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="257"/>
+        <source>No files specified inside the metalink</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="316"/>
+        <source>No torrent link found for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/MetalinkDownload.cpp" line="370"/>
+        <source>No HTTP/FTP link found for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MyApplication</name>
     <message>
-        <location filename="../src/MyApplication.h" line="64"/>
+        <location filename="../src/MyApplication.cpp" line="64"/>
         <source>Unhandled exception</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MyApplication.h" line="65"/>
+        <location filename="../src/MyApplication.cpp" line="65"/>
         <source>The main handler has caught the following exception. This is a bug and should be reported as such.
 
 Type of exception: %1
@@ -1570,18 +1752,18 @@ Message: %2</source>
         <translation>RapidShare araçları</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="244"/>
+        <location filename="../src/fatrat.cpp" line="297"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Halihazırda çalışan bir örnek var. Yine de Fatrat&apos;i başlatmak istiyorsanız, komut satırı argümanlarına --force ekleyin.</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="405"/>
+        <location filename="../src/fatrat.cpp" line="458"/>
         <source>Unable to load a data file:</source>
         <translation>Data dosyası yüklenemedi</translation>
     </message>
     <message>
-        <location filename="../src/Queue.cpp" line="103"/>
+        <location filename="../src/Queue.cpp" line="106"/>
         <source>Main queue</source>
         <translation>Ana kuyruk</translation>
     </message>
@@ -1595,22 +1777,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation>Dosya hash hesaplayıcısı</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="445"/>
+        <location filename="../src/fatrat.cpp" line="520"/>
         <source>Loaded a plugin:</source>
         <translation>Bir eklenti yüklendi:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="456"/>
+        <location filename="../src/fatrat.cpp" line="531"/>
         <source>WARNING: the plugin is incompatible:</source>
         <translation>UYARI: eklenti uyumsuz:</translation>
     </message>
     <message>
-        <location filename="../src/fatrat.cpp" line="461"/>
+        <location filename="../src/fatrat.cpp" line="536"/>
         <source>Failed to load a plugin: %1: %2</source>
         <translation>Bir eklenti yüklemesi başarısız oldu: %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="355"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="326"/>
         <source>Invalid URL.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1650,7 +1832,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings.cpp" line="102"/>
+        <location filename="../src/Settings.cpp" line="103"/>
         <source>Clipboard monitor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1686,16 +1868,96 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <source>Invalid XML-RPC call</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/java/JArray.cpp" line="83"/>
+        <source>Unknown type ID: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JClass.cpp" line="54"/>
+        <source>Java class %1 not found or failed to load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JClass.cpp" line="99"/>
+        <location filename="../src/java/JObject.cpp" line="253"/>
+        <source>Method %1 %2 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JClass.cpp" line="112"/>
+        <location filename="../src/java/JObject.cpp" line="266"/>
+        <source>Invalid method return type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JClass.cpp" line="167"/>
+        <location filename="../src/java/JClass.cpp" line="280"/>
+        <location filename="../src/java/JClass.cpp" line="341"/>
+        <location filename="../src/java/JObject.cpp" line="318"/>
+        <location filename="../src/java/JObject.cpp" line="391"/>
+        <location filename="../src/java/JObject.cpp" line="453"/>
+        <source>Unknown Java data type: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JClass.cpp" line="217"/>
+        <source>Unknown data type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JClass.cpp" line="239"/>
+        <location filename="../src/java/JClass.cpp" line="297"/>
+        <location filename="../src/java/JObject.cpp" line="350"/>
+        <location filename="../src/java/JObject.cpp" line="409"/>
+        <source>Field %1 %2 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JObject.cpp" line="66"/>
+        <source>Invalid JClass passed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JObject.cpp" line="70"/>
+        <source>Constructor %1 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JObject.cpp" line="98"/>
+        <source>Failed to create an instance - constructor %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JVM.cpp" line="62"/>
+        <source>Cannot locate a Java Runtime Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JVM.cpp" line="64"/>
+        <source>Java Runtime Environment located, but no libjvm found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JVM.cpp" line="97"/>
+        <source>Failed to load the correct libjvm: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/java/JVM.cpp" line="127"/>
+        <source>Failed to create a Java VM</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Queue</name>
     <message>
-        <location filename="../src/Queue.cpp" line="180"/>
+        <location filename="../src/Queue.cpp" line="205"/>
         <source>Queue</source>
         <translation type="unfinished">Kuyruk</translation>
     </message>
     <message>
-        <location filename="../src/Queue.cpp" line="180"/>
+        <location filename="../src/Queue.cpp" line="205"/>
         <source>Failed to write the queue file!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1784,91 +2046,84 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidTools</name>
     <message>
-        <location filename="../src/tools/RapidTools.cpp" line="86"/>
-        <location filename="../src/tools/RapidTools.cpp" line="189"/>
-        <location filename="../src/tools/RapidTools.cpp" line="279"/>
+        <location filename="../src/tools/RapidTools.cpp" line="91"/>
+        <location filename="../src/tools/RapidTools.cpp" line="178"/>
         <source>An invalid link has been encountered: %1</source>
         <translation>Geçersiz bir linke rastlandı: %1</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.cpp" line="129"/>
-        <location filename="../src/tools/RapidTools.cpp" line="259"/>
-        <location filename="../src/tools/RapidTools.cpp" line="313"/>
+        <location filename="../src/tools/RapidTools.cpp" line="137"/>
+        <location filename="../src/tools/RapidTools.cpp" line="196"/>
         <source>Server failed to process our query.</source>
         <translation>Sunucu sorgumuzu işlemekte başarısız oldu</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="31"/>
+        <location filename="../src/tools/RapidTools.ui" line="24"/>
         <source>Verify RS.com links</source>
         <translation>RS.com linklerini doğrula</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="37"/>
+        <location filename="../src/tools/RapidTools.ui" line="30"/>
         <source>Links:</source>
         <translation>Linkler:</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="51"/>
+        <location filename="../src/tools/RapidTools.ui" line="44"/>
         <source>Verify links</source>
         <translation>Linkleri doğrula</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="58"/>
+        <location filename="../src/tools/RapidTools.ui" line="51"/>
         <source>Download working links</source>
         <translation>Çalışan linkleri indir</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="65"/>
+        <location filename="../src/tools/RapidTools.ui" line="58"/>
         <source>Reset</source>
         <translation>Reset</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="101"/>
         <source>Decode RapidSafe links</source>
-        <translation>RapidSafe linklerini deşifre et</translation>
+        <translation type="obsolete">RapidSafe linklerini deşifre et</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="107"/>
         <source>Enter RapidSafe/RapidSave links:</source>
-        <translation>RapidSafe/RapidSave linkleri gir:</translation>
+        <translation type="obsolete">RapidSafe/RapidSave linkleri gir:</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="121"/>
         <source>Decoded links:</source>
-        <translation>Deşifre edilen linkler:</translation>
+        <translation type="obsolete">Deşifre edilen linkler:</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="138"/>
         <source>Decode</source>
-        <translation>Deşifre et</translation>
+        <translation type="obsolete">Deşifre et</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="145"/>
         <source>Download decoded</source>
-        <translation>Deşifre edileni indir</translation>
+        <translation type="obsolete">Deşifre edileni indir</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="174"/>
+        <location filename="../src/tools/RapidTools.ui" line="86"/>
         <source>Extract files from a RS.com folder</source>
         <translation>Bir RS.com dizininden dosyaları çıkar</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="180"/>
+        <location filename="../src/tools/RapidTools.ui" line="92"/>
         <source>RS.com folder URL:</source>
         <translation>RS.com dizin URL&apos;si:</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="190"/>
+        <location filename="../src/tools/RapidTools.ui" line="102"/>
         <source>Extract</source>
         <translation>Çıkar</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="213"/>
+        <location filename="../src/tools/RapidTools.ui" line="125"/>
         <source>Download extracted</source>
         <translation>Çıkarılanı indir</translation>
     </message>
     <message>
-        <location filename="../src/tools/RapidTools.ui" line="85"/>
+        <location filename="../src/tools/RapidTools.ui" line="78"/>
         <source>Ignore invalid</source>
         <translation>Geçersizi yoksay</translation>
     </message>
@@ -1876,46 +2131,57 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareFreeDownload</name>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="129"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="130"/>
         <source>You cannot have multiple RS.com FREE downloads.</source>
         <translation>Birden fazla RS.com ÜCRETSİZ indirmesi olamaz.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="144"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="140"/>
+        <source>The URL is invalid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="151"/>
+        <source>Calling the API</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="206"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="221"/>
+        <source>Unknown server response</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Loading the first page</source>
-        <translation>İlk sayfayı yüklüyor</translation>
+        <translation type="obsolete">İlk sayfayı yüklüyor</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="212"/>
         <source>Failed to load the download&apos;s first page.</source>
-        <translation>İndirmenin ilk sayfasını yükleme başarısız oldu.</translation>
+        <translation type="obsolete">İndirmenin ilk sayfasını yükleme başarısız oldu.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="216"/>
         <source>Failed to parse the download&apos;s first page.</source>
-        <translation>İndirmenin ilk sayfasını ayrıştırma başarısız oldu.</translation>
+        <translation type="obsolete">İndirmenin ilk sayfasını ayrıştırma başarısız oldu.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="227"/>
         <source>Loading the second page</source>
-        <translation>İkinci sayfa yükleniyor</translation>
+        <translation type="obsolete">İkinci sayfa yükleniyor</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="248"/>
         <source>Failed to load the download&apos;s waiting page.</source>
-        <translation>İndirmenin bekleme sayfasını yükleme başarısız oldu.</translation>
+        <translation type="obsolete">İndirmenin bekleme sayfasını yükleme başarısız oldu.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="266"/>
         <source>Failed to parse the download&apos;s waiting page.</source>
-        <translation>İndirmenin bekleme sayfasını ayrıştırma başarısız oldu.</translation>
+        <translation type="obsolete">İndirmenin bekleme sayfasını ayrıştırma başarısız oldu.</translation>
     </message>
     <message>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="290"/>
         <source>Failed to download the file.</source>
-        <translation type="obsolete">Dosyayı indirme başarısız oldu.</translation>
+        <translation type="unfinished">Dosyayı indirme başarısız oldu.</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="198"/>
+        <location filename="../src/engines/RapidshareFreeDownload.cpp" line="261"/>
         <source>%1:%2 seconds left</source>
         <translation type="unfinished">%1 saniye kaldı {1:%2 ?}</translation>
     </message>
@@ -1985,22 +2251,22 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareOptsWidget</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="668"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="665"/>
         <source>No account</source>
         <translation>Hesap yok</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="668"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="665"/>
         <source>Collector&apos;s account</source>
         <translation>Collector&apos;s hesabı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="668"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="665"/>
         <source>Premium account</source>
         <translation>Premium hesap</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="702"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="699"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Hiçbir</translation>
@@ -2009,31 +2275,54 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RapidshareSettings</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="811"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="808"/>
         <source>No account</source>
         <translation>Hesap yok</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="811"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="808"/>
         <source>Collector&apos;s account</source>
         <translation>Collector&apos;s hesabı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="811"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="808"/>
         <source>Premium account</source>
         <translation>Premium hesap</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="840"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="837"/>
         <source>None</source>
         <comment>No proxy</comment>
         <translation>Hiçbir</translation>
     </message>
 </context>
 <context>
+    <name>RapidshareStatusWidget</name>
+    <message>
+        <location filename="../src/engines/RapidshareStatusWidget.cpp" line="81"/>
+        <source>Network error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareStatusWidget.cpp" line="86"/>
+        <source>Login error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareStatusWidget.cpp" line="102"/>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/RapidshareStatusWidget.cpp" line="114"/>
+        <source>days</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>RapidshareUpload</name>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="208"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="205"/>
         <source>You have to enter your account information</source>
         <translation>Hesap bilgilerinizi girmek zorundasınız</translation>
     </message>
@@ -2043,72 +2332,72 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <translation type="unfinished">RapidShare.com</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="436"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="433"/>
         <source>This file is forbidden to be shared</source>
         <translation>Bu dosyanın paylaşımı yasaktır</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="439"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="436"/>
         <source>Invalid username</source>
         <translation>Geçersiz kullanıcı adı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="442"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="439"/>
         <source>Invalid password</source>
         <translation>Geçersiz şifre</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="456"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="453"/>
         <source>Failed to find the file ID</source>
         <translation>Dosya ID&apos;si bulunamadı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="465"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="462"/>
         <source>Failed to find the kill ID</source>
         <translation>Yok etme ID&apos;si bulunamadı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="472"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="469"/>
         <source>Download link:</source>
         <translation>İndirme linki:</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="481"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="478"/>
         <source>Kill link:</source>
         <translation>Yok etme linki:</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="507"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="504"/>
         <source>Cannot append to file &quot;%1&quot;</source>
         <translation>&quot;%1&quot; dosyasına ekleme yapılamaz</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="523"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="520"/>
         <source>Failed to get server ID</source>
         <translation>Server ID&apos;si alınamadı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="530"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="527"/>
         <source>Uploading to %1</source>
         <translation>%1 e upload ediliyor</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="537"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="534"/>
         <source>Failed to query resume information</source>
         <translation>Sürdürme bilgisi sorgusu başarısız oldu</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="558"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="555"/>
         <source>File ID %1 validated</source>
         <translation>Dosya ID&apos;si %1 doğrulandı</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="241"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="238"/>
         <source>Can&apos;t open the file</source>
         <translation>Dosya açılamaz</translation>
     </message>
     <message>
-        <location filename="../src/engines/RapidshareUpload.cpp" line="288"/>
+        <location filename="../src/engines/RapidshareUpload.cpp" line="285"/>
         <source>The maximum file size is 200 MB/2 GB (premium)</source>
         <translation>Maximum dosya boyutu 200 MB/2 GB (premium)</translation>
     </message>
@@ -2174,12 +2463,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>RightClickLabel</name>
     <message>
-        <location filename="../src/SpeedLimitWidget.cpp" line="111"/>
+        <location filename="../src/SpeedLimitWidget.cpp" line="148"/>
         <source>Upload</source>
         <translation>Gönder</translation>
     </message>
     <message>
-        <location filename="../src/SpeedLimitWidget.cpp" line="111"/>
+        <location filename="../src/SpeedLimitWidget.cpp" line="148"/>
         <source>Download</source>
         <translation>İndir</translation>
     </message>
@@ -2554,12 +2843,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
 <context>
     <name>SettingsDlg</name>
     <message>
-        <location filename="../src/SettingsDlg.ui" line="13"/>
+        <location filename="../src/SettingsDlg.ui" line="14"/>
         <source>Settings</source>
         <translation>Ayarlar</translation>
     </message>
     <message>
-        <location filename="../src/SettingsDlg.ui" line="31"/>
+        <location filename="../src/SettingsDlg.ui" line="32"/>
         <source>Some changes may require restart to take effect.</source>
         <translation>Bazı değişikliklerin etkinleşmesi için yeniden 
 başlatmanız gerekebilir.</translation>
@@ -2821,6 +3110,146 @@ başlatmanız gerekebilir.</translation>
     </message>
 </context>
 <context>
+    <name>SettingsJavaPluginForm</name>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="14"/>
+        <source>Extensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="20"/>
+        <source>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="34"/>
+        <source>Update and install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="52"/>
+        <source>Available extensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="71"/>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="112"/>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="172"/>
+        <source>Name</source>
+        <translation type="unfinished">Ad</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="76"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="93"/>
+        <source>Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="117"/>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="177"/>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="142"/>
+        <source>Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="150"/>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="198"/>
+        <source>Uninstall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="106"/>
+        <source>Failed to download the plugin index file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="122"/>
+        <source>Your version of FatRat is no longer supported by the update site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="182"/>
+        <source>Available extensions (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="183"/>
+        <source>Updates (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="188"/>
+        <source>Do you really wish to uninstall the selected plugins?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="205"/>
+        <source>Failed to remove &quot;%1&quot;, check the file permissions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="215"/>
+        <source>For the changes to take effect, FatRat needs to be restarted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="217"/>
+        <source>Restart now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="218"/>
+        <source>Restart later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="262"/>
+        <source>Failed to download an extension: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="274"/>
+        <source>Failed to write a file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SettingsMetalinkForm</name>
+    <message>
+        <location filename="../src/engines/SettingsMetalinkForm.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsMetalinkForm.ui" line="20"/>
+        <source>Metalink URL handling mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsMetalinkForm.ui" line="26"/>
+        <source>FatRat is not able to combine HTTP/FTP and BitTorrent transfers at the moment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsMetalinkForm.ui" line="36"/>
+        <source>Prefer segmented HTTP/FTP over BitTorrent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsMetalinkForm.ui" line="43"/>
+        <source>Use only BitTorrent where possible</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SettingsNetworkForm</name>
     <message>
         <location filename="../src/SettingsNetworkForm.cpp" line="113"/>
@@ -2872,12 +3301,12 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>SettingsQueueForm</name>
     <message>
-        <location filename="../src/SettingsQueueForm.cpp" line="74"/>
+        <location filename="../src/SettingsQueueForm.cpp" line="76"/>
         <source>Error</source>
         <translation>Hata</translation>
     </message>
     <message>
-        <location filename="../src/SettingsQueueForm.cpp" line="74"/>
+        <location filename="../src/SettingsQueueForm.cpp" line="76"/>
         <source>The e-mail address is incorrect.</source>
         <translation>E-posta adresi hatalı</translation>
     </message>
@@ -2947,9 +3376,14 @@ başlatmanız gerekebilir.</translation>
         <translation>SMTP sunucusu:</translation>
     </message>
     <message>
-        <location filename="../src/SettingsQueueForm.ui" line="212"/>
+        <location filename="../src/SettingsQueueForm.ui" line="199"/>
         <source>Enable tooltips</source>
         <translation>Araç ipuçlarını etkinleştir</translation>
+    </message>
+    <message>
+        <location filename="../src/SettingsQueueForm.ui" line="206"/>
+        <source>Perform a filesystem sync after the queue file is saved</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3201,6 +3635,11 @@ başlatmanız gerekebilir.</translation>
         <source>Password</source>
         <translation>Şifre</translation>
     </message>
+    <message>
+        <location filename="../src/remote/SettingsWebForm.ui" line="81"/>
+        <source>Username: Use &quot;admin&quot; or &quot;fatrat&quot;, both are equivalent.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SpeedGraph</name>
@@ -3396,103 +3835,103 @@ başlatmanız gerekebilir.</translation>
 <context>
     <name>TorrentDownload</name>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="275"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="277"/>
         <source>DHT started</source>
         <translation>DHT başladı</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="280"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="282"/>
         <source>Failed to start DHT!</source>
         <translation>DHT başlatılamadı!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="449"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="451"/>
         <source>Downloading the .torrent file...</source>
         <translation>.torrent dosyası indiriliyor...</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="495"/>
-        <location filename="../src/engines/TorrentDownload.cpp" line="859"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="497"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="875"/>
         <source>Unable to open the file!</source>
         <translation>Dosya açma başarısız!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="590"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="589"/>
         <source>Cannot create a temporary file</source>
         <translation>Geçici bir dosya oluşturulamıyor </translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="568"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="564"/>
         <source>The torrent file is invalid.</source>
         <translation>Torrent dosyası geçersiz</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="200"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="202"/>
         <source>BitTorrent</source>
         <translation type="unfinished">BitTorrent</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="678"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="675"/>
         <source>Failed to download the .torrent file</source>
         <translation>.torrent dosyası indirilemedi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="714"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="728"/>
         <source>Cannot change storage!</source>
         <translation>Depolama değiştirilemez!</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1051"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1067"/>
         <source>Downloading the .torrent file</source>
         <translation>.torrent dosyası indiriliyor</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1058"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1074"/>
         <source>Queued for checking</source>
         <translation>Denetim için kuyruğa eklendi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1061"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1077"/>
         <source>Checking files: %1%</source>
         <translation>Dosyalar denetleniyor: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1070"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1086"/>
         <source>Seeders: %1 (%2) | Leechers: %3 (%4)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1089"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1105"/>
         <source>Allocating: %1%</source>
         <translation>Atanıyor: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1095"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1111"/>
         <source>Checking resume data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1102"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1118"/>
         <source>Seeders: %1 | Leechers: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1362"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1381"/>
         <source>Force announce</source>
         <translation>Anonsu zorla</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1364"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1383"/>
         <source>Recheck files</source>
         <translation>Dosyaları yeniden denetle</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="440"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="442"/>
         <source>Downloading metadata: %1%</source>
         <translation>Metadata indiriliyor: %1%</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1092"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1108"/>
         <source>Downloading metadata</source>
         <translation>Metadata indiriliyor</translation>
     </message>
@@ -3568,49 +4007,54 @@ başlatmanız gerekebilir.</translation>
         <translation>.torrent indiriliyor, lütfen bekleyin.</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="61"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="53"/>
         <source>Files to download</source>
         <translation>İndirilecek dosyalar</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="95"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="78"/>
         <source>Seeding limits</source>
         <translation>Yayınlama limitleri</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="101"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="84"/>
         <source>Seed up to ratio</source>
         <translation>Şu yüzdeye kadar yayınla</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="118"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="101"/>
         <source>Seed until specified amount
 of data has been uploaded</source>
         <translation>Belirtilen miktarda data gönderilene kadar yayınla</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="133"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="116"/>
         <source>MB</source>
         <translation>MB</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="162"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="136"/>
+        <source>Use super seeding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="152"/>
         <source>URL seeds</source>
         <translation>URL yayıncıları</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="186"/>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="226"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="167"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="198"/>
         <source>Add</source>
         <translation>Ekle</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="202"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="183"/>
         <source>Trackers</source>
         <translation>İzleyiciler</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentOptsWidget.ui" line="246"/>
+        <location filename="../src/engines/TorrentOptsWidget.ui" line="218"/>
         <source>Remove</source>
         <translation>Kaldır</translation>
     </message>
@@ -3744,53 +4188,52 @@ of data has been uploaded</source>
 <context>
     <name>TorrentSearch</name>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="88"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
         <source>Name</source>
         <translation>Ad</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="88"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
         <source>Size</source>
         <translation>Boyut</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="88"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
         <source>Seeders</source>
         <translation>Yayıncılar</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="88"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
         <source>Leechers</source>
         <translation>İndirenler</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="88"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
         <source>Source</source>
         <translation>Kaynak</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="123"/>
         <source>Failed to load BitTorrent search engine information.</source>
-        <translation>BitTorrent arama motoru bilgisi yüklenemedi .</translation>
+        <translation type="obsolete">BitTorrent arama motoru bilgisi yüklenemedi .</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="207"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="229"/>
         <source>Torrent search</source>
         <translation>Torrent araması</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="277"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="281"/>
         <source>Please enable at least one search engine.</source>
         <translation>Lütfen en az bir arama motorunu etkinleştirin</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="424"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="437"/>
         <source>Stop searching</source>
         <translation>Aramayı durdur</translation>
     </message>
     <message>
         <location filename="../src/tools/TorrentSearch.ui" line="36"/>
-        <location filename="../src/tools/TorrentSearch.cpp" line="424"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="437"/>
         <source>Search</source>
         <translation>Ara</translation>
     </message>
@@ -3811,17 +4254,17 @@ of data has been uploaded</source>
     </message>
     <message>
         <location filename="../src/tools/TorrentSearch.ui" line="100"/>
-        <location filename="../src/tools/TorrentSearch.cpp" line="476"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="489"/>
         <source>Download</source>
         <translation>İndir</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="479"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="492"/>
         <source>Open details page</source>
         <translation>Ayrıntılar sayfasını aç</translation>
     </message>
     <message>
-        <location filename="../src/tools/TorrentSearch.cpp" line="502"/>
+        <location filename="../src/tools/TorrentSearch.cpp" line="515"/>
         <source>Torrent details</source>
         <translation>Torrent detayları</translation>
     </message>
@@ -3914,62 +4357,62 @@ of data has been uploaded</source>
 <context>
     <name>TorrentWorker</name>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1246"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1262"/>
         <source>The torrent has been downloaded</source>
         <translation>Torrent indirildi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1251"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1267"/>
         <source>Requested parts of the torrent have been downloaded</source>
         <translation>Talep edilen torrent parçaları indirildi</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1154"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1170"/>
         <source>File error: %1</source>
         <translation>Dosya hatası: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1158"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1174"/>
         <source>Tracker announce: %1</source>
         <translation>İzleyici anonsu: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1162"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1178"/>
         <source>Tracker failure: %1, %2 times in a row </source>
         <translation>İzleyici hatası: %1, bir sırada %2 kere</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1167"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1183"/>
         <source>(error %1)</source>
         <translation>(hata %1)</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1169"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1185"/>
         <source>(timeout)</source>
         <translation>(zaman aşımı)</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1174"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1190"/>
         <source>Tracker warning: %1</source>
         <translation>İzleyici uyarısı: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1178"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1194"/>
         <source>The fast-resume data have been rejected: %1</source>
         <translation>Hızlı-sürdür datası reddedildi: %1</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1182"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1198"/>
         <source>Failed to retrieve the metadata</source>
         <translation>Metadata&apos;ya erişim başarısız oldu</translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1186"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1202"/>
         <source>Successfully retrieved the metadata</source>
         <translation>Metadata&apos;ya başarıyla erişildi </translation>
     </message>
     <message>
-        <location filename="../src/engines/TorrentDownload.cpp" line="1301"/>
+        <location filename="../src/engines/TorrentDownload.cpp" line="1320"/>
         <source>&lt;b&gt;DHT:&lt;/b&gt; %1 nodes (%2 globally)</source>
         <translation>&lt;b&gt;DHT:&lt;/b&gt; %1 düğüm (%2 global olarak)</translation>
     </message>
@@ -3977,12 +4420,12 @@ of data has been uploaded</source>
 <context>
     <name>Transfer</name>
     <message>
-        <location filename="../src/Transfer.cpp" line="191"/>
+        <location filename="../src/Transfer.cpp" line="201"/>
         <source>This transfer type has no advanced options to set.</source>
         <translation>Bu transfer türünün ayarlanacak gelişmiş ayarları yok.</translation>
     </message>
     <message>
-        <location filename="../src/Transfer.cpp" line="259"/>
+        <location filename="../src/Transfer.cpp" line="269"/>
         <source>Changed state: %1 -&gt; %2</source>
         <translation>Durum değiştirildi: %1 -&gt; %2</translation>
     </message>
@@ -4036,12 +4479,12 @@ of data has been uploaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/UrlClient.cpp" line="288"/>
+        <location filename="../src/engines/UrlClient.cpp" line="312"/>
         <source>Write failed (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/engines/UrlClient.cpp" line="326"/>
+        <location filename="../src/engines/UrlClient.cpp" line="354"/>
         <source>Timeout</source>
         <translation type="unfinished"></translation>
     </message>

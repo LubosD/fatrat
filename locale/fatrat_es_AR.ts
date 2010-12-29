@@ -57,7 +57,7 @@
     </message>
     <message>
         <source>Plugins</source>
-        <translation>Plugins</translation>
+        <translation>Complementos</translation>
     </message>
     <message>
         <source>Web interface</source>
@@ -884,11 +884,11 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     </message>
     <message>
         <source>&lt;b&gt;Running for:</source>
-        <translation>&lt;b&gt;Ejecutado por:</translation>
+        <translation>&lt;b&gt;Ejecutado durante:</translation>
     </message>
     <message>
         <source>Transfer speed graph</source>
-        <translation>Gráfico de velocidad de transferencia</translation>
+        <translation>Gráfico de transferencias</translation>
     </message>
     <message>
         <source>Queue speed graph</source>
@@ -992,7 +992,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     </message>
     <message>
         <source>Hide all info bars</source>
-        <translation>Ocultar todas las barras de información</translation>
+        <translation>Ocultar las barras de información</translation>
     </message>
     <message>
         <source>Display main window</source>
@@ -2140,7 +2140,7 @@ No proxy</translation>
     </message>
     <message>
         <source>Speed graph style</source>
-        <translation>Velocidad de estilo de gráficos</translation>
+        <translation>Estilo de gráficos de transferencias</translation>
     </message>
     <message>
         <source>Tray icon click hides an unfocused window</source>
