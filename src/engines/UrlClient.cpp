@@ -223,8 +223,9 @@ void UrlClient::processHeaders()
 			{
 				QString name = con.mid(pos+9);
 				
-				if(name.startsWith('"') && name.endsWith('"'))
-					name = name.mid(1, name.size()-2);
+				QRegExp quoted("\"([^\"]+)\".*");
+				if(quoted.exactMatch(name))
+					name = quoted.cap(1);
 				
 				name.replace('/', '_');
 				qDebug() << "Automatically renaming to" << name;
