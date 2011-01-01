@@ -73,7 +73,7 @@ void JTransferPlugin::setState(JNIEnv* env, jobject jthis, jobject state)
 
 void JTransferPlugin::logMessage(JNIEnv* env, jobject jthis, jstring msg)
 {
-	getCObject(jthis)->transfer()->logMessage(JString(msg));
+	getCObject(jthis)->transfer()->enterLogMessage(JString(msg));
 }
 
 JTransferPlugin::JStateEnum::JStateEnum(jobject obj)

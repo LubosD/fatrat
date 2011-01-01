@@ -82,7 +82,8 @@ void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInte
 	QString url = JString(jurl).toString();
 	QNetworkReply* reply;
 
-	qDebug() << "JDownloadPlugin::fetchPage():" << url;
+	This->m_transfer->logMessage(QLatin1String("JPlugin::fetchPage(): ")+url);
+	qDebug() << "JPlugin::fetchPage():" << url;
 	if (postData)
 		qDebug() << "postData:" << JString(postData).str();
 
@@ -110,6 +111,7 @@ void JPlugin::fetchFinished(QNetworkReply* reply)
 	{
 		if (reply->error() != QNetworkReply::NoError)
 		{
+			m_transfer->logMessage(QLatin1String("JPlugin::fetchFinished(): ")+reply->errorString());
 			iface.call("onFailed", JSignature().addString(), reply->errorString());
 		}
 		else
@@ -131,6 +133,7 @@ void JPlugin::fetchFinished(QNetworkReply* reply)
 			}
 
 			qDebug() << "fetchFinished.onCompleted:" << buf.toString();
+			m_transfer->logMessage(QLatin1String("JPlugin::fetchFinished(): OK"));
 
 			iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
 		}

@@ -68,17 +68,23 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 	assert(m_captchaCallbacks.contains(url));
 
 	JObject& obj = m_captchaCallbacks[url].second;
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(m_captchaCallbacks[url].first);
 
 	try
 	{
 		if (!solution.isEmpty())
+		{
+			This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::captchaSolved(): ")+url+" -> "+solution);
 			obj.call("onSolved", JSignature().addString(), solution);
+		}
 		else
+		{
+			This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::captchaSolved(): ")+url+" -> ?");
 			obj.call("onFailed");
+		}
 	}
 	catch (const JException& e)
 	{
-		JDownloadPlugin* This = static_cast<JDownloadPlugin*>(m_captchaCallbacks[url].first);
 		This->m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
 		This->m_transfer->setState(Transfer::Failed);
 	}
@@ -88,16 +94,22 @@ void JDownloadPlugin::captchaSolved(QString url, QString solution)
 
 void JDownloadPlugin::solveCaptcha(JNIEnv* env, jobject jthis, jstring jurl, jobject cb)
 {
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	QString url = JString(jurl);
 
+	This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::solveCaptcha(): ")+url);
 	m_captchaCallbacks[url] = RequesterReceiver(getCObject(jthis), cb);
 
 	Captcha::processCaptcha(url, captchaSolved);
 }
 
-void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring name)
+void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring jname)
 {
-	getCObject(jthis)->transfer()->setName(JString(name).str());
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
+	JString name(jname);
+
+	This->transfer()->setName(name.str());
+	This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::reportFileName(): ")+name.str());
 }
 
 
@@ -105,6 +117,8 @@ void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url)
 {
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	JString str(url);
+	This->m_transfer->enterLogMessage(QLatin1String("startDownload(): ")+str.str());
+
 	QList<QNetworkCookie> c = This->m_network->cookieJar()->cookiesForUrl(str.str());
 	This->m_transfer->startDownload(str, c);
 }
@@ -120,6 +134,7 @@ QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>&
 void JDownloadPlugin::startWait(JNIEnv* env, jobject jthis, jint seconds, jobject cbInterface)
 {
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
+	This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::startWait(): ")+seconds);
 
 	This->m_nSecondsLeft = seconds;
 	This->m_waitCallback = cbInterface;
