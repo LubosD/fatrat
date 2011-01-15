@@ -151,7 +151,7 @@ void Scheduler::executeAction(const ScheduledAction& action)
 			case ScheduledAction::ActionSetSpeedLimit:
 				{
 					QList<QVariant> sp = action.actionArgument.toList();
-					q->setSpeedLimits(sp[0].toInt(), sp[1].toInt());
+					q->setSpeedLimits(sp[0].toInt()*1024, sp[1].toInt()*1024);
 					break;
 				}
 			}
