@@ -56,7 +56,7 @@ void TorrentOptsWidget::startInvalid()
 
 void TorrentOptsWidget::handleInvalid()
 {
-	if(m_download->m_handle.is_valid())
+	if(m_download->m_info && m_download->m_handle.is_valid())
 	{
 		m_timer.stop();
 		load();
@@ -77,7 +77,7 @@ void TorrentOptsWidget::handleInvalid()
 
 void TorrentOptsWidget::load()
 {
-	if(!m_download->m_handle.is_valid())
+	if(!m_download->m_info || !m_download->m_handle.is_valid())
 	{
 		startInvalid();
 		return;
