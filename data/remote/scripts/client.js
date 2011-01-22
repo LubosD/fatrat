@@ -582,6 +582,7 @@ function sendStateChange(newState) {
 function actionAdd() {
 	var options = $("#new-transfer-destination-queue").attr('options');
 	
+	options.length = 0;
 	$.each(queues, function(index, queue) {
 		options[options.length] = new Option(queue.name, queue.uuid, true, true);
 	});
