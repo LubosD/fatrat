@@ -149,6 +149,7 @@ public:
 	
 	static const EngineEntry* engines(Mode type);
 	static BestEngine bestEngine(QString uri, Mode type = ModeInvalid); // type == ModeInvalid => all types & drop search
+	static int getEngineID(QString _class, Mode type = ModeInvalid);
 	
 	// SETTINGS UTILITY FUNCTIONS
 	static QString getXMLProperty(const QDomNode& node, QString name);

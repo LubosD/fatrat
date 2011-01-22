@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QReadWriteLock>
 #include <QStringList>
 #include <QFileInfo>
+#include <QTemporaryFile>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include <QtDebug>
 
@@ -85,6 +86,43 @@ void XmlRpcService::globalInit()
 		QVector<QVariant::Type> aa;
 		aa << QVariant::String;
 		registerFunction("Transfer.getAdvancedProperties", Transfer_getAdvancedProperties, aa);
+	}
+
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::Bool;
+		aa << QVariant::String;
+		aa << QVariant::StringList;
+		aa << QVariant::String;
+		aa << QVariant::String;
+		aa << QVariant::Bool;
+		aa << QVariant::Int;
+		aa << QVariant::Int;
+		registerFunction("Queue.addTransfers", Queue_addTransfers, aa);
+	}
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::Bool;
+		aa << QVariant::String;
+		aa << QVariant::String;
+		aa << QVariant::ByteArray;
+		aa << QVariant::String;
+		aa << QVariant::String;
+		aa << QVariant::Bool;
+		aa << QVariant::Int;
+		aa << QVariant::Int;
+		registerFunction("Queue.addTransferWithData", Queue_addTransferWithData, aa);
+	}
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::String;
+		registerFunction("Settings.getValue", Settings_getValue, aa);
+	}
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::String;
+		aa << QVariant::String;
+		registerFunction("Settings.setValue", Settings_setValue, aa);
 	}
 }
 
@@ -190,6 +228,18 @@ QVariant XmlRpcService::getTransferClasses(QList<QVariant>&)
 	foreach(EngineEntry x, *e)
 	{
 		QVariantMap map;
+		map["mode"] = "Download";
+		map["shortName"] = x.shortName;
+		map["longName"] = x.longName;
+		rv << map;
+	}
+
+	e = &g_enginesUpload;
+
+	foreach(EngineEntry x, *e)
+	{
+		QVariantMap map;
+		map["mode"] = "Upload";
 		map["shortName"] = x.shortName;
 		map["longName"] = x.longName;
 		rv << map;
@@ -599,3 +649,128 @@ void XmlRpcService::deregisterFunction(QString name)
 {
 	m_mapFunctions.remove(name);
 }
+
+QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
+{
+	// bool upload, QString uuid, QStringList urls, QString _class, QString target, bool paused, int down, int up
+	bool upload = args[0].toBool();
+	QString uuidQueue = args[1].toString();
+	QStringList uris = args[2].toStringList();
+	QString _class = args[3].toString();
+	QString target = args[4].toString();
+	bool paused = args[5].toBool();
+	int down = args[6].toInt();
+	int up = args[7].toInt();
+	
+	const Transfer::Mode mode = (upload) ? Transfer::Upload : Transfer::Download;
+	
+	Queue* q;
+	HttpService::findQueue(uuidQueue, &q);
+
+	if (!q)
+		throw XmlRpcError(101, "Invalid queue UUID");
+	
+	int detectedClass = -1;
+	QList<Transfer*> listTransfers;
+	QStringList uuids;
+
+	if (!_class.isEmpty())
+		detectedClass = Transfer::getEngineID(_class, mode);
+	
+	try
+	{
+		for(int i=0;i<uris.size();i++)
+		{
+			Transfer* d;
+			
+			int classID;
+			if(detectedClass == -1)
+			{
+				// autodetection
+				Transfer::BestEngine eng;
+				
+				if(mode == Transfer::Download)
+					eng = Transfer::bestEngine(uris[i], Transfer::Download);
+				else
+					eng = Transfer::bestEngine(target, Transfer::Upload);
+				
+				if(eng.nClass < 0)
+					throw RuntimeException(QObject::tr("Couldn't autodetect transfer type for \"%1\"").arg(uris[i]));
+				else
+					classID = eng.nClass;
+
+				if(detectedClass == -1)
+					detectedClass = classID;
+			}
+			else
+				classID = detectedClass;
+			
+			d = Transfer::createInstance(mode, classID);
+			
+			if(d == 0)
+				throw RuntimeException(QObject::tr("Failed to create a class instance."));
+			
+			listTransfers << d;
+			
+			d->init(uris[i].trimmed(), target);
+			d->setUserSpeedLimits(down, up);
+			
+			if (paused)
+				d->setState(Transfer::Paused);
+			else
+				d->setState(Transfer::Waiting);
+			uuids << d->uuid();
+		}
+		
+		q->lockW();
+		
+		foreach (Transfer* t, listTransfers)
+			q->add(t);
+		
+		q->unlock();
+		g_queuesLock.unlock();
+	}
+	catch (const RuntimeException& e)
+	{
+		qDeleteAll(listTransfers);
+		return e.what();
+	}
+	
+	return uuids;
+}
+
+QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
+{
+	// bool upload, QString uuid, QByteArray fileData, QString _class, QString target, bool paused, int down, int up
+	bool upload = args[0].toBool();
+	QString uuid = args[1].toString();
+	QString origName = args[2].toString();
+	QByteArray fileData = args[3].toByteArray();
+	QString _class = args[4].toString();
+	QString target = args[5].toString();
+	bool paused = args[6].toBool();
+	int down = args[7].toInt();
+	int up = args[8].toInt();
+	
+	QTemporaryFile tempFile("fr_temp.XXXXXX");
+	if (!tempFile.open())
+		throw RuntimeException(QObject::tr("Cannot create a temporary file."));
+	
+	tempFile.write(fileData);
+	tempFile.flush();
+	
+	
+	
+	return QVariant();
+}
+
+QVariant XmlRpcService::Settings_getValue(QList<QVariant>&)
+{
+	return QVariant();
+}
+
+QVariant XmlRpcService::Settings_setValue(QList<QVariant>&)
+{
+	return QVariant();
+}
+

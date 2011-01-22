@@ -168,6 +168,28 @@ Transfer* Transfer::createInstance(QString className)
 	return 0;
 }
 
+int Transfer::getEngineID(QString className, Mode type)
+{
+	if (type == Download)
+	{
+		for(int i=0;i<g_enginesDownload.size();i++)
+		{
+			if(className == g_enginesDownload[i].shortName)
+				return i;
+		}
+	}
+	else if (type == Upload)
+	{
+		for(int i=0;i<g_enginesUpload.size();i++)
+		{
+			if(className == g_enginesUpload[i].shortName)
+				return i;
+		}
+	}
+	
+	return -1;
+}
+
 Transfer* Transfer::createInstance(Mode mode, int classID)
 {
 	const EngineEntry* entries = engines(mode);

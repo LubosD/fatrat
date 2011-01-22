@@ -70,8 +70,9 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 
 		if(data.accum.first > 1000000LL)
 		{
-			if(data.nextStat >= MAX_STATS)
-				data.nextStat = 0;
+			if (!data.accum.second)
+				qDebug() << "Pushing 0 bytes from accum";
+			data.nextStat %= MAX_STATS;
 			data.stats[data.nextStat++] = data.accum;
 
 			data.accum = timedata_pair(0,0);

@@ -78,7 +78,7 @@ bool CurlUser::idleCycle(const timeval& tvNow)
 		return false;
 	else if(seconds > 1)
 	{
-		//qDebug() << "CurlUser::idleCycle(): idle for more than 1 second";
+		qDebug() << "CurlUser::idleCycle(): idle for more than 1 second";
 		timeProcessDown(0);
 		timeProcessUp(0);
 	}

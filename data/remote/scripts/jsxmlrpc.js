@@ -264,13 +264,17 @@ function getNamedChildren (node, name){
 
 
 
-
+function BinaryData(data) {
+	this.data = data;
+}
 
 
 
 function encodeXmlRpc(arg) {
 
- if (isA(arg,String)){
+ if (isA(arg,BinaryData)) {
+ return makeTag("base64", $.base64Encode(arg.data));
+ } else if (isA(arg,String)){
  arg = arg.replace(/&/g, "&amp;")
  arg = arg.replace(/</g, "&lt;")
  arg = arg.replace(/>/g, "&gt;")

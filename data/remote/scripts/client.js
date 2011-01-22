@@ -1,5 +1,8 @@
 var client;
-var rpcMethods = ["getQueues", "getTransferClasses", "Queue.getTransfers", "Transfer.setProperties", "Transfer.getAdvancedProperties", "Transfer.delete", "Queue.moveTransfers", "Queue.setProperties", "Queue.create"];
+var rpcMethods = ["getQueues", "getTransferClasses", "Queue.getTransfers",
+	"Transfer.setProperties", "Transfer.getAdvancedProperties", "Transfer.delete",
+	"Queue.moveTransfers", "Queue.setProperties", "Queue.create", "getTransferClasses",
+	"Queue.addTransfers", "Queue.addTransferWithData" ];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
@@ -10,6 +13,12 @@ function clientInit() {
 	
 	client.getTransferClasses(function(data) {
 		transferClasses = data;
+		var options = $("#new-transfer-class").attr('options');
+		
+		$.each(transferClasses, function(index, cls) {
+			if (cls.mode == "Download")
+				options[options.length] = new Option(cls.longName, cls.shortName, true, true);
+		});
 	});
 	
 	$("#toolbar-add").click(actionAdd);
@@ -579,18 +588,61 @@ function actionAdd() {
 			sbox.add(new Option(queues[qw].name, queues[qw].uuid));
 		}
 	}
+	
+	if (!window.FileReader)
+		$('#new-transfer-file').attr('disabled', 'disabled');
+	$('#new-transfer-class').val('');
+	$('#new-transfer-paused').attr('checked', '');
+	$('#new-transfer-speed-down').val('0');
+	$('#new-transfer-speed-up').val('0');
+	$('#new-transfer-target').val(getQueue(currentQueue).defaultDirectory);
 
 	$("#new-transfer").dialog({
 		resizable: true,
 		//height: 500,
 		width: 600,
 		modal: true,
+		open: function() { $('#new-transfer-links').focus(); },
 		buttons: {
 			Cancel: function() {
 				$(this).dialog('close');
 			},
 			Ok: function() {
-
+				_class = $('#new-transfer-class').val();
+				target = $('#new-transfer-target').val();
+				paused = $('#new-transfer-paused').is(':checked');
+				down = $('#new-transfer-speed-down').val() * 1024;
+				up = $('#new-transfer-speed-up').val() * 1024;
+				queue = $('#new-transfer-destination-queue').val();
+				
+				$(this).dialog('close');
+				
+				// send URLs
+				urls = $('#new-transfer-links').val().split(/\s+/g);
+				if (urls.length > 0 && urls[0] != "") {
+					client.Queue_addTransfers(false, queue, urls, _class, target, paused, up, down);
+				}
+				
+				// send files
+				if (window.FileReader) {
+					var file = document.getElementById('new-transfer-file').files[0];
+					if (file) {
+						if (file.size > 3*1024*1024) {
+							alert("The file is unusually large, aborting the operation");
+							return;
+						}
+						reader = new FileReader();
+						reader.onload = function(e) {
+							// e.target.result
+							bd = new BinaryData(e.target.result);
+							client.Queue_addTransfers(false, queue, bd, _class, target, paused, up, down);
+							updateTransfers();
+						};
+						reader.readAsBinaryString(file);
+					} else
+						updateTransfers();
+				} else
+					updateTransfers();
 			}
 		}
 	});

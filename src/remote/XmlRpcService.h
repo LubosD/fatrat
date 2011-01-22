@@ -58,6 +58,10 @@ protected:
 	static QVariant Transfer_getAdvancedProperties(QList<QVariant>&);
 	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
 	static QVariant Transfer_delete(QStringList uuid, bool withData);
+	static QVariant Queue_addTransfers(QList<QVariant>&);
+	static QVariant Queue_addTransferWithData(QList<QVariant>&);
+	static QVariant Settings_getValue(QList<QVariant>&);
+	static QVariant Settings_setValue(QList<QVariant>&);
 public:
 	struct XmlRpcError
 	{

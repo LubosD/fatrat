@@ -70,3 +70,6 @@ Web interface utilizes the following 3rd party JavaScript libraries:
   Copyright © 2010 Ivan Bozhanov <vakata.com>
   Dual licensed under the GPL and MIT licenses.
 
+* jQuery BASE64 functions
+  Copyright  Muhammad Hussein Fattahizadeh <muhammad at semnanweb.com>
+  GNU GPL version 2 or 3.

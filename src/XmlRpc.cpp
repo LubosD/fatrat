@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include <QDomDocument>
 #include <QDateTime>
+#include <QStringList>
 #include <QtDebug>
 
 static void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what);
@@ -111,6 +112,22 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 			foreach(QVariant v, list)
 				insertArgument(doc, data, v);
 			
+			array.appendChild(data);
+			value.appendChild(array);
+			where.appendChild(value);
+		}
+		break;
+	case QMetaType::QStringList:
+		{
+			QDomElement array, data, value;
+			value = doc.createElement("value");
+			array = doc.createElement("array");
+			data = doc.createElement("data");
+
+			QStringList list = what.toStringList();
+			foreach(QString v, list)
+				insertArgument(doc, data, v);
+
 			array.appendChild(data);
 			value.appendChild(array);
 			where.appendChild(value);

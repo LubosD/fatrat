@@ -598,7 +598,7 @@ void restartApplication()
 }
 
 #ifdef WITH_JPLUGINS
-void testJava()
+void __attribute__ ((unused)) testJava()
 {
 	try
 	{
