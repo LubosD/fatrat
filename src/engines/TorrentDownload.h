@@ -44,6 +44,9 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
 #include "Proxy.h"
+#ifdef WITH_WEBINTERFACE
+#	include "remote/TransferHttpService.h"
+#endif
 
 class TorrentWorker;
 class TorrentDetails;
@@ -52,7 +55,11 @@ class QLabel;
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class TorrentDownload : public Transfer
+class TorrentDownload : public Transfer,
+#ifdef WITH_WEBINTERFACE
+	public TransferHttpService
+#endif
+
 {
 Q_OBJECT
 public:
@@ -100,6 +107,13 @@ public:
 	
 	qint64 totalDownload() const { return m_nPrevDownload + m_status.total_payload_download; }
 	qint64 totalUpload() const { return m_nPrevUpload + m_status.total_payload_upload; }
+
+#ifdef WITH_WEBINTERFACE
+	// TransferHttpService
+	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb);
+	virtual const char* detailsScript() const;
+	virtual QVariantMap properties() const;
+#endif
 public slots:
 	void downloadTorrent(QString source);
 private:

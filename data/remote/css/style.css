@@ -1,0 +1,213 @@
+html, body {
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color: white;
+	color: black;
+	height: 100%;
+	width: 100%;
+
+	padding: 0;
+	margin: 0;
+	overflow: auto;
+}
+
+table#bigtable {
+	height: 100%;
+	width: 100%;
+}
+
+#logo {
+	padding-left: 2ex;
+	padding-top: 2ex;
+}
+
+#toolbar {
+	padding: 1ex;
+}
+
+#errors {
+	padding: 1ex;
+	display: none;
+}
+
+#refresh-settings {
+	float: right;
+	line-height: 2.4em;
+}
+
+#credits {
+	display: none;
+	width: 640px;
+}
+
+#footer {
+	font-size: 75%;
+	text-align: center;
+	margin-top: 1em;
+}
+
+.top-title {
+	text-align: center;
+	padding: 0 1ex 0 1ex;
+	margin-bottom: 1ex;
+}
+
+#tabs {
+	/*height: 100%;*/
+	overflow: auto;
+}
+
+.ui-layout-resizer { background: #888; }
+
+.ui-layout-pane { padding: 1ex; }
+
+#tabs-transfers {
+	display: table;
+	width: 100%;
+	padding: 0;
+}
+
+#queues-pane {
+	display: table-cell;
+	width: 20%;
+	min-width: 200px;
+	padding: 1ex;
+	vertical-align: top;
+}
+
+#transfers-pane {
+	/*display: table-cell;*/
+	overflow: auto;
+	/*width: 80%;*/
+	padding: 1ex;
+	/*overflow: scroll;*/
+}
+
+.queue-item {
+	text-align: center;
+	padding-top: 1ex;
+	padding-bottom: 1ex;
+	cursor: pointer;
+}
+
+#queues .ui-selected, #queues .ui-selecting  {
+	background: #567dbc;
+	color: white;
+	border: 1px solid #567dbc;
+}
+
+.queue-item:not(.ui-selected):hover {
+	border: 1px solid #bfcde4 !important;
+	background: #cbdaf1 !important;
+}
+
+table#transfers {
+	background: white;
+	border-collapse:collapse;
+	/*height: 100%;*/
+	width: 100%;
+}
+
+table#transfers th {
+	text-align: left;
+	padding-left: 1ex;
+	border-bottom: 1px solid #DDD;
+	height: 1ex;
+}
+
+table#transfers th:nth-child(n+2) {
+	border-left: 1px solid #DDD;
+}
+
+table#transfers tr:nth-child(2n) {
+	background: #F7F7F7;
+}
+
+table#transfers thead {
+	
+}
+
+table#transfers tr {
+	cursor: default;
+	border-spacing: 0;
+	max-height: 1ex;
+}
+
+table#transfers tr.ui-selected {
+	background: #418bd4;
+	color: white;
+}
+
+.progressbar {
+	text-align: center !important;
+	line-height: 2em;
+}
+
+.progressbar > span {
+	float: right;
+	width: 100%;
+}
+
+#tabs-tsg-img, #tabs-qsg-img {
+	width: 640px;
+	height: 480px;
+	visibility: hidden;
+}
+
+/* http://labnol.blogspot.com/2006/10/html-css-trick-for-displaying-code.html */
+pre {
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+#transfer-log, #global-log {
+	height: 40ex;
+	overflow: auto;
+}
+
+#delete-dialog, #delete-dialog-with-data {
+	display: none;
+}
+
+#delete-dialog img, #delete-dialog-with-data img {
+	float: left;
+	margin-right: 3ex;
+}
+
+.transfer-properties {
+	float: right;
+	cursor: pointer;
+	z-index: 10;
+}
+
+#transfer-properties, #new-transfer, #queue-properties {
+	display: none;
+}
+
+#transfer-properties table, #queue-properties table {
+	width: 100%;
+}
+
+#transfer-properties-target, #transfer-properties-comment, #new-transfer-links, #new-transfer-destination-queue, #new-transfer-target, #queue-properties {
+	width: 100%;
+}
+
+#tabs-details, #tabs-log {
+	overflow: auto;
+}
+
+#new-transfer {
+	width: 50%;
+}
+
+#new-transfer table {
+	width: 100%;
+}
+
+#details-subclass {
+	height: 100% !important;
+}
+

@@ -29,21 +29,36 @@ respects for all of the code used other than "OpenSSL".
 #define XMLRPCSERVICE_H
 #include "config.h"
 #include <QByteArray>
+#include <QVector>
+#include <QMap>
 #include <QVariantMap>
-#include "engines/OutputBuffer.h"
+//#include "engines/OutputBuffer.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
 
-namespace XmlRpcService
+#if !defined(XMLRPCSERVICE_AVOID_SHA_CONFLICT)
+#include <pion/net/WebServer.hpp>
+
+class XmlRpcService : public pion::net::WebService
 {
-	void serve(QByteArray postData, OutputBuffer* output);
-
-	QVariant getQueues();
-	QVariant Queue_getTransfers(QString uuid);
-	QVariant Transfer_setProperties(QString uuid, QVariantMap properties);
-
+public:
+	void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	static void globalInit();
+	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
+	static void deregisterFunction(QString name);
+protected:
+	static QVariant getTransferClasses(QList<QVariant>&);
+	static QVariant getQueues(QList<QVariant>&);
+	static QVariant Queue_create(QList<QVariant>&);
+	static QVariant Queue_setProperties(QList<QVariant>&);
+	static QVariant Queue_getTransfers(QString uuid);
+	static QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
+	static QVariant Transfer_getAdvancedProperties(QList<QVariant>&);
+	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
+	static QVariant Transfer_delete(QStringList uuid, bool withData);
+public:
 	struct XmlRpcError
 	{
 		XmlRpcError(int code, QString desc)
@@ -55,6 +70,24 @@ namespace XmlRpcService
 		int code;
 		QString desc;
 	};
-}
+private:
+	struct FunctionInfo
+	{
+		QVariant (*function)(QList<QVariant>&);
+		QVector<QVariant::Type> arguments;
+	};
+	static QMap<QString,FunctionInfo> m_mapFunctions;
+};
+
+#else // XMLRPCSERVICE_AVOID_SHA_CONFLICT
+
+class XmlRpcService
+{
+public:
+	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
+	static void deregisterFunction(QString name);
+};
+
+#endif // XMLRPCSERVICE_AVOID_SHA_CONFLICT
 
 #endif

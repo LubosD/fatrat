@@ -65,6 +65,7 @@ respects for all of the code used other than "OpenSSL".
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
+#	include "remote/XmlRpcService.h"
 #endif
 
 #ifdef WITH_JABBER
@@ -173,6 +174,7 @@ int main(int argc,char** argv)
 	TransferFactory factory;
 
 #ifdef WITH_WEBINTERFACE
+	XmlRpcService::globalInit();
 	new HttpService;
 #endif
 	

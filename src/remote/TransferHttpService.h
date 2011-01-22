@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,34 +25,26 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef TORRENTPROGRESSWIDGET_H
-#define TORRENTPROGRESSWIDGET_H
-#include <QWidget>
-#include <QImage>
-#include <QPaintEvent>
-#include <cmath>
-#include <cstring>
-#include <libtorrent/bitfield.hpp>
+#ifndef TRANSFERHTTPSERVICE_H
+#define TRANSFERHTTPSERVICE_H
+#include <QString>
+#include <QMultiMap>
+#include <QVariant>
 
-class TorrentProgressWidget : public QWidget
+class TransferHttpService
 {
-Q_OBJECT
 public:
-	TorrentProgressWidget(QWidget* parent);
-	~TorrentProgressWidget();
-	
-	void generate(const libtorrent::bitfield& data);
-	void generate(const std::vector<int>& data);
-	
-	// blue colored
-	static QImage generate(const libtorrent::bitfield& data, int width, quint32* buf, float sstart = 0, float send = 0);
-	// grey colored
-	static QImage generate(const std::vector<int>& data, int width, quint32* buf, float sstart = 0, float send = -1);
-	
-	void paintEvent(QPaintEvent* event);
-private:
-	QImage m_image;
-	quint32* m_data;
+	class WriteBack
+	{
+	public:
+		virtual void setContentType(const char* type) = 0;
+		virtual void write(const char* data, size_t bytes) = 0;
+		virtual void writeFail(QString error) = 0;
+	};
+
+	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb) = 0;
+	virtual const char* detailsScript() const = 0;
+	virtual QVariantMap properties() const = 0;
 };
 
-#endif
+#endif // TRANSFERHTTPSERVICE_H

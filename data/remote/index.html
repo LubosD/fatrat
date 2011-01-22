@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>FatRat Download Manager</title>
+
+<link rel="icon" href="/favicon.png" />
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/ui-lightness/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/icons.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/jstree/style.css" rel="stylesheet" type="text/css" media="all">        
+<script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.layout.min-1.2.0.js"></script>
+<script type="text/javascript" src="scripts/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.cookie.js"></script>
+<script type="text/javascript" src="scripts/jsxmlrpc.js"></script>
+<script type="text/javascript" src="scripts/jquery.jstree.js"></script>
+<script type="text/javascript" src="scripts/ui.js"></script>
+<script type="text/javascript" src="scripts/client.js"></script>
+</head>
+
+<body>
+
+<!--<table id="bigtable">
+<tr><td>-->
+<div class="ui-layout-north">
+	<img src="img/logo.png" alt="FatRat" id="logo" />
+	<div id="errors" class="ui-state-error"></div>
+	<div id="toolbar" class="ui-widget-header ui-corner-all">
+		<div id="refresh-settings">
+			<label>Refresh every
+			<select id="refresh">
+				<option value="2">2 seconds</option>
+				<option value="5">5 seconds</option>
+				<option value="15">15 seconds</option>
+				<option value="30">30 seconds</option>
+			</select></label>
+		</div>
+		<span id="toolbar-set1">
+			<button id="toolbar-add">New Transfer</button>
+			<button id="toolbar-delete">Delete</button>
+			<button id="toolbar-delete-with-data">Delete with Data</button>
+			<button id="toolbar-delete-completed">Delete Completed</button>
+		</span>
+		<span id="toolbar-set2">
+			<button id="toolbar-resume">Resume</button>
+			<button id="toolbar-force-resume">Force Resume</button>
+			<button id="toolbar-pause">Pause</button>
+		</span>
+		<span id="toolbar-set3">
+			<button id="toolbar-move-top">Move to Top</button>
+			<button id="toolbar-move-up">Move Up</button>
+			<button id="toolbar-move-down">Move Down</button>
+			<button id="toolbar-move-bottom">Move to Bottom</button>
+		</span>
+		<span id="toolbar-set4">
+			<button id="toolbar-queue-add">New Queue</button>
+			<button id="toolbar-queue-delete">Delete Queue</button>
+		</span>
+	</div>
+</div>
+<!--
+</td></tr>
+<tr style="height:100%"><td>
+-->
+<div id="tabs" class="ui-layout-center">
+	<ul>
+		<li><a href="#tabs-transfers">Transfers</a></li>
+		<li><a href="#tabs-details">Details</a></li>
+		<li><a href="#tabs-tsg">Transfer Speed Graph</a></li>
+		<li><a href="#tabs-qsg">Queue Speed Graph</a></li>
+		<li><a href="#tabs-log">Log</a></li>
+	</ul>
+	<div id="tabs-transfers">
+		<div id="queues-pane">
+			<div id="queues-title" class="top-title ui-widget ui-corner-all ui-state-default">Queues</div>
+			<div id="queues">
+				<!--<div class="queue-item ui-widget-content ui-selectee ui-hoverable">Queue 1</div>
+				<div class="queue-item ui-widget-content ui-selectee ui-hoverable">Queue 2</div>-->
+			</div>
+		</div>
+		<div id="transfers-pane">
+			<div class="top-title ui-widget ui-corner-all ui-state-default ui-layout-north">Transfers</div>
+			<table id="transfers" class="ui-widget-content ui-layout-content ui-layout-center">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Progress</th>
+					<th>Size</th>
+					<th><img src="css/icons/download.png" alt="Download" /> Speed</th>
+					<th><img src="css/icons/upload.png" alt="Upload" /> Speed</th>
+					<th>Time Remaining</th>
+					<th>Message</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!--<tr class="transfer-item ui-selectee">
+					<td class="fatrat-transfer-state fatrat-transfer-active">Transfer name</td>
+					<td class="progressbar"><span>30%</span></td>
+					<td>300 MB</td>
+					<td>50 KB/s</td>
+					<td></td>
+					<td>1h</td>
+					<td>Running</td>
+				</tr>-->
+			</tbody>
+			</table>
+		</div>
+	</div>
+	<div id="tabs-details">
+		<div id="accordion">
+			<h3><a href="#">Download transfer data</a></h3>
+			<div>
+				<div id="details-download">
+				</div>
+				<div id="details-download-tree">
+				</div>
+			</div>
+
+			<h3><a href="#">Transfer details</a></h3>
+			<div id="details-subclass">
+			</div>
+		</div>
+	</div>
+	<div id="tabs-tsg">
+		<img src="" id="tabs-tsg-img" alt="Transfer Speed Graph" />
+	</div>
+	<div id="tabs-qsg">
+		<img src="" id="tabs-qsg-img" alt="Queue Speed Graph" />
+	</div>
+	<div id="tabs-log">
+		<div class="top-title ui-widget ui-corner-all ui-state-default ui-layout-north">Transfer Log</div>
+		<pre id="transfer-log" class="ui-widget-content">
+		</pre>
+
+		<div class="top-title ui-widget ui-corner-all ui-state-default ui-layout-north">Global Log</div>
+		<pre id="global-log" class="ui-widget-content">
+		</pre>
+	</div>
+</div>
+
+<!--
+</td></tr>
+
+<tr><td>
+-->
+<div id="footer" class="ui-layout-south">
+	Copyright &copy; 2006-2010 Luboš Doležel - <a id="credits-link" href="#">all credits</a>
+</div>
+
+<div id="credits" title="Copyrights">
+	<pre id="credits-text"></pre>
+</div>
+
+<div id="delete-dialog" title="Delete selected transfers">
+	<p>
+		<img src="/img/warning.png" alt="Warning" />
+		Do you really want to delete the selected transfers?
+	</p>
+</div>
+
+<div id="delete-dialog-with-data" title="Delete selected transfers">
+	<p>
+		<img src="/img/warning.png" alt="Warning" />
+		Do you really want to delete the selected transfers <b>including the data</b>?
+	</p>
+</div>
+
+<div id="transfer-properties" title="Transfer properties">
+	<table>
+		<tr>
+			<td>Target:</td>
+			<td><input type="text" id="transfer-properties-target" /></td>
+		</tr>
+		<tr>
+			<td>Max download speed (KB/s):</td>
+			<td><input type="text" id="transfer-properties-speed-down" size="4" /></td>
+		</tr>
+		<tr>
+			<td>Max upload speed (KB/s):</td>
+			<td><input type="text" id="transfer-properties-speed-up" size="4" /></td>
+		</tr>
+		<tr>
+			<td>Comment:</td>
+			<td><textarea id="transfer-properties-comment" rows="10"></textarea></td>
+		</tr>
+	</table>
+</div>
+
+<div id="new-transfer" title="New transfer">
+	<table>
+		<tr>
+			<td>Queue:</td>
+			<td><select id="new-transfer-destination-queue"></select></td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr /></td>
+		</tr>
+		<tr>
+			<td>Addresses:</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<textarea id="new-transfer-links" rows="6"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<td>Local file (i.e. torrent):</td>
+			<td>
+				<form enctype="multipart/form-data">
+					<input disabled="disabled" type="file" name="new-transfer-file" id="new-transfer-file" />
+				</form>
+			</td>
+		</tr>
+		<tr>
+			<td>Target:</td>
+			<td><input type="text" id="new-transfer-target" /></td>
+		</tr>
+		<tr>
+			<td>Download as:</td>
+			<td><select id="new-transfer-class"></select></td>
+		</tr>
+		<tr>
+			<td>
+				Max download speed (KB/s):
+			</td>
+			<td style="text-align: left">
+				<label style="float: right"><input type="checkbox" id="new-transfer-paused" />Add paused</label>
+				<input id="new-transfer-speed-down" type="text" size="4" value="0" />
+			<!--</td>
+			<td>-->
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Max upload speed (KB/s):
+			</td>
+			<td style="text-align: left">
+				<input id="new-transfer-speed-up" type="text" size="4" value="0" />
+			</td>
+		</tr>
+	</table>
+</div>
+
+<div id="queue-properties" title="Queue properties">
+	<table>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" id="queue-properties-name" /></td>
+		</tr>
+		<tr>
+			<td>Target directory:</td>
+			<td><input type="text" id="queue-properties-target-directory" /></td>
+		</tr>
+		<tr>
+			<td><label><input type="checkbox" id="queue-properties-move" />Move transfers after completion:</label></td>
+			<td><input type="text" id="queue-properties-move-directory" /></td>
+		</tr>
+		<tr>
+			<td>Download speed limit (KB/s):</td>
+			<td><input id="queue-properties-speed-down" type="text" size="4" value="0" /></td>
+		</tr>
+		<tr>
+			<td>Upload speed limit (KB/s):</td>
+			<td><input id="queue-properties-speed-up" type="text" size="4" value="0" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<fieldset>
+					<legend><label><input type="checkbox" id="queue-properties-transfer-limits" /> Limit active transfer count</label></legend>
+					
+					<table>
+						<tr>
+							<td>Maximum active download transfers:</td>
+							<td><input id="queue-properties-count-down" type="text" size="4" value="0" /></td>
+						</tr>
+						<tr>
+							<td>Maximum active upload transfers:</td>
+							<td><input id="queue-properties-count-up" type="text" size="4" value="0" /></td>
+							<td><label><input type="checkbox" id="queue-propeties-upasdown" /> Count as downloads</label></td>
+						</tr>
+					</table>
+				</fieldset>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!--</td></tr>
+</table>-->
+
+</body>
+
+</html>

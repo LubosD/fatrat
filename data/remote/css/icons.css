@@ -1,0 +1,39 @@
+.fatrat-icon-add { background-image: url(icons/add.png); }
+.fatrat-icon-delete { background-image: url(icons/delete.png); }
+.fatrat-icon-delete-with-data { background-image: url(icons/delete_with_data.png); }
+.fatrat-icon-delete-completed { background-image: url(icons/states/completed.png); }
+
+.fatrat-icon-resume { background-image: url(icons/states/active.png); }
+.fatrat-icon-force-resume { background-image: url(icons/states/forcedactive.png); }
+.fatrat-icon-pause { background-image: url(icons/states/paused.png); }
+
+.fatrat-icon-move-top { background-image: url(icons/move/top.png); }
+.fatrat-icon-move-up { background-image: url(icons/move/up.png); }
+.fatrat-icon-move-down { background-image: url(icons/move/down.png); }
+.fatrat-icon-move-bottom { background-image: url(icons/move/bottom.png); }
+
+.fatrat-icon-queue-add { background-image: url(icons/queue/add.png); }
+.fatrat-icon-queue-delete { background-image: url(icons/queue/remove.png); }
+
+.fatrat-transfer-state { padding-left: 26px; background-position: 4px; background-repeat: no-repeat }
+.fatrat-transfer-active { background-image: url(icons/states/active.png); }
+.fatrat-transfer-active-ul { background-image: url(icons/states/active_upload.png); }
+.fatrat-transfer-forcedactive { background-image: url(icons/states/forcedactive.png); }
+.fatrat-transfer-forcedactive-ul { background-image: url(icons/states/forcedactive_upload.png); }
+.fatrat-transfer-waiting { background-image: url(icons/states/waiting.png); }
+.fatrat-transfer-waiting-ul { background-image: url(icons/states/waiting_upload.png); }
+.fatrat-transfer-paused { background-image: url(icons/states/paused.png); }
+.fatrat-transfer-paused-ul { background-image: url(icons/states/paused_upload.png); }
+.fatrat-transfer-failed { background-image: url(icons/states/failed_upload.png); }
+.fatrat-transfer-failed-ul { background-image: url(icons/states/failed_upload.png); }
+.fatrat-transfer-completed { background-image: url(icons/states/completed.png); }
+.fatrat-transfer-completed-ul { background-image: url(icons/states/completed_upload.png); }
+
+.ui-icon-closethick { background-image: url(icons/close.png) !important; background-position: 0px 0px !important; }
+
+.downlink {
+	background-image: url(icons/down.png) !important;
+	padding-left: 26px !important;
+	background-repeat: no-repeat !important;
+	background-position: 8px !important;
+}

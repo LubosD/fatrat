@@ -75,7 +75,7 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 	switch(what.type())
 	{
 	case QMetaType::Bool:
-		insertValue(doc, where, "boolean", what.toString());
+		insertValue(doc, where, "boolean", what.toBool() ? "1" : "0");
 		break;
 	case QMetaType::Int:
 	case QMetaType::UInt:
@@ -229,11 +229,23 @@ QVariant parseValue(const QDomElement& where)
 		
 		QDomElement v = data.firstChildElement("value");
 		QList<QVariant> variantList;
+		bool allstring = true;
 		
 		while(!v.isNull())
 		{
-			variantList << parseValue(v);
+			QVariant parsed = parseValue(v);
+			variantList << parsed;
+
+			allstring &= parsed.type() == QVariant::String;
+
 			v = v.nextSiblingElement("value");
+		}
+
+		if (allstring && !variantList.empty())
+		{
+			QVariant var(variantList);
+			var.convert(QVariant::StringList);
+			return var;
 		}
 		
 		return variantList;
@@ -329,7 +341,5 @@ void XmlRpc::parseCall(const QByteArray& call, QByteArray& function, QList<QVari
 			p = p.nextSiblingElement("param");
 		}
 	}
-	else
-		throw RuntimeException(QObject::tr("Not a valid XML-RPC call"));
 }
 

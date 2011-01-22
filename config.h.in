@@ -9,6 +9,10 @@
 #cmakedefine WITH_CURL
 #cmakedefine WITH_JPLUGINS
 
+#ifdef WITH_WEBINTERFACE
+#	define PION_NET_PLUGINS "${pion-net_LIBDIR}/pion/plugins"
+#endif
+
 #cmakedefine ENABLE_FAKEDOWNLOAD
 
 #cmakedefine HAVE_SYS_EPOLL_H
@@ -18,6 +22,10 @@
 #cmakedefine GLOOX_1_0
 
 #cmakedefine LIBTORRENT_0_15
+
+#cmakedefine POSIX_LINUX
+#cmakedefine POSIX_BSD
+#cmakedefine POSIX_SOLARIS
 
 #define DATA_LOCATION "${CMAKE_INSTALL_PREFIX}/share/fatrat"
 #define PLUGIN_LOCATION "${CMAKE_INSTALL_LIBDIR}/fatrat/plugins"
