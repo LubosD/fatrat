@@ -60,6 +60,9 @@
 			<button id="toolbar-queue-add">New Queue</button>
 			<button id="toolbar-queue-delete">Delete Queue</button>
 		</span>
+		<span id="toolbar-set5">
+			<button id="toolbar-settings">Settings</button>
+		</span>
 	</div>
 </div>
 <!--
@@ -148,28 +151,28 @@
 <tr><td>
 -->
 <div id="footer" class="ui-layout-south">
-	Copyright &copy; 2006-2010 Luboš Doležel - <a id="credits-link" href="#">all credits</a>
+	Copyright &copy; 2006-2011 Luboš Doležel - <a id="credits-link" href="#">all credits</a>
 </div>
 
 <div id="credits" title="Copyrights">
 	<pre id="credits-text"></pre>
 </div>
 
-<div id="delete-dialog" title="Delete selected transfers">
+<div class="dialog" id="delete-dialog" title="Delete selected transfers">
 	<p>
 		<img src="/img/warning.png" alt="Warning" />
 		Do you really want to delete the selected transfers?
 	</p>
 </div>
 
-<div id="delete-dialog-with-data" title="Delete selected transfers">
+<div class="dialog" id="delete-dialog-with-data" title="Delete selected transfers">
 	<p>
 		<img src="/img/warning.png" alt="Warning" />
 		Do you really want to delete the selected transfers <b>including the data</b>?
 	</p>
 </div>
 
-<div id="transfer-properties" title="Transfer properties">
+<div class="dialog" id="transfer-properties" title="Transfer properties">
 	<table>
 		<tr>
 			<td>Target:</td>
@@ -190,7 +193,7 @@
 	</table>
 </div>
 
-<div id="new-transfer" title="New transfer">
+<div class="dialog" id="new-transfer" title="New transfer">
 	<table>
 		<tr>
 			<td>Queue:</td>
@@ -200,7 +203,7 @@
 			<td colspan="2"><hr /></td>
 		</tr>
 		<tr>
-			<td>Addresses:</td>
+			<td>URLs:</td>
 		</tr>
 		<tr>
 			<td colspan="2">
@@ -249,7 +252,7 @@
 	</table>
 </div>
 
-<div id="queue-properties" title="Queue properties">
+<div class="dialog" id="queue-properties" title="Queue properties">
 	<table>
 		<tr>
 			<td>Name:</td>
@@ -291,6 +294,9 @@
 			</td>
 		</tr>
 	</table>
+</div>
+
+<div class="dialog" id="settings" title="Settings">
 </div>
 
 <!--</td></tr>

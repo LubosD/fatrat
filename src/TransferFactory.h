@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #define TRANSFERFACTORY_H
 #include <QObject>
 #include "Transfer.h"
+#include "RuntimeException.h"
 
 class TransferFactory : public QObject
 {
@@ -40,8 +41,12 @@ public:
 
 	// Create a Transfer instance in the correct thread
 	Transfer* createInstance(const char* clsName);
+
+	// Init a Transfer in the correct thread
+	void init(Transfer* t, QString source, QString target);
 public slots:
 	void createInstance(QString clsName, Transfer** t);
+	void init(Transfer* t, QString source, QString target, RuntimeException* e, bool* eThrown);
 private:
 	static TransferFactory* m_instance;
 };

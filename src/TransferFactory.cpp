@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "TransferFactory.h"
 #include <QThread>
 #include <QMetaType>
+#include <QtDebug>
 #include <cassert>
 
 TransferFactory* TransferFactory::m_instance = 0;
@@ -47,13 +48,51 @@ Transfer* TransferFactory::createInstance(const char* clsName)
 	}
 }
 
+void TransferFactory::init(Transfer* t, QString source, QString target)
+{
+	qDebug() << "Source: "<< source;
+	qDebug() << "Target: "<< target;
+	if (QThread::currentThread() != thread())
+	{
+		RuntimeException e;
+		bool thrown;
+
+		QMetaObject::invokeMethod(this, "init", Qt::BlockingQueuedConnection, Q_ARG(Transfer*, t), Q_ARG(QString, source), Q_ARG(QString, target), Q_ARG(RuntimeException*, &e), Q_ARG(bool*, &thrown));
+
+		if (thrown)
+			throw e;
+	}
+	else
+	{
+		return t->init(source, target);
+	}
+}
+
 void TransferFactory::createInstance(QString clsName, Transfer** t)
 {
 	*t = Transfer::createInstance(clsName);
 }
 
+void TransferFactory::init(Transfer* t, QString source, QString target, RuntimeException* pe, bool* eThrown)
+{
+	try
+	{
+		qDebug() << "Calling real init";
+		t->init(source, target);
+		*eThrown = false;
+	}
+	catch (const RuntimeException& e)
+	{
+		*pe = e;
+		*eThrown = true;
+	}
+}
+
 TransferFactory::TransferFactory()
 {
+	qRegisterMetaType<bool*>("bool*");
+	qRegisterMetaType<RuntimeException*>("RuntimeException*");
+	qRegisterMetaType<Transfer*>("Transfer*");
 	qRegisterMetaType<Transfer**>("Transfer**");
 	m_instance = this;
 }

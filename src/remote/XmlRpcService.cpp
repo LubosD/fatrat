@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "XmlRpc.h"
 #include "Queue.h"
 #include "TransferHttpService.h"
+#include "TransferFactory.h"
 #include <QReadWriteLock>
 #include <QStringList>
 #include <QFileInfo>
@@ -695,7 +696,7 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 					eng = Transfer::bestEngine(target, Transfer::Upload);
 				
 				if(eng.nClass < 0)
-					throw RuntimeException(QObject::tr("Couldn't autodetect transfer type for \"%1\"").arg(uris[i]));
+					throw XmlRpcError(401, QObject::tr("Couldn't autodetect transfer type for \"%1\"").arg(uris[i]));
 				else
 					classID = eng.nClass;
 
@@ -705,14 +706,14 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 			else
 				classID = detectedClass;
 			
-			d = Transfer::createInstance(mode, classID);
+			d = TransferFactory::instance()->createInstance(Transfer::getEngineName(classID, mode));
 			
 			if(d == 0)
-				throw RuntimeException(QObject::tr("Failed to create a class instance."));
+				throw XmlRpcError(402, QObject::tr("Failed to create a class instance."));
 			
 			listTransfers << d;
 			
-			d->init(uris[i].trimmed(), target);
+			TransferFactory::instance()->init(d, uris[i].trimmed(), target);
 			d->setUserSpeedLimits(down, up);
 			
 			if (paused)
@@ -741,7 +742,7 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 
 QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 {
-	// bool upload, QString uuid, QByteArray fileData, QString _class, QString target, bool paused, int down, int up
+	// bool upload, QString uuid, String origName, QByteArray fileData, QString _class, QString target, bool paused, int down, int up
 	bool upload = args[0].toBool();
 	QString uuid = args[1].toString();
 	QString origName = args[2].toString();
@@ -754,7 +755,7 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	
 	QTemporaryFile tempFile("fr_temp.XXXXXX");
 	if (!tempFile.open())
-		throw RuntimeException(QObject::tr("Cannot create a temporary file."));
+		throw XmlRpcError(403, QObject::tr("Cannot create a temporary file."));
 	
 	tempFile.write(fileData);
 	tempFile.flush();

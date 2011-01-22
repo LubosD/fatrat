@@ -183,7 +183,7 @@ pre {
 	z-index: 10;
 }
 
-#transfer-properties, #new-transfer, #queue-properties {
+.dialog {
 	display: none;
 }
 

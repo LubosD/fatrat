@@ -20,6 +20,9 @@ $(document).ready(function() {
 	$('#toolbar-queue-delete').button({ text: false, icons: { primary: 'fatrat-icon-queue-delete' } });
 	$('#toolbar-set4').buttonset();
 	
+	$('#toolbar-settings').button({ text: false, icons: { primary: 'fatrat-icon-settings' } });
+	$('#toolbar-set5').buttonset();
+	
 	//$('#tabs-transfers').layout({ slidable: true, resizable: true });
 	//$('body').layout({ slidable: false, resizable: false; closable: false });
 	$('#tabs').tabs({ show: function() { updateSizes(); tabSwitched(true); } });
@@ -60,8 +63,8 @@ $(document).ready(function() {
 	//$("#transfer-properties-speed-up").spinner({ min: 0 });
 	
 	$(window).resize(updateSizes);
+	window.setTimeout(updateSizes, 250);
 	
-	updateSizes();
 	clientInit();
 });
 

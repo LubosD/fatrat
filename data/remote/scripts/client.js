@@ -34,6 +34,7 @@ function clientInit() {
 	$("#toolbar-move-bottom").click(actionMoveBottom);
 	$("#toolbar-queue-add").click(actionAddQueue);
 	$("#toolbar-queue-delete").click(actionDeleteQueue);
+	$("#toolbar-settings").click(actionSettings);
 	
 	updateQueues();
 	
@@ -579,15 +580,14 @@ function sendStateChange(newState) {
 }
 
 function actionAdd() {
-	sbox = $('#new-transfer-destination-queue')[0];
-	sbox.length = 0;
-	for (qw = 0; qw < queues.length; qw++) {
-		try {
-			sbox.add(new Option(queues[qw].name, queues[qw].uuid, null));
-		} catch (e) {
-			sbox.add(new Option(queues[qw].name, queues[qw].uuid));
-		}
-	}
+	var options = $("#new-transfer-destination-queue").attr('options');
+	
+	$.each(queues, function(index, queue) {
+		options[options.length] = new Option(queue.name, queue.uuid, true, true);
+	});
+	
+	if (currentQueue)
+		$("#new-transfer-destination-queue").val(currentQueue);
 	
 	if (!window.FileReader)
 		$('#new-transfer-file').attr('disabled', 'disabled');
@@ -596,6 +596,7 @@ function actionAdd() {
 	$('#new-transfer-speed-down').val('0');
 	$('#new-transfer-speed-up').val('0');
 	$('#new-transfer-target').val(getQueue(currentQueue).defaultDirectory);
+	$('#new-transfer-links').val('');
 
 	$("#new-transfer").dialog({
 		resizable: true,
@@ -615,6 +616,12 @@ function actionAdd() {
 				up = $('#new-transfer-speed-up').val() * 1024;
 				queue = $('#new-transfer-destination-queue').val();
 				
+				if (target == "" || !queue)
+					return;
+				
+				if (down < 0) down = 0;
+				if (up < 0) up = 0;
+				
 				$(this).dialog('close');
 				
 				// send URLs
@@ -633,9 +640,8 @@ function actionAdd() {
 						}
 						reader = new FileReader();
 						reader.onload = function(e) {
-							// e.target.result
 							bd = new BinaryData(e.target.result);
-							client.Queue_addTransfers(false, queue, bd, _class, target, paused, up, down);
+							client.Queue_addTransfers(false, queue, bd, removePath(file.name), _class, target, paused, up, down);
 							updateTransfers();
 						};
 						reader.readAsBinaryString(file);
@@ -646,6 +652,14 @@ function actionAdd() {
 			}
 		}
 	});
+}
+
+function removePath(path) {
+	p = path.lastIndexOf(path);
+	if (p == -1)
+		return path;
+	else
+		return path.substr(p+1);
 }
 
 function actionDelete() {
@@ -839,3 +853,21 @@ function showError(e) {
 function clearError() {
 	$("#errors").hide('slow');
 }
+
+function actionSettings() {
+	$("#settings").dialog({
+		resizable: true,
+		height:500,
+		width:500,
+		modal: true,
+		buttons: {
+			Cancel: function() {
+				$(this).dialog('close');
+			},
+			Ok: function() {
+			}
+		}
+	});
+}
+
+

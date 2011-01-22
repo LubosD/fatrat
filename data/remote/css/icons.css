@@ -7,6 +7,8 @@
 .fatrat-icon-force-resume { background-image: url(icons/states/forcedactive.png); }
 .fatrat-icon-pause { background-image: url(icons/states/paused.png); }
 
+.fatrat-icon-settings { background-image: url(icons/configure.png); }
+
 .fatrat-icon-move-top { background-image: url(icons/move/top.png); }
 .fatrat-icon-move-up { background-image: url(icons/move/up.png); }
 .fatrat-icon-move-down { background-image: url(icons/move/down.png); }

@@ -190,6 +190,12 @@ int Transfer::getEngineID(QString className, Mode type)
 	return -1;
 }
 
+const char* Transfer::getEngineName(int id, Mode type)
+{
+	const EngineEntry* e = engines(type);
+	return e[id].shortName;
+}
+
 Transfer* Transfer::createInstance(Mode mode, int classID)
 {
 	const EngineEntry* entries = engines(mode);
