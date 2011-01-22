@@ -512,6 +512,8 @@ QVariant XmlRpcService::Transfer_delete(QStringList luuid, bool withData)
 		q->unlock();
 		g_queuesLock.unlock();
 	}
+
+	return QVariant();
 }
 
 QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction)
