@@ -2,7 +2,8 @@ var client;
 var rpcMethods = ["getQueues", "getTransferClasses", "Queue.getTransfers",
 	"Transfer.setProperties", "Transfer.getAdvancedProperties", "Transfer.delete",
 	"Queue.moveTransfers", "Queue.setProperties", "Queue.create", "getTransferClasses",
-	"Queue.addTransfers", "Queue.addTransferWithData" ];
+	"Queue.addTransfers", "Queue.addTransferWithData", "Settings.apply",
+	"Settings.setValue", "Settings.getValue"  ];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;

@@ -91,7 +91,13 @@ void SettingsGeneralForm::accepted()
 	setSettingsValue("css", checkCSS->isChecked());
 	setSettingsValue("gui/systemtheme", checkSystemTheme->isChecked());
 	
-	((MainWindow*) getMainWindow())->applySettings();
+	applySettings();
+}
+
+void SettingsGeneralForm::applySettings()
+{
+	if (programHasGUI())
+		((MainWindow*) getMainWindow())->applySettings();
 }
 
 void SettingsGeneralForm::manageFavs()

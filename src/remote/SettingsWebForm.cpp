@@ -47,6 +47,9 @@ void SettingsWebForm::accepted()
 	setSettingsValue("remote/enable", checkEnable->isChecked());
 	setSettingsValue("remote/port", spinPort->value());
 	setSettingsValue("remote/password", linePassword->text());
-	
+}
+
+void SettingsWebForm::applySettings()
+{
 	HttpService::instance()->applySettings();
 }

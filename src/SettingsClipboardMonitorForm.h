@@ -41,6 +41,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsClipboardMonitorForm(me, parent); }
+
+	static void applySettings();
 private slots:
 	void actionAdd();
 	void actionEdit();

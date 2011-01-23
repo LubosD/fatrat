@@ -77,6 +77,10 @@ void SettingsJabberForm::accepted()
 	int index = comboProxy->currentIndex() - 1;
 	g_settings->setValue("jabber/proxy", (index >= 0) ? m_listProxy[index].uuid.toString() : "");
 	
-	JabberService::instance()->applySettings();
+	applySettings();
 }
 
+void SettingsJabberForm::applySettings()
+{
+	JabberService::instance()->applySettings();
+}

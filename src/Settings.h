@@ -39,13 +39,17 @@ extern QSettings* g_settings;
 
 struct SettingsItem
 {
+	SettingsItem() : lpfnCreate(0), pfnApply(0) {}
+
 	DelayedIcon icon;
 	QString title;
 	WidgetHostChild* (*lpfnCreate)(QWidget*, QObject*);
+	void (*pfnApply)();
 };
 
 void initSettingsPages();
 void addSettingsPage(const SettingsItem& i);
+void applyAllSettings();
 
 QVariant getSettingsDefault(QString id);
 QVariant getSettingsValue(QString id, QVariant def = QVariant());

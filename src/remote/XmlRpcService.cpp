@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "TransferHttpService.h"
 #include "TransferFactory.h"
+#include "Settings.h"
 #include <QReadWriteLock>
 #include <QStringList>
 #include <QFileInfo>
@@ -116,15 +117,16 @@ void XmlRpcService::globalInit()
 	}
 	{
 		QVector<QVariant::Type> aa;
-		aa << QVariant::String;
+		aa << QVariant::StringList;
 		registerFunction("Settings.getValue", Settings_getValue, aa);
 	}
 	{
 		QVector<QVariant::Type> aa;
-		aa << QVariant::String;
-		aa << QVariant::String;
+		aa << QVariant::StringList;
+		aa << QVariant::List;
 		registerFunction("Settings.setValue", Settings_setValue, aa);
 	}
+	registerFunction("Settings.apply", Settings_apply, QVector<QVariant::Type>());
 }
 
 void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
@@ -765,13 +767,33 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	return QVariant();
 }
 
-QVariant XmlRpcService::Settings_getValue(QList<QVariant>&)
+QVariant XmlRpcService::Settings_getValue(QList<QVariant>& args)
 {
+	QStringList keys = args[0].toStringList();
+	QVariantList out;
+
+	foreach (QString key, keys)
+		out << getSettingsValue(key);
+
+	return out;
+}
+
+QVariant XmlRpcService::Settings_setValue(QList<QVariant>& args)
+{
+	QStringList keys = args[0].toStringList();
+	QVariantList values = args[1].toList();
+
+	if (keys.size() != values.size())
+		throw XmlRpcError(403, QObject::tr("Settings key array length differs from value length"));
+
+	for (int i = 0; i < keys.size(); i++)
+		setSettingsValue(keys[i], values[i]);
+
 	return QVariant();
 }
 
-QVariant XmlRpcService::Settings_setValue(QList<QVariant>&)
+QVariant XmlRpcService::Settings_apply(QList<QVariant>&)
 {
+	applyAllSettings();
 	return QVariant();
 }
-

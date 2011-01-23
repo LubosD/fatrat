@@ -40,6 +40,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsSchedulerForm(w, parent); }
+
+	static void applySettings();
 public slots:
 	void add();
 	void edit();

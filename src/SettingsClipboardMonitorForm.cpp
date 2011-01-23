@@ -66,6 +66,11 @@ void SettingsClipboardMonitorForm::accepted()
 	}
 
 	setSettingsValue("clipboard/regexps", regexps);
+	applySettings();
+}
+
+void SettingsClipboardMonitorForm::applySettings()
+{
 	ClipboardMonitor::instance()->reloadSettings();
 }
 

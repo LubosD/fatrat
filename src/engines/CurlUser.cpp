@@ -19,9 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "CurlUser.h"
+#include "CurlPoller.h"
 #include <QtDebug>
-
-static const int TRANSFER_TIMEOUT = 30;
 
 CurlUser::CurlUser()
 	: m_master(0)
@@ -74,7 +73,7 @@ bool CurlUser::idleCycle(const timeval& tvNow)
 {
 	int seconds = tvNow.tv_sec - lastOperation().tv_sec;
 
-	if(seconds > TRANSFER_TIMEOUT)
+	if(seconds > CurlPoller::getTransferTimeout())
 		return false;
 	else if(seconds > 1)
 	{

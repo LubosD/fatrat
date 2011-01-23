@@ -40,6 +40,8 @@ public:
 	static WidgetHostChild* create(QWidget* w, QObject* p) { return new TorrentSettings(w, p); }
 	virtual void load();
 	virtual void accepted();
+
+	static void applySettings();
 public slots:
 	void cleanup();
 private:

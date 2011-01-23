@@ -181,6 +181,11 @@ void TorrentSettings::accepted()
 	g_settings->setValue("torrent/details_mode", comboDetailsMode->currentIndex());
 	g_settings->setValue("torrent/ua", comboUA->itemData(comboUA->currentIndex()).toString());
 	
+	applySettings();
+}
+
+void TorrentSettings::applySettings()
+{
 	TorrentDownload::applySettings();
 }
 

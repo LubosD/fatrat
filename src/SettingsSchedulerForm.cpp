@@ -51,6 +51,11 @@ void SettingsSchedulerForm::load()
 void SettingsSchedulerForm::accepted()
 {
 	Scheduler::saveActions(m_actions);
+	applySettings();
+}
+
+void SettingsSchedulerForm::applySettings()
+{
 	Scheduler::instance()->reload();
 }
 

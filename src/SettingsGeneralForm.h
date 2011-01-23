@@ -38,6 +38,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsGeneralForm(me, parent); }
+
+	static void applySettings();
 private slots:
 	void manageFavs();
 };

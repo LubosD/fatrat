@@ -210,6 +210,7 @@ void TorrentDownload::globalInit()
 	si.icon = DelayedIcon(":/fatrat/bittorrent.png");
 	si.title = tr("BitTorrent");
 	si.lpfnCreate = TorrentSettings::create;
+	si.pfnApply = TorrentSettings::applySettings;
 	
 	addSettingsPage(si);
 

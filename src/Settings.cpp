@@ -59,6 +59,7 @@ void initSettingsPages()
 	si.icon = DelayedIcon(":/fatrat/fatrat.png");
 	si.title = QObject::tr("Main");
 	si.lpfnCreate = SettingsGeneralForm::create;
+	si.pfnApply = SettingsGeneralForm::applySettings;
 	
 	g_settingsPages << si;
 	
@@ -83,6 +84,7 @@ void initSettingsPages()
 	si.icon = DelayedIcon(":/fatrat/rss.png");
 	si.title = QObject::tr("RSS");
 	si.lpfnCreate = SettingsRssForm::create;
+	si.pfnApply = SettingsRssForm::applySettings;
 	
 	g_settingsPages << si;
 	
@@ -90,6 +92,7 @@ void initSettingsPages()
 	si.icon = DelayedIcon(":/fatrat/jabber.png");
 	si.title = QObject::tr("Jabber");
 	si.lpfnCreate = SettingsJabberForm::create;
+	si.pfnApply = SettingsJabberForm::applySettings;
 	
 	g_settingsPages << si;
 #endif
@@ -97,11 +100,13 @@ void initSettingsPages()
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
 	si.lpfnCreate = SettingsSchedulerForm::create;
+	si.pfnApply = SettingsSchedulerForm::applySettings;
 	g_settingsPages << si;
 
 	si.icon = DelayedIcon(":/fatrat/clipboard.png");
 	si.title = QObject::tr("Clipboard monitor");
 	si.lpfnCreate = SettingsClipboardMonitorForm::create;
+	//si.pfnApply = SettingsClipboardMonitorForm::applySettings;
 	
 	g_settingsPages << si;
 }
@@ -132,7 +137,7 @@ void initSettingsDefaults()
 	QString path = getDataFileDir("/data", df) + df;
 
 	if (!QFile::exists(path)) {
-		const char* error = "Your installation is incomplete.\nPlease learn how to install programs first!\n";
+		const char* error = "Your installation is incomplete.\nIf you compiled FatRat from source, please learn how to install programs first!\n";
 		std::cerr << error;
 
 		if (getenv("DISPLAY"))
@@ -153,3 +158,11 @@ QVariant getSettingsDefault(QString id)
 	return m_settingsDefaults->value(id);
 }
 
+void applyAllSettings()
+{
+	for (int i = 0; i < g_settingsPages.size(); i++)
+	{
+		if (g_settingsPages[i].pfnApply)
+			g_settingsPages[i].pfnApply();
+	}
+}

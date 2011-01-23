@@ -90,6 +90,11 @@ void SettingsRssForm::accepted()
 	g_settings->setValue("rss/enable", checkEnable->isChecked());
 	g_settings->setValue("rss/interval", spinUpdateInterval->value());
 	
+	applySettings();
+}
+
+void SettingsRssForm::applySettings()
+{
 	RssFetcher::instance()->applySettings();
 }
 

@@ -44,6 +44,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsWebForm(w, parent); }
+
+	static void applySettings();
 };
 
 #endif

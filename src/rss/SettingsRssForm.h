@@ -41,6 +41,8 @@ public:
 	virtual void load();
 	virtual void accepted();
 	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsRssForm(w, parent); }
+
+	static void applySettings();
 protected slots:
 	void feedAdd();
 	void feedEdit();
