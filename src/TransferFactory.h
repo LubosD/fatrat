@@ -41,6 +41,7 @@ public:
 
 	// Create a Transfer instance in the correct thread
 	Transfer* createInstance(const char* clsName);
+	Transfer* createInstance(QString clsName);
 
 	// Init a Transfer in the correct thread
 	void init(Transfer* t, QString source, QString target);

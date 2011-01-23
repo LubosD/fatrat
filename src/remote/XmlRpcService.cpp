@@ -733,13 +733,15 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 			q->add(t);
 		
 		q->unlock();
-		g_queuesLock.unlock();
 	}
 	catch (const RuntimeException& e)
 	{
+		g_queuesLock.unlock();
 		qDeleteAll(listTransfers);
-		return e.what();
+		throw XmlRpcError(999, e.what());
 	}
+
+	g_queuesLock.unlock();
 	
 	return uuids;
 }
@@ -748,7 +750,7 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 {
 	// bool upload, QString uuid, String origName, QByteArray fileData, QString _class, QString target, bool paused, int down, int up
 	bool upload = args[0].toBool();
-	QString uuid = args[1].toString();
+	QString uuidQueue = args[1].toString();
 	QString origName = args[2].toString();
 	QByteArray fileData = args[3].toByteArray();
 	QString _class = args[4].toString();
@@ -763,10 +765,58 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	
 	tempFile.write(fileData);
 	tempFile.flush();
+
+	Queue* q;
+	HttpService::findQueue(uuidQueue, &q);
+
+	if (!q)
+		throw XmlRpcError(101, "Invalid queue UUID");
 	
+	if (_class.isEmpty())
+	{
+		int highestScore = 0;
+		const EngineEntry* e = Transfer::engines(Transfer::Download);
+		while (e->shortName)
+		{
+			int score = e->lpfnAcceptable2(origName, false, e);
+			if (score > highestScore)
+			{
+				highestScore = score;
+				_class = e->shortName;
+			}
+			e++;
+		}
+		if (_class.isEmpty())
+			throw XmlRpcError(404, QObject::tr("No download class is able to handle this file."));
+	}
+
+	Transfer* t = 0;
+	try
+	{
+		t = TransferFactory::instance()->createInstance(_class);
+		TransferFactory::instance()->init(t, tempFile.fileName(), target);
+
+		t->setUserSpeedLimits(down, up);
+
+		if (paused)
+			t->setState(Transfer::Paused);
+		else
+			t->setState(Transfer::Waiting);
+
+		q->lockW();
+		q->add(t);
+		q->unlock();
+	}
+	catch (const RuntimeException& e)
+	{
+		delete t;
+		g_queuesLock.unlock();
+		throw XmlRpcError(999, e.what());
+	}
+
+	g_queuesLock.unlock();
 	
-	
-	return QVariant();
+	return t->uuid();
 }
 
 QVariant XmlRpcService::Settings_getValue(QList<QVariant>& args)
@@ -786,7 +836,7 @@ QVariant XmlRpcService::Settings_setValue(QList<QVariant>& args)
 	QVariantList values = args[1].toList();
 
 	if (keys.size() != values.size())
-		throw XmlRpcError(403, QObject::tr("Settings key array length differs from value length"));
+		throw XmlRpcError(405, QObject::tr("Settings key array length differs from value length"));
 
 	for (int i = 0; i < keys.size(); i++)
 		setSettingsValue(keys[i], values[i]);
@@ -806,7 +856,7 @@ QVariant XmlRpcService::Settings_getPages(QList<QVariant>&)
 	for (int i = 0; i < g_settingsPages.size(); i++)
 	{
 		const SettingsItem& si = g_settingsPages[i];
-		if (!si.webSettingsScript)
+		if (!si.webSettingsScript || si.webSettingsIconURL)
 			continue;
 
 		QVariantMap map;

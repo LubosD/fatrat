@@ -102,3 +102,9 @@ TransferFactory* TransferFactory::instance()
 	assert(m_instance != 0);
 	return m_instance;
 }
+
+Transfer* TransferFactory::createInstance(QString clsName)
+{
+	QByteArray ar = clsName.toLatin1();
+	return createInstance(ar.data());
+}

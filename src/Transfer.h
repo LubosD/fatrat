@@ -218,8 +218,12 @@ struct EngineEntry
 	};
 	union
 	{
-		int (*lpfnAcceptable)(QString, bool);
-		int (*lpfnAcceptable2)(QString, bool, const EngineEntry*);
+		// localSearch - only for Upload transfer classes
+		// Normally a upload class would be called with a remote URL (where to upload)
+		// If localsearch == true, then we're giving the function a local file (where from upload)
+		// Used _only_ for drag&drop operation if a local file is dropped
+		int (*lpfnAcceptable)(QString, bool /*localSearch*/);
+		int (*lpfnAcceptable2)(QString, bool /*localSearch*/, const EngineEntry*);
 	};
 	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
 };
