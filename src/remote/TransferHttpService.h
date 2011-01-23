@@ -42,8 +42,13 @@ public:
 		virtual void writeFail(QString error) = 0;
 	};
 
+	// process a HTTP request
 	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb) = 0;
+
+	// location of the script contolling the HTTP details view
 	virtual const char* detailsScript() const = 0;
+
+	// properties the script can access via XML-RPC
 	virtual QVariantMap properties() const = 0;
 };
 

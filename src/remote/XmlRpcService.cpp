@@ -46,6 +46,7 @@ extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
+extern QVector<SettingsItem> g_settingsPages;
 
 QMap<QString,XmlRpcService::FunctionInfo> XmlRpcService::m_mapFunctions;
 
@@ -127,6 +128,7 @@ void XmlRpcService::globalInit()
 		registerFunction("Settings.setValue", Settings_setValue, aa);
 	}
 	registerFunction("Settings.apply", Settings_apply, QVector<QVariant::Type>());
+	registerFunction("Settings.getPages", Settings_getPages, QVector<QVariant::Type>());
 }
 
 void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
@@ -796,4 +798,22 @@ QVariant XmlRpcService::Settings_apply(QList<QVariant>&)
 {
 	applyAllSettings();
 	return QVariant();
+}
+
+QVariant XmlRpcService::Settings_getPages(QList<QVariant>&)
+{
+	QVariantList rv;
+	for (int i = 0; i < g_settingsPages.size(); i++)
+	{
+		const SettingsItem& si = g_settingsPages[i];
+		if (!si.webSettingsScript)
+			continue;
+
+		QVariantMap map;
+		map["script"] = si.webSettingsScript;
+		map["icon"] = si.webSettingsIconURL;
+
+		rv << map;
+	}
+	return rv;
 }

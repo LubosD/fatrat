@@ -63,6 +63,7 @@ protected:
 	static QVariant Settings_getValue(QList<QVariant>&);
 	static QVariant Settings_setValue(QList<QVariant>&);
 	static QVariant Settings_apply(QList<QVariant>&);
+	static QVariant Settings_getPages(QList<QVariant>&);
 public:
 	struct XmlRpcError
 	{

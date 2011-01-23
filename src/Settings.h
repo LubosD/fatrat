@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QString>
 #include <QIcon>
 #include <QSettings>
+#include "config.h"
 #include "WidgetHostChild.h"
 #include "DelayedIcon.h"
 
@@ -39,12 +40,27 @@ extern QSettings* g_settings;
 
 struct SettingsItem
 {
-	SettingsItem() : lpfnCreate(0), pfnApply(0) {}
+	SettingsItem() : lpfnCreate(0), pfnApply(0)
+#ifdef WITH_WEBINTERFACE
+			,webSettingsScript(0),  webSettingsIconURL(0)
+#endif
+	{}
 
+	// icon to show in the settings dialog (GUI only)
 	DelayedIcon icon;
+	// title to show in the settings dialog (GUI and WebUI)
 	QString title;
+	// function to call to create a settings subdialog (GUI only)
 	WidgetHostChild* (*lpfnCreate)(QWidget*, QObject*);
+	// function to call to apply or settings changes (GUI and WebUI), optional
 	void (*pfnApply)();
+
+#ifdef WITH_WEBINTERFACE
+	// script to initialize the settings subdialog (WebUI only)
+	const char* webSettingsScript;
+	// URL of the settings icon (WebUI only)
+	const char* webSettingsIconURL;
+#endif
 };
 
 void initSettingsPages();
