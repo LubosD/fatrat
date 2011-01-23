@@ -67,6 +67,14 @@ bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 			user->transferDone(msg->data.result);
 	}*/
 	m_usersLock.unlock();
+
+	int seconds = tvNow.tv_sec - lastOperation().tv_sec;
+
+	if(seconds > 1)
+	{
+		timeProcessDown(0);
+		timeProcessUp(0);
+	}
 	
 	return true;
 }
