@@ -611,6 +611,7 @@ function actionAdd() {
 	$('#new-transfer-speed-up').val('0');
 	$('#new-transfer-target').val(getQueue(currentQueue).defaultDirectory);
 	$('#new-transfer-links').val('');
+	$('#new-transfer-file').val('');
 
 	$("#new-transfer").dialog({
 		resizable: true,
@@ -655,7 +656,7 @@ function actionAdd() {
 						reader = new FileReader();
 						reader.onload = function(e) {
 							bd = new BinaryData(e.target.result);
-							client.Queue_addTransfers(false, queue, bd, removePath(file.name), _class, target, paused, up, down);
+							client.Queue_addTransferWithData(false, queue, removePath(file.name), bd, _class, target, paused, up, down);
 							updateTransfers();
 						};
 						reader.readAsBinaryString(file);
@@ -673,7 +674,7 @@ function removePath(path) {
 	if (p == -1)
 		return path;
 	else
-		return path.substr(p+1);
+		return path.substr(p);
 }
 
 function actionDelete() {

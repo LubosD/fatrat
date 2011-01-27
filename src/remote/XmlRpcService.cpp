@@ -754,10 +754,10 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 
 QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 {
-	// bool upload, QString uuid, String origName, QByteArray fileData, QString _class, QString target, bool paused, int down, int up
+	// bool upload, QString uuid, QString origName, QByteArray fileData, QString _class, QString target, bool paused, int down, int up
 	bool upload = args[0].toBool();
 	QString uuidQueue = args[1].toString();
-	QString origName = args[2].toString();
+	QString origName = "/" + args[2].toString();
 	QByteArray fileData = args[3].toByteArray();
 	QString _class = args[4].toString();
 	QString target = args[5].toString();
@@ -765,7 +765,7 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	int down = args[7].toInt();
 	int up = args[8].toInt();
 	
-	QTemporaryFile tempFile("fr_temp.XXXXXX");
+	QTemporaryFile tempFile;
 	if (!tempFile.open())
 		throw XmlRpcError(403, QObject::tr("Cannot create a temporary file."));
 	
@@ -815,6 +815,8 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	}
 	catch (const RuntimeException& e)
 	{
+		qDebug() << e.what();
+		sleep(30);
 		delete t;
 		g_queuesLock.unlock();
 		throw XmlRpcError(999, e.what());

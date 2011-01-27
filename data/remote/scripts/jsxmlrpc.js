@@ -268,12 +268,10 @@ function BinaryData(data) {
 	this.data = data;
 }
 
-
-
 function encodeXmlRpc(arg) {
 
  if (isA(arg,BinaryData)) {
- return makeTag("base64", $.base64Encode(arg.data));
+ return makeTag("base64", encode64(arg.data));
  } else if (isA(arg,String)){
  arg = arg.replace(/&/g, "&amp;")
  arg = arg.replace(/</g, "&lt;")
