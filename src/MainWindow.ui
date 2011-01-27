@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>729</width>
-    <height>512</height>
+    <width>727</width>
+    <height>510</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -456,7 +456,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>729</width>
+     <width>727</width>
      <height>21</height>
     </rect>
    </property>
@@ -591,10 +591,16 @@
    <property name="text">
     <string>Start all</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
+   </property>
   </action>
   <action name="actionStopAll">
    <property name="text">
     <string>Pause all</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
   <action name="actionNewTransfer">
@@ -670,6 +676,9 @@
    <property name="text">
     <string>Move to top</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Home</string>
+   </property>
   </action>
   <action name="actionUp">
    <property name="icon">
@@ -678,6 +687,9 @@
    </property>
    <property name="text">
     <string>Move up</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
    </property>
   </action>
   <action name="actionDown">
@@ -688,6 +700,9 @@
    <property name="text">
     <string>Move down</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
+   </property>
   </action>
   <action name="actionBottom">
    <property name="icon">
@@ -697,6 +712,9 @@
    <property name="text">
     <string>Move to bottom</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+End</string>
+   </property>
   </action>
   <action name="actionRemoveCompleted">
    <property name="icon">
@@ -705,6 +723,9 @@
    </property>
    <property name="text">
     <string>Remove completed</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="actionAboutQt">
@@ -737,6 +758,9 @@
    <property name="text">
     <string>Properties...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+.</string>
+   </property>
   </action>
   <action name="actionHideAllInfoBars">
    <property name="text">
@@ -761,6 +785,9 @@
    </property>
    <property name="text">
     <string>Settings...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionQueueProperties">
