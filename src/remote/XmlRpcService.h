@@ -41,9 +41,11 @@ respects for all of the code used other than "OpenSSL".
 #if !defined(XMLRPCSERVICE_AVOID_SHA_CONFLICT)
 #include <pion/net/WebServer.hpp>
 
-class XmlRpcService : public pion::net::WebService
+class XmlRpcService : public QObject, public pion::net::WebService
 {
+Q_OBJECT
 public:
+	XmlRpcService();
 	void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
 	static void globalInit();
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
@@ -64,6 +66,8 @@ protected:
 	static QVariant Settings_setValue(QList<QVariant>&);
 	static QVariant Settings_apply(QList<QVariant>&);
 	static QVariant Settings_getPages(QList<QVariant>&);
+private slots:
+	void applyAllSettings();
 public:
 	struct XmlRpcError
 	{
@@ -83,6 +87,7 @@ private:
 		QVector<QVariant::Type> arguments;
 	};
 	static QMap<QString,FunctionInfo> m_mapFunctions;
+	static XmlRpcService* m_instance;
 };
 
 #else // XMLRPCSERVICE_AVOID_SHA_CONFLICT

@@ -479,10 +479,10 @@ if(WITH_WEBINTERFACE)
 		src/remote/XmlRpcService.cpp
 		src/remote/pion/FileService.cpp
 	)
-	#set(fatrat_MOC_HDRS
-	#	${fatrat_MOC_HDRS}
-	#	src/remote/HttpService.h
-	#)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		src/remote/XmlRpcService.h
+	)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/remote/SettingsWebForm.ui

@@ -49,6 +49,12 @@ extern QVector<EngineEntry> g_enginesUpload;
 extern QVector<SettingsItem> g_settingsPages;
 
 QMap<QString,XmlRpcService::FunctionInfo> XmlRpcService::m_mapFunctions;
+XmlRpcService* XmlRpcService::m_instance = 0;
+
+XmlRpcService::XmlRpcService()
+{
+	m_instance = this;
+}
 
 static void checkArguments(const QList<QVariant>& args, const QVariant::Type* types, int ntypes)
 {
@@ -56,7 +62,7 @@ static void checkArguments(const QList<QVariant>& args, const QVariant::Type* ty
 		throw XmlRpcService::XmlRpcError(2, QString("Invalid argument count - received %1, expected %2").arg(args.size()).arg(ntypes));
 	for(int i=0;i<ntypes;i++)
 	{
-		if(args[i].type() != types[i])
+		if(args[i].type() != types[i] && !args[i].canConvert(types[i]))
 			throw XmlRpcService::XmlRpcError(3, QString("Invalid argument type - #%1, received %2, expected %3").arg(i).arg(args[i].type()).arg(types[i]));
 	}
 }
@@ -846,8 +852,13 @@ QVariant XmlRpcService::Settings_setValue(QList<QVariant>& args)
 
 QVariant XmlRpcService::Settings_apply(QList<QVariant>&)
 {
-	applyAllSettings();
+	QMetaObject::invokeMethod(m_instance, "applyAllSettings", Qt::QueuedConnection);
 	return QVariant();
+}
+
+void XmlRpcService::applyAllSettings()
+{
+	::applyAllSettings();
 }
 
 QVariant XmlRpcService::Settings_getPages(QList<QVariant>&)
@@ -856,14 +867,16 @@ QVariant XmlRpcService::Settings_getPages(QList<QVariant>&)
 	for (int i = 0; i < g_settingsPages.size(); i++)
 	{
 		const SettingsItem& si = g_settingsPages[i];
-		if (!si.webSettingsScript || si.webSettingsIconURL)
+		if (!si.webSettingsScript || !si.webSettingsIconURL)
 			continue;
 
 		QVariantMap map;
+		map["title"] = si.title;
 		map["script"] = si.webSettingsScript;
 		map["icon"] = si.webSettingsIconURL;
 
 		rv << map;
 	}
+
 	return rv;
 }

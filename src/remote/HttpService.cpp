@@ -66,8 +66,6 @@ extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 extern QVector<EngineEntry> g_enginesDownload;
 
-static const int SOCKET_TIMEOUT = 10;
-
 HttpService* HttpService::m_instance = 0;
 
 #define HTTP_HEADERS "Server: FatRat/" VERSION "\r\n"
@@ -75,7 +73,7 @@ HttpService* HttpService::m_instance = 0;
 struct AuthenticationFailure {};
 
 HttpService::HttpService()
-	: m_server(0)
+	: m_server(0), m_port(0)
 {
 	m_instance = this;
 	applySettings();
@@ -85,6 +83,8 @@ HttpService::HttpService()
 	si.title = tr("Web Interface");
 	si.icon = DelayedIcon(":/fatrat/webinterface.png");
 	si.pfnApply = SettingsWebForm::applySettings;
+	si.webSettingsScript = "/scripts/settings/webinterface.js";
+	si.webSettingsIconURL = "/img/settings/webinterface.png";
 	
 	addSettingsPage(si);
 }
@@ -102,45 +102,69 @@ HttpService::~HttpService()
 
 void HttpService::applySettings()
 {
-	bool enable = getSettingsValue("remote/enable").toBool();
-	if(enable && !m_server)
+	try
 	{
-		try
+		qDebug() << "HttpService::applySettings()";
+		bool enable = getSettingsValue("remote/enable").toBool();
+		if(enable)
 		{
-			setup();
+			if (!m_server)
+			{
+				setup();
+			}
+			else
+			{
+				quint16 port = getSettingsValue("remote/port").toUInt();
+
+				if (port != m_port)
+				{
+					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port change"));
+
+					m_server->stop();
+					delete m_server;
+					setup();
+				}
+				else
+					setupAuth();
+			}
 		}
-		catch(const RuntimeException& e)
+		else if(!enable && m_server)
 		{
-			qDebug() << e.what();
-			Logger::global()->enterLogMessage("HttpService", e.what());
+			m_server->stop();
+			delete m_server;
+			m_server = 0;
 		}
 	}
-	else if(!enable && m_server)
+	catch(const RuntimeException& e)
 	{
-		m_server->stop();
-		delete m_server;
-		m_server = 0;
+		qDebug() << e.what();
+		Logger::global()->enterLogMessage("HttpService", e.what());
 	}
+}
+
+void HttpService::setupAuth()
+{
+	pion::net::PionUserManagerPtr userManager(new pion::net::PionUserManager);
+	QString password = getSettingsValue("remote/password").toString();
+
+	m_auth_ptr = pion::net::HTTPAuthPtr( new pion::net::HTTPBasicAuth(userManager, "FatRat Web Interface") );
+	m_server->setAuthentication(m_auth_ptr);
+	m_auth_ptr->addRestrict("/");
+
+	m_auth_ptr->addUser("fatrat", password.toStdString());
+	m_auth_ptr->addUser("admin", password.toStdString());
+	m_auth_ptr->addUser("user", password.toStdString());
 }
 
 void HttpService::setup()
 {
-	quint16 port;
-	port = getSettingsValue("remote/port").toUInt();
+	m_port = getSettingsValue("remote/port").toUInt();
 	
 	try
 	{
-		m_server = new pion::net::WebServer(port);
+		m_server = new pion::net::WebServer(m_port);
 
-		pion::net::PionUserManagerPtr userManager(new pion::net::PionUserManager);
-		pion::net::HTTPAuthPtr auth_ptr(new pion::net::HTTPBasicAuth(userManager, "FatRat Web Interface"));
-		QString password = getSettingsValue("remote/password").toString();
-
-		m_server->setAuthentication(auth_ptr);
-		auth_ptr->addRestrict("/");
-		auth_ptr->addUser("fatrat", password.toStdString());
-		auth_ptr->addUser("admin", password.toStdString());
-		auth_ptr->addUser("user", password.toStdString());
+		setupAuth();
 
 		m_server->addService("/xmlrpc", new XmlRpcService);
 		m_server->addService("/generate/graph.png", new GraphService);
@@ -155,7 +179,7 @@ void HttpService::setup()
 		m_server->setServiceOption("/copyrights", "file", DATA_LOCATION "/README");
 		m_server->addService("/download", new TransferDownloadService);
 		m_server->start();
-		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(port));
+		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
 	}
 	catch(const pion::PionException& e)
 	{

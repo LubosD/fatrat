@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
-    <height>296</height>
+    <width>394</width>
+    <height>294</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -28,7 +28,7 @@
    <item row="1" column="1">
     <widget class="QSpinBox" name="spinPort">
      <property name="minimum">
-      <number>1</number>
+      <number>1024</number>
      </property>
      <property name="maximum">
       <number>65535</number>

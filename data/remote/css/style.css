@@ -211,3 +211,39 @@ pre {
 	height: 100% !important;
 }
 
+#settings-list {
+	float: left;
+	width: 180px;
+	border-right: 1px solid #DDD;
+	height: 100%;
+	padding-right: 3px;
+}
+
+#settings-list .settings-item {
+	padding: 1.5ex 0 1.5ex 0;
+	cursor: pointer;
+}
+
+#settings-list .settings-item img {
+	vertical-align: middle;
+	padding-left: 3px;
+	max-width: 24px;
+	max-height: 24px;
+}
+
+#settings-list .settings-item span {
+	padding-left: 1ex;
+}
+
+#settings-list .settings-item.ui-selected, #settings-list .settings-item.ui-selecting {
+	color: white;
+	background: #567dbc;
+}
+
+#settings-pane {
+	margin-left: 185px;
+}
+
+#settings-pane table {
+	width: 100%;
+}

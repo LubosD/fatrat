@@ -162,7 +162,9 @@ void applyAllSettings()
 {
 	for (int i = 0; i < g_settingsPages.size(); i++)
 	{
-		if (g_settingsPages[i].pfnApply)
+		if (g_settingsPages[i].pfnApply) {
+			qDebug() << "Applying" << g_settingsPages[i].title;
 			g_settingsPages[i].pfnApply();
+		}
 	}
 }

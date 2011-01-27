@@ -55,12 +55,15 @@ public:
 	void applySettings();
 	
 	void setup();
+	void setupAuth();
 
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 private:
 	static HttpService* m_instance;
 	pion::net::WebServer* m_server;
+	pion::net::HTTPAuthPtr m_auth_ptr;
+	quint16 m_port;
 
 	class GraphService : public pion::net::WebService
 	{

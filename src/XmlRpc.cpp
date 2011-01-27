@@ -62,6 +62,9 @@ QByteArray createCallOrResponse(const QList<QVariant>& args, QByteArray* functio
 	sub = doc.createElement("params");
 	foreach(QVariant v, args)
 	{
+		if (v.isNull())
+			continue;
+
 		QDomElement param = doc.createElement("param");
 		insertArgument(doc, param, v);
 		sub.appendChild(param);

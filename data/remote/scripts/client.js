@@ -3,11 +3,12 @@ var rpcMethods = ["getQueues", "getTransferClasses", "Queue.getTransfers",
 	"Transfer.setProperties", "Transfer.getAdvancedProperties", "Transfer.delete",
 	"Queue.moveTransfers", "Queue.setProperties", "Queue.create", "getTransferClasses",
 	"Queue.addTransfers", "Queue.addTransferWithData", "Settings.apply",
-	"Settings.setValue", "Settings.getValue"  ];
+	"Settings.setValue", "Settings.getValue", "Settings.getPages"  ];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
 var interval;
-var transferClasses;
+var transferClasses, settingsPages;
+var settingsStore = [];
 
 function clientInit() {
 	client = XmlRpc.getObject("/xmlrpc", rpcMethods);
@@ -20,6 +21,17 @@ function clientInit() {
 			if (cls.mode == "Download")
 				options[options.length] = new Option(cls.longName, cls.shortName, true, true);
 		});
+	});
+	client.Settings_getPages(function(data) {
+		settingsPages = data;
+		
+		var list = $("#settings-list");
+		for(var i=0;i<settingsPages.length;i++) {
+			list.append('<div rel="'+i+'" class="settings-item ui-widget-content"><img src="'+settingsPages[i].icon+'" alt="" /><span>'+settingsPages[i].title+'</span></div>');
+		}
+		
+		list.selectable({ selected: switchSettingsPage});
+		//$("#settings-list .settings-item").click(switchSettingsPage);
 	});
 	
 	$("#toolbar-add").click(actionAdd);
@@ -857,19 +869,68 @@ function clearError() {
 }
 
 function actionSettings() {
+	settingsStore = [];
+	
 	$("#settings").dialog({
 		resizable: true,
 		height:500,
-		width:500,
+		width:700,
 		modal: true,
+		open: function() { $("#settings-list .settings-item").first().addClass("ui-selected"); switchSettingsPage(); },
 		buttons: {
 			Cancel: function() {
 				$(this).dialog('close');
 			},
 			Ok: function() {
+				var keys = [];
+				var values = [];
+				
+				if (typeof settingsSave == 'function')
+					settingsSave();
+				
+				for (key in settingsStore) {
+					keys.push(key);
+					values.push(settingsStore[key]);
+				}
+				
+				tthis = $(this);
+				client.Settings_setValue(keys, values, function() {
+					client.Settings_apply();
+					tthis.dialog('close');
+				});
 			}
 		}
 	});
 }
 
+function getSettingsValues(keys, fn) {
+	toFetch = [];
+	for (var i=0;i<keys.length;i++) {
+		if (!(keys[i] in settingsStore))
+			toFetch[toFetch.length] = keys[i];
+	}
+	client.Settings_getValue(toFetch, function(data) {
+		rdata = settingsStore;
+		for (var i=0;i<data.length;i++)
+			rdata[toFetch[i]] = data[i];
+		fn(rdata);
+	});
+}
 
+function setSettingsValue(key, value) {
+	settingsStore[key] = value;
+}
+
+function switchSettingsPage() {
+	if (typeof settingsSave == 'function')
+		settingsSave();
+	
+	id = $("#settings-list .ui-selected").attr("rel");
+	
+	sc = document.createElement('script');
+	sc.type = 'text/javascript';
+	sc.src = settingsPages[id].script;
+	$('#settings-pane-script').html('');
+	$('#settings-pane-script').append(sc);
+
+}

@@ -180,11 +180,11 @@
 		</tr>
 		<tr>
 			<td>Max download speed (KB/s):</td>
-			<td><input type="text" id="transfer-properties-speed-down" size="4" /></td>
+			<td><input type="number" id="transfer-properties-speed-down" size="4" /></td>
 		</tr>
 		<tr>
 			<td>Max upload speed (KB/s):</td>
-			<td><input type="text" id="transfer-properties-speed-up" size="4" /></td>
+			<td><input type="number" id="transfer-properties-speed-up" size="4" /></td>
 		</tr>
 		<tr>
 			<td>Comment:</td>
@@ -236,7 +236,7 @@
 			</td>
 			<td style="text-align: left">
 				<label style="float: right"><input type="checkbox" id="new-transfer-paused" />Add paused</label>
-				<input id="new-transfer-speed-down" type="text" size="4" value="0" />
+				<input id="new-transfer-speed-down" type="number" size="4" value="0" />
 			<!--</td>
 			<td>-->
 			</td>
@@ -246,7 +246,7 @@
 				Max upload speed (KB/s):
 			</td>
 			<td style="text-align: left">
-				<input id="new-transfer-speed-up" type="text" size="4" value="0" />
+				<input id="new-transfer-speed-up" type="number" size="4" value="0" />
 			</td>
 		</tr>
 	</table>
@@ -268,11 +268,11 @@
 		</tr>
 		<tr>
 			<td>Download speed limit (KB/s):</td>
-			<td><input id="queue-properties-speed-down" type="text" size="4" value="0" /></td>
+			<td><input id="queue-properties-speed-down" type="number" size="4" value="0" /></td>
 		</tr>
 		<tr>
 			<td>Upload speed limit (KB/s):</td>
-			<td><input id="queue-properties-speed-up" type="text" size="4" value="0" /></td>
+			<td><input id="queue-properties-speed-up" type="number" size="4" value="0" /></td>
 		</tr>
 		<tr>
 			<td colspan="2">
@@ -282,11 +282,11 @@
 					<table>
 						<tr>
 							<td>Maximum active download transfers:</td>
-							<td><input id="queue-properties-count-down" type="text" size="4" value="0" /></td>
+							<td><input id="queue-properties-count-down" type="number" size="4" value="0" /></td>
 						</tr>
 						<tr>
 							<td>Maximum active upload transfers:</td>
-							<td><input id="queue-properties-count-up" type="text" size="4" value="0" /></td>
+							<td><input id="queue-properties-count-up" type="number" size="4" value="0" /></td>
 							<td><label><input type="checkbox" id="queue-propeties-upasdown" /> Count as downloads</label></td>
 						</tr>
 					</table>
@@ -297,6 +297,11 @@
 </div>
 
 <div class="dialog" id="settings" title="Settings">
+	<div id="settings-list">
+	</div>
+	<div id="settings-pane-script"></div>
+	<div id="settings-pane">
+	<div>
 </div>
 
 <!--</td></tr>

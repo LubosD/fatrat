@@ -36,6 +36,7 @@ $(document).ready(function() {
 	
 	$(".progressbar").progressbar({ value: 30 });
 	$("#transfers tbody").selectable({ filter: 'tr', selected: transfersSelectionChanged, unselected: transfersSelectionChanged, cancel: 'img' });
+	
 	//$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
 	
 	$("#credits-link").click(function() {
