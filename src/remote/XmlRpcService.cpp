@@ -816,7 +816,6 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	catch (const RuntimeException& e)
 	{
 		qDebug() << e.what();
-		sleep(30);
 		delete t;
 		g_queuesLock.unlock();
 		throw XmlRpcError(999, e.what());
