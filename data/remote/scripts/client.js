@@ -873,6 +873,7 @@ function clearError() {
 
 function actionSettings() {
 	settingsStore = [];
+	$('#settings-pane-script').html('');
 	
 	$("#settings").dialog({
 		resizable: true,
