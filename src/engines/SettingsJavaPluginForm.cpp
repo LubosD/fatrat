@@ -52,6 +52,7 @@ void SettingsJavaPluginForm::load()
 	treeInstalled->clear();
 	treeAvailable->clear();
 	treeUpdates->clear();
+	m_availablePlugins.clear();
 
 	QMap<QString,QString> packages = JVM::instance()->getPackageVersions();
 
