@@ -168,7 +168,7 @@ void TorrentOptsWidget::load()
 
 void TorrentOptsWidget::accepted()
 {
-	if(!m_download->m_handle.is_valid())
+	if(!m_download->m_handle.is_valid() || !m_download->m_info)
 		return;
 	
 	for(int i=0;i<m_files.size();i++)
