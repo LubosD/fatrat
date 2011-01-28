@@ -55,9 +55,10 @@ class QLabel;
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class TorrentDownload : public Transfer,
-#ifdef WITH_WEBINTERFACE
-	public TransferHttpService
+#ifndef WITH_WEBINTERFACE
+class TorrentDownload : public Transfer
+#else
+class TorrentDownload : public Transfer, public TransferHttpService
 #endif
 
 {
