@@ -212,15 +212,15 @@ pre {
 }
 
 #settings-list {
-	float: left;
 	width: 180px;
 	border-right: 1px solid #DDD;
-	height: 100%;
+	height: 390px;
+	overflow: auto;
 	padding-right: 3px;
 }
 
 #settings-list .settings-item {
-	padding: 1.5ex 0 1.5ex 0;
+	padding: 1ex 0 1ex 0;
 	cursor: pointer;
 }
 
@@ -240,10 +240,24 @@ pre {
 	background: #567dbc;
 }
 
+#settings-wrapper {
+	position: relative;
+}
+
 #settings-pane {
-	margin-left: 185px;
+	/*margin-left: 185px;*/
+	position: absolute;
+	top: 0px;
+	left: 190px;
+	width: 480px;
+	height: 390px;
+	overflow: auto;
 }
 
 #settings-pane table {
+	width: 99%;
+}
+
+#settings-pane table input[type=number], #settings-pane table input[type=text], #settings-pane table input[type=password], #settings-pane table select {
 	width: 100%;
 }

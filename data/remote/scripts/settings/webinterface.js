@@ -12,6 +12,10 @@ function settingsLoad() {
 }
 
 function settingsSave() {
-	setSettingsValue("remote/port", $("#webinterface-port").val());
+	port = parseInt($("#webinterface-port").val());
+	if (isNaN(port) || port < 1024 || port > 65535)
+		throw "Invalid port specified";
+	
+	setSettingsValue("remote/port", port);
 	setSettingsValue("remote/password", $("#webinterface-password").val());
 }

@@ -23,6 +23,11 @@ $(document).ready(function() {
 	$('#toolbar-settings').button({ text: false, icons: { primary: 'fatrat-icon-settings' } });
 	$('#toolbar-set5').buttonset();
 	
+	$('#toolbar-help').button({ text: false, icons: { primary: 'fatrat-icon-help' } });
+	$('#toolbar-set6').buttonset();
+	
+	$('#toolbar-help').click(function() { window.open("http://fatrat.dolezel.info/documentation"); } );
+	
 	//$('#tabs-transfers').layout({ slidable: true, resizable: true });
 	//$('body').layout({ slidable: false, resizable: false; closable: false });
 	$('#tabs').tabs({ show: function() { updateSizes(); tabSwitched(true); } });

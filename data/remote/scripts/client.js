@@ -30,8 +30,10 @@ function clientInit() {
 			list.append('<div rel="'+i+'" class="settings-item ui-widget-content"><img src="'+settingsPages[i].icon+'" alt="" /><span>'+settingsPages[i].title+'</span></div>');
 		}
 		
-		list.selectable({ selected: switchSettingsPage});
-		//$("#settings-list .settings-item").click(switchSettingsPage);
+		$("#settings-list div").click(function() {
+			$(this).addClass("ui-selected").siblings().removeClass("ui-selected");
+			switchSettingsPage();
+		});
 	});
 	
 	$("#toolbar-add").click(actionAdd);
@@ -877,7 +879,7 @@ function actionSettings() {
 		height:500,
 		width:700,
 		modal: true,
-		open: function() { $("#settings-list .settings-item").first().addClass("ui-selected"); switchSettingsPage(); },
+		open: function() { $("#settings-list .settings-item").first().addClass("ui-selected").siblings().removeClass("ui-selected"); switchSettingsPage(); },
 		buttons: {
 			Cancel: function() {
 				$(this).dialog('close');
@@ -886,8 +888,14 @@ function actionSettings() {
 				var keys = [];
 				var values = [];
 				
-				if (typeof settingsSave == 'function')
-					settingsSave();
+				if (typeof settingsSave == 'function') {
+					try {
+						settingsSave();
+					} catch (ex) {
+						alert(ex);
+						return;
+					}
+				}
 				
 				for (key in settingsStore) {
 					keys.push(key);
@@ -923,8 +931,14 @@ function setSettingsValue(key, value) {
 }
 
 function switchSettingsPage() {
-	if (typeof settingsSave == 'function')
-		settingsSave();
+	if (typeof settingsSave == 'function') {
+		try {
+			settingsSave();
+		} catch (ex) {
+			alert(ex);
+			return;
+		}
+	}
 	
 	id = $("#settings-list .ui-selected").attr("rel");
 	

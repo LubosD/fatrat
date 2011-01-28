@@ -211,12 +211,15 @@ void TorrentDownload::globalInit()
 	si.title = tr("BitTorrent");
 	si.lpfnCreate = TorrentSettings::create;
 	si.pfnApply = TorrentSettings::applySettings;
-	
-	addSettingsPage(si);
 
 #ifdef WITH_WEBINTERFACE
-	// register XML-RPC functions
+	// TODO: register XML-RPC functions
+
+	si.webSettingsScript = "/scripts/settings/bittorrent.js";
+	si.webSettingsIconURL = "/img/settings/bittorrent.png";
 #endif
+	
+	addSettingsPage(si);
 }
 
 void TorrentDownload::applySettings()

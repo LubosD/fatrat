@@ -1,0 +1,121 @@
+
+<style type="text/css">
+#bittorrent-tabs .ui-tabs-nav {
+	background: transparent;
+	border: 0px;
+	border-bottom: 1px solid #CCC;
+}
+</style>
+
+<div id="bittorrent-tabs">
+
+	<ul>
+		<li><a href="#bittorrent-tabs-main">Main</a></li>
+		<li><a href="#bittorrent-tabs-encryption">Encryption</a></li>
+		<li><a href="#bittorrent-tabs-portmapping">Port mapping</a></li>
+	</ul>
+
+	<div id="bittorrent-tabs-main">
+		<div>
+		<table>
+			<tr>
+				<td>Listen port (from)</td>
+				<td><input type="number" min="1024" max="65535" size="5" id="bittorrent-port-from" /></td>
+				<td>Listen port (to)</td>
+				<td><input type="number" min="1024" max="65535" size="5" id="bittorrent-port-to" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">Seed up to ratio (default value)</td>
+				<td colspan="2"><input type="text" pattern="[0-9]+([,\.][0-9]*)?" id="bittorrent-seed-ratio" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">Maximum connections (global/per torrent)</td>
+				<td><input type="number" size="4" min="10" id="bittorrent-max-connections-global" /></td>
+				<td><input type="number" size="4" min="10" id="bittorrent-max-connections-pertorrent" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">Maximum uploads (global/per torrent)</td>
+				<td><input type="number" size="4" min="1" id="bittorrent-max-uploads-global" /></td>
+				<td><input type="number" size="4" min="1" id="bittorrent-max-uploads-pertorrent" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">Maximum open files</td>
+				<td colspan="2"><input type="number" size="4" min="5" id="bittorrent-max-open-files" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">File allocation mode</td>
+				<td colspan="2">
+					<select id="bittorrent-allocation-mode">
+						<option value="0">Full</option>
+						<option value="1">Sparse</option>
+						<option value="2">Compact</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">External IP</td>
+				<td colspan="2"><input type="text" id="bittorrent-external-ip" /></td>
+			</tr>
+			<!--<tr>
+				Identify as
+			</tr>-->
+			<tr>
+				<td colspan="4"><label><input type="checkbox" id="bittorrent-dht" /> Enable distributed tracker (DHT)</label></td>
+			</tr>
+			<tr>
+				<td colspan="4"><label><input type="checkbox" id="bittorrent-pex" /> Enable uTorrent Peer Exchange</label></td>
+			</tr>
+			<tr>
+				<td colspan="4"><label><input type="checkbox" id="bittorrent-lsd" /> Enable Local Service Discovery</label></td>
+			</tr>
+		</table>
+		</div>
+	</div>
+
+	<div id="bittorrent-tabs-encryption">
+		<table>
+			<tr>
+				<td>Encryption of incoming connections</td>
+				<td>
+					<select id="bittorrent-encryption-incoming">
+						<option value="0">Disabled</option>
+						<option value="1">Enabled</option>
+						<option value="2">Permit only encrypted</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Encryption of outgoing connections</td>
+				<td>
+					<select id="bittorrent-encryption-outgoing">
+						<option value="0">Disabled</option>
+						<option value="1">Enabled</option>
+						<option value="2">Permit only encrypted</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Encryption levels</td>
+				<td>
+					<select id="bittorrent-encryption-levels">
+						<option value="0">Plaintext</option>
+						<option value="1">RC4</option>
+						<option value="2">Both</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label><input type="checkbox" id="bittorrent-encryption-preferrc4" /> Prefer RC4</label></td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="bittorrent-tabs-portmapping">
+		<table>
+			<tr><td><label><input type="checkbox" id="bittorrent-portmapping-upnp" />Enable UPnP</label></td></tr>
+			<tr><td><label><input type="checkbox" id="bittorrent-portmapping-natpmp" />Enable NAT-PMP</label></td></tr>
+		</table>
+	</div>
+
+</div>
