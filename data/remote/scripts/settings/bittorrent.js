@@ -24,15 +24,15 @@ function settingsLoad() {
 		$("#bittorrent-max-open-files").val(hash["torrent/maxfiles"]);
 		$("#bittorrent-allocation-mode").val(hash["torrent/allocation"]);
 		$("#bittorrent-external-ip").val(hash["torrent/external_ip"]);
-		$("#bittorrent-dht").attr('checked', hash["torrent/dht"] == "true");
-		$("#bittorrent-pex").attr('checked', hash["torrent/pex"] == "true");
-		$("#bittorrent-lsd").attr('checked', hash["torrent/mapping_lsd"] == "true");
+		$("#bittorrent-dht").attr('checked', hash["torrent/dht"] == true);
+		$("#bittorrent-pex").attr('checked', hash["torrent/pex"] == true);
+		$("#bittorrent-lsd").attr('checked', hash["torrent/mapping_lsd"] == true);
 		$("#bittorrent-encryption-incoming").val(hash["torrent/enc_incoming"]);
 		$("#bittorrent-encryption-outgoing").val(hash["torrent/enc_outgoing"]);
 		$("#bittorrent-encryption-levels").val(hash["torrent/enc_level"]);
-		$("#bittorrent-encryption-preferrc4").attr('checked', hash["torrent/enc_rc4_prefer"] == "true");
-		$("#bittorrent-portmapping-upnp").attr('checked', hash["torrent/mapping_upnp"] == "true");
-		$("#bittorrent-portmapping-natpmp").attr('checked', hash["torrent/mapping_natpmp"] == "true");
+		$("#bittorrent-encryption-preferrc4").attr('checked', hash["torrent/enc_rc4_prefer"] == true);
+		$("#bittorrent-portmapping-upnp").attr('checked', hash["torrent/mapping_upnp"] == true);
+		$("#bittorrent-portmapping-natpmp").attr('checked', hash["torrent/mapping_natpmp"] == true);
 	});
 }
 
@@ -79,12 +79,12 @@ function settingsSave() {
 	setSettingsValue("torrent/maxuploads_loc", checkInt("bittorrent-max-uploads-pertorrent"));
 	setSettingsValue("torrent/maxfiles", checkInt("bittorrent-max-open-files"));
 	
-	setSettingsValue("torrent/dht", b2s($("#bittorrent-dht").is(":checked")));
-	setSettingsValue("torrent/pex", b2s($("#bittorrent-pex").is(":checked")));
-	setSettingsValue("torrent/mapping_lsd", b2s($("#bittorrent-lsd").is(":checked")));
-	setSettingsValue("torrent/mapping_upnp", b2s($("#bittorrent-portmapping-upnp").is(":checked")));
-	setSettingsValue("torrent/mapping_natpmp", b2s($("#bittorrent-portmapping-natpmp").is(":checked")));
-	setSettingsValue("torrent/enc_rc4_prefer", b2s($("#bittorrent-encryption-preferrc4").is(":checked")));
+	setSettingsValue("torrent/dht", $("#bittorrent-dht").is(":checked"));
+	setSettingsValue("torrent/pex", $("#bittorrent-pex").is(":checked"));
+	setSettingsValue("torrent/mapping_lsd", $("#bittorrent-lsd").is(":checked"));
+	setSettingsValue("torrent/mapping_upnp", $("#bittorrent-portmapping-upnp").is(":checked"));
+	setSettingsValue("torrent/mapping_natpmp", $("#bittorrent-portmapping-natpmp").is(":checked"));
+	setSettingsValue("torrent/enc_rc4_prefer", $("#bittorrent-encryption-preferrc4").is(":checked"));
 	setSettingsValue("torrent/enc_incoming", $("#bittorrent-encryption-incoming").val());
 	setSettingsValue("torrent/enc_outgoing", $("#bittorrent-encryption-outgoing").val());
 	setSettingsValue("torrent/enc_level", $("#bittorrent-encryption-levels").val());
