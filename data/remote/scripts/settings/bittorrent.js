@@ -24,33 +24,16 @@ function settingsLoad() {
 		$("#bittorrent-max-open-files").val(hash["torrent/maxfiles"]);
 		$("#bittorrent-allocation-mode").val(hash["torrent/allocation"]);
 		$("#bittorrent-external-ip").val(hash["torrent/external_ip"]);
-		$("#bittorrent-dht").attr('checked', hash["torrent/dht"] == true);
-		$("#bittorrent-pex").attr('checked', hash["torrent/pex"] == true);
-		$("#bittorrent-lsd").attr('checked', hash["torrent/mapping_lsd"] == true);
+		$("#bittorrent-dht").attr('checked', isTrue(hash["torrent/dht"]));
+		$("#bittorrent-pex").attr('checked', isTrue(hash["torrent/pex"]));
+		$("#bittorrent-lsd").attr('checked', isTrue(hash["torrent/mapping_lsd"]));
 		$("#bittorrent-encryption-incoming").val(hash["torrent/enc_incoming"]);
 		$("#bittorrent-encryption-outgoing").val(hash["torrent/enc_outgoing"]);
 		$("#bittorrent-encryption-levels").val(hash["torrent/enc_level"]);
-		$("#bittorrent-encryption-preferrc4").attr('checked', hash["torrent/enc_rc4_prefer"] == true);
-		$("#bittorrent-portmapping-upnp").attr('checked', hash["torrent/mapping_upnp"] == true);
-		$("#bittorrent-portmapping-natpmp").attr('checked', hash["torrent/mapping_natpmp"] == true);
+		$("#bittorrent-encryption-preferrc4").attr('checked', isTrue(hash["torrent/enc_rc4_prefer"]));
+		$("#bittorrent-portmapping-upnp").attr('checked', isTrue(hash["torrent/mapping_upnp"]));
+		$("#bittorrent-portmapping-natpmp").attr('checked', isTrue(hash["torrent/mapping_natpmp"]));
 	});
-}
-
-function checkInt(varid) {
-	el = $('#'+varid);
-	v = parseInt(el.val());
-	
-	if (isNaN(v))
-		throw "String entered instead of an integer";
-	
-	min = el.attr('min');
-	if (min != undefined && min != "" && min > v)
-		throw "Integer value out of permitted range: "+varid+", min="+min;
-	max = el.attr('max');
-	if (max != undefined && max != "" && max < v)
-		throw "Integer value out of permitted range: "+varid+", max="+max;
-	
-	return v;
 }
 
 function checkFloat(val) {

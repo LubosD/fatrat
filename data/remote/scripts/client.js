@@ -950,3 +950,24 @@ function switchSettingsPage() {
 	$('#settings-pane-script').append(sc);
 
 }
+
+function isTrue(val) {
+	return val == "true" || val == true;
+}
+
+function checkInt(varid) {
+	el = $('#'+varid);
+	v = parseInt(el.val());
+	
+	if (isNaN(v))
+		throw "String entered instead of an integer";
+	
+	min = el.attr('min');
+	if (min != undefined && min != "" && min > v)
+		throw "Integer value out of permitted range: "+varid+", min="+min;
+	max = el.attr('max');
+	if (max != undefined && max != "" && max < v)
+		throw "Integer value out of permitted range: "+varid+", max="+max;
+	
+	return v;
+}
