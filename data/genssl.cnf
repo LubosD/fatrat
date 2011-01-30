@@ -1,0 +1,14 @@
+[ req ]
+default_bits = 4096
+encrypt_key = no
+distinguished_name = req_dn
+x509_extensions = cert_type
+prompt = no
+
+[ req_dn ]
+O=FatRat
+OU=FatRat
+CN=%HOSTNAME%
+
+[ cert_type ]
+nsCertType = server
