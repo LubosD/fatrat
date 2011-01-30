@@ -216,12 +216,14 @@ pre {
 	border-right: 1px solid #DDD;
 	height: 385px;
 	overflow: auto;
-	padding-right: 3px;
+	background-color: white;
+	border: 1px solid #BBB;
 }
 
 #settings-list .settings-item {
 	padding: 0.5ex 0 0.5ex 0;
 	cursor: pointer;
+	border: 0px;
 }
 
 #settings-list .settings-item img {
@@ -261,3 +263,13 @@ pre {
 #settings-pane table input[type=number], #settings-pane table input[type=text], #settings-pane table input[type=password], #settings-pane table select {
 	width: 100%;
 }
+
+fieldset {
+	border: 1px solid #BBB;
+}
+
+input[type=number], input[type=text], input[type=password] {
+	border: 1px solid #BBB;
+}
+
+
