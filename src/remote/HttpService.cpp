@@ -442,7 +442,8 @@ void HttpService::TransferDownloadService::operator()(pion::net::HTTPRequestPtr 
 
 void HttpService::SubclassService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
 {
-	m_writer = HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn));
+	pion::net::HTTPResponseWriterPtr writer = HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn));
+	HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(writer);
 	QString transfer = QString::fromStdString(request->getQuery("transfer"));
 	QString method = QString::fromStdString(getRelativeResource(request->getResource()));
 
@@ -459,9 +460,9 @@ void HttpService::SubclassService::operator()(pion::net::HTTPRequestPtr &request
 			g_queuesLock.unlock();
 		}
 
-		m_writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-		m_writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-		m_writer->send();
+		writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
+		writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
+		writer->send();
 		return;
 	}
 
@@ -473,24 +474,40 @@ void HttpService::SubclassService::operator()(pion::net::HTTPRequestPtr &request
 	}
 
 	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
-	s->process(method, map, this);
-	m_writer->send();
+	s->process(method, map, &wb);
+	//writer->send();
 
 	q->unlock();
 	g_queuesLock.unlock();
 }
 
-void HttpService::SubclassService::write(const char* data, size_t bytes)
+HttpService::WriteBackImpl::WriteBackImpl(pion::net::HTTPResponseWriterPtr& writer)
+	: m_writer(writer)
+{
+
+}
+
+void HttpService::WriteBackImpl::writeNoCopy(void* data, size_t bytes)
+{
+	m_writer->writeNoCopy(data, bytes);
+}
+
+void HttpService::WriteBackImpl::send()
+{
+	m_writer->send();
+}
+
+void HttpService::WriteBackImpl::write(const char* data, size_t bytes)
 {
 	m_writer->write(data, bytes);
 }
 
-void HttpService::SubclassService::setContentType(const char* type)
+void HttpService::WriteBackImpl::setContentType(const char* type)
 {
 	m_writer->getResponse().addHeader("Content-Type", type);
 }
 
-void HttpService::SubclassService::writeFail(QString error)
+void HttpService::WriteBackImpl::writeFail(QString error)
 {
 	m_writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
 	m_writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);

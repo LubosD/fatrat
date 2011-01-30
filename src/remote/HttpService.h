@@ -85,13 +85,21 @@ private:
 	{
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
 	};
-	class SubclassService : public pion::net::WebService, public TransferHttpService::WriteBack
+	class SubclassService : public pion::net::WebService
 	{
 	public:
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+
+	class WriteBackImpl : public TransferHttpService::WriteBack
+	{
+	public:
+		WriteBackImpl(pion::net::HTTPResponseWriterPtr& writer);
 		void write(const char* data, size_t bytes);
 		void writeFail(QString error);
+		void writeNoCopy(void* data, size_t bytes);
+		void send();
 		void setContentType(const char* type);
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
 	private:
 		pion::net::HTTPResponseWriterPtr m_writer;
 	};

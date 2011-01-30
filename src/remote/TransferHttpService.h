@@ -39,7 +39,9 @@ public:
 	public:
 		virtual void setContentType(const char* type) = 0;
 		virtual void write(const char* data, size_t bytes) = 0;
+		virtual void writeNoCopy(void* data, size_t bytes) = 0;
 		virtual void writeFail(QString error) = 0;
+		virtual void send() = 0;
 	};
 
 	// process a HTTP request

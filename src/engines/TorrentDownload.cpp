@@ -1145,12 +1145,12 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 
 	if (m_handle.is_valid())
 	{
-		const int WIDTH = 640;
+		const int WIDTH = 800;
 		if (method == "progress")
 		{
-			quint32* buf = new quint32[WIDTH];
+			//quint32* buf = new quint32[WIDTH];
 			libtorrent::bitfield pieces = m_handle.status().pieces;
-			QImage img;
+			QImage img(WIDTH, 1, QImage::Format_RGB32);
 
 			if(pieces.empty() && m_info->total_size() == m_status.total_done)
 			{
@@ -1158,36 +1158,43 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 				pieces.set_all();
 			}
 			if (!pieces.empty())
-			{
-				img = TorrentProgressWidget::generate(pieces, WIDTH, buf);
-			}
+				TorrentProgressWidget::generate(pieces, WIDTH, reinterpret_cast<quint32*>(img.bits()));
 			else
-			{
-				memset(buf, 0xff, sizeof(quint32) * WIDTH);
-				img = QImage((uchar*) buf, WIDTH, 1, QImage::Format_RGB32);
-			}
+				img.fill(0xffffffff);
+
 			QBuffer bbuf;
 
 			img.save(&bbuf, "PNG");
 			wb->setContentType("image/png");
-			wb->write(bbuf.data().constData(), bbuf.data().size());
 
-			delete [] buf;
+			//QByteArray arr = bbuf.buffer();
+			wb->write(bbuf.buffer().data(), bbuf.size());
+			wb->send();
+
+			//delete img;
+			//delete [] buf;
 		}
 		else if (method == "availability")
 		{
 			std::vector<int> avail;
-			quint32* buf = new quint32[WIDTH];
+			//quint32* buf = new quint32[WIDTH];
 			QBuffer bbuf;
 
 			m_handle.piece_availability(avail);
 
-			QImage img = TorrentProgressWidget::generate(avail, WIDTH, buf);
+			//QImage* img = new QImage(TorrentProgressWidget::generate(avail, WIDTH, buf));
+			QImage img(WIDTH, 1, QImage::Format_RGB32);
+			TorrentProgressWidget::generate(avail, WIDTH, reinterpret_cast<quint32*>(img.bits()));
+
 			img.save(&bbuf, "PNG");
 			wb->setContentType("image/png");
-			wb->write(bbuf.data().constData(), bbuf.data().size());
 
-			delete [] buf;
+			//QByteArray arr = bbuf.buffer();
+			wb->write(bbuf.buffer().data(), bbuf.size());
+			wb->send();
+
+			//delete img;
+			//delete [] buf;
 		}
 		else
 			wb->writeFail("Unknown request");

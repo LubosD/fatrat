@@ -214,7 +214,7 @@ pre {
 #settings-list {
 	width: 180px;
 	border-right: 1px solid #DDD;
-	height: 390px;
+	height: 385px;
 	overflow: auto;
 	padding-right: 3px;
 }
@@ -250,7 +250,7 @@ pre {
 	top: 0px;
 	left: 190px;
 	width: 480px;
-	height: 390px;
+	height: 385px;
 	overflow: auto;
 }
 

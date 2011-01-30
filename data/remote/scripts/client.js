@@ -288,8 +288,8 @@ function tabSwitched(reallySwitched) {
 			$("#transfer-log").html('');
 		}
 	}
-	else if ($("#details-download").is(':visible')) {
-		var text;
+	else if ($("#tabs-details").is(':visible')) {
+		var text = "";
 		t = getTransfer(currentTransfers[0]);
 		
 		if (reallySwitched)
@@ -303,15 +303,16 @@ function tabSwitched(reallySwitched) {
 				sc.src = t.detailsScript;
 				$('#details-subclass').append(sc);
 			}
-		} else if (t.detailsScript && subclassPerformReload) {
+		} else if (t.detailsScript && typeof subclassPerformReload == "function") {
 			subclassPerformReload(t);
 		}
 		
 		if (t.primaryMode == 'Upload')
 			text = '<div class="ui-state-error">This feature is available only for download-oriented transfers.</div>';
-		else if (t.state != 'Completed' && t.mode == 'Download' && !t.dataPathIsDir)
-			text = '<div class="ui-state-error">Please wait until the transfer completes.</div>';
 		else {
+			if (t.state != 'Completed' && t.mode == 'Download' && !t.dataPathIsDir)
+				text = '<div class="ui-state-error">Please wait until the transfer completes.</div>';
+			
 			if (t.dataPathIsDir) {
 				//text = 'DataPathIsDir - not implemented yet';
 				if (reallySwitched) {
@@ -358,10 +359,10 @@ function tabSwitched(reallySwitched) {
 					});
 				}
 			} else
-				text = '<a class="downlink" href="/download?transfer='+currentTransfers[0]+'">Download the file ('+t.name+')</a>';
+				text += '<a class="downlink" href="/download?transfer='+currentTransfers[0]+'">Download the file ('+t.name+')</a>';
 		}
 		
-		if (text) {
+		if (text != "") {
 			$("#details-download-tree").html('');
 			$("#details-download").html(text);
 			$("#details-download .downlink").button();
