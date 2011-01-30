@@ -6,11 +6,12 @@ $.get('/fragments/settings/webinterface.html', function(data) {
 });
 
 function settingsLoad() {
-	getSettingsValues(["remote/port", "remote/password", "remote/ssl", "remote/ssl_pem"], function(hash) {
+	getSettingsValues(["remote/enable", "remote/port", "remote/password", "remote/ssl", "remote/ssl_pem"], function(hash) {
 		$("#webinterface-port").val(hash["remote/port"]);
 		$("#webinterface-password").val(hash["remote/password"]);
 		$("#webinterface-ssl-pem").val(hash["remote/ssl_pem"]);
 		$("#webinterface-ssl").attr('checked', isTrue(hash["remote/ssl"]));
+		$("#webinterface-enable").attr('checked', isTrue(hash["remote/enable"]));
 	});
 }
 
@@ -22,6 +23,7 @@ function settingsSave() {
 	setSettingsValue("remote/port", port);
 	setSettingsValue("remote/password", $("#webinterface-password").val());
 	setSettingsValue("remote/ssl", $("#webinterface-ssl").is(":checked"));
+	setSettingsValue("remote/enable", $("#webinterface-enable").is(":checked"));
 	setSettingsValue("remote/ssl_pem", $("#webinterface-ssl-pem").val());
 }
 
