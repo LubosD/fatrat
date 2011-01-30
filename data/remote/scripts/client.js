@@ -595,7 +595,7 @@ function sendStateChange(newState) {
 	});
 }
 
-function actionAdd() {
+function actionAdd(link) {
 	var options = $("#new-transfer-destination-queue").attr('options');
 	
 	options.length = 0;
@@ -613,7 +613,10 @@ function actionAdd() {
 	$('#new-transfer-speed-down').val('0');
 	$('#new-transfer-speed-up').val('0');
 	$('#new-transfer-target').val(getQueue(currentQueue).defaultDirectory);
-	$('#new-transfer-links').val('');
+	if (link)
+		$('#new-transfer-links').val(link);
+	else
+		$('#new-transfer-links').val('');
 	$('#new-transfer-file').val('');
 
 	$("#new-transfer").dialog({

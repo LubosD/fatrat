@@ -77,6 +77,12 @@ $(document).ready(function() {
 		$('#popup-permissions').show();
 	}
 	
+	target = document.getElementById('fatrat-chrome-comm-div');
+	target.addEventListener("startDownload",function(e) {
+		var url = $('#fatrat-chrome-comm-div').text();
+		actionAdd(url);
+	} ,false);
+	
 	clientInit();
 });
 

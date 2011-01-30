@@ -293,3 +293,7 @@ input[type=number], input[type=text], input[type=password] {
 	padding-right: 2em;
 }
 
+#fatrat-chrome-comm-div {
+	display: none;
+}
+
