@@ -2,6 +2,10 @@
 #webinterface-certgen-dlg {
 	display: none;
 }
+.webinterface-warning {
+	float: left;
+	padding-right: 1ex;
+}
 </style>
 
 <table id="webinterface-table">
@@ -30,7 +34,10 @@
 					</tr>
 					<tr><td colspan="2" style="text-align: center"><input type="button" id="webinterface-ssl-generate" value="Generate a self-signed certificate..." /></td></tr>
 					<tr>
-						<td colspan="2">After toggling HTTPS or changing the certificate file, you may have to change the URL in your browser's location bar or press F5 to reload and accept the new certificate.</td>
+						<td colspan="2">
+							<img src="/img/warning.png" alt="" class="webinterface-warning" />
+							After toggling HTTPS or changing the certificate file, you may have to change the URL in your browser's location bar or press F5 to reload and accept the new certificate.
+						</td>
 					</tr>
 				</table>
 			</fieldset>
@@ -41,6 +48,6 @@
 </table>
 
 <div id="webinterface-certgen-dlg" title="Generate a self-signed certificate">
-	<label for="webinterface-certgen-hostname" style="display: block">Hostname</label>
+	<label for="webinterface-certgen-hostname" style="display: block">Hostname for the generated self-signed certificate</label>
 	<input type="text" id="webinterface-certgen-hostname" style="width: 100%" />
 </div>
