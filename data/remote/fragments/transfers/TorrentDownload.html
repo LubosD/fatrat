@@ -1,0 +1,36 @@
+<style type="text/css">
+#bt-magnet-link {
+	cursor: pointer;
+}
+</style>
+
+<div>
+	<fieldset>
+		<legend>Progress</legend>
+		<img style="width: 100%; height: 30px" alt="" id="bt-progress" />
+	</fieldset>
+	
+	<fieldset>
+		<legend>Availability</legend>
+		<img style="width: 100%; height: 30px" alt="" id="bt-availability" />
+	</fieldset>
+
+	<table style="width:100%">
+		<tr>
+			<td>Total download:</td>
+			<td id="bt-download" style="width:40%"></td>
+			<td>Total upload:</td>
+			<td id="bt-upload" style="width:40%"></td>
+		</tr>
+		<tr>
+			<td>Share ratio:</td>
+			<td id="bt-share-ratio"></td>
+			<td>Magnet link:</td>
+			<td><input type="text" style="width:100%" readonly="readonly" id="bt-magnet-link" /></td>
+		</tr>
+		<tr>
+			<td>Comment:</td>
+			<td colspan="3" id="bt-comment" style="border: 1px solid #777; padding: 1ex"></td>
+		</tr>
+	</table>
+</div>

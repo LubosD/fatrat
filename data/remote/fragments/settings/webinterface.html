@@ -1,3 +1,9 @@
+<style type="text/css">
+#webinterface-certgen-dlg {
+	display: none;
+}
+</style>
+
 <table id="webinterface-table">
 
 	<tr>
@@ -12,5 +18,29 @@
 	<tr>
 		<td colspan="2">Username: Use "admin" or "fatrat", both are equivalent.</td>
 	</tr>
+	<tr>
+		<td colspan="2">
+			<fieldset>
+				<legend><label><input type="checkbox" id="webinterface-ssl" /> Use HTTPS</label></legend>
+
+				<table>
+					<tr>
+						<td><label for="webinterface-ssl-pem">PEM file</label></td>
+						<td><input type="text" id="webinterface-ssl-pem" /></td>
+					</tr>
+					<tr><td colspan="2" style="text-align: center"><input type="button" id="webinterface-ssl-generate" value="Generate a self-signed certificate..." /></td></tr>
+					<tr>
+						<td colspan="2">After toggling HTTPS or changing the certificate file, you may have to change the URL in your browser's location bar or press F5 to reload and accept the new certificate.</td>
+					</tr>
+				</table>
+			</fieldset>
+		</td>
+	</tr>
+	
 
 </table>
+
+<div id="webinterface-certgen-dlg" title="Generate a self-signed certificate">
+	<label for="webinterface-certgen-hostname" style="display: block">Hostname</label>
+	<input type="text" id="webinterface-certgen-hostname" style="width: 100%" />
+</div>

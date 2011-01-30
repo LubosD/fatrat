@@ -73,3 +73,8 @@ Web interface utilizes the following 3rd party JavaScript libraries:
 * BASE64 functions
   Copyright © 2004 - 2006 Derek Buitenhuis <daemon404 at gmail.com>
   GNU GPL version 2+.
+
+* jquery.BlockUI
+  Copyright © 2007-2010 M. Alsup <http://malsup.com/jquery/block/>
+  Dual licensed under the MIT and GPL licenses
+

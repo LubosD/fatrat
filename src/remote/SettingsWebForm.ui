@@ -114,7 +114,7 @@
       <item row="1" column="2">
        <widget class="QPushButton" name="pushGeneratePEM">
         <property name="text">
-         <string>Generate a self signed certificate</string>
+         <string>Generate a self signed certificate...</string>
         </property>
        </widget>
       </item>

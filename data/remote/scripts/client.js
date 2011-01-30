@@ -865,6 +865,7 @@ function showError(e) {
 		msg = e.toString();
 	$("#errors").text(msg);
 	$("#errors").show('slow');
+	$.unblockUI();
 }
 
 	

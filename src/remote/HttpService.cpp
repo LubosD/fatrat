@@ -49,6 +49,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QImage>
 #include <QPainter>
 #include <QMultiMap>
+#include <QProcess>
+#include <QFile>
 #include <pion/net/PionUser.hpp>
 #include <pion/net/HTTPBasicAuth.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
@@ -87,6 +89,8 @@ HttpService::HttpService()
 	si.webSettingsIconURL = "/img/settings/webinterface.png";
 	
 	addSettingsPage(si);
+
+	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate, QVector<QVariant::Type>() << QVariant::String);
 }
 
 HttpService::~HttpService()
@@ -589,4 +593,42 @@ void HttpService::findQueue(QString queueUUID, Queue** q)
 			return;
 		}
 	}
+}
+
+QVariant HttpService::generateCertificate(QList<QVariant>& args)
+{
+	QString hostname = args[0].toString();
+	const char* script = DATA_LOCATION "/data/genssl.sh";
+	const char* config = DATA_LOCATION "/data/genssl.cnf";
+	const char* pemfile = "/tmp/fatrat-webui.pem";
+
+	QProcess prc;
+
+	qDebug() << "Starting: " << script << " " << config;
+	prc.start(script, QStringList() << config << hostname);
+	prc.waitForFinished();
+
+	if (prc.exitCode() != 0)
+		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
+
+	QFile file(pemfile);
+	if (!file.open(QIODevice::ReadOnly))
+		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
+
+	QByteArray data = file.readAll();
+	QDir::home().mkpath(USER_PROFILE_PATH "/data");
+
+	QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/fatrat-webui.pem";
+	QFile out(path);
+
+	if (!out.open(QIODevice::WriteOnly))
+		throw XmlRpcService::XmlRpcError(502, tr("Failed to open %1 for writing.").arg(path));
+
+	out.write(data);
+
+	out.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
+	out.close();
+	file.remove();
+
+	return path;
 }

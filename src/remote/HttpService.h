@@ -60,6 +60,8 @@ public:
 
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
+
+	static QVariant generateCertificate(QList<QVariant>&);
 private:
 	static HttpService* m_instance;
 	pion::net::WebServer* m_server;
