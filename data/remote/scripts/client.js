@@ -613,7 +613,7 @@ function actionAdd(link) {
 	$('#new-transfer-speed-down').val('0');
 	$('#new-transfer-speed-up').val('0');
 	$('#new-transfer-target').val(getQueue(currentQueue).defaultDirectory);
-	if (link)
+	if (typeof link == "String")
 		$('#new-transfer-links').val(link);
 	else
 		$('#new-transfer-links').val('');
