@@ -1,5 +1,9 @@
 $.get('/fragments/transfers/TorrentDownload.html', function(data) {
 	$("#details-subclass").html(data);
+	$("#bt-magnet-link").click(function() {
+		$(this).focus();
+		$(this).select();
+	});
 	subclassPerformReload(getTransfer(currentTransfers[0]));
 });
 

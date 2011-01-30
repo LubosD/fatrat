@@ -29,11 +29,11 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JVM.h"
 #include "java/JClass.h"
 #include "fatrat.h"
+#include "config.h"
 #include <QNetworkReply>
 #include <QMessageBox>
 #include <QDir>
 
-extern const char* USER_PROFILE_PATH;
 static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 
 SettingsJavaPluginForm::SettingsJavaPluginForm(QWidget* me, QObject* parent)
@@ -191,7 +191,7 @@ void SettingsJavaPluginForm::uninstall()
 		return;
 	}
 
-	QString baseDir = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/";
+	QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
 	QDir dir(baseDir);
 	int numRemoved = 0;
 
@@ -264,7 +264,7 @@ void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
 		return;
 	}
 
-	QString baseDir = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/";
+	QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
 	QDir dir(baseDir);
 
 	QString fullPath = dir.filePath(item.first+".jar");

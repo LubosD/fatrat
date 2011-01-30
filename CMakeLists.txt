@@ -478,14 +478,18 @@ if(WITH_WEBINTERFACE)
 		src/remote/SettingsWebForm.cpp
 		src/remote/XmlRpcService.cpp
 		src/remote/pion/FileService.cpp
+		src/remote/CertGenDlg.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/remote/XmlRpcService.h
+		src/remote/SettingsWebForm.h
+		src/remote/CertGenDlg.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/remote/SettingsWebForm.ui
+		src/remote/CertGenDlg.ui
 	)
 endif(WITH_WEBINTERFACE)
 
@@ -588,6 +592,9 @@ endif(WITH_BITTORRENT)
 if(WITH_WEBINTERFACE)
 	#FILE( GLOB_RECURSE remfiles ${CMAKE_CURRENT_SOURCE_DIR}/data/remote/* )
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/remote DESTINATION share/fatrat/data)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/genssl.cnf DESTINATION share/fatrat/data)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/genssl.sh DESTINATION share/fatrat/data PERMISSIONS
+		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_JPLUGINS)

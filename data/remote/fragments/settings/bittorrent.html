@@ -19,31 +19,31 @@
 		<div>
 		<table>
 			<tr>
-				<td>Listen port (from)</td>
+				<td><label for="bittorrent-port-start">Listen port (from)</label></td>
 				<td><input type="number" min="1024" max="65535" size="5" id="bittorrent-port-start" /></td>
-				<td>Listen port (to)</td>
+				<td><label for="">Listen port (to)</label></td>
 				<td><input type="number" min="1024" max="65535" size="5" id="bittorrent-port-end" /></td>
 			</tr>
 			<tr>
-				<td colspan="2">Seed up to ratio (default value)</td>
+				<td colspan="2"><label for="bittorrent-seed-ratio">Seed up to ratio (default value)</label></td>
 				<td colspan="2"><input type="text" pattern="[0-9]+([,\.][0-9]*)?" id="bittorrent-seed-ratio" /></td>
 			</tr>
 			<tr>
-				<td colspan="2">Maximum connections (global/per torrent)</td>
+				<td colspan="2"><label for="bittorrent-max-connections-global">Maximum connections (global/per torrent)</label></td>
 				<td><input type="number" size="4" min="10" id="bittorrent-max-connections-global" /></td>
 				<td><input type="number" size="4" min="10" id="bittorrent-max-connections-pertorrent" /></td>
 			</tr>
 			<tr>
-				<td colspan="2">Maximum uploads (global/per torrent)</td>
+				<td colspan="2"><label for="bittorrent-max-uploads-global">Maximum uploads (global/per torrent)</label></td>
 				<td><input type="number" size="4" min="1" id="bittorrent-max-uploads-global" /></td>
 				<td><input type="number" size="4" min="1" id="bittorrent-max-uploads-pertorrent" /></td>
 			</tr>
 			<tr>
-				<td colspan="2">Maximum open files</td>
+				<td colspan="2"><label for="bittorrent-max-open-files">Maximum open files</label></td>
 				<td colspan="2"><input type="number" size="4" min="5" id="bittorrent-max-open-files" /></td>
 			</tr>
 			<tr>
-				<td colspan="2">File allocation mode</td>
+				<td colspan="2"><label for="bittorrent-allocation-mode">File allocation mode</label></td>
 				<td colspan="2">
 					<select id="bittorrent-allocation-mode">
 						<option value="0">Full</option>
@@ -53,7 +53,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2">External IP</td>
+				<td colspan="2"><label for="bittorrent-external-ip">External IP</label></td>
 				<td colspan="2"><input type="text" id="bittorrent-external-ip" /></td>
 			</tr>
 			<!--<tr>
@@ -75,7 +75,7 @@
 	<div id="bittorrent-tabs-encryption">
 		<table>
 			<tr>
-				<td>Encryption of incoming connections</td>
+				<td><label for="bittorrent-encryption-incoming">Encryption of incoming connections</label></td>
 				<td>
 					<select id="bittorrent-encryption-incoming">
 						<option value="0">Disabled</option>
@@ -85,7 +85,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Encryption of outgoing connections</td>
+				<td><label for="bittorrent-encryption-outgoing">Encryption of outgoing connections</label></td>
 				<td>
 					<select id="bittorrent-encryption-outgoing">
 						<option value="0">Disabled</option>
@@ -95,7 +95,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Encryption levels</td>
+				<td><label for="bittorrent-encryption-levels">Encryption levels</label></td>
 				<td>
 					<select id="bittorrent-encryption-levels">
 						<option value="0">Plaintext</option>

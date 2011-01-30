@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,31 +25,19 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef SETTINGSWEBFORM_H
-#define SETTINGSWEBFORM_H
-#include <QObject>
-#include "fatrat.h"
-#include "config.h"
-#include "WidgetHostChild.h"
-#include "ui_SettingsWebForm.h"
+#ifndef CERTGENDLG_H
+#define CERTGENDLG_H
+#include <QDialog>
+#include "ui_CertGenDlg.h"
 
-#ifndef WITH_WEBINTERFACE
-#	error This file is not supposed to be included!
-#endif
-
-class SettingsWebForm : public QObject, public WidgetHostChild, Ui_SettingsWebForm
+class CertGenDlg : public QDialog, Ui_CertGenDlg
 {
 Q_OBJECT
 public:
-	SettingsWebForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsWebForm(w, parent); }
+	CertGenDlg(QWidget* parent = 0);
+	virtual void accept();
 
-	static void applySettings();
-public slots:
-	void browsePem();
-	void generatePem();
+	QString getHostname() { return lineHostname->text(); }
 };
 
-#endif
+#endif // CERTGENDLG_H

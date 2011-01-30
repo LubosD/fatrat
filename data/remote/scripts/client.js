@@ -32,7 +32,7 @@ function clientInit() {
 		
 		$("#settings-list div").click(function() {
 			$(this).addClass("ui-selected").siblings().removeClass("ui-selected");
-			switchSettingsPage();
+			switchSettingsPage(false);
 		});
 	});
 	
@@ -150,7 +150,7 @@ function addQueueItem(item, addBefore) {
 				Cancel: function() {
 					$(this).dialog('close');
 				},
-				Ok: function() {
+				OK: function() {
 					properties = getQueueDlgPropertyMap();
 					
 					$(this).dialog('close');
@@ -626,7 +626,7 @@ function actionAdd() {
 			Cancel: function() {
 				$(this).dialog('close');
 			},
-			Ok: function() {
+			OK: function() {
 				_class = $('#new-transfer-class').val();
 				target = $('#new-transfer-target').val();
 				paused = $('#new-transfer-paused').is(':checked');
@@ -791,7 +791,7 @@ function actionAddQueue() {
 			Cancel: function() {
 				$(this).dialog('close');
 			},
-			Ok: function() {
+			OK: function() {
 				properties = getQueueDlgPropertyMap();
 				
 				if (properties)
@@ -833,7 +833,7 @@ function transferProperties(uuid) {
 			Cancel: function() {
 				$(this).dialog('close');
 			},
-			Ok: function() {
+			OK: function() {
 				obj = $("#transfer-properties-target").val();
 				down = parseInt($("#transfer-properties-speed-down").val());
 				up = parseInt($("#transfer-properties-speed-up").val());
@@ -877,16 +877,17 @@ function actionSettings() {
 	$('#settings-pane-script').html('');
 	
 	$("#settings").dialog({
-		resizable: true,
+		resizable: false,
 		height:500,
 		width:700,
 		modal: true,
-		open: function() { $("#settings-list .settings-item").first().addClass("ui-selected").siblings().removeClass("ui-selected"); switchSettingsPage(); },
+		open: function() { $("#settings-list .settings-item").first().addClass("ui-selected").siblings().removeClass("ui-selected"); switchSettingsPage(true); },
 		buttons: {
 			Cancel: function() {
+				$("#settings-pane").html('');
 				$(this).dialog('close');
 			},
-			Ok: function() {
+			OK: function() {
 				var keys = [];
 				var values = [];
 				
@@ -907,6 +908,7 @@ function actionSettings() {
 				tthis = $(this);
 				client.Settings_setValue(keys, values, function() {
 					client.Settings_apply();
+					$("#settings-pane").html('');
 					tthis.dialog('close');
 				});
 			}
@@ -932,8 +934,8 @@ function setSettingsValue(key, value) {
 	settingsStore[key] = value;
 }
 
-function switchSettingsPage() {
-	if (typeof settingsSave == 'function') {
+function switchSettingsPage(nosave) {
+	if (!nosave && typeof settingsSave == 'function') {
 		try {
 			settingsSave();
 		} catch (ex) {

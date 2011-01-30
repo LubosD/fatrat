@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
-    <height>432</height>
+    <width>504</width>
+    <height>430</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -223,5 +223,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkPopup</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinPopup</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>131</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

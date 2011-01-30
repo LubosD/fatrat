@@ -90,8 +90,6 @@ extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
 extern QSettings* g_settings;
 
-const char* USER_PROFILE_PATH = "/.local/share/fatrat";
-
 static void runEngines(bool init = true);
 static QString argsToArg(int argc,char** argv);
 static void processSession(QString arg);

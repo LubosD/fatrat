@@ -36,11 +36,11 @@ respects for all of the code used other than "OpenSSL".
 #include "JSettings.h"
 #include "JMap.h"
 #include "Settings.h"
+#include "config.h"
 #include <alloca.h>
 
 #include <QtDebug>
 
-extern const char* USER_PROFILE_PATH;
 JVM* JVM::m_instance = 0;
 
 typedef jint (*cjvm_fn) (JavaVM **pvm, void **penv, void *args);
@@ -145,7 +145,7 @@ QString JVM::getClassPath()
 	bool hasCore = false;
 	QString rv;
 
-	QString baseDir = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/java/";
+	QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
 	QDir dir(baseDir);
 
 	// JNI does not support classpath globs, we need to search for files ourselves

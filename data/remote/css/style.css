@@ -263,16 +263,33 @@ pre {
 	width: 99%;
 }
 
+#settings-pane td {
+	cursor: default;
+}
+
 #settings-pane table input[type=number], #settings-pane table input[type=text], #settings-pane table input[type=password], #settings-pane table select {
 	width: 100%;
 }
 
 fieldset {
 	border: 1px solid #BBB;
+	border-radius: 3px;
 }
 
 input[type=number], input[type=text], input[type=password] {
 	border: 1px solid #BBB;
 }
 
+#popup-permissions a {
+	color: #AAA;
+}
+
+#popup-permissions {
+	float: right;
+	display: none;
+	font-weight: normal;
+	color: #AAA;
+	line-height: 2.4em;
+	padding-right: 2em;
+}
 

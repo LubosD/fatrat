@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,31 +25,26 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef SETTINGSWEBFORM_H
-#define SETTINGSWEBFORM_H
-#include <QObject>
-#include "fatrat.h"
-#include "config.h"
-#include "WidgetHostChild.h"
-#include "ui_SettingsWebForm.h"
+#include "CertGenDlg.h"
+#include <unistd.h>
 
-#ifndef WITH_WEBINTERFACE
-#	error This file is not supposed to be included!
-#endif
-
-class SettingsWebForm : public QObject, public WidgetHostChild, Ui_SettingsWebForm
+CertGenDlg::CertGenDlg(QWidget* parent) : QDialog(parent)
 {
-Q_OBJECT
-public:
-	SettingsWebForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsWebForm(w, parent); }
+	setupUi(this);
 
-	static void applySettings();
-public slots:
-	void browsePem();
-	void generatePem();
-};
+	char hn[HOST_NAME_MAX], dn[HOST_NAME_MAX];
+	if (gethostname(hn, sizeof hn) != -1)
+	{
+		if (getdomainname(dn, sizeof dn) != -1)
+		{
+			QString host = QString(hn) + '.' + dn;
+			lineHostname->setText(host);
+		}
+	}
+}
 
-#endif
+void CertGenDlg::accept()
+{
+	if (!lineHostname->text().isEmpty())
+		QDialog::accept();
+}

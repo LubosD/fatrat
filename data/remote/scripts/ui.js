@@ -28,8 +28,6 @@ $(document).ready(function() {
 	
 	$('#toolbar-help').click(function() { window.open("http://fatrat.dolezel.info/documentation"); } );
 	
-	//$('#tabs-transfers').layout({ slidable: true, resizable: true });
-	//$('body').layout({ slidable: false, resizable: false; closable: false });
 	$('#tabs').tabs({ show: function() { updateSizes(); tabSwitched(true); } });
 	$("#tabs-tsg-img").load(function() { $("#tabs-tsg-img").attr('style','visibility: visible'); });
 	$("#tabs-qsg-img").load(function() { $("#tabs-qsg-img").attr('style','visibility: visible'); });
@@ -42,12 +40,10 @@ $(document).ready(function() {
 	$(".progressbar").progressbar({ value: 30 });
 	$("#transfers tbody").selectable({ filter: 'tr', selected: transfersSelectionChanged, unselected: transfersSelectionChanged, cancel: 'img' });
 	
-	//$('body').layout({ resizable: false, slidable: false, closable: false, spacing_open: 0 });
-	
 	$("#credits-link").click(function() {
 		$.get('/copyrights', function(data) {
 			$("#credits-text").text(data);
-			window.location = '#logo'; // to workaround fucked-up Firefox
+			window.location = '#logo'; // workaround for fucked-up Firefox
 			$("#credits").dialog({
 				width: 600,
 				height: 300,
@@ -65,11 +61,21 @@ $(document).ready(function() {
 		$("#queue-properties-move-directory").attr("disabled", (checked)?"":"disabled");
 	});
 	
-	//$("#transfer-properties-speed-down").spinner({ min: 0 });
-	//$("#transfer-properties-speed-up").spinner({ min: 0 });
-	
 	$(window).resize(updateSizes);
 	window.setTimeout(updateSizes, 250);
+	
+	if (window.webkitNotifications && window.webkitNotifications.checkPermission() != 0) {
+		$('#popup-permissions-request').click(function() {
+			window.webkitNotifications.requestPermission(function() {
+				var perm = window.webkitNotifications.checkPermission();
+				if (perm == 0)
+					$('#popup-permissions').hide('slow');
+				else if (perm == 2)
+					alert("The permission was denied. If you ever decide to allow popups, you'll probably have to enable them manually in browser settings.");
+			});
+		});
+		$('#popup-permissions').show();
+	}
 	
 	clientInit();
 });

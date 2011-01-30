@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -56,6 +56,7 @@ public:
 	
 	void setup();
 	void setupAuth();
+	void setupSSL();
 
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
@@ -64,6 +65,7 @@ private:
 	pion::net::WebServer* m_server;
 	pion::net::HTTPAuthPtr m_auth_ptr;
 	quint16 m_port;
+	QString m_strSSLPem;
 
 	class GraphService : public pion::net::WebService
 	{

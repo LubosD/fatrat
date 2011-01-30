@@ -115,10 +115,12 @@ void HttpService::applySettings()
 			else
 			{
 				quint16 port = getSettingsValue("remote/port").toUInt();
+				QString pemFile = getSettingsValue("remote/ssl_pem").toString();
+				bool useSSL = getSettingsValue("remote/ssl").toBool();
 
-				if (port != m_port)
+				if (port != m_port || m_strSSLPem != pemFile || useSSL != m_strSSLPem.isEmpty())
 				{
-					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port change"));
+					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port or SSL config change"));
 
 					m_server->stop();
 					delete m_server;
@@ -165,6 +167,7 @@ void HttpService::setup()
 		m_server = new pion::net::WebServer(m_port);
 
 		setupAuth();
+		setupSSL();
 
 		m_server->addService("/xmlrpc", new XmlRpcService);
 		m_server->addService("/generate/graph.png", new GraphService);
@@ -184,6 +187,33 @@ void HttpService::setup()
 	catch(const pion::PionException& e)
 	{
 		Logger::global()->enterLogMessage("HttpService", tr("Failed to start: %1").arg(e.what()));
+	}
+}
+
+void HttpService::setupSSL()
+{
+	bool useSSL = getSettingsValue("remote/ssl").toBool();
+	if (useSSL)
+	{
+		QString file = getSettingsValue("remote/ssl_pem").toString();
+		if (file.isEmpty() || !QFile::exists(file))
+		{
+			Logger::global()->enterLogMessage("HttpService", tr("SSL key file not found, disabling HTTPS"));
+			m_server->setSSLFlag(false);
+			m_strSSLPem.clear();
+		}
+		else
+		{
+			Logger::global()->enterLogMessage("HttpService", tr("Loading a SSL key from %1").arg(file));
+			m_strSSLPem = file;
+			m_server->setSSLKeyFile(file.toStdString());
+			m_server->setSSLFlag(true);
+		}
+	}
+	else
+	{
+		m_server->setSSLFlag(false);
+		m_strSSLPem.clear();
 	}
 }
 
