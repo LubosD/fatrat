@@ -188,7 +188,7 @@ void HttpService::setup()
 		m_server->start();
 		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
 	}
-	catch(const pion::PionException& e)
+	catch(const std::exception& e)
 	{
 		Logger::global()->enterLogMessage("HttpService", tr("Failed to start: %1").arg(e.what()));
 	}
