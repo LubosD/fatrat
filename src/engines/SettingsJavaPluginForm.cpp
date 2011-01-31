@@ -255,14 +255,22 @@ void SettingsJavaPluginForm::install()
 void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
 {
 	reply->deleteLater();
+	if (m_toInstall.isEmpty())
+	{
+		m_dlgProgress.hide();
+		return;
+	}
 
 	QPair<QString,bool> item = m_toInstall.takeFirst();
 
 	if (reply->error() != QNetworkReply::NoError)
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to download an extension: %1").arg(reply->errorString()));
+		m_dlgProgress.hide();
 		return;
 	}
+
+	QDir::home().mkpath(USER_PROFILE_PATH "/data/java/");
 
 	QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
 	QDir dir(baseDir);
@@ -273,6 +281,7 @@ void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
 	if (!file.open(QIODevice::WriteOnly))
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat", tr("Failed to write a file: %1").arg(file.errorString()));
+		m_dlgProgress.hide();
 		return;
 	}
 
