@@ -1148,7 +1148,6 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 		const int WIDTH = 800;
 		if (method == "progress")
 		{
-			//quint32* buf = new quint32[WIDTH];
 			libtorrent::bitfield pieces = m_handle.status().pieces;
 			QImage img(WIDTH, 1, QImage::Format_RGB32);
 
@@ -1167,34 +1166,24 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 			img.save(&bbuf, "PNG");
 			wb->setContentType("image/png");
 
-			//QByteArray arr = bbuf.buffer();
 			wb->write(bbuf.buffer().data(), bbuf.size());
 			wb->send();
-
-			//delete img;
-			//delete [] buf;
 		}
 		else if (method == "availability")
 		{
 			std::vector<int> avail;
-			//quint32* buf = new quint32[WIDTH];
 			QBuffer bbuf;
 
 			m_handle.piece_availability(avail);
 
-			//QImage* img = new QImage(TorrentProgressWidget::generate(avail, WIDTH, buf));
 			QImage img(WIDTH, 1, QImage::Format_RGB32);
 			TorrentProgressWidget::generate(avail, WIDTH, reinterpret_cast<quint32*>(img.bits()));
 
 			img.save(&bbuf, "PNG");
 			wb->setContentType("image/png");
 
-			//QByteArray arr = bbuf.buffer();
 			wb->write(bbuf.buffer().data(), bbuf.size());
 			wb->send();
-
-			//delete img;
-			//delete [] buf;
 		}
 		else
 			wb->writeFail("Unknown request");

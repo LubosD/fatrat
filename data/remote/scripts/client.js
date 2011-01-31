@@ -310,8 +310,8 @@ function tabSwitched(reallySwitched) {
 		if (t.primaryMode == 'Upload')
 			text = '<div class="ui-state-error">This feature is available only for download-oriented transfers.</div>';
 		else {
-			if (t.state != 'Completed' && t.mode == 'Download' && !t.dataPathIsDir)
-				text = '<div class="ui-state-error">Please wait until the transfer completes.</div>';
+			if (t.state != 'Completed' && t.mode == 'Download')
+				text = '<div class="ui-state-error">The download may be incomplete.</div>';
 			
 			if (t.dataPathIsDir) {
 				//text = 'DataPathIsDir - not implemented yet';
@@ -358,17 +358,19 @@ function tabSwitched(reallySwitched) {
 						}
 					});
 				}
-			} else
+			} else {
 				text += '<a class="downlink" href="/download?transfer='+currentTransfers[0]+'">Download the file ('+t.name+')</a>';
+				$("#details-download-tree").html('');
+			}
 		}
 		
-		if (text != "") {
-			$("#details-download-tree").html('');
+		//if (text != "") {
+			//$("#details-download-tree").html('');
 			$("#details-download").html(text);
 			$("#details-download .downlink").button();
-		} else
-			$("#details-download").html('');
-		$('#accordion').accordion();
+		//} else
+		//	$("#details-download").html('');
+		$('#accordion').accordion({ active: ((t.detailsScript)?1:0) });
 	}
 }
 
@@ -461,7 +463,7 @@ function fillTransferRow(row, data) {
 		speed = data.speeds[0];
 	else
 		speed = data.speeds[1];
-	if (isactive && data.mode == data.primaryMode && speed > 0)
+	if (isactive && data.mode.toString() == data.primaryMode.toString() && speed > 0)
 		txt = formatTime( (data.total - data.done) / speed );
 	else
 		txt = '';
