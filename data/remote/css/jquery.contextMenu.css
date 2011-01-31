@@ -1,0 +1,75 @@
+/* Generic context menu styles */
+.contextMenu {
+	position: absolute;
+	width: 135px;
+	z-index: 99999;
+	border: solid 1px #CCC;
+	background: #FFF;
+	padding: 0px;
+	margin: 0px;
+	display: none;
+}
+
+.contextMenu LI {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.contextMenu A {
+	color: #333;
+	text-decoration: none;
+	display: block;
+	line-height: 20px;
+	height: 20px;
+	background-position: 6px center;
+	background-repeat: no-repeat;
+	outline: none;
+	padding: 1px 5px;
+	padding-left: 28px;
+}
+
+.contextMenu LI.hover A {
+	color: #FFF;
+	background-color: #3399FF;
+}
+
+.contextMenu LI.disabled A {
+	color: #AAA;
+	cursor: default;
+}
+
+.contextMenu LI.hover.disabled A {
+	background-color: transparent;
+}
+
+.contextMenu LI.separator {
+	border-top: solid 1px #CCC;
+}
+
+/*
+	Adding Icons
+	
+	You can add icons to the context menu by adding
+	classes to the respective LI element(s)
+*/
+
+/*.contextMenu LI.edit A { background-image: url(images/page_white_edit.png); }
+.contextMenu LI.cut A { background-image: url(images/cut.png); }
+.contextMenu LI.copy A { background-image: url(images/page_white_copy.png); }
+.contextMenu LI.paste A { background-image: url(images/page_white_paste.png); }
+.contextMenu LI.delete A { background-image: url(images/page_white_delete.png); }
+.contextMenu LI.quit A { background-image: url(images/door.png); }
+*/
+
+.menu-resume a { background-image: url(icons/states/active.png); }
+.menu-force-resume a { background-image: url(icons/states/forcedactive.png); }
+.menu-pause a { background-image: url(icons/states/paused.png); }
+.menu-move-to-top a { background-image: url(icons/move/top.png); }
+.menu-move-up a { background-image: url(icons/move/up.png); }
+.menu-move-down a { background-image: url(icons/move/down.png); }
+.menu-move-to-bottom a { background-image: url(icons/move/bottom.png); }
+.menu-delete a { background-image: url(icons/delete.png); }
+.menu-delete-data a { background-image: url(icons/delete_with_data.png); }
+.menu-properties a { background-image: url(icons/queue/properties.png); }
+

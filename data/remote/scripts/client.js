@@ -487,24 +487,19 @@ function addTransferItem(item, addBefore) {
 	
 	for(var j=0;j<7;j++) {
 		td = document.createElement('td');
-		if (j == 0) {
-			img = document.createElement('img');
-			img.setAttribute('alt', 'Properties');
-			img.setAttribute('title', 'Properties');
-			img.setAttribute('src', 'css/icons/queue/properties.png');
-			img.setAttribute('class', 'transfer-properties');
-			$(img).click(function() {
-				transferProperties(this.parentNode.parentNode.id);
-			});
-			
-			td.appendChild(img);
+		if (j == 0)
 			td.appendChild(document.createElement('span'));
-		} else if (j == 1)
+		else if (j == 1)
 			td.setAttribute('class', 'progressbar');
 		ndiv.appendChild(td);
 	}
 	
 	fillTransferRow(ndiv, item);
+	$(ndiv).mousedown(function() {
+		// To ensure right clicks work the way users expect them to
+		$(ndiv).addClass('ui-selected').siblings().removeClass('ui-selected');
+		transfersSelectionChanged();
+	});
 	
 	if (addBefore)
 		$(addBefore).before(ndiv);
@@ -520,6 +515,13 @@ function enableButton(btn, enable) {
 		btn.attr('disabled', 'disabled');
 		btn.addClass('ui-state-disabled');
 	}
+}
+
+function enableMenuItem(item, enable) {
+	if (enable)
+		$("#menu-transfer").enableContextMenuItems(item);
+	else
+		$("#menu-transfer").disableContextMenuItems(item);
 }
 
 function transferResumable(state) {
@@ -558,8 +560,12 @@ function transfersSelectionChanged() {
 	currentTransfers = ntransfers;
 
 	enableButton($('#toolbar-delete'), ntransfers.length > 0);
+	enableMenuItem('#menu-delete', ntransfers.length > 0);
 	enableButton($('#toolbar-delete-with-data'), ntransfers.length > 0);
+	enableMenuItem('#menu-delete-data', ntransfers.length > 0);
 	enableButton($('#toolbar-force-resume'), ntransfers.length > 0);
+	enableMenuItem('#menu-force-resume', ntransfers.length > 0);
+	enableMenuItem('#menu-properties', ntransfers.length == 1);
 	
 	resumable = false;
 	pausable = false;
@@ -575,11 +581,17 @@ function transfersSelectionChanged() {
 		down |= tpos < transfers.length-1;
 	}
 	enableButton($('#toolbar-resume'), resumable);
+	enableMenuItem('#menu-resume', resumable);
 	enableButton($('#toolbar-pause'), pausable);
+	enableMenuItem('#menu-pause', pausable);
 	enableButton($('#toolbar-move-up'), up);
+	enableMenuItem('#menu-move-up', up);
 	enableButton($('#toolbar-move-top'), up);
+	enableMenuItem('#menu-move-to-top', up);
 	enableButton($('#toolbar-move-down'), down);
+	enableMenuItem('#menu-move-down', down);
 	enableButton($('#toolbar-move-bottom'), down);
+	enableMenuItem('#menu-move-to-bottom', down);
 	
 	var dtabs = [];
 	if (ntransfers.length != 1)

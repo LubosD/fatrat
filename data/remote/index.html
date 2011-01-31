@@ -10,7 +10,8 @@
 <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
 <link href="css/ui-lightness/jquery-ui-1.8.2.custom.css" rel="stylesheet" type="text/css" media="all">
 <link href="css/icons.css" rel="stylesheet" type="text/css" media="all">
-<link href="css/jstree/style.css" rel="stylesheet" type="text/css" media="all">        
+<link href="css/jstree/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/jquery.contextMenu.css" rel="stylesheet" type="text/css" media="all">
 <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="scripts/jquery.layout.min-1.2.0.js"></script>
 <script type="text/javascript" src="scripts/jquery-ui-1.8.2.custom.min.js"></script>
@@ -21,6 +22,7 @@
 <script type="text/javascript" src="scripts/jquery.blockUI.js"></script>
 <script type="text/javascript" src="scripts/ui.js"></script>
 <script type="text/javascript" src="scripts/client.js"></script>
+<script type="text/javascript" src="scripts/jquery.contextMenu.js"></script>
 </head>
 
 <body>
@@ -308,9 +310,22 @@
 	<div id="settings-wrapper">
 		<div id="settings-list"></div>
 		<div id="settings-pane-script"></div>
-		<div id="settings-pane"><div>
+		<div id="settings-pane"></div>
 	</div>
 </div>
+
+<ul class="contextMenu" id="menu-transfer">
+	<li class="menu-resume"><a href="#menu-resume">Resume</a></li>
+	<li class="menu-force-resume"><a href="#menu-force-resume">Force resume</a></li>
+	<li class="menu-pause"><a href="#menu-pause">Pause</a></li>
+	<li class="menu-move-to-top separator"><a href="#menu-move-to-top">Move to Top</a></li>
+	<li class="menu-move-up"><a href="#menu-move-up">Move Up</a></li>
+	<li class="menu-move-down"><a href="#menu-move-down">Move Down</a></li>
+	<li class="menu-move-to-bottom"><a href="#menu-move-to-bottom">Move to Bottom</a></li>
+	<li class="menu-delete separator"><a href="#menu-delete">Delete</a></li>
+	<li class="menu-delete-data"><a href="#menu-delete-data">Delete with Data</a></li>
+	<li class="menu-properties separator"><a href="#menu-properties">Properties</a></li>
+</ul>
 
 <!--</td></tr>
 </table>-->

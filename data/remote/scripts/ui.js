@@ -83,6 +83,20 @@ $(document).ready(function() {
 		actionAdd(url);
 	} ,false);
 	
+	$("#transfers").contextMenu({menu: 'menu-transfer'}, function(action) {
+		if (action == "menu-delete") actionDelete();
+		else if (action == "menu-delete-data") actionDeleteWithData();
+		else if (action == "menu-resume") sendStateChange('Waiting');
+		else if (action == "menu-pause") sendStateChange('Paused');
+		else if (action == "menu-force-resume") sendStateChange('ForcedActive');
+		else if (action == "menu-move-to-top") actionMoveTop();
+		else if (action == "menu-move-up") actionMoveUp();
+		else if (action == "menu-move-to-bottom") actionMoveBottom();
+		else if (action == "menu-move-down") actionMoveDown();
+		else if (action == "menu-properties") transferProperties(currentTransfers[0]);
+	});
+	$("#menu-transfer").disableContextMenuItems("#menu-resume");
+	
 	clientInit();
 });
 
