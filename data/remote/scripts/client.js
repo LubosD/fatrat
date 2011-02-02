@@ -390,13 +390,13 @@ function formatSize(bytes) {
 }
 
 function formatTime(seconds) {
-	s = seconds % 60;
-	seconds -= s;
-	m = seconds % (60*60);
-	seconds -= m*60;
-	h = seconds % (60*60*60);
+	d = Math.floor(seconds/60/60/24);
+	seconds -= d*60*60*24;
+	h = Math.floor(seconds/60/60);
 	seconds -= h*60*60;
-	d = Math.round(seconds/60/60/60/24);
+	m = Math.floor(seconds/60);
+	seconds -= m*60;
+	s = Math.floor(seconds);
 	
 	rv = '';
 	if (d > 0)
