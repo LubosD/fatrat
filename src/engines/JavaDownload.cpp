@@ -181,12 +181,14 @@ void JavaDownload::setObject(QString newdir)
 
 qulonglong JavaDownload::done() const
 {
-	if(isActive())
+	QString clsName = m_plugin->getClass().getClassName();
+
+	if(isActive() || (!m_engines[clsName].truncate && !m_segments.isEmpty()))
 		return CurlDownload::done();
 	else if(m_state == Completed)
 		return m_nTotal;
 	else
-		return 0; // need a Java call to confirm this
+		return 0;
 }
 
 void JavaDownload::setState(State newState)
