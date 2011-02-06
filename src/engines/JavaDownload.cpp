@@ -128,6 +128,18 @@ void JavaDownload::changeActive(bool bActive)
 					m_bHasLock = true;
 			}
 
+			if (m_engines[clsName].truncate)
+			{
+				Segment s;
+
+				s.offset = s.bytes = 0;
+				s.urlIndex = 0;
+				s.client = 0;
+
+				m_segments.clear();
+				m_segments << s;
+			}
+
 			assert(!m_strOriginal.isEmpty());
 
 			m_plugin->call("processLink", JSignature().addString(), JArgs() << m_strOriginal);
@@ -149,6 +161,9 @@ void JavaDownload::changeActive(bool bActive)
 
 		if (!m_downloadUrl.isEmpty())
 			m_strName = CurlDownload::name();
+
+		if (m_state == Failed)
+			m_plugin->call("onFailed");
 
 		m_downloadUrl = QUrl();
 		m_plugin->abort();
@@ -226,17 +241,20 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 {
 	m_downloadUrl = url;
 	CurlDownload::init(url, m_strTarget);
+	
 	QString clsName = m_plugin->getClass().getClassName();
 	if (m_engines[clsName].truncate)
 	{
-		if (!m_segments.isEmpty())
-		{
-			m_segments[0].bytes = 0;
-			m_segments[0].offset = 0;
-		}
-		if (m_segments.size() > 1)
-			m_segments = m_segments.mid(0, 1);
+		Segment s;
+
+		s.offset = s.bytes = 0;
+		s.urlIndex = 0;
+		s.client = 0;
+
+		m_segments.clear();
+		m_segments << s;
 	}
+
 	m_urls[0].cookies = cookies;
 	CurlDownload::changeActive(true);
 }
