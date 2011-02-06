@@ -166,6 +166,11 @@ void UrlClient::start()
 		curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, this);
 	}
 	
+	if (!m_source->strReferrer.isEmpty())
+	{
+		QByteArray ba = m_source->strReferrer.toUtf8();
+		curl_easy_setopt(m_curl, CURLOPT_REFERER, ba.constData());
+	}
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
 	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);

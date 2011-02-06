@@ -77,7 +77,7 @@ public:
 protected:
 	void deriveName();
 	void setMessage(QString msg);
-	void startDownload(QString url, QList<QNetworkCookie> cookies);
+	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString());
 	void setName(QString name) { m_strName = name; }
 private:
 	QString m_strClass;

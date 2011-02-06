@@ -239,7 +239,7 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 	return 0;
 }
 
-void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
+void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer)
 {
 	m_downloadUrl = url;
 	CurlDownload::init(url, m_strTarget);
@@ -258,6 +258,7 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies)
 	}
 
 	m_urls[0].cookies = cookies;
+	m_urls[0].strReferrer = referrer;
 	CurlDownload::changeActive(true);
 }
 
