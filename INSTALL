@@ -9,13 +9,15 @@ make install
 The prefix can be changed to /usr using -DCMAKE_INSTALL_PREFIX=/usr. The default prefix is /usr/local,
 but may be implementation dependent.
 
+Should you need to make install to a different directory, the traditional DESTDIR is supported.
+
 *** FEATURES ***
 
 +-------------------------------+-----------------------+----------------------------------------------+
 | Feature name                  | Switch                | Dependencies                                 |
 +-------------------------------+-----------------------+----------------------------------------------+
 | Translations                  | WITH_NLS              | ---                                          |
-| HTTP(S)/FTP(S)/SFTP* support  | WITH_CURL             | libcurl 7.18.2, Linux 2.6.2 or newer         |
+| HTTP(S)/FTP(S) support        | WITH_CURL             | libcurl 7.18.2, Linux 2.6.2 or newer         |
 | BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.15.0, ASIO, QtWebKit  |
 | Jabber remote control         | WITH_JABBER           | gloox 0.9/1.0                                |
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
@@ -23,6 +25,9 @@ but may be implementation dependent.
 | Java extensions               | WITH_JPLUGINS         | JRE 1.6, (JDK for compilation)               |
 | All of above                  | WITH_EVERYTHING       |                                              |
 +-------------------------------+-----------------------+----------------------------------------------+
+
+CMake may have issues finding your JDK installation. Should that happen, try exporting variables such as
+JAVA_INCLUDE_PATH2, JAVA_INCLUDE_PATH and JAVA_JVM_LIB_PATH.
 
 *** HIERARCHY ***
 
@@ -43,7 +48,9 @@ User data is stored in ~/.local/share/fatrat, except for the configuration file 
 ~/.config/Dolezel/fatrat.conf
 
 * data/ - All files stored in this directory have precedence over files stored in prefix/share/fatrat/data
+          Notably all installed Java extensions are stored here.
 * torrents/ - .torrent file storage, needs to be purged time from time
 * queues.xml - Information about all queues and transfers in FatRat
 
-
+FatRat installs a single binary in prefix/bin/fatrat and creates a symlink named "fatrat-nogui", which is
+really just an alias for 'fatrat --nogui'.
