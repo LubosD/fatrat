@@ -145,6 +145,8 @@ public:
 		const EngineEntry* engine;
 		Mode type;
 		int nClass;
+
+		operator bool() const { return engine != 0; }
 	};
 	
 	static const EngineEntry* engines(Mode type);

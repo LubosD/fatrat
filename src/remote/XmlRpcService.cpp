@@ -780,18 +780,9 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	
 	if (_class.isEmpty())
 	{
-		int highestScore = 0;
-		const EngineEntry* e = Transfer::engines(Transfer::Download);
-		while (e->shortName)
-		{
-			int score = e->lpfnAcceptable2(origName, false, e);
-			if (score > highestScore)
-			{
-				highestScore = score;
-				_class = e->shortName;
-			}
-			e++;
-		}
+		if (Transfer::BestEngine be = Transfer::bestEngine(origName, Transfer::Download))
+			_class = be.engine->shortName;
+
 		if (_class.isEmpty())
 			throw XmlRpcError(404, QObject::tr("No download class is able to handle this file."));
 	}
