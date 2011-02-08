@@ -2,11 +2,12 @@ FatRat uses the CMake build system, just like KDE 4.
 
 An example compilation procedure:
 
-cmake . -DWITH_BITTORRENT=ON -DWITH_SFTP=ON
+cmake . -DWITH_BITTORRENT=ON -DWITH_SFTP=ON -DCMAKE_INSTALL_PREFIX=/usr
 make
 make install
 
-The prefix can be changed to /usr using -DCMAKE_INSTALL_PREFIX=/usr.
+The prefix can be changed to /usr using -DCMAKE_INSTALL_PREFIX=/usr. The default prefix is /usr/local,
+but may be implementation dependent.
 
 *** FEATURES ***
 
@@ -15,10 +16,34 @@ The prefix can be changed to /usr using -DCMAKE_INSTALL_PREFIX=/usr.
 +-------------------------------+-----------------------+----------------------------------------------+
 | Translations                  | WITH_NLS              | ---                                          |
 | HTTP(S)/FTP(S)/SFTP* support  | WITH_CURL             | libcurl 7.18.2, Linux 2.6.2 or newer         |
-| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.14.5, ASIO, QtWebKit  |
-| Jabber remote control         | WITH_JABBER           | gloox 0.9                                    |
+| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.15.0, ASIO, QtWebKit  |
+| Jabber remote control         | WITH_JABBER           | gloox 0.9/1.0                                |
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
-| Web interface                 | WITH_WEBINTERFACE     | QtScript, Linux 2.5.66 or newer              |
+| Web interface                 | WITH_WEBINTERFACE     | libpion-net                                  |
+| Java extensions               | WITH_JPLUGINS         | JRE 1.6, (JDK for compilation)               |
 | All of above                  | WITH_EVERYTHING       |                                              |
 +-------------------------------+-----------------------+----------------------------------------------+
+
+*** HIERARCHY ***
+
+All shared data is stored in prefix/share/fatrat:
+
+* lang/ - Localization files
+* doc/ - Optional end-user documentaton
+* data/ - Other data
+  * remote/ - Data for the web interface
+  * java/ - Data for Java extensions
+  * btsearch/ - Parse information for the Torrent Search
+  * btlinks.txt - Regular expressions that help identify .torrent links
+  * mirrors.txt - Mirror lists for segmented downloads mirror search
+  * defaults.conf - Default confguration options
+  * genssl.cnf - OpenSSL configuration file for one-click certificate generation
+
+User data is stored in ~/.local/share/fatrat, except for the configuration file located in
+~/.config/Dolezel/fatrat.conf
+
+* data/ - All files stored in this directory have precedence over files stored in prefix/share/fatrat/data
+* torrents/ - .torrent file storage, needs to be purged time from time
+* queues.xml - Information about all queues and transfers in FatRat
+
 
