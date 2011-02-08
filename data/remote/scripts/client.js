@@ -370,7 +370,8 @@ function tabSwitched(reallySwitched) {
 			$("#details-download .downlink").button();
 		//} else
 		//	$("#details-download").html('');
-		$('#accordion').accordion({ active: ((t.detailsScript)?1:0) });
+		if (reallySwitched)
+			$('#accordion').accordion({ active: ((t.detailsScript)?1:0) });
 	}
 }
 
