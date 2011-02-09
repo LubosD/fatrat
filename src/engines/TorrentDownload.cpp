@@ -66,6 +66,9 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_WEBINTERFACE
 #	define XMLRPCSERVICE_AVOID_SHA_CONFLICT
 #	include "remote/XmlRpcService.h"
+#	include "Queue.h"
+
+	extern QReadWriteLock g_queuesLock;
 #endif
 
 #if (!defined(NDEBUG) && !defined(DEBUG))
@@ -213,7 +216,9 @@ void TorrentDownload::globalInit()
 	si.pfnApply = TorrentSettings::applySettings;
 
 #ifdef WITH_WEBINTERFACE
-	// TODO: register XML-RPC functions
+	// register XML-RPC functions
+	XmlRpcService::registerFunction("TorrentDownload.setFilePriorities", setFilePriorities,
+					QVector<QVariant::Type>() << QVariant::String << QVariant::Map);
 
 	si.webSettingsScript = "/scripts/settings/bittorrent.js";
 	si.webSettingsIconURL = "/img/settings/bittorrent.png";
@@ -1220,6 +1225,23 @@ QVariantMap TorrentDownload::properties() const
 		ratio = QString::number(double(u)/double(d));
 	rv["ratio"] = ratio;
 
+	QVariantList files;
+	int i = 0;
+	std::vector<libtorrent::size_type> progresses;
+
+	m_handle.file_progress(progresses);
+
+	for(libtorrent::torrent_info::file_iterator it=m_info->begin_files();it!=m_info->end_files();it++,i++)
+	{
+		QVariantMap map;
+		map["name"] = QString::fromStdString(it->path.string());;
+		map["size"] = qint64(it->size);
+		map["done"] = qint64(progresses[i]);
+		map["priority"] = m_vecPriorities[i];
+		files << map;
+	}
+	rv["files"] = files;
+
 	return rv;
 }
 #endif
@@ -1479,6 +1501,53 @@ QString TorrentDownload::remoteURI() const
 		return QString();
 	else
 		return QString::fromStdString(libtorrent::make_magnet_uri(m_handle));
+}
+
+QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
+{
+	QString uuid = args[0].toString();
+	Queue* q = 0;
+	Transfer* t = 0;
+	TorrentDownload* td = 0;
+	QVariantMap vmap;
+
+	XmlRpcService::findTransfer(uuid, &q, &t);
+	if (!t)
+		throw XmlRpcService::XmlRpcError(102, "Invalid transfer UUID");
+
+	if (! (td = dynamic_cast<TorrentDownload*>(t)) || !td->m_handle.is_valid())
+	{
+		q->unlock();
+		g_queuesLock.unlock();
+		return QVariant();
+	}
+
+	try
+	{
+		QVariantMap map = args[1].toMap();
+
+		for (QVariantMap::iterator it = map.begin(); it != map.end(); it++)
+		{
+			quint32 i = it.key().toUInt();
+			if (i >= 0 && i < td->m_vecPriorities.size())
+				td->m_vecPriorities[i] = it.value().toInt();
+			else
+				; // TODO throw exception
+		}
+
+		td->m_handle.prioritize_files(td->m_vecPriorities);
+	}
+	catch (...)
+	{
+		q->unlock();
+		g_queuesLock.unlock();
+		throw;
+	}
+
+	q->unlock();
+	g_queuesLock.unlock();
+
+	return QVariant();
 }
 
 void TorrentWorker::setDetailsObject(TorrentDetails* d)

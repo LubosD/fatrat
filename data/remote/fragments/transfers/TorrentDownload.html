@@ -2,41 +2,83 @@
 #bt-magnet-link {
 	cursor: pointer;
 }
+#torrentdownload-subclass .tabs-bottom { position: relative; } 
+/*#torrentdownload-subclass .tabs-bottom .ui-tabs-panel { height: 140px; overflow: auto; } */
+/*#torrentdownload-subclass .tabs-bottom .ui-tabs-nav { position: absolute !important; left: 0; bottom: 0; right:0; padding: 0 0.2em 0.2em 0; } */
+#torrentdownload-subclass .ui-tabs-nav { border: none; border-top: 1px solid #CCC; }
+#torrentdownload-subclass .tabs-bottom .ui-tabs-nav li { margin-top: -2px !important; margin-bottom: 1px !important; border: 1px solid #CCC !important; border-top: none !important; }
+#torrentdownload-subclass .ui-tabs-selected { margin-top: -3px !important; }
+#torrentdownload-files {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: white;
+}
+#torrentdownload-files td, #torrentdownload-files th {
+	border: 1px solid #CCC;
+}
+#torrentdownload-files tr.do-not-download span.filename {
+	text-decoration: line-through;
+}
+#torrentdownload-files .torrentdownload-priority {
+	text-align: center;
+}
 </style>
 
-<div>
-	<fieldset>
-		<legend>Progress</legend>
-		<img style="width: 100%; height: 30px" alt="" id="bt-progress" />
-	</fieldset>
+<div id="torrentdownload-subclass">
+<div id="torrentdownload-tabs" class="tabs-bottom">
 	
-	<fieldset>
-		<legend>Availability</legend>
-		<img style="width: 100%; height: 30px" alt="" id="bt-availability" />
-	</fieldset>
 
-	<table style="width:100%">
-		<tr>
-			<td>Speed:</td>
-			<td id="bt-speed" style="width:40%"></td>
-			<td>Progress:</td>
-			<td id="bt-progress-text" style="width:40%"></td>
-		</tr>
-		<tr>
-			<td>Total download:</td>
-			<td id="bt-download" style="width:40%"></td>
-			<td>Total upload:</td>
-			<td id="bt-upload" style="width:40%"></td>
-		</tr>
-		<tr>
-			<td>Share ratio:</td>
-			<td id="bt-share-ratio"></td>
-			<td>Magnet link:</td>
-			<td><input type="text" style="width:100%" readonly="readonly" id="bt-magnet-link" /></td>
-		</tr>
-		<tr>
-			<td>Comment:</td>
-			<td colspan="3" id="bt-comment" style="border: 1px solid #777; padding: 1ex"></td>
-		</tr>
-	</table>
+	<div id="torrentdownload-tab-1">
+		<fieldset>
+			<legend>Progress</legend>
+			<img style="width: 100%; height: 30px" alt="" id="bt-progress" />
+		</fieldset>
+		
+		<fieldset>
+			<legend>Availability</legend>
+			<img style="width: 100%; height: 30px" alt="" id="bt-availability" />
+		</fieldset>
+
+		<table style="width:100%">
+			<tr>
+				<td>Speed:</td>
+				<td id="bt-speed" style="width:40%"></td>
+				<td>Progress:</td>
+				<td id="bt-progress-text" style="width:40%"></td>
+			</tr>
+			<tr>
+				<td>Total download:</td>
+				<td id="bt-download" style="width:40%"></td>
+				<td>Total upload:</td>
+				<td id="bt-upload" style="width:40%"></td>
+			</tr>
+			<tr>
+				<td>Share ratio:</td>
+				<td id="bt-share-ratio"></td>
+				<td>Magnet link:</td>
+				<td><input type="text" style="width:100%" readonly="readonly" id="bt-magnet-link" /></td>
+			</tr>
+			<tr>
+				<td>Comment:</td>
+				<td colspan="3" id="bt-comment" style="border: 1px solid #777; padding: 1ex"></td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="torrentdownload-tab-2">
+		<table id="torrentdownload-files">
+			<tr>
+				<th>File Name</th>
+				<th>File Size</th>
+				<th>Progress</th>
+				<th>Priority</th>
+			</tr>
+		</table>
+	</div>
+
+	<ul>
+		<li><a href="#torrentdownload-tab-1">General</a></li>
+		<li><a href="#torrentdownload-tab-2">Files</a></li>
+	</ul>
+</div>
 </div>

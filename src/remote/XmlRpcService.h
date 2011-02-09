@@ -38,6 +38,9 @@ respects for all of the code used other than "OpenSSL".
 #	error This file is not supposed to be included!
 #endif
 
+class Queue;
+class Transfer;
+
 #if !defined(XMLRPCSERVICE_AVOID_SHA_CONFLICT)
 #include <pion/net/WebServer.hpp>
 
@@ -50,6 +53,8 @@ public:
 	static void globalInit();
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);
+	static void findQueue(QString queueUUID, Queue** q);
+	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 protected:
 	static QVariant getTransferClasses(QList<QVariant>&);
 	static QVariant getQueues(QList<QVariant>&);
@@ -97,6 +102,19 @@ class XmlRpcService
 public:
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);
+	static void findQueue(QString queueUUID, Queue** q);
+	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
+	struct XmlRpcError
+	{
+		XmlRpcError(int code, QString desc)
+		{
+			this->code = code;
+			this->desc = desc;
+		}
+
+		int code;
+		QString desc;
+	};
 };
 
 #endif // XMLRPCSERVICE_AVOID_SHA_CONFLICT

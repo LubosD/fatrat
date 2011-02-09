@@ -297,3 +297,7 @@ input[type=number], input[type=text], input[type=password] {
 	display: none;
 }
 
+#details-download-parent {
+	min-height: 300px !important;
+}
+

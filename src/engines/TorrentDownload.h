@@ -127,6 +127,8 @@ private slots:
 	void torrentFileReadyRead();
 	void forceReannounce();
 	void forceRecheck();
+private:
+	static QVariant setFilePriorities(QList<QVariant>& args);
 protected:
 	libtorrent::torrent_handle m_handle;
 	boost::intrusive_ptr<libtorrent::torrent_info> m_info;

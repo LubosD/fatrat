@@ -77,7 +77,7 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 		{
 			case 0:
 			{
-				QString name = QString::fromUtf8(m_files[i].path.string().c_str());
+				QString name = QString::fromStdString(m_files[i].path.string());
 				int p = name.indexOf('/');
 				
 				if(p != -1)

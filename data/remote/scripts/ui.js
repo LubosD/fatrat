@@ -61,8 +61,8 @@ $(document).ready(function() {
 		$("#queue-properties-move-directory").attr("disabled", (checked)?"":"disabled");
 	});
 	
-	$(window).resize(updateSizes);
-	window.setTimeout(updateSizes, 250);
+	//$(window).resize(updateSizes);
+	//window.setTimeout(updateSizes, 250);
 	
 	if (window.webkitNotifications && window.webkitNotifications.checkPermission() != 0) {
 		$('#popup-permissions-request').click(function() {

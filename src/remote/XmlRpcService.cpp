@@ -872,3 +872,13 @@ QVariant XmlRpcService::Settings_getPages(QList<QVariant>&)
 
 	return rv;
 }
+
+void XmlRpcService::findQueue(QString queueUUID, Queue** q)
+{
+	return HttpService::findQueue(queueUUID, q);
+}
+
+int XmlRpcService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
+{
+	return HttpService::findTransfer(transferUUID, q, t, lockForWrite);
+}
