@@ -247,6 +247,9 @@ void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::Stat
 		if(bRetry)
 			QMetaObject::invokeMethod(t, "retry", Qt::QueuedConnection);
 	}
+
+	if (now != Transfer::Paused)
+		m_paused.clear();
 }
 
 Queue* QueueMgr::findQueue(Transfer* t)
@@ -264,14 +267,62 @@ void QueueMgr::exit()
 {
 	delete m_timer;
 	
-	g_queuesLock.lockForRead();
+	QReadLocker l(&g_queuesLock);
 	foreach(Queue* q,g_queues)
 	{
+		q->lock();
 		foreach(Transfer* d,q->m_transfers)
 		{
 			if(d->isActive())
 				d->changeActive(false);
 		}
+		q->unlock();
 	}
-	g_queuesLock.unlock();
+}
+
+void QueueMgr::pauseAllTransfers()
+{
+	QReadLocker l(&g_queuesLock);
+
+	m_paused.clear();
+
+	foreach (Queue* q, g_queues)
+	{
+		q->lock();
+
+		for (int i = q->size()-1; i >= 0; i--)
+		{
+			Transfer* t = q->at(i);
+			Transfer::State s = t->state();
+			if (s == Transfer::Active || s == Transfer::ForcedActive || s == Transfer::Waiting)
+			{
+				t->setState(Transfer::Paused);
+				m_paused[t->uuid()] = s;
+			}
+		}
+
+		q->unlock();
+	}
+}
+
+void QueueMgr::unpauseAllTransfers()
+{
+	QReadLocker l(&g_queuesLock);
+
+	foreach (Queue* q, g_queues)
+	{
+		q->lock();
+
+		for (int i = 0; i < q->size(); i++)
+		{
+			Transfer* t = q->at(i);
+			QUuid uuid = t->uuid();
+			if (m_paused.contains(uuid) && t->state() == Transfer::Paused)
+				t->setState(m_paused[uuid]);
+		}
+
+		q->unlock();
+	}
+
+	m_paused.clear();
 }

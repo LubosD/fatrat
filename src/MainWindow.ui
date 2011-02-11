@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>727</width>
-    <height>510</height>
+    <width>725</width>
+    <height>508</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -456,7 +456,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>727</width>
+     <width>725</width>
      <height>21</height>
     </rect>
    </property>
@@ -481,6 +481,8 @@
     </property>
     <addaction name="actionDropBox"/>
     <addaction name="actionHideAllInfoBars"/>
+    <addaction name="separator"/>
+    <addaction name="actionPauseAll"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -854,6 +856,14 @@
   <action name="actionCopyRemoteURI">
    <property name="text">
     <string>Copy remote URI</string>
+   </property>
+  </action>
+  <action name="actionPauseAll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pause all transfers</string>
    </property>
   </action>
  </widget>

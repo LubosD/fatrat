@@ -44,6 +44,7 @@ respects for all of the code used other than "OpenSSL".
 #include "MainWindow.h"
 #include "QueueDlg.h"
 #include "Queue.h"
+#include "QueueMgr.h"
 #include "engines/FakeDownload.h"
 #include "WidgetHostDlg.h"
 #include "NewTransferDlg.h"
@@ -297,6 +298,8 @@ void MainWindow::connectActions()
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
 	connect(actionBugReport, SIGNAL(triggered()), this, SLOT(reportBug()));
 	connect(actionCopyRemoteURI, SIGNAL(triggered()), this, SLOT(copyRemoteURI()));
+
+	connect(actionPauseAll, SIGNAL(triggered()), this, SLOT(pauseAllTransfers()));
 }
 
 void MainWindow::restoreWindowState(bool bStartHidden)
@@ -384,6 +387,8 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 		
 		menu.addAction(actionDisplay);
 		menu.addAction(actionDropBox);
+		menu.addSeparator();
+		menu.addAction(actionPauseAll);
 		menu.addSeparator();
 		menu.addAction(actionHideAllInfoBars);
 		menu.addSeparator();
@@ -1543,6 +1548,9 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 {
 	const bool popup = g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool();
 	const bool email = g_settings->value("sendemail", getSettingsDefault("sendemail")).toBool();
+
+	if (actionPauseAll->isChecked() && now != Transfer::Paused)
+		actionPauseAll->setChecked(false);
 	
 	if(!popup && !email)
 		return;
@@ -1747,6 +1755,14 @@ void MainWindow::filterTextChanged(const QString& text)
 {
 	treeTransfers->selectionModel()->clearSelection();
 	updateUi();
+}
+
+void MainWindow::pauseAllTransfers()
+{
+	if(actionPauseAll->isChecked())
+		QueueMgr::instance()->pauseAllTransfers();
+	else
+		QueueMgr::instance()->unpauseAllTransfers();
 }
 
 void addMenuAction(const MenuAction& action)

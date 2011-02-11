@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include "Queue.h"
 #include <QSettings>
+#include <QMap>
 
 class QueueMgr : public QObject
 {
@@ -43,6 +44,10 @@ public:
 	
 	inline int totalDown() const { return m_down; }
 	inline int totalUp() const { return m_up; }
+
+	void pauseAllTransfers();
+	void unpauseAllTransfers();
+	inline bool isAllPaused() { return !m_paused.isEmpty(); }
 private:
 	void doMove(Queue* q, Transfer* t);
 	static Queue* findQueue(Transfer* t);
@@ -54,6 +59,9 @@ private:
 	QTimer* m_timer;
 	int m_nCycle;
 	int m_down, m_up;
+
+	// for the Pause all feature
+	QMap<QUuid, Transfer::State> m_paused;
 };
 
 #endif
