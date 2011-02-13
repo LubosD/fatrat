@@ -1,9 +1,13 @@
 [Desktop Entry]
 Categories=Network;
 Comment=Qt-based download/upload manager
+Comment[zh_TW]=基於-Qt 下載/上傳 管理員
+Comment[zh_CN]=基于-Qt 下载/上传 管理员
 Exec=fatrat
 Name=FatRat
 GenericName=Download/upload manager
+GenericName[zh_TW]=下載/上傳 管理員
+GenericName[zh_CN]=下载/上传 管理员
 Icon=fatrat
 StartupNotify=true
 Terminal=false
