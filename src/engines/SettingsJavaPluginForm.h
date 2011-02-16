@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkAccessManager>
 #include <QList>
 #include <QMap>
+#include <QDomDocument>
 
 class QNetworkReply;
 
@@ -56,6 +57,9 @@ private:
 	void loadInstalled();
 	void askRestart();
 	void downloadNext();
+	void setupExtensionPages();
+	QWidget* constructPage(QDomDocument& doc);
+	void processPageElement(QDomElement& elem, QWidget* widget);
 private:
 	QNetworkAccessManager* m_network;
 	QNetworkReply* m_reply;
@@ -68,6 +72,8 @@ private:
 	QMap<QString,QString> m_installedPlugins;
 	QList<QPair<QString,bool> > m_toInstall;
 	ExtensionDownloadDlg m_dlgProgress;
+
+	QMap<QWidget*,QString> m_extSettingsWidgets;
 };
 
 #endif // SETTINGSJAVAPLUGIN_H

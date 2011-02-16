@@ -25,56 +25,21 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "JMap.h"
-#include <QtDebug>
+#include "CaptchaHttp.h"
 
-JMap::JMap()
-	: JObject("java.util.HashMap", JSignature())
+// http://svn.atomiclabs.com/pion-net/trunk/net/tests/WebServerTests.cpp
+
+CaptchaHttp::CaptchaHttp()
 {
 
 }
 
-JMap::JMap(int initialCapacity)
-	: JObject("java.util.HashMap", JSignature().addInt(), JArgs() << initialCapacity)
+CaptchaHttp::~CaptchaHttp()
 {
 
 }
 
-JMap::JMap(const JObject& that)
-	: JObject(that)
+bool CaptchaHttp::process(int id, QString url)
 {
 
-}
-
-void JMap::put(JObject key, JObject value)
-{
-	call("put", JSignature().add("java.lang.Object").add("java.lang.Object").ret("java.lang.Object"), key, value);
-}
-
-JObject JMap::nativeToBoxed(QVariant var)
-{
-	switch (var.type())
-	{
-	case QVariant::Bool:
-		return nativeToBoxed(var.toBool());
-	case QVariant::Double:
-		return nativeToBoxed(var.toDouble());
-	case QVariant::UInt:
-	case QVariant::Int:
-		return nativeToBoxed(var.toInt());
-	case QVariant::ULongLong:
-	case QVariant::LongLong:
-		return nativeToBoxed(var.toLongLong());
-	case QVariant::Map:
-		break;
-	case QVariant::String:
-		return nativeToBoxed(var.toString());
-	case QVariant::StringList:
-		break;
-	default:
-		break;
-	}
-
-	qDebug() << "WARNING: JMap::nativeToBoxed(): the QVariant type was not converted to a java.lang.Object";
-	return JObject();
 }

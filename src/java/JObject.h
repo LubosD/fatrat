@@ -48,6 +48,7 @@ public:
 	JObject();
 	JObject(jobject obj);
 	JObject(const JObject& obj);
+	JObject(JObject&& obj);
 	JObject(const JClass& cls, const char* sig, JArgs args = JArgs());
 	JObject(const JClass& cls, JSignature sig, JArgs args = JArgs());
 	JObject(const char* clsName, const char* sig, JArgs args = JArgs());
@@ -55,6 +56,7 @@ public:
 	virtual ~JObject();
 
 	JObject& operator=(const JObject& obj);
+	JObject& operator=(JObject&& obj);
 	JObject& operator=(jobject obj);
 	operator jobject();
 	operator QVariant() { return toVariant(); }
@@ -126,6 +128,7 @@ public:
 	void setValue(const char* name, const char* sig, QVariant value);
 
 	QVariant toVariant() const;
+	jobject getLocalRef();
 private:
 	void construct(const JClass& cls, const char* sig, JArgs args);
 protected:

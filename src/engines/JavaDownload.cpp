@@ -239,7 +239,7 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 	return 0;
 }
 
-void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer)
+void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer, QString userAgent)
 {
 	m_downloadUrl = url;
 	CurlDownload::init(url, m_strTarget);
@@ -259,6 +259,7 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QSt
 
 	m_urls[0].cookies = cookies;
 	m_urls[0].strReferrer = referrer;
+	m_urls[0].strUserAgent = userAgent;
 	CurlDownload::changeActive(true);
 }
 
@@ -282,6 +283,7 @@ void JavaDownload::globalInit(bool forceJreSearch)
 	{
 		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo");
+		JClass annConfigDialog("info.dolezel.fatrat.plugins.annotations.ConfigDialog");
 		QList<QVariant> args;
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
@@ -307,9 +309,14 @@ void JavaDownload::globalInit(bool forceJreSearch)
 				qDebug() << "Name:" << name;
 				qDebug() << "Regexp:" << regexp;
 
+				JObject cfgDlg = obj.getAnnotation(annConfigDialog);
+
 				JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
 				e.forceSingleTransfer = ann.call("forceSingleTransfer", JSignature().retBoolean()).toBool();
 				e.truncate = ann.call("truncIncomplete", JSignature().retBoolean()).toBool();
+
+				if (!cfgDlg.isNull())
+					e.configDialog = cfgDlg.call("value", JSignature().retString()).toString();
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;
@@ -350,6 +357,19 @@ void JavaDownload::globalExit()
 {
 	qDeleteAll(m_mutexes);
 	delete JVM::instance();
+}
+
+QStringList JavaDownload::getConfigDialogs()
+{
+	QStringList rv;
+	QList<JavaEngine> engines = m_engines.values();
+	foreach (const JavaEngine& e, engines)
+	{
+		if (!e.configDialog.isEmpty())
+			rv << e.configDialog;
+	}
+
+	return rv;
 }
 
 void JavaDownload::setMessage(QString msg)

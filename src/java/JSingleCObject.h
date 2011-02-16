@@ -84,7 +84,7 @@ private:
 	JSingleCObject<T>& operator=(const JSingleCObject<T>&) {}
 private:
 	static QList<JObject*> m_instances;
-	static std::auto_ptr<QReadWriteLock> m_mutex;
+	static std::unique_ptr<QReadWriteLock> m_mutex;
 };
 
 #endif // JSINGLECOBJECT_H

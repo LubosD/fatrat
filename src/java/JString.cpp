@@ -45,6 +45,12 @@ JString::JString(const JString& str)
 	m_object = env->NewGlobalRef(str.m_object);
 }
 
+JString::JString(JString&& str)
+{
+	m_object = str.m_object;
+	str.m_object = 0;
+}
+
 JString::JString(const QString& str)
 {
 	*this = str.toUtf8();
@@ -98,6 +104,16 @@ JString& JString::operator=(const JString& str)
 		env->DeleteGlobalRef(m_object);
 	m_object = env->NewGlobalRef(str.m_object);
 
+	return *this;
+}
+
+JString& JString::operator=(JString&& str)
+{
+	JNIEnv* env = *JVM::instance();
+	if (m_object)
+		env->DeleteGlobalRef(m_object);
+	m_object = str.m_object;
+	str.m_object = 0;
 	return *this;
 }
 

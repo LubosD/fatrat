@@ -46,11 +46,13 @@ public:
 	JString(const QString& str);
 	JString(const QByteArray& str);
 	JString(const JString& str);
+	JString(JString&& str);
 
 	JString& operator=(const char* str);
 	JString& operator=(const QString& str);
 	JString& operator=(const QByteArray& str);
 	JString& operator=(const JString& str);
+	JString& operator=(JString&& str);
 
 	operator jstring() const;
 	operator QString() const;

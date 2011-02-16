@@ -50,6 +50,12 @@ JObject::JObject(const JObject& obj)
 		m_object = env->NewGlobalRef(m_object);
 }
 
+JObject::JObject(JObject&& obj)
+{
+	m_object = obj.m_object;
+	obj.m_object = 0;
+}
+
 JObject::JObject(jobject obj)
 {
 	JNIEnv* env = *JVM::instance();
@@ -135,6 +141,14 @@ JObject& JObject::operator=(const JObject& obj)
 	setNull();
 
 	m_object = env->NewGlobalRef(obj.m_object);
+	return *this;
+}
+
+JObject& JObject::operator=(JObject&& obj)
+{
+	setNull();
+	m_object = obj.m_object;
+	obj.m_object = 0;
 	return *this;
 }
 
@@ -477,5 +491,16 @@ void JObject::setNull()
 		m_object = 0;
 
 		env->DeleteGlobalRef(o);
+	}
+}
+
+jobject JObject::getLocalRef()
+{
+	if (!m_object)
+		return 0;
+	else
+	{
+		JNIEnv* env = *JVM::instance();
+		return env->NewLocalRef(m_object);
 	}
 }

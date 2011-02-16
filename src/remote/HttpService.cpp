@@ -633,3 +633,8 @@ QVariant HttpService::generateCertificate(QList<QVariant>& args)
 
 	return path;
 }
+
+void HttpService::CaptchaService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
+{
+
+}

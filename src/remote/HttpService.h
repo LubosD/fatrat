@@ -94,6 +94,11 @@ private:
 	public:
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
 	};
+	class CaptchaService : public pion::net::WebService
+	{
+	public:
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
 
 	class WriteBackImpl : public TransferHttpService::WriteBack
 	{

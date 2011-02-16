@@ -42,6 +42,11 @@ JClass::JClass(const JClass& cls)
 	m_class = (jclass) env->NewGlobalRef(cls.m_class);
 }
 
+JClass::JClass(const JClass&& cls)
+{
+	m_class = cls.m_class;
+}
+
 JClass::JClass(QString clsName)
 {
 	JNIEnv* env = *JVM::instance();

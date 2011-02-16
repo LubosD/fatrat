@@ -55,7 +55,7 @@ void JDownloadPlugin::registerNatives()
 {
 	QList<JNativeMethod> natives;
 
-	natives << JNativeMethod("startDownload", JSignature().addString().addString(), startDownload);
+	natives << JNativeMethod("startDownload", JSignature().addString().addString().addString(), startDownload);
 	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
 	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
 	natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
@@ -113,18 +113,20 @@ void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring jname)
 }
 
 
-void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url, jstring referrer)
+void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url, jstring referrer, jstring userAgent)
 {
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	JString str(url);
 	This->m_transfer->enterLogMessage(QLatin1String("startDownload(): ")+str.str());
 
-	QString ref;
+	QString ref, ua;
 	if (referrer)
 		ref = JString(referrer).str();
+	if (userAgent)
+		ua = JString(userAgent).str();
 
 	QList<QNetworkCookie> c = This->m_network->cookieJar()->cookiesForUrl(str.str());
-	This->m_transfer->startDownload(str, c, ref);
+	This->m_transfer->startDownload(str, c, ref, ua);
 }
 
 QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>& list)

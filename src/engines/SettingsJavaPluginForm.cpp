@@ -30,9 +30,12 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JClass.h"
 #include "fatrat.h"
 #include "config.h"
+#include "engines/JavaDownload.h"
+#include "Settings.h"
 #include <QNetworkReply>
 #include <QMessageBox>
 #include <QDir>
+#include <QtDebug>
 
 static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 
@@ -45,6 +48,8 @@ SettingsJavaPluginForm::SettingsJavaPluginForm(QWidget* me, QObject* parent)
 	connect(pushUninstall, SIGNAL(clicked()), this, SLOT(uninstall()));
 	connect(pushInstall, SIGNAL(clicked()), this, SLOT(install()));
 	connect(&m_dlgProgress, SIGNAL(rejected()), this, SLOT(cancelDownload()));
+
+	setupExtensionPages();
 }
 
 void SettingsJavaPluginForm::load()
@@ -69,7 +74,13 @@ void SettingsJavaPluginForm::load()
 
 void SettingsJavaPluginForm::accepted()
 {
-
+	for (auto it = m_extSettingsWidgets.begin(); it != m_extSettingsWidgets.end(); it++)
+	{
+		if (QLineEdit* edit = dynamic_cast<QLineEdit*>(it.key()))
+		{
+			setSettingsValue(it.value(), edit->text());
+		}
+	}
 }
 
 void SettingsJavaPluginForm::loadInstalled()
@@ -320,4 +331,96 @@ void SettingsJavaPluginForm::cancelDownload()
 {
 	m_reply->abort();
 	m_toInstall.clear();
+}
+
+void SettingsJavaPluginForm::setupExtensionPages()
+{
+	JClass nativeHelpers("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+	QStringList dlgs = JavaDownload::getConfigDialogs();
+
+	foreach (QString dlg, dlgs)
+	{
+		QString xml = nativeHelpers.callStatic("loadDialogFile", JSignature().addString().retString(), JArgs() << dlg).toString();
+
+		if (xml.isEmpty())
+			continue;
+
+		QDomDocument doc;
+		QDomElement root;
+
+		if (!doc.setContent(xml))
+			continue;
+
+		root = doc.documentElement();
+
+		comboSettingsPages->addItem(root.attribute("title"));
+		stackedWidget->addWidget(constructPage(doc));
+	}
+
+	stackedWidget->setCurrentIndex(0);
+}
+
+QWidget* SettingsJavaPluginForm::constructPage(QDomDocument& doc)
+{
+	QWidget* rootWidget = new QWidget(stackedWidget);
+	QDomElement root = doc.documentElement();
+
+	processPageElement(root, rootWidget);
+
+	rootWidget->show();
+	rootWidget->resize(200,200);
+	//return new QLineEdit;
+	return rootWidget;
+}
+
+void SettingsJavaPluginForm::processPageElement(QDomElement& elem, QWidget* widget)
+{
+	QGridLayout* layout = new QGridLayout(widget);
+	int row = 0;
+
+	QDomNode child = elem.firstChild();
+	while (!child.isNull())
+	{
+		if (!child.isElement())
+		{
+			child = child.nextSibling();
+			continue;
+		}
+
+		QDomElement obj = child.toElement();
+		QString objType = obj.tagName();
+		QString title = obj.attribute("title");
+
+		qDebug() << objType;
+
+		if (objType == "text" || objType == "password")
+		{
+			QLabel* label = new QLabel(widget);
+			QLineEdit* edit = new QLineEdit(widget);
+			QString name = obj.attribute("id");
+
+			label->setText(title);
+
+			if (objType == "password")
+				edit->setEchoMode(QLineEdit::Password);
+
+			edit->setText(getSettingsValue(name).toString());
+
+			layout->addWidget(label, row, 0);
+			layout->addWidget(edit, row, 1);
+			label->show();
+			edit->show();
+
+			m_extSettingsWidgets[edit] = name;
+		}
+
+		child = child.nextSibling();
+		row++;
+	}
+
+	QSpacerItem* spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	layout->addItem(spacerItem, row, 0, 1, 2);
+
+	widget->setLayout(layout);
+	layout->update();
 }

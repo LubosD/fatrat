@@ -143,7 +143,14 @@ void UrlClient::start()
 	curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, true);
 	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, true);
 	curl_easy_setopt(m_curl, CURLOPT_UNRESTRICTED_AUTH, true);
-	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
+
+	if (m_source->strUserAgent.isEmpty())
+		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
+	else
+	{
+		QByteArray ba = m_source->strUserAgent.toUtf8();
+		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, ba.constData());
+	}
 	curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 	curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
 

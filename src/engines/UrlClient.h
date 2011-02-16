@@ -42,7 +42,7 @@ public:
 	struct UrlObject
 	{
 		QUrl url, effective;
-		QString strReferrer, strBindAddress;
+		QString strReferrer, strBindAddress, strUserAgent;
 		FtpMode ftpMode;
 		QUuid proxy;
 		QList<QNetworkCookie> cookies;

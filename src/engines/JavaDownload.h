@@ -52,6 +52,7 @@ public:
 
 	static void globalInit(bool forceJreSearch);
 	static void globalExit();
+	static QStringList getConfigDialogs();
 
 	virtual void init(QString source, QString target);
 	virtual QString myClass() const;
@@ -77,7 +78,7 @@ public:
 protected:
 	void deriveName();
 	void setMessage(QString msg);
-	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString());
+	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString(), QString userAgent = QString());
 	void setName(QString name) { m_strName = name; }
 private:
 	QString m_strClass;
@@ -97,6 +98,7 @@ private:
 		QRegExp regexp;
 		bool forceSingleTransfer, truncate;
 		JObject ownAcceptable;
+		QString configDialog;
 	};
 
 	static QMap<QString,JavaEngine> m_engines;

@@ -47,6 +47,7 @@ class JClass
 {
 public:
 	JClass(const JClass& cls);
+	JClass(const JClass&& cls);
 	JClass(QString clsName);
 	JClass(jclass cls);
 	JClass(jobject cls);

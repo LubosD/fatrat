@@ -42,7 +42,7 @@ void JSettings::registerNatives()
 	natives << JNativeMethod("setValue", JSignature().addString().addDouble(), setValueDouble);
 	natives << JNativeMethod("getValue", JSignature().addString().add("java.lang.Object").ret("java.lang.Object"), getValue);
 
-	JClass("info.dolezel.fatrat.plugins.Settings").registerNativeMethods(natives);
+	JClass("info.dolezel.fatrat.plugins.config.Settings").registerNativeMethods(natives);
 }
 
 void JSettings::setValueString(JNIEnv*, jclass, jstring jname, jstring jvalue)
@@ -81,5 +81,6 @@ jobject JSettings::getValue(JNIEnv* env, jclass, jstring jname, jobject defValue
 		return defValue;
 
 	JObject obj = JMap::nativeToBoxed(v);
-	return env->NewLocalRef(obj);
+	qDebug() << obj.getClass().getClassName();
+	return obj.getLocalRef();
 }
