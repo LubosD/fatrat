@@ -50,11 +50,13 @@ JObject::JObject(const JObject& obj)
 		m_object = env->NewGlobalRef(m_object);
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
 JObject::JObject(JObject&& obj)
 {
 	m_object = obj.m_object;
 	obj.m_object = 0;
 }
+#endif
 
 JObject::JObject(jobject obj)
 {
@@ -144,6 +146,7 @@ JObject& JObject::operator=(const JObject& obj)
 	return *this;
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
 JObject& JObject::operator=(JObject&& obj)
 {
 	setNull();
@@ -151,6 +154,7 @@ JObject& JObject::operator=(JObject&& obj)
 	obj.m_object = 0;
 	return *this;
 }
+#endif
 
 JObject& JObject::operator=(jobject obj)
 {

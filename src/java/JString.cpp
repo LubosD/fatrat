@@ -45,11 +45,13 @@ JString::JString(const JString& str)
 	m_object = env->NewGlobalRef(str.m_object);
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
 JString::JString(JString&& str)
 {
 	m_object = str.m_object;
 	str.m_object = 0;
 }
+#endif
 
 JString::JString(const QString& str)
 {
@@ -107,6 +109,7 @@ JString& JString::operator=(const JString& str)
 	return *this;
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
 JString& JString::operator=(JString&& str)
 {
 	JNIEnv* env = *JVM::instance();
@@ -116,6 +119,7 @@ JString& JString::operator=(JString&& str)
 	str.m_object = 0;
 	return *this;
 }
+#endif
 
 JString::operator jstring() const
 {

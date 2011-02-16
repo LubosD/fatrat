@@ -74,7 +74,7 @@ void SettingsJavaPluginForm::load()
 
 void SettingsJavaPluginForm::accepted()
 {
-	for (auto it = m_extSettingsWidgets.begin(); it != m_extSettingsWidgets.end(); it++)
+	for (QMap<QWidget*,QString>::iterator it = m_extSettingsWidgets.begin(); it != m_extSettingsWidgets.end(); it++)
 	{
 		if (QLineEdit* edit = dynamic_cast<QLineEdit*>(it.key()))
 		{

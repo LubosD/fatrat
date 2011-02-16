@@ -14,7 +14,7 @@ INCLUDE(FindJNI)
 find_package(Qt4 REQUIRED)
 
 include_directories(src)
-ADD_DEFINITIONS(-std=c++0x)
+#ADD_DEFINITIONS(-std=c++0x)
 
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program

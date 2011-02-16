@@ -42,10 +42,13 @@ JClass::JClass(const JClass& cls)
 	m_class = (jclass) env->NewGlobalRef(cls.m_class);
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
 JClass::JClass(const JClass&& cls)
 {
 	m_class = cls.m_class;
+	cls.m_class = 0;
 }
+#endif
 
 JClass::JClass(QString clsName)
 {

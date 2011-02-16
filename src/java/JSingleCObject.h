@@ -70,7 +70,7 @@ public:
 	static T* getCObject(jobject jobj)
 	{
 		QReadLocker r(m_mutex.get());
-		foreach (JObject* obj, m_instances)
+		for (JObject* obj : m_instances)
 		{
 			if (obj->isSameObject(jobj))
 				return static_cast<T*>(obj);
