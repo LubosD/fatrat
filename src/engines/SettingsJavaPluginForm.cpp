@@ -463,7 +463,7 @@ void SettingsJavaPluginForm::processPageElement(QDomElement& elem, QWidget* widg
 				QListWidgetItem* item = new QListWidgetItem;
 
 				text = option.text();
-				if (elem.hasAttribute("value"))
+				if (option.hasAttribute("value"))
 					value = option.attribute("value");
 				else
 					value = text;

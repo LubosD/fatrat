@@ -54,7 +54,7 @@ public:
 	static void registerNatives();
 
 	// JNI methods
-	static void startDownload(JNIEnv *, jobject, jstring, jstring, jstring);
+	static void startDownload(JNIEnv *, jobject, jstring, jstring, jstring, jstring);
 	static void startWait(JNIEnv *, jobject, jint, jobject);
 	static void solveCaptcha(JNIEnv *, jobject, jstring, jobject);
 	static void reportFileName(JNIEnv *, jobject, jstring);
