@@ -124,6 +124,43 @@ void addSettingsPage(const SettingsItem& i)
 	g_settingsPages << i;
 }
 
+QList<QMap<QString, QVariant> > getSettingsArray(QString id)
+{
+	QList<QMap<QString, QVariant> > rv;
+	int count = g_settings->beginReadArray(id);
+	for (int i = 0; i < count; i++)
+	{
+		//g_settings->setArrayIndex(i);
+		g_settings->beginGroup(QString::number(i+1));
+
+		QMap<QString, QVariant> map;
+		foreach (QString key, g_settings->childKeys())
+		{
+			qDebug() << "Key:" << key;
+			map[key] = g_settings->value(key);
+		}
+		rv << map;
+		g_settings->endGroup();
+	}
+	g_settings->endArray();
+
+	return rv;
+}
+
+void setSettingsArray(QString id, QList<QMap<QString, QVariant> >& value)
+{
+	qDebug() << "setSettingsArray()";
+
+	g_settings->beginWriteArray(id, value.size());
+	for (int i = 0; i < value.size(); i++)
+	{
+		g_settings->setArrayIndex(i);
+		for (QMap<QString, QVariant>::iterator it = value[i].begin(); it != value[i].end(); it++)
+			g_settings->setValue(it.key(), it.value());
+	}
+	g_settings->endArray();
+}
+
 QVariant getSettingsValue(QString id, QVariant def)
 {
 	QVariant mdef = getSettingsDefault(id);

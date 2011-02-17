@@ -45,6 +45,7 @@ protected:
 	static void setValueBoolean(JNIEnv *, jclass, jstring, jboolean);
 	static void setValueDouble(JNIEnv *, jclass, jstring, jdouble);
 	static jobject getValue(JNIEnv *, jclass, jstring, jobject);
+	static jarray getValueArray(JNIEnv *, jclass, jstring);
 };
 
 #endif // JSETTINGS_H

@@ -70,7 +70,7 @@ public:
 	static T* getCObject(jobject jobj)
 	{
 		QReadLocker r(m_mutex.get());
-		for (JObject* obj : m_instances)
+		foreach (JObject* obj, m_instances)
 		{
 			if (obj->isSameObject(jobj))
 				return static_cast<T*>(obj);
@@ -84,7 +84,7 @@ private:
 	JSingleCObject<T>& operator=(const JSingleCObject<T>&) {}
 private:
 	static QList<JObject*> m_instances;
-	static std::unique_ptr<QReadWriteLock> m_mutex;
+	static std::auto_ptr<QReadWriteLock> m_mutex;
 };
 
 #endif // JSINGLECOBJECT_H

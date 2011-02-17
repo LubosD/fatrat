@@ -56,6 +56,7 @@ public:
 	static JArray createFloatArray(size_t length) { return JArray("F", length); }
 	static JArray createDoubleArray(size_t length) { return JArray("D", length); }
 	static JArray createBoolArray(size_t length) { return JArray("B", length); }
+	static JArray createObjectArray(size_t length, JClass type, JObject initialValue = JObject());
 
 	bool isInt() const { return instanceOf("[I"); }
 	bool isLongLong() const { return instanceOf("[J"); }
@@ -84,6 +85,8 @@ public:
 	void setBool(int index, bool value);
 	JObject getObject(int index) const;
 	void setObject(int index, JObject value);
+
+	jarray getLocalRef();
 };
 Q_DECLARE_METATYPE(JArray)
 

@@ -84,6 +84,13 @@ JArray::JArray(const char* type, size_t length)
 	}
 }
 
+JArray JArray::createObjectArray(size_t length, JClass type, JObject initialValue)
+{
+	JNIEnv* env = *JVM::instance();
+	jobject obj = env->NewObjectArray(length, type, initialValue);
+	return JArray(obj);
+}
+
 size_t JArray::size() const
 {
 	JNIEnv* env = *JVM::instance();
@@ -222,3 +229,7 @@ void JArray::setObject(int index, JObject value)
 	env->SetObjectArrayElement(jobjectArray(m_object), index, value);
 }
 
+jarray JArray::getLocalRef()
+{
+	return (jarray) JObject::getLocalRef();
+}

@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JClass.h"
 #include "JSignature.h"
 #include "JMap.h"
+#include "JArray.h"
 #include "Settings.h"
 
 void JSettings::registerNatives()
@@ -41,6 +42,7 @@ void JSettings::registerNatives()
 	natives << JNativeMethod("setValue", JSignature().addString().addBoolean(), setValueBoolean);
 	natives << JNativeMethod("setValue", JSignature().addString().addDouble(), setValueDouble);
 	natives << JNativeMethod("getValue", JSignature().addString().add("java.lang.Object").ret("java.lang.Object"), getValue);
+	natives << JNativeMethod("getValueArray", JSignature().addString().retA("java.lang.Object"), getValueArray);
 
 	JClass("info.dolezel.fatrat.plugins.config.Settings").registerNativeMethods(natives);
 }
@@ -83,4 +85,19 @@ jobject JSettings::getValue(JNIEnv* env, jclass, jstring jname, jobject defValue
 	JObject obj = JMap::nativeToBoxed(v);
 	qDebug() << obj.getClass().getClassName();
 	return obj.getLocalRef();
+}
+
+jarray JSettings::getValueArray(JNIEnv *, jclass, jstring name)
+{
+	JString id(name);
+	QList<QMap<QString, QVariant> > list = getSettingsArray(id.str());
+
+	JArray array = JArray::createObjectArray(list.size(), JClass("java.lang.String"));
+	for (int i = 0; i < list.size(); i++)
+	{
+		JObject obj = JMap::nativeToBoxed(list[i]["item"]);
+		array.setObject(i, obj);
+	}
+
+	return array.getLocalRef();
 }

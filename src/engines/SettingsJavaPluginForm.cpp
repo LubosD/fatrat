@@ -36,6 +36,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QMessageBox>
 #include <QDir>
 #include <QtDebug>
+#include <QGroupBox>
+#include <QListWidget>
 
 static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 
@@ -79,6 +81,24 @@ void SettingsJavaPluginForm::accepted()
 		if (QLineEdit* edit = dynamic_cast<QLineEdit*>(it.key()))
 		{
 			setSettingsValue(it.value(), edit->text());
+		}
+		else if (QListWidget* list = dynamic_cast<QListWidget*>(it.key()))
+		{
+			if (list->dragDropMode() == QAbstractItemView::InternalMove) // order item
+			{
+				QList<QMap<QString, QVariant> > slist;
+
+				for (int i = 0; i < list->count(); i++)
+				{
+					QListWidgetItem* item = list->item(i);
+					QMap<QString, QVariant> map;
+
+					map["item"] = item->data(Qt::UserRole).toString();
+					slist << map;
+				}
+
+				setSettingsArray(it.value(), slist);
+			}
 		}
 	}
 }
@@ -413,13 +433,81 @@ void SettingsJavaPluginForm::processPageElement(QDomElement& elem, QWidget* widg
 
 			m_extSettingsWidgets[edit] = name;
 		}
+		else if (objType == "group")
+		{
+			QGroupBox* box = new QGroupBox(widget);
+			box->setTitle(title);
+			layout->addWidget(box, row, 0, 1, 2);
+
+			if (obj.hasAttribute("id")) {
+				QString name = obj.attribute("id");
+				box->setCheckable(true);
+				box->setChecked(getSettingsValue(name).toBool());
+				m_extSettingsWidgets[box] = name;
+			}
+			processPageElement(obj, box);
+		}
+		else if (objType == "order")
+		{
+			QListWidget* list = new QListWidget(widget);
+			list->setDragDropMode(QAbstractItemView::InternalMove);
+
+			QString id = obj.attribute("id");
+			QDomElement option = obj.firstChildElement("option");
+			QMap<QString, QListWidgetItem*> items;
+			QList<QListWidgetItem*> items2;
+
+			while (!option.isNull())
+			{
+				QString text, value;
+				QListWidgetItem* item = new QListWidgetItem;
+
+				text = option.text();
+				if (elem.hasAttribute("value"))
+					value = option.attribute("value");
+				else
+					value = text;
+
+				item->setText(text);
+				item->setData(Qt::UserRole, value);
+
+				items[value] = item;
+				items2 << item;
+
+				option = option.nextSiblingElement("option");
+			}
+
+			QList<QMap<QString, QVariant> > cur = getSettingsArray(id);
+			for (int i = 0; i < cur.size(); i++)
+			{
+				QString val = cur[i]["item"].toString();
+				qDebug() << "Val:" << val;
+				if (items.contains(val))
+				{
+					qDebug() << "Adding a" << val;
+					QMap<QString, QListWidgetItem*>::iterator it = items.find(val);
+					list->addItem(it.value());
+					items2.removeAll(it.value());
+					items.erase(it);
+				}
+			}
+
+			foreach (QListWidgetItem* item, items2)
+				list->addItem(item);
+			layout->addWidget(list, row, 0, 1, 2);
+
+			m_extSettingsWidgets[list] = id;
+		}
 
 		child = child.nextSibling();
 		row++;
 	}
 
-	QSpacerItem* spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-	layout->addItem(spacerItem, row, 0, 1, 2);
+	if (!dynamic_cast<QGroupBox*>(widget))
+	{
+		QSpacerItem* spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		layout->addItem(spacerItem, row, 0, 1, 2);
+	}
 
 	widget->setLayout(layout);
 	layout->update();

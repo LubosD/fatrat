@@ -69,7 +69,9 @@ void applyAllSettings();
 
 QVariant getSettingsDefault(QString id);
 QVariant getSettingsValue(QString id, QVariant def = QVariant());
+QList<QMap<QString, QVariant> > getSettingsArray(QString id);
 void setSettingsValue(QString id, QVariant value);
+void setSettingsArray(QString id, QList<QMap<QString, QVariant> >& value);
 
 void initSettingsDefaults();
 void exitSettings();
