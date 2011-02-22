@@ -105,6 +105,7 @@ public:
 	
 	bool contains(Transfer* t) const;
 	bool replace(Transfer* old, Transfer* _new);
+	bool replace(Transfer* old, QList<Transfer*> _new);
 	void stopAll();
 	void resumeAll();
 

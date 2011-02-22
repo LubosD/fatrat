@@ -541,6 +541,19 @@ void Transfer::replaceItself(Transfer* newObject)
 	}
 }
 
+void Transfer::replaceItself(QList<Transfer*> newObjects)
+{
+	QReadLocker l(&g_queuesLock);
+	foreach (Queue* q, g_queues)
+	{
+		if (q->contains(this))
+		{
+			q->replace(this, newObjects);
+			break;
+		}
+	}
+}
+
 Queue* Transfer::myQueue() const
 {
 	QReadLocker l(&g_queuesLock);

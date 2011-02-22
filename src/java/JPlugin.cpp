@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JMap.h"
 #include "JException.h"
 #include "engines/JavaDownload.h"
+#include "engines/StaticTransferMessage.h"
 
 template <> QList<JObject*> JSingleCObject<JPlugin>::m_instances = QList<JObject*>();
 template <> std::auto_ptr<QReadWriteLock> JSingleCObject<JPlugin>::m_mutex = std::auto_ptr<QReadWriteLock>(new QReadWriteLock);

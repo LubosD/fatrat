@@ -173,6 +173,7 @@ protected:
 	void updateGraph();
 
 	void replaceItself(Transfer* newObject);
+	void replaceItself(QList<Transfer*> newObjects);
 	Queue* myQueue() const;
 	
 	State m_state;
@@ -193,6 +194,9 @@ protected:
 	
 	friend class QueueMgr;
 	friend class Queue;
+#ifdef WITH_JPLUGINS
+	friend class JPlugin;
+#endif
 };
 
 class TransferNotifier : public QObject

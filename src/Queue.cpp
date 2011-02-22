@@ -458,7 +458,22 @@ bool Queue::replace(Transfer* old, Transfer* _new)
 	int i = m_transfers.indexOf(old);
 	if (i == -1)
 		return false;
+	Transfer* t = m_transfers[i];
 	m_transfers[i] = _new;
+	t->deleteLater();
+	return true;
+}
+
+bool Queue::replace(Transfer* old, QList<Transfer*> _new)
+{
+	QWriteLocker l(&m_lock);
+	int i = m_transfers.indexOf(old);
+	if (i == -1)
+		return false;
+	m_transfers.takeAt(i)->deleteLater();
+
+	for (int j = 0; j < _new.size(); j++)
+		m_transfers.insert(i+j, _new[j]);
 	return true;
 }
 

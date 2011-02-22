@@ -274,7 +274,7 @@ void HttpDetails::refresh()
 		{
 			int urlIndex = m_download->m_listActiveSegments[i];
 			QTreeWidgetItem* item;
-			QString url = m_download->m_urls[urlIndex].url.toString();
+			QString url = m_download->m_urls[urlIndex].url.toString(); // TODO - this is a point of crash due to subclassing issues
 
 			if (i < treeActiveSegments->topLevelItemCount())
 				item = treeActiveSegments->topLevelItem(i);

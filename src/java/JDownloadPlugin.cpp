@@ -108,7 +108,7 @@ void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring jname)
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	JString name(jname);
 
-	This->transfer()->setName(name.str());
+	static_cast<JavaDownload*>(This->transfer())->setName(name.str());
 	This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::reportFileName(): ")+name.str());
 }
 
@@ -128,7 +128,7 @@ void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url, jst
 		str += "#__filename="+JString(fileName).str().replace('/', '-');
 
 	QList<QNetworkCookie> c = This->m_network->cookieJar()->cookiesForUrl(str);
-	This->m_transfer->startDownload(str, c, ref, ua);
+	static_cast<JavaDownload*>(This->m_transfer)->startDownload(str, c, ref, ua);
 }
 
 QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>& list)

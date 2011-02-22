@@ -372,11 +372,6 @@ QStringList JavaDownload::getConfigDialogs()
 	return rv;
 }
 
-void JavaDownload::setMessage(QString msg)
-{
-	m_strMessage = msg;
-}
-
 WidgetHostChild* JavaDownload::createOptionsWidget(QWidget* w)
 {
 	return new JavaDownloadOptsForm(w, this);

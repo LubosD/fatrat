@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JString.h"
 #include "JMap.h"
 #include "JException.h"
+#include "engines/StaticTransferMessage.h"
 
 JTransferPlugin::JTransferPlugin(const JClass& cls, const char* sig, JArgs args)
 	: JPlugin(cls, sig, args)
@@ -60,7 +61,8 @@ void JTransferPlugin::registerNatives()
 
 void JTransferPlugin::setMessage(JNIEnv* env, jobject jthis, jstring msg)
 {
-	getCObject(jthis)->transfer()->setMessage(JString(msg));
+	JPlugin* plugin = getCObject(jthis);
+	plugin->transfer()->setMessage(JString(msg));
 }
 
 void JTransferPlugin::setState(JNIEnv* env, jobject jthis, jobject state)

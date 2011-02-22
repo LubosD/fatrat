@@ -36,10 +36,11 @@ respects for all of the code used other than "OpenSSL".
 #include <QDir>
 #include <QUrl>
 #include <QTimer>
+#include "StaticTransferMessage.h"
 
 class CurlPollingMaster;
 
-class CurlDownload : public Transfer
+class CurlDownload : public StaticTransferMessage<Transfer>
 {
 Q_OBJECT
 public:
@@ -51,7 +52,6 @@ public:
 	virtual void setObject(QString object);
 	virtual QString object() const;
 	virtual QString myClass() const { return "GeneralDownload"; }
-	virtual QString message() const { return m_strMessage; }
 	virtual QString name() const;
 	virtual void speeds(int& down, int& up) const;
 	virtual qulonglong total() const;
@@ -135,7 +135,7 @@ protected:
 	long long m_nTotal;
 	mutable long long m_nStart;
 	
-	QString m_strFile, m_strMessage;
+	QString m_strFile;
 	bool m_bAutoName;
 	
 	char m_errorBuffer[CURL_ERROR_SIZE];

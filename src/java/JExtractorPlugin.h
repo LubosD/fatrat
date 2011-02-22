@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,48 +25,32 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JPLUGIN_H
-#define JPLUGIN_H
+
+#ifndef JEXTRACTORPLUGIN_H
+#define JEXTRACTORPLUGIN_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
 #endif
 
-#include "JObject.h"
-#include "JSingleCObject.h"
-#include "Transfer.h"
-#include "engines/StaticTransferMessage.h"
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QMap>
-#include <QtDebug>
+#include "JTransferPlugin.h"
+#include "engines/JavaExtractor.h"
 
-class JavaDownload;
-
-class JPlugin : public QObject, public JObject, public JSingleCObject<JPlugin>
+class JExtractorPlugin : public JTransferPlugin
 {
-Q_OBJECT
 public:
-	JPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+	JExtractorPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
+	JExtractorPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
-	static void fetchPage(JNIEnv *, jobject, jstring, jobject, jstring);
-
-	inline void setTransfer(StaticTransferMessage<Transfer>* t) { qDebug() << "Transfer: " << t; m_transfer = t; }
-	inline StaticTransferMessage<Transfer>* transfer() const { return m_transfer; }
-
-	virtual void abort();
+	inline void setTransfer(JavaExtractor* t) { m_transfer = t; }
+	inline JavaExtractor* transfer() const { return m_transfer; }
 
 	static void registerNatives();
-private slots:
-	void fetchFinished(QNetworkReply*);
-protected:
-	typedef QPair<JPlugin*,JObject> RequesterReceiver;
 
-	StaticTransferMessage<Transfer>* m_transfer;
-	QMap<QNetworkReply*,RequesterReceiver> m_fetchCallbacks;
-	QNetworkAccessManager* m_network;
+	static void finishedExtraction(JNIEnv *, jobject, jobjectArray);
+private:
+	JavaExtractor* m_transfer;
 };
 
-#endif // JPLUGIN_H
+#endif // JEXTRACTORPLUGIN_H

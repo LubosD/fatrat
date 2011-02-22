@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -77,7 +77,6 @@ public:
 	static int acceptable(QString uri, bool, const EngineEntry* e);
 protected:
 	void deriveName();
-	void setMessage(QString msg);
 	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString(), QString userAgent = QString());
 	void setName(QString name) { m_strName = name; }
 private:
