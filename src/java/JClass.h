@@ -47,8 +47,8 @@ class JClass
 {
 public:
 	JClass(const JClass& cls);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-	JClass(const JClass&& cls);
+#ifdef WITH_CXX0X
+	JClass(JClass&& cls);
 #endif
 	JClass(QString clsName);
 	JClass(jclass cls);

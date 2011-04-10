@@ -8,6 +8,7 @@
 #cmakedefine WITH_DOCUMENTATION
 #cmakedefine WITH_CURL
 #cmakedefine WITH_JPLUGINS
+#cmakedefine WITH_CXX0X
 
 #ifdef WITH_WEBINTERFACE
 #	define PION_NET_PLUGINS "${pion-net_LIBDIR}/pion/plugins"
@@ -33,6 +34,10 @@
 
 #ifndef _LARGEFILE64_SOURCE
 #	define _LARGEFILE64_SOURCE
+#endif
+
+#ifdef BOOST_POSIX_API
+#	undef BOOST_POSIX_API
 #endif
 
 #endif

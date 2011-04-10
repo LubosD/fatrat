@@ -46,7 +46,7 @@ public:
 	JString(const QString& str);
 	JString(const QByteArray& str);
 	JString(const JString& str);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#ifdef WITH_CXX0X
 	JString(JString&& str);
 #endif
 
@@ -54,7 +54,7 @@ public:
 	JString& operator=(const QString& str);
 	JString& operator=(const QByteArray& str);
 	JString& operator=(const JString& str);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#ifdef WITH_CXX0X
 	JString& operator=(JString&& str);
 #endif
 

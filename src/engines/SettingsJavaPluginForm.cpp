@@ -64,7 +64,7 @@ void SettingsJavaPluginForm::load()
 	QMap<QString,QString> packages = JVM::instance()->getPackageVersions();
 
 	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
-	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + "Index")));
+	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + VERSION + "/Index")));
 
 	m_installedPlugins = JVM::instance()->getPackageVersions();
 
@@ -341,7 +341,7 @@ void SettingsJavaPluginForm::downloadNext()
 	else if (m_dlgProgress.isVisible())
 	{
 		QString name = m_toInstall[0].first;
-		QString url = UPDATE_URL + name + ".jar";
+		QString url = UPDATE_URL + VERSION + "/" + name + ".jar";
 
 		m_reply = m_network->get(QNetworkRequest(url));
 	}

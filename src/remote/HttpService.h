@@ -28,12 +28,14 @@ respects for all of the code used other than "OpenSSL".
 #ifndef HTTPSERVICE_H
 #define HTTPSERVICE_H
 #include "config.h"
+#include "openssl_debian_workaround.h"
 #include <QThread>
 #include <QMap>
 #include <QByteArray>
 #include <QVariantMap>
 #include <QFile>
 #include <ctime>
+#include <openssl/ssl.h>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include "remote/TransferHttpService.h"
 
@@ -98,6 +100,19 @@ private:
 	{
 	public:
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	private:
+		class CapServCap
+		{
+		public:
+			void operator()(const boost::system::error_code& error, std::size_t bytes_transferred);
+			void readDone();
+
+			pion::net::HTTPResponseWriterPtr writer;
+			std::string key1, key2;
+			char sig[8];
+			int inbuf;
+			pion::net::TCPConnectionPtr tcp_conn;
+		} m_cap;
 	};
 
 	class WriteBackImpl : public TransferHttpService::WriteBack

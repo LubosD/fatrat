@@ -60,6 +60,7 @@ respects for all of the code used other than "OpenSSL".
 #include <locale.h>
 #include <unistd.h>
 #include <string.h>
+#include <algorithm>
 
 using namespace pion::net;
 
@@ -185,6 +186,9 @@ void HttpService::setup()
 		m_server->addService("/copyrights", new pion::plugins::FileService);
 		m_server->setServiceOption("/copyrights", "file", DATA_LOCATION "/README");
 		m_server->addService("/download", new TransferDownloadService);
+#ifdef WITH_CXX0X
+		m_server->addService("/captcha", new CaptchaService);
+#endif
 		m_server->start();
 		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
 	}
@@ -634,7 +638,70 @@ QVariant HttpService::generateCertificate(QList<QVariant>& args)
 	return path;
 }
 
+
+
 void HttpService::CaptchaService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
 {
+	m_cap.writer = HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn));
 
+	std::string upgrade, connection;
+	upgrade = request->getHeader("Upgrade");
+	connection = request->getHeader("Connection");
+	m_cap.key1 = request->getHeader("Sec-WebSocket-Key1");
+	m_cap.key2 = request->getHeader("Sec-WebSocket-Key2");
+
+	std::transform(connection.begin(), connection.end(), connection.begin(), ::tolower);
+	std::transform(upgrade.begin(), upgrade.end(), upgrade.begin(), ::tolower);
+
+	if (connection != "upgrade" || upgrade != "websocket" || m_cap.key1.empty() || m_cap.key2.empty())
+	{
+		m_cap.writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_BAD_REQUEST);
+		m_cap.writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_BAD_REQUEST);
+		m_cap.writer->send();
+	}
+
+	// We need to get the eight bytes from the buffer asynchronously.
+	// This gets a bit tricky since there is some pion buffering involed.
+	const char *read_ptr;
+	const char *read_end_ptr;
+
+	m_cap.tcp_conn = tcp_conn;
+
+	tcp_conn->loadReadPosition(read_ptr, read_end_ptr);
+	m_cap.inbuf = read_end_ptr - read_ptr;
+
+	memcpy(m_cap.sig, read_ptr, std::max(8, m_cap.inbuf));
+
+	if (m_cap.inbuf < 8)
+		tcp_conn->async_read(boost::asio::transfer_at_least(8-m_cap.inbuf), m_cap);
+	else
+		m_cap.readDone();
 }
+
+void HttpService::CaptchaService::CapServCap::operator()(const boost::system::error_code& error, std::size_t bytes_transferred)
+{
+	if (error)
+		return;
+	memcpy(sig+inbuf, tcp_conn->getReadBuffer().data(), std::min<size_t>(bytes_transferred, 8-inbuf));
+	readDone();
+}
+
+void HttpService::CaptchaService::CapServCap::readDone()
+{
+	int num1 = 0, num2 = 0, spc1 = 0, spc2 = 0;
+	for (size_t i = 0; i < key1.size(); i++)
+	{
+		if (isdigit(key1[i]))
+			num1 = num1 * 10 + (key1[i] - '0');
+		else if (key1[i] == ' ')
+			spc1++;
+	}
+	for (size_t i = 0; i < key2.size(); i++)
+	{
+		if (isdigit(key2[i]))
+			num2 = num2 * 10 + (key2[i] - '0');
+		else if (key2[i] == ' ')
+			spc2++;
+	}
+}
+

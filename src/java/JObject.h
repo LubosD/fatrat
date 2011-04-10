@@ -48,7 +48,7 @@ public:
 	JObject();
 	JObject(jobject obj);
 	JObject(const JObject& obj);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#ifdef WITH_CXX0X
 	JObject(JObject&& obj);
 #endif
 	JObject(const JClass& cls, const char* sig, JArgs args = JArgs());
@@ -58,7 +58,7 @@ public:
 	virtual ~JObject();
 
 	JObject& operator=(const JObject& obj);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#ifdef WITH_CXX0X
 	JObject& operator=(JObject&& obj);
 #endif
 	JObject& operator=(jobject obj);

@@ -42,6 +42,7 @@ class Queue;
 class Transfer;
 
 #if !defined(XMLRPCSERVICE_AVOID_SHA_CONFLICT)
+#include "openssl_debian_workaround.h"
 #include <pion/net/WebServer.hpp>
 
 class XmlRpcService : public QObject, public pion::net::WebService

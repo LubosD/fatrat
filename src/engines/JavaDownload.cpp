@@ -198,6 +198,9 @@ void JavaDownload::setState(State newState)
 		try
 		{
 			m_plugin->call("finalCheck", JSignature().addString(), JArgs() << dataPath(true));
+			
+			if (m_state != Failed)
+				Transfer::setState(Completed);
 		}
 		catch (const JException& e)
 		{
@@ -205,8 +208,8 @@ void JavaDownload::setState(State newState)
 			setState(Failed);
 		}
 	}
-
-	Transfer::setState(newState);
+	else
+		Transfer::setState(newState);
 }
 
 QString JavaDownload::remoteURI() const
@@ -242,6 +245,9 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer, QString userAgent)
 {
 	m_downloadUrl = url;
+	m_listActiveSegments.clear();
+	m_urls.clear();
+	
 	CurlDownload::init(url, m_strTarget);
 	
 	QString clsName = m_plugin->getClass().getClassName();

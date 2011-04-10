@@ -14,7 +14,8 @@ INCLUDE(FindJNI)
 find_package(Qt4 REQUIRED)
 
 include_directories(src)
-#ADD_DEFINITIONS(-std=c++0x)
+
+ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
 
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
@@ -32,7 +33,13 @@ if(WITH_EVERYTHING)
 	set(WITH_WEBINTERFACE ON)
 	set(WITH_CURL ON)
 	set(WITH_JPLUGINS ON)
+	set(WITH_CXX0X ON)
 endif(WITH_EVERYTHING)
+
+if(WITH_CXX0X)
+	ADD_DEFINITIONS(-std=c++0x)
+	ADD_DEFINITIONS(-DBOOST_FILESYSTEM_VERSION=2)
+endif(WITH_CXX0X)
 
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
@@ -530,6 +537,8 @@ locale/fatrat_zh_TW.ts)
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 
+STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
+message(STATUS ${pion-net_LIBRARIES})
 target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 
 set(fatrat_DEV_HEADERS

@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QPair>
 #include <QThread>
 #include "ui_CreateTorrentDlg.h"
+#include "config.h"
 #include <libtorrent/create_torrent.hpp>
 
 class HasherThread;

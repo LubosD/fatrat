@@ -50,7 +50,7 @@ JObject::JObject(const JObject& obj)
 		m_object = env->NewGlobalRef(m_object);
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#ifdef WITH_CXX0X
 JObject::JObject(JObject&& obj)
 {
 	m_object = obj.m_object;
@@ -146,7 +146,7 @@ JObject& JObject::operator=(const JObject& obj)
 	return *this;
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#ifdef WITH_CXX0X
 JObject& JObject::operator=(JObject&& obj)
 {
 	setNull();
