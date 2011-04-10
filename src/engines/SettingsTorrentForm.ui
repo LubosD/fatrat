@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>462</width>
-    <height>403</height>
+    <width>460</width>
+    <height>401</height>
    </rect>
   </property>
   <layout class="QGridLayout">
@@ -191,28 +191,28 @@
        <item row="6" column="3" colspan="2">
         <widget class="QLineEdit" name="lineIP"/>
        </item>
-       <item row="8" column="0" colspan="3">
+       <item row="9" column="0" colspan="3">
         <widget class="QCheckBox" name="checkDHT">
          <property name="text">
           <string>Enable distributed tracker (DHT)</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="3">
+       <item row="10" column="0" colspan="3">
         <widget class="QCheckBox" name="checkPEX">
          <property name="text">
           <string>Enable uTorrent Peer Exchange</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="0" colspan="3">
+       <item row="11" column="0" colspan="3">
         <widget class="QCheckBox" name="checkLSD">
          <property name="text">
           <string>Enable Local Service Discovery</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="1" colspan="3">
+       <item row="12" column="1" colspan="3">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -225,14 +225,14 @@
          </property>
         </spacer>
        </item>
-       <item row="12" column="0" colspan="2">
+       <item row="13" column="0" colspan="2">
         <widget class="QPushButton" name="pushCleanup">
          <property name="text">
           <string>Clean up the .torrent storage</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="2" colspan="3">
+       <item row="13" column="2" colspan="3">
         <spacer>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -245,15 +245,25 @@
          </property>
         </spacer>
        </item>
-       <item row="7" column="0" colspan="3">
+       <item row="8" column="0" colspan="3">
         <widget class="QLabel" name="label_16">
          <property name="text">
           <string>Identify as</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="3" colspan="2">
+       <item row="8" column="3" colspan="2">
         <widget class="QComboBox" name="comboUA"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Proxy</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="3" colspan="2">
+        <widget class="QComboBox" name="comboProxy"/>
        </item>
       </layout>
      </widget>
@@ -308,56 +318,6 @@
           <size>
            <width>20</width>
            <height>131</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Proxy</string>
-      </attribute>
-      <layout class="QGridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Tracker</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="comboProxyTracker"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Peer</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="comboProxyPeer"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Web seed</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="comboProxySeed"/>
-       </item>
-       <item row="3" column="0">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
           </size>
          </property>
         </spacer>

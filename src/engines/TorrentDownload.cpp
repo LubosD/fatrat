@@ -380,22 +380,13 @@ void TorrentDownload::applySettings()
 	m_session->set_pe_settings(ps);
 	
 	// Proxy settings
-	QUuid tracker, seed, peer;
+	QUuid proxy;
+	libtorrent::proxy_settings ltproxy;
 	
-	tracker = getSettingsValue("torrent/proxy_tracker").toString();
-	seed = getSettingsValue("torrent/proxy_webseed").toString();
-	peer = getSettingsValue("torrent/proxy_peer").toString();
+	proxy = getSettingsValue("torrent/proxy").toString();
 	
-	libtorrent::proxy_settings proxy;
-	
-	proxy = proxyToLibtorrent(Proxy::getProxy(tracker));
-	m_session->set_tracker_proxy(proxy);
-	
-	proxy = proxyToLibtorrent(Proxy::getProxy(seed));
-	m_session->set_web_seed_proxy(proxy);
-	
-	proxy = proxyToLibtorrent(Proxy::getProxy(peer));
-	m_session->set_peer_proxy(proxy);
+	ltproxy = proxyToLibtorrent(Proxy::getProxy(proxy));
+	m_session->set_proxy(ltproxy);
 }
 
 libtorrent::proxy_settings TorrentDownload::proxyToLibtorrent(Proxy p)

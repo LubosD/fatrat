@@ -80,50 +80,26 @@ void TorrentSettings::load()
 	
 	lineIP->setText(getSettingsValue("torrent/external_ip").toString());
 	
-	comboProxyTracker->clear();
-	comboProxyPeer->clear();
-	comboProxySeed->clear();
-	
-	comboProxyTracker->addItem(tr("None", "No proxy"));
-	comboProxyPeer->addItem(tr("None", "No proxy"));
-	comboProxySeed->addItem(tr("None", "No proxy"));
+	comboProxy->clear();
+	comboProxy->addItem(tr("None", "No proxy"));
 	
 	m_listProxy = Proxy::loadProxys();
 	
-	QUuid tracker, seed, peer;
+	QUuid uuidProxy;
 	
-	tracker = getSettingsValue("torrent/proxy_tracker").toString();
-	seed = getSettingsValue("torrent/proxy_webseed").toString();
-	peer = getSettingsValue("torrent/proxy_peer").toString();
-	
+	uuidProxy = getSettingsValue("torrent/proxy").toString();
+
 	for(int i=0;i<m_listProxy.size();i++)
 	{
 		int index;
 		QString name = m_listProxy[i].toString();
 		
-		comboProxyTracker->addItem(name);
-		index = comboProxyTracker->count()-1;
-		comboProxyTracker->setItemData(index, m_listProxy[i].uuid.toString());
+		comboProxy->addItem(name);
+		index = comboProxy->count()-1;
+		comboProxy->setItemData(index, m_listProxy[i].uuid.toString());
 		
-		if(m_listProxy[i].uuid == tracker)
-			comboProxyTracker->setCurrentIndex(index);
-		
-		comboProxySeed->addItem(name);
-		index = comboProxySeed->count()-1;
-		comboProxySeed->setItemData(index, m_listProxy[i].uuid.toString());
-		
-		if(m_listProxy[i].uuid == seed)
-			comboProxySeed->setCurrentIndex(index);
-		
-		if(m_listProxy[i].nType != Proxy::ProxyHttp)
-		{
-			comboProxyPeer->addItem(name);
-			index = comboProxyPeer->count()-1;
-			comboProxyPeer->setItemData(index, m_listProxy[i].uuid.toString());
-			
-			if(m_listProxy[i].uuid == peer)
-				comboProxyPeer->setCurrentIndex(index);
-		}
+		if(m_listProxy[i].uuid == uuidProxy)
+			comboProxy->setCurrentIndex(index);
 	}
 	
 	checkUPNP->setChecked(getSettingsValue("torrent/mapping_upnp").toBool());
@@ -161,12 +137,8 @@ void TorrentSettings::accepted()
 	
 	g_settings->setValue("torrent/external_ip", lineIP->text());
 	
-	int index = comboProxyTracker->currentIndex();
-	g_settings->setValue("torrent/proxy_tracker", comboProxyTracker->itemData(index).toString());
-	index = comboProxySeed->currentIndex();
-	g_settings->setValue("torrent/proxy_webseed", comboProxySeed->itemData(index).toString());
-	index = comboProxyPeer->currentIndex();
-	g_settings->setValue("torrent/proxy_peer", comboProxyPeer->itemData(index).toString());
+	int index = comboProxy->currentIndex();
+	g_settings->setValue("torrent/proxy", comboProxy->itemData(index).toString());
 	
 	g_settings->setValue("torrent/enc_incoming", comboEncIncoming->currentIndex());
 	g_settings->setValue("torrent/enc_outgoing", comboEncOutgoing->currentIndex());
