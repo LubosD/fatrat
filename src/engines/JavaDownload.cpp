@@ -297,7 +297,7 @@ void JavaDownload::globalInit(bool forceJreSearch)
 		JArray arr = helper.callStatic("findAnnotatedClasses",
 						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
 						  args).value<JArray>();
-		qDebug() << "Found" << arr.size() << "annotated classes";
+		qDebug() << "Found" << arr.size() << "annotated classes (DownloadPluginInfo)";
 
 		int classes = arr.size();
 		for (int i = 0; i < classes; i++)
@@ -341,7 +341,7 @@ void JavaDownload::globalInit(bool forceJreSearch)
 
 				addTransferClass(entry, Transfer::Download);
 			}
-			catch (const JException& e)
+			catch (const RuntimeException& e)
 			{
 				qDebug() << e.what();
 			}

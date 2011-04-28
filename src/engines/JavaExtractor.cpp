@@ -94,7 +94,7 @@ void JavaExtractor::globalInit()
 	JArray arr = helper.callStatic("findAnnotatedClasses",
 					  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
 					  args).value<JArray>();
-	qDebug() << "Found" << arr.size() << "annotated classes";
+	qDebug() << "Found" << arr.size() << "annotated classes (ExtractorPluginInfo)";
 
 	int classes = arr.size();
 	for (int i = 0; i < classes; i++)

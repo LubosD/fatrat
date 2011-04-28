@@ -301,7 +301,7 @@ void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
 		return;
 	}
 
-	QDir::home().mkpath(USER_PROFILE_PATH "/data/java/");
+	QDir::home().mkpath("./" USER_PROFILE_PATH "/data/java/");
 
 	QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
 	QDir dir(baseDir);
