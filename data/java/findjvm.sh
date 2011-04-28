@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 _dirname() { if [[ "$1" =~ / ]]; then echo "${1%/*}"; else echo .; fi; }
 

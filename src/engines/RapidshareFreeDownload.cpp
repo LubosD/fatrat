@@ -176,6 +176,15 @@ void RapidshareFreeDownload::httpFinished(QNetworkReply* reply)
 		setState(Failed);
 		return;
 	}
+	
+	QVariant loc = reply->header(QNetworkRequest::LocationHeader);
+	if (!loc.isNull())
+	{
+		QNetworkRequest request;
+		request.setUrl(loc.toString());
+		m_network->get(request);
+		return;
+	}
 
 	QByteArray response = reply->readAll();
 	if (response.startsWith("ERROR"))

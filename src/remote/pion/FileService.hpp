@@ -10,6 +10,8 @@
 #ifndef __PION_FILESERVICE_HEADER__
 #define __PION_FILESERVICE_HEADER__
 
+#include "../openssl_debian_workaround.h"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem/path.hpp>
@@ -25,7 +27,6 @@
 #include <pion/net/HTTPServer.hpp>
 #include <string>
 #include <map>
-
 
 namespace pion {		// begin namespace pion
 namespace plugins {		// begin namespace plugins
