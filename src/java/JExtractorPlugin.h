@@ -43,14 +43,10 @@ public:
 	JExtractorPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
 	JExtractorPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
-	inline void setTransfer(JavaExtractor* t) { m_transfer = t; }
-	inline JavaExtractor* transfer() const { return m_transfer; }
-
 	static void registerNatives();
 
 	static void finishedExtraction(JNIEnv *, jobject, jobjectArray);
 private:
-	JavaExtractor* m_transfer;
 };
 
 #endif // JEXTRACTORPLUGIN_H

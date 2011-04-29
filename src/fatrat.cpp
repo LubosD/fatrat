@@ -75,6 +75,7 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_JPLUGINS
 #	include "java/JVM.h"
 #	include "engines/JavaDownload.h"
+#	include "engines/JavaExtractor.h"
 #	include "java/JClass.h"
 #	include "java/JString.h"
 #	include "java/JArray.h"
@@ -153,7 +154,10 @@ int main(int argc,char** argv)
 
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)
+	{
 		JavaDownload::globalInit(m_bJavaForceSearch);
+		JavaExtractor::globalInit();
+	}
 #endif
 	
 	installSignalHandler();

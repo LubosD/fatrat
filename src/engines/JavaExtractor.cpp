@@ -87,6 +87,8 @@ void JavaExtractor::globalInit()
 	JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 	JClass annotation("info.dolezel.fatrat.plugins.annotations.ExtractorPluginInfo");
 
+	JExtractorPlugin::registerNatives();
+
 	JArgs args;
 
 	args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
@@ -112,7 +114,7 @@ void JavaExtractor::globalInit()
 			if (targetClassName.isEmpty())
 			{
 				JClass cls = JClass(ann.call("transferClass", JSignature().ret("java.lang.Class")).value<JObject>());
-				if (!cls.isNull())
+				if (!cls.isNull() && cls.getClassName() != "java.lang.Object")
 					targetClassName = cls.getClassName();
 			}
 
@@ -126,7 +128,7 @@ void JavaExtractor::globalInit()
 				e.ownAcceptable = instance;
 			e.targetClass = targetClassName;
 
-			m_engines[name] = e;
+			m_engines[clsName] = e;
 
 			EngineEntry entry;
 			entry.longName = m_engines[clsName].name.c_str();

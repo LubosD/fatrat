@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JArray.h"
 #include <QList>
 #include <QString>
+#include <QtDebug>
 
 JExtractorPlugin::JExtractorPlugin(const JClass& cls, const char* sig, JArgs args)
 	: JTransferPlugin(cls, sig, args)
@@ -59,6 +60,7 @@ void JExtractorPlugin::finishedExtraction(JNIEnv* env, jobject jthis, jobjectArr
 	JArray links(jlinks);
 
 	QList<QString> list;
+	qDebug() << list;
 	for (size_t i = 0; i < links.size(); i++)
 	{
 		JString str = links.getObject(i).toStringShallow();

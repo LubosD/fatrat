@@ -52,7 +52,7 @@ public:
 
 	// arrays
 	JSignature& addA(QString cls);
-	inline JSignature& addStringA() { return add("[java/lang/String"); }
+	inline JSignature& addStringA() { return addA("java/lang/String"); }
 	inline JSignature& addBooleanA() { return addPrimitive("[Z"); }
 	inline JSignature& addByteA() { return addPrimitive("[B"); }
 	inline JSignature& addCharA() { return addPrimitive("[C"); }
