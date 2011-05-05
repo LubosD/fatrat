@@ -616,6 +616,7 @@ if(WITH_JPLUGINS)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/findjvm.sh DESTINATION share/fatrat/data/java PERMISSIONS
 		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/fatrat-jplugins.jar DESTINATION share/fatrat/data/java)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/java/libs DESTINATION share/fatrat/data/java)
 endif(WITH_JPLUGINS)
 
 if(WITH_DOCUMENTATION)

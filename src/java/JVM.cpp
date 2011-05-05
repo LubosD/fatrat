@@ -163,6 +163,16 @@ QString JVM::getClassPath()
 	if (!hasCore)
 		rv += ":" DATA_LOCATION "/data/java/fatrat-jplugins.jar";
 
+	// Now enumerate extra Java classpath libs
+	dir = (DATA_LOCATION "/data/java/libs");
+	list = dir.entryList(QStringList() << "*.jar", QDir::Files);
+	foreach (QString f, list)
+	{
+		if (!rv.isEmpty())
+			rv += ':';
+		rv += dir.filePath(f);
+	}
+
 	return rv;
 }
 
