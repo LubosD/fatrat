@@ -526,7 +526,7 @@ QVariant XmlRpcService::Transfer_setProperties(QStringList luuid, QVariantMap pr
 			if(prop == "state")
 			{
 				checkType(it.value(), QVariant::String);
-				t->setState(Transfer::string2state(it.value().toString()));
+				TransferFactory::instance()->setState(t, Transfer::string2state(it.value().toString()));
 			}
 			else if(prop == "comment")
 			{

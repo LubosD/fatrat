@@ -43,11 +43,14 @@ public:
 	Transfer* createInstance(const char* clsName);
 	Transfer* createInstance(QString clsName);
 
+	void setState(Transfer* t, Transfer::State state);
+
 	// Init a Transfer in the correct thread
 	void init(Transfer* t, QString source, QString target);
-public slots:
+private slots:
 	void createInstance(QString clsName, Transfer** t);
 	void init(Transfer* t, QString source, QString target, RuntimeException* e, bool* eThrown);
+	void setStateSlot(Transfer* t, Transfer::State state);
 private:
 	static TransferFactory* m_instance;
 };

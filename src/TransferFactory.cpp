@@ -68,6 +68,20 @@ void TransferFactory::init(Transfer* t, QString source, QString target)
 	}
 }
 
+void TransferFactory::setState(Transfer* t, Transfer::State state)
+{
+	if (QThread::currentThread() != thread())
+		QMetaObject::invokeMethod(this, "setState", Qt::QueuedConnection, Q_ARG(Transfer*, t), Q_ARG(Transfer::State, state));
+	else
+		t->setState(state);
+
+}
+
+void TransferFactory::setStateSlot(Transfer* t, Transfer::State state)
+{
+	t->setState(state);
+}
+
 void TransferFactory::createInstance(QString clsName, Transfer** t)
 {
 	*t = Transfer::createInstance(clsName);
