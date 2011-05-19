@@ -106,6 +106,7 @@ HttpService::~HttpService()
 		cl->terminate();
 		delete cl;
 	}
+	m_registeredCaptchaClients.clear();
 
 	m_instance = 0;
 	if(m_server)
@@ -145,6 +146,7 @@ void HttpService::applySettings()
 						cl->terminate();
 						delete cl;
 					}
+					m_registeredCaptchaClients.clear();
 
 					m_server->stop();
 					delete m_server;
