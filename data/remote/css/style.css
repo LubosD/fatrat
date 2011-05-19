@@ -152,8 +152,6 @@ table#transfers tr.ui-selected {
 }
 
 #tabs-tsg-img, #tabs-qsg-img {
-	width: 640px;
-	height: 480px;
 	visibility: hidden;
 }
 
