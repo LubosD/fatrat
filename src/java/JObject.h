@@ -103,9 +103,7 @@ public:
 		return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5 << a6);
 	}
 
-	/*
-	 The following C++0x code will replace the broken mess above:
-
+#ifdef WITH_CXX0X
 	 template<typename T> void addArg(JArgs& args, T arg)
 	 {
 		args << arg;
@@ -113,16 +111,15 @@ public:
 	 template<typename T, typename... Args> void addArg(JArgs& args, T arg, Args... xargs)
 	 {
 		addArg(args, arg);
-		addArg(args, xargs);
+		addArg(args, xargs...);
 	 }
 	 template<typename... Args> QVariant call(const char *name, const JSignature& sig, Args... xargs)
 	 {
 		JArgs ja;
-		addArg(ja, xargs);
+		addArg(ja, xargs...);
 		return call(name, sig, ja);
 	 }
-
-	 */
+#endif
 
 	QVariant call(const char* name, JSignature sig, JArgs args = JArgs());
 	QVariant call(const char* name, const char* sig = "()V", JArgs args = JArgs());
