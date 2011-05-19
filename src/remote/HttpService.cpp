@@ -254,7 +254,7 @@ void HttpService::GraphService::operator()(pion::net::HTTPRequestPtr &request, p
 	
 	Queue* q;
 	Transfer* t;
-	QString queryString = QString::fromStdString(request->getQueryString());
+	QString queryString = QUrl::fromPercentEncoding(QString::fromStdString(request->getQueryString()).toUtf8());
 	int index;
 
 	if ((index = queryString.indexOf('&')) != -1)
@@ -288,7 +288,7 @@ void HttpService::QgraphService::operator()(pion::net::HTTPRequestPtr &request, 
 
 	QReadLocker locker(&g_queuesLock);
 	Queue* q;
-	QString queryString = QString::fromStdString(request->getQueryString());
+	QString queryString = QUrl::fromPercentEncoding(QString::fromStdString(request->getQueryString()).toUtf8());
 	int index;
 
 	if ((index = queryString.indexOf('&')) != -1)
