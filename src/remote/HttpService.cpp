@@ -110,7 +110,7 @@ HttpService::~HttpService()
 	m_instance = 0;
 	if(m_server)
 	{
-		//m_server->stop();
+		m_server->stop();
 		delete m_server;
 		m_server = 0;
 	}
@@ -137,6 +137,14 @@ void HttpService::applySettings()
 				if (port != m_port || m_strSSLPem != pemFile || useSSL == m_strSSLPem.isEmpty())
 				{
 					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port or SSL config change"));
+
+					QMutexLocker l(&m_registeredCaptchaClientsMutex);
+
+					foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+					{
+						cl->terminate();
+						delete cl;
+					}
 
 					m_server->stop();
 					delete m_server;
@@ -854,6 +862,5 @@ void HttpService::keepalive()
 
 void HttpService::RegisteredClient::terminate()
 {
-	writer->clear();
-	writer->sendFinalChunk();
+	writer->getTCPConnection()->finish();
 }

@@ -981,7 +981,7 @@ function isTrue(val) {
 
 function checkInt(varid) {
 	el = $('#'+varid);
-	v = parseInt(el.val());
+	v = parseInt(el.val().replace(" ", ""));
 	
 	if (isNaN(v))
 		throw "String entered instead of an integer";
