@@ -48,6 +48,7 @@ respects for all of the code used other than "OpenSSL".
 #include <fstream>
 #include <stdexcept>
 #include <alloca.h>
+#include <memory>
 
 #include <QIcon>
 #include <QMenu>
@@ -750,7 +751,7 @@ QString TorrentDownload::object() const
 
 void TorrentDownload::changeActive(bool nowActive)
 {
-	bool bEnableRecheck = false;
+//	bool bEnableRecheck = false;
 	
 	if(m_handle.is_valid())
 	{
@@ -763,7 +764,7 @@ void TorrentDownload::changeActive(bool nowActive)
 		{
 			//m_nPrevDownload = totalDownload();
 			//m_nPrevUpload = totalUpload();
-			bEnableRecheck = true;
+//			bEnableRecheck = true;
 			m_handle.pause();
 		}
 	}
@@ -1009,7 +1010,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 			while(true)
 			{
 				libtorrent::alert* aaa;
-				std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
+				std::unique_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
 	
 				if((aaa = a.get()) == 0)
 				{
@@ -1422,7 +1423,7 @@ void TorrentWorker::doWork()
 	while(true)
 	{
 		libtorrent::alert* aaa;
-		std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
+		std::unique_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
 		
 		if((aaa = a.get()) == 0)
 			break;
