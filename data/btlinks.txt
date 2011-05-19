@@ -2,3 +2,5 @@ http://www\.mininova\.org/get/\d+
 http://www\.bt-chat\.com/download1\.php\?id=\d+
 http://tracker\.cztorrent\.net/download/\d+
 http://www\.newtorrents\.info/down\.php\?id=\d+
+http://www\.demonoid\.me/files/download.+
+http://re.zoink.it/[0-9a-z]+
