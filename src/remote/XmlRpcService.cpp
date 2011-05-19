@@ -736,9 +736,9 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 			d->setUserSpeedLimits(down, up);
 			
 			if (paused)
-				d->setState(Transfer::Paused);
+				TransferFactory::instance()->setState(d, Transfer::Paused);
 			else
-				d->setState(Transfer::Waiting);
+				TransferFactory::instance()->setState(d, Transfer::Waiting);
 			uuids << d->uuid();
 		}
 		
