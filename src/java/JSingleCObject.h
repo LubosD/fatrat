@@ -75,7 +75,6 @@ public:
 			if (obj->isSameObject(jobj))
 				return static_cast<T*>(obj);
 		}
-		QString name = JObject(jobj).getClass().getClassName();
 		return 0;
 	}
 

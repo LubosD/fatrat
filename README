@@ -81,3 +81,7 @@ Web interface utilizes the following 3rd party JavaScript libraries:
 * jQuery Context Menu plugin <http://abeautifulsite.net/2008/09/jquery-context-menu-plugin/>
   Copyright © A Beautiful Site, LLC.
   Dual licensed under the MIT and GPL licenses
+
+* firefox-event-source
+  Copyright © 2010-2011 Bocoup, LLC
+  Dual licensed under the MIT and GPL licenses

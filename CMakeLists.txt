@@ -497,6 +497,8 @@ if(WITH_WEBINTERFACE)
 		src/remote/XmlRpcService.h
 		src/remote/SettingsWebForm.h
 		src/remote/CertGenDlg.h
+		src/remote/HttpService.h
+		src/captcha/CaptchaHttp.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}

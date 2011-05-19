@@ -28,14 +28,25 @@ respects for all of the code used other than "OpenSSL".
 #ifndef CAPTCHAHTTP_H
 #define CAPTCHAHTTP_H
 #include "Captcha.h"
+#include <QTime>
+#include <QHash>
+#include <QMutex>
 
-class CaptchaHttp : public Captcha
+class CaptchaHttp : public QObject, public Captcha
 {
+Q_OBJECT
 public:
 	CaptchaHttp();
 	virtual ~CaptchaHttp();
+
+	void captchaEntered(int id, QString text);
 protected:
 	virtual bool process(int id, QString url);
+private slots:
+	void checkTimeouts();
+private:
+	QHash<int, QTime> m_timeout;
+	QMutex m_timeoutLock;
 };
 
 #endif // CAPTCHAHTTP_H

@@ -23,6 +23,7 @@
 <script type="text/javascript" src="scripts/ui.js"></script>
 <script type="text/javascript" src="scripts/client.js"></script>
 <script type="text/javascript" src="scripts/jquery.contextMenu.js"></script>
+<script type="text/javascript" src="scripts/firefox-event-source.js"></script>
 </head>
 
 <body>
@@ -312,6 +313,13 @@
 		<div id="settings-pane-script"></div>
 		<div id="settings-pane"></div>
 	</div>
+</div>
+
+<div class="dialog" id="captcha-dialog" title="Captcha">
+	<form id="captcha-form">
+		<img src="" id="captcha-image" />
+		<input type="text" size="8" id="captcha-solution" />
+	</form>
 </div>
 
 <ul class="contextMenu" id="menu-transfer">

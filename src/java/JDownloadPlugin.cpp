@@ -66,27 +66,35 @@ void JDownloadPlugin::registerNatives()
 void JDownloadPlugin::captchaSolved(QString url, QString solution)
 {
 	assert(m_captchaCallbacks.contains(url));
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(m_captchaCallbacks[url].first);
+
+	// Needs to be called from the right thread
+	QMetaObject::invokeMethod(This, "captchaSolvedSlot", Qt::QueuedConnection, Q_ARG(QString, url), Q_ARG(QString, solution));
+}
+
+void JDownloadPlugin::captchaSolvedSlot(QString url, QString solution)
+{
+	assert(m_captchaCallbacks.contains(url));
 
 	JObject& obj = m_captchaCallbacks[url].second;
-	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(m_captchaCallbacks[url].first);
 
 	try
 	{
 		if (!solution.isEmpty())
 		{
-			This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::captchaSolved(): ")+url+" -> "+solution);
+			m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::captchaSolved(): ")+url+" -> "+solution);
 			obj.call("onSolved", JSignature().addString(), solution);
 		}
 		else
 		{
-			This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::captchaSolved(): ")+url+" -> ?");
+			m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::captchaSolved(): ")+url+" -> ?");
 			obj.call("onFailed");
 		}
 	}
 	catch (const JException& e)
 	{
-		This->m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
-		This->m_transfer->setState(Transfer::Failed);
+		m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
+		m_transfer->setState(Transfer::Failed);
 	}
 
 	m_captchaCallbacks.remove(url);

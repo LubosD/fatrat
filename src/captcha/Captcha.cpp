@@ -107,9 +107,11 @@ void Captcha::returnResult(int id, QString solution)
 	if (!solution.isEmpty())
 		prc.solution = solution;
 
-	if (!prc.decodersLeft)
+	if (!prc.decodersLeft || !solution.isEmpty())
 	{
-		prc.cb(prc.url, prc.solution);
+		// TODO: abort others?
+		if (prc.cb)
+			prc.cb(prc.url, prc.solution);
 		m_cb.remove(id);
 	}
 }

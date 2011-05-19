@@ -26,12 +26,14 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "CaptchaHttp.h"
+#include "remote/HttpService.h"
+#include <QTimer>
 
 // http://svn.atomiclabs.com/pion-net/trunk/net/tests/WebServerTests.cpp
 
 CaptchaHttp::CaptchaHttp()
 {
-
+	Captcha::registerCaptchaDecoder(this);
 }
 
 CaptchaHttp::~CaptchaHttp()
@@ -41,5 +43,42 @@ CaptchaHttp::~CaptchaHttp()
 
 bool CaptchaHttp::process(int id, QString url)
 {
+	HttpService* s = HttpService::instance();
+	if (!s || !s->hasCaptchaHandlers())
+		return false;
 
+	s->addCaptchaEvent(id, url);
+
+	m_timeoutLock.lock();
+	m_timeout[id] = QTime::currentTime();
+	m_timeoutLock.unlock();
+
+	QTimer::singleShot(31*1000, this, SLOT(checkTimeouts()));
+
+	return true;
+}
+
+void CaptchaHttp::checkTimeouts()
+{
+	QMutexLocker l(&m_timeoutLock);
+	QTime time = QTime::currentTime();
+
+	for (QHash<int,QTime>::iterator it = m_timeout.begin(); it != m_timeout.end();)
+	{
+		if (it.value().secsTo(time) >= 30)
+		{
+			returnResult(it.key(), QString());
+			it = m_timeout.erase(it);
+		}
+		else
+			it++;
+	}
+}
+
+void CaptchaHttp::captchaEntered(int id, QString text)
+{
+	QMutexLocker l(&m_timeoutLock);
+
+	m_timeout.remove(id);
+	this->returnResult(id, text);
 }

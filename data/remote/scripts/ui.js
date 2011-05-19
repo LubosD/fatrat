@@ -64,7 +64,7 @@ $(document).ready(function() {
 	//$(window).resize(updateSizes);
 	//window.setTimeout(updateSizes, 250);
 	
-	if (window.webkitNotifications && window.webkitNotifications.checkPermission() != 0) {
+	/*if (window.webkitNotifications && window.webkitNotifications.checkPermission() != 0) {
 		$('#popup-permissions-request').click(function() {
 			window.webkitNotifications.requestPermission(function() {
 				var perm = window.webkitNotifications.checkPermission();
@@ -75,7 +75,7 @@ $(document).ready(function() {
 			});
 		});
 		$('#popup-permissions').show();
-	}
+	}*/
 	
 	target = document.getElementById('fatrat-chrome-comm-div');
 	target.addEventListener("startDownload",function(e) {

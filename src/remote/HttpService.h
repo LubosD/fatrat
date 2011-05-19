@@ -34,9 +34,14 @@ respects for all of the code used other than "OpenSSL".
 #include <QByteArray>
 #include <QVariantMap>
 #include <QFile>
+#include <QMutex>
+#include <QList>
+#include <QQueue>
+#include <QTimer>
 #include <ctime>
 #include <openssl/ssl.h>
 #include <pion/net/HTTPResponseWriter.hpp>
+#include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
 
 #ifndef WITH_WEBINTERFACE
@@ -50,6 +55,9 @@ class Transfer;
 
 class HttpService : public QObject
 {
+Q_OBJECT
+private:
+	struct RegisteredClient;
 public:
 	HttpService();
 	~HttpService();
@@ -60,16 +68,29 @@ public:
 	void setupAuth();
 	void setupSSL();
 
+	void addCaptchaEvent(int id, QString url);
+	bool hasCaptchaHandlers();
+
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 
 	static QVariant generateCertificate(QList<QVariant>&);
+private slots:
+	void keepalive(); // QTimer TODO
+private:
+	void addCaptchaClient(RegisteredClient* client);
+	void removeCaptchaClient(RegisteredClient* client);
 private:
 	static HttpService* m_instance;
 	pion::net::WebServer* m_server;
 	pion::net::HTTPAuthPtr m_auth_ptr;
+	CaptchaHttp m_captchaHttp;
 	quint16 m_port;
 	QString m_strSSLPem;
+
+	QTimer m_timer;
+	QList<RegisteredClient*> m_registeredCaptchaClients;
+	QMutex m_registeredCaptchaClientsMutex;
 
 	class GraphService : public pion::net::WebService
 	{
@@ -96,7 +117,7 @@ private:
 	public:
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
 	};
-	class CaptchaService : public pion::net::WebService
+	/*class CaptchaService : public pion::net::WebService
 	{
 	public:
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
@@ -113,6 +134,52 @@ private:
 			int inbuf;
 			pion::net::TCPConnectionPtr tcp_conn;
 		} m_cap;
+	};*/
+
+	class CaptchaHttpResponseWriter;
+	class CaptchaService : public pion::net::WebService
+	{
+	public:
+		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	};
+	struct RegisteredClient
+	{
+		typedef QPair<int,QString> Captcha;
+
+		boost::shared_ptr<CaptchaHttpResponseWriter> writer;
+		QMutex writeInProgressLock;
+		QQueue<Captcha> captchaQueue;
+		QMutex captchaQueueLock;
+
+		void keepalive();
+		void pushMore();
+		void finished();
+		void terminate();
+	};
+
+	class CaptchaHttpResponseWriter : public pion::net::HTTPResponseWriter
+	{
+	public:
+		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, pion::net::TCPConnectionPtr &tcp_conn, const pion::net::HTTPRequest& request, FinishedHandler handler = FinishedHandler())
+					      : pion::net::HTTPResponseWriter(tcp_conn, request, handler), client(cl)
+		{
+
+		}
+
+		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, pion::net::TCPConnectionPtr &tcp_conn, const pion::net::HTTPRequest& request, FinishedHandler handler = FinishedHandler())
+		{
+			return boost::shared_ptr<CaptchaHttpResponseWriter>(new CaptchaHttpResponseWriter(cl, tcp_conn, request, handler));
+		}
+		/*virtual void prepareBuffersForSend(HTTPMessage::WriteBuffers& write_buffers) {
+			m_content_length = 0;
+			//if (getContentLength() > 0)
+			//	m_http_response->setContentLength(getContentLength());
+			m_http_response->prepareBuffersForSend(write_buffers, getTCPConnection()->getKeepAlive(),
+							       sendingChunkedMessage());
+		}*/
+		virtual void handleWrite(const boost::system::error_code &write_error, std::size_t bytes_written);
+
+		HttpService::RegisteredClient* client;
 	};
 
 	class WriteBackImpl : public TransferHttpService::WriteBack

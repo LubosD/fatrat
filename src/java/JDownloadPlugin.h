@@ -62,6 +62,7 @@ public:
 	static void captchaSolved(QString url, QString solution);
 private slots:
 	void secondElapsed();
+	void captchaSolvedSlot(QString url, QString solution);
 protected:
 	static QMap<QString,QString> cookiesToMap(const QList<QNetworkCookie>& list);
 private:

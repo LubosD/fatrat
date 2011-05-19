@@ -52,6 +52,7 @@ function clientInit() {
 	$("#toolbar-settings").click(actionSettings);
 	
 	updateQueues();
+	window.setTimeout('startCaptchaListener()', 1000); // hack for Chrome
 	
 	iv = $.cookie("refreshInterval");
 	if (!iv)
@@ -993,4 +994,46 @@ function checkInt(varid) {
 		throw "Integer value out of permitted range: "+varid+", max="+max;
 	
 	return v;
+}
+
+function handleCaptchaEvent(data) {
+	var pos = data.indexOf(",");
+	var id = data.substring(0, pos);
+	var url = data.substring(pos+1);
+	
+	/*if (window.webkitNotifications && window.webkitNotifications.checkPermission() == 0) {
+		var not = window.webkitNotifications.createNotification('', 'Captcha', 'There is a captcha to be solved in FatRat');
+		//var not = window.webkitNotifications.createHTMLNotification('captcha.html?url='+url+'&id='+id);
+		not.show();
+	}*/
+	
+	var win;
+	try {
+		var date = new Date();
+		win = window.open('captcha.html?url='+url+'&id='+id+'&timeStart='+date.getTime(), '_blank', 'width=300,height=250,top=300,left=400');
+		if (win == null || typeof(win) == 'undefined') {
+			throw "blocked";
+		}
+	} catch (e) {
+		alert("For captcha input windows to show up, you need to allow this URL to open popup windows");
+	}
+	
+	win.onload = function() { setTimeout(function() {
+			if (win.screenX === 0)
+				alert("For captcha input windows to show up, you need to allow this URL to open popup windows");
+		}, 0);
+	};
+}
+
+function startCaptchaListener() {
+	if (window.EventSource) {
+		var source = new EventSource('/captcha');
+		source.addEventListener('message', function (event) {
+			handleCaptchaEvent(event.data);
+		});
+		source.addEventListener('error', function() {
+			window.setTimeout('startCaptchaListener()', 500);
+		});
+	} else {
+	}
 }
