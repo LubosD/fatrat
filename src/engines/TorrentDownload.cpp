@@ -1010,7 +1010,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 			while(true)
 			{
 				libtorrent::alert* aaa;
-				std::unique_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
+				std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
 	
 				if((aaa = a.get()) == 0)
 				{
@@ -1423,7 +1423,7 @@ void TorrentWorker::doWork()
 	while(true)
 	{
 		libtorrent::alert* aaa;
-		std::unique_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
+		std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
 		
 		if((aaa = a.get()) == 0)
 			break;
