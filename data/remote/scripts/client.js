@@ -3,10 +3,11 @@ var rpcMethods = ["getQueues", "getTransferClasses", "Queue.getTransfers",
 	"Transfer.setProperties", "Transfer.getAdvancedProperties", "Transfer.delete",
 	"Queue.moveTransfers", "Queue.setProperties", "Queue.create", "getTransferClasses",
 	"Queue.addTransfers", "Queue.addTransferWithData", "Settings.apply",
-	"Settings.setValue", "Settings.getValue", "Settings.getPages"  ];
+	"Settings.setValue", "Settings.getValue", "Settings.getPages", "Transfer.getSpeedData",
+	"Queue.getSpeedData"  ];
 var queues, transfers;
 var currentQueue, currentTransfers = [];
-var interval;
+var interval, graphMinutes = 5;
 var transferClasses, settingsPages;
 var settingsStore = [];
 
@@ -34,6 +35,9 @@ function clientInit() {
 			$(this).addClass("ui-selected").siblings().removeClass("ui-selected");
 			switchSettingsPage(false);
 		});
+	});
+	getSettingsValues(["graphminutes"], function(d) {
+		graphMinutes = d["graphminutes"];
 	});
 	
 	$("#toolbar-add").click(actionAdd);
@@ -261,7 +265,12 @@ function tabSwitched(reallySwitched) {
 		if (currentTransfers.length == 1) {
 			if (reallySwitched)
 				$("#tabs-tsg-img").attr('style','visibility: hidden');
-			$("#tabs-tsg-img").attr('src', '/generate/graph.png?'+currentTransfers[0]+'&'+d.getTime());
+			client.Transfer_getSpeedData(currentTransfers[0], function(data) {
+				
+				drawSpeedGraph("tabs-tsg-img", data);
+				$("#tabs-tsg-img").attr('style','visibility: visible');
+				
+			});
 		} else
 			$("#tabs").tabs("option", "selected", 0);
 	}
@@ -269,7 +278,10 @@ function tabSwitched(reallySwitched) {
 		if (currentQueue) {
 			if (reallySwitched)
 				$("#tabs-qsg-img").attr('style','visibility: hidden');
-			$("#tabs-qsg-img").attr('src', '/generate/qgraph.png?'+currentQueue+'&'+d.getTime());
+			client.Queue_getSpeedData(currentQueue, function(data) {
+				drawSpeedGraph("tabs-qsg-img", data);
+				$("#tabs-qsg-img").attr('style','visibility: visible');
+			});
 		} else
 			$("#tabs").tabs("option", "selected", 0);
 	}
@@ -1036,4 +1048,147 @@ function startCaptchaListener() {
 		});
 	} else {
 	}
+}
+
+function drawSpeedGraph(id, sdata) {
+	var canvas = document.getElementById(id);
+	var ctx = canvas.getContext("2d");
+	var data = parseSpeedData(sdata);
+	var seconds = graphMinutes*60;
+	var width = ctx.canvas.width;
+	var height = ctx.canvas.height;
+	var perpt = width / Math.max(data.data.length, seconds);
+	
+	ctx.fillStyle = 'rgb(255,255,255)';
+	ctx.fillRect(0, 0, width, height);
+	
+	if (!data.max) {
+		ctx.font = '20px sans-serif';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.strokeStyle = 'rgb(0,0,0)';
+		ctx.fillStyle = 'rgb(0,0,0)';
+		ctx.fillText('NO DATA', width/2, height/2);
+		
+		return;
+	}
+	
+	data.max = Math.round(Math.max(data.max/10*11,10*1024));
+	
+	var pos = width;
+	var elems = data.data.length;
+	
+	if (elems > seconds) {
+		getSettingsValues(["graphminutes"], function(d) {
+			graphMinutes = d["graphminutes"];
+			drawSpeedGraph(id, sdata);
+		});
+		return;
+	}
+	
+	// download
+	ctx.strokeStyle = 'rgb(0,0,128)';
+	ctx.fillStyle = 'rgba(0,0,128,0.25)';
+	ctx.beginPath();
+	
+	for (var i = 0; i < elems; i++) {
+		var y = height - height/data.max*data.data[elems - i - 1][0];
+		if (i > 0)
+			ctx.lineTo(pos, y);
+		else
+			ctx.moveTo(pos, y);
+		pos -= perpt;
+	}
+	
+	ctx.stroke();
+	
+	ctx.lineTo(pos+perpt, height);
+	ctx.lineTo(width, height);
+	ctx.fill();
+	
+	ctx.strokeStyle = 'rgb(128,0,0)';
+	ctx.fillStyle = 'rgba(128,0,0,0.25)';
+	ctx.beginPath();
+	
+	pos = width;
+	
+	for (var i = 0; i < elems; i++) {
+		var y = height - height/data.max*data.data[elems - i - 1][1];
+		if (i > 0)
+			ctx.lineTo(pos, y);
+		else
+			ctx.moveTo(pos, y);
+		pos -= perpt;
+	}
+	
+	ctx.stroke();
+	ctx.lineTo(pos+perpt, height);
+	ctx.lineTo(width, height);
+	ctx.fill();
+	
+	ctx.beginPath();
+	ctx.strokeStyle = 'rgb(0,0,128)';
+	ctx.moveTo(2,7);
+	ctx.lineTo(12,7);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.strokeStyle = 'rgb(128,0,0)';
+	ctx.moveTo(2,19);
+	ctx.lineTo(12,19);
+	ctx.stroke();
+	
+	ctx.strokeStyle = ctx.fillStyle = 'rgb(0,0,0)';
+	ctx.font = '10px sans-serif';
+	ctx.fillText('Download', 15, 12);
+	ctx.fillText('Upload', 15, 24);
+	
+	ctx.beginPath();
+	for (var i = 0; i < 4; i++) {
+		var x = width - (i+1)*(width/4);
+		ctx.moveTo(x, height);
+		ctx.lineTo(x, height-15);
+		
+		var mins = (seconds/4) * (i+1) / 60.0;
+		mins = Math.round(mins*100)/100;
+		ctx.fillText(mins+' mins ago', x+2, height-2);
+	}
+	ctx.stroke();
+	
+	ctx.strokeStyle = 'rgba(128,128,128,0.5)';
+	ctx.beginPath();
+	
+	for (var i = 0; i < 10; i++) {
+		var pos = Math.round(height / 10 * i);
+		ctx.moveTo(0, pos);
+		ctx.lineTo(width, pos);
+		ctx.fillText(formatSize(data.max/10*(10-i))+'/s', 0, pos-10);
+	}
+	ctx.stroke();
+}
+
+function parseSpeedData(indata) {
+	var rv = [];
+	var p = indata.split(';');
+	var m = 0;
+	
+	for (var i = 0; i < p.length; i++) {
+		var v = p[i].split(',');
+		
+		if (!v || !v.length || !v[0].length)
+			continue;
+		
+		rv[i] = new Array();
+		rv[i][0] = parseInt(v[0]);
+		rv[i][1] = parseInt(v[1]);
+		
+		m = Math.max(m, rv[i][0]);
+		m = Math.max(m, rv[i][1]);
+	}
+	
+	var o = {
+		data: rv,
+		max: m
+	};
+	return o;
 }

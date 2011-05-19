@@ -92,14 +92,6 @@ private:
 	QList<RegisteredClient*> m_registeredCaptchaClients;
 	QMutex m_registeredCaptchaClientsMutex;
 
-	class GraphService : public pion::net::WebService
-	{
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
-	};
-	class QgraphService : public pion::net::WebService
-	{
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
-	};
 	class LogService : public pion::net::WebService
 	{
 		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);

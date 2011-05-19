@@ -196,8 +196,6 @@ void HttpService::setup()
 		setupSSL();
 
 		m_server->addService("/xmlrpc", new XmlRpcService);
-		m_server->addService("/generate/graph.png", new GraphService);
-		m_server->addService("/generate/qgraph.png", new QgraphService);
 		m_server->addService("/subclass", new SubclassService);
 		m_server->addService("/log", new LogService);
 		m_server->addService("/browse", new TransferTreeBrowserService);
@@ -244,71 +242,6 @@ void HttpService::setupSSL()
 		m_server->setSSLFlag(false);
 		m_strSSLPem.clear();
 	}
-}
-
-void HttpService::GraphService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
-{
-	QBuffer buf;
-	QImage image(QSize(640, 480), QImage::Format_RGB32);
-	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn)));
-	
-	Queue* q;
-	Transfer* t;
-	QString queryString = QUrl::fromPercentEncoding(QString::fromStdString(request->getQueryString()).toUtf8());
-	int index;
-
-	if ((index = queryString.indexOf('&')) != -1)
-		queryString = queryString.left(index);
-	
-	findTransfer(queryString, &q, &t);
-	if(!q || !t)
-	{
-		writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-		writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
-		return;
-	}
-	
-	SpeedGraph::draw(t->speedData(), QSize(640, 480), &image);
-	
-	q->unlock();
-	g_queuesLock.unlock();
-	
-	image.save(&buf, "PNG");
-	writer->getResponse().addHeader("Content-Type", "image/png");
-	writer->write(buf.buffer().data(), buf.size());
-	writer->send();
-}
-
-void HttpService::QgraphService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
-{
-	QBuffer buf;
-	QImage image(QSize(640, 480), QImage::Format_RGB32);
-	HTTPResponseWriterPtr writer(HTTPResponseWriter::create(tcp_conn, *request, boost::bind(&TCPConnection::finish, tcp_conn)));
-
-	QReadLocker locker(&g_queuesLock);
-	Queue* q;
-	QString queryString = QUrl::fromPercentEncoding(QString::fromStdString(request->getQueryString()).toUtf8());
-	int index;
-
-	if ((index = queryString.indexOf('&')) != -1)
-		queryString = queryString.left(index);
-
-	findQueue(queryString, &q);
-	if(!q)
-	{
-		writer->getResponse().setStatusCode(HTTPTypes::RESPONSE_CODE_NOT_FOUND);
-		writer->getResponse().setStatusMessage(HTTPTypes::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
-		return;
-	}
-
-	SpeedGraph::draw(q->speedData(), QSize(640, 480), &image);
-
-	image.save(&buf, "PNG");
-	writer->getResponse().addHeader("Content-Type", "image/png");
-	writer->write(buf.buffer().data(), buf.size());
-	writer->send();
 }
 
 void HttpService::LogService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)

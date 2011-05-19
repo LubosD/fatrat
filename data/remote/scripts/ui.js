@@ -29,8 +29,8 @@ $(document).ready(function() {
 	$('#toolbar-help').click(function() { window.open("http://fatrat.dolezel.info/documentation"); } );
 	
 	$('#tabs').tabs({ show: function() { updateSizes(); tabSwitched(true); } });
-	$("#tabs-tsg-img").load(function() { $("#tabs-tsg-img").attr('style','visibility: visible'); });
-	$("#tabs-qsg-img").load(function() { $("#tabs-qsg-img").attr('style','visibility: visible'); });
+	//$("#tabs-tsg-img").load(function() { $("#tabs-tsg-img").attr('style','visibility: visible'); });
+	//$("#tabs-qsg-img").load(function() { $("#tabs-qsg-img").attr('style','visibility: visible'); });
 	
 	$("#queues .ui-selectee").click(function(e){
 		$(this).toggleClass("ui-selected").siblings().removeClass("ui-selected");
@@ -76,6 +76,23 @@ $(document).ready(function() {
 		});
 		$('#popup-permissions').show();
 	}*/
+	
+	$(window).keydown(function(e) {
+		switch (e.keyCode) {
+			case 46: // DEL
+				if (e.shiftKey)
+					actionDeleteWithData();
+				else
+					actionDelete();
+				break;
+			case 78: // N
+				actionAdd();
+				break;
+			default:
+				return;
+		}
+		e.preventDefault();
+	});
 	
 	target = document.getElementById('fatrat-chrome-comm-div');
 	target.addEventListener("startDownload",function(e) {

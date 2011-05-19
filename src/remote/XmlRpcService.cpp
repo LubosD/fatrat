@@ -135,6 +135,15 @@ void XmlRpcService::globalInit()
 	}
 	registerFunction("Settings.apply", Settings_apply, QVector<QVariant::Type>());
 	registerFunction("Settings.getPages", Settings_getPages, QVector<QVariant::Type>());
+
+	{
+		QVector<QVariant::Type> aa;
+		aa << QVariant::String;
+
+		registerFunction("Queue.getSpeedData", Queue_getSpeedGraph, aa);
+		registerFunction("Transfer.getSpeedData", Transfer_getSpeedGraph, aa);
+	}
+
 }
 
 void XmlRpcService::operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn)
@@ -887,4 +896,54 @@ void XmlRpcService::findQueue(QString queueUUID, Queue** q)
 int XmlRpcService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
 {
 	return HttpService::findTransfer(transferUUID, q, t, lockForWrite);
+}
+
+QVariant XmlRpcService::Transfer_getSpeedGraph(QList<QVariant>& args)
+{
+	Queue* q;
+	Transfer* t;
+	QString rv;
+
+	HttpService::findTransfer(args[0].toString(), &q, &t);
+
+	if(!t)
+		throw XmlRpcError(102, "Invalid transfer UUID");
+
+	rv = speedDataToString(t->speedData());
+
+	q->unlock();
+	g_queuesLock.unlock();
+
+	return rv;
+}
+
+QVariant XmlRpcService::Queue_getSpeedGraph(QList<QVariant>& args)
+{
+	QReadLocker r(&g_queuesLock);
+	Queue* q;
+	QString rv;
+
+	HttpService::findQueue(args[0].toString(), &q);
+
+	if(!q)
+		throw XmlRpcError(101, "Invalid queue UUID");
+
+	rv = speedDataToString(q->speedData());
+	return rv;
+}
+
+QString XmlRpcService::speedDataToString(QQueue<QPair<int,int> > data)
+{
+	QString result;
+
+	while (!data.isEmpty())
+	{
+		QPair<int,int> el = data.dequeue();
+		char buffer[100];
+
+		// faster than QString
+		snprintf(buffer, sizeof buffer, "%d,%d;", el.first, el.second);
+		result += buffer;
+	}
+	return result;
 }

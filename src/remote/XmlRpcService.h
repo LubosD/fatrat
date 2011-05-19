@@ -32,6 +32,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QVector>
 #include <QMap>
 #include <QVariantMap>
+#include <QQueue>
+#include <QPair>
 //#include "engines/OutputBuffer.h"
 
 #ifndef WITH_WEBINTERFACE
@@ -66,12 +68,16 @@ protected:
 	static QVariant Transfer_getAdvancedProperties(QList<QVariant>&);
 	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
 	static QVariant Transfer_delete(QStringList uuid, bool withData);
+	static QVariant Transfer_getSpeedGraph(QList<QVariant>&);
+	static QVariant Queue_getSpeedGraph(QList<QVariant>&);
 	static QVariant Queue_addTransfers(QList<QVariant>&);
 	static QVariant Queue_addTransferWithData(QList<QVariant>&);
 	static QVariant Settings_getValue(QList<QVariant>&);
 	static QVariant Settings_setValue(QList<QVariant>&);
 	static QVariant Settings_apply(QList<QVariant>&);
 	static QVariant Settings_getPages(QList<QVariant>&);
+
+	static QString speedDataToString(QQueue<QPair<int,int> > data);
 private slots:
 	void applyAllSettings();
 public:
