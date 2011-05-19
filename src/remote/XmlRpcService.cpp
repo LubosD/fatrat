@@ -823,7 +823,13 @@ QVariant XmlRpcService::Settings_getValue(QList<QVariant>& args)
 	QVariantList out;
 
 	foreach (QString key, keys)
-		out << getSettingsValue(key);
+	{
+		QVariant var = getSettingsValue(key);
+		if (var.isNull())
+			out << "";
+		else
+			out << getSettingsValue(key);
+	}
 
 	return out;
 }
