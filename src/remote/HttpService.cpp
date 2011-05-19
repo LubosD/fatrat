@@ -276,7 +276,7 @@ void HttpService::GraphService::operator()(pion::net::HTTPRequestPtr &request, p
 	
 	image.save(&buf, "PNG");
 	writer->getResponse().addHeader("Content-Type", "image/png");
-	writer->writeNoCopy(buf.buffer().data(), buf.size());
+	writer->write(buf.buffer().data(), buf.size());
 	writer->send();
 }
 
@@ -307,7 +307,7 @@ void HttpService::QgraphService::operator()(pion::net::HTTPRequestPtr &request, 
 
 	image.save(&buf, "PNG");
 	writer->getResponse().addHeader("Content-Type", "image/png");
-	writer->writeNoCopy(buf.buffer().data(), buf.size());
+	writer->write(buf.buffer().data(), buf.size());
 	writer->send();
 }
 

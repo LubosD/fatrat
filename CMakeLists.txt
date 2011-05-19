@@ -50,7 +50,7 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
-	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.14.6")
+	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.15.0")
 	
 	if(libtorrent_FOUND)
 		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
