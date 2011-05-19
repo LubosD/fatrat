@@ -78,6 +78,7 @@ public:
 	bool isNull() const { return !m_object; }
 	JClass getClass() const;
 
+#if !defined(WITH_CXX0X)
 	template<typename T1> QVariant call(const char *name, const JSignature& sig, T1 a1)
 	{
 		return call(name, sig, JArgs() << a1);
@@ -103,7 +104,8 @@ public:
 		return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5 << a6);
 	}
 
-#ifdef WITH_CXX0X
+#else
+
 	 template<typename T> void addArg(JArgs& args, T arg)
 	 {
 		args << arg;
