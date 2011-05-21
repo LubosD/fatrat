@@ -389,7 +389,7 @@ function tabSwitched(reallySwitched) {
 }
 
 function singleDecimalDigit(num) {
-	return Math.round(num*10)/10;
+	return Math.floor(num*10)/10;
 }
 
 function formatSize(bytes) {
