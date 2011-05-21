@@ -99,6 +99,7 @@ static void loadPlugins(const char* dir);
 static void showHelp();
 static void installSignalHandler();
 static void testJava();
+static void daemonize();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
@@ -251,6 +252,11 @@ QString argsToArg(int argc,char** argv)
 			m_bStartGUI = false;
 		else if(!strcasecmp(argv[i], "--help") || !strcasecmp(argv[i], "-h"))
 			showHelp();
+		else if(!strcasecmp(argv[i], "--daemon") || !strcasecmp(argv[i], "-d"))
+		{
+			m_bStartGUI = false;
+			daemonize();
+		}
 		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
 			m_strUnitTest = argv[++i];
 		else if(!strcasecmp(argv[i], "--no-java"))
@@ -554,6 +560,7 @@ void showHelp()
 			"-f, --force \tRun the program even if an instance already exists\n"
 			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"
 			"-n, --nogui \tStart with no GUI at all\n"
+			"-d, --daemon\tDaemonize the application (assumes --nogui)\n"
 #ifdef WITH_JPLUGINS
 			"--no-java   \tDisable support for Java extensions\n"
 			"--force-jre-search\tIgnore the cached JRE location\n"
@@ -615,4 +622,9 @@ void __attribute__ ((unused)) testJava()
 	qDebug() << "End test";
 }
 #endif
+
+void daemonize()
+{
+	daemon(true, false);
+}
 

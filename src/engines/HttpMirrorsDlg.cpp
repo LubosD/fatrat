@@ -155,7 +155,7 @@ void HttpMirrorsDlg::ProbeThread::run()
 				// guess source TTL
 				int sttl;
 				if (ttl > 128)
-					sttl = 256;
+					sttl = 255;
 				else if (ttl > 64)
 					sttl = 128;
 				else
