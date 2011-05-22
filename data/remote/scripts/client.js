@@ -1063,12 +1063,14 @@ function drawSpeedGraph(id, sdata) {
 	ctx.fillRect(0, 0, width, height);
 	
 	if (!data.max) {
+		ctx.save();
 		ctx.font = '20px sans-serif';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.strokeStyle = 'rgb(0,0,0)';
 		ctx.fillStyle = 'rgb(0,0,0)';
 		ctx.fillText('NO DATA', width/2, height/2);
+		ctx.restore();
 		
 		return;
 	}
