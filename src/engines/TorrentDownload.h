@@ -106,8 +106,8 @@ public:
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	virtual QString remoteURI() const;
 	
-	qint64 totalDownload() const { return m_nPrevDownload + m_status.total_payload_download; }
-	qint64 totalUpload() const { return m_nPrevUpload + m_status.total_payload_upload; }
+	qint64 totalDownload() const { return m_status.all_time_download; }
+	qint64 totalUpload() const { return m_status.all_time_upload; }
 
 #ifdef WITH_WEBINTERFACE
 	// TransferHttpService
@@ -135,7 +135,7 @@ protected:
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;
-	qint64 m_nPrevDownload, m_nPrevUpload;
+	//qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<int> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
 	

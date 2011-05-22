@@ -99,7 +99,7 @@ const char* (*GeoIP_country_code_by_addr_imp)(void*, const char*);
 void (*GeoIP_delete_imp)(void*);
 
 TorrentDownload::TorrentDownload(bool bAuto)
-	:  m_info(0), m_nPrevDownload(0), m_nPrevUpload(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_bSuperSeeding(false), m_pFileDownload(0)
+	:  m_info(0), m_bHasHashCheck(false), m_bAuto(bAuto), m_bSuperSeeding(false), m_pFileDownload(0)
 		, m_pFileDownloadTemp(0)
 {
 	m_worker->addObject(this);
@@ -916,8 +916,8 @@ void TorrentDownload::load(const QDomNode& map)
 		m_handle.set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
 		m_handle.set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
 		
-		m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
-		m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
+		//m_nPrevDownload = getXMLProperty(map, "downloaded").toLongLong();
+		//m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
 		
 		str = getXMLProperty(map, "priorities");
 		
@@ -1365,7 +1365,7 @@ void TorrentWorker::doWork()
 		if(d->m_bHasHashCheck && d->m_status.state != libtorrent::torrent_status::checking_files && d->m_status.state != libtorrent::torrent_status::queued_for_checking)
 		{
 			d->m_bHasHashCheck = false;
-			d->m_nPrevDownload = d->done();
+			//d->m_nPrevDownload = d->done();
 		}
 		
 		if(d->isActive())
