@@ -339,6 +339,7 @@ void TorrentDownload::applySettings()
 	settings.max_failcount = 7;
 	settings.request_queue_time = 30.f;
 	settings.max_out_request_queue = 100;
+	settings.cache_size = getSettingsValue("torrent/cache_size").toInt();
 	
 	QByteArray external_ip = getSettingsValue("torrent/external_ip").toString().toUtf8();
 	if(!external_ip.isEmpty())
