@@ -637,5 +637,5 @@ endif(WITH_DOCUMENTATION)
 install(FILES doc/fatrat.1 DESTINATION share/man/man1)
 
 install(TARGETS fatrat fatrat-conf DESTINATION bin)
-install(SCRIPT CreateSymlinks.cmake)
+# install(SCRIPT CreateSymlinks.cmake)
 
