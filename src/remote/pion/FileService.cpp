@@ -17,6 +17,7 @@
 #include "FileService.hpp"
 #include <pion/PionPlugin.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
+#include <sstream>
 
 using namespace pion;
 using namespace pion::net;
@@ -365,6 +366,10 @@ void FileService::operator()(HTTPRequestPtr& request, TCPConnectionPtr& tcp_conn
 			// set Last-Modified header to enable client-side caching
 			writer->getResponse().addHeader(HTTPTypes::HEADER_LAST_MODIFIED,
 											response_file.getLastModifiedString());
+
+			std::stringstream out;
+			out << response_file.getFileSize();
+			writer->getResponse().addHeader(HTTPTypes::HEADER_CONTENT_LENGTH, out.str());
 
 			switch(response_type) {
 				case RESPONSE_UNDEFINED:
