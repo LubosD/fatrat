@@ -256,7 +256,7 @@ void HttpDetails::refresh()
 			item->setText(2, size);
 
 			s.client->speeds(down, up);
-			if (s.client->progress())
+			if (s.client->progress() && m_download->total())
 				item->setText(3, QString("%1%").arg(int(100 / (double(to-from) / s.client->progress()) )));
 			else
 				item->setText(3, QString());

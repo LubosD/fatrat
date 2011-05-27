@@ -85,6 +85,7 @@ void CurlStat::timeProcess(SpeedData& data, size_t bytes)
 			if(delta > 0)
 			{
 				delta *= 2;
+				delta -= 50000;
 				if (isNull(data.next))
 					data.next = tvNow;
 				delta = qMin<long>(delta, 2000000); // prevent download stalling

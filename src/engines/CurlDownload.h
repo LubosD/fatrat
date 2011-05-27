@@ -121,6 +121,7 @@ protected:
 		UrlClient* affectedClient;
 
 		bool operator<(const FreeSegment& s2) const;
+		static bool compareByOffset(const FreeSegment& s1, const FreeSegment& s2);
 	};
 
 	void autoCreateSegment();

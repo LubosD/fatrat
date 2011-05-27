@@ -394,6 +394,11 @@ bool CurlDownload::FreeSegment::operator <(const FreeSegment& s2) const
 	return this->bytes < s2.bytes;
 }
 
+bool CurlDownload::FreeSegment::compareByOffset(const FreeSegment& s1, const FreeSegment& s2)
+{
+	return s1.offset < s2.offset;
+}
+
 void CurlDownload::setTargetName(QString newFileName)
 {
 	if(m_strFile != newFileName)
@@ -870,6 +875,7 @@ void CurlDownload::clientDone(QString error)
 		{
 			// TODO: show error
 			// TODO: Replace segment?
+			m_listActiveSegments.removeOne(urlIndex);
 		}
 	}
 	else
@@ -880,8 +886,10 @@ void CurlDownload::clientDone(QString error)
 		//speeds(down, up);
 
 		// Only if it has a meaning
-		//if (total()-done() / down >= 30)
+		if (total()-done()*2 >= (qlonglong) getSettingsValue("httpftp/minsegsize").toInt() || m_listActiveSegments.size() == 1)
 			startSegment(urlIndex);
+		else
+			m_listActiveSegments.removeOne(urlIndex);
 	}
 }
 
@@ -893,37 +901,6 @@ void CurlDownload::startSegment(int urlIndex)
 	// 1) find free spots, prefer unallocated free spots
 	QList<FreeSegment> freeSegs, freeSegsUnallocated;
 	qlonglong lastEnd = 0;
-	for(int i=0;i<m_segments.size();i++)
-	{
-		if (m_segments[i].offset > lastEnd)
-		{
-			FreeSegment fs(lastEnd, m_segments[i].offset-lastEnd);
-			if(i == 0 || !m_segments[i-1].client)
-				freeSegsUnallocated << fs;
-			else
-			{
-				fs.affectedClient = m_segments[i-1].client;
-				freeSegs << fs;
-			}
-		}
-		lastEnd = m_segments[i].offset + m_segments[i].bytes;
-	}
-	if (lastEnd < m_nTotal)
-	{
-		FreeSegment fs(lastEnd, m_nTotal - lastEnd);
-		if (m_segments[m_segments.size()-1].client)
-		{
-			fs.affectedClient = m_segments[m_segments.size()-1].client;
-			freeSegs << fs;
-		}
-		else
-			freeSegsUnallocated << fs;
-	}
-
-	// 2) sort them
-	qSort(freeSegs.begin(), freeSegs.end());
-	qSort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
-
 	Segment seg;
 	qlonglong bytes;
 
@@ -931,40 +908,156 @@ void CurlDownload::startSegment(int urlIndex)
 	seg.bytes = 0;
 	seg.urlIndex = urlIndex;
 
-	if (!freeSegsUnallocated.isEmpty())
+	// No priority mode for downloads with a single thread
+	if (!getSettingsValue("httpftp/priority_mode", false).toBool() || m_listActiveSegments.isEmpty())
 	{
-		// 3) use the smallest unallocated segment
-		seg.offset = freeSegsUnallocated[0].offset;
-		bytes = freeSegsUnallocated[0].bytes;
-	}
-	else if(!freeSegs.isEmpty())
-	{
-		// 4) split the biggest free spot into halves
-		FreeSegment& fs = freeSegs[freeSegs.size()-1];
-		//int odd = fs.bytes % 2;
-		qlonglong half = fs.bytes / 2;
-
-		if (half <= getSettingsValue("httpftp/minsegsize").toInt())
+		for(int i=0;i<m_segments.size();i++)
 		{
-			// remove the desired urlIndex from the list of active URLs
-			m_listActiveSegments.removeOne(urlIndex);
-			return;
+			if (m_segments[i].offset > lastEnd)
+			{
+				FreeSegment fs(lastEnd, m_segments[i].offset-lastEnd);
+				if(i == 0 || !m_segments[i-1].client)
+					freeSegsUnallocated << fs;
+				else
+				{
+					fs.affectedClient = m_segments[i-1].client;
+					freeSegs << fs;
+				}
+			}
+			lastEnd = m_segments[i].offset + m_segments[i].bytes;
+		}
+		if (lastEnd < m_nTotal)
+		{
+			FreeSegment fs(lastEnd, m_nTotal - lastEnd);
+			if (m_segments[m_segments.size()-1].client)
+			{
+				fs.affectedClient = m_segments[m_segments.size()-1].client;
+				freeSegs << fs;
+			}
+			else
+				freeSegsUnallocated << fs;
 		}
 
-		// notify the active thread of the change
-		qlonglong from = fs.affectedClient->rangeFrom();
-		qlonglong to = fs.affectedClient->rangeTo();
-		if (to == -1)
-			to = m_nTotal;
-		fs.affectedClient->setRange(from, to = to - half);
+		// 2) sort them
+		qSort(freeSegs.begin(), freeSegs.end());
+		qSort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
 
-		seg.offset = to;
-		bytes = half;
+		if (!freeSegsUnallocated.isEmpty())
+		{
+			// 3) use the smallest unallocated segment
+			seg.offset = freeSegsUnallocated[0].offset;
+			bytes = freeSegsUnallocated[0].bytes;
+		}
+		else if(!freeSegs.isEmpty())
+		{
+			// 4) split the biggest free spot into halves
+			FreeSegment& fs = freeSegs[freeSegs.size()-1];
+			//int odd = fs.bytes % 2;
+			qlonglong half = fs.bytes / 2;
+
+			if (half <= getSettingsValue("httpftp/minsegsize").toInt())
+			{
+				// remove the desired urlIndex from the list of active URLs
+				m_listActiveSegments.removeOne(urlIndex);
+				return;
+			}
+
+			// notify the active thread of the change
+			qlonglong from = fs.affectedClient->rangeFrom();
+			qlonglong to = fs.affectedClient->rangeTo();
+			if (to == -1)
+				to = m_nTotal;
+			fs.affectedClient->setRange(from, to = to - half);
+
+			seg.offset = to;
+			bytes = half;
+		}
+		else
+		{
+			// This should never happen
+			return;
+		}
 	}
 	else
 	{
-		// This should never happen
-		return;
+		// Find the first free spot smaller than seglim
+		// Try not to create a new freeseg bigger than 5*seglim
+		const int seglim = getSettingsValue("httpftp/minsegsize").toInt();
+		for(int i=0;i<m_segments.size();i++)
+		{
+			if (m_segments[i].offset > lastEnd)
+			{
+				FreeSegment fs(lastEnd, m_segments[i].offset-lastEnd);
+				if(i > 0 && m_segments[i-1].client)
+					fs.affectedClient = m_segments[i-1].client;
+				if (fs.bytes >= seglim || !fs.affectedClient)
+					freeSegs << fs;
+			}
+			lastEnd = m_segments[i].offset + m_segments[i].bytes;
+		}
+		if (lastEnd < m_nTotal)
+		{
+			FreeSegment fs(lastEnd, m_nTotal - lastEnd);
+			if (m_segments[m_segments.size()-1].client)
+				fs.affectedClient = m_segments[m_segments.size()-1].client;
+			if (fs.bytes >= seglim || !fs.affectedClient)
+				freeSegs << fs;
+		}
+
+		if (freeSegs.isEmpty())
+			return; // This should never happen
+
+		qSort(freeSegs.begin(), freeSegs.end(), FreeSegment::compareByOffset);
+
+		// Take the first one
+		// If it's an allocated space, take it only if bytes >= seglim*5
+		int bestSegment = 0;
+		for (int i = 0; i < freeSegs.size(); i++)
+		{
+			if (freeSegs[i].bytes >= 5*seglim || !freeSegs[i].affectedClient)
+			{
+				bestSegment = i;
+				break;
+			}
+		}
+
+		// Now try to be 5*seglim bytes far from the active client, if any
+		FreeSegment& fs = freeSegs[bestSegment];
+		if (fs.affectedClient)
+		{
+			if (fs.bytes <= 5*seglim)
+			{
+				qlonglong half = fs.bytes / 2;
+
+				// notify the active thread of the change
+				qlonglong from = fs.affectedClient->rangeFrom();
+				qlonglong to = fs.affectedClient->rangeTo();
+				if (to == -1)
+					to = m_nTotal;
+				fs.affectedClient->setRange(from, to = to - half);
+
+				seg.offset = to;
+				bytes = half;
+			}
+			else
+			{
+				// 5*seglim far
+				// notify the active thread of the change
+				qlonglong from = fs.affectedClient->rangeFrom();
+				qlonglong to = fs.affectedClient->rangeTo();
+				if (to == -1)
+					to = m_nTotal;
+				fs.affectedClient->setRange(from, to = to - 5*seglim);
+
+				seg.offset = to;
+				bytes = fs.bytes - 5*seglim;
+			}
+		}
+		else
+		{
+			seg.offset = freeSegs[bestSegment].offset;
+			seg.bytes = freeSegs[bestSegment].bytes;
+		}
 	}
 
 	// start a new download thread
