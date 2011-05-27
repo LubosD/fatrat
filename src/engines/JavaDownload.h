@@ -85,7 +85,7 @@ private:
 	QUrl m_downloadUrl;
 	int m_nSecondsLeft;
 	QUuid m_proxy;
-	bool m_bHasLock;
+	bool m_bHasLock, m_bTruncate;
 
 	JDownloadPlugin* m_plugin;
 

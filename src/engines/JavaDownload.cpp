@@ -53,6 +53,8 @@ JavaDownload::JavaDownload(const char* cls)
 	m_strClass = cls;
 	m_plugin = new JDownloadPlugin(cls);
 	m_plugin->setTransfer(this);
+
+	m_bTruncate = m_engines[cls].truncate;
 }
 
 JavaDownload::~JavaDownload()
@@ -181,9 +183,7 @@ void JavaDownload::setObject(QString newdir)
 
 qulonglong JavaDownload::done() const
 {
-	QString clsName = m_plugin->getClass().getClassName();
-
-	if(isActive() || (!m_engines[clsName].truncate && !m_segments.isEmpty()))
+	if(isActive() || (!m_bTruncate && !m_segments.isEmpty()))
 		return CurlDownload::done();
 	else if(m_state == Completed)
 		return m_nTotal;
