@@ -197,6 +197,8 @@ JVM::operator JNIEnv*()
 
 	if (!m_env.hasLocalData())
 	{
+		abort();
+
 		JNIEnv *env;
 		m_jvm->AttachCurrentThread((void **)&env, 0);
 		JNIEnv** penv = new JNIEnv*;

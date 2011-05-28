@@ -203,6 +203,8 @@ void CurlDownload::changeActive(bool bActive)
 	qDebug() << this << "changeActive" << bActive;
 	if(bActive)
 	{
+		autoCreateSegment();
+
 		const qlonglong d = done();
 		m_strMessage.clear();
 
@@ -212,8 +214,6 @@ void CurlDownload::changeActive(bool bActive)
 			setState(Failed);
 			return;
 		}
-
-		autoCreateSegment();
 
 		m_nameChanger = 0;
 
