@@ -246,7 +246,7 @@ void CurlDownload::changeActive(bool bActive)
 		}
 		if (lastEnd < m_nTotal)
 			freeSegs << FreeSegment(lastEnd, m_nTotal - lastEnd);
-		if (!m_nTotal && freeSegs.isEmpty())
+		if (!done() && freeSegs.isEmpty())
 			freeSegs << FreeSegment(lastEnd, -1);
 		// 2) sort them
 		qSort(freeSegs.begin(), freeSegs.end());
