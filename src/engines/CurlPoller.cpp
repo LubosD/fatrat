@@ -321,7 +321,7 @@ void CurlPoller::addTransfer(CurlUser* obj)
 	curl_multi_add_handle(m_curlm, handle);
 }
 
-void CurlPoller::removeTransfer(CurlUser* obj)
+void CurlPoller::removeTransfer(CurlUser* obj, bool nodeep)
 {
 	QMutexLocker locker(&m_usersLock);
 	
@@ -330,10 +330,19 @@ void CurlPoller::removeTransfer(CurlUser* obj)
 	CURL* handle = obj->curlHandle();
 	if(handle != 0)
 	{
-		assert(!m_queueToDelete.contains(obj));
-		m_queueToDelete.enqueue(obj);
-		m_users.remove(handle);
-		assert(!m_users.contains(handle));
+		if (!nodeep)
+		{
+			assert(!m_queueToDelete.contains(obj));
+			m_queueToDelete.enqueue(obj);
+			m_users.remove(handle);
+			assert(!m_users.contains(handle));
+		}
+		else
+		{
+			CurlUserShallow* s = new CurlUserShallow(handle);
+			m_queueToDelete.enqueue(s);
+			m_users.remove(handle);
+		}
 	}
 }
 

@@ -122,6 +122,10 @@ public:
 	{
 		return JString(s);
 	}
+	static JObject nativeToBoxed(QByteArray s)
+	{
+		return JString(QString(s));
+	}
 
 	static void boxedToNative(JObject& val, QString& out)
 	{

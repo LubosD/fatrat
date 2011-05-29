@@ -49,4 +49,14 @@ protected:
 	CurlStat* m_master;
 };
 
+class CurlUserShallow : public CurlUser
+{
+public:
+	CurlUserShallow(CURL* c) : m_curl(c) {}
+	virtual void transferDone(CURLcode result) {}
+	virtual CURL* curlHandle() { return m_curl; }
+private:
+	CURL* m_curl;
+};
+
 #endif

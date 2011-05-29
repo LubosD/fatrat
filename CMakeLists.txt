@@ -400,17 +400,20 @@ if(WITH_JPLUGINS)
 		src/java/JExtractorPlugin.cpp
 		src/java/JTransferPlugin.cpp
 		src/java/JDownloadPlugin.cpp
+		src/java/JUploadPlugin.cpp
 		src/java/JNativeMethod.cpp
 		src/java/JSettings.cpp
 		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaDownload.cpp
 		src/engines/JavaExtractor.cpp
+		src/engines/JavaUpload.cpp
 		src/engines/SettingsJavaPluginForm.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/JavaDownload.h
 		src/engines/JavaExtractor.h
+		src/engines/JavaUpload.h
 		src/java/JPlugin.h
 		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
@@ -545,7 +548,7 @@ add_executable(fatrat-conf src/fatrat-conf.cpp)
 
 STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
 message(STATUS ${pion-net_LIBRARIES})
-target_link_libraries(fatrat ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+target_link_libraries(fatrat -ldl ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
 
 set(fatrat_DEV_HEADERS

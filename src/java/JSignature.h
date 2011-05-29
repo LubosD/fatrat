@@ -76,7 +76,7 @@ public:
 
 	// return arrays
 	JSignature& retA(QString cls);
-	inline JSignature& retStringA() { return ret("[java/lang/String"); }
+	inline JSignature& retStringA() { return retA("java/lang/String"); }
 	inline JSignature& retBooleanA() { return retPrimitive("[Z"); }
 	inline JSignature& retByteA() { return retPrimitive("[B"); }
 	inline JSignature& retCharA() { return retPrimitive("[C"); }
@@ -96,6 +96,7 @@ public:
 	static const char* sigLong() { return "J"; }
 	static const char* sigFloat() { return "F"; }
 	static const char* sigDouble() { return "D"; }
+	static const char* sigString() { return "Ljava/lang/String;"; }
 
 	// array variables
 	static JSignature sigA(QString cls);
@@ -107,6 +108,7 @@ public:
 	static const char* sigLongA() { return "[J"; }
 	static const char* sigFloatA() { return "[F"; }
 	static const char* sigDoubleA() { return "[D"; }
+	static const char* sigStringA() { return "[Ljava/lang/String;"; }
 
 	QString str() const;
 private:

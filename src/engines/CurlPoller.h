@@ -47,7 +47,7 @@ public:
 	
 	void addTransfer(CurlUser* obj);
 	// will handle the underlying CURL* too
-	void removeTransfer(CurlUser* obj);
+	void removeTransfer(CurlUser* obj, bool nodeep = false);
 	//void removeSafely(CURL* curl);
 	void addTransfer(CurlPollingMaster* obj);
 	void removeTransfer(CurlPollingMaster* obj);

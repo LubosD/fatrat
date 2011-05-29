@@ -304,15 +304,11 @@ void RapidshareUpload::changeActive(bool nowActive)
 			m_http = 0;
 		}
 		
-		CurlPoller::instance()->removeTransfer(this);
+		CurlPoller::instance()->removeTransfer(this, true);
 		resetStatistics();
 		
 		if(m_curl)
-		{
-			curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
-			curl_easy_cleanup(m_curl);
 			m_curl = 0;
-		}
 		
 		if(m_postData)
 		{

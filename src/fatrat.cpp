@@ -76,6 +76,7 @@ respects for all of the code used other than "OpenSSL".
 #	include "java/JVM.h"
 #	include "engines/JavaDownload.h"
 #	include "engines/JavaExtractor.h"
+#	include "engines/JavaUpload.h"
 #	include "java/JClass.h"
 #	include "java/JString.h"
 #	include "java/JArray.h"
@@ -158,6 +159,7 @@ int main(int argc,char** argv)
 	{
 		JavaDownload::globalInit(m_bJavaForceSearch);
 		JavaExtractor::globalInit();
+		JavaUpload::globalInit();
 	}
 #endif
 	
