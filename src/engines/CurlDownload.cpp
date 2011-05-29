@@ -919,8 +919,14 @@ void CurlDownload::startSegment(int urlIndex)
 	seg.bytes = 0;
 	seg.urlIndex = urlIndex;
 
+	
+	if (!m_nTotal)
+	{
+		bytes = -1;
+		seg.offset = (!m_segments.isEmpty()) ? m_segments[0].bytes : 0;
+	}
 	// No priority mode for downloads with a single thread
-	if (!getSettingsValue("httpftp/priority_mode", false).toBool() || m_listActiveSegments.isEmpty())
+	else if (!getSettingsValue("httpftp/priority_mode", false).toBool() || m_listActiveSegments.isEmpty())
 	{
 		for(int i=0;i<m_segments.size();i++)
 		{
@@ -1076,6 +1082,7 @@ void CurlDownload::startSegment(int urlIndex)
 			bytes = freeSegs[bestSegment].bytes;
 		}
 	}
+	
 
 	// start a new download thread
 	qDebug() << "Start new seg: " << seg.offset << seg.offset+bytes;
