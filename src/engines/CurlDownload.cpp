@@ -235,6 +235,15 @@ void CurlDownload::changeActive(bool bActive)
 
 		fixActiveSegmentsList();
 
+		if (m_nTotal)
+		{
+			for(int i=0;i<m_listActiveSegments.size();i++)
+				startSegment(m_listActiveSegments[i]);
+		}
+		else
+			startSegment(m_listActiveSegments[0]);
+
+		/*
 		// 1) find free spots
 		QList<FreeSegment> freeSegs;
 		qlonglong lastEnd = 0;
@@ -318,7 +327,7 @@ void CurlDownload::changeActive(bool bActive)
 			// allow only one segment if we don't know the file size yet
 			if(!m_nTotal)
 				break;
-		}
+		}*/
 
 		// 8) update the segment progress every 500 miliseconds
 		m_timer.start(500);
@@ -983,6 +992,8 @@ void CurlDownload::startSegment(int urlIndex)
 		// Find the first free spot smaller than seglim
 		// Try not to create a new freeseg bigger than 5*seglim
 		const int seglim = getSettingsValue("httpftp/minsegsize").toInt();
+		assert(seglim > 0);
+
 		for(int i=0;i<m_segments.size();i++)
 		{
 			if (m_segments[i].offset > lastEnd)
@@ -1023,6 +1034,7 @@ void CurlDownload::startSegment(int urlIndex)
 
 		// Now try to be 5*seglim bytes far from the active client, if any
 		FreeSegment& fs = freeSegs[bestSegment];
+		qDebug() << "Best FreeSegment:" << freeSegs[bestSegment].offset << freeSegs[bestSegment].bytes;
 		if (fs.affectedClient)
 		{
 			if (fs.bytes <= 5*seglim)
@@ -1047,7 +1059,9 @@ void CurlDownload::startSegment(int urlIndex)
 				qlonglong to = fs.affectedClient->rangeTo();
 				if (to == -1)
 					to = m_nTotal;
-				fs.affectedClient->setRange(from, to = to - 5*seglim);
+				fs.affectedClient->setRange(from, to = fs.offset + 5*seglim);
+				qDebug() << "New range of the pre-existing seg: " << from << to;
+				qDebug() << "5*seglim:" << (5*seglim);
 
 				seg.offset = to;
 				bytes = fs.bytes - 5*seglim;
@@ -1056,11 +1070,12 @@ void CurlDownload::startSegment(int urlIndex)
 		else
 		{
 			seg.offset = freeSegs[bestSegment].offset;
-			seg.bytes = freeSegs[bestSegment].bytes;
+			bytes = freeSegs[bestSegment].bytes;
 		}
 	}
 
 	// start a new download thread
+	qDebug() << "Start new seg: " << seg.offset << seg.offset+bytes;
 	startSegment(seg, bytes);
 	m_segments << seg;
 }
