@@ -213,7 +213,7 @@ void CurlUpload::changeActive(bool nowActive)
 		
 		resetStatistics();
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, 0);
-		CurlPoller::instance()->removeTransfer(this);
+		CurlPoller::instance()->removeTransfer(this, true);
 		m_curl = 0;
 		m_file.close();
 	}
