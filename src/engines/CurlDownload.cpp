@@ -913,6 +913,8 @@ void CurlDownload::startSegment(int urlIndex)
 	Segment seg;
 	qlonglong bytes;
 
+	updateSegmentProgress();
+
 	seg.color = allocateSegmentColor();
 	seg.bytes = 0;
 	seg.urlIndex = urlIndex;
@@ -992,7 +994,6 @@ void CurlDownload::startSegment(int urlIndex)
 		// Find the first free spot smaller than seglim
 		// Try not to create a new freeseg bigger than 5*seglim
 		const int seglim = getSettingsValue("httpftp/minsegsize").toInt();
-		assert(seglim > 0);
 
 		for(int i=0;i<m_segments.size();i++)
 		{
@@ -1011,6 +1012,7 @@ void CurlDownload::startSegment(int urlIndex)
 			FreeSegment fs(lastEnd, m_nTotal - lastEnd);
 			if (m_segments[m_segments.size()-1].client)
 				fs.affectedClient = m_segments[m_segments.size()-1].client;
+			qDebug() << "Lastseg affectedClient:" << fs.affectedClient;
 			if (fs.bytes >= seglim || !fs.affectedClient)
 				freeSegs << fs;
 		}
@@ -1047,6 +1049,7 @@ void CurlDownload::startSegment(int urlIndex)
 				if (to == -1)
 					to = m_nTotal;
 				fs.affectedClient->setRange(from, to = to - half);
+				qDebug() << "New range of the pre-existing seg: " << from << to;
 
 				seg.offset = to;
 				bytes = half;
