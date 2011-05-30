@@ -164,12 +164,16 @@ void JavaExtractor::load(const QDomNode& map)
 	m_strUrl = getXMLProperty(map, "jplugin_url");
 	m_strTarget = getXMLProperty(map, "jplugin_target");
 
+	loadVars(map);
+
 	Transfer::load(map);
 }
 
 void JavaExtractor::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
+
+	saveVars(doc, map);
 
 	setXMLProperty(doc, map, "jplugin_url", m_strUrl);
 	setXMLProperty(doc, map, "jplugin_target", m_strTarget);

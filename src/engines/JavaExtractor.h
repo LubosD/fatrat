@@ -35,6 +35,7 @@ respects for all of the code used other than "OpenSSL".
 #include <string>
 #include <QRegExp>
 #include <QMap>
+#include "JavaPersistentVariables.h"
 
 #ifndef WITH_JPLUGINS
 #	error This file is not supposed to be included!
@@ -44,7 +45,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class JExtractorPlugin;
 
-class JavaExtractor : public StaticTransferMessage<Transfer>
+class JavaExtractor : public StaticTransferMessage<Transfer>, protected JavaPersistentVariables
 {
 Q_OBJECT
 public:

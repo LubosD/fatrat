@@ -60,6 +60,9 @@ public:
 	static void reportFileName(JNIEnv *, jobject, jstring);
 
 	static void captchaSolved(QString url, QString solution);
+
+	virtual void setPersistentVariable(QString key, QVariant value);
+	virtual QVariant getPersistentVariable(QString key);
 private slots:
 	void secondElapsed();
 	void captchaSolvedSlot(QString url, QString solution);

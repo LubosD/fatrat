@@ -190,3 +190,13 @@ void JDownloadPlugin::abort()
 	m_timer.stop();
 	m_waitCallback.setNull();
 }
+
+void JDownloadPlugin::setPersistentVariable(QString key, QVariant value)
+{
+	static_cast<JavaDownload*>(transfer())->setPersistentVariable(key, value);
+}
+
+QVariant JDownloadPlugin::getPersistentVariable(QString key)
+{
+	return static_cast<JavaDownload*>(transfer())->getPersistentVariable(key);
+}

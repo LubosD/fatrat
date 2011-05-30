@@ -47,8 +47,11 @@ public:
 	static void registerNatives();
 	
 	// JNI methods
-	static void startUpload(JNIEnv *, jobject, jstring, jobjectArray);
+	static void startUploadChunk(JNIEnv *, jobject, jstring, jobjectArray, jlong, jlong);
 	static void putDownloadLink(JNIEnv *, jobject, jstring, jstring);
+
+	virtual void setPersistentVariable(QString key, QVariant value);
+	virtual QVariant getPersistentVariable(QString key);
 	
 	class JMimePart : public JObject
 	{

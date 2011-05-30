@@ -45,13 +45,13 @@ void JUploadPlugin::registerNatives()
 {
 	QList<JNativeMethod> natives;
 
-	natives << JNativeMethod("startUpload", JSignature().addString().addA("info.dolezel.fatrat.plugins.UploadPlugin$MimePart"), startUpload);
+	natives << JNativeMethod("startUploadChunk", JSignature().addString().addA("info.dolezel.fatrat.plugins.UploadPlugin$MimePart").addLong().addLong(), startUploadChunk);
 	natives << JNativeMethod("putDownloadLink", JSignature().addString().addString(), putDownloadLink);
 
 	JClass("info.dolezel.fatrat.plugins.UploadPlugin").registerNativeMethods(natives);
 }
 
-void JUploadPlugin::startUpload(JNIEnv* env, jobject jthis, jstring jurl, jobjectArray mimeParts)
+void JUploadPlugin::startUploadChunk(JNIEnv* env, jobject jthis, jstring jurl, jobjectArray mimeParts, jlong offset, jlong bytes)
 {
 	JUploadPlugin* This = static_cast<JUploadPlugin*>(getCObject(jthis));
 	
@@ -73,7 +73,7 @@ void JUploadPlugin::startUpload(JNIEnv* env, jobject jthis, jstring jurl, jobjec
 		parts << xpart;
 	}
 	
-	static_cast<JavaUpload*>(This->m_transfer)->startUpload(url, parts);
+	static_cast<JavaUpload*>(This->m_transfer)->startUpload(url, parts, qint64(offset), qint64(bytes));
 }
 
 void JUploadPlugin::putDownloadLink(JNIEnv* env, jobject jthis, jstring urlDownload, jstring killLink)
@@ -109,5 +109,15 @@ QString JUploadPlugin::JMimePart::name()
 QString JUploadPlugin::JMimePart::value()
 {
 	return getValue("value", JSignature::sigString()).toString();
+}
+
+void JUploadPlugin::setPersistentVariable(QString key, QVariant value)
+{
+	static_cast<JavaUpload*>(transfer())->setPersistentVariable(key, value);
+}
+
+QVariant JUploadPlugin::getPersistentVariable(QString key)
+{
+	return static_cast<JavaUpload*>(transfer())->getPersistentVariable(key);
 }
 

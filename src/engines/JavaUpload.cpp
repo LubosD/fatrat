@@ -40,7 +40,7 @@ respects for all of the code used other than "OpenSSL".
 QMap<QString,JavaUpload::JavaEngine> JavaUpload::m_engines;
 
 JavaUpload::JavaUpload(const char* cls)
-: m_nTotal(0), m_curl(0), m_postData(0)
+: m_nTotal(0), m_nDone(0), m_nThisPart(0), m_curl(0), m_postData(0)
 {
 	qDebug() << "JavaUpload::JavaUpload(): " << cls;
 	assert(m_engines.contains(cls));
@@ -212,13 +212,15 @@ qulonglong JavaUpload::done() const
 	if (state() == Completed)
 		return m_nTotal;
 	if (!isActive() || !m_file.isOpen())
-		return 0;
+		return m_nDone;
 	return m_file.pos();
 }
 
 void JavaUpload::load(const QDomNode& map)
 {
 	setObject(getXMLProperty(map, "jplugin_source"));
+	m_nDone = getXMLProperty(map, "jplugin_done").toLongLong();
+	loadVars(map);
 	
 	Transfer::load(map);
 }
@@ -226,8 +228,11 @@ void JavaUpload::load(const QDomNode& map)
 void JavaUpload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
+
+	saveVars(doc, map);
 	
 	setXMLProperty(doc, map, "jplugin_source", m_strSource);
+	setXMLProperty(doc, map, "jplugin_done", QString::number(m_nDone));
 }
 
 CURL* JavaUpload::curlHandle()
@@ -288,6 +293,8 @@ void JavaUpload::transferDone(CURLcode result)
 	}
 	else
 	{
+		m_nDone += m_nThisPart;
+		m_nThisPart = 0;
 		QMetaObject::invokeMethod(this, "checkResponse", Qt::QueuedConnection);
 	}
 }
@@ -328,7 +335,7 @@ void JavaUpload::putDownloadLink(QString downloadLink, QString killLink)
 	setState(Completed);
 }
 
-void JavaUpload::startUpload(QString url, QList<JavaUpload::MimePart>& parts)
+void JavaUpload::startUpload(QString url, QList<JavaUpload::MimePart>& parts, qint64 offset, qint64 bytes)
 {
 	curl_httppost* lastData = 0;
 	
@@ -342,15 +349,27 @@ void JavaUpload::startUpload(QString url, QList<JavaUpload::MimePart>& parts)
 		if (!part.filePart)
 		{
 			QByteArray value = part.value.toUtf8();
-			curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, fieldName.constData(), CURLFORM_COPYCONTENTS, value.constData(), CURLFORM_END);
+			curl_formadd(&m_postData, &lastData, CURLFORM_COPYNAME, fieldName.constData(), CURLFORM_COPYCONTENTS, value.constData(), CURLFORM_END);
 		}
 		else
 		{
 			QByteArray fileName = m_strName.toUtf8();
-			curl_formadd(&m_postData, &lastData, CURLFORM_PTRNAME, fieldName.constData(),
+
+			if (bytes >= 0)
+				m_nThisPart = bytes;
+			else
+				m_nThisPart = m_nTotal;
+			m_nThisPart -= offset;
+
+			m_file.seek(offset);
+
+			strncpy(m_fileName, fileName.constData(), sizeof(m_fileName-1));
+			m_fileName[sizeof(m_fileName-1)] = 0;
+
+			curl_formadd(&m_postData, &lastData, CURLFORM_COPYNAME, fieldName.constData(),
 				CURLFORM_STREAM, static_cast<CurlUser*>(this),
-				CURLFORM_FILENAME, fileName.constData(),
-				CURLFORM_CONTENTSLENGTH, m_nTotal, CURLFORM_END);
+				CURLFORM_FILENAME, m_fileName,
+				CURLFORM_CONTENTSLENGTH, m_nThisPart, CURLFORM_END);
 		}
 	}
 	

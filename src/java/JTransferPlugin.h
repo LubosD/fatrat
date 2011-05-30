@@ -51,6 +51,11 @@ public:
 	static void setMessage(JNIEnv *, jobject, jstring);
 	static void setState(JNIEnv *, jobject, jobject);
 	static void logMessage(JNIEnv *, jobject, jstring);
+	static void setPersistentVariable(JNIEnv *, jobject, jstring, jobject);
+	static jobject getPersistentVariable(JNIEnv *, jobject, jstring);
+
+	virtual void setPersistentVariable(QString key, QVariant value) = 0;
+	virtual QVariant getPersistentVariable(QString key) = 0;
 
 	virtual void abort();
 

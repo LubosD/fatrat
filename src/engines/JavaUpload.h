@@ -41,8 +41,9 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JUploadPlugin.h"
 #include "java/JMap.h"
 #include "engines/StaticTransferMessage.h"
+#include "JavaPersistentVariables.h"
 
-class JavaUpload : public StaticTransferMessage<Transfer>, public CurlUser
+class JavaUpload : public StaticTransferMessage<Transfer>, public CurlUser, protected JavaPersistentVariables
 {
 Q_OBJECT
 public:
@@ -88,7 +89,7 @@ protected:
 	};
 	
 	void putDownloadLink(QString downloadLink, QString killLink);
-	void startUpload(QString url, QList<MimePart>& parts);
+	void startUpload(QString url, QList<MimePart>& parts, qint64 offset, qint64 bytes);
 private slots:
 	void checkResponse();
 private:
@@ -103,13 +104,14 @@ private:
 
 	QString m_strClass, m_strSource, m_strName;
 	JUploadPlugin* m_plugin;
-	qint64 m_nTotal;
+	qint64 m_nTotal, m_nDone, m_nThisPart;
 	CURL* m_curl;
 	QFile m_file;
 	QByteArray m_buffer;
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	curl_httppost* m_postData;
 	QMap<QString,QString> m_headers;
+	char m_fileName[256];
 	
 	friend class JUploadPlugin;
 };

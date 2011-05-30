@@ -92,6 +92,8 @@ void JavaDownload::load(const QDomNode& map)
 	m_strName = getXMLProperty(map, "jplugin_name");
 	m_nTotal = getXMLProperty(map, "knowntotal").toLongLong();
 
+	loadVars(map);
+
 	if (m_strName.isEmpty())
 		deriveName();
 
@@ -101,6 +103,8 @@ void JavaDownload::load(const QDomNode& map)
 void JavaDownload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
+
+	saveVars(doc, map);
 
 	setXMLProperty(doc, map, "jplugin_original", m_strOriginal);
 	setXMLProperty(doc, map, "jplugin_target", m_strTarget);

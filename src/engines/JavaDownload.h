@@ -40,10 +40,11 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JObject.h"
 #include "WidgetHostChild.h"
 #include "ui_JavaDownloadOptsForm.h"
+#include "JavaPersistentVariables.h"
 
 class JDownloadPlugin;
 
-class JavaDownload : public CurlDownload
+class JavaDownload : public CurlDownload, protected JavaPersistentVariables
 {
 Q_OBJECT
 public:

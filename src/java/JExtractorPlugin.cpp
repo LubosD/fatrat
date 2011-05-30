@@ -69,3 +69,14 @@ void JExtractorPlugin::finishedExtraction(JNIEnv* env, jobject jthis, jobjectArr
 
 	static_cast<JavaExtractor*>(This->m_transfer)->finishedExtraction(list);
 }
+
+void JExtractorPlugin::setPersistentVariable(QString key, QVariant value)
+{
+	static_cast<JavaExtractor*>(transfer())->setPersistentVariable(key, value);
+}
+
+QVariant JExtractorPlugin::getPersistentVariable(QString key)
+{
+	return static_cast<JavaExtractor*>(transfer())->getPersistentVariable(key);
+}
+

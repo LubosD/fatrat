@@ -55,6 +55,8 @@ void JTransferPlugin::registerNatives()
 	natives << JNativeMethod("setMessage", JSignature().addString(), setMessage);
 	natives << JNativeMethod("setState", JSignature().add("info.dolezel.fatrat.plugins.TransferPlugin$State"), setState);
 	natives << JNativeMethod("logMessage", JSignature().addString(), logMessage);
+	natives << JNativeMethod("setPersistentVariable", JSignature().addString().add("java.lang.Object"), setPersistentVariable);
+	natives << JNativeMethod("getPersistentVariable", JSignature().addString().ret("java.lang.Object"), getPersistentVariable);
 
 	JClass("info.dolezel.fatrat.plugins.TransferPlugin").registerNativeMethods(natives);
 }
@@ -88,3 +90,13 @@ Transfer::State JTransferPlugin::JStateEnum::value() const
 	int state = const_cast<JStateEnum*>(this)->call("value", JSignature().retInt()).toInt();
 	return Transfer::State( state );
 }
+
+void JTransferPlugin::setPersistentVariable(JNIEnv* env, jobject jthis, jstring jkey, jobject jval)
+{
+}
+
+jobject JTransferPlugin::getPersistentVariable(JNIEnv* env, jobject jthis, jstring jkey)
+{
+
+}
+
