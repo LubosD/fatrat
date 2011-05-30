@@ -109,6 +109,8 @@ void MetalinkDownload::networkReadyRead()
 
 void MetalinkDownload::done(QNetworkReply* reply)
 {
+	networkReadyRead();
+
 	reply->deleteLater();
 	m_reply = 0;
 
@@ -119,8 +121,9 @@ void MetalinkDownload::done(QNetworkReply* reply)
 		return;
 	}
 
+	m_file->flush();
 	processMetalink(m_file->fileName());
-	delete m_file;
+	//delete m_file;
 }
 
 void MetalinkDownload::init(QString source, QString target)
