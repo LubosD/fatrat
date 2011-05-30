@@ -371,6 +371,7 @@ if(WITH_CURL)
 		src/engines/RapidshareUpload.h
 		src/engines/RapidshareFreeDownload.h
 		src/engines/RapidshareStatusWidget.h
+		src/engines/MetalinkDownload.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}

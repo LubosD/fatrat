@@ -79,21 +79,26 @@ void MetalinkDownload::globalInit()
 
 void MetalinkDownload::changeActive(bool nowActive)
 {
-	if (nowActive && !m_strSource.startsWith('/'))
+	if (nowActive)
 	{
-		m_file = new QTemporaryFile(this);
-		if (!m_file->open())
+		if (!m_strSource.startsWith('/'))
 		{
-			m_strMessage = tr("Failed to create a temporary file");
-			setState(Failed);
-			return;
+			m_file = new QTemporaryFile(this);
+			if (!m_file->open())
+			{
+				m_strMessage = tr("Failed to create a temporary file");
+				setState(Failed);
+				return;
+			}
+
+			m_network = new QNetworkAccessManager(this);
+			connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(done(QNetworkReply*)));
+
+			m_reply = m_network->get(QNetworkRequest(m_strSource));
+			connect(m_reply, SIGNAL(readyRead()), this, SLOT(networkReadyRead()));
 		}
-
-		m_network = new QNetworkAccessManager(this);
-		connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(done(QNetworkReply*)));
-
-		m_reply = m_network->get(QNetworkRequest(m_strSource));
-		connect(m_reply, SIGNAL(readyRead()), this, SLOT(networkReadyRead()));
+		else
+			QMetaObject::invokeMethod(this, "processMetalink", Qt::QueuedConnection, Q_ARG(QString, m_strSource));
 	}
 }
 
@@ -122,9 +127,6 @@ void MetalinkDownload::init(QString source, QString target)
 {
 	m_strTarget = target;
 	m_strSource = source;
-
-	if (source.startsWith('/'))
-		processMetalink(source);
 }
 
 QString MetalinkDownload::name() const
@@ -161,15 +163,24 @@ void MetalinkDownload::processMetalink(QString fileName)
 	QFile file(fileName);
 	QDomDocument doc;
 
-	if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
+	if (!file.open(QIODevice::ReadOnly))
 	{
-		m_strMessage = tr("Failed to read the metalink file");
+		m_strMessage = tr("Failed to read the metalink file: %1").arg(file.errorString());
+		setState(Failed);
+		return;
+	}
+
+	QString msg;
+	if (!doc.setContent(&file, false, &msg))
+	{
+		m_strMessage = tr("Failed to read the metalink file: %1").arg(msg);
 		setState(Failed);
 		return;
 	}
 
 	QList<MetaFile> files;
-	QDomElement dfile = doc.firstChildElement("file");
+	QDomElement root = doc.documentElement();
+	QDomElement dfile = root.firstChildElement("file");
 	while (!dfile.isNull())
 	{
 		QDomNode snode = dfile.firstChild();
@@ -284,12 +295,13 @@ decide:
 #ifdef WITH_BITTORRENT
 		if (mode == 1)
 		{
+			TorrentDownload* t = 0;
 			// just find the first BitTorrent link
 			for (int j=0;j<m.urls.size();j++)
 			{
 				if (m.urls[j].isTorrent)
 				{
-					Transfer* t = new TorrentDownload;
+					t = new TorrentDownload;
 					try
 					{
 						t->init(m.urls[j].url, m_strTarget);
@@ -305,17 +317,27 @@ decide:
 					{
 						m_strMessage = e.what();
 						setState(Failed);
+						delete t;
 						return;
 					}
 
 					break;
 				}
 			}
+			for (int j=0;j<m.urls.size();j++)
+			{
+				if (m.urls[j].isTorrent)
+					continue;
+				t->addUrlSeed(m.urls[j].url);
+			}
 
 #ifndef WITH_CURL
-			m_strMessage = tr("No torrent link found for %1").arg(m.name);
-			setState(Failed);
-			return;
+			if (!t)
+			{
+				m_strMessage = tr("No torrent link found for %1").arg(m.name);
+				setState(Failed);
+				return;
+			}
 #endif
 		}
 #endif

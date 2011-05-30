@@ -109,6 +109,8 @@ public:
 	qint64 totalDownload() const { return m_status.all_time_download; }
 	qint64 totalUpload() const { return m_status.all_time_upload; }
 
+	void addUrlSeed(QString str);
+
 #ifdef WITH_WEBINTERFACE
 	// TransferHttpService
 	virtual void process(QString method, QMap<QString,QString> args, WriteBack* wb);
@@ -138,6 +140,7 @@ protected:
 	//qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<int> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
+	QList<QString> m_urlSeeds;
 	
 	QNetworkAccessManager* m_pFileDownload;
 	QNetworkReply* m_pReply;

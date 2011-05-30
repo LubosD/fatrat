@@ -714,6 +714,10 @@ void TorrentDownload::torrentFileDone(QNetworkReply* reply)
 				m_pFileDownloadTemp->flush();
 				qDebug() << "Loading" << m_pFileDownloadTemp->fileName();
 				init(m_pFileDownloadTemp->fileName(), m_strTarget);
+
+				foreach (const QString& url, m_urlSeeds)
+					m_handle.add_http_seed(url.toStdString());
+				m_urlSeeds.clear();
 			}
 			catch(const RuntimeException& e)
 			{
@@ -995,6 +999,14 @@ void TorrentDownload::load(const QDomNode& map)
 		m_strError = e.what();
 		setState(Failed);
 	}
+}
+
+void TorrentDownload::addUrlSeed(QString str)
+{
+	if (!m_handle.is_valid())
+		m_handle.add_url_seed(str.toStdString());
+	else
+		m_urlSeeds << str;
 }
 
 void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const

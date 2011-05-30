@@ -35,6 +35,7 @@ class QTemporaryFile;
 
 class MetalinkDownload : public Transfer
 {
+Q_OBJECT
 public:
 	MetalinkDownload();
 	virtual ~MetalinkDownload();
@@ -60,8 +61,8 @@ public:
 private slots:
 	void done(QNetworkReply* reply);
 	void networkReadyRead();
-protected:
 	void processMetalink(QString file);
+protected:
 
 	struct Link
 	{
