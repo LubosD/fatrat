@@ -159,6 +159,13 @@ if(WITH_WEBINTERFACE)
 	endif(pion-net_FOUND)
 endif(WITH_WEBINTERFACE)
 
+#set(CMAKE_REQUIRED_INCLUDES "sys/types.h")
+CHECK_INCLUDE_FILES("sys/types.h;attr/xattr.h" HAVE_XATTR_H)
+
+if (HAVE_XATTR_H)
+	SET(XATTR_LIBRARIES "-lattr")
+endif (HAVE_XATTR_H)
+
 include( ${QT_USE_FILE} )
 add_definitions(${QT_DEFINITIONS})
 include_directories(./ ../ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
@@ -204,6 +211,9 @@ set(fatrat_SRCS
 	src/TransferFactory.cpp
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
+	#src/notify/Notification.cpp
+	src/dbus/NotificationsProxy.cpp
+	src/dbus/KNotify.cpp
 	src/engines/OutputBuffer.cpp
 	src/engines/MetalinkSettings.cpp
 	src/poller/Poller.cpp
@@ -225,6 +235,7 @@ set(fatrat_SRCS
 	src/tools/HashDlg.cpp
 	src/tools/RapidTools.cpp
 	src/tools/VideoFetcher.cpp
+	src/util/ExtendedAttributes.cpp
 )
 
 if(HAVE_SYS_EPOLL_H)
@@ -277,6 +288,9 @@ set(fatrat_MOC_HDRS
 	src/TransferFactory.h
 	src/filterlineedit.h
 	src/fancylineedit.h
+	#src/notify/Notification.h
+	src/dbus/NotificationsProxy.h
+	src/dbus/KNotify.h
 	src/engines/OutputBuffer.h
 	src/engines/MetalinkSettings.h
 	src/captcha/CaptchaQt.h
@@ -549,8 +563,8 @@ ${fatrat_QRC_H} ${lrelease_outputs})
 add_executable(fatrat-conf src/fatrat-conf.cpp)
 
 STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
-message(STATUS ${pion-net_LIBRARIES})
-target_link_libraries(fatrat -ldl ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} -export-dynamic)
+#message(STATUS ${pion-net_LIBRARIES})
+target_link_libraries(fatrat -ldl ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
 
 set(fatrat_DEV_HEADERS

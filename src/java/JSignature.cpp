@@ -99,3 +99,31 @@ JSignature JSignature::sigA(QString cls)
 	return JSignature(name);
 }
 
+JSignature& JSignature::add(const JGenerics& gencls)
+{
+	m_strArguments += gencls.str();
+	return *this;
+}
+
+JSignature& JSignature::addA(const JGenerics& gencls)
+{
+	m_strArguments += '[' + gencls.str();
+	return *this;
+}
+
+JGenerics::JGenerics(QString mainTypeName)
+	: m_strMainTypeName(mainTypeName.replace('.', '/'))
+{
+}
+
+JGenerics& JGenerics::add(QString genericsArg)
+{
+	m_strArguments += "L" + genericsArg.replace('.', '/') + ';';
+	return *this;
+}
+
+QString JGenerics::str() const
+{
+	return 'L' + m_strMainTypeName + '<' + m_strArguments + ">;";
+}
+

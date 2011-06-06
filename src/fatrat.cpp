@@ -58,6 +58,8 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include "dbus/DbusAdaptor.h"
 #include "dbus/DbusImpl.h"
+#include "dbus/NotificationsProxy.h"
+#include "dbus/KNotify.h"
 #include "rss/RssFetcher.h"
 #include "MyApplication.h"
 #include "Scheduler.h"
@@ -101,6 +103,7 @@ static void showHelp();
 static void installSignalHandler();
 static void testJava();
 static void daemonize();
+static void testNotif();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
@@ -195,6 +198,8 @@ int main(int argc,char** argv)
 	
 	QDBusConnection::sessionBus().registerObject("/", impl);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
+
+	//testNotif();
 	
 	if(!arg.isEmpty() && m_bStartGUI)
 		g_wndMain->addTransfer(arg);
@@ -630,3 +635,19 @@ void daemonize()
 	daemon(true, false);
 }
 
+void testNotif()
+{
+	OrgFreedesktopNotificationsInterface* iface = new OrgFreedesktopNotificationsInterface(OrgFreedesktopNotificationsInterface::staticInterfaceName(), "/org/freedesktop/Notifications", QDBusConnection::sessionBus());
+
+	if (iface->isValid())
+	{
+		QDBusPendingReply<uint> reply = iface->Notify("fatrat", 0, "", "Summary", "Body", QStringList(), QVariantMap(), -1);
+		reply.waitForFinished();
+	}
+
+	OrgKdeKNotifyInterface* iface2 = new OrgKdeKNotifyInterface(OrgKdeKNotifyInterface::staticInterfaceName(), "/Notify", QDBusConnection::sessionBus());
+	if (iface2->isValid())
+	{
+		iface2->event("warning", "fatrat", QVariantList(), "Summary", "Body", QByteArray(), QStringList(), 5000, 0);
+	}
+}

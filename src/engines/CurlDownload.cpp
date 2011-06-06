@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include "GeneralDownloadForms.h"
 #include "HttpFtpSettings.h"
 #include "tools/HashDlg.h"
+#include "util/ExtendedAttributes.h"
 #include "CurlPoller.h"
 #include "Auth.h"
 #include "HttpDetails.h"
@@ -375,6 +376,7 @@ void CurlDownload::startSegment(Segment& seg, qlonglong bytes)
 		setState(Failed);
 		return;
 	}
+	ExtendedAttributes::setAttribute(filePath(), ExtendedAttributes::ATTR_ORIGIN_URL, m_urls[0].url.toString().toUtf8());
 
 	seg.client = new UrlClient;
 	seg.client->setRange(seg.offset, (bytes > 0) ? seg.offset+bytes : -1);
@@ -946,7 +948,7 @@ void CurlDownload::startSegment(int urlIndex)
 		if (lastEnd < m_nTotal)
 		{
 			FreeSegment fs(lastEnd, m_nTotal - lastEnd);
-			if (m_segments[m_segments.size()-1].client)
+			if (!m_segments.isEmpty() && m_segments[m_segments.size()-1].client)
 			{
 				fs.affectedClient = m_segments[m_segments.size()-1].client;
 				freeSegs << fs;

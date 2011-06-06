@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JMap.h"
+#include "RuntimeException.h"
 #include <QtDebug>
 
 JMap::JMap()
@@ -77,4 +78,35 @@ JObject JMap::nativeToBoxed(QVariant var)
 
 	qDebug() << "WARNING: JMap::nativeToBoxed(): the QVariant type was not converted to a java.lang.Object";
 	return JObject();
+}
+
+template<typename T> void assignTo(JObject& val, QVariant& out)
+{
+	T tt;
+	JMap::boxedToNative(val, tt);
+	out = tt;
+}
+
+void JMap::boxedToNative(JObject& val, QVariant& out)
+{
+	if (val.instanceOf("java.lang.Integer"))
+		assignTo<int>(val, out);
+	else if (val.instanceOf("java.lang.Double"))
+		assignTo<double>(val, out);
+	else if (val.instanceOf("java.lang.Float"))
+		assignTo<float>(val, out);
+	else if (val.instanceOf("java.lang.Short"))
+		assignTo<short>(val, out);
+	else if (val.instanceOf("java.lang.Byte"))
+		assignTo<jbyte>(val, out);
+	else if (val.instanceOf("java.lang.Character"))
+		assignTo<wchar_t>(val, out);
+	else if (val.isString())
+		out = val.toStringShallow().str();
+	else if (val.isArray())
+	{
+		throw RuntimeException("Arrays are not supported");
+	}
+	else
+		out = val;
 }

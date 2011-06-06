@@ -135,8 +135,11 @@ void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url, jst
 	if (fileName)
 		str += "#__filename="+JString(fileName).str().replace('/', '-');
 
-	QList<QNetworkCookie> c = This->m_network->cookieJar()->cookiesForUrl(str);
+	QNetworkCookieJar* jar = This->m_network->cookieJar();
+	QList<QNetworkCookie> c = jar->cookiesForUrl(str);
 	static_cast<JavaDownload*>(This->m_transfer)->startDownload(str, c, ref, ua);
+
+	This->m_network->setCookieJar(new QNetworkCookieJar);
 }
 
 QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>& list)

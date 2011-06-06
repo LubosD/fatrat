@@ -127,6 +127,7 @@ public:
 		return JString(QString(s));
 	}
 
+	static void boxedToNative(JObject& val, QVariant& out);
 	static void boxedToNative(JObject& val, QString& out)
 	{
 		out = val.toStringShallow().str();

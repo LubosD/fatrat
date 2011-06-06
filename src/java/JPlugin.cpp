@@ -73,12 +73,12 @@ void JPlugin::registerNatives()
 {
 	QList<JNativeMethod> natives;
 
-	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString(), fetchPage);
+	natives << JNativeMethod("fetchPage", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.PageFetchListener").addString().add("java.util.Map"), fetchPage);
 
 	JClass("info.dolezel.fatrat.plugins.Plugin").registerNativeMethods(natives);
 }
 
-void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInterface, jstring postData)
+void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInterface, jstring postData, jobject jmap)
 {
 	JPlugin* This = getCObject(jthis);
 	QString url = JString(jurl).toString();
@@ -89,12 +89,26 @@ void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInte
 	if (postData)
 		qDebug() << "postData:" << JString(postData).str();
 
+	QNetworkRequest nr(url);
+
+	if (jmap)
+	{
+		JMap map(jmap);
+		QMap<QString,QString> qmap;
+
+		map.toQMap(qmap);
+
+		nr.setRawHeader("User-Agent", "FatRat/" VERSION);
+		for (QMap<QString,QString>::iterator it = qmap.begin(); it != qmap.end(); it++)
+			nr.setRawHeader(it.key().toUtf8(), it.value().toUtf8());
+	}
+
 	if (!postData)
-		reply = This->m_network->get(QNetworkRequest(url));
+		reply = This->m_network->get(nr);
 	else
 	{
 		QByteArray pd = JString(postData).str().toUtf8();
-		reply = This->m_network->post(QNetworkRequest(url), pd);
+		reply = This->m_network->post(nr, pd);
 	}
 
 	This->m_fetchCallbacks[reply] = RequesterReceiver(This, cbInterface);

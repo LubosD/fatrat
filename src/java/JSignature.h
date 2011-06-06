@@ -35,11 +35,14 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QString>
 
+class JGenerics;
+
 class JSignature
 {
 public:
 	JSignature();
 	JSignature& add(QString cls);
+	JSignature& add(const JGenerics& gencls);
 	inline JSignature& addString() { return add("java/lang/String"); }
 	inline JSignature& addBoolean() { return addPrimitive("Z"); }
 	inline JSignature& addByte() { return addPrimitive("B"); }
@@ -52,6 +55,7 @@ public:
 
 	// arrays
 	JSignature& addA(QString cls);
+	JSignature& addA(const JGenerics& gencls);
 	inline JSignature& addStringA() { return addA("java/lang/String"); }
 	inline JSignature& addBooleanA() { return addPrimitive("[Z"); }
 	inline JSignature& addByteA() { return addPrimitive("[B"); }
@@ -111,6 +115,7 @@ public:
 	static const char* sigStringA() { return "[Ljava/lang/String;"; }
 
 	QString str() const;
+	inline operator QString() const { return str(); }
 private:
 	JSignature(QString var);
 	JSignature& addPrimitive(QString c);
@@ -119,6 +124,19 @@ private:
 	QString m_strReturnValue;
 	QString m_strArguments;
 	bool m_bVariable;
+};
+
+class JGenerics
+{
+public:
+	JGenerics(QString mainTypeName);
+	JGenerics& add(QString genericsArg);
+	inline JGenerics& addString() { return add("java/lang/String"); }
+
+	QString str() const;
+private:
+	QString m_strMainTypeName;
+	QString m_strArguments;
 };
 
 #endif // JSIGNATURE_H

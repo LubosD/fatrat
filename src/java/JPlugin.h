@@ -51,7 +51,7 @@ public:
 	JPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
 	JPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
-	static void fetchPage(JNIEnv *, jobject, jstring, jobject, jstring);
+	static void fetchPage(JNIEnv *, jobject, jstring, jobject, jstring, jobject);
 
 	inline void setTransfer(StaticTransferMessage<Transfer>* t) { qDebug() << "Transfer: " << t; m_transfer = t; }
 	inline StaticTransferMessage<Transfer>* transfer() const { return m_transfer; }

@@ -93,10 +93,18 @@ Transfer::State JTransferPlugin::JStateEnum::value() const
 
 void JTransferPlugin::setPersistentVariable(JNIEnv* env, jobject jthis, jstring jkey, jobject jval)
 {
+	JString key(jkey);
+	QVariant var;
+	JObject obj(jval);
+
+	JMap::boxedToNative(obj, var);
+
+	static_cast<JTransferPlugin*>(getCObject(jthis))->setPersistentVariable(key.str(), var);
 }
 
-jobject JTransferPlugin::getPersistentVariable(JNIEnv* env, jobject jthis, jstring jkey)
+jobject JTransferPlugin::getPersistentVariable(JNIEnv* env, jobject jthis, jstring key)
 {
-
+	QVariant var = static_cast<JTransferPlugin*>(getCObject(jthis))->getPersistentVariable(JString(key).str());
+	return JMap::nativeToBoxed(var).getLocalRef();
 }
 

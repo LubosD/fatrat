@@ -227,8 +227,8 @@ bool JObject::instanceOf(const char* cls) const
 
 bool JObject::isArray() const
 {
-	JScope s;
-	/*return instanceOf("[Z") ||
+	/*JScope s;
+	return instanceOf("[Z") ||
 			instanceOf("[B") ||
 			instanceOf("[C") ||
 			instanceOf("[S") ||
