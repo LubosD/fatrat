@@ -85,9 +85,6 @@ $(document).ready(function() {
 				else
 					actionDelete();
 				break;
-			case 78: // N
-				actionAdd();
-				break;
 			default:
 				return;
 		}
