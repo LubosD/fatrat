@@ -99,14 +99,7 @@ HttpService::HttpService()
 
 HttpService::~HttpService()
 {
-	QMutexLocker l(&m_registeredCaptchaClientsMutex);
-
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
-	{
-		cl->terminate();
-		delete cl;
-	}
-	m_registeredCaptchaClients.clear();
+	killCaptchaClients();
 
 	m_instance = 0;
 	if(m_server)
@@ -115,6 +108,18 @@ HttpService::~HttpService()
 		delete m_server;
 		m_server = 0;
 	}
+}
+
+void HttpService::killCaptchaClients()
+{
+	QMutexLocker l(&m_registeredCaptchaClientsMutex);
+
+	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	{
+		cl->terminate();
+		delete cl;
+	}
+	m_registeredCaptchaClients.clear();
 }
 
 void HttpService::applySettings()
@@ -139,14 +144,7 @@ void HttpService::applySettings()
 				{
 					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port or SSL config change"));
 
-					QMutexLocker l(&m_registeredCaptchaClientsMutex);
-
-					foreach(RegisteredClient* cl, m_registeredCaptchaClients)
-					{
-						cl->terminate();
-						delete cl;
-					}
-					m_registeredCaptchaClients.clear();
+					killCaptchaClients();
 
 					m_server->stop();
 					delete m_server;
@@ -158,6 +156,7 @@ void HttpService::applySettings()
 		}
 		else if(!enable && m_server)
 		{
+			killCaptchaClients();
 			m_server->stop();
 			delete m_server;
 			m_server = 0;

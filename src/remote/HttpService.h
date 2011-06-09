@@ -80,6 +80,7 @@ private slots:
 private:
 	void addCaptchaClient(RegisteredClient* client);
 	void removeCaptchaClient(RegisteredClient* client);
+	void killCaptchaClients();
 private:
 	static HttpService* m_instance;
 	pion::net::WebServer* m_server;
