@@ -77,7 +77,7 @@ $(document).ready(function() {
 		$('#popup-permissions').show();
 	}*/
 	
-	$(window).keydown(function(e) {
+	/*$(window).keydown(function(e) {
 		switch (e.keyCode) {
 			case 46: // DEL
 				if (e.shiftKey)
@@ -89,7 +89,7 @@ $(document).ready(function() {
 				return;
 		}
 		e.preventDefault();
-	});
+	});*/
 	
 	target = document.getElementById('fatrat-chrome-comm-div');
 	target.addEventListener("startDownload",function(e) {
