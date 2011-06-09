@@ -51,7 +51,7 @@ public:
 	JavaDownload(const char* cls);
 	virtual ~JavaDownload();
 
-	static void globalInit(bool forceJreSearch);
+	static void globalInit();
 	static void globalExit();
 	static QStringList getConfigDialogs();
 

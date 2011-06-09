@@ -160,9 +160,14 @@ int main(int argc,char** argv)
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)
 	{
-		JavaDownload::globalInit(m_bJavaForceSearch);
-		JavaExtractor::globalInit();
-		JavaUpload::globalInit();
+		new JVM(m_bJavaForceSearch);
+
+		if (JVM::JVMAvailable())
+		{
+			JavaDownload::globalInit();
+			JavaExtractor::globalInit();
+			JavaUpload::globalInit();
+		}
 	}
 #endif
 	

@@ -281,13 +281,8 @@ void JavaDownload::deriveName()
 	m_strName = (!name.isEmpty() && name != "/" && name != ".") ? name : "default.html";
 }
 
-void JavaDownload::globalInit(bool forceJreSearch)
+void JavaDownload::globalInit()
 {
-	new JVM(forceJreSearch);
-
-	if (!JVM::JVMAvailable())
-		return;
-
 	// search for plugins
 	try
 	{
