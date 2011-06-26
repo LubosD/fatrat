@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 #include "Logger.h"
 #include "Settings.h"
+#include "Queue.h"
 #include "TorrentDownload.h"
 #include "TorrentSettings.h"
 #include "TorrentDetails.h"
@@ -1510,6 +1511,7 @@ QString TorrentDownload::remoteURI() const
 		return QString::fromStdString(libtorrent::make_magnet_uri(m_handle));
 }
 
+#ifdef WITH_WEBINTERFACE
 QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
 {
 	QString uuid = args[0].toString();
@@ -1556,6 +1558,7 @@ QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
 
 	return QVariant();
 }
+#endif
 
 void TorrentWorker::setDetailsObject(TorrentDetails* d)
 {
