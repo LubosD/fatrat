@@ -1043,9 +1043,9 @@ function startCaptchaListener() {
 		source.addEventListener('message', function (event) {
 			handleCaptchaEvent(event.data);
 		});
-		source.addEventListener('error', function() {
-			window.setTimeout('startCaptchaListener()', 500);
-		});
+		//source.addEventListener('error', function() {
+		//	window.setTimeout('startCaptchaListener()', 500);
+		//});
 	} else {
 	}
 }
