@@ -140,7 +140,7 @@ void HttpService::applySettings()
 				QString pemFile = getSettingsValue("remote/ssl_pem").toString();
 				bool useSSL = getSettingsValue("remote/ssl").toBool();
 
-				if (port != m_port || m_strSSLPem != pemFile || useSSL == m_strSSLPem.isEmpty())
+				if (port != m_port || m_strSSLPem != pemFile || (useSSL && m_strSSLPem.isEmpty()))
 				{
 					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port or SSL config change"));
 

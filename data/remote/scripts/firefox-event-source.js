@@ -1,5 +1,5 @@
 ;(function (w) {
-  if ( !w['EventSource'] ) {
+  if ( !w['EventSource'] || navigator.userAgent.toLowerCase().indexOf('chrome') > -1 ) {
     // parseUri 1.2.2
     // (c) Steven Levithan <stevenlevithan.com>
     // MIT License    

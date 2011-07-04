@@ -47,7 +47,7 @@ $(function() {
 function updateTime() {
 	$('#seconds').html(seconds--);
 
-	if (seconds <= 0)
+	if (seconds < 0)
 		submitSolution("");
 }
 
