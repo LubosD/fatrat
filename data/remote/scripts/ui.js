@@ -32,6 +32,7 @@ $(document).ready(function() {
 	//$("#tabs-tsg-img").load(function() { $("#tabs-tsg-img").attr('style','visibility: visible'); });
 	//$("#tabs-qsg-img").load(function() { $("#tabs-qsg-img").attr('style','visibility: visible'); });
 	
+	$("#queues").mousedown(function(e){ e.preventDefault(); });
 	$("#queues .ui-selectee").click(function(e){
 		$(this).toggleClass("ui-selected").siblings().removeClass("ui-selected");
 		queueClicked(e.target);

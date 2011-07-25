@@ -509,10 +509,11 @@ function addTransferItem(item, addBefore) {
 	}
 	
 	fillTransferRow(ndiv, item);
-	$(ndiv).mousedown(function() {
+	$(ndiv).mousedown(function(e) {
 		// To ensure right clicks work the way users expect them to
 		$(ndiv).addClass('ui-selected').siblings().removeClass('ui-selected');
 		transfersSelectionChanged();
+		e.preventDefault();
 	});
 	
 	if (addBefore)
