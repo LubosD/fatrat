@@ -617,10 +617,34 @@ function sendStateChange(newState) {
 	if (!currentTransfers.length)
 		return;
 	
-	properties = { state: newState };
-	client.Transfer_setProperties(currentTransfers, properties, function(data) {
-		updateTransfers();
-	});
+	if (newState != 'Waiting') {
+		var properties = { state: newState };
+		client.Transfer_setProperties(currentTransfers, properties, function(data) {
+			updateTransfers();
+		});
+	} else {
+		var active = [];
+		var inactive = [];
+		
+		for (var i = 0; i < currentTransfers.length; i++) {
+			if (currentTransfers[i].state == 'ForcedActive')
+				active.push(currentTransfers[i]);
+			else if (currentTransfers[i].state != 'Active')
+				inactive.push(currentTransfers[i]);
+		}
+		
+		if (active.length > 0) {
+			client.Transfer_setProperties(active, { state: 'Active' }, function(data) {
+				if (inactive.length > 0)
+					updateTransfers();
+			});
+		}
+		if (inactive.length > 0) {
+			client.Transfer_setProperties(inactive, { state: 'Waiting' }, function(data) {
+				updateTransfers();
+			});
+		}
+	}
 }
 
 function actionAdd(link) {
