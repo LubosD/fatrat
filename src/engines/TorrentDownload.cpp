@@ -791,7 +791,7 @@ void TorrentDownload::setSpeedLimits(int down, int up)
 			down--;
 		if(!up)
 			up--;
-		qDebug() << name() << ":" << "D:" << down << "U:" << up;
+		
 		m_handle.set_upload_limit(up);
 		m_handle.set_download_limit(down);
 	}
