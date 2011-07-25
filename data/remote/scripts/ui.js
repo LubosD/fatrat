@@ -61,8 +61,8 @@ $(document).ready(function() {
 		$("#queue-properties-move-directory").attr("disabled", (checked)?"":"disabled");
 	});
 	
-	//$(window).resize(updateSizes);
-	//window.setTimeout(updateSizes, 250);
+	$(window).resize(updateSizes);
+	window.setTimeout(updateSizes, 250);
 	
 	/*if (window.webkitNotifications && window.webkitNotifications.checkPermission() != 0) {
 		$('#popup-permissions-request').click(function() {
@@ -115,17 +115,7 @@ $(document).ready(function() {
 });
 
 function updateSizes() {
-	ids = ['transfers-pane' , 'queues-pane' /*, 'tabs-log'*/];
-	curid = null;
-	for (ee=0;ee<ids.length;ee++) {
-		if ($('#'+ids[ee]).is(':visible')) {
-			curid = ids[ee];
-			break;
-		}
-	}
-
-	if (!curid)
-		return;
+	curid = 'transfers-pane';
 	
 	pos = $('#footer').offset().top;
 	bot = pos + $('#footer').height();
@@ -133,4 +123,9 @@ function updateSizes() {
 	if (newh < 100)
 		newh = 100;
 	$('#'+curid).height(newh);
+	$('#queues-pane').height(newh);
+	
+	limh = newh - $('#transfers-title').height() - 15;
+	$('#transfers-wrapper').height(limh);
+	$('#queues').height(limh);
 }

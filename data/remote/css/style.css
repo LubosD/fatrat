@@ -51,10 +51,6 @@ table#bigtable {
 	margin-bottom: 1ex;
 }
 
-#tabs {
-	/*height: 100%;*/
-	overflow: auto;
-}
 
 .ui-layout-resizer { background: #888; }
 
@@ -76,7 +72,6 @@ table#bigtable {
 }
 
 #queues {
-	height: 90%;
 	background-color: white;
 	border: 1px solid #CCC;
 }
