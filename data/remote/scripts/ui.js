@@ -115,7 +115,7 @@ $(document).ready(function() {
 });
 
 function updateSizes() {
-	ids = ['transfers-pane' /*, 'tabs-details', 'tabs-log'*/];
+	ids = ['transfers-pane' , 'queues-pane' /*, 'tabs-log'*/];
 	curid = null;
 	for (ee=0;ee<ids.length;ee++) {
 		if ($('#'+ids[ee]).is(':visible')) {

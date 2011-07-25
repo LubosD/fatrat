@@ -75,6 +75,12 @@ table#bigtable {
 	vertical-align: top;
 }
 
+#queues {
+	height: 90%;
+	background-color: white;
+	border: 1px solid #CCC;
+}
+
 #transfers-pane {
 	/*display: table-cell;*/
 	position: relative;
@@ -84,6 +90,12 @@ table#bigtable {
 	/*width: 80%;*/
 	padding: 1ex;
 	/*overflow: scroll;*/
+}
+
+#transfers-wrapper {
+	height: 90%;
+	background-color: white;
+	border: 1px solid #CCC;
 }
 
 .queue-item {
