@@ -315,3 +315,23 @@ input[type=number], input[type=text], input[type=password] {
 	width: 98%;
 }
 
+#statusbar-speedlimit {
+	float: right;
+	cursor: default;
+}
+
+#statusbar-speedlimit-down, #statusbar-speedlimit-up {
+	padding: 0px 10px 0px 20px;
+	background-repeat: no-repeat;
+	height: 20px;
+}
+
+#statusbar-speedlimit-down {
+	background-image: url(icons/move/down.png);
+}
+
+#statusbar-speedlimit-up {
+	background-image: url(icons/move/up.png);
+}
+
+

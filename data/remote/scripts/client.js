@@ -103,6 +103,7 @@ function updateQueues() {
 			} else
 				currentQueue = undefined;
 		}
+		
 		x = $(".queue-item").first().click();
 	});
 }
@@ -221,8 +222,20 @@ function queueClicked(elem) {
 function updateTransfers() {
 	if (!currentQueue) {
 		$("#transfers .transfer-item").remove();
+		$("#statusbar-speedlimit-down, #statusbar-speedlimit-up").html('');
 		return;
 	}
+	
+	var data = getQueue(currentQueue);
+	if (data.speedLimits[0] > 0)
+		$("#statusbar-speedlimit-down").html(formatSize(data.speedLimits[0]) + '/s');
+	else
+		$("#statusbar-speedlimit-down").html('∞ KB/s');
+	if (data.speedLimits[1] > 0)
+		$("#statusbar-speedlimit-up").html(formatSize(data.speedLimits[1]) + '/s');
+	else
+		$("#statusbar-speedlimit-up").html('∞ KB/s');
+		
 	client.Queue_getTransfers(currentQueue, function(data) {
 		transfers = data;
 		
