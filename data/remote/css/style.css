@@ -80,7 +80,7 @@ table#bigtable {
 	/*display: table-cell;*/
 	position: relative;
 	left: 21%;
-	width: 77%;
+	width: 78%;
 	overflow: auto;
 	/*width: 80%;*/
 	padding: 1ex;
@@ -116,6 +116,7 @@ table#transfers {
 	border-collapse:collapse;
 	/*height: 100%;*/
 	width: 100%;
+	border: none;
 }
 
 table#transfers th {
@@ -304,5 +305,13 @@ input[type=number], input[type=text], input[type=password] {
 
 #details-download-parent {
 	min-height: 300px !important;
+}
+
+#statusbar {
+	height: 18px;
+	position: absolute;
+	bottom: 3px;
+	margin-left: 1.6ex;
+	width: 98%;
 }
 

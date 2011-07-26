@@ -226,7 +226,16 @@ function updateTransfers() {
 	client.Queue_getTransfers(currentQueue, function(data) {
 		transfers = data;
 		
-		i = 0;
+		var totalDown = 0, totalUp = 0;
+		
+		for (var i = 0; i < transfers.length; i++) {
+			totalDown += transfers[i].speeds[0];
+			totalUp += transfers[i].speeds[0];
+		}
+		$('#statusbar-speed-down').val(formatSize(totalDown) + '/s');
+		$('#statusbar-speed-up').val(formatSize(totalUp) + '/s');
+		
+		var i = 0;
 		$('#transfers .transfer-item').each(function() {
 			if (i >= transfers.length)
 				$(this).remove();

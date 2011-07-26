@@ -126,7 +126,7 @@ function updateSizes() {
 	$('#'+curid).height(newh);
 	$('#queues-pane').height(newh);
 	
-	limh = newh - $('#transfers-title').height() - 15;
+	limh = newh - $('#transfers-title').height() - 30;
 	$('#transfers-wrapper').height(limh);
 	$('#queues').height(limh);
 }
