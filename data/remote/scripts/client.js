@@ -230,10 +230,10 @@ function updateTransfers() {
 		
 		for (var i = 0; i < transfers.length; i++) {
 			totalDown += transfers[i].speeds[0];
-			totalUp += transfers[i].speeds[0];
+			totalUp += transfers[i].speeds[1];
 		}
-		$('#statusbar-speed-down').val(formatSize(totalDown) + '/s');
-		$('#statusbar-speed-up').val(formatSize(totalUp) + '/s');
+		$('#statusbar-speed-down').html(formatSize(totalDown) + '/s');
+		$('#statusbar-speed-up').html(formatSize(totalUp) + '/s');
 		
 		var i = 0;
 		$('#transfers .transfer-item').each(function() {
