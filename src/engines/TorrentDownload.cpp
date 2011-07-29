@@ -442,6 +442,11 @@ void TorrentDownload::globalExit()
 		setSettingsValue("torrent/dht_state", bencode_simple(e));
 	}
 
+	// Without this the process could freeze for up to 60 seconds
+	libtorrent::session_settings s;
+	s.tracker_completion_timeout = s.tracker_receive_timeout = 5;
+	m_session->set_settings(s);
+
 	m_session->abort();
 
 	delete m_worker;
