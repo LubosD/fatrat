@@ -69,8 +69,8 @@ void ScheduledActionDlg::load()
 		QList<QVariant> sp = m_action.actionArgument.toList();
 		if (sp.size() == 2)
 		{
-			lineDown->setText(QString::number(sp[0].toInt()));
-			lineUp->setText(QString::number(sp[1].toInt()));
+			lineDown->setText(QString::number(sp[0].toInt()) / 1024);
+			lineUp->setText(QString::number(sp[1].toInt()) / 1024);
 		}
 	}
 	
@@ -93,8 +93,8 @@ void ScheduledActionDlg::save()
 	if(m_action.action == ScheduledAction::ActionSetSpeedLimit)
 	{
 		QList<QVariant> sp;
-		sp << lineDown->text().toInt();
-		sp << lineUp->text().toInt();
+		sp << lineDown->text().toInt() * 1024;
+		sp << lineUp->text().toInt() * 1024;
 		m_action.actionArgument = sp;
 	}
 	
