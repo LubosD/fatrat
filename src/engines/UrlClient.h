@@ -43,6 +43,7 @@ public:
 	{
 		QUrl url, effective;
 		QString strReferrer, strBindAddress, strUserAgent;
+		QByteArray strPostData;
 		FtpMode ftpMode;
 		QUuid proxy;
 		QList<QNetworkCookie> cookies;
@@ -80,6 +81,7 @@ private:
 	qlonglong m_rangeFrom, m_rangeTo, m_progress;
 	CURL* m_curl;
 	char m_errorBuffer[CURL_ERROR_SIZE];
+	char* m_postData;
 	QHash<QByteArray, QByteArray> m_headers;
 	//CurlPollingMaster* m_master;
 	bool m_bTerminating;

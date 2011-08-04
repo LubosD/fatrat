@@ -54,13 +54,31 @@ JDownloadPlugin::JDownloadPlugin(const char* clsName, const char* sig, JArgs arg
 void JDownloadPlugin::registerNatives()
 {
 	QList<JNativeMethod> natives;
+	try
+	{
+		natives << JNativeMethod("startDownload", JSignature().add("info.dolezel.fatrat.plugins.extra.DownloadUrl"), startDownload);
+		natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
+		natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
+		natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
 
-	natives << JNativeMethod("startDownload", JSignature().addString().addString().addString().addString(), startDownload);
-	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
-	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
-	natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
+		JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
+	}
+	catch (const JException& e)
+	{
+		Logger::global()->enterLogMessage("JNI", "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again");
 
-	JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
+		throw; // effectively disables Java extension support
+	}
+
+	try
+	{
+		natives.clear();
+		natives << JNativeMethod("startDownload", JSignature().addString().addString().addString().addString(), startDownloadLegacy);
+	}
+	catch (const JException&)
+	{
+		// safe to ignore
+	}
 }
 
 void JDownloadPlugin::captchaSolved(QString url, QString solution)
@@ -120,8 +138,8 @@ void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring jname)
 	This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::reportFileName(): ")+name.str());
 }
 
-
-void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url, jstring referrer, jstring userAgent, jstring fileName)
+// LEGACY, keep until Oct 2011
+void JDownloadPlugin::startDownloadLegacy(JNIEnv* env, jobject jthis, jstring url, jstring referrer, jstring userAgent, jstring fileName)
 {
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	QString str = JString(url).str();
@@ -138,6 +156,30 @@ void JDownloadPlugin::startDownload(JNIEnv* env, jobject jthis, jstring url, jst
 	QNetworkCookieJar* jar = This->m_network->cookieJar();
 	QList<QNetworkCookie> c = jar->cookiesForUrl(str);
 	static_cast<JavaDownload*>(This->m_transfer)->startDownload(str, c, ref, ua);
+
+	This->m_network->setCookieJar(new QNetworkCookieJar);
+}
+
+void JDownloadPlugin::startDownload(JNIEnv *, jobject jthis, jobject jdownloadUrl)
+{
+	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
+	JObject downloadUrl(jdownloadUrl);
+
+	QString url = downloadUrl.getValue("url", JSignature::sigString()).toString();
+	QString ref = downloadUrl.getValue("referrer", JSignature::sigString()).toString();
+	QString ua = downloadUrl.getValue("userAgent", JSignature::sigString()).toString();
+	QString fileName = downloadUrl.getValue("fileName", JSignature::sigString()).toString();
+	QString postData = downloadUrl.getValue("postData", JSignature::sigString()).toString();
+
+	This->m_transfer->enterLogMessage(QLatin1String("startDownload(): ")+url);
+
+	QNetworkCookieJar* jar = This->m_network->cookieJar();
+	QList<QNetworkCookie> c = jar->cookiesForUrl(url);
+
+	if (!fileName.isEmpty())
+		url += "#__filename=" + fileName.replace('/', '-');
+
+	static_cast<JavaDownload*>(This->m_transfer)->startDownload(url, c, ref, ua, postData);
 
 	This->m_network->setCookieJar(new QNetworkCookieJar);
 }

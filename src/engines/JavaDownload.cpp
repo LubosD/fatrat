@@ -246,7 +246,7 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 	return 0;
 }
 
-void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer, QString userAgent)
+void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer, QString userAgent, QString postData)
 {
 	m_downloadUrl = url;
 	m_listActiveSegments.clear();
@@ -270,6 +270,8 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QSt
 	m_urls[0].cookies = cookies;
 	m_urls[0].strReferrer = referrer;
 	m_urls[0].strUserAgent = userAgent;
+	m_urls[0].strPostData = postData.toUtf8();
+
 	CurlDownload::changeActive(true);
 }
 
@@ -278,7 +280,7 @@ void JavaDownload::deriveName()
 	QString name;
 	name = QFileInfo(m_strOriginal).fileName();
 	name = QUrl::fromPercentEncoding(name.toUtf8());
-	m_strName = (!name.isEmpty() && name != "/" && name != ".") ? name : "default.html";
+	m_strName = (!name.isEmpty() && name != "/" && name != ".") ? name : m_strOriginal;
 }
 
 void JavaDownload::globalInit()

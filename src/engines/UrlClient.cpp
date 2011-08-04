@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <unistd.h>
 
 UrlClient::UrlClient()
-	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_bTerminating(false)
+	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_postData(0), m_bTerminating(false)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -43,6 +43,8 @@ UrlClient::~UrlClient()
 		close(m_target);
 		m_target = 0;
 	}
+	delete [] m_postData;
+
 //	if (m_curl != 0)
 //		CurlPoller::instance()->removeSafely(m_curl);
 }
@@ -108,6 +110,13 @@ void UrlClient::start()
 			ba += c.toRawForm(QNetworkCookie::NameAndValueOnly);
 		}
 		curl_easy_setopt(m_curl, CURLOPT_COOKIE, ba.constData());
+	}
+
+	if (!m_source->strPostData.isEmpty())
+	{
+		curl_easy_setopt(m_curl, CURLOPT_POST, true);
+		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, m_source->strPostData.constData());
+		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, qint64(m_source->strPostData.size()));
 	}
 	
 	Proxy proxy = Proxy::getProxy(m_source->proxy);

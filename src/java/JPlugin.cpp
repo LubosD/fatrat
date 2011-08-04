@@ -84,7 +84,7 @@ void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInte
 	QString url = JString(jurl).toString();
 	QNetworkReply* reply;
 
-	This->m_transfer->logMessage(QLatin1String("JPlugin::fetchPage(): ")+url);
+	This->m_transfer->enterLogMessage(QLatin1String("JPlugin::fetchPage(): ")+url);
 	qDebug() << "JPlugin::fetchPage():" << url;
 	if (postData)
 		qDebug() << "postData:" << JString(postData).str();

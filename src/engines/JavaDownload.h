@@ -78,7 +78,7 @@ public:
 	static int acceptable(QString uri, bool, const EngineEntry* e);
 protected:
 	void deriveName();
-	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString(), QString userAgent = QString());
+	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString(), QString userAgent = QString(), QString postData = QString());
 	void setName(QString name) { m_strName = name; }
 private:
 	QString m_strClass;

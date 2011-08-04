@@ -390,4 +390,16 @@ void JClass::registerNativeMethods(const QList<JNativeMethod>& m)
 	env->RegisterNatives(m_class, nm, m.size());
 
 	delete [] nm;
+
+	JObject ex = env->ExceptionOccurred();
+
+	if (!ex.isNull())
+	{
+		env->ExceptionClear();
+		ex.call("printStackTrace");
+		QString message = ex.call("getMessage", JSignature().retString()).toString();
+		QString className = ex.getClass().getClassName();
+
+		throw JException(message, className, ex);
+	}
 }
