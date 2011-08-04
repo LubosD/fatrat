@@ -352,8 +352,8 @@ QVariant XmlRpcService::Queue_getTransfers(QString uuid)
 		vmap["primaryMode"] = (t->primaryMode() == Transfer::Download) ? "Download" : "Upload";
 		vmap["dataPath"] = t->dataPath();
 		vmap["dataPathIsDir"] = QFileInfo(t->dataPath()).isDir();
-		vmap["total"] = double(t->total());
-		vmap["done"] = double(t->done());
+		vmap["total"] = t->total();
+		vmap["done"] = t->done();
 		vmap["uuid"] = t->uuid();
 		vmap["comment"] = t->comment();
 		vmap["object"] = t->object();

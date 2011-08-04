@@ -88,6 +88,7 @@ private:
 	CaptchaHttp m_captchaHttp;
 	quint16 m_port;
 	QString m_strSSLPem;
+	bool m_bUseSSL;
 
 	QTimer m_timer;
 	QList<RegisteredClient*> m_registeredCaptchaClients;
