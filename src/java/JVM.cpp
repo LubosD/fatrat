@@ -80,6 +80,8 @@ JVM::~JVM()
 	qDebug() << "Unloading the JVM...";
 	if (m_jvm)
 		m_jvm->DestroyJavaVM();
+
+	m_env.setLocalData(0);
 	if (m_instance == this)
 		m_instance = 0;
 }

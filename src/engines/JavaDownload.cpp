@@ -272,7 +272,9 @@ void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QSt
 	m_urls[0].strUserAgent = userAgent;
 	m_urls[0].strPostData = postData.toUtf8();
 
+	QString msg = m_strMessage;
 	CurlDownload::changeActive(true);
+	m_strMessage = msg;
 }
 
 void JavaDownload::deriveName()

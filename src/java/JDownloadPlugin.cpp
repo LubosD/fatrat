@@ -65,9 +65,10 @@ void JDownloadPlugin::registerNatives()
 	}
 	catch (const JException& e)
 	{
+		qDebug() << "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again";
 		Logger::global()->enterLogMessage("JNI", "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again");
 
-		throw; // effectively disables Java extension support
+		//throw; // effectively disables Java extension support
 	}
 
 	try
