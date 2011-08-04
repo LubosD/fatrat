@@ -69,8 +69,8 @@ void ScheduledActionDlg::load()
 		QList<QVariant> sp = m_action.actionArgument.toList();
 		if (sp.size() == 2)
 		{
-			lineDown->setText(QString::number(sp[0].toInt()) / 1024);
-			lineUp->setText(QString::number(sp[1].toInt()) / 1024);
+			lineDown->setText(QString::number(sp[0].toInt()/ 1024));
+			lineUp->setText(QString::number(sp[1].toInt() / 1024));
 		}
 	}
 	
