@@ -39,7 +39,7 @@ void Logger::enterLogMessage(QString msg)
 		.arg( QDate::currentDate().toString(Qt::ISODate) )
 		.arg( QTime::currentTime().toString(Qt::ISODate) )
 		.arg(msg);
-	emit logMessage(text);
+
 	if(!m_strLog.isEmpty())
 		m_strLog += '\n';
 	
@@ -47,6 +47,9 @@ void Logger::enterLogMessage(QString msg)
 	
 	if (m_strLog.size() > 2*1024*1024)
 		m_strLog = m_strLog.mid(1024*1024);
+
+	l.unlock();
+	emit logMessage(text);
 }
 
 void Logger::enterLogMessage(QString sender, QString msg)
