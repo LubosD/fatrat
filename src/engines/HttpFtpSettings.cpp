@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "config.h"
 #include "HttpFtpSettings.h"
 #include "UserAuthDlg.h"
 #include "Settings.h"
@@ -75,6 +76,10 @@ void HttpFtpSettings::load()
 		listAuths->addItem(a.strRegExp);
 
 	lineConnectionTimeout->setText(getSettingsValue("httpftp/timeout").toString());
+	checkDetectTorrents->setChecked(getSettingsValue("httpftp/detect_torrents").toBool());
+#ifndef WITH_BITTORRENT
+	checkDetectTorrents->setDisabled(true);
+#endif
 }
 
 void HttpFtpSettings::accepted()
@@ -96,6 +101,8 @@ void HttpFtpSettings::accepted()
 
 	setSettingsValue("httpftp/timeout", timeout);
 	lineConnectionTimeout->setText(QString::number(timeout));
+
+	setSettingsValue("httpftp/detect_torrents", checkDetectTorrents->isChecked());
 
 	CurlPoller::setTransferTimeout(timeout);
 }

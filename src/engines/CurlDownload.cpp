@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -50,6 +50,10 @@ respects for all of the code used other than "OpenSSL".
 #include <iostream>
 #include <errno.h>
 #include <cassert>
+
+#ifdef WITH_BITTORRENT
+#	include "TorrentDownload.h"
+#endif
 
 static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::magenta, Qt::yellow, Qt::darkRed,
 	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
@@ -859,6 +863,7 @@ void CurlDownload::clientDone(QString error)
 	qulonglong d = done();
 	if( (d == total() && d) || (!total() && error.isNull()))
 	{
+		checkFileContents();
 		setState(Completed);
 	}
 	else if(!error.isNull())
@@ -1145,4 +1150,30 @@ QObject* CurlDownload::createDetailsWidget(QWidget* w)
 	return d;
 }
 
+void CurlDownload::checkFileContents()
+{
+#ifdef WITH_BITTORRENT
+	if (getSettingsValue("httpftp/detect_torrents", true).toBool())
+	{
+		QFile file(filePath());
+		if (!file.open(QIODevice::ReadOnly))
+			return;
 
+		char buf[11];
+		if (file.read(buf, sizeof(buf)) != sizeof(buf))
+			return;
+
+		if (memcmp(buf, "d8:announce", sizeof(buf)) == 0)
+		{
+			// Convert transfer to torrent
+			TorrentDownload* t = new TorrentDownload;
+			t->init(filePath(), m_dir.path());
+			t->setState(state());
+
+			file.remove();
+			t->enterLogMessage(tr("This transfer was converted from a HTTP/FTP download"));
+			replaceItself(t);
+		}
+	}
+#endif
+}

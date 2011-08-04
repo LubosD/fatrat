@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>488</width>
+    <width>539</width>
     <height>323</height>
    </rect>
   </property>
@@ -132,6 +132,13 @@
      </property>
      <property name="text">
       <string>seconds</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="QCheckBox" name="checkDetectTorrents">
+     <property name="text">
+      <string>Convert the transfer to BitTorrent if the downloaded file is found to be a torrent</string>
      </property>
     </widget>
    </item>

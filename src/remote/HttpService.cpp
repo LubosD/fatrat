@@ -786,8 +786,6 @@ bool HttpService::hasCaptchaHandlers()
 
 void HttpService::keepalive()
 {
-	qDebug() << "HttpService::keepalive()";
-
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
 	foreach(RegisteredClient* cl, m_registeredCaptchaClients)

@@ -172,6 +172,7 @@ protected:
 	void fireCompleted();
 	void updateGraph();
 
+	// Calls this->deleteLater()
 	void replaceItself(Transfer* newObject);
 	void replaceItself(QList<Transfer*> newObjects);
 	Queue* myQueue() const;
