@@ -83,15 +83,15 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 		break;
 	case QMetaType::Int:
 	case QMetaType::UInt:
-	case QMetaType::Long:
-	case QMetaType::Short:
-	case QMetaType::ULong:
-	case QMetaType::UShort:
+//	case QMetaType::Long:
+//	case QMetaType::Short:
+//	case QMetaType::ULong:
+//	case QMetaType::UShort:
 	case QMetaType::ULongLong:
 	case QMetaType::LongLong:
 		insertValue(doc, where, "i4", what.toString());
 		break;
-	case QMetaType::Float:
+//	case QMetaType::Float:
 	case QMetaType::Double:
 		insertValue(doc, where, "double", what.toString());
 		break;

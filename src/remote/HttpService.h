@@ -28,7 +28,6 @@ respects for all of the code used other than "OpenSSL".
 #ifndef HTTPSERVICE_H
 #define HTTPSERVICE_H
 #include "config.h"
-#include "openssl_debian_workaround.h"
 #include <QThread>
 #include <QMap>
 #include <QByteArray>

@@ -34,7 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariantMap>
 #include <QQueue>
 #include <QPair>
-//#include "engines/OutputBuffer.h"
+#include <pion/net/WebServer.hpp>
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -42,10 +42,6 @@ respects for all of the code used other than "OpenSSL".
 
 class Queue;
 class Transfer;
-
-#if !defined(XMLRPCSERVICE_AVOID_SHA_CONFLICT)
-#include "openssl_debian_workaround.h"
-#include <pion/net/WebServer.hpp>
 
 class XmlRpcService : public QObject, public pion::net::WebService
 {
@@ -101,29 +97,5 @@ private:
 	static QMap<QString,FunctionInfo> m_mapFunctions;
 	static XmlRpcService* m_instance;
 };
-
-#else // XMLRPCSERVICE_AVOID_SHA_CONFLICT
-
-class XmlRpcService
-{
-public:
-	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
-	static void deregisterFunction(QString name);
-	static void findQueue(QString queueUUID, Queue** q);
-	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
-	struct XmlRpcError
-	{
-		XmlRpcError(int code, QString desc)
-		{
-			this->code = code;
-			this->desc = desc;
-		}
-
-		int code;
-		QString desc;
-	};
-};
-
-#endif // XMLRPCSERVICE_AVOID_SHA_CONFLICT
 
 #endif
