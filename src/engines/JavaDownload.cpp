@@ -364,6 +364,7 @@ void JavaDownload::globalInit()
 
 void JavaDownload::globalExit()
 {
+	m_engines.clear();
 	qDeleteAll(m_mutexes);
 	delete JVM::instance();
 }

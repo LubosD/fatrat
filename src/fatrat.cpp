@@ -236,8 +236,11 @@ int main(int argc,char** argv)
 	runEngines(false);
 
 #ifdef WITH_JPLUGINS
-	if (!m_bDisableJava)
+	if (!m_bDisableJava && JVM::JVMAvailable())
+	{
+		JavaExtractor::globalExit();
 		JavaDownload::globalExit();
+	}
 #endif
 	
 	delete g_qmgr;

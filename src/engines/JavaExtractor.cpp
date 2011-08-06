@@ -148,6 +148,11 @@ void JavaExtractor::globalInit()
 	}
 }
 
+void JavaExtractor::globalExit()
+{
+	m_engines.clear();
+}
+
 QString JavaExtractor::name() const
 {
 	return QString::fromStdString(m_engines[m_strClass].name);

@@ -198,9 +198,16 @@ void JDownloadPlugin::startWait(JNIEnv* env, jobject jthis, jint seconds, jobjec
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
 	This->m_transfer->enterLogMessage(QString("JDownloadPlugin::startWait(): %1").arg(seconds));
 
-	This->m_nSecondsLeft = seconds;
-	This->m_waitCallback = cbInterface;
-	This->m_timer.start(1000);
+	if (!seconds)
+	{
+		JObject(cbInterface).call("onSecondElapsed", JSignature().addInt(), 0);
+	}
+	else
+	{
+		This->m_nSecondsLeft = seconds;
+		This->m_waitCallback = cbInterface;
+		This->m_timer.start(1000);
+	}
 }
 
 

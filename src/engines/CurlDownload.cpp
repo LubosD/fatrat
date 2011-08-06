@@ -551,7 +551,7 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 	{
 		if(!activeSegments.isEmpty())
 			activeSegments += ',';
-		activeSegments += index;
+		activeSegments += QString::number(index);
 	}
 	setXMLProperty(doc, map, "activesegments", activeSegments);
 }
