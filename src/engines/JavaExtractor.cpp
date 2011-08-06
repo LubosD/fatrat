@@ -122,7 +122,7 @@ void JavaExtractor::globalInit()
 			qDebug() << "Name:" << name;
 			qDebug() << "Regexp:" << regexp;
 
-			JavaEngine e = { name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+			JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
 
 			if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 				e.ownAcceptable = instance;

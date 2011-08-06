@@ -35,9 +35,12 @@ respects for all of the code used other than "OpenSSL".
 #include "JDownloadPlugin.h"
 #include "JSettings.h"
 #include "JMap.h"
+#include "JBackgroundWorker.h"
 #include "Settings.h"
 #include "config.h"
+#include "JObject.h"
 #include <alloca.h>
+#include <cassert>
 
 #include <QtDebug>
 
@@ -47,6 +50,8 @@ typedef jint (*cjvm_fn) (JavaVM **pvm, void **penv, void *args);
 
 JVM::JVM(bool forceJreSearch) : m_jvm(0)
 {
+	qRegisterMetaType<JObject>("JObject");
+
 	QString savedPath = getSettingsValue("extensions/jvm_path").toString();
 	if (forceJreSearch || savedPath.isEmpty() || !QFile::exists(savedPath))
 	{
@@ -140,6 +145,7 @@ void JVM::jvmStartup(QString libname)
 	JPlugin::registerNatives();
 	JTransferPlugin::registerNatives();
 	JDownloadPlugin::registerNatives();
+	JBackgroundWorker::registerNatives();
 }
 
 QString JVM::getClassPath()
@@ -208,6 +214,19 @@ JVM::operator JNIEnv*()
 		m_env.setLocalData(penv);
 	}
 	return *m_env.localData();
+}
+
+void JVM::detachCurrentThread()
+{
+	assert(m_env.hasLocalData());
+	m_env.setLocalData(0);
+	m_jvm->DetachCurrentThread();
+}
+
+void JVM::throwException(JObject& obj)
+{
+	JNIEnv *env = *this;
+	env->Throw(static_cast<jthrowable>(obj.getLocalRef()));
 }
 
 QMap<QString,QString> JVM::getPackageVersions()

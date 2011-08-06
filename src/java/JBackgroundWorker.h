@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,42 +25,32 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JVM_H
-#define JVM_H
-
-#include "config.h"
-#ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
-#endif
-
-#include <jni.h>
-#include <QThreadStorage>
-#include <QMap>
-#include <QString>
+#ifndef JBACKGROUNDOWORKER_H
+#define JBACKGROUNDOWORKER_H
+#include <QThread>
 #include "JObject.h"
+#include "JSingleCObject.h"
 
-class JObject;
-
-class JVM
+class JBackgroundWorker : public QThread, public JObject, public JSingleCObject<JBackgroundWorker>
 {
+Q_OBJECT
 public:
-	JVM(bool forceJreSearch = false);
-	virtual ~JVM();
-	static bool JVMAvailable();
-	static JVM* instance();
-	operator JNIEnv*();
+	JBackgroundWorker(jobject jthis);
 
-	QMap<QString,QString> getPackageVersions();
+	virtual void run();
 
-	void detachCurrentThread();
-	void throwException(JObject& obj);
+	static void registerNatives();
+
+	static void execute(JNIEnv *, jobject);
+	static jobject get(JNIEnv *, jobject);
+	static void disposeNative(JNIEnv *, jobject);
+	static void updateProgress(JNIEnv*, jobject, jobject);
+private slots:
+	void finished();
+	void progressUpdated(JObject p);
 private:
-	static QString getClassPath();
-	void jvmStartup(QString path);
-private:
-	static JVM* m_instance;
-	JavaVM* m_jvm;
-	QThreadStorage<JNIEnv**> m_env;
+	JObject m_result;
+	JObject m_exception;
 };
 
-#endif // JVM_H
+#endif

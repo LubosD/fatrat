@@ -42,7 +42,6 @@ respects for all of the code used other than "OpenSSL".
 #	include "engines/CurlDownload.h"
 #	include "engines/CurlUpload.h"
 #	include "engines/RapidshareUpload.h"
-#	include "engines/RapidshareFreeDownload.h"
 #	include "engines/MetalinkDownload.h"
 #endif
 
@@ -86,10 +85,6 @@ void initTransferClasses()
 	{
 		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, { RapidshareUpload::createInstance }, { RapidshareUpload::acceptable}, RapidshareUpload::createMultipleOptionsWidget };
 		g_enginesUpload << e;
-	}
-	{
-		EngineEntry e = { "RapidshareFreeDownload", "RapidShare.com FREE download", 0, 0, { RapidshareFreeDownload::createInstance }, { RapidshareFreeDownload::acceptable }, 0 };
-		g_enginesDownload << e;
 	}
 	{
 		EngineEntry e = { "MetalinkDownload", "Metalink file handler", MetalinkDownload::globalInit, 0, { MetalinkDownload::createInstance }, { MetalinkDownload::acceptable }, 0 };

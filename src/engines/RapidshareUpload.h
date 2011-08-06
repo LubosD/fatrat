@@ -124,7 +124,7 @@ public:
 	virtual void load();
 	virtual void accepted();
 	virtual bool accept();
-	
+
 	static void browse(QLineEdit* target);
 protected slots:
 	void accTypeChanged(int now);
@@ -132,24 +132,9 @@ protected slots:
 	void browseKill();
 private:
 	void init(QWidget* me);
-	
+
 	RapidshareUpload* m_upload;
 	QList<Transfer*>* m_multi;
-};
-
-class RapidshareSettings : public QObject, public WidgetHostChild, Ui_RapidshareOptsForm
-{
-Q_OBJECT
-public:
-	RapidshareSettings(QWidget* me, QObject* parent);
-	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new RapidshareSettings(me, parent); }
-	virtual void load();
-	virtual void accepted();
-	virtual bool accept();
-protected slots:
-	void accTypeChanged(int now);
-	void browseDownload();
-	void browseKill();
 };
 
 #endif

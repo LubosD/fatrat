@@ -98,7 +98,7 @@ void JavaUpload::globalInit()
 
 				JObject cfgDlg = obj.getAnnotation(annConfigDialog);
 
-				JavaEngine e = { name.toStdString(), clsName.toStdString() };
+				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString() };
 
 				if (!cfgDlg.isNull())
 					e.configDialog = cfgDlg.call("value", JSignature().retString()).toString();

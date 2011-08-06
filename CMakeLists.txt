@@ -373,7 +373,6 @@ if(WITH_CURL)
 		src/engines/HttpMirrorsDlg.cpp
 		src/engines/RapidshareUpload.cpp
 		src/engines/RapidshareUploadProgress.cpp
-		src/engines/RapidshareFreeDownload.cpp
 		src/engines/RapidshareStatusWidget.cpp
 		src/engines/MetalinkDownload.cpp
 	)
@@ -388,7 +387,6 @@ if(WITH_CURL)
 		src/engines/HttpMirrorsDlg.h
 		src/engines/GeneralDownloadForms.h
 		src/engines/RapidshareUpload.h
-		src/engines/RapidshareFreeDownload.h
 		src/engines/RapidshareStatusWidget.h
 		src/engines/MetalinkDownload.h
 	)
@@ -396,9 +394,8 @@ if(WITH_CURL)
 		${fatrat_UIS}
 		src/engines/HttpDetails.ui
 		src/engines/HttpMirrorsDlg.ui
-		src/engines/RapidshareOptsForm.ui
 		src/engines/RapidshareUploadDetailsForm.ui
-		src/engines/RapidshareFreeDownloadOptsForm.ui
+		src/engines/RapidshareOptsForm.ui
 	)
 endif(WITH_CURL)
 
@@ -423,6 +420,7 @@ if(WITH_JPLUGINS)
 		src/java/JUploadPlugin.cpp
 		src/java/JNativeMethod.cpp
 		src/java/JSettings.cpp
+		src/java/JBackgroundWorker.cpp
 		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaPersistentVariables.cpp
 		src/engines/JavaDownload.cpp
@@ -440,6 +438,7 @@ if(WITH_JPLUGINS)
 		src/java/JDownloadPlugin.h
 		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h
+		src/java/JBackgroundWorker.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}

@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 #include <QGroupBox>
 #include <QListWidget>
+#include <QCheckBox>
 
 static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 
@@ -99,6 +100,11 @@ void SettingsJavaPluginForm::accepted()
 
 				setSettingsArray(it.value(), slist);
 			}
+		}
+		else if (QComboBox* combo = dynamic_cast<QComboBox*>(it.key()))
+		{
+			int index = combo->currentIndex();
+			setSettingsValue(it.value(), combo->itemData(index));
 		}
 	}
 }
@@ -447,6 +453,16 @@ void SettingsJavaPluginForm::processPageElement(QDomElement& elem, QWidget* widg
 			}
 			processPageElement(obj, box);
 		}
+		else if (objType == "checkbox")
+		{
+			QCheckBox* box = new QCheckBox(widget);
+			QString id = obj.attribute("id");
+
+			box->setText(title);
+			box->setChecked(getSettingsValue(id, false).toBool());
+
+			m_extSettingsWidgets[box] = id;
+		}
 		else if (objType == "order")
 		{
 			QListWidget* list = new QListWidget(widget);
@@ -497,6 +513,44 @@ void SettingsJavaPluginForm::processPageElement(QDomElement& elem, QWidget* widg
 			layout->addWidget(list, row, 0, 1, 2);
 
 			m_extSettingsWidgets[list] = id;
+		}
+		else if (objType == "combo")
+		{
+			QComboBox* combo = new QComboBox(widget);
+			QLabel* label = new QLabel(widget);
+
+			QString id = obj.attribute("id");
+			QDomElement option = obj.firstChildElement("option");
+			QString val = getSettingsValue(id).toString();
+
+			int sel = -1, i = 0;
+
+			while (!option.isNull())
+			{
+				QString text, value;
+
+				text = option.text();
+				if (option.hasAttribute("value"))
+					value = option.attribute("value");
+				else
+					value = text;
+
+				combo->addItem(text, value);
+
+				if (value == val)
+					sel = i;
+
+				option = option.nextSiblingElement("option");
+				i++;
+			}
+
+			if (sel != -1)
+				combo->setCurrentIndex(sel);
+
+			layout->addWidget(label, row, 0);
+			layout->addWidget(combo, row, 1);
+
+			m_extSettingsWidgets[combo] = id;
 		}
 
 		child = child.nextSibling();

@@ -67,6 +67,19 @@ public:
 		return getCObject(obj);
 	}
 
+	static T* getCObjectAuto(jobject jobj)
+	{
+		T* t = getCObject(jobj);
+		if (t)
+			return t;
+		else
+		{
+			t = new T(jobj);
+			t->setCObject();
+			return t;
+		}
+	}
+
 	static T* getCObject(jobject jobj)
 	{
 		QReadLocker r(m_mutex.get());
