@@ -17,6 +17,10 @@ include_directories(src)
 
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
 
+# If you remove the following line, the Boost ASIO code used in pion will make libtorrent's Boost ASIO code crash
+# due to a curious symbol name conflict
+ADD_DEFINITIONS(-fvisibility-inlines-hidden)
+
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
 	)
@@ -121,8 +125,8 @@ endif(WITH_CURL)
 ADD_DEFINITIONS(-Wl,--stack,524 288)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
-	ADD_DEFINITIONS(-DDEBUG)
-	ADD_DEFINITIONS(-DTORRENT_LOGGING -DLOG4CPP_FIX_ERROR_COLLISION)
+	#ADD_DEFINITIONS(-DDEBUG)
+	ADD_DEFINITIONS(-DNDEBUG)
 	ADD_DEFINITIONS(-Wall)
 else(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)

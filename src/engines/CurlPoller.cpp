@@ -136,7 +136,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 		curl_multi_remove_handle(m_curlm, handle);
 		curl_easy_cleanup(handle);
 		delete c;
-		assert(!m_queteToDelete.contains(c));
+		assert(!m_queueToDelete.contains(c));
 	}
 
 	for(int i = 0; i < m_socketsToRemove.size(); i++)
