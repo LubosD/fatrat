@@ -90,8 +90,8 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 			case 2:
 				if(!m_progresses.empty())
 				{
-					int v = int( double(m_progresses[i])/double(m_files[i].size)*10000 );
-					return QString("%1%").arg(v / 100.0, 0, 'f', 1);
+					int v = int( double(m_progresses[i])/double(m_files[i].size)*1000 );
+					return QString("%1%").arg(v / 10.0, 0, 'f', 1);
 				}
 				break;
 			case 3:
