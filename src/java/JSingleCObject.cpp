@@ -25,32 +25,29 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JBACKGROUNDOWORKER_H
-#define JBACKGROUNDOWORKER_H
-#include <QThread>
-#include "JObject.h"
 #include "JSingleCObject.h"
 
-class JBackgroundWorker : public QThread, public JObject, public JSingleCObject<JBackgroundWorker>
+QHash<qint64, JObject*> m_singleCObjectInstances;
+QReadWriteLock m_singleCObjectMutex(QReadWriteLock::Recursive);
+qint64 m_singleCObjectNextID = 1;
+
+static void NativeObject_disposeNative(JNIEnv* env, jobject jthis)
 {
-Q_OBJECT
-public:
-	JBackgroundWorker(jobject jthis, bool weak);
+	qint64 id = JObject(jthis).getValue("nativeObjectId", JSignature::sigLong()).toLongLong();
 
-	virtual void run();
+	QWriteLocker w(&m_singleCObjectMutex);
+	if (m_singleCObjectInstances.contains(id))
+	{
+		// The destructor will delete the object from the map
+		delete m_singleCObjectInstances[id];
+	}
+}
 
-	static void registerNatives();
+void singleCObjectRegisterNatives()
+{
+	QList<JNativeMethod> natives;
 
-	static void execute(JNIEnv *, jobject);
-	static jobject get(JNIEnv *, jobject);
-	static void disposeNative(JNIEnv *, jobject);
-	static void updateProgress(JNIEnv*, jobject, jobject);
-private slots:
-	void finished();
-	void progressUpdated(JObject p);
-private:
-	JObject m_result;
-	JObject m_exception;
-};
+	natives << JNativeMethod("disposeNative", JSignature(), NativeObject_disposeNative);
 
-#endif
+	JClass("info.dolezel.fatrat.plugins.NativeObject").registerNativeMethods(natives);
+}

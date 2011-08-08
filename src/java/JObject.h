@@ -46,7 +46,7 @@ class JObject
 {
 public:
 	JObject();
-	JObject(jobject obj);
+	JObject(jobject obj, bool weak = false);
 	JObject(const JObject& obj);
 #ifdef WITH_CXX0X
 	JObject(JObject&& obj);
@@ -75,7 +75,7 @@ public:
 	bool isArray() const;
 	JArray toArray() const;
 
-	bool isNull() const { return !m_object; }
+	bool isNull() const;
 	JClass getClass() const;
 
 #if !defined(WITH_CXX0X)
@@ -136,6 +136,7 @@ private:
 	void construct(const JClass& cls, const char* sig, JArgs args);
 protected:
 	jobject m_object;
+	bool m_bWeak;
 };
 Q_DECLARE_METATYPE(JObject)
 

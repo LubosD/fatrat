@@ -35,10 +35,14 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #include <QReadWriteLock>
-#include <QList>
 #include <QtDebug>
+#include <QHash>
 #include <memory>
 #include "JObject.h"
+
+extern QHash<qint64, JObject*> m_singleCObjectInstances;
+extern QReadWriteLock m_singleCObjectMutex;
+extern qint64 m_singleCObjectNextID;
 
 template <typename T> class JSingleCObject
 {
@@ -50,19 +54,23 @@ public:
 
 	void setCObject()
 	{
-		QWriteLocker w(m_mutex.get());
-		m_instances << static_cast<T*>(this);
+		QWriteLocker w(&m_singleCObjectMutex);
+		T* t = static_cast<T*>(this);
+		m_myID = m_singleCObjectNextID++;
+
+		m_singleCObjectInstances[m_myID] = t;
+		t->setValue("nativeObjectId", JSignature::sigLong(), m_myID);
 	}
 
 	virtual ~JSingleCObject()
 	{
-		QWriteLocker w(m_mutex.get());
-		m_instances.removeAll(static_cast<T*>(this));
+		QWriteLocker w(&m_singleCObjectMutex);
+		m_singleCObjectInstances.remove(m_myID);
 	}
 
 	T* getCObject()
 	{
-		QReadLocker r(m_mutex.get());
+		QReadLocker r(&m_singleCObjectMutex);
 		jobject obj = *static_cast<T*>(this);
 		return getCObject(obj);
 	}
@@ -74,7 +82,7 @@ public:
 			return t;
 		else
 		{
-			t = new T(jobj);
+			t = new T(jobj, true);
 			t->setCObject();
 			return t;
 		}
@@ -82,21 +90,20 @@ public:
 
 	static T* getCObject(jobject jobj)
 	{
-		QReadLocker r(m_mutex.get());
-		foreach (JObject* obj, m_instances)
-		{
-			if (obj->isSameObject(jobj))
-				return static_cast<T*>(obj);
-		}
+		QReadLocker r(&m_singleCObjectMutex);
+		qint64 id = JObject(jobj).getValue("nativeObjectId", JSignature::sigLong()).toLongLong();
+
+		if (m_singleCObjectInstances.contains(id))
+			return static_cast<T*>(m_singleCObjectInstances[id]);
 		return 0;
 	}
-
 private:
 	JSingleCObject(const JSingleCObject<T>&) {}
 	JSingleCObject<T>& operator=(const JSingleCObject<T>&) {}
-private:
-	static QList<JObject*> m_instances;
-	static std::unique_ptr<QReadWriteLock> m_mutex;
+
+	qint64 m_myID;
 };
+
+void singleCObjectRegisterNatives();
 
 #endif // JSINGLECOBJECT_H

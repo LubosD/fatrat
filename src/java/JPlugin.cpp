@@ -35,10 +35,6 @@ respects for all of the code used other than "OpenSSL".
 #include "engines/StaticTransferMessage.h"
 #include <memory>
 
-template <> QList<JObject*> JSingleCObject<JPlugin>::m_instances = QList<JObject*>();
-template <> std::unique_ptr<QReadWriteLock> JSingleCObject<JPlugin>::m_mutex = std::unique_ptr<QReadWriteLock>(new QReadWriteLock);
-
-
 JPlugin::JPlugin(const JClass& cls, const char* sig, JArgs args)
 	: JObject(cls, sig, args), m_transfer(0)
 {

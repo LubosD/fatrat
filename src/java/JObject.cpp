@@ -38,16 +38,23 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 
 JObject::JObject()
+	: m_bWeak(false)
 {
 	m_object = 0;
 }
 
 JObject::JObject(const JObject& obj)
+		: m_bWeak(obj.m_bWeak)
 {
 	JNIEnv* env = *JVM::instance();
 	m_object = obj.m_object;
 	if (m_object)
-		m_object = env->NewGlobalRef(m_object);
+	{
+		if (!m_bWeak)
+			m_object = env->NewGlobalRef(m_object);
+		else
+			m_object = env->NewWeakGlobalRef(m_object);
+	}
 }
 
 #ifdef WITH_CXX0X
@@ -55,14 +62,20 @@ JObject::JObject(JObject&& obj)
 {
 	m_object = obj.m_object;
 	obj.m_object = 0;
+	m_bWeak = obj.m_bWeak;
 }
 #endif
 
-JObject::JObject(jobject obj)
+JObject::JObject(jobject obj, bool weak)
+	: m_bWeak(weak)
 {
 	JNIEnv* env = *JVM::instance();
 	m_object = obj;
-	m_object = env->NewGlobalRef(m_object);
+
+	if (!weak)
+		m_object = env->NewGlobalRef(m_object);
+	else
+		m_object = env->NewWeakGlobalRef(m_object);
 }
 
 void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
@@ -152,6 +165,7 @@ JObject& JObject::operator=(JObject&& obj)
 	setNull();
 	m_object = obj.m_object;
 	obj.m_object = 0;
+	m_bWeak = obj.m_bWeak;
 	return *this;
 }
 #endif
@@ -162,6 +176,8 @@ JObject& JObject::operator=(jobject obj)
 
 	setNull();
 	m_object = env->NewGlobalRef(obj);
+	m_bWeak = false;
+
 	return *this;
 }
 
@@ -173,11 +189,7 @@ JObject::operator jobject()
 
 JObject::~JObject()
 {
-	if (m_object)
-	{
-		JNIEnv* env = *JVM::instance();
-		env->DeleteGlobalRef(m_object);
-	}
+	setNull();
 }
 
 bool JObject::isString() const
@@ -492,10 +504,20 @@ void JObject::setNull()
 	{
 		JNIEnv* env = *JVM::instance();
 		jobject o = m_object;
+
 		m_object = 0;
 
-		env->DeleteGlobalRef(o);
+		if (!m_bWeak)
+			env->DeleteWeakGlobalRef(o);
+		else
+			env->DeleteGlobalRef(o);
 	}
+}
+
+bool JObject::isNull() const
+{
+	JNIEnv* env = *JVM::instance();
+	return !m_object || (m_bWeak && env->IsSameObject(m_object, 0) == JNI_TRUE);
 }
 
 jobject JObject::getLocalRef()

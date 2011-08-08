@@ -29,12 +29,8 @@ respects for all of the code used other than "OpenSSL".
 #include "JVM.h"
 #include "JException.h"
 
-template <> QList<JObject*> JSingleCObject<JBackgroundWorker>::m_instances = QList<JObject*>();
-template <> std::unique_ptr<QReadWriteLock> JSingleCObject<JBackgroundWorker>::m_mutex = std::unique_ptr<QReadWriteLock>(new QReadWriteLock);
-
-
-JBackgroundWorker::JBackgroundWorker(jobject jthis)
-	: JObject(jthis)
+JBackgroundWorker::JBackgroundWorker(jobject jthis, bool weak)
+	: JObject(jthis, weak)
 {
 	connect(this, SIGNAL(finished()), this, SLOT(finished()));
 }

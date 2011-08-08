@@ -39,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "config.h"
 #include "JObject.h"
+#include "JSingleCObject.h"
 #include <alloca.h>
 #include <cassert>
 
@@ -141,6 +142,7 @@ void JVM::jvmStartup(QString libname)
 	if (!m_instance)
 		m_instance = this;
 
+	singleCObjectRegisterNatives();
 	JSettings::registerNatives();
 	JPlugin::registerNatives();
 	JTransferPlugin::registerNatives();
