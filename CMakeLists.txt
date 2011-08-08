@@ -421,6 +421,7 @@ if(WITH_JPLUGINS)
 		src/java/JNativeMethod.cpp
 		src/java/JSettings.cpp
 		src/java/JBackgroundWorker.cpp
+		src/java/JSingleCObject.cpp
 		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaPersistentVariables.cpp
 		src/engines/JavaDownload.cpp
