@@ -142,12 +142,20 @@ void JVM::jvmStartup(QString libname)
 	if (!m_instance)
 		m_instance = this;
 
-	singleCObjectRegisterNatives();
-	JSettings::registerNatives();
-	JPlugin::registerNatives();
-	JTransferPlugin::registerNatives();
-	JDownloadPlugin::registerNatives();
-	JBackgroundWorker::registerNatives();
+	try
+	{
+		singleCObjectRegisterNatives();
+		JSettings::registerNatives();
+		JPlugin::registerNatives();
+		JTransferPlugin::registerNatives();
+		JDownloadPlugin::registerNatives();
+		JBackgroundWorker::registerNatives();
+	}
+	catch (...)
+	{
+		qDebug() << "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again";
+		abort();
+	}
 }
 
 QString JVM::getClassPath()

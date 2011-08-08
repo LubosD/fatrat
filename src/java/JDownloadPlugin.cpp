@@ -54,22 +54,13 @@ JDownloadPlugin::JDownloadPlugin(const char* clsName, const char* sig, JArgs arg
 void JDownloadPlugin::registerNatives()
 {
 	QList<JNativeMethod> natives;
-	try
-	{
-		natives << JNativeMethod("startDownload", JSignature().add("info.dolezel.fatrat.plugins.extra.DownloadUrl"), startDownload);
-		natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
-		natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
-		natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
 
-		JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
-	}
-	catch (const JException& e)
-	{
-		qDebug() << "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again";
-		Logger::global()->enterLogMessage("JNI", "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again");
+	natives << JNativeMethod("startDownload", JSignature().add("info.dolezel.fatrat.plugins.extra.DownloadUrl"), startDownload);
+	natives << JNativeMethod("startWait", JSignature().addInt().add("info.dolezel.fatrat.plugins.listeners.WaitListener"), startWait);
+	natives << JNativeMethod("solveCaptcha", JSignature().addString().add("info.dolezel.fatrat.plugins.listeners.CaptchaListener"), solveCaptcha);
+	natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
 
-		//throw; // effectively disables Java extension support
-	}
+	JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
 
 	try
 	{
