@@ -41,7 +41,6 @@ void JBackgroundWorker::registerNatives()
 
 	natives << JNativeMethod("get", JSignature().ret("java.lang.Object"), get);
 	natives << JNativeMethod("execute", JSignature(), execute);
-	natives << JNativeMethod("disposeNative", JSignature(), disposeNative);
 
 	JClass("info.dolezel.fatrat.plugins.util.BackgroundWorker").registerNativeMethods(natives);
 }
@@ -77,12 +76,6 @@ void JBackgroundWorker::progressUpdated(JObject p)
 {
 	call("progressUpdated", JSignature().add("java.lang.Object"), JArgs() << p);
 }
-
-void JBackgroundWorker::disposeNative(JNIEnv *, jobject jthis)
-{
-	delete getCObject(jthis);
-}
-
 void JBackgroundWorker::finished()
 {
 	call("done");

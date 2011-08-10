@@ -36,6 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JSettings.h"
 #include "JMap.h"
 #include "JBackgroundWorker.h"
+#include "JAccountStatusPlugin.h"
 #include "Settings.h"
 #include "config.h"
 #include "JObject.h"
@@ -150,6 +151,7 @@ void JVM::jvmStartup(QString libname)
 		JTransferPlugin::registerNatives();
 		JDownloadPlugin::registerNatives();
 		JBackgroundWorker::registerNatives();
+		JAccountStatusPlugin::registerNatives();
 	}
 	catch (...)
 	{

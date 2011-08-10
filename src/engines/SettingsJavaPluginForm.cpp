@@ -73,6 +73,12 @@ void SettingsJavaPluginForm::load()
 	treeInstalled->header()->resizeSection(0, 200);
 	treeAvailable->header()->resizeSection(0, 200);
 	treeUpdates->header()->resizeSection(0, 200);
+
+	JObject runtime = JClass("java.lang.Runtime").callStatic("getRuntime", JSignature().ret("java.lang.Runtime")).value<JObject>();
+
+	labelJavaHeap->setText(QString("Java heap: %1 kB, %2 kB free")
+			       .arg(runtime.call("totalMemory", JSignature().retLong()).toLongLong()/1024)
+			       .arg(runtime.call("freeMemory", JSignature().retLong()).toLongLong()/1024));
 }
 
 void SettingsJavaPluginForm::accepted()

@@ -65,6 +65,10 @@ respects for all of the code used other than "OpenSSL".
 #include "filterlineedit.h"
 #include "ClipboardMonitor.h"
 
+#ifdef WITH_JPLUGINS
+#	include "engines/JavaAccountStatusWidget.h"
+#endif
+
 #ifdef WITH_DOCUMENTATION
 #	include "tools/HelpBrowser.h"
 #endif
@@ -137,6 +141,7 @@ void MainWindow::setupUi()
 	m_log = new LogManager(this, textTransferLog, textGlobalLog);
 	
 	useSystemTheme = getSettingsValue("gui/systemtheme").toBool();
+
 #ifdef WITH_DOCUMENTATION
 	QAction* action;
 	QIcon xicon;
@@ -156,6 +161,19 @@ void MainWindow::setupUi()
 	
 	if(getSettingsValue("css").toBool())
 		loadCSS();
+
+#ifdef WITH_JPLUGINS
+	m_premiumAccounts = new ClickableLabel(this);
+
+	m_premiumAccounts->setToolTip(tr("Premium account status..."));
+	m_premiumAccounts->setScaledContents(true);
+	m_premiumAccounts->setPixmap(QPixmap(":/fatrat/premium.png"));
+	m_premiumAccounts->setMaximumSize(16, 16);
+	m_premiumAccounts->setCursor(Qt::PointingHandCursor);
+	statusbar->insertPermanentWidget(1, m_premiumAccounts);
+	m_premiumAccounts->show();
+	//m_nStatusWidgetsRight++;
+#endif
 	
 	connectActions();
 	
@@ -300,6 +318,10 @@ void MainWindow::connectActions()
 	connect(actionCopyRemoteURI, SIGNAL(triggered()), this, SLOT(copyRemoteURI()));
 
 	connect(actionPauseAll, SIGNAL(triggered()), this, SLOT(pauseAllTransfers()));
+
+#ifdef WITH_JPLUGINS
+	connect(m_premiumAccounts, SIGNAL(clicked()), this, SLOT(showPremiumStatus()));
+#endif
 }
 
 void MainWindow::restoreWindowState(bool bStartHidden)
@@ -1764,6 +1786,19 @@ void MainWindow::pauseAllTransfers()
 	else
 		QueueMgr::instance()->unpauseAllTransfers();
 }
+
+#ifdef WITH_JPLUGINS
+void MainWindow::showPremiumStatus()
+{
+	JavaAccountStatusWidget* w = new JavaAccountStatusWidget(this);
+	QPoint pos = mapFromGlobal(QCursor::pos());
+
+	pos -= QPoint(290, 210);
+
+	w->move(pos);
+	w->show();
+}
+#endif
 
 void addMenuAction(const MenuAction& action)
 {

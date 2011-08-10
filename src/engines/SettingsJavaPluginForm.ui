@@ -34,7 +34,7 @@
        <string>Update and install</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="2">
+       <item row="0" column="0" colspan="3">
         <widget class="QToolBox" name="toolBox">
          <property name="currentIndex">
           <number>0</number>
@@ -44,8 +44,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>389</width>
-            <height>162</height>
+            <width>377</width>
+            <height>144</height>
            </rect>
           </property>
           <attribute name="label">
@@ -85,8 +85,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>389</width>
-            <height>162</height>
+            <width>112</width>
+            <height>112</height>
            </rect>
           </property>
           <attribute name="label">
@@ -124,6 +124,13 @@
         </widget>
        </item>
        <item row="1" column="0">
+        <widget class="QLabel" name="labelJavaHeap">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -136,7 +143,7 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="2">
         <widget class="QPushButton" name="pushInstall">
          <property name="text">
           <string>Install</string>

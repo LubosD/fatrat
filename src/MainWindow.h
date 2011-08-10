@@ -32,11 +32,13 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QSystemTrayIcon>
 #include <QToolButton>
+#include "config.h"
 #include "TransfersModel.h"
 #include "LogManager.h"
 #include "DropBox.h"
 #include "MyTrayIcon.h"
 #include "captcha/CaptchaQt.h"
+#include "ClickableLabel.h"
 
 class SpeedGraph;
 class NewTransferDlg;
@@ -118,6 +120,9 @@ public slots:
 	void showHelp();
 	void reportBug();
 	void filterTextChanged(const QString& text);
+#ifdef WITH_JPLUGINS
+	void showPremiumStatus();
+#endif
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
 	QString getFilterText() const { return filterLineEdit->text(); }
@@ -152,6 +157,9 @@ private:
 	NewTransferDlg* m_dlgNewTransfer;
 	QLineEdit* filterLineEdit;
 	CaptchaQt m_captcha;
+#ifdef WITH_JPLUGINS
+	ClickableLabel* m_premiumAccounts;
+#endif
 	
 	QList<QAction*> m_menuActionObjects;
 	ClipboardMonitor* m_clipboardMonitor;

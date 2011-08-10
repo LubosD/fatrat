@@ -25,31 +25,36 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JBACKGROUNDOWORKER_H
-#define JBACKGROUNDOWORKER_H
-#include <QThread>
-#include "JObject.h"
-#include "JSingleCObject.h"
+#ifndef JACCOUNTSTATUSPLUGIN_H
+#define JACCOUNTSTATUSPLUGIN_H
+#include "JPlugin.h"
+#include <QList>
+#include <QPair>
 
-class JBackgroundWorker : public QThread, public JObject, public JSingleCObject<JBackgroundWorker>
+class JAccountStatusPlugin : public JPlugin
 {
 Q_OBJECT
 public:
-	JBackgroundWorker(jobject jthis, bool weak);
-
-	virtual void run();
-
 	static void registerNatives();
+	static QList<JAccountStatusPlugin*> createStatusPlugins();
 
-	static void execute(JNIEnv *, jobject);
-	static jobject get(JNIEnv *, jobject);
-	static void updateProgress(JNIEnv*, jobject, jobject);
-private slots:
-	void finished();
-	void progressUpdated(JObject p);
+	inline bool queryAccountBalance() { return call("queryAccountBalance", JSignature().retBoolean()).toBool(); }
+	inline QString name() { return m_strName; }
+
+	enum AccountState { AccountGood, AccountWarning, AccountBad, AccountError };
+signals:
+	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString balance);
 private:
-	JObject m_result;
-	JObject m_exception;
+	JAccountStatusPlugin(const JClass& cls, QString name);
+
+	static void findPlugins();
+
+	static void reportAccountBalance(JNIEnv* env, jobject jthis, jobject state, jstring jbal);
+private:
+	QString m_strName;
+	static QList<QPair<QString,QString> > m_listPlugins;
 };
 
-#endif
+Q_DECLARE_METATYPE(JAccountStatusPlugin::AccountState);
+
+#endif // JACCOUNTSTATUSPLUGIN_H

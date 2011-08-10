@@ -80,7 +80,9 @@ void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInte
 	QString url = JString(jurl).toString();
 	QNetworkReply* reply;
 
-	This->m_transfer->enterLogMessage(QLatin1String("JPlugin::fetchPage(): ")+url);
+	if (This->m_transfer)
+		This->m_transfer->enterLogMessage(QLatin1String("JPlugin::fetchPage(): ")+url);
+
 	qDebug() << "JPlugin::fetchPage():" << url;
 	if (postData)
 		qDebug() << "postData:" << JString(postData).str();
@@ -123,7 +125,8 @@ void JPlugin::fetchFinished(QNetworkReply* reply)
 	{
 		if (reply->error() != QNetworkReply::NoError)
 		{
-			m_transfer->logMessage(QLatin1String("JPlugin::fetchFinished(): ")+reply->errorString());
+			if (m_transfer)
+				m_transfer->logMessage(QLatin1String("JPlugin::fetchFinished(): ")+reply->errorString());
 			iface.call("onFailed", JSignature().addString(), reply->errorString());
 		}
 		else
@@ -145,15 +148,22 @@ void JPlugin::fetchFinished(QNetworkReply* reply)
 			}
 
 			qDebug() << "fetchFinished.onCompleted:" << buf.toString();
-			m_transfer->logMessage(QLatin1String("JPlugin::fetchFinished(): OK"));
+
+			if (m_transfer)
+				m_transfer->logMessage(QLatin1String("JPlugin::fetchFinished(): OK"));
 
 			iface.call("onCompleted", JSignature().add("java.nio.ByteBuffer").add("java.util.Map"), buf, map);
 		}
 	}
 	catch (const JException& e)
 	{
-		m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
-		m_transfer->setState(Transfer::Failed);
+		if (m_transfer)
+		{
+			m_transfer->setMessage(tr("Java exception: %1").arg(e.what()));
+			m_transfer->setState(Transfer::Failed);
+		}
+		else
+			throw;
 	}
 
 	m_fetchCallbacks.remove(reply);

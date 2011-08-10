@@ -293,6 +293,7 @@ set(fatrat_MOC_HDRS
 	src/TransferFactory.h
 	src/filterlineedit.h
 	src/fancylineedit.h
+	src/ClickableLabel.h
 	#src/notify/Notification.h
 	src/dbus/NotificationsProxy.h
 	src/dbus/KNotify.h
@@ -422,6 +423,8 @@ if(WITH_JPLUGINS)
 		src/java/JSettings.cpp
 		src/java/JBackgroundWorker.cpp
 		src/java/JSingleCObject.cpp
+		src/java/JAccountStatusPlugin.cpp
+		src/engines/JavaAccountStatusWidget.cpp
 		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaPersistentVariables.cpp
 		src/engines/JavaDownload.cpp
@@ -437,6 +440,8 @@ if(WITH_JPLUGINS)
 		src/java/JPlugin.h
 		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
+		src/java/JAccountStatusPlugin.h
+		src/engines/JavaAccountStatusWidget.h
 		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h
 		src/java/JBackgroundWorker.h
@@ -446,6 +451,7 @@ if(WITH_JPLUGINS)
 		src/engines/ExtensionDownloadDlg.ui
 		src/engines/JavaDownloadOptsForm.ui
 		src/engines/SettingsJavaPluginForm.ui
+		src/engines/JavaAccountStatusWidget.ui
 	)
 endif(WITH_JPLUGINS)
 

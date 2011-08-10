@@ -25,31 +25,31 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JBACKGROUNDOWORKER_H
-#define JBACKGROUNDOWORKER_H
-#include <QThread>
-#include "JObject.h"
-#include "JSingleCObject.h"
+#ifndef JAVAACCOUNTSTATUSWIDGET_H
+#define JAVAACCOUNTSTATUSWIDGET_H
+#include "config.h"
 
-class JBackgroundWorker : public QThread, public JObject, public JSingleCObject<JBackgroundWorker>
+#ifndef WITH_JPLUGINS
+#	error This file is not supposed to be included!
+#endif
+
+#include <QFrame>
+#include "ui_JavaAccountStatusWidget.h"
+#include "java/JAccountStatusPlugin.h"
+#include <QListWidgetItem>
+#include <QMap>
+
+class JavaAccountStatusWidget : public QFrame, Ui_JavaAccountStatusWidget
 {
 Q_OBJECT
 public:
-	JBackgroundWorker(jobject jthis, bool weak);
-
-	virtual void run();
-
-	static void registerNatives();
-
-	static void execute(JNIEnv *, jobject);
-	static jobject get(JNIEnv *, jobject);
-	static void updateProgress(JNIEnv*, jobject, jobject);
+	JavaAccountStatusWidget(QWidget* parent);
+	~JavaAccountStatusWidget();
 private slots:
-	void finished();
-	void progressUpdated(JObject p);
+	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString bal);
 private:
-	JObject m_result;
-	JObject m_exception;
+	QList<JAccountStatusPlugin*> m_plugins;
+	QMap<QString,QTreeWidgetItem*> m_items;
 };
 
-#endif
+#endif // JAVAACCOUNTSTATUSWIDGET_H

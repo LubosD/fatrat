@@ -25,31 +25,26 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JBACKGROUNDOWORKER_H
-#define JBACKGROUNDOWORKER_H
-#include <QThread>
-#include "JObject.h"
-#include "JSingleCObject.h"
+#ifndef CLICKABLELABEL_H
+#define CLICKABLELABEL_H
+#include <QLabel>
 
-class JBackgroundWorker : public QThread, public JObject, public JSingleCObject<JBackgroundWorker>
+class ClickableLabel : public QLabel
 {
 Q_OBJECT
 public:
-	JBackgroundWorker(jobject jthis, bool weak);
+	ClickableLabel(QWidget* parent)
+		: QLabel(parent)
+	{
+	}
 
-	virtual void run();
-
-	static void registerNatives();
-
-	static void execute(JNIEnv *, jobject);
-	static jobject get(JNIEnv *, jobject);
-	static void updateProgress(JNIEnv*, jobject, jobject);
-private slots:
-	void finished();
-	void progressUpdated(JObject p);
-private:
-	JObject m_result;
-	JObject m_exception;
+signals:
+	void clicked();
+protected:
+	virtual void mouseReleaseEvent ( QMouseEvent * event )
+	{
+		emit clicked();
+	}
 };
 
-#endif
+#endif // CLICKABLELABEL_H
