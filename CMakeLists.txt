@@ -219,7 +219,6 @@ set(fatrat_SRCS
 	#src/notify/Notification.cpp
 	src/dbus/NotificationsProxy.cpp
 	src/dbus/KNotify.cpp
-	src/engines/OutputBuffer.cpp
 	src/engines/MetalinkSettings.cpp
 	src/poller/Poller.cpp
 	src/captcha/Captcha.cpp
@@ -297,7 +296,6 @@ set(fatrat_MOC_HDRS
 	#src/notify/Notification.h
 	src/dbus/NotificationsProxy.h
 	src/dbus/KNotify.h
-	src/engines/OutputBuffer.h
 	src/engines/MetalinkSettings.h
 	src/captcha/CaptchaQt.h
 	src/captcha/CaptchaQtDlg.h
@@ -372,9 +370,6 @@ if(WITH_CURL)
 		src/engines/HttpDetails.cpp
 		src/engines/HttpDetailsBar.cpp
 		src/engines/HttpMirrorsDlg.cpp
-		src/engines/RapidshareUpload.cpp
-		src/engines/RapidshareUploadProgress.cpp
-		src/engines/RapidshareStatusWidget.cpp
 		src/engines/MetalinkDownload.cpp
 	)
 	set(fatrat_MOC_HDRS
@@ -387,16 +382,12 @@ if(WITH_CURL)
 		src/engines/HttpDetailsBar.h
 		src/engines/HttpMirrorsDlg.h
 		src/engines/GeneralDownloadForms.h
-		src/engines/RapidshareUpload.h
-		src/engines/RapidshareStatusWidget.h
 		src/engines/MetalinkDownload.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/engines/HttpDetails.ui
 		src/engines/HttpMirrorsDlg.ui
-		src/engines/RapidshareUploadDetailsForm.ui
-		src/engines/RapidshareOptsForm.ui
 	)
 endif(WITH_CURL)
 
@@ -598,7 +589,6 @@ set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlDownload.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlUser.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlPoller.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/OutputBuffer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlStat.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/UrlClient.h
 	)

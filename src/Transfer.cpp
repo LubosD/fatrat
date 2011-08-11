@@ -41,7 +41,6 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_CURL
 #	include "engines/CurlDownload.h"
 #	include "engines/CurlUpload.h"
-#	include "engines/RapidshareUpload.h"
 #	include "engines/MetalinkDownload.h"
 #endif
 
@@ -80,10 +79,6 @@ void initTransferClasses()
 	}
 	{
 		EngineEntry e = { "FtpUpload", "CURL FTP(S)/SFTP upload", 0, 0, { CurlUpload::createInstance }, { CurlUpload::acceptable }, 0 };
-		g_enginesUpload << e;
-	}
-	{
-		EngineEntry e = { "RapidshareUpload", "RapidShare.com upload", RapidshareUpload::globalInit, 0, { RapidshareUpload::createInstance }, { RapidshareUpload::acceptable}, RapidshareUpload::createMultipleOptionsWidget };
 		g_enginesUpload << e;
 	}
 	{
