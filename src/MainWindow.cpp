@@ -1797,7 +1797,16 @@ void MainWindow::showPremiumStatus()
 
 	w->move(pos);
 	w->show();
+
+	m_premiumAccounts->setEnabled(false);
+	connect(w, SIGNAL(destroyed()), this, SLOT(premiumStatusClosed()));
 }
+
+void MainWindow::premiumStatusClosed()
+{
+	m_premiumAccounts->setEnabled(true);
+}
+
 #endif
 
 void addMenuAction(const MenuAction& action)

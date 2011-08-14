@@ -122,6 +122,7 @@ public slots:
 	void filterTextChanged(const QString& text);
 #ifdef WITH_JPLUGINS
 	void showPremiumStatus();
+	void premiumStatusClosed();
 #endif
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
