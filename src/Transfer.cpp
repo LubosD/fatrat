@@ -531,7 +531,7 @@ void Transfer::replaceItself(Transfer* newObject)
 	}
 }
 
-void Transfer::replaceItself(QList<Transfer*> newObjects)
+void Transfer::replaceItself(Transfer::TransferList newObjects)
 {
 	QReadLocker l(&g_queuesLock);
 	foreach (Queue* q, g_queues)

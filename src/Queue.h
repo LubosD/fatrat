@@ -104,12 +104,13 @@ public:
 	void setAutoLimits(int down, int up);
 	
 	bool contains(Transfer* t) const;
-	bool replace(Transfer* old, Transfer* _new);
-	bool replace(Transfer* old, QList<Transfer*> _new);
 	void stopAll();
 	void resumeAll();
 
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
+public slots:
+	bool replace(Transfer* old, Transfer* _new);
+	bool replace(Transfer* old, QList<Transfer*> _new);
 private:
 	void loadQueue(const QDomNode& node);
 	void saveQueue(QDomNode& node,QDomDocument& doc);

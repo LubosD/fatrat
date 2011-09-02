@@ -159,6 +159,8 @@ public:
 	static void setXMLProperty(QDomDocument& doc, QDomNode& node, QString name, QString value);
 	
 	void internalSpeedLimits(int& down, int& up) const { down=m_nDownLimitInt; up = m_nUpLimitInt; }
+
+	typedef QList<Transfer*> TransferList;
 signals:
 	void stateChanged(Transfer::State prev, Transfer::State now);
 	void modeChanged(Transfer::Mode prev, Transfer::Mode now);
@@ -173,8 +175,8 @@ protected:
 	void updateGraph();
 
 	// Calls this->deleteLater()
-	void replaceItself(Transfer* newObject);
-	void replaceItself(QList<Transfer*> newObjects);
+	Q_INVOKABLE void replaceItself(Transfer* newObject);
+	Q_INVOKABLE void replaceItself(Transfer::TransferList newObjects);
 	Queue* myQueue() const;
 	
 	State m_state;

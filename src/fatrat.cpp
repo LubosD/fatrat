@@ -170,21 +170,23 @@ int main(int argc,char** argv)
 		}
 	}
 #endif
+
+	TransferFactory factory;
 	
 	installSignalHandler();
 	initTransferClasses();
 	loadPlugins();
 	runEngines();
 
+	qRegisterMetaType<QString*>("QString*");
+	qRegisterMetaType<QByteArray*>("QByteArray*");
+	qRegisterMetaType<Transfer*>("Transfer*");
+	qRegisterMetaType<Transfer::TransferList>("Transfer::TransferList");
+
 	Queue::loadQueues();
 	initAppTools();
 	
-	qRegisterMetaType<QString*>("QString*");
-	qRegisterMetaType<QByteArray*>("QByteArray*");
-	
 	g_qmgr = new QueueMgr;
-
-	TransferFactory factory;
 
 #ifdef WITH_WEBINTERFACE
 	XmlRpcService::globalInit();

@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JException.h"
 #include "RuntimeException.h"
 #include "java/JDownloadPlugin.h"
+#include "java/JException.h"
 #include "fatrat.h"
 #include "Settings.h"
 #include "SettingsJavaPluginForm.h"
@@ -344,13 +345,13 @@ void JavaDownload::globalInit()
 
 				addTransferClass(entry, Transfer::Download);
 			}
-			catch (const RuntimeException& e)
+			catch (const JException& e)
 			{
 				qDebug() << e.what();
 			}
 		}
 	}
-	catch (const RuntimeException& e)
+	catch (const JException& e)
 	{
 		qDebug() << e.what();
 	}

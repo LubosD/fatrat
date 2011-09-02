@@ -35,6 +35,7 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JByteBuffer.h"
 #include "java/JVM.h"
 #include "java/JArray.h"
+#include "java/JException.h"
 #include <QtDebug>
 
 QMap<QString,JavaUpload::JavaEngine> JavaUpload::m_engines;
@@ -120,13 +121,13 @@ void JavaUpload::globalInit()
 
 				addTransferClass(entry, Transfer::Upload);
 			}
-			catch (const RuntimeException& e)
+			catch (const JException& e)
 			{
 				qDebug() << e.what();
 			}
 		}
 	}
-	catch (const RuntimeException& e)
+	catch (const JException& e)
 	{
 		qDebug() << e.what();
 	}
