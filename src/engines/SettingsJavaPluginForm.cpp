@@ -67,7 +67,7 @@ void SettingsJavaPluginForm::load()
 	QMap<QString,QString> packages = JVM::instance()->getPackageVersions();
 
 	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
-	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + "/Index?version=" + VERSION)));
+	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + "Index?version=" + VERSION)));
 
 	m_installedPlugins = JVM::instance()->getPackageVersions();
 
@@ -126,9 +126,6 @@ void SettingsJavaPluginForm::loadInstalled()
 	{
 		QString name = it.key();
 		name.remove(".jar");
-
-		if (name == "fatrat-jplugins")
-			continue;
 
 		QTreeWidgetItem* i = new QTreeWidgetItem(treeInstalled, QStringList() << name << it.value());
 		i->setFlags(i->flags() | Qt::ItemIsUserCheckable);
