@@ -1069,7 +1069,7 @@ function handleCaptchaEvent(data) {
 	var win;
 	try {
 		var date = new Date();
-		win = window.open('captcha.html?url='+url+'&id='+id+'&timeStart='+date.getTime(), '_blank', 'width=300,height=250,top=300,left=400');
+		win = window.open('captcha.html?url='+escape(url)+'&id='+id+'&timeStart='+date.getTime(), '_blank', 'width=300,height=250,top=300,left=400');
 		if (win == null || typeof(win) == 'undefined') {
 			throw "blocked";
 		}
