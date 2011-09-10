@@ -44,6 +44,7 @@ respects for all of the code used other than "OpenSSL".
 
 QMap<QString,QMutex*> JavaDownload::m_mutexes;
 QMap<QString,JavaDownload::JavaEngine> JavaDownload::m_engines;
+QList<JObject> g_configListeners;
 
 JavaDownload::JavaDownload(const char* cls)
 	: m_bHasLock(false), m_plugin(0)
@@ -330,6 +331,8 @@ void JavaDownload::globalInit()
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;
+				if (instance.instanceOf("info.dolezel.fatrat.plugins.listeners.ConfigListener"))
+					g_configListeners << instance;
 				m_engines[clsName] = e;
 
 				qDebug() << "createInstance of " << clsName;

@@ -39,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 
 QMap<QString,JavaUpload::JavaEngine> JavaUpload::m_engines;
+extern QList<JObject> g_configListeners;
 
 JavaUpload::JavaUpload(const char* cls)
 : m_nTotal(0), m_nDone(0), m_nThisPart(0), m_curl(0), m_postData(0)
@@ -106,6 +107,8 @@ void JavaUpload::globalInit()
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;
+				if (instance.instanceOf("info.dolezel.fatrat.plugins.listeners.ConfigListener"))
+					g_configListeners << instance;
 				m_engines[clsName] = e;
 
 				qDebug() << "createInstance of " << clsName;

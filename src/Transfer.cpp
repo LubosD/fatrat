@@ -430,7 +430,11 @@ QString Transfer::dataPath(bool bDirect) const
 	if(primaryMode() == Download)
 	{
 		if(bDirect)
+		{
+			if (name().isEmpty())
+				return QString();
 			return QDir(obj).filePath(name());
+		}
 		else
 			return obj;
 	}

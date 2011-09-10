@@ -41,6 +41,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 
 QMap<QString,JavaExtractor::JavaEngine> JavaExtractor::m_engines;
+extern QList<JObject> g_configListeners;
 
 JavaExtractor::JavaExtractor(const char* clsName)
 	: m_strClass(clsName), m_plugin(0), m_reply(0)
@@ -128,6 +129,8 @@ void JavaExtractor::globalInit()
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;
+				if (instance.instanceOf("info.dolezel.fatrat.plugins.listeners.ConfigListener"))
+					g_configListeners << instance;
 				e.targetClass = targetClassName;
 
 				m_engines[clsName] = e;

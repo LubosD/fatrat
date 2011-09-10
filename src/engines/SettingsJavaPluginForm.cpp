@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -42,6 +42,8 @@ respects for all of the code used other than "OpenSSL".
 
 static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 
+extern QList<JObject> g_configListeners;
+
 SettingsJavaPluginForm::SettingsJavaPluginForm(QWidget* me, QObject* parent)
 	: QObject(parent), m_reply(0), m_dlgProgress(me)
 {
@@ -65,7 +67,7 @@ void SettingsJavaPluginForm::load()
 	QMap<QString,QString> packages = JVM::instance()->getPackageVersions();
 
 	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
-	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + VERSION + "/Index")));
+	m_network->get(QNetworkRequest(QUrl(UPDATE_URL + "/Index?version=" + VERSION)));
 
 	m_installedPlugins = JVM::instance()->getPackageVersions();
 
@@ -113,6 +115,9 @@ void SettingsJavaPluginForm::accepted()
 			setSettingsValue(it.value(), combo->itemData(index));
 		}
 	}
+
+	for (int i = 0; i < g_configListeners.size(); i++)
+		g_configListeners[i].call("configurationSaved");
 }
 
 void SettingsJavaPluginForm::loadInstalled()

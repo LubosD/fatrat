@@ -220,6 +220,7 @@ set(fatrat_SRCS
 	src/dbus/NotificationsProxy.cpp
 	src/dbus/KNotify.cpp
 	src/engines/MetalinkSettings.cpp
+	src/engines/PlaceholderTransfer.cpp
 	src/poller/Poller.cpp
 	src/captcha/Captcha.cpp
 	src/captcha/CaptchaQt.cpp

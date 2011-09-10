@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "QueueMgr.h"
 #include "Settings.h"
+#include "engines/PlaceholderTransfer.h"
 #include <QList>
 #include <QReadWriteLock>
 #include <QDir>
@@ -243,7 +244,13 @@ void Queue::loadQueue(const QDomNode& node)
 			m_transfers << d;
 		}
 		else
+		{
 			qDebug() << "***ERROR*** Unable to createInstance " << n.attribute("class").toAscii();
+
+			d = new PlaceholderTransfer(n.attribute("class"));
+			d->load(n);
+			m_transfers << d;
+		}
 		
 		n = n.nextSiblingElement("download");
 	}
