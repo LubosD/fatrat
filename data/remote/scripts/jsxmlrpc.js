@@ -397,6 +397,8 @@ function getResultFromValueNode (node) {
  case "i4":
  case "int":
  case "double":
+ case "ex:i8":
+ case "i8":
  result= new Number(getTextValueOfChild(valueNode))
  break;
  case "boolean":
@@ -413,7 +415,7 @@ function getResultFromValueNode (node) {
  result = getStruct(valueNode)
  break;
  default:
- throw "type not handled: "+valueNode.nodeName
+ alert( "type not handled: "+valueNode.nodeName);
  
  }
  return result
