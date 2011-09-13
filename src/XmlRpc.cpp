@@ -87,9 +87,11 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 //	case QMetaType::Short:
 //	case QMetaType::ULong:
 //	case QMetaType::UShort:
+		insertValue(doc, where, "i4", what.toString());
+		break;
 	case QMetaType::ULongLong:
 	case QMetaType::LongLong:
-		insertValue(doc, where, "i4", what.toString());
+		insertValue(doc, where, "ex:i8", what.toString());
 		break;
 //	case QMetaType::Float:
 	case QMetaType::Double:
@@ -167,7 +169,13 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 void insertValue(QDomDocument& doc, QDomElement& where, QString type, QString value)
 {
 	QDomElement child = doc.createElement("value");
-	QDomElement v = doc.createElement(type);
+	QDomElement v;
+
+	if (type.startsWith("ex:"))
+		v = doc.createElementNS("http://ws.apache.org/xmlrpc/namespaces/extensions", type);
+	else
+		v = doc.createElement(type);
+
 	QDomText text = doc.createTextNode(value);
 	v.appendChild(text);
 	child.appendChild(v);
@@ -226,8 +234,12 @@ QVariant parseValue(const QDomElement& where)
 	QString contents;
 	
 	if(c.isNull())
-		return QVariant();
-	contents = ce.firstChild().toText().data();
+	{
+		contents = where.text();
+		c = "string";
+	}
+	else
+		contents = ce.firstChild().toText().data();
 	
 	if(c == "boolean")
 		return contents.toInt() != 0;
