@@ -109,7 +109,7 @@ void JVM::jvmStartup(QString libname)
 
 	jint res;
 	JavaVMInitArgs vm_args;
-	JavaVMOption options[2];
+	JavaVMOption options[7];
 	JNIEnv* env;
 	QByteArray classpath = getClassPath().toUtf8();
 	int mb = getSettingsValue("java/maxheap").toInt();
@@ -124,6 +124,11 @@ void JVM::jvmStartup(QString libname)
 	options[1].optionString = static_cast<char*>(alloca(24));
 
 	snprintf(options[1].optionString, 24, "-Xmx%dm", mb);
+	options[2].optionString = const_cast<char*>("-Djava.security.manager");
+	options[3].optionString = const_cast<char*>("-Djava.security.policy=" DATA_LOCATION "/data/java/extension.policy");
+	options[4].optionString = const_cast<char*>("-XX:+UseParNewGC");
+	options[5].optionString = const_cast<char*>("-XX:MinHeapFreeRatio=5");
+	options[6].optionString = const_cast<char*>("-XX:MaxHeapFreeRatio=10");
 
 	vm_args.version = 0x00010006;
 	vm_args.options = options;

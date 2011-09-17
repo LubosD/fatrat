@@ -67,11 +67,11 @@ void JavaUpload::globalInit()
 	if (!JVM::JVMAvailable())
 		return;
 	
-	JUploadPlugin::registerNatives();
-	
 	// locate Java plugins
 	try
 	{
+		JUploadPlugin::registerNatives();
+
 		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.UploadPluginInfo");
 		JClass annConfigDialog("info.dolezel.fatrat.plugins.annotations.ConfigDialog");
@@ -124,13 +124,13 @@ void JavaUpload::globalInit()
 
 				addTransferClass(entry, Transfer::Upload);
 			}
-			catch (const JException& e)
+			catch (const RuntimeException& e)
 			{
 				qDebug() << e.what();
 			}
 		}
 	}
-	catch (const JException& e)
+	catch (const RuntimeException& e)
 	{
 		qDebug() << e.what();
 	}

@@ -87,6 +87,11 @@ void XmlRpcService::globalInit()
 	}
 	{
 		QVector<QVariant::Type> aa;
+		aa << QVariant::String;
+		registerFunction("Transfer.getProperties", Transfer_getProperties, aa);
+	}
+	{
+		QVector<QVariant::Type> aa;
 		aa << QVariant::Map;
 		registerFunction("Queue.create", Queue_create, aa);
 	}
@@ -316,6 +321,50 @@ QVariant XmlRpcService::getQueues(QList<QVariant>&)
 	}
 
 	return qlist;
+}
+
+QVariant XmlRpcService::Transfer_getProperties(QList<QVariant>& args)
+{
+	Queue* q = 0;
+	Transfer* t = 0;
+
+	HttpService::findTransfer(args[0].toString(), &q, &t);
+
+	if(!t)
+		throw XmlRpcError(102, "Invalid transfer UUID");
+
+	QVariantMap vmap;
+	int down, up;
+
+	vmap["name"] = t->name();
+	vmap["state"] = Transfer::state2string(t->state());
+	vmap["class"] = t->myClass();
+	vmap["message"] = t->message();
+	vmap["mode"] = (t->mode() == Transfer::Download) ? "Download" : "Upload";
+	vmap["primaryMode"] = (t->primaryMode() == Transfer::Download) ? "Download" : "Upload";
+	vmap["dataPath"] = t->dataPath();
+	vmap["dataPathIsDir"] = QFileInfo(t->dataPath()).isDir();
+	vmap["total"] = t->total();
+	vmap["done"] = t->done();
+	vmap["uuid"] = t->uuid();
+	vmap["comment"] = t->comment();
+	vmap["object"] = t->object();
+	vmap["timeRunning"] = double(t->timeRunning());
+
+	t->speeds(down, up);
+	vmap["speeds"] = QVariantList() << down << up;
+
+	t->userSpeedLimits(down, up);
+	vmap["userSpeedLimits"] = QVariantList() << down << up;
+
+	TransferHttpService* srv = dynamic_cast<TransferHttpService*>(t);
+	if (srv)
+		vmap["detailsScript"] = srv->detailsScript();
+
+	q->unlock();
+	g_queuesLock.unlock();
+
+	return vmap;
 }
 
 QVariant XmlRpcService::Queue_getTransfers(QString uuid)

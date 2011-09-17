@@ -146,13 +146,13 @@ void JavaExtractor::globalInit()
 
 				addTransferClass(entry, Transfer::Download);
 			}
-			catch (const JException& e)
+			catch (const RuntimeException& e)
 			{
 				qDebug() << e.what();
 			}
 		}
 	}
-	catch (const JException& e)
+	catch (const RuntimeException& e)
 	{
 		qDebug() << e.what();
 	}
