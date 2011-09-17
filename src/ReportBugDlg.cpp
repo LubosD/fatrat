@@ -63,7 +63,7 @@ void ReportBugDlg::accept()
 		return;
 	}
 
-	QHttpRequestHeader hdr("POST", "/reportbug.php");
+	QHttpRequestHeader hdr("POST", "/report-bugs-submit");
 
 	QHttp* http = new QHttp("fatrat.dolezel.info", 80, this);
 	connect(http, SIGNAL(done(bool)), this, SLOT(done(bool)));
