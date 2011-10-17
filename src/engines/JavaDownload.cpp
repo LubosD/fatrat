@@ -207,6 +207,8 @@ void JavaDownload::setState(State newState)
 			
 			if (m_state != Failed)
 				Transfer::setState(Completed);
+			else
+				QFile::remove(dataPath(true));
 		}
 		catch (const JException& e)
 		{

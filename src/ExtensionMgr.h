@@ -25,38 +25,41 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef PLACEHOLDERTRANSFER_H
-#define PLACEHOLDERTRANSFER_H
-#include "Transfer.h"
-#include <QList>
+#ifndef EXTENSIONMGR_H
+#define EXTENSIONMGR_H
+#include "config.h"
+#include <QObject>
+#include <QMap>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
-class PlaceholderTransfer : public Transfer
+#ifndef WITH_JPLUGINS
+#	error This file is not supposed to be included!
+#endif
+
+class ExtensionMgr : public QObject
 {
+Q_OBJECT
 public:
-    PlaceholderTransfer(QString strClass);
-    virtual void changeActive(bool bActive);
-    virtual void speeds(int& down, int& up) const;
-    virtual qulonglong total() const;
-    virtual qulonglong done() const;
-    virtual QString name() const;
-    virtual QString myClass() const;
-    virtual QString message() const;
+    ExtensionMgr();
 
-    virtual void init(QString, QString) {}
+    struct PackageInfo
+    {
+	    QString name, desc, installedVersion, latestVersion;
+    };
 
-    virtual void load(const QDomNode& map);
-    virtual void save(QDomDocument& doc, QDomNode& map) const;
-
-    void setSpeedLimits(int,int) {}
-    virtual QString uri() const { return QString(); }
-    virtual QString object() const { return QString(); }
-    virtual void setObject(QString) { }
-
-    virtual QString dataPath(bool bDirect = true) const;
+    void loadFromServer();
+    QList<PackageInfo> getPackages();
+signals:
+    void loaded();
+    void loadFailed();
+private slots:
+    void dataLoaded(QNetworkReply* req);
 private:
-    QString m_strClass;
-    QDomNode m_root;
-    QDomDocument m_doc;
+    QList<PackageInfo> m_packages;
+    QMap<QString,QString> m_installedPackages;
+    QNetworkAccessManager m_network;
 };
 
-#endif // PLACEHOLDERTRANSFER_H
+#endif // EXTENSIONMGR_H

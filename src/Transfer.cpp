@@ -279,9 +279,9 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 void Transfer::setState(State newState)
 {
 	bool now,was = isActive();
-	State oldState = m_state;
+	m_lastState = m_state;
 	
-	if(newState == oldState)
+	if(newState == m_lastState)
 		return;
 	
 	enterLogMessage(tr("Changed state: %1 -> %2").arg(state2string(m_state)).arg(state2string(newState)));
@@ -304,7 +304,7 @@ void Transfer::setState(State newState)
 	}
 	
 	if(!m_bLocal)
-		emit TransferNotifier::instance()->stateChanged(this, oldState, newState);
+		emit TransferNotifier::instance()->stateChanged(this, m_lastState, newState);
 	emit stateChanged(m_state, newState);
 }
 
@@ -454,7 +454,11 @@ QString Transfer::dataPath(bool bDirect) const
 void Transfer::retry()
 {
 	m_nRetryCount++;
-	setState(Waiting);
+
+	if (m_lastState == ForcedActive)
+		setState(ForcedActive);
+	else
+		setState(Waiting);
 }
 
 void Transfer::fireCompleted()

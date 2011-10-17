@@ -334,4 +334,15 @@ input[type=number], input[type=text], input[type=password] {
 	background-image: url(icons/move/up.png);
 }
 
+#modeswitch {
+	float: right;
+	margin-right: 2ex;
+}
 
+#modeswitch a { color: blue; }
+#modeswitch a:visited { color: blue; }
+
+#modeswitch .active {
+	font-weight: bold;
+	color: black;
+}

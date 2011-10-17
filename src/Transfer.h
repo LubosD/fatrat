@@ -94,6 +94,8 @@ public:
 	Q_PROPERTY(Transfer::Mode mode READ mode)
 	Q_INVOKABLE virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
 	Q_PROPERTY(Transfer::Mode primaryMode READ primaryMode)
+	// If direct is true: returns the path of the file being downloaded
+	// If direct is false: returns the directory where that file is located
 	Q_INVOKABLE virtual QString dataPath(bool bDirect = true) const;
 	Q_PROPERTY(QString dataPath READ dataPath)
 	
@@ -179,7 +181,7 @@ protected:
 	Q_INVOKABLE void replaceItself(Transfer::TransferList newObjects);
 	Queue* myQueue() const;
 	
-	State m_state;
+	State m_state, m_lastState;
 	Mode m_mode;
 	int m_nDownLimit,m_nUpLimit;
 	int m_nDownLimitInt,m_nUpLimitInt;

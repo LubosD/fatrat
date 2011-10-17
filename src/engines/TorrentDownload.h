@@ -89,8 +89,6 @@ public:
 	virtual void changeActive(bool nowActive);
 	virtual void setSpeedLimits(int down, int up);
 	
-	virtual QString dataPath(bool bDirect) const;
-	
 	virtual QString object() const;
 	virtual QString myClass() const { return "TorrentDownload"; }
 	virtual QString name() const;
@@ -105,6 +103,8 @@ public:
 	virtual QObject* createDetailsWidget(QWidget* widget);
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	virtual QString remoteURI() const;
+
+	virtual QString dataPath(bool bDirect = true) const;
 	
 	qint64 totalDownload() const { return m_status.all_time_download; }
 	qint64 totalUpload() const { return m_status.all_time_upload; }

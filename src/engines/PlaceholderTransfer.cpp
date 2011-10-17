@@ -86,3 +86,8 @@ void PlaceholderTransfer::save(QDomDocument& doc, QDomNode& map) const
 		map.appendChild(x.childNodes().item(0));
 	}
 }
+
+QString PlaceholderTransfer::dataPath(bool bDirect) const
+{
+	return QString();
+}

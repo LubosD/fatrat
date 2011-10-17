@@ -478,10 +478,10 @@ QString TorrentDownload::name() const
 
 QString TorrentDownload::dataPath(bool bDirect) const
 {
-	if(m_handle.is_valid())
-		return Transfer::dataPath(bDirect);
-	else
+	if (!m_handle.is_valid())
 		return QString();
+	else
+		return Transfer::dataPath(bDirect);
 }
 
 void TorrentDownload::createDefaultPriorityList()

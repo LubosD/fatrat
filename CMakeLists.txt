@@ -423,6 +423,7 @@ if(WITH_JPLUGINS)
 		src/engines/JavaExtractor.cpp
 		src/engines/JavaUpload.cpp
 		src/engines/SettingsJavaPluginForm.cpp
+		src/ExtensionMgr.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -437,6 +438,7 @@ if(WITH_JPLUGINS)
 		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h
 		src/java/JBackgroundWorker.h
+		src/ExtensionMgr.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
