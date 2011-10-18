@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>FatRat Download Manager</title>
+
+<link rel="icon" href="/favicon.png" />
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all">
+</head>
+
+<body>
+
+<div>
+<div id="modeswitch"><a href="/">AJAX version</a> / <span class="active">Applet version</span></div>
+<img src="img/logo.png" alt="FatRat" id="logo" />
+</div>
+
+<p>
+The applet is a very early snapsphot. It may not provide the expected feature set yet.
+</p>
+
+<!--[if !IE]> Firefox and others will use outer object -->
+<object style="width: 100%; height: 80%"
+    classid="java:info.dolezel.fatrat.applet.FatRatApplet.class"
+    type="application/x-java-applet"
+    archive="/applet/fatrat-applet.jar">
+    <!-- Konqueror browser needs the following param -->
+    <param name="archive" value="/applet/fatrat-applet.jar" />
+<!--<![endif]-->
+    <!-- MSIE (Microsoft Internet Explorer) will use inner object -->
+    <object style="width: 100%; height: 80%" classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+                                codebase="http://java.sun.com/update/1.5.0/jinstall-1_5_0-windows-i586.cab"
+                                >
+        <param name="code" value="info.dolezel.fatrat.applet.FatRatApplet" />
+        <param name="archive" value="/applet/fatrat-applet.jar" />
+        <strong>
+                This browser does not have a Java plugin. Use the <a href="/index.html">AJAX interface</a> instead.
+        </strong>
+    </object>
+<!--[if !IE]> close outer object -->
+</object>
+<!--<![endif]-->
+
+<object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" style="width: 100%; height: 500px">
+	<param name="code" value="info.dolezel.fatrat.applet.FatRatApplet">
+	<param name="archive" value="/applet/fatrat-applet.jar">
+</object>
+
+</body>
+</html>
