@@ -19,7 +19,7 @@ ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
 
 # If you remove the following line, the Boost ASIO code used in pion will make libtorrent's Boost ASIO code crash
 # due to a curious symbol name conflict
-ADD_DEFINITIONS(-fvisibility-inlines-hidden)
+#ADD_DEFINITIONS(-fvisibility-inlines-hidden)
 
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
@@ -424,6 +424,8 @@ if(WITH_JPLUGINS)
 		src/engines/JavaUpload.cpp
 		src/engines/SettingsJavaPluginForm.cpp
 		src/ExtensionMgr.cpp
+		src/java/JSearchPlugin.cpp
+		src/java/FileSharingSearch.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -439,6 +441,7 @@ if(WITH_JPLUGINS)
 		src/engines/SettingsJavaPluginForm.h
 		src/java/JBackgroundWorker.h
 		src/ExtensionMgr.h
+		src/java/FileSharingSearch.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
@@ -446,6 +449,7 @@ if(WITH_JPLUGINS)
 		src/engines/JavaDownloadOptsForm.ui
 		src/engines/SettingsJavaPluginForm.ui
 		src/engines/JavaAccountStatusWidget.ui
+		src/java/FileSharingSearch.ui
 	)
 endif(WITH_JPLUGINS)
 
