@@ -79,7 +79,7 @@ respects for all of the code used other than "OpenSSL".
 #	include "engines/JavaDownload.h"
 #	include "engines/JavaExtractor.h"
 #	include "engines/JavaUpload.h"
-#	include "java/FileSharingSearch.h"
+#	include "tools/FileSharingSearch.h"
 #	include "java/JClass.h"
 #	include "java/JString.h"
 #	include "java/JArray.h"

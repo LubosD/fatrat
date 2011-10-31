@@ -130,7 +130,7 @@ QString JString::str() const
 {
 	if (isNull())
 	{
-		qDebug() << "WARNING: JString::str() on a null string";
+		//qDebug() << "WARNING: JString::str() on a null string";
 		return QString();
 	}
 

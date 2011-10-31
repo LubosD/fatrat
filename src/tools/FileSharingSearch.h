@@ -31,17 +31,27 @@ respects for all of the code used other than "OpenSSL".
 #include <QWidget>
 #include "ui_FileSharingSearch.h"
 
+class JSearchPlugin;
+
 class FileSharingSearch : public QWidget, Ui_FileSharingSearch
 {
     Q_OBJECT
 public:
-	explicit FileSharingSearch(QWidget *parent = 0);
+	FileSharingSearch(QWidget *parent = 0);
 
 	static void globalInit();
 	static void globalExit();
+	static QWidget* create() { return new FileSharingSearch; }
 
+protected:
+	void addSearchEngines();
+	void enableControls(bool enable);
+	void searchDone(QString cls);
+	void checkIfFinished();
 public slots:
-
+	void searchClicked();
+	void downloadClicked();
+	void setSearchFocus();
 public:
 	struct SearchResult
 	{
@@ -51,13 +61,14 @@ public:
 	struct SearchEngine
 	{
 		QString name, clsName;
-		bool finished;
+		//bool finished;
 	};
 
 	void addSearchResults(QString fromClass, QList<SearchResult>& res);
 	void searchFailed(QString fromClass);
 private:
 	static QList<SearchEngine> m_engines;
+	QList<JSearchPlugin*> m_remaining;
 };
 
 #endif // FILESHARINGSEARCH_H

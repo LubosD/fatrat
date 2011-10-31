@@ -425,7 +425,7 @@ if(WITH_JPLUGINS)
 		src/engines/SettingsJavaPluginForm.cpp
 		src/ExtensionMgr.cpp
 		src/java/JSearchPlugin.cpp
-		src/java/FileSharingSearch.cpp
+		src/tools/FileSharingSearch.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
@@ -441,7 +441,7 @@ if(WITH_JPLUGINS)
 		src/engines/SettingsJavaPluginForm.h
 		src/java/JBackgroundWorker.h
 		src/ExtensionMgr.h
-		src/java/FileSharingSearch.h
+		src/tools/FileSharingSearch.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
@@ -449,7 +449,7 @@ if(WITH_JPLUGINS)
 		src/engines/JavaDownloadOptsForm.ui
 		src/engines/SettingsJavaPluginForm.ui
 		src/engines/JavaAccountStatusWidget.ui
-		src/java/FileSharingSearch.ui
+		src/tools/FileSharingSearch.ui
 	)
 endif(WITH_JPLUGINS)
 

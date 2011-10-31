@@ -27,7 +27,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include "JSearchPlugin.h"
 #include "JArray.h"
-#include "FileSharingSearch.h"
+#include "tools/FileSharingSearch.h"
 
 JSearchPlugin::JSearchPlugin(const JClass& cls, const char* sig, JArgs args)
 	: JPlugin(cls, sig, args), m_dialog(0)
@@ -73,14 +73,14 @@ void JSearchPlugin::searchDone(JNIEnv*, jobject jthis, jobjectArray sr)
 		JArray results(sr);
 		QList<FileSharingSearch::SearchResult> srs;
 
-		for (int i = 0; i < results.length(); i++)
+		for (unsigned int i = 0; i < results.length(); i++)
 		{
 			JObject obj = results.getObject(i);
 			FileSharingSearch::SearchResult sr;
 
 			sr.name = obj.getValue("name", JSignature::sigString()).toString();
 			sr.url = obj.getValue("url", JSignature::sigString()).toString();
-			sr.extraInfo = obj.getValue("url", JSignature::sigString()).toString();
+			sr.extraInfo = obj.getValue("extraInfo", JSignature::sigString()).toString();
 			sr.fileSize = obj.getValue("fileSize", JSignature::sigLong()).toLongLong();
 
 			srs << sr;
