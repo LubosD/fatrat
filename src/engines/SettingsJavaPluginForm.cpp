@@ -81,6 +81,8 @@ void SettingsJavaPluginForm::load()
 	labelJavaHeap->setText(QString("Java heap: %1 kB, %2 kB free")
 			       .arg(runtime.call("totalMemory", JSignature().retLong()).toLongLong()/1024)
 			       .arg(runtime.call("freeMemory", JSignature().retLong()).toLongLong()/1024));
+
+	checkAutoCheck->setChecked(getSettingsValue("java/check_updates").toBool());
 }
 
 void SettingsJavaPluginForm::accepted()
@@ -118,6 +120,8 @@ void SettingsJavaPluginForm::accepted()
 
 	for (int i = 0; i < g_configListeners.size(); i++)
 		g_configListeners[i].call("configurationSaved");
+
+	setSettingsValue("java/check_updates", checkAutoCheck->isChecked());
 }
 
 void SettingsJavaPluginForm::loadInstalled()

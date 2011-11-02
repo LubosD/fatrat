@@ -38,11 +38,12 @@ respects for all of the code used other than "OpenSSL".
 #include "DropBox.h"
 #include "MyTrayIcon.h"
 #include "captcha/CaptchaQt.h"
-#include "ClickableLabel.h"
 
 class SpeedGraph;
 class NewTransferDlg;
 class ClipboardMonitor;
+class ExtensionMgr;
+class ClickableLabel;
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -123,6 +124,8 @@ public slots:
 #ifdef WITH_JPLUGINS
 	void showPremiumStatus();
 	void premiumStatusClosed();
+	void updatesChecked();
+	void updateBubbleManuallyClosed();
 #endif
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
@@ -146,6 +149,8 @@ protected:
 	void showTrayIcon();
 	void transferOpen(bool bOpenFile);
 	void initAppTools(QMenu* menu);
+
+	static QPixmap grayscalePixmap(QPixmap in);
 private:
 	QTimer* m_timer;
 	MyTrayIcon m_trayIcon;
@@ -160,6 +165,10 @@ private:
 	CaptchaQt m_captcha;
 #ifdef WITH_JPLUGINS
 	ClickableLabel* m_premiumAccounts;
+	ClickableLabel* m_updates;
+	ExtensionMgr* m_extensionMgr;
+	QTimer m_extensionCheckTimer;
+	bool m_bUpdatesBubbleManuallyClosed;
 #endif
 	
 	QList<QAction*> m_menuActionObjects;

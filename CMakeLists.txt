@@ -241,6 +241,7 @@ set(fatrat_SRCS
 	src/tools/RapidTools.cpp
 	src/tools/VideoFetcher.cpp
 	src/util/ExtendedAttributes.cpp
+	src/util/BalloonTip.cpp
 )
 
 if(HAVE_SYS_EPOLL_H)
@@ -314,6 +315,8 @@ set(fatrat_MOC_HDRS
 	src/tooltips/QueueToolTip.h
 	src/tooltips/TrayToolTip.h
 	src/tooltips/BaseToolTip.h
+
+	src/util/BalloonTip.h
 )
 
 set(fatrat_UIS

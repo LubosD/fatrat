@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>417</width>
-    <height>348</height>
+    <height>441</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,12 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.</string>
+      <string>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.
+&lt;p&gt;
+For details about extension features, visit &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -45,7 +50,7 @@
             <x>0</x>
             <y>0</y>
             <width>377</width>
-            <height>144</height>
+            <height>209</height>
            </rect>
           </property>
           <attribute name="label">
@@ -85,15 +90,15 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>112</width>
-            <height>112</height>
+            <width>377</width>
+            <height>209</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Updates</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QTreeWidget" name="treeUpdates">
              <property name="rootIsDecorated">
               <bool>false</bool>
@@ -117,6 +122,13 @@
                <string>Version</string>
               </property>
              </column>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="checkAutoCheck">
+             <property name="text">
+              <string>Regularly check for updates</string>
+             </property>
             </widget>
            </item>
           </layout>

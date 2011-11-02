@@ -64,9 +64,13 @@ respects for all of the code used other than "OpenSSL".
 #include "ReportBugDlg.h"
 #include "filterlineedit.h"
 #include "ClipboardMonitor.h"
+#include "ClickableLabel.h"
+#include "util/BalloonTip.h"
 
 #ifdef WITH_JPLUGINS
 #	include "engines/JavaAccountStatusWidget.h"
+#	include "engines/SettingsJavaPluginForm.h"
+#	include "ExtensionMgr.h"
 #endif
 
 #ifdef WITH_DOCUMENTATION
@@ -172,7 +176,29 @@ void MainWindow::setupUi()
 	m_premiumAccounts->setCursor(Qt::PointingHandCursor);
 	statusbar->insertPermanentWidget(1, m_premiumAccounts);
 	m_premiumAccounts->show();
-	//m_nStatusWidgetsRight++;
+
+	m_updates = new ClickableLabel(this);
+	m_updates->setScaledContents(true);
+	m_updates->setToolTip(tr("Extension updates: %1").arg(0));
+	m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
+	m_updates->setMaximumSize(16, 16);
+	m_updates->setCursor(Qt::PointingHandCursor);
+	statusbar->insertPermanentWidget(1, m_updates);
+	m_updates->show();
+
+	m_extensionMgr = new ExtensionMgr;
+	connect(&m_extensionCheckTimer, SIGNAL(timeout()), m_extensionMgr, SLOT(loadFromServer()));
+	connect(m_extensionMgr, SIGNAL(loaded()), this, SLOT(updatesChecked()));
+
+	m_bUpdatesBubbleManuallyClosed = false;
+
+	if (getSettingsValue("java/check_updates").toBool())
+	{
+		m_extensionCheckTimer.setInterval(60*60*1000);
+		QTimer::singleShot(20*1000, m_extensionMgr, SLOT(loadFromServer()));
+	}
+
+	connect(m_updates, SIGNAL(clicked()), this, SLOT(showSettings()));
 #endif
 	
 	connectActions();
@@ -1552,8 +1578,16 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::showSettings()
 {
 	SettingsDlg dlg(this);
-	QAction* act = static_cast<QAction*>(sender());
-	int index = act->data().toInt();
+	QAction* act = 0;
+	int index = 0;
+
+	act = dynamic_cast<QAction*>(sender());
+	if (act)
+		index = act->data().toInt();
+#ifdef WITH_JPLUGINS
+	if (dynamic_cast<ClickableLabel*>(sender()))
+		dlg.setPageByType<SettingsJavaPluginForm>();
+#endif
 
 	if(index)
 		dlg.setPage(index);
@@ -1807,7 +1841,63 @@ void MainWindow::premiumStatusClosed()
 	m_premiumAccounts->setEnabled(true);
 }
 
+void MainWindow::updatesChecked()
+{
+	if (!getSettingsValue("java/check_updates").toBool())
+		return;
+
+	QList<ExtensionMgr::PackageInfo> pkgs = m_extensionMgr->getPackages();
+	int numUpdates = 0;
+
+	for (int i = 0; i < pkgs.size(); i++)
+	{
+		if (!pkgs[i].installedVersion.isEmpty() && !pkgs[i].latestVersion.isEmpty() &&
+				pkgs[i].installedVersion < pkgs[i].latestVersion)
+		{
+			numUpdates++;
+		}
+	}
+
+	if (numUpdates)
+	{
+		if (!m_bUpdatesBubbleManuallyClosed)
+		{
+			BalloonTip* test = new BalloonTip(this, QIcon(), tr("Extension updates"),
+							  tr("There are %1 updates available.").arg(numUpdates));
+			test->balloon(m_updates->mapToGlobal(QPoint(8, 8)) , 0);
+			m_updates->setToolTip(tr("Extension updates: %1").arg(numUpdates));
+			m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
+		}
+	}
+	else
+		m_updates->setPixmap(grayscalePixmap(QPixmap(":/fatrat/updates.png")));
+}
+
+void MainWindow::updateBubbleManuallyClosed()
+{
+	m_bUpdatesBubbleManuallyClosed = true;
+}
+
 #endif
+
+QPixmap MainWindow::grayscalePixmap(QPixmap pixmap)
+{
+	QImage image = pixmap.toImage();
+	QRgb col;
+	int gray;
+	int width = pixmap.width();
+	int height = pixmap.height();
+	for (int i = 0; i < width; ++i)
+	{
+		for (int j = 0; j < height; ++j)
+		{
+			col = image.pixel(i, j);
+			gray = qGray(col);
+			image.setPixel(i, j, qRgba(gray, gray, gray, qAlpha(col)));
+		}
+	}
+	return pixmap.fromImage(image);
+}
 
 void addMenuAction(const MenuAction& action)
 {

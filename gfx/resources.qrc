@@ -266,6 +266,7 @@
         <file>clipboard.png</file>
         <file>metalink.png</file>
         <file>premium.png</file>
+        <file>updates.png</file>
     </qresource>
     <qresource prefix="/menu">
         <file>about.png</file>

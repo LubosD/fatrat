@@ -49,8 +49,9 @@ public:
 	    QString name, desc, installedVersion, latestVersion;
     };
 
-    void loadFromServer();
     QList<PackageInfo> getPackages();
+public slots:
+    void loadFromServer();
 signals:
     void loaded();
     void loadFailed();

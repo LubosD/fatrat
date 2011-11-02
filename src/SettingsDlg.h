@@ -42,6 +42,17 @@ public:
 	~SettingsDlg();
 
 	void setPage(int i);
+	template <typename T> void setPageByType()
+	{
+		for (int i = 0; i < m_children.size(); i++)
+		{
+			if (dynamic_cast<T*>(m_children[i]))
+			{
+				setPage(i);
+				break;
+			}
+		}
+	}
 	
 	virtual void accept();
 	int exec();
