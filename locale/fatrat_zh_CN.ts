@@ -3514,11 +3514,16 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="169"/>
-        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="217"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="224"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="225"/>
         <source>Uninstall</source>
         <translation>解除安装</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="217"/>
+        <source>Uninstall</source>
+        <comment>Uninstall the extension</comment>
+        <translation type="unfinished">解除安装</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="225"/>

@@ -2602,6 +2602,11 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <source>Do you really wish to uninstall the selected extensions?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Uninstall</source>
+        <comment>Uninstall the extension</comment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsMetalinkForm</name>

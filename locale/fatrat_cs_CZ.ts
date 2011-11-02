@@ -3518,11 +3518,16 @@ Pro podrobnosti o funkcích rozšíření navštivte &lt;a href=&quot;http://fat
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="169"/>
-        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="217"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="224"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="225"/>
         <source>Uninstall</source>
         <translation>Odinstalace</translation>
+    </message>
+    <message>
+        <location filename="../src/engines/SettingsJavaPluginForm.ui" line="217"/>
+        <source>Uninstall</source>
+        <comment>Uninstall the extension</comment>
+        <translation>Odinstalovat</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="225"/>
