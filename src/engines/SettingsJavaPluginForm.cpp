@@ -229,13 +229,13 @@ void SettingsJavaPluginForm::finished(QNetworkReply* reply)
 		}
 	}
 
-	toolBox->setItemText(0, tr("Available extensions (%2)").arg(treeAvailable->topLevelItemCount()));
-	toolBox->setItemText(1, tr("Updates (%2)").arg(treeUpdates->topLevelItemCount()));
+	toolBox->setItemText(0, tr("Available extensions (%1)").arg(treeAvailable->topLevelItemCount()));
+	toolBox->setItemText(1, tr("Updates (%1)").arg(treeUpdates->topLevelItemCount()));
 }
 
 void SettingsJavaPluginForm::uninstall()
 {
-	if (QMessageBox::warning(getMainWindow(), "FatRat", tr("Do you really wish to uninstall the selected plugins?"), QMessageBox::Yes|QMessageBox::Cancel) != QMessageBox::Yes)
+	if (QMessageBox::warning(getMainWindow(), "FatRat", tr("Do you really wish to uninstall the selected extensions?"), QMessageBox::Yes|QMessageBox::Cancel) != QMessageBox::Yes)
 	{
 		return;
 	}

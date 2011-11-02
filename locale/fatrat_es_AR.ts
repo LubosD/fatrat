@@ -47,10 +47,6 @@
         <source>&lt;center&gt;&lt;font size=+5&gt;FatRat download manager</source>
         <translation>Gestor de descargas FatRat</translation>
     </message>
-    <message utf8="true">
-        <source>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</source>
-        <translation>&lt;center&gt;Copyright © 2006-2009 Luboš Doležel&lt;br&gt;&lt;a href=&quot;http://fatrat.dolezel.info&quot;&gt;http://fatrat.dolezel.info&lt;/a&gt;</translation>
-    </message>
     <message>
         <source>Features enabled at compile time:</source>
         <translation>Características habilitadas en la compilación:</translation>
@@ -66,6 +62,10 @@
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;File name: %2&lt;br&gt;Author: %3&lt;br&gt;Web site: &lt;a href=&quot;%4&quot;&gt;%4&lt;/a&gt;</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Nombre de archivo: %2&lt;br&gt;Autor: %3&lt;br&gt;Sitio Web: &lt;a href=&quot;%4&quot;&gt;%4&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Java extension support</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -87,6 +87,36 @@
 %T - tipo de transferencia
 %D - directorio destino
 %P - ruta de archivo</translation>
+    </message>
+</context>
+<context>
+    <name>CaptchaQtDlg</name>
+    <message>
+        <source>Captcha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The image is being loaded...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please re-type the characters seen in the picture below. This dialog will be automatically dismissed in &lt;b&gt;%1 seconds&lt;/b&gt; (queue blocking prevention).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to load the captcha image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CertGenDlg</name>
+    <message>
+        <source>Generate a self-signed certificate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hostname for the generated self-signed certificate</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -209,36 +239,20 @@
         <translation>No se ingresaron URLs</translation>
     </message>
     <message>
-        <source>Write failed</source>
-        <translation>Falló la escritura</translation>
-    </message>
-    <message>
-        <source>Write failed (%1)</source>
-        <translation>Falló la escritura (%1)</translation>
-    </message>
-    <message>
-        <source>Timeout</source>
-        <translation>Tiempo de espera agotado</translation>
-    </message>
-    <message>
-        <source>Switch mirror</source>
-        <translation>Cambiar mirror (espejo)</translation>
-    </message>
-    <message>
         <source>Compute hash...</source>
         <translation>Calcular hash...</translation>
     </message>
     <message>
-        <source>No mirror to switch to!</source>
-        <translation>Sin mirror al cual cambiar!</translation>
-    </message>
-    <message>
-        <source>Switching mirror: %1 -&gt; %2</source>
-        <translation>Cambiando mirror: %1 -&gt; %2</translation>
-    </message>
-    <message>
         <source>You&apos;re about to compute hash from an incomplete download.</source>
         <translation>Está intentando calcular el hash de una descarga incompleta.</translation>
+    </message>
+    <message>
+        <source>Unable to resume the download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This transfer was converted from a HTTP/FTP download</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -265,30 +279,61 @@
     </message>
 </context>
 <context>
-    <name>FtpClient</name>
+    <name>ExtensionDownloadDlg</name>
     <message>
-        <source>FTP client</source>
-        <translation>Cliente FTP</translation>
+        <source>Extension download</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Server</source>
-        <translation>Servidor</translation>
+        <source>Extensions are being downloaded and installed.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User</source>
-        <translation>Usuario</translation>
+        <source>%v / %m</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FileSharingSearch</name>
+    <message>
+        <source>File sharing search</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Password</source>
-        <translation>Contraseña</translation>
+        <source>Search string:</source>
+        <translation type="unfinished">Buscar cadena:</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Conectar</translation>
+        <source>Search</source>
+        <translation type="unfinished">Buscar</translation>
     </message>
     <message>
-        <source>1</source>
-        <translation>1</translation>
+        <source>Progress:</source>
+        <translation type="unfinished">Progreso:</translation>
+    </message>
+    <message>
+        <source>%v/%m</source>
+        <translation type="unfinished">%v/%m</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nombre</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Tamaño</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished">Fuente</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -440,14 +485,83 @@
     </message>
 </context>
 <context>
-    <name>HttpDetailsBar</name>
+    <name>HttpDetails</name>
     <message>
-        <source>Stop this segment</source>
-        <translation>Detener este segmento</translation>
+        <source>Active segments</source>
+        <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished">URL</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Tamaño</translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation type="unfinished">Progreso</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation type="unfinished">Velocidad</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="unfinished">Añadir</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Eliminar</translation>
+    </message>
+    <message>
+        <source>Known URLs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished">Editar</translation>
+    </message>
+    <message>
+        <source>Mirror search...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new URL...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No mirrors found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HttpDetailsBar</name>
     <message>
         <source>New segment</source>
         <translation>Nuevo segmento</translation>
+    </message>
+    <message>
+        <source>Segment #%1
+Download in progress
+URL: %2
+Size: %3
+Speed: %4
+Done: %5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Segment #%1
+Downloaded data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete this segment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -464,6 +578,25 @@
     <message>
         <source>Do you really want to delete the selected user credentials?</source>
         <translation>Realmente quieres eliminar las credenciales de usuario seleccionadas?</translation>
+    </message>
+</context>
+<context>
+    <name>HttpMirrorsDlg</name>
+    <message>
+        <source>Mirrors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Server</source>
+        <translation type="unfinished">Servidor</translation>
+    </message>
+    <message>
+        <source>Ping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hops</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -490,6 +623,34 @@
     <message>
         <source>Listening on port %1</source>
         <translation>Escuchando en puerto %1</translation>
+    </message>
+    <message>
+        <source>Restarting the service due to a port or SSL config change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to start: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSL key file not found, disabling HTTPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loading a SSL key from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running in plain HTTP mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to open %1 for writing.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -542,6 +703,27 @@
     <message>
         <source>Bind IP address:</source>
         <translation>Dirección IP BIND:</translation>
+    </message>
+</context>
+<context>
+    <name>JDownloadPlugin</name>
+    <message>
+        <source>Java exception: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JPlugin</name>
+    <message>
+        <source>Java exception: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JUploadPlugin::JMimePart</name>
+    <message>
+        <source>Unknown class: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -743,6 +925,78 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     <message>
         <source>The user was disconnected</source>
         <translation>El usuario ha sido desconectado</translation>
+    </message>
+    <message>
+        <source>
+Invalid transfer state</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JavaAccountStatusWidget</name>
+    <message>
+        <source>Premium account status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Requesting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JavaDownload</name>
+    <message>
+        <source>You cannot have multiple active transfers from this server.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Java exception: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JavaDownloadOptsForm</name>
+    <message>
+        <source>This is a transfer controlled by an extension (Java plugin):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL:</source>
+        <translation type="unfinished">URL:</translation>
+    </message>
+    <message>
+        <source>Invalid URL.</source>
+        <translation type="unfinished">URL inválida.</translation>
+    </message>
+</context>
+<context>
+    <name>JavaExtractor</name>
+    <message>
+        <source>JavaExtractor: Not an HTTP(S) URI, passing the URI directly to the extension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Empty or invalid link list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to detect URL class: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JavaUpload</name>
+    <message>
+        <source>Download link: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kill link: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1070,6 +1324,93 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <source>Shift+Del</source>
         <translation>Shift+Supr</translation>
     </message>
+    <message>
+        <source>Ctrl+Shift+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause all transfers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Premium account status...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extension updates: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extension updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are %1 updates available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MetalinkDownload</name>
+    <message>
+        <source>Metalink</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create a temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to download the metalink file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to read the metalink file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files specified inside the metalink</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No torrent link found for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No HTTP/FTP link found for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MyApplication</name>
@@ -1180,6 +1521,32 @@ Mensaje: %2</translation>
     </message>
 </context>
 <context>
+    <name>Notification</name>
+    <message>
+        <source>Libnotify not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create a notification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to update a notification</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PlaceholderTransfer</name>
+    <message>
+        <source>Error: transfer class %1 not found, this is a placeholder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is a placeholder</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProxyDlg</name>
     <message>
         <source>Proxy server</source>
@@ -1255,10 +1622,6 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
         <translation>Fallo al cargar un plugin: %1: %2</translation>
     </message>
     <message>
-        <source>Invalid URL.</source>
-        <translation>URL inválida.</translation>
-    </message>
-    <message>
         <source>Main</source>
         <translation>Principal</translation>
     </message>
@@ -1313,6 +1676,86 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
     <message>
         <source>Invalid XML-RPC call</source>
         <translation>Llamada XML-RPC inválida</translation>
+    </message>
+    <message>
+        <source>File sharing server search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown type ID: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Java class %1 not found or failed to load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Method %1 %2 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid method return type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown Java data type: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown data type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field %1 %2 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid JClass passed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Constructor %1 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create an instance - constructor %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot locate a Java Runtime Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Java Runtime Environment located, but no libjvm found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to load the correct libjvm: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create a Java VM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t autodetect transfer type for &quot;%1&quot;</source>
+        <translation type="unfinished">No se pudo autodetectar el tipo de transferencia para &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Failed to create a class instance.</source>
+        <translation type="unfinished">Fallo al crear una instancia de clase.</translation>
+    </message>
+    <message>
+        <source>Cannot create a temporary file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No download class is able to handle this file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings key array length differs from value length</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1422,26 +1865,6 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
         <translation>Reiniciar</translation>
     </message>
     <message>
-        <source>Decode RapidSafe links</source>
-        <translation>Decodificar enlaces RapidSafe</translation>
-    </message>
-    <message>
-        <source>Enter RapidSafe/RapidSave links:</source>
-        <translation>Ingresar enlaces RapidSafe/RapidSave:</translation>
-    </message>
-    <message>
-        <source>Decoded links:</source>
-        <translation>Enlaces decodificados:</translation>
-    </message>
-    <message>
-        <source>Decode</source>
-        <translation>Decodificar</translation>
-    </message>
-    <message>
-        <source>Download decoded</source>
-        <translation>Descargar decodificado</translation>
-    </message>
-    <message>
         <source>Extract files from a RS.com folder</source>
         <translation>Extraer archivos de una carpeta RS.com</translation>
     </message>
@@ -1460,52 +1883,6 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
     <message>
         <source>Ignore invalid</source>
         <translation>Ignorar inválido</translation>
-    </message>
-</context>
-<context>
-    <name>RapidshareFreeDownload</name>
-    <message>
-        <source>You cannot have multiple RS.com FREE downloads.</source>
-        <translation>No puedes tener múltiples descargas GRATIS de RS.com.</translation>
-    </message>
-    <message>
-        <source>Loading the first page</source>
-        <translation>Cargando la primer página</translation>
-    </message>
-    <message>
-        <source>Failed to load the download&apos;s first page.</source>
-        <translation>Fallo al cargar la primer página de la descarga.</translation>
-    </message>
-    <message>
-        <source>Failed to parse the download&apos;s first page.</source>
-        <translation>Fallo al analizar la primer página de la descarga.</translation>
-    </message>
-    <message>
-        <source>Loading the second page</source>
-        <translation>Cargando segunda página</translation>
-    </message>
-    <message>
-        <source>Failed to load the download&apos;s waiting page.</source>
-        <translation>Fallo al cargar la página de espera de la descarga.</translation>
-    </message>
-    <message>
-        <source>Failed to parse the download&apos;s waiting page.</source>
-        <translation>Fallo al analizar la página de espera de la descarga.</translation>
-    </message>
-    <message>
-        <source>Failed to download the file.</source>
-        <translation>Fallo al descargar el archivo.</translation>
-    </message>
-    <message>
-        <source>%1:%2 seconds left</source>
-        <translation>%1:%2 segundos restantes</translation>
-    </message>
-</context>
-<context>
-    <name>RapidshareFreeDownloadOptsForm</name>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -1549,117 +1926,6 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
     <message>
         <source>Enable the status widget</source>
         <translation>Habilitar widget de status</translation>
-    </message>
-</context>
-<context>
-    <name>RapidshareOptsWidget</name>
-    <message>
-        <source>No account</source>
-        <translation>Sin cuenta</translation>
-    </message>
-    <message>
-        <source>Collector&apos;s account</source>
-        <translation>Cuenta collector</translation>
-    </message>
-    <message>
-        <source>Premium account</source>
-        <translation>Cuenta Premium</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <comment>No proxy</comment>
-        <translation>Nada
-
-No proxy</translation>
-    </message>
-</context>
-<context>
-    <name>RapidshareSettings</name>
-    <message>
-        <source>No account</source>
-        <translation>Sin cuenta</translation>
-    </message>
-    <message>
-        <source>Collector&apos;s account</source>
-        <translation>Cuenta collector</translation>
-    </message>
-    <message>
-        <source>Premium account</source>
-        <translation>Cuenta Premium</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <comment>No proxy</comment>
-        <translation>None
-
-No proxy</translation>
-    </message>
-</context>
-<context>
-    <name>RapidshareUpload</name>
-    <message>
-        <source>You have to enter your account information</source>
-        <translation>Debe ingresar su información de cuenta</translation>
-    </message>
-    <message>
-        <source>RapidShare.com</source>
-        <translation>RapidShare.com</translation>
-    </message>
-    <message>
-        <source>This file is forbidden to be shared</source>
-        <translation>El archivos está prohibido para ser compartido</translation>
-    </message>
-    <message>
-        <source>Invalid username</source>
-        <translation>Nombre de usuario inválido</translation>
-    </message>
-    <message>
-        <source>Invalid password</source>
-        <translation>Contraseña inválida</translation>
-    </message>
-    <message>
-        <source>Failed to find the file ID</source>
-        <translation>Fallo al hallar la ID del archivo</translation>
-    </message>
-    <message>
-        <source>Failed to find the kill ID</source>
-        <translation>Fallo al hallar el ID a matar</translation>
-    </message>
-    <message>
-        <source>Download link:</source>
-        <translation>Enlace de descarga:</translation>
-    </message>
-    <message>
-        <source>Kill link:</source>
-        <translation>Enlaces a matar:</translation>
-    </message>
-    <message>
-        <source>Cannot append to file &quot;%1&quot;</source>
-        <translation>No se pudo anexar al archivo &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Failed to get server ID</source>
-        <translation>Fallo al obtener el ID del server</translation>
-    </message>
-    <message>
-        <source>Uploading to %1</source>
-        <translation>Subiendo a %1</translation>
-    </message>
-    <message>
-        <source>Failed to query resume information</source>
-        <translation>Falló la consulta de información para continuar</translation>
-    </message>
-    <message>
-        <source>File ID %1 validated</source>
-        <translation>Archivo ID %1 validado</translation>
-    </message>
-    <message>
-        <source>Can&apos;t open the file</source>
-        <translation>No se pudo abrir el archivo</translation>
-    </message>
-    <message>
-        <source>The maximum file size is 200 MB/2 GB (premium)</source>
-        <translation>El tamaño máximo de archivo es de 200 MB/2 GB (premium)</translation>
     </message>
 </context>
 <context>
@@ -2185,6 +2451,10 @@ No proxy</translation>
         <source>seconds</source>
         <translation>segundos</translation>
     </message>
+    <message>
+        <source>Convert the transfer to BitTorrent if the downloaded file is found to be a torrent</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsJabberForm</name>
@@ -2234,6 +2504,122 @@ Sin proxy</translation>
     <message>
         <source>Proxy</source>
         <translation>Proxy</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsJavaPluginForm</name>
+    <message>
+        <source>Extensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.
+&lt;p&gt;
+For details about extension features, visit &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update and install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Available extensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nombre</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished">Descripción</translation>
+    </message>
+    <message>
+        <source>Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Regularly check for updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uninstall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extension settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to download the plugin index file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your version of FatRat is no longer supported by the update site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove &quot;%1&quot;, check the file permissions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For the changes to take effect, FatRat needs to be restarted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restart now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restart later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to download an extension: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to write a file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Available extensions (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Updates (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you really wish to uninstall the selected extensions?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SettingsMetalinkForm</name>
+    <message>
+        <source>Metalink URL handling mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FatRat is not able to combine HTTP/FTP and BitTorrent transfers at the moment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer segmented HTTP/FTP over BitTorrent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use only BitTorrent where possible</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2340,6 +2726,10 @@ Sin proxy</translation>
     <message>
         <source>Enable tooltips</source>
         <translation>Habilitar información sobre herramientas</translation>
+    </message>
+    <message>
+        <source>Perform a filesystem sync after the queue file is saved</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2487,18 +2877,6 @@ Sin proxy</translation>
         <translation>Proxy</translation>
     </message>
     <message>
-        <source>Tracker</source>
-        <translation>Rastreador</translation>
-    </message>
-    <message>
-        <source>Peer</source>
-        <translation>Par</translation>
-    </message>
-    <message>
-        <source>Web seed</source>
-        <translation>Semilla web</translation>
-    </message>
-    <message>
         <source>Port mapping</source>
         <translation>Mapeo de puertos</translation>
     </message>
@@ -2540,6 +2918,46 @@ Sin proxy</translation>
     <message>
         <source>Password</source>
         <translation>Contraseña</translation>
+    </message>
+    <message>
+        <source>Username: Use &quot;admin&quot; or &quot;fatrat&quot;, both are equivalent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use HTTPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PEM file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <source>Generate a self signed certificate...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse for PEM file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PEM files (*.pem)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to open %1 for writing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The certificate has been generated.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2878,6 +3296,10 @@ de datos haya sido subida</translation>
         <source>Remove</source>
         <translation>Quitar</translation>
     </message>
+    <message>
+        <source>Use super seeding</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TorrentPeersModel</name>
@@ -3002,10 +3424,6 @@ de datos haya sido subida</translation>
     <message>
         <source>Source</source>
         <translation>Fuente</translation>
-    </message>
-    <message>
-        <source>Failed to load BitTorrent search engine information.</source>
-        <translation>Fallo al cargar información del motor de búsqueda de BitTorrent.</translation>
     </message>
     <message>
         <source>Torrent search</source>
@@ -3210,6 +3628,21 @@ de datos haya sido subida</translation>
     <message>
         <source>%1 transfers</source>
         <translation>%1 transferencias</translation>
+    </message>
+</context>
+<context>
+    <name>UrlClient</name>
+    <message>
+        <source>Failed to seek in the file - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Write failed (%1)</source>
+        <translation type="unfinished">Falló la escritura (%1)</translation>
+    </message>
+    <message>
+        <source>Timeout</source>
+        <translation type="unfinished">Tiempo de espera agotado</translation>
     </message>
 </context>
 <context>
