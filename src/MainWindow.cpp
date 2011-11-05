@@ -1578,14 +1578,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::showSettings()
 {
 	SettingsDlg dlg(this);
-	QAction* act = 0;
 	int index = 0;
 
-	act = dynamic_cast<QAction*>(sender());
-	if (act)
+	if (QAction* act = dynamic_cast<QAction*>(sender()))
 		index = act->data().toInt();
 #ifdef WITH_JPLUGINS
-	if (dynamic_cast<ClickableLabel*>(sender()))
+	if (dynamic_cast<ClickableLabel*>(sender()) || dynamic_cast<BalloonTip*>(sender()))
 		dlg.setPageByType<SettingsJavaPluginForm>();
 #endif
 
@@ -1851,6 +1849,7 @@ void MainWindow::updatesChecked()
 
 	for (int i = 0; i < pkgs.size(); i++)
 	{
+		qDebug() << pkgs[i].name << pkgs[i].installedVersion << pkgs[i].latestVersion;
 		if (!pkgs[i].installedVersion.isEmpty() && !pkgs[i].latestVersion.isEmpty() &&
 				pkgs[i].installedVersion < pkgs[i].latestVersion)
 		{
@@ -1865,6 +1864,7 @@ void MainWindow::updatesChecked()
 			BalloonTip* test = new BalloonTip(this, QIcon(), tr("Extension updates"),
 							  tr("There are %1 updates available.").arg(numUpdates));
 			test->balloon(m_updates->mapToGlobal(QPoint(8, 8)) , 0);
+			connect(test, SIGNAL(messageClicked()), this, SLOT(showSettings()));
 			m_updates->setToolTip(tr("Extension updates: %1").arg(numUpdates));
 			m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
 		}

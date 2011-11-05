@@ -32,7 +32,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -90,8 +90,8 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>377</width>
-            <height>209</height>
+            <width>216</width>
+            <height>137</height>
            </rect>
           </property>
           <attribute name="label">

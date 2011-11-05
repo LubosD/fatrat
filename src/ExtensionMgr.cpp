@@ -47,9 +47,12 @@ void ExtensionMgr::dataLoaded(QNetworkReply* req)
 
 	for (QMap<QString,QString>::iterator it = m_installedPackages.begin(); it != m_installedPackages.end(); it++)
 	{
+		QString name = it.key();
+		name.resize(name.length() - 4);
+
 		for (int i = 0; i < pkgs.size(); i++)
 		{
-			if (pkgs[i].name.compare(it.key(), Qt::CaseInsensitive) == 0)
+			if (pkgs[i].name.compare(name, Qt::CaseInsensitive) == 0)
 			{
 				pkgs[i].installedVersion = it.value();
 				break;
