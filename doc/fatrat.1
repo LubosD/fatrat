@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH FATRAT 1 "August 26, 2008"
+.TH FATRAT 1 "November 6, 2011"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -49,16 +49,21 @@ Hide the GUI at startup (works only if the tray icon exists).
 .B \-n, \-\-nogui
 Start with no GUI at all. Useful for running as a daemon.
 .TP
+.B \-d, \-\-daemon
+Daemonize the application (assumes \fB\-\-nogui\fR)
+.TP
 .B \-\-no\-java
 Disable support for Java extensions. Works only if compiled with Java support.
+.TP
+.B \-c, \-\-config \fIfile\fR
+Use \fIfile\fR as settings storage
 .PP
-If started in the GUI mode, you may pass
-.I links
+If started in the GUI mode, you may pass \fIlinks\fR
 as arguments and they will be presented to the user.
 .SH REPORTING BUGS
 All bugs should be reported at <http://fatrat.dolezel.info/bugs>
 .SH COPYRIGHT
-Copyright (C) 2006 - 2008 Lubos Dolezel. Licensed under the GNU
+Copyright (C) 2006 - 2011 Lubos Dolezel. Licensed under the GNU
 General Public License v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 .PP
 Third party copyrights are described in the 3RDPARTIES.txt

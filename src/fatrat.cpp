@@ -104,6 +104,7 @@ static void showHelp();
 static void installSignalHandler();
 static void testJava();
 static void daemonize();
+static void initDbus();
 static void testNotif();
 
 static bool m_bForceNewInstance = false;
@@ -111,6 +112,7 @@ static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
 static bool m_bManualGraphicsSystem = false, m_bDisableJava = false, m_bJavaForceSearch = false;
 static QString m_strUnitTest;
+static QString m_strSettingsPath;
 
 static int g_argc = -1;
 static char** g_argv = 0;
@@ -153,7 +155,7 @@ int main(int argc,char** argv)
 #endif
 	
 	// Init download engines (let them load settings)
-	initSettingsDefaults();
+	initSettingsDefaults(m_strSettingsPath);
 	
 	if(m_bStartGUI)
 		initSettingsPages();
@@ -202,11 +204,7 @@ int main(int argc,char** argv)
 	
 	new RssFetcher;
 	
-	DbusImpl* impl = new DbusImpl;
-	new FatratAdaptor(impl);
-	
-	QDBusConnection::sessionBus().registerObject("/", impl);
-	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
+	initDbus();
 
 	//testNotif();
 	
@@ -289,6 +287,8 @@ QString argsToArg(int argc,char** argv)
 			qDebug() << "Forcing the search for Java Runtime Environment\n";
 			m_bJavaForceSearch = true;
 		}
+		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
+			m_strSettingsPath = argv[++i];
 		else if(argv[i][0] == '-')
 		{
 			if (!strcasecmp(argv[i], "-graphicssystem"))
@@ -575,15 +575,16 @@ bool programHasGUI()
 void showHelp()
 {
 	std::cout << "FatRat download manager ("VERSION")\n\n"
-			"Copyright (C) 2006-2010 Lubos Dolezel\n"
+			"Copyright (C) 2006-2011 Lubos Dolezel\n"
 			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
 			"-f, --force \tRun the program even if an instance already exists\n"
 			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"
 			"-n, --nogui \tStart with no GUI at all\n"
 			"-d, --daemon\tDaemonize the application (assumes --nogui)\n"
+			"-c, --config file\tUse file as settings storage\n"
 #ifdef WITH_JPLUGINS
 			"--no-java   \tDisable support for Java extensions\n"
-			"--force-jre-search\tIgnore the cached JRE location\n"
+			//"--force-jre-search\tIgnore the cached JRE location\n"
 #endif
 			"-h, --help  \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
@@ -663,4 +664,13 @@ void testNotif()
 	{
 		iface2->event("warning", "fatrat", QVariantList(), "Summary", "Body", QByteArray(), QStringList(), 5000, 0);
 	}
+}
+
+void initDbus()
+{
+	DbusImpl* impl = new DbusImpl;
+	new FatratAdaptor(impl);
+
+	QDBusConnection::sessionBus().registerObject("/", impl);
+	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 }

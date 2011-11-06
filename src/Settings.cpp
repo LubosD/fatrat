@@ -174,9 +174,12 @@ void setSettingsValue(QString id, QVariant value)
 	g_settings->setValue(id, value);
 }
 
-void initSettingsDefaults()
+void initSettingsDefaults(QString manualPath)
 {
-	g_settings = new QSettings;
+	if (manualPath.isEmpty())
+		g_settings = new QSettings;
+	else
+		g_settings = new QSettings(manualPath, QSettings::IniFormat, qApp);
 	
 	QLatin1String df("/defaults.conf");
 	QString path = getDataFileDir("/data", df) + df;
