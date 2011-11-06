@@ -191,10 +191,11 @@ void MainWindow::setupUi()
 	connect(m_extensionMgr, SIGNAL(loaded()), this, SLOT(updatesChecked()));
 
 	m_bUpdatesBubbleManuallyClosed = false;
+	m_extensionCheckTimer.setInterval(60*60*1000);
 
 	if (getSettingsValue("java/check_updates").toBool())
 	{
-		m_extensionCheckTimer.setInterval(60*60*1000);
+		m_extensionCheckTimer.start();
 		QTimer::singleShot(20*1000, m_extensionMgr, SLOT(loadFromServer()));
 	}
 
@@ -1753,6 +1754,20 @@ void MainWindow::applySettings()
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(updateUi()));
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
 	connect(m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
+
+#ifdef WITH_JPLUGINS
+	bool now = m_extensionCheckTimer.isActive();
+	if (getSettingsValue("java/check_updates").toBool())
+	{
+		if (!now)
+			m_extensionCheckTimer.start();
+	}
+	else
+	{
+		if (now)
+			m_extensionCheckTimer.stop();
+	}
+#endif
 }
 
 void MainWindow::menuActionTriggered()
@@ -1841,9 +1856,6 @@ void MainWindow::premiumStatusClosed()
 
 void MainWindow::updatesChecked()
 {
-	if (!getSettingsValue("java/check_updates").toBool())
-		return;
-
 	QList<ExtensionMgr::PackageInfo> pkgs = m_extensionMgr->getPackages();
 	int numUpdates = 0;
 
