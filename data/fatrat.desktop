@@ -1,11 +1,23 @@
 [Desktop Entry]
-Categories=Network;
+Categories=Qt;Network;FileTransfer;
 Comment=Qt-based download/upload manager
+Comment[cs]=Manažer pro stahování/uploadování v Qt
+Comment[sr]=КјуТ Менаџер преузимања/слања
+Comment[sr@ijekavian]=КјуТ Менаџер преузимања/слања
+Comment[sr@latin]=Qt Menadžer preuzimanja/slanja
+Comment[sr@ijekavianlatin]=Qt Menadžer preuzimanja/slanja
 Comment[zh_TW]=基於-Qt 下載/上傳 管理員
 Comment[zh_CN]=基于-Qt 下载/上传 管理员
 Exec=fatrat
 Name=FatRat
+Name[sr]=ФатРат
+Name[sr@ijekavian]=ФатРат
 GenericName=Download/upload manager
+GenericName[cs]=Manažer pro stahování/uploadování
+GenericName[sr]=Менаџер преузимања/слања
+GenericName[sr@ijekavian]=Менаџер преузимања/слања
+GenericName[sr@latin]=Menadžer preuzimanja/slanja
+GenericName[sr@ijekavianlatin]=Menadžer preuzimanja/slanja
 GenericName[zh_TW]=下載/上傳 管理員
 GenericName[zh_CN]=下载/上传 管理员
 Icon=fatrat
