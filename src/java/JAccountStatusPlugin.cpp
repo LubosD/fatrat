@@ -70,6 +70,7 @@ void JAccountStatusPlugin::reportAccountBalance(JNIEnv*, jobject jthis, jobject 
 		state = AccountBad;
 
 	emit This->accountBalanceReceived(state, bal);
+	This->m_bTaskDone = true;
 }
 
 QList<JAccountStatusPlugin*> JAccountStatusPlugin::createStatusPlugins()

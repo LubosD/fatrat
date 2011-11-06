@@ -579,17 +579,17 @@ void showHelp()
 	std::cout << "FatRat download manager ("VERSION")\n\n"
 			"Copyright (C) 2006-2011 Lubos Dolezel\n"
 			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
-			"-f, --force \tRun the program even if an instance already exists\n"
-			"-i, --hidden\tHide the GUI at startup (only if the tray icon exists)\n"
-			"-n, --nogui \tStart with no GUI at all\n"
-			"-d, --daemon\tDaemonize the application (assumes --nogui)\n"
+			"-f, --force      \tRun the program even if an instance already exists\n"
+			"-i, --hidden     \tHide the GUI at startup (only if the tray icon exists)\n"
+			"-n, --nogui      \tStart with no GUI at all\n"
+			"-d, --daemon     \tDaemonize the application (assumes --nogui)\n"
 			"-c, --config file\tUse file as settings storage\n"
-			"--syslog    \tPrint global log contents to syslog\n"
+			"--syslog         \tPrint global log contents to syslog\n"
 #ifdef WITH_JPLUGINS
-			"--no-java   \tDisable support for Java extensions\n"
+			"--no-java        \tDisable support for Java extensions\n"
 			//"--force-jre-search\tIgnore the cached JRE location\n"
 #endif
-			"-h, --help  \tShow this help\n\n"
+			"-h, --help       \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
 	exit(0);
 }

@@ -61,16 +61,6 @@ void JDownloadPlugin::registerNatives()
 	natives << JNativeMethod("reportFileName", JSignature().addString(), reportFileName);
 
 	JClass("info.dolezel.fatrat.plugins.DownloadPlugin").registerNativeMethods(natives);
-
-	try
-	{
-		natives.clear();
-		natives << JNativeMethod("startDownload", JSignature().addString().addString().addString().addString(), startDownloadLegacy);
-	}
-	catch (const JException&)
-	{
-		// safe to ignore
-	}
 }
 
 void JDownloadPlugin::captchaSolved(QString url, QString solution)
@@ -130,28 +120,6 @@ void JDownloadPlugin::reportFileName(JNIEnv* env, jobject jthis, jstring jname)
 	This->m_transfer->enterLogMessage(QLatin1String("JDownloadPlugin::reportFileName(): ")+name.str());
 }
 
-// LEGACY, keep until Oct 2011
-void JDownloadPlugin::startDownloadLegacy(JNIEnv* env, jobject jthis, jstring url, jstring referrer, jstring userAgent, jstring fileName)
-{
-	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
-	QString str = JString(url).str();
-	This->m_transfer->enterLogMessage(QLatin1String("startDownload(): ")+str);
-
-	QString ref, ua;
-	if (referrer)
-		ref = JString(referrer).str();
-	if (userAgent)
-		ua = JString(userAgent).str();
-	if (fileName)
-		str += "#__filename="+JString(fileName).str().replace('/', '-');
-
-	QNetworkCookieJar* jar = This->m_network->cookieJar();
-	QList<QNetworkCookie> c = jar->cookiesForUrl(str);
-	static_cast<JavaDownload*>(This->m_transfer)->startDownload(str, c, ref, ua);
-
-	This->m_network->setCookieJar(new QNetworkCookieJar);
-}
-
 void JDownloadPlugin::startDownload(JNIEnv *, jobject jthis, jobject jdownloadUrl)
 {
 	JDownloadPlugin* This = static_cast<JDownloadPlugin*>(getCObject(jthis));
@@ -174,6 +142,7 @@ void JDownloadPlugin::startDownload(JNIEnv *, jobject jthis, jobject jdownloadUr
 	static_cast<JavaDownload*>(This->m_transfer)->startDownload(url, c, ref, ua, postData);
 
 	This->m_network->setCookieJar(new QNetworkCookieJar);
+	This->m_bTaskDone = true;
 }
 
 QMap<QString,QString> JDownloadPlugin::cookiesToMap(const QList<QNetworkCookie>& list)
@@ -243,4 +212,18 @@ void JDownloadPlugin::setPersistentVariable(QString key, QVariant value)
 QVariant JDownloadPlugin::getPersistentVariable(QString key)
 {
 	return static_cast<JavaDownload*>(transfer())->getPersistentVariable(key);
+}
+
+bool JDownloadPlugin::checkIfAlive()
+{
+	if (!m_waitCallback.isNull())
+		return true;
+
+	for (QMap<QString,RequesterReceiver>::iterator it = m_captchaCallbacks.begin(); it != m_captchaCallbacks.end(); it++)
+	{
+		if (it.value().first == this)
+			return true;
+	}
+
+	return JPlugin::checkIfAlive();
 }

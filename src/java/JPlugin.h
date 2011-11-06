@@ -57,6 +57,7 @@ public:
 	inline StaticTransferMessage<Transfer>* transfer() const { return m_transfer; }
 
 	virtual void abort();
+	virtual bool checkIfAlive();
 
 	static void registerNatives();
 private slots:
@@ -67,6 +68,7 @@ protected:
 	StaticTransferMessage<Transfer>* m_transfer;
 	QMap<QNetworkReply*,RequesterReceiver> m_fetchCallbacks;
 	QNetworkAccessManager* m_network;
+	bool m_bTaskDone;
 };
 
 #endif // JPLUGIN_H

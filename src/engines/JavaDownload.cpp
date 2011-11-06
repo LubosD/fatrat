@@ -252,33 +252,41 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 
 void JavaDownload::startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer, QString userAgent, QString postData)
 {
-	m_downloadUrl = url;
-	m_listActiveSegments.clear();
-	m_urls.clear();
-	
-	CurlDownload::init(url, m_strTarget);
-	
-	QString clsName = m_plugin->getClass().getClassName();
-	if (m_engines[clsName].truncate)
+	try
 	{
-		Segment s;
+		m_downloadUrl = url;
+		m_listActiveSegments.clear();
+		m_urls.clear();
 
-		s.offset = s.bytes = 0;
-		s.urlIndex = 0;
-		s.client = 0;
+		CurlDownload::init(url, m_strTarget);
 
-		m_segments.clear();
-		m_segments << s;
+		QString clsName = m_plugin->getClass().getClassName();
+		if (m_engines[clsName].truncate)
+		{
+			Segment s;
+
+			s.offset = s.bytes = 0;
+			s.urlIndex = 0;
+			s.client = 0;
+
+			m_segments.clear();
+			m_segments << s;
+		}
+
+		m_urls[0].cookies = cookies;
+		m_urls[0].strReferrer = referrer;
+		m_urls[0].strUserAgent = userAgent;
+		m_urls[0].strPostData = postData.toUtf8();
+
+		QString msg = m_strMessage;
+		CurlDownload::changeActive(true);
+		m_strMessage = msg;
 	}
-
-	m_urls[0].cookies = cookies;
-	m_urls[0].strReferrer = referrer;
-	m_urls[0].strUserAgent = userAgent;
-	m_urls[0].strPostData = postData.toUtf8();
-
-	QString msg = m_strMessage;
-	CurlDownload::changeActive(true);
-	m_strMessage = msg;
+	catch(const RuntimeException& e)
+	{
+		m_strMessage = e.what();
+		m_state = Failed;
+	}
 }
 
 void JavaDownload::deriveName()

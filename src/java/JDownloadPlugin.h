@@ -54,7 +54,6 @@ public:
 	static void registerNatives();
 
 	// JNI methods
-	static void startDownloadLegacy(JNIEnv *, jobject, jstring, jstring, jstring, jstring);
 	static void startDownload(JNIEnv *, jobject, jobject);
 	static void startWait(JNIEnv *, jobject, jint, jobject);
 	static void solveCaptcha(JNIEnv *, jobject, jstring, jobject);
@@ -64,6 +63,7 @@ public:
 
 	virtual void setPersistentVariable(QString key, QVariant value);
 	virtual QVariant getPersistentVariable(QString key);
+	virtual bool checkIfAlive();
 private slots:
 	void secondElapsed();
 	void captchaSolvedSlot(QString url, QString solution);

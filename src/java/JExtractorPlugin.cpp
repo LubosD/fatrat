@@ -68,6 +68,7 @@ void JExtractorPlugin::finishedExtraction(JNIEnv* env, jobject jthis, jobjectArr
 	}
 
 	static_cast<JavaExtractor*>(This->m_transfer)->finishedExtraction(list);
+	This->m_bTaskDone = true;
 }
 
 void JExtractorPlugin::setPersistentVariable(QString key, QVariant value)

@@ -88,4 +88,5 @@ void JSearchPlugin::searchDone(JNIEnv*, jobject jthis, jobjectArray sr)
 
 		This->m_dialog->addSearchResults(This->getClass().getClassName(), srs);
 	}
+	This->m_bTaskDone = true;
 }

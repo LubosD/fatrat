@@ -36,7 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <memory>
 
 JPlugin::JPlugin(const JClass& cls, const char* sig, JArgs args)
-	: JObject(cls, sig, args), m_transfer(0)
+	: JObject(cls, sig, args), m_transfer(0), m_bTaskDone(false)
 {
 	setCObject();
 	m_network = new QNetworkAccessManager(this);
@@ -45,7 +45,7 @@ JPlugin::JPlugin(const JClass& cls, const char* sig, JArgs args)
 }
 
 JPlugin::JPlugin(const char* clsName, const char* sig, JArgs args)
-		: JObject(clsName, sig, args), m_transfer(0)
+	: JObject(clsName, sig, args), m_transfer(0), m_bTaskDone(false)
 {
 	setCObject();
 	m_network = new QNetworkAccessManager(this);
@@ -167,4 +167,11 @@ void JPlugin::fetchFinished(QNetworkReply* reply)
 	}
 
 	m_fetchCallbacks.remove(reply);
+}
+
+bool JPlugin::checkIfAlive()
+{
+	if (!m_fetchCallbacks.isEmpty())
+		return true;
+	return m_bTaskDone;
 }
