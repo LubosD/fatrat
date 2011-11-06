@@ -289,6 +289,8 @@ QString argsToArg(int argc,char** argv)
 		}
 		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
 			m_strSettingsPath = argv[++i];
+		else if (!strcasecmp(argv[i], "--syslog"))
+			Logger::global()->toggleSysLog(true);
 		else if(argv[i][0] == '-')
 		{
 			if (!strcasecmp(argv[i], "-graphicssystem"))
@@ -582,6 +584,7 @@ void showHelp()
 			"-n, --nogui \tStart with no GUI at all\n"
 			"-d, --daemon\tDaemonize the application (assumes --nogui)\n"
 			"-c, --config file\tUse file as settings storage\n"
+			"--syslog    \tPrint global log contents to syslog\n"
 #ifdef WITH_JPLUGINS
 			"--no-java   \tDisable support for Java extensions\n"
 			//"--force-jre-search\tIgnore the cached JRE location\n"

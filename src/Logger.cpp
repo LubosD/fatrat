@@ -28,8 +28,32 @@ respects for all of the code used other than "OpenSSL".
 #include "Logger.h"
 #include <QDate>
 #include <QTime>
+#include <syslog.h>
 
 Logger Logger::m_global;
+
+Logger::Logger()
+	: m_bSysLog(false)
+{
+}
+
+Logger::~Logger()
+{
+	if (m_bSysLog)
+		closelog();
+}
+
+void Logger::toggleSysLog(bool on)
+{
+	if (on != m_bSysLog)
+	{
+		if (on)
+			openlog("fatrat", LOG_PID, LOG_USER);
+		else
+			closelog();
+		m_bSysLog = on;
+	}
+}
 
 void Logger::enterLogMessage(QString msg)
 {
@@ -50,6 +74,12 @@ void Logger::enterLogMessage(QString msg)
 
 	l.unlock();
 	emit logMessage(text);
+
+	if (m_bSysLog)
+	{
+		std::string str = text.toStdString();
+		syslog(LOG_INFO, str.c_str());
+	}
 }
 
 void Logger::enterLogMessage(QString sender, QString msg)
