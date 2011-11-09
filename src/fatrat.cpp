@@ -63,7 +63,6 @@ respects for all of the code used other than "OpenSSL".
 #include "rss/RssFetcher.h"
 #include "MyApplication.h"
 #include "Scheduler.h"
-#include "TransferFactory.h"
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
@@ -174,8 +173,6 @@ int main(int argc,char** argv)
 		}
 	}
 #endif
-
-	TransferFactory factory;
 	
 	installSignalHandler();
 	initTransferClasses();

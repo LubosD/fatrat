@@ -113,8 +113,8 @@ TransferFactory::TransferFactory()
 
 TransferFactory* TransferFactory::instance()
 {
-	assert(m_instance != 0);
-	return m_instance;
+	static TransferFactory singleton;
+	return &singleton;
 }
 
 Transfer* TransferFactory::createInstance(QString clsName)

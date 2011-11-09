@@ -36,7 +36,6 @@ class TransferFactory : public QObject
 {
 Q_OBJECT
 public:
-	TransferFactory();
 	static TransferFactory* instance();
 
 	// Create a Transfer instance in the correct thread
@@ -47,6 +46,11 @@ public:
 
 	// Init a Transfer in the correct thread
 	void init(Transfer* t, QString source, QString target);
+private:
+	TransferFactory();
+	TransferFactory(const TransferFactory &) {}
+	void operator=(const TransferFactory&) {}
+	~TransferFactory() {}
 private slots:
 	void createInstance(QString clsName, Transfer** t);
 	void init(Transfer* t, QString source, QString target, RuntimeException* e, bool* eThrown);
