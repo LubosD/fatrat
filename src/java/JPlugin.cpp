@@ -33,6 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #include "JException.h"
 #include "engines/JavaDownload.h"
 #include "engines/StaticTransferMessage.h"
+#include "java/JVM.h"
 #include <memory>
 
 JPlugin::JPlugin(const JClass& cls, const char* sig, JArgs args)
@@ -45,8 +46,11 @@ JPlugin::JPlugin(const JClass& cls, const char* sig, JArgs args)
 }
 
 JPlugin::JPlugin(const char* clsName, const char* sig, JArgs args)
-	: JObject(clsName, sig, args), m_transfer(0), m_bTaskDone(false)
+	//: JObject(clsName, sig, args), m_transfer(0), m_bTaskDone(false)
 {
+	JClass cls = JVM::instance()->loadExtensionClass(clsName);
+	construct(cls, sig, args);
+
 	setCObject();
 	m_network = new QNetworkAccessManager(this);
 	m_network->setCookieJar(new QNetworkCookieJar(m_network));
