@@ -302,16 +302,10 @@ void JavaDownload::globalInit()
 	// search for plugins
 	try
 	{
-		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
-		JClass annotation("info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo");
 		JClass annConfigDialog("info.dolezel.fatrat.plugins.annotations.ConfigDialog");
-		QList<QVariant> args;
+		JClass annotation("info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo");
 
-		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
-
-		JArray arr = helper.callStatic("findAnnotatedClasses",
-						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
-						  args).value<JArray>();
+		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
 		qDebug() << "Found" << arr.size() << "annotated classes (DownloadPluginInfo)";
 
 		int classes = arr.size();
@@ -337,7 +331,10 @@ void JavaDownload::globalInit()
 				e.truncate = ann.call("truncIncomplete", JSignature().retBoolean()).toBool();
 
 				if (!cfgDlg.isNull())
-					e.configDialog = cfgDlg.call("value", JSignature().retString()).toString();
+				{
+					QString path = cfgDlg.call("value", JSignature().retString()).toString();
+					e.configDialog = JVM::instance()->loadDataFile(obj, path);
+				}
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;

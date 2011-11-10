@@ -84,6 +84,8 @@ JVM::JVM(bool forceJreSearch) : m_jvm(0)
 
 JVM::~JVM()
 {
+	m_extLoader.setNull();
+
 	qDebug() << "Unloading the JVM...";
 	if (m_jvm)
 		m_jvm->DestroyJavaVM();
@@ -150,6 +152,10 @@ void JVM::jvmStartup(QString libname)
 
 	try
 	{
+		m_extLoader = JObject("info.dolezel.fatrat.plugins.helpers.JarClassLoader", JSignature());
+		QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
+		m_extLoader.call("loadAllExtensions", JSignature().addString(), JArgs() << baseDir);
+
 		singleCObjectRegisterNatives();
 		JSettings::registerNatives();
 		JPlugin::registerNatives();
@@ -165,32 +171,43 @@ void JVM::jvmStartup(QString libname)
 	}
 }
 
+JClass JVM::loadExtensionClass(QString clsName)
+{
+	return m_extLoader.call("loadExtensionClass", JSignature().addString().ret("java.lang.Class"), clsName).value<JObject>().toClassObject();
+}
+
+JArray JVM::findAnnotatedClasses(JClass ann)
+{
+	return m_extLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << ann.toVariant()).value<JObject>().toArray();
+}
+
 QString JVM::getClassPath()
 {
-	bool hasCore = false;
+	//bool hasCore = false;
 	QString rv;
 
 	QString baseDir = QDir::homePath() + USER_PROFILE_PATH "/data/java/";
 	QDir dir(baseDir);
 
 	// JNI does not support classpath globs, we need to search for files ourselves
-	QStringList list = dir.entryList(QStringList() << "*.jar", QDir::Files);
+	//QStringList list; // = dir.entryList(QStringList() << "*.jar", QDir::Files);
 
-	foreach (QString f, list)
-	{
-		if (f == "fatrat-jplugins.jar")
-			hasCore = true;
-		if (!rv.isEmpty())
-			rv += ':';
-		rv += dir.filePath(f);
-	}
+	//foreach (QString f, list)
+	//{
+	//	if (f == "fatrat-jplugins.jar")
+	//		hasCore = true;
+	//	if (!rv.isEmpty())
+	//		rv += ':';
+	//	rv += dir.filePath(f);
+	//}
 
-	if (!hasCore)
-		rv += ":" DATA_LOCATION "/data/java/fatrat-jplugins.jar";
+	//if (!hasCore)
+	//	rv += ":" DATA_LOCATION "/data/java/fatrat-jplugins.jar";
+	rv = DATA_LOCATION "/data/java/fatrat-jplugins.jar";
 
 	// Now enumerate extra Java classpath libs
 	dir = (DATA_LOCATION "/data/java/libs");
-	list = dir.entryList(QStringList() << "*.jar", QDir::Files);
+	QStringList list = dir.entryList(QStringList() << "*.jar", QDir::Files);
 	foreach (QString f, list)
 	{
 		if (!rv.isEmpty())
@@ -248,10 +265,14 @@ void JVM::throwException(JObject& obj)
 
 QMap<QString,QString> JVM::getPackageVersions()
 {
-	JClass cls("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
-	JMap map = cls.callStatic("getPackageVersions", JSignature().ret("java.util.Map")).value<JObject>();
+	JMap map = m_extLoader.call("getPackageVersions", JSignature().ret("java.util.Map")).value<JObject>();
 	QMap<QString,QString> rv;
 
 	map.toQMap(rv);
 	return rv;
+}
+
+QString JVM::loadDataFile(JClass cls, QString path)
+{
+	return m_extLoader.call("loadPackagedFile", JSignature().add("java.lang.Class").addString().retString(), JArgs() << cls.toVariant() << path).toString();
 }

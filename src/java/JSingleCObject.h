@@ -49,7 +49,8 @@ template <typename T> class JSingleCObject
 public:
 	JSingleCObject()
 	{
-		setCObject();
+		if (!static_cast<T*>(this)->isNull())
+			setCObject();
 	}
 
 	void setCObject()
