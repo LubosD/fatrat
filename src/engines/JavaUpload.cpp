@@ -74,8 +74,13 @@ QStringList JavaUpload::getConfigDialogs()
 
 	return rv;
 }
-	
+
 void JavaUpload::globalInit()
+{
+	findClasses(JVM::instance()->getExtensionClassLoader());
+}
+	
+void JavaUpload::findClasses(JObject classLoader)
 {
 	if (!JVM::JVMAvailable())
 		return;
@@ -91,7 +96,7 @@ void JavaUpload::globalInit()
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
+		JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
 		qDebug() << "Found" << arr.size() << "annotated classes (UploadPluginInfo)";
 
 		int classes = arr.size();

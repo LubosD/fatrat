@@ -54,6 +54,7 @@ public:
 	static void globalInit();
 	static void globalExit();
 	static QStringList getConfigDialogs();
+	static void findClasses(JObject classLoader);
 
 	virtual void init(QString source, QString target);
 	virtual QString myClass() const;

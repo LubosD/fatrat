@@ -25,37 +25,19 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JACCOUNTSTATUSPLUGIN_H
-#define JACCOUNTSTATUSPLUGIN_H
-#include "JPlugin.h"
-#include <QList>
-#include <QPair>
+#ifndef PLUGINCOMMON_H
+#define PLUGINCOMMON_H
+#include "config.h"
+#include "JObject.h"
 
-class JAccountStatusPlugin : public JPlugin
+#ifndef WITH_JPLUGINS
+#	error This file is not supposed to be included!
+#endif
+
+namespace PluginCommon
 {
-Q_OBJECT
-public:
-	static void registerNatives();
-	static QList<JAccountStatusPlugin*> createStatusPlugins();
+void loadExtension(JObject classLoader);
+void unloadExtension(JObject classLoader);
+}
 
-	inline bool queryAccountBalance() { return call("queryAccountBalance", JSignature().retBoolean()).toBool(); }
-	inline QString name() { return m_strName; }
-
-	enum AccountState { AccountGood, AccountWarning, AccountBad, AccountError };
-
-	static void findPlugins();
-	static void findPlugins(JObject classLoader);
-signals:
-	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString balance);
-private:
-	JAccountStatusPlugin(const JClass& cls, QString name);
-
-	static void reportAccountBalance(JNIEnv* env, jobject jthis, jobject state, jstring jbal);
-private:
-	QString m_strName;
-	static QList<QPair<QString,QString> > m_listPlugins;
-};
-
-Q_DECLARE_METATYPE(JAccountStatusPlugin::AccountState);
-
-#endif // JACCOUNTSTATUSPLUGIN_H
+#endif // PLUGINCOMMON_H

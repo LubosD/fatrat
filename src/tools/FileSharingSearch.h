@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #define FILESHARINGSEARCH_H
 
 #include <QWidget>
+#include "java/JObject.h"
 #include "ui_FileSharingSearch.h"
 
 class JSearchPlugin;
@@ -40,6 +41,7 @@ public:
 	FileSharingSearch(QWidget *parent = 0);
 
 	static void globalInit();
+	static void findClasses(JObject classLoader);
 	static void globalExit();
 	static QWidget* create() { return new FileSharingSearch; }
 

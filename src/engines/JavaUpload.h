@@ -51,6 +51,7 @@ public:
 	virtual ~JavaUpload();
 	
 	static void globalInit();
+	static void findClasses(JObject classLoader);
 	static void applySettings();
 	static Transfer* createInstance(const EngineEntry* e) { return new JavaUpload(e->shortName); }
 	static int acceptable(QString url, bool, const EngineEntry* e);

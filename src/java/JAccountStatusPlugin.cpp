@@ -94,13 +94,18 @@ QList<JAccountStatusPlugin*> JAccountStatusPlugin::createStatusPlugins()
 
 void JAccountStatusPlugin::findPlugins()
 {
+	findPlugins(JVM::instance()->getExtensionClassLoader());
+}
+
+void JAccountStatusPlugin::findPlugins(JObject classLoader)
+{
 	JClass annotation("info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo");
 
 	QList<QVariant> args;
 
 	args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-	JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
+	JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
 	qDebug() << "Found" << arr.size() << "annotated classes (AccountStatusPluginInfo)";
 
 	int classes = arr.size();

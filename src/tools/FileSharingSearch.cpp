@@ -82,12 +82,17 @@ void FileSharingSearch::addSearchEngines()
 
 void FileSharingSearch::globalInit()
 {
+	findClasses(JVM::instance()->getExtensionClassLoader());
+}
+
+void FileSharingSearch::findClasses(JObject classLoader)
+{
 	try {
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.SearchPluginInfo");
 
 		JSearchPlugin::registerNatives();
 
-		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
+		JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
 		qDebug() << "Found" << arr.size() << "annotated classes (SearchPluginInfo)";
 
 		unsigned int classes = arr.size();

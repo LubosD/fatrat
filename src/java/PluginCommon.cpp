@@ -25,37 +25,23 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef JACCOUNTSTATUSPLUGIN_H
-#define JACCOUNTSTATUSPLUGIN_H
-#include "JPlugin.h"
-#include <QList>
-#include <QPair>
+#include "PluginCommon.h"
+#include "engines/JavaDownload.h"
+#include "engines/JavaUpload.h"
+#include "engines/JavaExtractor.h"
+#include "tools/FileSharingSearch.h"
+#include "java/JAccountStatusPlugin.h"
 
-class JAccountStatusPlugin : public JPlugin
+void PluginCommon::loadExtension(JObject classLoader)
 {
-Q_OBJECT
-public:
-	static void registerNatives();
-	static QList<JAccountStatusPlugin*> createStatusPlugins();
+	JavaDownload::findClasses(classLoader);
+	JavaUpload::findClasses(classLoader);
+	JavaExtractor::findClasses(classLoader);
+	FileSharingSearch::findClasses(classLoader);
+	JAccountStatusPlugin::findPlugins(classLoader);
+}
 
-	inline bool queryAccountBalance() { return call("queryAccountBalance", JSignature().retBoolean()).toBool(); }
-	inline QString name() { return m_strName; }
-
-	enum AccountState { AccountGood, AccountWarning, AccountBad, AccountError };
-
-	static void findPlugins();
-	static void findPlugins(JObject classLoader);
-signals:
-	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString balance);
-private:
-	JAccountStatusPlugin(const JClass& cls, QString name);
-
-	static void reportAccountBalance(JNIEnv* env, jobject jthis, jobject state, jstring jbal);
-private:
-	QString m_strName;
-	static QList<QPair<QString,QString> > m_listPlugins;
-};
-
-Q_DECLARE_METATYPE(JAccountStatusPlugin::AccountState);
-
-#endif // JACCOUNTSTATUSPLUGIN_H
+void PluginCommon::unloadExtension(JObject classLoader)
+{
+	// TODO
+}

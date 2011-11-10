@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 #include "engines/JavaDownload.h"
 #include "engines/JavaUpload.h"
+#include "java/PluginCommon.h"
 #include "Settings.h"
 #include <QNetworkReply>
 #include <QMessageBox>
@@ -342,9 +343,13 @@ void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
 	if (!item.second)
 	{
 		// load it
-		// JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
-		// helper.callStatic("loadPackage", JSignature().addString(), JArgs() << fullPath);
-		// TODO
+		JObject clsLdr =
+		JVM::instance()->getExtensionClassLoader().call("addExtension", JSignature().addString().ret("info.dolezel.fatrat.plugins.helpers.JavaClassLoader"), fullPath)
+				.value<JObject>();
+		if (!clsLdr.isNull())
+		{
+			PluginCommon::loadExtension(clsLdr);
+		}
 	}
 
 	downloadNext();
