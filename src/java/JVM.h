@@ -61,6 +61,7 @@ public:
 	JClass loadExtensionClass(QString clsName);
 	JArray findAnnotatedClasses(JClass ann);
 	QString loadDataFile(JClass cls, QString path);
+	JObject getExtensionClassLoader() const { return m_extLoader; }
 private:
 	static QString getClassPath();
 	void jvmStartup(QString path);

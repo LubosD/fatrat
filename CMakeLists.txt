@@ -429,6 +429,7 @@ if(WITH_JPLUGINS)
 		src/ExtensionMgr.cpp
 		src/java/JSearchPlugin.cpp
 		src/tools/FileSharingSearch.cpp
+		src/java/PluginCommon.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}

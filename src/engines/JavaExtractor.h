@@ -55,6 +55,7 @@ public:
     static Transfer* createInstance(const EngineEntry* e) { return new JavaExtractor(e->shortName); }
     static int acceptable(QString uri, bool, const EngineEntry* e);
     static void globalInit();
+    static void findClasses(JObject classLoader);
     static void globalExit();
 
     virtual void speeds(int& down, int& up) const { down = up = 0; }
