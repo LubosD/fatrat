@@ -29,7 +29,6 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JClass.h"
 #include "java/JSearchPlugin.h"
 #include "java/JArray.h"
-#include "java/JVM.h"
 #include "RuntimeException.h"
 #include "fatrat.h"
 #include "MainWindow.h"
@@ -82,17 +81,19 @@ void FileSharingSearch::addSearchEngines()
 
 void FileSharingSearch::globalInit()
 {
-	findClasses(JVM::instance()->getExtensionClassLoader());
-}
-
-void FileSharingSearch::findClasses(JObject classLoader)
-{
 	try {
+		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.SearchPluginInfo");
 
 		JSearchPlugin::registerNatives();
 
-		JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
+		JArgs args;
+
+		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
+
+		JArray arr = helper.callStatic("findAnnotatedClasses",
+						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
+						  args).value<JArray>();
 		qDebug() << "Found" << arr.size() << "annotated classes (SearchPluginInfo)";
 
 		unsigned int classes = arr.size();

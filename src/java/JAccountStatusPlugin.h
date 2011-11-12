@@ -42,13 +42,12 @@ public:
 	inline QString name() { return m_strName; }
 
 	enum AccountState { AccountGood, AccountWarning, AccountBad, AccountError };
-
-	static void findPlugins();
-	static void findPlugins(JObject classLoader);
 signals:
 	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString balance);
 private:
 	JAccountStatusPlugin(const JClass& cls, QString name);
+
+	static void findPlugins();
 
 	static void reportAccountBalance(JNIEnv* env, jobject jthis, jobject state, jstring jbal);
 private:

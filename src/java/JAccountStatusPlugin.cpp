@@ -28,7 +28,6 @@ respects for all of the code used other than "OpenSSL".
 #include "JAccountStatusPlugin.h"
 #include "JString.h"
 #include "JArray.h"
-#include "JVM.h"
 #include <QtDebug>
 
 QList<QPair<QString,QString> > JAccountStatusPlugin::m_listPlugins;
@@ -94,18 +93,16 @@ QList<JAccountStatusPlugin*> JAccountStatusPlugin::createStatusPlugins()
 
 void JAccountStatusPlugin::findPlugins()
 {
-	findPlugins(JVM::instance()->getExtensionClassLoader());
-}
-
-void JAccountStatusPlugin::findPlugins(JObject classLoader)
-{
+	JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 	JClass annotation("info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo");
 
 	QList<QVariant> args;
 
 	args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-	JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
+	JArray arr = helper.callStatic("findAnnotatedClasses",
+					  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
+					  args).value<JArray>();
 	qDebug() << "Found" << arr.size() << "annotated classes (AccountStatusPluginInfo)";
 
 	int classes = arr.size();
