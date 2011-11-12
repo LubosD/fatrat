@@ -299,18 +299,13 @@ void JavaDownload::deriveName()
 
 void JavaDownload::globalInit()
 {
-	findClasses(JVM::instance()->getExtensionClassLoader());
-}
-
-void JavaDownload::findClasses(JObject classLoader)
-{
 	// search for plugins
 	try
 	{
 		JClass annConfigDialog("info.dolezel.fatrat.plugins.annotations.ConfigDialog");
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo");
 
-		JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
+		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
 		qDebug() << "Found" << arr.size() << "annotated classes (DownloadPluginInfo)";
 
 		int classes = arr.size();

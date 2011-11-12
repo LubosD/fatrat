@@ -87,17 +87,16 @@ int JavaExtractor::acceptable(QString uri, bool, const EngineEntry* e)
 
 void JavaExtractor::globalInit()
 {
-	findClasses(JVM::instance()->getExtensionClassLoader());
-}
-
-void JavaExtractor::findClasses(JObject classLoader)
-{
 	try {
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.ExtractorPluginInfo");
 
 		JExtractorPlugin::registerNatives();
 
-		JArray arr = classLoader.call("findAnnotatedClasses", JSignature().addString().add("java.lang.Class").retA("java.lang.Class"), JArgs() << "info.dolezel.fatrat.plugins" << annotation.toVariant()).value<JObject>().toArray();
+		JArgs args;
+
+		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
+
+		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
 		qDebug() << "Found" << arr.size() << "annotated classes (ExtractorPluginInfo)";
 
 		int classes = arr.size();
