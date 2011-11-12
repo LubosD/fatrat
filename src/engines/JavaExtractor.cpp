@@ -37,7 +37,6 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JByteBuffer.h"
 #include "java/JMap.h"
 #include "java/JException.h"
-#include "java/JVM.h"
 #include <cassert>
 #include <QtDebug>
 
@@ -88,6 +87,7 @@ int JavaExtractor::acceptable(QString uri, bool, const EngineEntry* e)
 void JavaExtractor::globalInit()
 {
 	try {
+		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.ExtractorPluginInfo");
 
 		JExtractorPlugin::registerNatives();
@@ -96,7 +96,9 @@ void JavaExtractor::globalInit()
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
+		JArray arr = helper.callStatic("findAnnotatedClasses",
+						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
+						  args).value<JArray>();
 		qDebug() << "Found" << arr.size() << "annotated classes (ExtractorPluginInfo)";
 
 		int classes = arr.size();

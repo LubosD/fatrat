@@ -61,19 +61,6 @@ JavaUpload::~JavaUpload()
 	curl_formfree(m_postData);
 	m_postData = 0;
 }
-
-QStringList JavaUpload::getConfigDialogs()
-{
-	QStringList rv;
-	QList<JavaEngine> engines = m_engines.values();
-	foreach (const JavaEngine& e, engines)
-	{
-		if (!e.configDialog.isEmpty())
-			rv << e.configDialog;
-	}
-
-	return rv;
-}
 	
 void JavaUpload::globalInit()
 {
@@ -85,13 +72,16 @@ void JavaUpload::globalInit()
 	{
 		JUploadPlugin::registerNatives();
 
-		JClass annConfigDialog("info.dolezel.fatrat.plugins.annotations.ConfigDialog");
+		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 		JClass annotation("info.dolezel.fatrat.plugins.annotations.UploadPluginInfo");
+		JClass annConfigDialog("info.dolezel.fatrat.plugins.annotations.ConfigDialog");
 		QList<QVariant> args;
 
 		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-		JArray arr = JVM::instance()->findAnnotatedClasses(annotation);
+		JArray arr = helper.callStatic("findAnnotatedClasses",
+						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
+						  args).value<JArray>();
 		qDebug() << "Found" << arr.size() << "annotated classes (UploadPluginInfo)";
 
 		int classes = arr.size();
@@ -113,10 +103,7 @@ void JavaUpload::globalInit()
 				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString() };
 
 				if (!cfgDlg.isNull())
-				{
-					QString path = cfgDlg.call("value", JSignature().retString()).toString();
-					e.configDialog = JVM::instance()->loadDataFile(obj, path);
-				}
+					e.configDialog = cfgDlg.call("value", JSignature().retString()).toString();
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;

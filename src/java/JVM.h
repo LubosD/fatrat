@@ -38,12 +38,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QMap>
 #include <QString>
 #include "JObject.h"
-#include "JClass.h"
-#include "JArray.h"
 
 class JObject;
-class JClass;
-class JArray;
 
 class JVM
 {
@@ -58,9 +54,6 @@ public:
 
 	void detachCurrentThread();
 	void throwException(JObject& obj);
-	JClass loadExtensionClass(QString clsName);
-	JArray findAnnotatedClasses(JClass ann);
-	QString loadDataFile(JClass cls, QString path);
 private:
 	static QString getClassPath();
 	void jvmStartup(QString path);
@@ -68,7 +61,6 @@ private:
 	static JVM* m_instance;
 	JavaVM* m_jvm;
 	QThreadStorage<JNIEnv**> m_env;
-	JObject m_extLoader;
 };
 
 #endif // JVM_H

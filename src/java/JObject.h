@@ -77,7 +77,6 @@ public:
 
 	bool isNull() const;
 	JClass getClass() const;
-	JClass toClassObject() const { return JClass(m_object); }
 
 #if !defined(WITH_CXX0X)
 	template<typename T1> QVariant call(const char *name, const JSignature& sig, T1 a1)
@@ -133,7 +132,7 @@ public:
 
 	QVariant toVariant() const;
 	jobject getLocalRef();
-protected:
+private:
 	void construct(const JClass& cls, const char* sig, JArgs args);
 protected:
 	jobject m_object;

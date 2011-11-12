@@ -31,7 +31,6 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "config.h"
 #include "engines/JavaDownload.h"
-#include "engines/JavaUpload.h"
 #include "Settings.h"
 #include <QNetworkReply>
 #include <QMessageBox>
@@ -342,9 +341,8 @@ void SettingsJavaPluginForm::finishedDownload(QNetworkReply* reply)
 	if (!item.second)
 	{
 		// load it
-		// JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
-		// helper.callStatic("loadPackage", JSignature().addString(), JArgs() << fullPath);
-		// TODO
+		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+		helper.callStatic("loadPackage", JSignature().addString(), JArgs() << fullPath);
 	}
 
 	downloadNext();
@@ -375,16 +373,20 @@ void SettingsJavaPluginForm::cancelDownload()
 
 void SettingsJavaPluginForm::setupExtensionPages()
 {
+	JClass nativeHelpers("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
 	QStringList dlgs = JavaDownload::getConfigDialogs();
-
-	dlgs << JavaUpload::getConfigDialogs();
 
 	foreach (QString dlg, dlgs)
 	{
+		QString xml = nativeHelpers.callStatic("loadDialogFile", JSignature().addString().retString(), JArgs() << dlg).toString();
+
+		if (xml.isEmpty())
+			continue;
+
 		QDomDocument doc;
 		QDomElement root;
 
-		if (!doc.setContent(dlg))
+		if (!doc.setContent(xml))
 			continue;
 
 		root = doc.documentElement();
