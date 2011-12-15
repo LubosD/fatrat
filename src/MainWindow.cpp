@@ -1871,12 +1871,13 @@ void MainWindow::updatesChecked()
 
 	if (numUpdates)
 	{
-		if (!m_bUpdatesBubbleManuallyClosed)
+		if (!m_bUpdatesBubbleManuallyClosed && isVisible())
 		{
-			BalloonTip* test = new BalloonTip(this, QIcon(), tr("Extension updates"),
+			BalloonTip* baloonTip = new BalloonTip(this, QIcon(), tr("Extension updates"),
 							  tr("There are %1 updates available.").arg(numUpdates));
-			test->balloon(m_updates->mapToGlobal(QPoint(8, 8)) , 0);
-			connect(test, SIGNAL(messageClicked()), this, SLOT(showSettings()));
+			baloonTip->balloon(m_updates->mapToGlobal(QPoint(8, 8)) , 0);
+			connect(baloonTip, SIGNAL(messageClicked()), this, SLOT(showSettings()));
+			connect(baloonTip, SIGNAL(manuallyClosed()), this, SLOT(updateBubbleManuallyClosed()));
 			m_updates->setToolTip(tr("Extension updates: %1").arg(numUpdates));
 			m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
 		}
