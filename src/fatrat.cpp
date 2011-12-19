@@ -124,7 +124,16 @@ int main(int argc,char** argv)
 {
 	QApplication* app = 0;
 	int rval;
-	QString arg = argsToArg(argc, argv);
+	QString arg;
+	
+	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
+	qsrand(time(0));
+	
+	QCoreApplication::setOrganizationName("Dolezel");
+	QCoreApplication::setOrganizationDomain("dolezel.info");
+	QCoreApplication::setApplicationName("fatrat");
+	
+	arg = argsToArg(argc, argv);
 
 	if (!m_bManualGraphicsSystem)
 		QApplication::setGraphicsSystem("raster"); // native is too slow on Linux
@@ -133,13 +142,6 @@ int main(int argc,char** argv)
 
 	g_argc = argc;
 	g_argv = argv;
-
-	qsrand(time(0));
-	
-	QCoreApplication::setOrganizationName("Dolezel");
-	QCoreApplication::setOrganizationDomain("dolezel.info");
-	QCoreApplication::setApplicationName("fatrat");
-	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
 
 	if(!m_bForceNewInstance)
 		processSession(arg);
