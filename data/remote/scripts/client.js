@@ -723,7 +723,13 @@ function actionAdd(link) {
 				
 				// send URLs
 				urls = $('#new-transfer-links').val().split(/\s+/g);
-				if (urls.length > 0 && urls[0] != "") {
+				for (var i = 0; i < urls.length; i++) {
+					if (urls[i].length == 0) {
+						urls.splice(i, 1);
+						i--;
+					}
+				}
+				if (urls.length > 0 && urls.length > 0) {
 					client.Queue_addTransfers(false, queue, urls, _class, target, paused, up, down);
 				}
 				
