@@ -88,6 +88,9 @@ void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInte
 		qDebug() << "postData:" << JString(postData).str();
 
 	QNetworkRequest nr(url);
+	
+	if (postData)
+		nr.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
 	if (jmap)
 	{
@@ -97,9 +100,6 @@ void JPlugin::fetchPage(JNIEnv* env, jobject jthis, jstring jurl, jobject cbInte
 		map.toQMap(qmap);
 
 		nr.setRawHeader("User-Agent", "FatRat/" VERSION);
-		
-		if (postData)
-			nr.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 		
 		for (QMap<QString,QString>::iterator it = qmap.begin(); it != qmap.end(); it++)
 			nr.setRawHeader(it.key().toUtf8(), it.value().toUtf8());
