@@ -46,6 +46,7 @@ respects for all of the code used other than "OpenSSL".
 #include <iostream>
 #include <ctime>
 #include <cstring>
+#include <sys/types.h>
 #include <errno.h>
 
 #include "MainWindow.h"
@@ -106,13 +107,14 @@ static void testJava();
 static void daemonize();
 static void initDbus();
 static void testNotif();
+static void writePidFile();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
 static bool m_bManualGraphicsSystem = false, m_bDisableJava = false, m_bJavaForceSearch = false;
 static QString m_strUnitTest;
-static QString m_strSettingsPath;
+static QString m_strSettingsPath, m_strPidFile;
 
 static int g_argc = -1;
 static char** g_argv = 0;
@@ -200,6 +202,9 @@ int main(int argc,char** argv)
 	new HttpService;
 #endif
 	
+	if (!m_strPidFile.isEmpty())
+		writePidFile();
+	
 	if(m_bStartGUI)
 		g_wndMain = new MainWindow(m_bStartHidden);
 	else
@@ -278,6 +283,8 @@ QString argsToArg(int argc,char** argv)
 			m_bStartGUI = false;
 			daemonize();
 		}
+		else if (!strcasecmp(argv[i], "--pidfile") || !strcasecmp(argv[i], "-p"))
+			m_strPidFile = argv[++i];
 		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
 			m_strUnitTest = argv[++i];
 		else if(!strcasecmp(argv[i], "--no-java"))
@@ -588,6 +595,7 @@ void showHelp()
 			"-d, --daemon     \tDaemonize the application (assumes --nogui)\n"
 			"-c, --config file\tUse file as settings storage\n"
 			"--syslog         \tPrint global log contents to syslog\n"
+			"-p, --pidfile file\tSave PID to file\n"
 #ifdef WITH_JPLUGINS
 			"--no-java        \tDisable support for Java extensions\n"
 			//"--force-jre-search\tIgnore the cached JRE location\n"
@@ -680,3 +688,16 @@ void initDbus()
 	QDBusConnection::sessionBus().registerObject("/", impl);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 }
+
+void writePidFile()
+{
+	QFile file("m_strPidFile");
+	if (!file.open(QIODevice::WriteOnly))
+	{
+		std::cerr << "Cannot write the pid file\n";
+		exit(errno);
+	}
+	
+	file.write(QByteArray::number(getpid()));
+}
+
