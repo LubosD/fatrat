@@ -691,7 +691,7 @@ void initDbus()
 
 void writePidFile()
 {
-	QFile file("m_strPidFile");
+	QFile file(m_strPidFile);
 	if (!file.open(QIODevice::WriteOnly))
 	{
 		std::cerr << "Cannot write the pid file\n";
