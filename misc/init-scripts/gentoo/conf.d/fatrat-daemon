@@ -1,0 +1,4 @@
+
+# Set the username to run the web interface under
+# You can also use the user:group form, see fatrat(1)
+FATRAT_USER="johndoe"

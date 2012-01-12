@@ -1,0 +1,42 @@
+#!/sbin/runscript
+
+PIDFILE="/var/run/fatrat-daemon.pid"
+
+depend() {
+	need net
+	use logger
+}
+
+getvalue() {
+	fc=$(which fatrat-conf)
+	val=$(su -c "$fc '$1'" $FATRAT_USER)
+	
+	if [ "$val" == "ERROR*" ]; then
+	    exit
+	fi
+	
+	echo ${val#* =}
+}
+
+start() {
+	webif=$(getvalue "remote/enable")
+	if [ $webif != "true" ]; then
+		ewarn "Enabling FatRat Web Interface..."
+		
+		fc=$(which fatrat-conf)
+		su -c "$fc -w '$1=true'"
+
+		ewarn "The password is '$(getvalue remote/password)'"
+	fi
+
+	ebegin "Starting the FatRat daemon"
+	start-stop-daemon --start -P --exec "$(which fatrat)" -- -d -p "$PIDFILE" -u "$FATRAT_USER"
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping the FatRat daemon"
+	start-stop-daemon --stop -P -R 5 --user $FATRAT_USER --pidfile "$PIDFILE" -- $(which fatrat)
+	eend $?
+}
+
