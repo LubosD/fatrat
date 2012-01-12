@@ -46,6 +46,8 @@ respects for all of the code used other than "OpenSSL".
 #include <iostream>
 #include <ctime>
 #include <cstring>
+#include <pwd.h>
+#include <grp.h>
 #include <sys/types.h>
 #include <errno.h>
 
@@ -108,13 +110,15 @@ static void daemonize();
 static void initDbus();
 static void testNotif();
 static void writePidFile();
+static void dropPrivileges();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
 static bool m_bManualGraphicsSystem = false, m_bDisableJava = false, m_bJavaForceSearch = false;
 static QString m_strUnitTest;
-static QString m_strSettingsPath, m_strPidFile;
+static QString m_strSettingsPath;
+static QString m_strPidFile, m_strSetUser;
 
 static int g_argc = -1;
 static char** g_argv = 0;
@@ -139,6 +143,11 @@ int main(int argc,char** argv)
 
 	if (!m_bManualGraphicsSystem)
 		QApplication::setGraphicsSystem("raster"); // native is too slow on Linux
+
+	if (!m_strPidFile.isEmpty())
+		writePidFile();
+	if (!m_strSetUser.isEmpty())
+		dropPrivileges();
 	
 	app = new MyApplication(argc, argv, m_bStartGUI);
 
@@ -201,9 +210,6 @@ int main(int argc,char** argv)
 	XmlRpcService::globalInit();
 	new HttpService;
 #endif
-	
-	if (!m_strPidFile.isEmpty())
-		writePidFile();
 	
 	if(m_bStartGUI)
 		g_wndMain = new MainWindow(m_bStartHidden);
@@ -285,6 +291,8 @@ QString argsToArg(int argc,char** argv)
 		}
 		else if (!strcasecmp(argv[i], "--pidfile") || !strcasecmp(argv[i], "-p"))
 			m_strPidFile = argv[++i];
+		else if (!strcasecmp(argv[i], "--user") || !strcasecmp(argv[i], "-u"))
+			m_strSetUser = argv[++i];
 		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
 			m_strUnitTest = argv[++i];
 		else if(!strcasecmp(argv[i], "--no-java"))
@@ -596,6 +604,7 @@ void showHelp()
 			"-c, --config file\tUse file as settings storage\n"
 			"--syslog         \tPrint global log contents to syslog\n"
 			"-p, --pidfile file\tSave PID to file\n"
+			"-u, --user user[:grp]\tSetuid to user, setgid to grp\n"
 #ifdef WITH_JPLUGINS
 			"--no-java        \tDisable support for Java extensions\n"
 			//"--force-jre-search\tIgnore the cached JRE location\n"
@@ -694,6 +703,7 @@ void writePidFile()
 	QFile file(m_strPidFile);
 	if (!file.open(QIODevice::WriteOnly))
 	{
+		Logger::global()->enterLogMessage("Cannot write the pid file");
 		std::cerr << "Cannot write the pid file\n";
 		exit(errno);
 	}
@@ -701,3 +711,52 @@ void writePidFile()
 	file.write(QByteArray::number(getpid()));
 }
 
+void dropPrivileges()
+{
+	QByteArray user, group;
+	int p = m_strSetUser.indexOf(':');
+
+	if (p != -1)
+	{
+		user = m_strSetUser.left(p).toLatin1();
+		group = m_strSetUser.mid(p+1).toLatin1();
+	}
+	else
+		user = m_strSetUser.toLatin1();
+
+	if (!group.isEmpty())
+	{
+		struct group* g = getgrnam(group.constData());
+		if (!g)
+		{
+			Logger::global()->enterLogMessage("Cannot getgrnam() - invalid group name?");
+			std::cerr << "Cannot getgrnam() - invalid group name?\n";
+			exit(errno);
+		}
+		else if (setgid(g->gr_gid) == -1)
+		{
+			Logger::global()->enterLogMessage("Cannot setgid()");
+			std::cerr << "Cannot setgid()\n";
+			exit(errno);
+		}
+	}
+
+	struct passwd* u = getpwnam(user.constData());
+	if (!u)
+	{
+		Logger::global()->enterLogMessage("Cannot getpwnam() - invalid user name?");
+		std::cerr << "Cannot getpwnam() - invalid group name?\n";
+		exit(errno);
+	}
+	else if (setuid(u->pw_uid) == -1)
+	{
+		Logger::global()->enterLogMessage("Cannot setuid()");
+		std::cerr << "Cannot setuid()\n";
+		exit(errno);
+	}
+	else
+	{
+		setenv("HOME", u->pw_dir, true);
+		chdir(u->pw_dir);
+	}
+}

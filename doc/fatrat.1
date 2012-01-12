@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH FATRAT 1 "November 6, 2011"
+.TH FATRAT 1 "January 12, 2012"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -57,6 +57,9 @@ Print global log contents to syslog.
 .TP
 .B \-p, \-\-pidfile \fIfile\fR
 Write the PID to \fIfile\fR.
+.TP
+.B \-u, \-\-user \fIuser\fR[:\fIgroup\fR]
+Setuid to \fIuser\fR and possibly setgid to \fIgroup\fR.
 .TP
 .B \-\-no\-java
 Disable support for Java extensions. Works only if compiled with Java support.
