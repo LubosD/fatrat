@@ -18,14 +18,18 @@ getvalue() {
 	echo ${val#* =}
 }
 
+setvalue() {
+	fc=$(which fatrat-conf)
+	su -c "$fc -w '$1=$2'" $FATRAT_USER
+}
+
 start() {
 	webif=$(getvalue "remote/enable")
 	if [ $webif != "true" ]; then
 		ewarn "Enabling FatRat Web Interface..."
 		
-		fc=$(which fatrat-conf)
-		su -c "$fc -w '$1=true'"
-
+		setvalue remote/enable true
+		
 		ewarn "The password is '$(getvalue remote/password)'"
 	fi
 
