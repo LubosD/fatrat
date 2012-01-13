@@ -1,0 +1,68 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          fatrat-daemon
+# Required-Start:    $syslog $network
+# Required-Stop:     $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: FatRat daemon
+# Description:       FatRat download manager daemon
+
+NAME="fatrat-daemon"
+PIDFILE="/var/run/${NAME}.pid"
+
+. /lib/lsb/init-functions
+. /etc/default/$NAME
+
+getvalue() {
+	fc=$(which fatrat-conf)
+	val=$(su -c "$fc '$1'" $FATRAT_USER)
+	
+	if [ "$val" == "ERROR*" ]; then
+	    exit
+	fi
+	
+	echo ${val#* =}
+}
+
+setvalue() {
+	fc=$(which fatrat-conf)
+	su -c "$fc -w '$1=$2'" $FATRAT_USER
+}
+
+do_start() {
+	webif=$(getvalue "remote/enable")
+	if [ $webif != "true" ]; then
+		log_warning_msg "Enabling FatRat Web Interface..."
+		
+		setvalue remote/enable true
+		
+		log_warning_msg "The password is '$(getvalue remote/password)'"
+	fi
+
+	log_daemon_msg "Starting the FatRat daemon"
+	start-stop-daemon --start --exec "$(which fatrat)" -- -d -p "$PIDFILE" -u "$FATRAT_USER"
+	log_end_msg $?
+}
+
+do_stop() {
+	log_daemon_msg "Stopping the FatRat daemon"
+	start-stop-daemon --stop -R 5 --user $FATRAT_USER --pidfile "$PIDFILE" -- $(which fatrat)
+	log_end_msg $?
+}
+
+case "$1" in
+	start)
+		do_start
+	;;
+
+	stop)
+		do_stop
+	;;
+
+	restart)
+		do_stop
+		do_start
+	;;
+esac
+
