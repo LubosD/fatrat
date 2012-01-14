@@ -617,7 +617,7 @@ QVariant XmlRpcService::Transfer_delete(QStringList luuid, bool withData)
 
 	foreach (QString uuid, luuid)
 	{
-		int pos = HttpService::findTransfer(uuid, &q, &t);
+		int pos = HttpService::findTransfer(uuid, &q, &t, true);
 		qDebug() << "Found transfer at" << pos;
 
 		if(!t)
