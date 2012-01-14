@@ -47,7 +47,7 @@ do_start() {
 
 do_stop() {
 	log_daemon_msg "Stopping the FatRat daemon"
-	start-stop-daemon --stop -R 5 --user $FATRAT_USER --pidfile "$PIDFILE" -- $(which fatrat)
+	start-stop-daemon --stop --retry -TERM/7/-TERM/2/-KILL/forever --user $FATRAT_USER --pidfile "$PIDFILE" -- $(which fatrat)
 	log_end_msg $?
 }
 

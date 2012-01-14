@@ -40,7 +40,7 @@ start() {
 
 stop() {
 	ebegin "Stopping the FatRat daemon"
-	start-stop-daemon --stop -P -R 5 --user $FATRAT_USER --pidfile "$PIDFILE" -- $(which fatrat)
+	start-stop-daemon --stop -P --retry -TERM/7/-TERM/2/-KILL/forever --user $FATRAT_USER --pidfile "$PIDFILE" -- $(which fatrat)
 	eend $?
 }
 
