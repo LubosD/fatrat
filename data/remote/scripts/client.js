@@ -650,7 +650,7 @@ function sendStateChange(newState) {
 		var inactive = [];
 		
 		for (var i = 0; i < currentTransfers.length; i++) {
-			if (getTransfer(currentTransfers[i]]).state == 'ForcedActive' || getTransfer(currentTransfers[i]).state == 'Active')
+			if (getTransfer(currentTransfers[i]).state == 'ForcedActive' || getTransfer(currentTransfers[i]).state == 'Active')
 				active.push(currentTransfers[i]);
 			else
 				inactive.push(currentTransfers[i]);
