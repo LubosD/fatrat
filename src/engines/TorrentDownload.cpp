@@ -460,15 +460,12 @@ QString TorrentDownload::name() const
 {
 	if(m_handle.is_valid())
 	{
-		if(m_status.state == libtorrent::torrent_status::downloading_metadata)
-		{
+		std::string str = m_handle.name();
+
+		if(str.empty() && m_status.state == libtorrent::torrent_status::downloading_metadata)
 			return tr("Downloading metadata: %1%").arg((int) m_status.progress*100);
-		}
 		else
-		{
-			std::string str = m_handle.name();
 			return QString::fromUtf8(str.c_str());
-		}
 	}
 	else if(m_pFileDownload != 0)
 		return tr("Downloading the .torrent file...");
