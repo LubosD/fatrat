@@ -238,7 +238,6 @@ set(fatrat_SRCS
 	src/dbus/DbusAdaptor.cpp
 	src/dbus/DbusImpl.cpp
 	src/tools/HashDlg.cpp
-	src/tools/RapidTools.cpp
 	src/tools/VideoFetcher.cpp
 	src/util/ExtendedAttributes.cpp
 	src/util/BalloonTip.cpp
@@ -303,7 +302,6 @@ set(fatrat_MOC_HDRS
 	src/captcha/CaptchaQtDlg.h
 	
 	src/tools/HashDlg.h
-	src/tools/RapidTools.h
 	src/tools/VideoFetcher.h
 	
 	src/rss/RssFetcher.h
@@ -343,7 +341,6 @@ set(fatrat_UIS
 	src/captcha/CaptchaQtDlg.ui
 
 	src/tools/HashDlg.ui
-	src/tools/RapidTools.ui
 	src/tools/VideoFetcher.ui
 	
 	src/rss/SettingsRssForm.ui
