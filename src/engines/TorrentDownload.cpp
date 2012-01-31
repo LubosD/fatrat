@@ -1337,8 +1337,8 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 			d->enterLogMessage(tr("Successfully retrieved the metadata"));
 			d->storeTorrent();
 
-			if (!m_info)
-				m_info = new libtorrent::torrent_info(boost::filesystem::path( path.constData() ));
+			if (!d->m_info)
+				d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
 
 			d->createDefaultPriorityList();
 		}
