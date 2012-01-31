@@ -1140,7 +1140,7 @@ QString TorrentDownload::message() const
 			state = tr("Downloading metadata");
 			break;
 		case libtorrent::torrent_status::checking_resume_data:
-			state = tr("Checking resume data");
+			state = tr("Checking resume data: %1%").arg(m_status.progress*100.f);
 			break;
 		}
 	}

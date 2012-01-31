@@ -54,6 +54,7 @@ private:
 public slots:
 	void doWork();
 	void transferStateChanged(Transfer*,Transfer::State,Transfer::State);
+	void transferModeChanged(Transfer*,Transfer::Mode,Transfer::Mode);
 private:
 	static QueueMgr* m_instance;
 	QTimer* m_timer;

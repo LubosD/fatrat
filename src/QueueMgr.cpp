@@ -47,6 +47,7 @@ QueueMgr::QueueMgr() : m_nCycle(0), m_down(0), m_up(0)
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(doWork()), Qt::DirectConnection);
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(transferStateChanged(Transfer*,Transfer::State,Transfer::State)));
+	connect(TransferNotifier::instance(), SIGNAL(modeChanged(Transfer*,Transfer::Mode,Transfer::Mode)), this, SLOT(transferModeChanged(Transfer*,Transfer::Mode,Transfer::Mode)));
 	
 	m_timer->start(1000);
 }
@@ -250,6 +251,15 @@ void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::Stat
 
 	if (now != Transfer::Paused)
 		m_paused.clear();
+}
+
+void QueueMgr::transferModeChanged(Transfer* t, Transfer::Mode prev, Transfer::Mode now)
+{
+	if (t->state() == Transfer::ForcedActive && now == Transfer::Upload && prev == Transfer::Download)
+	{
+		if (getSettingsValue("drop_forced_on_upload").toBool())
+			t->setState(Transfer::Active);
+	}
 }
 
 Queue* QueueMgr::findQueue(Transfer* t)
