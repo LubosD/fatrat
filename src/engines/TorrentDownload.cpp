@@ -1020,12 +1020,13 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 	{
 		setXMLProperty(doc, map, "torrent_file", storedTorrentName());
 		
-		if(m_handle.is_valid())
+		if(m_handle.is_valid() && m_status.state != libtorrent::torrent_status::downloading_metadata)
 		{
 			m_mutexAlerts.lock();
 			m_handle.save_resume_data();
 			
-			while(true)
+			int i;
+			for(i = 0; i < 3;)
 			{
 				libtorrent::alert* aaa;
 				std::auto_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
@@ -1033,6 +1034,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 				if((aaa = a.get()) == 0)
 				{
 					Sleeper::msleep(250);
+					i++;
 					continue;
 				}
 				
@@ -1050,6 +1052,9 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 					m_worker->processAlert(aaa);
 			}
 			m_mutexAlerts.unlock();
+
+			if (i == 3)
+				std::cout << "Torrent state did not get saved!\n";
 		}
 	}
 	
