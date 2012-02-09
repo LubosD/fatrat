@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/epoll.h>
 #include <errno.h>
 #include <alloca.h>
+#include <unistd.h>
 
 EpollPoller::EpollPoller(QObject* parent)
 	: Poller(parent)

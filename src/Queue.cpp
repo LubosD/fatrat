@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "QueueMgr.h"
 #include "Settings.h"
 #include "engines/PlaceholderTransfer.h"
+#include <unistd.h>
 #include <QList>
 #include <QReadWriteLock>
 #include <QDir>
