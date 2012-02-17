@@ -62,7 +62,7 @@
         <location filename="../src/AboutDlg.ui" line="223"/>
         <location filename="../ui_AboutDlg.h" line="268"/>
         <source>Java extension support</source>
-        <translation type="unfinished"></translation>
+        <translation>Suport per a extensions Java</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="68"/>
@@ -152,13 +152,13 @@
         <location filename="../src/remote/CertGenDlg.ui" line="14"/>
         <location filename="../ui_CertGenDlg.h" line="68"/>
         <source>Generate a self-signed certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Genera un certificat autofirmat</translation>
     </message>
     <message>
         <location filename="../src/remote/CertGenDlg.ui" line="20"/>
         <location filename="../ui_CertGenDlg.h" line="69"/>
         <source>Hostname for the generated self-signed certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de la màquina per al certificat autofirmat</translation>
     </message>
 </context>
 <context>
@@ -340,7 +340,7 @@
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="1174"/>
         <source>This transfer was converted from a HTTP/FTP download</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta transferència es va convertir a partir d&apos;una descàrrega HTTP/FTP</translation>
     </message>
 </context>
 <context>
@@ -398,61 +398,61 @@
         <location filename="../src/tools/FileSharingSearch.ui" line="14"/>
         <location filename="../ui_FileSharingSearch.h" line="121"/>
         <source>File sharing search</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca fitxers compartits</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="30"/>
         <location filename="../ui_FileSharingSearch.h" line="122"/>
         <source>Search string:</source>
-        <translation type="unfinished">Cerca cadena:</translation>
+        <translation>Cerca cadena:</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="40"/>
         <location filename="../ui_FileSharingSearch.h" line="123"/>
         <source>Search</source>
-        <translation type="unfinished">Cercar</translation>
+        <translation>Cercar</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="53"/>
         <location filename="../ui_FileSharingSearch.h" line="124"/>
         <source>Progress:</source>
-        <translation type="unfinished">Progrés:</translation>
+        <translation>Progrés:</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="69"/>
         <location filename="../ui_FileSharingSearch.h" line="125"/>
         <source>%v/%m</source>
-        <translation type="unfinished">%v/%m</translation>
+        <translation>%v/%m</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="79"/>
         <location filename="../ui_FileSharingSearch.h" line="126"/>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation>Descàrrega</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="108"/>
         <location filename="../ui_FileSharingSearch.h" line="131"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="113"/>
         <location filename="../ui_FileSharingSearch.h" line="130"/>
         <source>Size</source>
-        <translation type="unfinished">Mida</translation>
+        <translation>Mida</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="118"/>
         <location filename="../ui_FileSharingSearch.h" line="129"/>
         <source>Source</source>
-        <translation type="unfinished">Font</translation>
+        <translation>Font</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="123"/>
         <location filename="../ui_FileSharingSearch.h" line="128"/>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Info</translation>
     </message>
 </context>
 <context>
@@ -853,7 +853,7 @@ dades descarregades</translation>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="145"/>
         <source>Restarting the service due to a port or SSL config change</source>
-        <translation type="unfinished"></translation>
+        <translation>Reinicieu el servei a causa d&apos;un port o un canvi de configuració SSL</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="210"/>
@@ -863,33 +863,33 @@ dades descarregades</translation>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="214"/>
         <source>Failed to start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Error en iniciar:%1</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="226"/>
         <source>SSL key file not found, disabling HTTPS</source>
-        <translation type="unfinished"></translation>
+        <translation>La clau SSL no es troba, HTTPS deshabilitat</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="232"/>
         <source>Loading a SSL key from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Càrrega una clau SSL de%1</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="240"/>
         <source>Running in plain HTTP mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Córrer en mode HTTP plain</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="569"/>
         <location filename="../src/remote/HttpService.cpp" line="573"/>
         <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut generar el certificat, si us plau assegureu-vos de tenir &apos;openssl&apos; i &apos;sed&apos; instal·lat.</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="582"/>
         <source>Failed to open %1 for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut obrir%1 per escriptura.</translation>
     </message>
 </context>
 <context>
@@ -986,7 +986,7 @@ dades descarregades</translation>
     <message>
         <location filename="../src/java/JUploadPlugin.cpp" line="101"/>
         <source>Unknown class: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Classe desconeguda:%1</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../ui_JavaAccountStatusWidget.h" line="91"/>
         <location filename="../ui_JavaAccountStatusWidget.h" line="92"/>
         <source>Premium account status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat del compte premium</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaAccountStatusWidget.cpp" line="50"/>
         <source>Requesting...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licitant...</translation>
     </message>
 </context>
 <context>
@@ -1303,17 +1303,17 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="205"/>
         <source>JavaExtractor: Not an HTTP(S) URI, passing the URI directly to the extension</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaExtractor: No és una HTTP (S) URI, passant URI directament a l&apos;extensió</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="220"/>
         <source>Empty or invalid link list</source>
-        <translation type="unfinished"></translation>
+        <translation>Enllaç buit o no és vàlid</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="231"/>
         <source>Failed to detect URL class: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut detectar la classe URL:%1</translation>
     </message>
 </context>
 <context>
@@ -1321,12 +1321,12 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
     <message>
         <location filename="../src/engines/JavaUpload.cpp" line="335"/>
         <source>Download link: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Descàrrega enllaç:%1</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaUpload.cpp" line="338"/>
         <source>Kill link: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar enllaç:%1</translation>
     </message>
 </context>
 <context>
@@ -1390,13 +1390,13 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
     <message>
         <location filename="../src/MainWindow.cpp" line="172"/>
         <source>Premium account status...</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat del compte Premium...</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="182"/>
         <location filename="../src/MainWindow.cpp" line="1868"/>
         <source>Extension updates: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitzacions d&apos;extensió: %1</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1067"/>
@@ -1437,12 +1437,12 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
     <message>
         <location filename="../src/MainWindow.cpp" line="1865"/>
         <source>Extension updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitzacions d&apos;extensions</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1866"/>
         <source>There are %1 updates available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hi ha %1 actualitzacions disponibles.</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="184"/>
@@ -1628,7 +1628,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="597"/>
         <location filename="../ui_MainWindow.h" line="655"/>
         <source>Ctrl+Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+R</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="602"/>
@@ -1640,7 +1640,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="605"/>
         <location filename="../ui_MainWindow.h" line="657"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="626"/>
@@ -1682,7 +1682,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="682"/>
         <location filename="../ui_MainWindow.h" line="670"/>
         <source>Ctrl+Home</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Home</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="691"/>
@@ -1694,7 +1694,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="694"/>
         <location filename="../ui_MainWindow.h" line="672"/>
         <source>Ctrl+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Up</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="703"/>
@@ -1706,7 +1706,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="706"/>
         <location filename="../ui_MainWindow.h" line="674"/>
         <source>Ctrl+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Down</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="715"/>
@@ -1718,7 +1718,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="718"/>
         <location filename="../ui_MainWindow.h" line="676"/>
         <source>Ctrl+End</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+End</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="727"/>
@@ -1730,7 +1730,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="730"/>
         <location filename="../ui_MainWindow.h" line="678"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="735"/>
@@ -1762,7 +1762,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="764"/>
         <location filename="../ui_MainWindow.h" line="686"/>
         <source>Ctrl+.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+.</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="769"/>
@@ -1786,7 +1786,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="792"/>
         <location filename="../ui_MainWindow.h" line="690"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="813"/>
@@ -1834,7 +1834,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/MainWindow.ui" line="866"/>
         <location filename="../ui_MainWindow.h" line="700"/>
         <source>Pause all transfers</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausar totes les transferències</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1052"/>
@@ -1915,7 +1915,7 @@ Aquesta ordre requereix arguments especials. Vegi més en la documentació.</tra
         <location filename="../src/engines/MetalinkDownload.cpp" line="171"/>
         <location filename="../src/engines/MetalinkDownload.cpp" line="179"/>
         <source>Failed to read the metalink file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Error en llegir el fitxer de Metalink: %1</translation>
     </message>
     <message>
         <location filename="../src/engines/MetalinkDownload.cpp" line="271"/>
@@ -2093,17 +2093,17 @@ Missatge: %2</translation>
     <message>
         <location filename="../src/notify/Notification.cpp" line="44"/>
         <source>Libnotify not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es troba Libnotify.</translation>
     </message>
     <message>
         <location filename="../src/notify/Notification.cpp" line="70"/>
         <source>Failed to create a notification</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut crear la notificació</translation>
     </message>
     <message>
         <location filename="../src/notify/Notification.cpp" line="75"/>
         <source>Failed to update a notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Error actualitzant la notificació</translation>
     </message>
 </context>
 <context>
@@ -2111,12 +2111,12 @@ Missatge: %2</translation>
     <message>
         <location filename="../src/engines/PlaceholderTransfer.cpp" line="58"/>
         <source>Error: transfer class %1 not found, this is a placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Error: la transferència %1 no es troba, això és un espai reservat</translation>
     </message>
     <message>
         <location filename="../src/engines/PlaceholderTransfer.cpp" line="67"/>
         <source>This is a placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Espai reservat</translation>
     </message>
 </context>
 <context>
@@ -2184,7 +2184,7 @@ Missatge: %2</translation>
     <message>
         <location filename="../src/AppTools.cpp" line="57"/>
         <source>File sharing server search</source>
-        <translation type="unfinished"></translation>
+        <translation>Ús compartit d&apos;arxius del servidor de cerca</translation>
     </message>
     <message>
         <location filename="../src/fatrat.cpp" line="327"/>
@@ -2377,27 +2377,27 @@ Per iniciar FatRat de tota manera, passi l&apos;argument --force.</translation>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="767"/>
         <source>Couldn&apos;t autodetect transfer type for &quot;%1&quot;</source>
-        <translation type="unfinished">No s&apos;ha pogut detectar el tipus de transferència de &quot;%1&quot;</translation>
+        <translation>No s&apos;ha pogut detectar el tipus de transferència de &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="780"/>
         <source>Failed to create a class instance.</source>
-        <translation type="unfinished">Error en crear una instància de classe.</translation>
+        <translation>Error en crear una instància de classe.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="828"/>
         <source>Cannot create a temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot crear el fitxer temporal.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="845"/>
         <source>No download class is able to handle this file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap tipus de descàrrega és capaç de manejar aquest arxiu.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="901"/>
         <source>Settings key array length differs from value length</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida de la Clau de la configuració de sèrie difereix de la longitud del valor</translation>
     </message>
 </context>
 <context>
@@ -3379,7 +3379,7 @@ Per iniciar FatRat de tota manera, passi l&apos;argument --force.</translation>
         <location filename="../src/engines/SettingsHttpForm.ui" line="141"/>
         <location filename="../ui_SettingsHttpForm.h" line="172"/>
         <source>Convert the transfer to BitTorrent if the downloaded file is found to be a torrent</source>
-        <translation type="unfinished"></translation>
+        <translation>Convertir la transferència a BitTorrent, si l&apos;arxiu descarregat és un torrent</translation>
     </message>
 </context>
 <context>
@@ -3465,7 +3465,9 @@ Per iniciar FatRat de tota manera, passi l&apos;argument --force.</translation>
         <source>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.
 &lt;p&gt;
 For details about extension features, visit &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les extensions són un tipus especial de plugins escrits en Java, ofereixen suport per a diversos servidors d&apos;intercanvi d&apos;arxius. Aquí podeu gestionar les extensions instal·lades i actualitzar.
+&lt;p&gt;
+Per a més informació sobre les característiques de les extensió, visiteu &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="39"/>
@@ -3513,7 +3515,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="130"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="217"/>
         <source>Regularly check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprovar amb regularitat si hi ha actualitzacions</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="161"/>
@@ -3532,13 +3534,13 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="217"/>
         <source>Uninstall</source>
         <comment>Uninstall the extension</comment>
-        <translation type="unfinished">Desinstal</translation>
+        <translation>Desinstal</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="225"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="226"/>
         <source>Extension settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració d&apos;extensions</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="156"/>
@@ -3553,17 +3555,17 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="232"/>
         <source>Available extensions (%1)</source>
-        <translation type="unfinished">Extensions disponibles (%2) {1)?}</translation>
+        <translation>Extensions disponibles (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="233"/>
         <source>Updates (%1)</source>
-        <translation type="unfinished">Actualitzacions (%2) {1)?}</translation>
+        <translation>Actualitzacions (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="238"/>
         <source>Do you really wish to uninstall the selected extensions?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu desinstal·lar les extensions seleccionades?</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="255"/>
@@ -4078,51 +4080,51 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/remote/SettingsWebForm.ui" line="75"/>
         <location filename="../ui_SettingsWebForm.h" line="149"/>
         <source>Use HTTPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilitzar HTTPS</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="87"/>
         <location filename="../ui_SettingsWebForm.h" line="150"/>
         <source>PEM file</source>
-        <translation type="unfinished"></translation>
+        <translation>Arxiu PEM</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="97"/>
         <location filename="../ui_SettingsWebForm.h" line="151"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="117"/>
         <location filename="../ui_SettingsWebForm.h" line="152"/>
         <source>Generate a self signed certificate...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generar un certificat signat...</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="74"/>
         <source>Browse for PEM file</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar archivo PEM</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="74"/>
         <source>PEM files (*.pem)</source>
-        <translation type="unfinished"></translation>
+        <translation>Arxiu PEM (*.pem)</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="103"/>
         <location filename="../src/remote/SettingsWebForm.cpp" line="110"/>
         <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut generar un certificat, si us plau segur de tindre &apos;openssl&apos; i &apos;sed&apos; instal·lat.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="122"/>
         <source>Failed to open %1 for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut obrir %1 per escriptura.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="133"/>
         <source>The certificate has been generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>El certificat ha estat generat.</translation>
     </message>
 </context>
 <context>

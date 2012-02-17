@@ -62,7 +62,7 @@
         <location filename="../src/AboutDlg.ui" line="223"/>
         <location filename="../ui_AboutDlg.h" line="268"/>
         <source>Java extension support</source>
-        <translation type="unfinished"></translation>
+        <translation>Soporte para extensiones Java</translation>
     </message>
     <message>
         <location filename="../src/AboutDlg.ui" line="68"/>
@@ -152,13 +152,13 @@
         <location filename="../src/remote/CertGenDlg.ui" line="14"/>
         <location filename="../ui_CertGenDlg.h" line="68"/>
         <source>Generate a self-signed certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Genera un certificado autofirmado</translation>
     </message>
     <message>
         <location filename="../src/remote/CertGenDlg.ui" line="20"/>
         <location filename="../ui_CertGenDlg.h" line="69"/>
         <source>Hostname for the generated self-signed certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de la máquina para el certificado autofirmado</translation>
     </message>
 </context>
 <context>
@@ -340,7 +340,7 @@
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="1174"/>
         <source>This transfer was converted from a HTTP/FTP download</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta transferencia se convirtió a partir de una descarga HTTP/FTP</translation>
     </message>
 </context>
 <context>
@@ -398,61 +398,61 @@
         <location filename="../src/tools/FileSharingSearch.ui" line="14"/>
         <location filename="../ui_FileSharingSearch.h" line="121"/>
         <source>File sharing search</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda de archivos compartidos</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="30"/>
         <location filename="../ui_FileSharingSearch.h" line="122"/>
         <source>Search string:</source>
-        <translation type="unfinished">Buscar cadena:</translation>
+        <translation>Buscar cadena:</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="40"/>
         <location filename="../ui_FileSharingSearch.h" line="123"/>
         <source>Search</source>
-        <translation type="unfinished">Buscar</translation>
+        <translation>Buscar</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="53"/>
         <location filename="../ui_FileSharingSearch.h" line="124"/>
         <source>Progress:</source>
-        <translation type="unfinished">Progreso:</translation>
+        <translation>Progreso:</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="69"/>
         <location filename="../ui_FileSharingSearch.h" line="125"/>
         <source>%v/%m</source>
-        <translation type="unfinished">%v/%m</translation>
+        <translation>%v/%m</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="79"/>
         <location filename="../ui_FileSharingSearch.h" line="126"/>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation>Descargar</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="108"/>
         <location filename="../ui_FileSharingSearch.h" line="131"/>
         <source>Name</source>
-        <translation type="unfinished">Nombre</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="113"/>
         <location filename="../ui_FileSharingSearch.h" line="130"/>
         <source>Size</source>
-        <translation type="unfinished">Tamaño</translation>
+        <translation>Tamaño</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="118"/>
         <location filename="../ui_FileSharingSearch.h" line="129"/>
         <source>Source</source>
-        <translation type="unfinished">Fuente</translation>
+        <translation>Fuente</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="123"/>
         <location filename="../ui_FileSharingSearch.h" line="128"/>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Info</translation>
     </message>
 </context>
 <context>
@@ -851,7 +851,7 @@ datos descargados</translation>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="145"/>
         <source>Restarting the service due to a port or SSL config change</source>
-        <translation type="unfinished"></translation>
+        <translation>Reinicia el servicio debido a un puerto o un cambio de configuración SSL</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="210"/>
@@ -861,33 +861,33 @@ datos descargados</translation>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="214"/>
         <source>Failed to start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al iniciar: %1</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="226"/>
         <source>SSL key file not found, disabling HTTPS</source>
-        <translation type="unfinished"></translation>
+        <translation>La clave SSL no se encuentra, HTTPS deshabilitado</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="232"/>
         <source>Loading a SSL key from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Carga una clave SSL de %1</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="240"/>
         <source>Running in plain HTTP mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Correr en modo HTTP plain</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="569"/>
         <location filename="../src/remote/HttpService.cpp" line="573"/>
         <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo generar el certificado, por favor asegúrese de tener &apos;openssl&apos; y &apos;sed&apos; instalado.</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="582"/>
         <source>Failed to open %1 for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo abrir %1 para escritura.</translation>
     </message>
 </context>
 <context>
@@ -984,7 +984,7 @@ datos descargados</translation>
     <message>
         <location filename="../src/java/JUploadPlugin.cpp" line="101"/>
         <source>Unknown class: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Clase desconocida : %1</translation>
     </message>
 </context>
 <context>
@@ -1247,12 +1247,12 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../ui_JavaAccountStatusWidget.h" line="91"/>
         <location filename="../ui_JavaAccountStatusWidget.h" line="92"/>
         <source>Premium account status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estado de la cuenta premium</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaAccountStatusWidget.cpp" line="50"/>
         <source>Requesting...</source>
-        <translation type="unfinished"></translation>
+        <translation>Solicitando...</translation>
     </message>
 </context>
 <context>
@@ -1299,17 +1299,17 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="205"/>
         <source>JavaExtractor: Not an HTTP(S) URI, passing the URI directly to the extension</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaExtractor: No es una HTTP (S) URI, pasando URI directamente a la extensión</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="220"/>
         <source>Empty or invalid link list</source>
-        <translation type="unfinished"></translation>
+        <translation>Enlace vacío o no es válido</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="231"/>
         <source>Failed to detect URL class: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo detectar la clase URL: %1</translation>
     </message>
 </context>
 <context>
@@ -1317,12 +1317,12 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     <message>
         <location filename="../src/engines/JavaUpload.cpp" line="335"/>
         <source>Download link: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Descarga enlace: %1</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaUpload.cpp" line="338"/>
         <source>Kill link: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar enlace: %1</translation>
     </message>
 </context>
 <context>
@@ -1386,13 +1386,13 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     <message>
         <location filename="../src/MainWindow.cpp" line="172"/>
         <source>Premium account status...</source>
-        <translation type="unfinished"></translation>
+        <translation>Estado de la cuenta Premium...</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="182"/>
         <location filename="../src/MainWindow.cpp" line="1868"/>
         <source>Extension updates: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizaciones de extensión: %1</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1067"/>
@@ -1433,12 +1433,12 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
     <message>
         <location filename="../src/MainWindow.cpp" line="1865"/>
         <source>Extension updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizaciones de extensiónes</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1866"/>
         <source>There are %1 updates available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hay %1 actualizaciones disponibles.</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="184"/>
@@ -1624,7 +1624,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="597"/>
         <location filename="../ui_MainWindow.h" line="655"/>
         <source>Ctrl+Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+R</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="602"/>
@@ -1636,7 +1636,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="605"/>
         <location filename="../ui_MainWindow.h" line="657"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="626"/>
@@ -1678,7 +1678,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="682"/>
         <location filename="../ui_MainWindow.h" line="670"/>
         <source>Ctrl+Home</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Home</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="691"/>
@@ -1690,7 +1690,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="694"/>
         <location filename="../ui_MainWindow.h" line="672"/>
         <source>Ctrl+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Up</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="703"/>
@@ -1702,7 +1702,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="706"/>
         <location filename="../ui_MainWindow.h" line="674"/>
         <source>Ctrl+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Down</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="715"/>
@@ -1714,7 +1714,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="718"/>
         <location filename="../ui_MainWindow.h" line="676"/>
         <source>Ctrl+End</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+End</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="727"/>
@@ -1726,7 +1726,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="730"/>
         <location filename="../ui_MainWindow.h" line="678"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="735"/>
@@ -1756,7 +1756,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="764"/>
         <location filename="../ui_MainWindow.h" line="686"/>
         <source>Ctrl+.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+.</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="769"/>
@@ -1780,7 +1780,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="792"/>
         <location filename="../ui_MainWindow.h" line="690"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="813"/>
@@ -1828,7 +1828,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/MainWindow.ui" line="866"/>
         <location filename="../ui_MainWindow.h" line="700"/>
         <source>Pause all transfers</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausar todas las transferencias</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1052"/>
@@ -1909,7 +1909,7 @@ Este comando requiere argumentos especiales. Vea más en la documentación.</tra
         <location filename="../src/engines/MetalinkDownload.cpp" line="171"/>
         <location filename="../src/engines/MetalinkDownload.cpp" line="179"/>
         <source>Failed to read the metalink file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al leer el archivo de Metalink: %1</translation>
     </message>
     <message>
         <location filename="../src/engines/MetalinkDownload.cpp" line="271"/>
@@ -2087,17 +2087,17 @@ Mensaje: %2</translation>
     <message>
         <location filename="../src/notify/Notification.cpp" line="44"/>
         <source>Libnotify not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se encuentra Libnotify.</translation>
     </message>
     <message>
         <location filename="../src/notify/Notification.cpp" line="70"/>
         <source>Failed to create a notification</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo crear la notificación</translation>
     </message>
     <message>
         <location filename="../src/notify/Notification.cpp" line="75"/>
         <source>Failed to update a notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al actualizar la notificación</translation>
     </message>
 </context>
 <context>
@@ -2105,12 +2105,12 @@ Mensaje: %2</translation>
     <message>
         <location filename="../src/engines/PlaceholderTransfer.cpp" line="58"/>
         <source>Error: transfer class %1 not found, this is a placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Error: la transferencia %1 no se encuentra, esto es un espacio reservado</translation>
     </message>
     <message>
         <location filename="../src/engines/PlaceholderTransfer.cpp" line="67"/>
         <source>This is a placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Espacio reservado</translation>
     </message>
 </context>
 <context>
@@ -2178,7 +2178,7 @@ Mensaje: %2</translation>
     <message>
         <location filename="../src/AppTools.cpp" line="57"/>
         <source>File sharing server search</source>
-        <translation type="unfinished"></translation>
+        <translation>Uso compartido de archivos del servidor de búsqueda</translation>
     </message>
     <message>
         <location filename="../src/fatrat.cpp" line="327"/>
@@ -2371,27 +2371,27 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="767"/>
         <source>Couldn&apos;t autodetect transfer type for &quot;%1&quot;</source>
-        <translation type="unfinished">No se pudo autodetectar el tipo de transferencia de &quot;%1&quot;</translation>
+        <translation>No se pudo autodetectar el tipo de transferencia de &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="780"/>
         <source>Failed to create a class instance.</source>
-        <translation type="unfinished">Error al crear una instancia de clase.</translation>
+        <translation>Error al crear una instancia de clase.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="828"/>
         <source>Cannot create a temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede crear el archivo temporal.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="845"/>
         <source>No download class is able to handle this file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ningún tipo de descarga es capaz de manejar este archivo.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="901"/>
         <source>Settings key array length differs from value length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de clave de la configuración de serie difiere de la longitud del valor</translation>
     </message>
 </context>
 <context>
@@ -3373,7 +3373,7 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
         <location filename="../src/engines/SettingsHttpForm.ui" line="141"/>
         <location filename="../ui_SettingsHttpForm.h" line="172"/>
         <source>Convert the transfer to BitTorrent if the downloaded file is found to be a torrent</source>
-        <translation type="unfinished"></translation>
+        <translation>Convertir la transferencia a BitTorrent, si el archivo descargado es un torrent</translation>
     </message>
 </context>
 <context>
@@ -3459,7 +3459,9 @@ Si desea iniciar FatRat de todos modos, pase el argumento --force.</translation>
         <source>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.
 &lt;p&gt;
 For details about extension features, visit &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Las extensiones son un tipo especial de plugins escritos en Java. Ofrecen soporte para varios servidores de intercambio de archivos. Aquí puede administrar las extensiones instaladas y actualizarlos..
+&lt;p&gt;
+Para más información sobre las características de las extensión, visite&lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="39"/>
@@ -3507,7 +3509,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="130"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="217"/>
         <source>Regularly check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprobar con regularidad si hay actualizaciones</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="161"/>
@@ -3526,13 +3528,13 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="217"/>
         <source>Uninstall</source>
         <comment>Uninstall the extension</comment>
-        <translation type="unfinished">Desinstalar</translation>
+        <translation>Desinstalar</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="225"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="226"/>
         <source>Extension settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuración de extensiónes</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="156"/>
@@ -3547,17 +3549,17 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="232"/>
         <source>Available extensions (%1)</source>
-        <translation type="unfinished">Extensiones disponibles (%2) {1)?}</translation>
+        <translation>Extensiones disponibles (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="233"/>
         <source>Updates (%1)</source>
-        <translation type="unfinished">Actualizaciones (%2) {1)?}</translation>
+        <translation>Actualizaciones (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="238"/>
         <source>Do you really wish to uninstall the selected extensions?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Desea desinstalar las extensiones seleccionadas?</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="255"/>
@@ -4068,51 +4070,51 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/remote/SettingsWebForm.ui" line="75"/>
         <location filename="../ui_SettingsWebForm.h" line="149"/>
         <source>Use HTTPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar HTTPS</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="87"/>
         <location filename="../ui_SettingsWebForm.h" line="150"/>
         <source>PEM file</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo PEM</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="97"/>
         <location filename="../ui_SettingsWebForm.h" line="151"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.ui" line="117"/>
         <location filename="../ui_SettingsWebForm.h" line="152"/>
         <source>Generate a self signed certificate...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generar un certificado firmado...</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="74"/>
         <source>Browse for PEM file</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar archivo PEM</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="74"/>
         <source>PEM files (*.pem)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos PEM (*.pem)</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="103"/>
         <location filename="../src/remote/SettingsWebForm.cpp" line="110"/>
         <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo generar un certificado, por favor asegúrese de que tiene &apos;openssl&apos; y &apos;sed&apos; instalado.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="122"/>
         <source>Failed to open %1 for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo abrir %1 para escritura.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="133"/>
         <source>The certificate has been generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>El certificado ha sido generado.</translation>
     </message>
 </context>
 <context>
