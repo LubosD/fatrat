@@ -730,6 +730,7 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 	bool paused = args[5].toBool();
 	int down = args[6].toInt();
 	int up = args[7].toInt();
+	QReadLocker r(&g_queuesLock);
 	
 	const Transfer::Mode mode = (upload) ? Transfer::Upload : Transfer::Download;
 	
@@ -800,12 +801,9 @@ QVariant XmlRpcService::Queue_addTransfers(QList<QVariant>& args)
 	}
 	catch (const RuntimeException& e)
 	{
-		g_queuesLock.unlock();
 		qDeleteAll(listTransfers);
 		throw XmlRpcError(999, e.what());
 	}
-
-	g_queuesLock.unlock();
 	
 	return uuids;
 }
@@ -822,6 +820,7 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	bool paused = args[6].toBool();
 	int down = args[7].toInt();
 	int up = args[8].toInt();
+	QReadLocker l(&g_queuesLock);
 	
 	QTemporaryFile tempFile;
 	if (!tempFile.open())
@@ -866,11 +865,8 @@ QVariant XmlRpcService::Queue_addTransferWithData(QList<QVariant>& args)
 	{
 		qDebug() << e.what();
 		delete t;
-		g_queuesLock.unlock();
 		throw XmlRpcError(999, e.what());
 	}
-
-	g_queuesLock.unlock();
 	
 	return t->uuid();
 }
