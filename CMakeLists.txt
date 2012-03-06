@@ -411,6 +411,7 @@ if(WITH_JPLUGINS)
 		src/java/JTransferPlugin.cpp
 		src/java/JDownloadPlugin.cpp
 		src/java/JUploadPlugin.cpp
+		src/java/JLinkCheckerPlugin.cpp
 		src/java/JNativeMethod.cpp
 		src/java/JSettings.cpp
 		src/java/JBackgroundWorker.cpp
@@ -436,6 +437,7 @@ if(WITH_JPLUGINS)
 		src/java/JTransferPlugin.h
 		src/java/JDownloadPlugin.h
 		src/java/JAccountStatusPlugin.h
+		src/java/JLinkCheckerPlugin.h
 		src/engines/JavaAccountStatusWidget.h
 		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h
@@ -571,7 +573,8 @@ add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 add_executable(fatrat-conf src/fatrat-conf.cpp)
 
-STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
+# This used to be a workaround until it started causing the exact opposite... oh dear!
+#STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
 #message(STATUS ${pion-net_LIBRARIES})
 target_link_libraries(fatrat -ldl ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
