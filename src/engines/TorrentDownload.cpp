@@ -171,7 +171,15 @@ void TorrentDownload::globalInit()
 	else if(ua.startsWith("Azureus"))
 		fp = libtorrent::fingerprint("AZ", s1, s2, s3, s4);
 	
-	m_session = new libtorrent::session(fp);
+	int lstart,lend;
+	
+	lstart = getSettingsValue("torrent/listen_start").toInt();
+	lend = getSettingsValue("torrent/listen_end").toInt();
+	
+	if(lend < lstart)
+		lend = lstart;
+	
+	m_session = new libtorrent::session(fp, std::pair<int,int>(lstart,lend));
 	m_session->set_alert_mask(libtorrent::alert::all_categories);
 	
 	if(programHasGUI())
@@ -1218,6 +1226,10 @@ const char* TorrentDownload::detailsScript() const
 QVariantMap TorrentDownload::properties() const
 {
 	QVariantMap rv;
+	
+	if (!m_info)
+		return rv;
+	
 	qint64 d, u;
 	QString ratio;
 
