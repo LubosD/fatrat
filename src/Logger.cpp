@@ -78,7 +78,7 @@ void Logger::enterLogMessage(QString msg)
 	if (m_bSysLog)
 	{
 		std::string str = text.toStdString();
-		syslog(LOG_INFO, str.c_str());
+		syslog(LOG_INFO, "%s", str.c_str());
 	}
 }
 
