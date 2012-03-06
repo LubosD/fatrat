@@ -1171,7 +1171,7 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 {
 	qDebug() << "TorrentDownload::process" << method;
 
-	if (m_handle.is_valid())
+	if (m_handle.is_valid() && m_info)
 	{
 		const int WIDTH = 800;
 		if (method == "progress")
