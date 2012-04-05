@@ -38,7 +38,6 @@ respects for all of the code used other than "OpenSSL".
 #	include "tools/FileSharingSearch.h"
 #endif
 
-#include "tools/VideoFetcher.h"
 #include "tools/HashDlg.h"
 
 QList<AppTool> g_tools;
