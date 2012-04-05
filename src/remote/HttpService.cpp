@@ -57,6 +57,7 @@ respects for all of the code used other than "OpenSSL".
 #include <boost/filesystem/fstream.hpp>
 #include "pion/FileService.hpp"
 #include <cstdlib>
+#include <sstream>
 #include <locale.h>
 #include <unistd.h>
 #include <string.h>
@@ -428,6 +429,14 @@ void HttpService::TransferDownloadService::operator()(pion::net::HTTPRequestPtr 
 
 	pion::plugins::DiskFileSenderPtr sender_ptr(pion::plugins::DiskFileSender::create(response_file, request, tcp_conn, 8192));
 	sender_ptr->getWriter()->getResponse().addHeader("Content-Disposition", disposition.toStdString());
+
+	if (unsigned long long fileSize = response_file.getFileSize())
+	{
+		std::stringstream fileSizeStream;
+		fileSizeStream << fileSize;
+		sender_ptr->getWriter()->getResponse().addHeader("Content-Length", fileSizeStream.str());
+	}
+
 	sender_ptr->send();
 }
 

@@ -18,6 +18,7 @@
 #include <pion/PionPlugin.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include <sstream>
+#include <QFileInfo>
 
 using namespace pion;
 using namespace pion::net;
@@ -702,7 +703,7 @@ void FileService::createMIMETypes(void) {
 void DiskFile::update(void)
 {
 	// set file_size and last_modified
-	m_file_size = boost::numeric_cast<std::streamsize>(boost::filesystem::file_size( m_file_path ));
+	m_file_size = QFileInfo(QString::fromStdString(m_file_path.string())).size();
 	m_last_modified = boost::filesystem::last_write_time( m_file_path );
 	m_last_modified_string = HTTPTypes::get_date_string( m_last_modified );
 }
@@ -724,7 +725,7 @@ void DiskFile::read(void)
 bool DiskFile::checkUpdated(void)
 {
 	// get current values
-	std::streamsize cur_size = boost::numeric_cast<std::streamsize>(boost::filesystem::file_size( m_file_path ));
+	unsigned long long cur_size = QFileInfo(QString::fromStdString(m_file_path.string())).size();
 	time_t cur_modified = boost::filesystem::last_write_time( m_file_path );
 
 	// check if file has not been updated
