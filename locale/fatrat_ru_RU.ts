@@ -1540,13 +1540,13 @@ add/new - Добавить новые закачки
         <location filename="../src/MainWindow.ui" line="326"/>
         <location filename="../ui_MainWindow.h" line="714"/>
         <source>Transfer speed graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">График скорости</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="346"/>
         <location filename="../ui_MainWindow.h" line="715"/>
         <source>Queue speed graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">График скорости очереди</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="363"/>
@@ -1804,7 +1804,7 @@ add/new - Добавить новые закачки
         <location filename="../src/MainWindow.ui" line="853"/>
         <location filename="../ui_MainWindow.h" line="698"/>
         <source>Report a bug</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сообщить об ошибке</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="858"/>
@@ -1816,7 +1816,7 @@ add/new - Добавить новые закачки
         <location filename="../src/MainWindow.ui" line="866"/>
         <location filename="../ui_MainWindow.h" line="700"/>
         <source>Pause all transfers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Приостановить все закачки</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1052"/>
@@ -2235,12 +2235,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/Settings.cpp" line="109"/>
         <source>Scheduler</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Планировщик</translation>
     </message>
     <message>
         <location filename="../src/Settings.cpp" line="115"/>
         <source>Clipboard monitor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Слежение за буфером обмена</translation>
     </message>
     <message>
         <location filename="../src/XmlRpc.cpp" line="197"/>
@@ -3059,7 +3059,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/Scheduler.cpp" line="141"/>
         <location filename="../src/Scheduler.cpp" line="165"/>
         <source>Scheduler</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Планировщик</translation>
     </message>
     <message>
         <location filename="../src/Scheduler.cpp" line="141"/>
@@ -3078,25 +3078,25 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="14"/>
         <location filename="../ui_SettingsClipboardMonitorForm.h" line="98"/>
         <source>Clipboard monitor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Слежение за буфером обмена</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="20"/>
         <location filename="../ui_SettingsClipboardMonitorForm.h" line="99"/>
         <source>Enable for global clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Включить общее слежение</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="27"/>
         <location filename="../ui_SettingsClipboardMonitorForm.h" line="100"/>
         <source>Enable for selection clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Включить выборочное слежение</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="34"/>
         <location filename="../ui_SettingsClipboardMonitorForm.h" line="101"/>
         <source>Regular expressions to catch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Регулярное выражение для слежения</translation>
     </message>
     <message>
         <location filename="../src/SettingsClipboardMonitorForm.ui" line="43"/>
@@ -3129,7 +3129,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/SettingsDlg.ui" line="32"/>
         <location filename="../ui_SettingsDlg.h" line="106"/>
         <source>Some changes may require restart to take effect.</source>
-        <translation type="unfinished">Некоторые парметры могут быть применены только после перезапуска.</translation>
+        <translation type="unfinished">Некоторые параметры могут быть применены только после перезапуска.</translation>
     </message>
 </context>
 <context>
@@ -3158,7 +3158,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="42"/>
         <source>switches to transfer details</source>
-        <translation type="unfinished">перейти к парамертам закачки</translation>
+        <translation type="unfinished">перейти к параметрам закачки</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="42"/>
@@ -3254,7 +3254,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/SettingsGeneralForm.ui" line="182"/>
         <location filename="../ui_SettingsGeneralForm.h" line="213"/>
         <source>Use system theme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Использовать системную тему</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="17"/>
@@ -3340,13 +3340,13 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/engines/SettingsHttpForm.ui" line="104"/>
         <location filename="../ui_SettingsHttpForm.h" line="169"/>
         <source>Forbid IPv6 unless used explicitly</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Запретить IPv6 если явно не задано</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="111"/>
         <location filename="../ui_SettingsHttpForm.h" line="170"/>
         <source>Connection timeout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Таймаут соединения</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="134"/>
@@ -3358,7 +3358,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/engines/SettingsHttpForm.ui" line="141"/>
         <location filename="../ui_SettingsHttpForm.h" line="172"/>
         <source>Convert the transfer to BitTorrent if the downloaded file is found to be a torrent</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Преобразовать закачку в торрент если найден соответствующий торрент</translation>
     </message>
 </context>
 <context>
@@ -3587,19 +3587,19 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsMetalinkForm.ui" line="23"/>
         <location filename="../ui_SettingsMetalinkForm.h" line="81"/>
         <source>FatRat is not able to combine HTTP/FTP and BitTorrent transfers at the moment.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fatrat не умеет сочетать закачки по HTTP/FTP и BitTorrent</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsMetalinkForm.ui" line="33"/>
         <location filename="../ui_SettingsMetalinkForm.h" line="82"/>
         <source>Prefer segmented HTTP/FTP over BitTorrent</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Предпочитать HTTP/FTP над BitTorrent</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsMetalinkForm.ui" line="40"/>
         <location filename="../ui_SettingsMetalinkForm.h" line="83"/>
         <source>Use only BitTorrent where possible</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Использовать по возможности только BitTorrent</translation>
     </message>
 </context>
 <context>
@@ -3760,7 +3760,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsQueueForm.ui" line="206"/>
         <location filename="../ui_SettingsQueueForm.h" line="233"/>
         <source>Perform a filesystem sync after the queue file is saved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выполнить синхронизацию файловой системы после сохранения очереди</translation>
     </message>
 </context>
 <context>
@@ -3838,7 +3838,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsSchedulerForm.ui" line="14"/>
         <location filename="../ui_SettingsSchedulerForm.h" line="84"/>
         <source>Scheduler</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Планировщик</translation>
     </message>
     <message>
         <location filename="../src/SettingsSchedulerForm.ui" line="23"/>
@@ -3862,7 +3862,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsSchedulerForm.ui" line="57"/>
         <location filename="../ui_SettingsSchedulerForm.h" line="88"/>
         <source>This is where you can have your transfers automatically started, limited etc.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Здесь вы можете определить автоматический старт закачек, лимиты итп</translation>
     </message>
     <message>
         <location filename="../src/SettingsSchedulerForm.cpp" line="92"/>
@@ -3942,7 +3942,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsTorrentForm.ui" line="251"/>
         <location filename="../ui_SettingsTorrentForm.h" line="386"/>
         <source>Identify as</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Определять Fatrat как ..</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="272"/>
@@ -5017,12 +5017,12 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/filterlineedit.cpp" line="51"/>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Фильтр</translation>
     </message>
     <message>
         <location filename="../src/filterlineedit.cpp" line="53"/>
         <source>Clear text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Очистить текст</translation>
     </message>
 </context>
 <context>
