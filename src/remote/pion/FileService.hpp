@@ -77,7 +77,7 @@ public:
 	inline bool hasFileContent(void) const { return m_file_content; }
 
 	/// returns size of the file's content
-	inline unsigned long getFileSize(void) const { return m_file_size; }
+	inline unsigned long long getFileSize(void) const { return m_file_size; }
 
 	/// returns timestamp that the cached file was last modified (0 = cache disabled)
 	inline std::time_t getLastModified(void) const { return m_last_modified; }
@@ -113,7 +113,7 @@ protected:
 	boost::shared_array<char>	m_file_content;
 
 	/// size of the file's content
-	std::streamsize				m_file_size;
+	unsigned long long				m_file_size;
 
 	/// timestamp that the cached file was last modified (0 = cache disabled)
 	std::time_t					m_last_modified;
@@ -222,7 +222,7 @@ private:
 	unsigned long							m_file_bytes_to_send;
 
 	/// the number of bytes we have sent so far
-	unsigned long							m_bytes_sent;
+	unsigned long long							m_bytes_sent;
 };
 
 /// data type for a DiskFileSender pointer
