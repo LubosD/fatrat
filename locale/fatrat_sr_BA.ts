@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="sr_RS">
+<TS version="2.0" language="sr_BA">
 <context>
     <name>AboutDlg</name>
     <message>
@@ -105,7 +105,7 @@
         <location filename="../src/AutoActionForm.ui" line="19"/>
         <location filename="../ui_AutoActionForm.h" line="70"/>
         <source>Run the following command when the transfer completes</source>
-        <translation>Покрени следећу наредбу кад се преузимање заврши</translation>
+        <translation>Покрени сљедећу наредбу кад се преузимање заврши</translation>
     </message>
     <message>
         <location filename="../src/AutoActionForm.ui" line="42"/>
@@ -143,7 +143,7 @@
         <location filename="../src/captcha/CaptchaQtDlg.cpp" line="70"/>
         <location filename="../src/captcha/CaptchaQtDlg.cpp" line="83"/>
         <source>Failed to load the captcha image.</source>
-        <translation>Учитавање кепча слике није успело.</translation>
+        <translation>Учитавање кепча слике није успјело.</translation>
     </message>
 </context>
 <context>
@@ -292,7 +292,7 @@
         <location filename="../src/tools/CreateTorrentDlg.ui" line="141"/>
         <location filename="../ui_CreateTorrentDlg.h" line="224"/>
         <source>Web seeds</source>
-        <translation>Веб сејачи</translation>
+        <translation>Веб сијачи</translation>
     </message>
 </context>
 <context>
@@ -315,7 +315,7 @@
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="180"/>
         <source>Cannot move the file.</source>
-        <translation>Не могу да преместим фајл.</translation>
+        <translation>Не могу да премјестим фајл.</translation>
     </message>
     <message>
         <location filename="../src/engines/CurlDownload.cpp" line="218"/>
@@ -363,7 +363,7 @@
     <message>
         <location filename="../src/engines/CurlUpload.cpp" line="331"/>
         <source>Timeout</source>
-        <translation>Време је истекло</translation>
+        <translation>Вријеме је истекло</translation>
     </message>
     <message>
         <location filename="../src/engines/CurlUpload.cpp" line="346"/>
@@ -398,7 +398,7 @@
         <location filename="../src/tools/FileSharingSearch.ui" line="14"/>
         <location filename="../ui_FileSharingSearch.h" line="121"/>
         <source>File sharing search</source>
-        <translation>Претрага дељења фајлова</translation>
+        <translation>Претрага дијељења фајлова</translation>
     </message>
     <message>
         <location filename="../src/tools/FileSharingSearch.ui" line="30"/>
@@ -470,7 +470,7 @@
     <message>
         <location filename="../src/tools/FtpManager.ui" line="58"/>
         <source>Upload files here</source>
-        <translation>Пошаљи фајлове овде</translation>
+        <translation>Пошаљи фајлове овдје</translation>
     </message>
     <message>
         <location filename="../src/tools/FtpManager.ui" line="65"/>
@@ -653,7 +653,7 @@
     <message>
         <location filename="../src/tools/HelpBrowser.cpp" line="39"/>
         <source>Failed to load the documentation.</source>
-        <translation>Учитавање документације није успело.</translation>
+        <translation>Учитавање документације није успјело.</translation>
     </message>
 </context>
 <context>
@@ -662,7 +662,7 @@
         <location filename="../src/engines/HttpDetails.ui" line="36"/>
         <location filename="../ui_HttpDetails.h" line="137"/>
         <source>Active segments</source>
-        <translation>Активни делови</translation>
+        <translation>Активни дијелови</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetails.ui" line="49"/>
@@ -749,7 +749,7 @@ URL: %2
 Size: %3
 Speed: %4
 Done: %5</source>
-        <translation>Део #%1
+        <translation>Дио #%1
 Преузимање у току
 УРЛ: %2
 Величина: %3
@@ -760,18 +760,18 @@ Done: %5</source>
         <location filename="../src/engines/HttpDetailsBar.cpp" line="157"/>
         <source>Segment #%1
 Downloaded data</source>
-        <translation>Део #%1
+        <translation>Дио #%1
 Преузети подаци</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetailsBar.cpp" line="189"/>
         <source>Delete this segment</source>
-        <translation>Обриши овај део</translation>
+        <translation>Обриши овај дио</translation>
     </message>
     <message>
         <location filename="../src/engines/HttpDetailsBar.cpp" line="193"/>
         <source>New segment</source>
-        <translation>Нови део</translation>
+        <translation>Нови дио</translation>
     </message>
 </context>
 <context>
@@ -852,7 +852,7 @@ Downloaded data</source>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="145"/>
         <source>Restarting the service due to a port or SSL config change</source>
-        <translation>Поново покрећем сервис због промене порта или подешавања ССЛ-а</translation>
+        <translation>Поново покрећем сервис због промјене порта или подешавања ССЛ-а</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="210"/>
@@ -862,7 +862,7 @@ Downloaded data</source>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="214"/>
         <source>Failed to start: %1</source>
-        <translation>Неуспело покретање: %1</translation>
+        <translation>Неуспјело покретање: %1</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="226"/>
@@ -883,12 +883,12 @@ Downloaded data</source>
         <location filename="../src/remote/HttpService.cpp" line="569"/>
         <location filename="../src/remote/HttpService.cpp" line="573"/>
         <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
-        <translation>Генерисање сертификата није успело, проверите да ли имате инсталиране програме &apos;openssl&apos; и &apos;sed&apos;.</translation>
+        <translation>Генерисање сертификата није успјело, провјерите да ли имате инсталиране програме &apos;openssl&apos; и &apos;sed&apos;.</translation>
     </message>
     <message>
         <location filename="../src/remote/HttpService.cpp" line="582"/>
         <source>Failed to open %1 for writing.</source>
-        <translation>Отварање %1 за упис није успело.</translation>
+        <translation>Отварање %1 за упис није успјело.</translation>
     </message>
 </context>
 <context>
@@ -1150,12 +1150,12 @@ Invalid transfer state</source>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="681"/>
         <source>Proxy authentication failed</source>
-        <translation>Аутентификација проксија није успела</translation>
+        <translation>Аутентификација проксија није успјела</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="683"/>
         <source>The proxy requires an unsupported auth mechanism</source>
-        <translation>Прокси захтева неподржан аутентификациони механизам</translation>
+        <translation>Прокси захтијева неподржан аутентификациони механизам</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="685"/>
@@ -1170,12 +1170,12 @@ Invalid transfer state</source>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="689"/>
         <source>Failed to connect</source>
-        <translation>Неуспело повезивање</translation>
+        <translation>Неуспјело повезивање</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="691"/>
         <source>Failed to resolve the domain name</source>
-        <translation>Неуспело разрешавање домена</translation>
+        <translation>Неуспјело разријешавање домена</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="693"/>
@@ -1190,7 +1190,7 @@ Invalid transfer state</source>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="697"/>
         <source>Authentication failed</source>
-        <translation>Аутентификација није успела</translation>
+        <translation>Аутентификација није успјела</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="701"/>
@@ -1229,10 +1229,10 @@ pauseall/resumeall - паузирај/настави све преносе
 pause/resume/delete - паузирај/настави/обриши одређене преносе
 logout/quit/exit - одјави се
 
-Аргументе прослеђуј овако: „resume 1 3 5“, користи индексе са спискова
+Аргументе просљеђуј овако: „resume 1 3 5“, користи индексе са спискова
 
 add/new - додај нове преносе
-Ова наредба захтева посебне аргументе. Више о томе у документацији.</translation>
+Ова наредба захтијева посебне аргументе. Више о томе у документацији.</translation>
     </message>
     <message>
         <location filename="../src/remote/JabberService.cpp" line="699"/>
@@ -1253,7 +1253,7 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/engines/JavaAccountStatusWidget.cpp" line="50"/>
         <source>Requesting...</source>
-        <translation>Захтевам...</translation>
+        <translation>Захтјевам...</translation>
     </message>
 </context>
 <context>
@@ -1300,7 +1300,7 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="205"/>
         <source>JavaExtractor: Not an HTTP(S) URI, passing the URI directly to the extension</source>
-        <translation>ЈаваЕкстрактор: Ово није ХТТП(С) УРИ, прослеђујем УРИ директно проширењу</translation>
+        <translation>ЈаваЕкстрактор: Ово није ХТТП(С) УРИ, просљеђујем УРИ директно проширењу</translation>
     </message>
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="220"/>
@@ -1310,7 +1310,7 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/engines/JavaExtractor.cpp" line="231"/>
         <source>Failed to detect URL class: %1</source>
-        <translation>Откривање УРЛ класе није успело: %1</translation>
+        <translation>Откривање УРЛ класе није успјело: %1</translation>
     </message>
 </context>
 <context>
@@ -1398,7 +1398,7 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/MainWindow.cpp" line="1067"/>
         <source>Failed to create a class instance.</source>
-        <translation>Неуспело прављење примерка класе.</translation>
+        <translation>Неуспјело прављење примјерка класе.</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1100"/>
@@ -1547,7 +1547,7 @@ add/new - додај нове преносе
         <location filename="../src/MainWindow.ui" line="275"/>
         <location filename="../ui_MainWindow.h" line="709"/>
         <source>&lt;b&gt;Running for:</source>
-        <translation>&lt;b&gt;Време:</translation>
+        <translation>&lt;b&gt;Вријеме:</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="326"/>
@@ -1673,7 +1673,7 @@ add/new - додај нове преносе
         <location filename="../src/MainWindow.ui" line="679"/>
         <location filename="../ui_MainWindow.h" line="669"/>
         <source>Move to top</source>
-        <translation>Помери на врх</translation>
+        <translation>Помјери на врх</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="682"/>
@@ -1685,7 +1685,7 @@ add/new - додај нове преносе
         <location filename="../src/MainWindow.ui" line="691"/>
         <location filename="../ui_MainWindow.h" line="671"/>
         <source>Move up</source>
-        <translation>Помери горе</translation>
+        <translation>Помјери горе</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="694"/>
@@ -1697,7 +1697,7 @@ add/new - додај нове преносе
         <location filename="../src/MainWindow.ui" line="703"/>
         <location filename="../ui_MainWindow.h" line="673"/>
         <source>Move down</source>
-        <translation>Помери доле</translation>
+        <translation>Помјери доље</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="706"/>
@@ -1709,7 +1709,7 @@ add/new - додај нове преносе
         <location filename="../src/MainWindow.ui" line="715"/>
         <location filename="../ui_MainWindow.h" line="675"/>
         <source>Move to bottom</source>
-        <translation>Помери на дно</translation>
+        <translation>Помјери на дно</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="718"/>
@@ -1839,12 +1839,12 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/MainWindow.cpp" line="1644"/>
         <source>Transfer failed</source>
-        <translation>Пренос није успео</translation>
+        <translation>Пренос није успио</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.cpp" line="1645"/>
         <source>The transfer &quot;%1&quot; has failed.</source>
-        <translation>Пренос &quot;%1&quot; није успео.</translation>
+        <translation>Пренос &quot;%1&quot; није успио.</translation>
     </message>
     <message>
         <location filename="../src/MainWindow.ui" line="571"/>
@@ -1899,18 +1899,18 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/engines/MetalinkDownload.cpp" line="89"/>
         <source>Failed to create a temporary file</source>
-        <translation>Неуспело прављење привременог фајла</translation>
+        <translation>Неуспјело прављење привременог фајла</translation>
     </message>
     <message>
         <location filename="../src/engines/MetalinkDownload.cpp" line="119"/>
         <source>Failed to download the metalink file</source>
-        <translation>Неуспело преузимање металинк фајла</translation>
+        <translation>Неуспјело преузимање металинк фајла</translation>
     </message>
     <message>
         <location filename="../src/engines/MetalinkDownload.cpp" line="171"/>
         <location filename="../src/engines/MetalinkDownload.cpp" line="179"/>
         <source>Failed to read the metalink file: %1</source>
-        <translation>Неуспело читање металинк фајла: %1</translation>
+        <translation>Неуспјело читање металинк фајла: %1</translation>
     </message>
     <message>
         <location filename="../src/engines/MetalinkDownload.cpp" line="271"/>
@@ -1933,7 +1933,7 @@ add/new - додај нове преносе
     <message>
         <location filename="../src/MyApplication.cpp" line="64"/>
         <source>Unhandled exception</source>
-        <translation>Нерешив изузетак</translation>
+        <translation>Нерјешив изузетак</translation>
     </message>
     <message>
         <location filename="../src/MyApplication.cpp" line="65"/>
@@ -1941,7 +1941,7 @@ add/new - додај нове преносе
 
 Type of exception: %1
 Message: %2</source>
-        <translation>Главни управљач је примио следећи изузетак. Ово је грешка у програму и као таква треба бити пријављена.
+        <translation>Главни управљач је примио сљедећи изузетак. Ово је грешка у програму и као таква треба бити пријављена.
 
 Тип изузетка: %1
 Порука: %2</translation>
@@ -2093,12 +2093,12 @@ Message: %2</source>
     <message>
         <location filename="../src/notify/Notification.cpp" line="70"/>
         <source>Failed to create a notification</source>
-        <translation>Приказ обавештења није успео</translation>
+        <translation>Приказ обавјештења није успио</translation>
     </message>
     <message>
         <location filename="../src/notify/Notification.cpp" line="75"/>
         <source>Failed to update a notification</source>
-        <translation>Ажурирање обавештења није успело</translation>
+        <translation>Ажурирање обавјештења није успјело</translation>
     </message>
 </context>
 <context>
@@ -2179,14 +2179,14 @@ Message: %2</source>
     <message>
         <location filename="../src/AppTools.cpp" line="57"/>
         <source>File sharing server search</source>
-        <translation>Претрага сервера за дељење фајлова</translation>
+        <translation>Претрага сервера за дијељење фајлова</translation>
     </message>
     <message>
         <location filename="../src/fatrat.cpp" line="327"/>
         <source>There is already a running instance.
 If you want to start FatRat anyway, pass --force among arguments.</source>
-        <translation>Један примерак је већ покренут.
-Ако свеједно желите да покренете ФетРет, проследите аргумент --force.</translation>
+        <translation>Један примјерак је већ покренут.
+Ако свеједно желите да покренете ФетРет, прослиједите аргумент --force.</translation>
     </message>
     <message>
         <location filename="../src/fatrat.cpp" line="488"/>
@@ -2216,7 +2216,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/fatrat.cpp" line="566"/>
         <source>Failed to load a plugin: %1: %2</source>
-        <translation>Учитавање прикључка није успело: %1: %2</translation>
+        <translation>Учитавање прикључка није успјело: %1: %2</translation>
     </message>
     <message>
         <location filename="../src/Settings.cpp" line="60"/>
@@ -2297,7 +2297,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/java/JClass.cpp" line="62"/>
         <source>Java class %1 not found or failed to load</source>
-        <translation>Јава класа %1 није нађена или није успела да се учита</translation>
+        <translation>Јава класа %1 није нађена или није успјела да се учита</translation>
     </message>
     <message>
         <location filename="../src/java/JClass.cpp" line="107"/>
@@ -2337,7 +2337,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/java/JObject.cpp" line="87"/>
         <source>Invalid JClass passed</source>
-        <translation>Прослеђена је неисправна ЈКласа</translation>
+        <translation>Прослијеђена је неисправна ЈКласа</translation>
     </message>
     <message>
         <location filename="../src/java/JObject.cpp" line="91"/>
@@ -2347,7 +2347,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/java/JObject.cpp" line="119"/>
         <source>Failed to create an instance - constructor %1</source>
-        <translation>Неуспело прављење примерка - конструктор %1</translation>
+        <translation>Неуспјело прављење примјерка - конструктор %1</translation>
     </message>
     <message>
         <location filename="../src/java/JVM.cpp" line="69"/>
@@ -2362,12 +2362,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/java/JVM.cpp" line="106"/>
         <source>Failed to load the correct libjvm: %1</source>
-        <translation>Неуспело учитавање исправне libjvm: %1</translation>
+        <translation>Неуспјело учитавање исправне libjvm: %1</translation>
     </message>
     <message>
         <location filename="../src/java/JVM.cpp" line="141"/>
         <source>Failed to create a Java VM</source>
-        <translation>Неуспело прављење Јавине ВМ</translation>
+        <translation>Неуспјело прављење Јавине ВМ</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="767"/>
@@ -2377,7 +2377,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="780"/>
         <source>Failed to create a class instance.</source>
-        <translation>Неуспело прављење примерка класе.</translation>
+        <translation>Неуспјело прављење примјерка класе.</translation>
     </message>
     <message>
         <location filename="../src/remote/XmlRpcService.cpp" line="828"/>
@@ -2405,7 +2405,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/Queue.cpp" line="206"/>
         <source>Failed to write the queue file!</source>
-        <translation>Писање фајла реда није успело!</translation>
+        <translation>Писање фајла реда није успјело!</translation>
     </message>
 </context>
 <context>
@@ -2482,7 +2482,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/QueueDlg.ui" line="49"/>
         <location filename="../ui_QueueDlg.h" line="214"/>
         <source>Move transfers after completion</source>
-        <translation>Премести преносе након завршетка</translation>
+        <translation>Премјести преносе након завршетка</translation>
     </message>
 </context>
 <context>
@@ -2490,7 +2490,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/QueueMgr.cpp" line="224"/>
         <source>Failed to move the transfer&apos;s data: %1</source>
-        <translation>Премештање података преноса није успело: %1</translation>
+        <translation>Премјештање података преноса није успјело: %1</translation>
     </message>
 </context>
 <context>
@@ -2513,13 +2513,13 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/tools/RapidTools.cpp" line="137"/>
         <location filename="../src/tools/RapidTools.cpp" line="196"/>
         <source>Server failed to process our query.</source>
-        <translation>Сервер није успео да процесуира наш упит.</translation>
+        <translation>Сервер није успио да процесуира наш упит.</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="24"/>
         <location filename="../ui_RapidTools.h" line="161"/>
         <source>Verify RS.com links</source>
-        <translation>Овери RS.com везе</translation>
+        <translation>Овјери RS.com везе</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="30"/>
@@ -2531,7 +2531,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/tools/RapidTools.ui" line="44"/>
         <location filename="../ui_RapidTools.h" line="157"/>
         <source>Verify links</source>
-        <translation>Овери везе</translation>
+        <translation>Овјери везе</translation>
     </message>
     <message>
         <location filename="../src/tools/RapidTools.ui" line="51"/>
@@ -2655,7 +2655,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/ReportBugDlg.cpp" line="109"/>
         <source>Failed to send your bug report. There is either problem with your connectivity or the remote server is experiencing some issues.</source>
-        <translation>Слање пријаве није успело. Или је проблем са вашем везом на интернет или удаљени сервер има потешкоћа.</translation>
+        <translation>Слање пријаве није успјело. Или је проблем са вашем везом на интернет или удаљени сервер има потешкоћа.</translation>
     </message>
     <message>
         <location filename="../src/ReportBugDlg.ui" line="14"/>
@@ -2765,12 +2765,12 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/rss/RssFetcher.cpp" line="165"/>
         <source>Failed to parse the feed &quot;%1&quot;</source>
-        <translation>Неуспело рашчлањивање довода „%1“</translation>
+        <translation>Неуспјело рашчлањивање довода „%1“</translation>
     </message>
     <message>
         <location filename="../src/rss/RssFetcher.cpp" line="172"/>
         <source>Failed to fetch the feed &quot;%1&quot;</source>
-        <translation>Неуспело добављање довода „%1“</translation>
+        <translation>Неуспјело добављање довода „%1“</translation>
     </message>
     <message>
         <location filename="../src/rss/RssFetcher.cpp" line="252"/>
@@ -2897,13 +2897,13 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/rss/RssRegexpDlg.ui" line="222"/>
         <location filename="../ui_RssRegexpDlg.h" line="313"/>
         <source>Extract links matched by the following regexp</source>
-        <translation>Извуци везе које се поклапају са следећим рег. изразом</translation>
+        <translation>Извуци везе које се поклапају са сљедећим рег. изразом</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="245"/>
         <location filename="../ui_RssRegexpDlg.h" line="314"/>
         <source>Example: http://www.server.com/\S+</source>
-        <translation>Пример: http://www.server.com/\S+</translation>
+        <translation>Примјер: http://www.server.com/\S+</translation>
     </message>
     <message>
         <location filename="../src/rss/RssRegexpDlg.ui" line="123"/>
@@ -2992,7 +2992,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/ScheduledActionDlg.ui" line="64"/>
         <location filename="../ui_ScheduledActionDlg.h" line="295"/>
         <source>Monday</source>
-        <translation>Понедељак</translation>
+        <translation>Понедјељак</translation>
     </message>
     <message>
         <location filename="../src/ScheduledActionDlg.ui" line="75"/>
@@ -3004,7 +3004,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/ScheduledActionDlg.ui" line="86"/>
         <location filename="../ui_ScheduledActionDlg.h" line="299"/>
         <source>Wednesday</source>
-        <translation>Среда</translation>
+        <translation>Сриједа</translation>
     </message>
     <message>
         <location filename="../src/ScheduledActionDlg.ui" line="97"/>
@@ -3028,7 +3028,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/ScheduledActionDlg.ui" line="130"/>
         <location filename="../ui_ScheduledActionDlg.h" line="307"/>
         <source>Sunday</source>
-        <translation>Недеља</translation>
+        <translation>Недјеља</translation>
     </message>
     <message>
         <location filename="../src/ScheduledActionDlg.ui" line="197"/>
@@ -3085,7 +3085,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/Scheduler.cpp" line="165"/>
         <source>Failed to execute a scheduled action: %1, the queue doesn&apos;t seem to exist any more</source>
-        <translation>Извршавање планиране радње није успело: %1, изгледа да ред више не постоји</translation>
+        <translation>Извршавање планиране радње није успјело: %1, изгледа да ред више не постоји</translation>
     </message>
 </context>
 <context>
@@ -3145,7 +3145,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/SettingsDlg.ui" line="32"/>
         <location filename="../ui_SettingsDlg.h" line="106"/>
         <source>Some changes may require restart to take effect.</source>
-        <translation>Неке измене захтевају поновно покретање да би постале активне.</translation>
+        <translation>Неке измјене захтијевају поновно покретање да би постале активне.</translation>
     </message>
 </context>
 <context>
@@ -3194,7 +3194,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="45"/>
         <source>switch to the next tab</source>
-        <translation>пређи на следећи</translation>
+        <translation>пређи на сљедећи</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.cpp" line="45"/>
@@ -3215,7 +3215,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/SettingsGeneralForm.ui" line="41"/>
         <location filename="../ui_SettingsGeneralForm.h" line="201"/>
         <source>Display speed graphs for last</source>
-        <translation>Прикажи график брзине за последњих</translation>
+        <translation>Прикажи график брзине за посљедњих</translation>
     </message>
     <message>
         <location filename="../src/SettingsGeneralForm.ui" line="55"/>
@@ -3320,7 +3320,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/engines/SettingsHttpForm.ui" line="17"/>
         <location filename="../ui_SettingsHttpForm.h" line="163"/>
         <source>Default proxy</source>
-        <translation>Подразумевани прокси</translation>
+        <translation>Подразумијевани прокси</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="27"/>
@@ -3362,7 +3362,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/engines/SettingsHttpForm.ui" line="111"/>
         <location filename="../ui_SettingsHttpForm.h" line="170"/>
         <source>Connection timeout</source>
-        <translation>Време за повезивање</translation>
+        <translation>Вријеме за повезивање</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsHttpForm.ui" line="134"/>
@@ -3425,7 +3425,7 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <location filename="../src/remote/SettingsJabberForm.ui" line="81"/>
         <location filename="../ui_SettingsJabberForm.h" line="169"/>
         <source>Grant roster authorizations upon request</source>
-        <translation>Дозволи списак овлашћења на захтев</translation>
+        <translation>Дозволи списак овлашћења на захтјев</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsJabberForm.ui" line="88"/>
@@ -3460,9 +3460,9 @@ If you want to start FatRat anyway, pass --force among arguments.</source>
         <source>Extensions are a special sort of plugins written in Java. They provide support for various file sharing servers. Here you can manage installed extensions and update them.
 &lt;p&gt;
 For details about extension features, visit &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</source>
-        <translation>Проширења су специјална врста прикључака писаних у Јави. Они омогућавају подршку за разне сервере дељења фајлова. Овде можете управљати додатим проширењима и надограђивати их.
+        <translation>Проширења су специјална врста прикључака писаних у Јави. Они омогућавају подршку за разне сервере дијељења фајлова. Овдје можете управљати додатим проширењима и надограђивати их.
 &lt;p&gt;
-За детаље о својствима проширења посетите &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</translation>
+За детаље о својствима проширења посјетите &lt;a href=&quot;http://fatrat.dolezel.info/plugin-structure&quot;&gt;fatrat.dolezel.info&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="39"/>
@@ -3510,7 +3510,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="130"/>
         <location filename="../ui_SettingsJavaPluginForm.h" line="217"/>
         <source>Regularly check for updates</source>
-        <translation>Редовно проверавај има ли надоградњи</translation>
+        <translation>Редовно провјеравај има ли надоградњи</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.ui" line="161"/>
@@ -3540,7 +3540,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="156"/>
         <source>Failed to download the plugin index file: %1</source>
-        <translation>Преузимање индекс фајла прикључка није успело: %1</translation>
+        <translation>Преузимање индекс фајла прикључка није успјело: %1</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="172"/>
@@ -3565,12 +3565,12 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="255"/>
         <source>Failed to remove &quot;%1&quot;, check the file permissions.</source>
-        <translation>Неуспело уклањање „%1“, проверите дозволе фајла.</translation>
+        <translation>Неуспјело уклањање „%1“, провјерите дозволе фајла.</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="265"/>
         <source>For the changes to take effect, FatRat needs to be restarted.</source>
-        <translation>Да би измене постале активне морате поново да покренете ФетРет.</translation>
+        <translation>Да би измјене постале активне морате поново да покренете ФетРет.</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="267"/>
@@ -3585,7 +3585,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="317"/>
         <source>Failed to download an extension: %1</source>
-        <translation>Преузимање проширења није успело: %1</translation>
+        <translation>Преузимање проширења није успјело: %1</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsJavaPluginForm.cpp" line="332"/>
@@ -3611,13 +3611,13 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsMetalinkForm.ui" line="33"/>
         <location filename="../ui_SettingsMetalinkForm.h" line="82"/>
         <source>Prefer segmented HTTP/FTP over BitTorrent</source>
-        <translation>Предност ХТТП/ФТП у деловима у односу на БитТорент</translation>
+        <translation>Предност ХТТП/ФТП у дијеловима у односу на БитТорент</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsMetalinkForm.ui" line="40"/>
         <location filename="../ui_SettingsMetalinkForm.h" line="83"/>
         <source>Use only BitTorrent where possible</source>
-        <translation>Користи само БитТорент где је могуће</translation>
+        <translation>Користи само БитТорент гдје је могуће</translation>
     </message>
 </context>
 <context>
@@ -3694,7 +3694,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsQueueForm.ui" line="17"/>
         <location filename="../ui_SettingsQueueForm.h" line="219"/>
         <source>If transfer fails</source>
-        <translation>Ако пренос не успе</translation>
+        <translation>Ако пренос не успије</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="23"/>
@@ -3712,7 +3712,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsQueueForm.ui" line="53"/>
         <location filename="../ui_SettingsQueueForm.h" line="222"/>
         <source>Always retry if the transfer has been working before</source>
-        <translation>Увек покушавај поново ако је пренос радио пре</translation>
+        <translation>Увијек покушавај поново ако је пренос радио прије</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="63"/>
@@ -3730,13 +3730,13 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsQueueForm.ui" line="82"/>
         <location filename="../ui_SettingsQueueForm.h" line="225"/>
         <source>Show a popup (requires the tray icon)</source>
-        <translation>прикажи обавештење (захтева икону системске палете)</translation>
+        <translation>прикажи обавјештење (захтјева икону системске палете)</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="102"/>
         <location filename="../ui_SettingsQueueForm.h" line="226"/>
         <source>Popup display time</source>
-        <translation>Време приказа обавештења</translation>
+        <translation>Вријеме приказа обавјештења</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="125"/>
@@ -3772,7 +3772,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsQueueForm.ui" line="199"/>
         <location filename="../ui_SettingsQueueForm.h" line="232"/>
         <source>Enable tooltips</source>
-        <translation>Омогући савете</translation>
+        <translation>Омогући савјете</translation>
     </message>
     <message>
         <location filename="../src/SettingsQueueForm.ui" line="206"/>
@@ -3880,7 +3880,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/SettingsSchedulerForm.ui" line="57"/>
         <location filename="../ui_SettingsSchedulerForm.h" line="88"/>
         <source>This is where you can have your transfers automatically started, limited etc.</source>
-        <translation>Овде можете подесити ваше преносе за аутоматско покретање, ограничавање брзине итд.</translation>
+        <translation>Овдје можете подесити ваше преносе за аутоматско покретање, ограничавање брзине итд.</translation>
     </message>
     <message>
         <location filename="../src/SettingsSchedulerForm.cpp" line="92"/>
@@ -3912,7 +3912,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsTorrentForm.ui" line="92"/>
         <location filename="../ui_SettingsTorrentForm.h" line="376"/>
         <source>Seed up to ratio (default value)</source>
-        <translation>Сејање до односа (предодређена вредност)</translation>
+        <translation>Сијање до односа (предодређена вриједност)</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="118"/>
@@ -3954,7 +3954,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/SettingsTorrentForm.ui" line="204"/>
         <location filename="../ui_SettingsTorrentForm.h" line="383"/>
         <source>Enable uTorrent Peer Exchange</source>
-        <translation>Омогући размену вршњака са Микроторентом</translation>
+        <translation>Омогући размјену вршњака са Микроторентом</translation>
     </message>
     <message>
         <location filename="../src/engines/SettingsTorrentForm.ui" line="251"/>
@@ -4105,12 +4105,12 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/remote/SettingsWebForm.cpp" line="103"/>
         <location filename="../src/remote/SettingsWebForm.cpp" line="110"/>
         <source>Failed to generate a certificate, please ensure you have &apos;openssl&apos; and &apos;sed&apos; installed.</source>
-        <translation>Генерисање сертификата није успело, проверите да ли имате инсталиране програме &apos;openssl&apos; и &apos;sed&apos;.</translation>
+        <translation>Генерисање сертификата није успјело, провјерите да ли имате инсталиране програме &apos;openssl&apos; и &apos;sed&apos;.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="122"/>
         <source>Failed to open %1 for writing.</source>
-        <translation>Неуспело отварање %1 за упис.</translation>
+        <translation>Неуспјело отварање %1 за упис.</translation>
     </message>
     <message>
         <location filename="../src/remote/SettingsWebForm.cpp" line="133"/>
@@ -4128,7 +4128,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/SpeedGraph.cpp" line="197"/>
         <source>%1 mins ago</source>
-        <translation>пре %1 минута</translation>
+        <translation>прије %1 минута</translation>
     </message>
     <message>
         <location filename="../src/SpeedGraph.cpp" line="200"/>
@@ -4215,7 +4215,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/TorrentDetails.cpp" line="230"/>
         <source>%1 (refresh in %2:%3:%4, every %5:%6:%7)</source>
-        <translation>%1 (освежи за %2:%3:%4, сваких %5:%6:%7)</translation>
+        <translation>%1 (освјежи за %2:%3:%4, сваких %5:%6:%7)</translation>
     </message>
 </context>
 <context>
@@ -4274,7 +4274,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/TorrentDetailsForm.ui" line="196"/>
         <location filename="../ui_TorrentDetailsForm.h" line="356"/>
         <source>&lt;b&gt;Share ratio:</source>
-        <translation>&lt;b&gt;Однос дељења:</translation>
+        <translation>&lt;b&gt;Однос дијељења:</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDetailsForm.ui" line="219"/>
@@ -4341,7 +4341,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="306"/>
         <source>Failed to start DHT!</source>
-        <translation>Неуспело покретање ДХТ-а!</translation>
+        <translation>Неуспјело покретање ДХТ-а!</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="474"/>
@@ -4372,12 +4372,12 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="698"/>
         <source>Failed to download the .torrent file</source>
-        <translation>Неуспело преузимање торент фајла</translation>
+        <translation>Неуспјело преузимање торент фајла</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="755"/>
         <source>Cannot change storage!</source>
-        <translation>Не могу да променим складиште!</translation>
+        <translation>Не могу да промијеним складиште!</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1102"/>
@@ -4387,17 +4387,17 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1109"/>
         <source>Queued for checking</source>
-        <translation>У реду за проверу</translation>
+        <translation>У реду за провјеру</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1112"/>
         <source>Checking files: %1%</source>
-        <translation>Проверавам фајлове: %1%</translation>
+        <translation>Провјеравам фајлове: %1%</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1121"/>
         <source>Seeders: %1 (%2) | Leechers: %3 (%4)</source>
-        <translation>Сејачи: %1 (%2) | Пијавице: %3 (%4)</translation>
+        <translation>Сијачи: %1 (%2) | Пијавице: %3 (%4)</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1140"/>
@@ -4407,12 +4407,12 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1146"/>
         <source>Checking resume data</source>
-        <translation>Проверавам податке за настављање</translation>
+        <translation>Провјеравам податке за настављање</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1153"/>
         <source>Seeders: %1 | Leechers: %2</source>
-        <translation>Сејачи: %1 | Пијавице: %2</translation>
+        <translation>Сијачи: %1 | Пијавице: %2</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1494"/>
@@ -4422,7 +4422,7 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1496"/>
         <source>Recheck files</source>
-        <translation>Поново провери фајлове</translation>
+        <translation>Поново провјери фајлове</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="465"/>
@@ -4515,20 +4515,20 @@ For details about extension features, visit &lt;a href=&quot;http://fatrat.dolez
         <location filename="../src/engines/TorrentOptsWidget.ui" line="78"/>
         <location filename="../ui_TorrentOptsWidget.h" line="233"/>
         <source>Seeding limits</source>
-        <translation>Ограничење сејања</translation>
+        <translation>Ограничење сијања</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="84"/>
         <location filename="../ui_TorrentOptsWidget.h" line="228"/>
         <source>Seed up to ratio</source>
-        <translation>Сејање до односа</translation>
+        <translation>Сијање до односа</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="101"/>
         <location filename="../ui_TorrentOptsWidget.h" line="229"/>
         <source>Seed until specified amount
 of data has been uploaded</source>
-        <translation>Сејање док одређена количина
+        <translation>Сијање док одређена количина
 података не буде отпремљена</translation>
     </message>
     <message>
@@ -4541,13 +4541,13 @@ of data has been uploaded</source>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="136"/>
         <location filename="../ui_TorrentOptsWidget.h" line="232"/>
         <source>Use super seeding</source>
-        <translation>Користи супер сејање</translation>
+        <translation>Користи супер сијање</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="152"/>
         <location filename="../ui_TorrentOptsWidget.h" line="235"/>
         <source>URL seeds</source>
-        <translation>УРЛ сејања</translation>
+        <translation>УРЛ сијања</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentOptsWidget.ui" line="167"/>
@@ -4668,7 +4668,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/TorrentPiecesModel.cpp" line="36"/>
         <source>Requested blocks</source>
-        <translation>Захтеваних блокова</translation>
+        <translation>Захтјеваних блокова</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentPiecesModel.cpp" line="36"/>
@@ -4711,7 +4711,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
         <source>Seeders</source>
-        <translation>Сејачи</translation>
+        <translation>Сијачи</translation>
     </message>
     <message>
         <location filename="../src/tools/TorrentSearch.cpp" line="89"/>
@@ -4806,7 +4806,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/TorrentSettings.cpp" line="46"/>
         <source>Sparse</source>
-        <translation>Ретко</translation>
+        <translation>Ријетко</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentSettings.cpp" line="46"/>
@@ -4874,7 +4874,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1405"/>
         <source>Requested parts of the torrent have been downloaded</source>
-        <translation>Захтевани делови торента су преузети</translation>
+        <translation>Захтјевани дијелови торента су преузети</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1308"/>
@@ -4889,7 +4889,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1316"/>
         <source>Tracker failure: %1, %2 times in a row </source>
-        <translation>Неуспех пратиоца: %1, %2 пута за редом </translation>
+        <translation>Неуспјех пратиоца: %1, %2 пута за редом </translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1321"/>
@@ -4914,12 +4914,12 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1336"/>
         <source>Failed to retrieve the metadata</source>
-        <translation>Неуспело добављање метаподатака</translation>
+        <translation>Неуспјело добављање метаподатака</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1340"/>
         <source>Successfully retrieved the metadata</source>
-        <translation>Успешно добављени метаподаци</translation>
+        <translation>Успјешно добављени метаподаци</translation>
     </message>
     <message>
         <location filename="../src/engines/TorrentDownload.cpp" line="1458"/>
@@ -4937,7 +4937,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/Transfer.cpp" line="287"/>
         <source>Changed state: %1 -&gt; %2</source>
-        <translation>Промењено стање: %1 -&gt; %2</translation>
+        <translation>Промијењено стање: %1 -&gt; %2</translation>
     </message>
 </context>
 <context>
@@ -4986,17 +4986,17 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/engines/UrlClient.cpp" line="83"/>
         <source>Failed to seek in the file - %1</source>
-        <translation>Неуспело тражење у фајлу - %1</translation>
+        <translation>Неуспјело тражење у фајлу - %1</translation>
     </message>
     <message>
         <location filename="../src/engines/UrlClient.cpp" line="335"/>
         <source>Write failed (%1)</source>
-        <translation>Упис није успео (%1)</translation>
+        <translation>Упис није успио (%1)</translation>
     </message>
     <message>
         <location filename="../src/engines/UrlClient.cpp" line="377"/>
         <source>Timeout</source>
-        <translation>Време је истекло</translation>
+        <translation>Вријеме је истекло</translation>
     </message>
 </context>
 <context>
@@ -5028,7 +5028,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/UserAuthDlg.h" line="72"/>
         <source>The regular expression you&apos;ve entered is invalid.</source>
-        <translation>Регуларни израз којег сте унели није исправан.</translation>
+        <translation>Регуларни израз којег сте унијели није исправан.</translation>
     </message>
 </context>
 <context>
@@ -5049,7 +5049,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/tools/VideoFetcher.cpp" line="69"/>
         <source>The following services are supported:</source>
-        <translation>Следећи сервиси су подржани:</translation>
+        <translation>Сљедећи сервиси су подржани:</translation>
     </message>
     <message>
         <location filename="../src/tools/VideoFetcher.cpp" line="101"/>
@@ -5059,7 +5059,7 @@ of data has been uploaded</source>
     <message>
         <location filename="../src/tools/VideoFetcher.cpp" line="115"/>
         <source>Couldn&apos;t decode these links:</source>
-        <translation>Нисам успео да декодирам ове везе:</translation>
+        <translation>Нисам успио да декодирам ове везе:</translation>
     </message>
     <message>
         <location filename="../src/tools/VideoFetcher.ui" line="16"/>
