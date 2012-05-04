@@ -150,7 +150,6 @@ int TorrentDownload::acceptable(QString uri, bool)
 
 void TorrentDownload::globalInit()
 {
-	boost::filesystem::path::default_name_check(boost::filesystem::native);
 	QString ua = getSettingsValue("torrent/ua").toString();
 	short s1 = 0, s2 = 0, s3 = 0, s4 = 0;
 	QRegExp reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
@@ -352,9 +351,9 @@ void TorrentDownload::applySettings()
 	settings.disk_io_write_mode = getSettingsValue("torrent/disk_io_write_mode").toInt();
 	settings.disk_io_read_mode = getSettingsValue("torrent/disk_io_read_mode").toInt();
 	
-	QByteArray external_ip = getSettingsValue("torrent/external_ip").toString().toUtf8();
+	QString external_ip = getSettingsValue("torrent/external_ip").toString();
 	if(!external_ip.isEmpty())
-		settings.announce_ip = libtorrent::address::from_string(external_ip.constData());
+		settings.announce_ip = external_ip.toStdString();
 	
 	m_session->set_settings(settings);
 	
@@ -528,12 +527,10 @@ void TorrentDownload::init(QString source, QString target)
 				//p = data.data();
 				
 				libtorrent::add_torrent_params params;
-				QByteArray path = source.toUtf8();
-				m_info = new libtorrent::torrent_info(boost::filesystem::path( path.constData() ));
+				m_info = new libtorrent::torrent_info(source.toStdString());
 				
 				params.ti = m_info;
-				path = target.toUtf8();
-				params.save_path = path.constData();
+				params.save_path = target.toStdString();
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
 				params.auto_managed = false;
@@ -900,7 +897,6 @@ void TorrentDownload::load(const QDomNode& map)
 		m_strTarget = str = getXMLProperty(map, "target");
 		
 		QString sfile = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") );
-		QByteArray file = sfile.toUtf8();
 		
 		if(!QFile(sfile).open(QIODevice::ReadOnly))
 		{
@@ -909,7 +905,7 @@ void TorrentDownload::load(const QDomNode& map)
 			return;
 		}
 		
-		m_info = new libtorrent::torrent_info(boost::filesystem::path( file.constData() ));
+		m_info = new libtorrent::torrent_info(sfile.toStdString());
 		
 		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
 		
@@ -1261,7 +1257,7 @@ QVariantMap TorrentDownload::properties() const
 	for(libtorrent::torrent_info::file_iterator it=m_info->begin_files();it!=m_info->end_files();it++,i++)
 	{
 		QVariantMap map;
-		map["name"] = QString::fromStdString(it->path.string());;
+		map["name"] = QString::fromStdString(it->filename());
 		map["size"] = qint64(it->size);
 		map["done"] = qint64(progresses[i]);
 		map["priority"] = m_vecPriorities[i];

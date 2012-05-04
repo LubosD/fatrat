@@ -39,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <ctime>
 #include <openssl/ssl.h>
+#include <boost/system/system_error.hpp>
 #include <pion/net/HTTPResponseWriter.hpp>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"

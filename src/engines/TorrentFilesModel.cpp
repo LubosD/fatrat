@@ -77,7 +77,7 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 		{
 			case 0:
 			{
-				QString name = QString::fromStdString(m_files[i].path.string());
+				QString name = QString::fromStdString(m_files[i].path);
 				int p = name.indexOf('/');
 				
 				if(p != -1)
@@ -118,9 +118,10 @@ bool TorrentFilesModel::hasChildren(const QModelIndex& parent) const
 
 void TorrentFilesModel::fill()
 {
-	for(libtorrent::torrent_info::file_iterator it=m_download->m_info->begin_files();it!=m_download->m_info->end_files();it++)
+	//for(libtorrent::torrent_info::file_iterator it=m_download->m_info->begin_files();it!=m_download->m_info->end_files();it++)
+	for (int i=0;i<m_download->m_info->num_files();i++)
 	{
-		m_files << *it;
+		m_files << m_download->m_info->file_at(i);
 	}
 }
 

@@ -261,7 +261,7 @@ void HasherThread::run()
 	try
 	{
 		libtorrent::file_pool fp;
-		libtorrent::storage_interface* st = libtorrent::default_storage_constructor(m_info->files(), 0, m_baseDir.data(), fp);
+		libtorrent::storage_interface* st = libtorrent::default_storage_constructor(m_info->files(), 0, m_baseDir.data(), fp, std::vector<boost::uint8_t>());
 		
 		for(int i=0;i<num && !m_bAbort;i++)
 		{

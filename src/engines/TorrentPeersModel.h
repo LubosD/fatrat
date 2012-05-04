@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QStringList>
 #include <vector>
 #include <libtorrent/session.hpp>
+#include <libtorrent/peer_info.hpp>
 
 class TorrentDownload;
 

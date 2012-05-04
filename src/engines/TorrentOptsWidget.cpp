@@ -96,7 +96,7 @@ void TorrentOptsWidget::load()
 		it != m_download->m_info->end_files();
 		it++)
 	{
-		QStringList elems = QString::fromUtf8(it->path.string().c_str()).split('/');
+		QStringList elems = QString::fromUtf8(it->filename().c_str()).split('/');
 		//QString name = elems.takeLast();
 		
 		QTreeWidgetItem* item = 0;

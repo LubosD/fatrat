@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "TorrentPeersModel.h"
 #include "fatrat.h"
 #include <QIcon>
+#include <libtorrent/peer_info.hpp>
 #include <QtDebug>
 
 extern void* g_pGeoIP;

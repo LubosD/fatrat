@@ -41,7 +41,6 @@ if(WITH_EVERYTHING)
 	set(WITH_JPLUGINS ON)
 endif(WITH_EVERYTHING)
 
-ADD_DEFINITIONS(-DBOOST_FILESYSTEM_VERSION=2)
 if(WITH_CXX0X)
 	ADD_DEFINITIONS(-std=c++0x)
 else(WITH_CXX0X)
@@ -57,15 +56,15 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
-	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.15.0")
+	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.16.0")
 	
 	if(libtorrent_FOUND)
 		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
 		include_directories(${libtorrent_INCLUDE_DIRS})
 		
-		if(libtorrent_VERSION GREATER 0.14.99)
-			set(LIBTORRENT_0_15 TRUE)
-		endif(libtorrent_VERSION GREATER 0.14.99)
+		#if(libtorrent_VERSION GREATER 0.14.99)
+		set(LIBTORRENT_0_15 TRUE)
+		#endif(libtorrent_VERSION GREATER 0.14.99)
 	else(libtorrent_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent found")
 	endif(libtorrent_FOUND)
@@ -92,7 +91,7 @@ if(WITH_BITTORRENT)
 	#endif(ASIO_FOUND)
 	
 	set(QT_USE_QTWEBKIT TRUE)
-	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
+	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL -DBOOST_ASIO_DYN_LINK)
 endif(WITH_BITTORRENT)
 
 if(WITH_JABBER)
@@ -573,7 +572,7 @@ add_executable(fatrat-conf src/fatrat-conf.cpp)
 # This used to be a workaround until it started causing the exact opposite... oh dear!
 #STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
 #message(STATUS ${pion-net_LIBRARIES})
-target_link_libraries(fatrat -ldl ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
+target_link_libraries(fatrat -ldl -lpthread ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
 
 set(fatrat_DEV_HEADERS

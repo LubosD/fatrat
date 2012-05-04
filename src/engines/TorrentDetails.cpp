@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QSettings>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <libtorrent/magnet_uri.hpp>
+#include <libtorrent/peer_info.hpp>
 
 
 TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
@@ -121,7 +122,7 @@ void TorrentDetails::openFile()
 	
 	int i = m_selFiles[0];
 	
-	QString relative = QString::fromUtf8(m_download->m_info->file_at(i).path.string().c_str());
+	QString relative = QString::fromUtf8(m_download->m_info->file_at(i).path.c_str());
 	QString path = m_download->dataPath(false);
 	
 	if(!path.endsWith('/'))
@@ -182,10 +183,10 @@ void TorrentDetails::fill()
 	{
 		m_bFilled = true;
 		
-		boost::optional<boost::posix_time::ptime> time = m_download->m_info->creation_date();
+		boost::optional<time_t> time = m_download->m_info->creation_date();
 		if(time)
 		{
-			std::string created = boost::posix_time::to_simple_string(time.get());
+			std::string created = boost::posix_time::to_simple_string(boost::posix_time::from_time_t(time.get()));
 			lineCreationDate->setText(created.c_str());
 		}
 		linePieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );
