@@ -1,5 +1,7 @@
 #include "MHDDaemon.h"
 #include "RuntimeException.h"
+#include "Logger.h"
+#include <QFile>
 #include <cassert>
 
 static const char* PAGE_AUTH_REQUIRED = "<html><body><h1>401 Authorization Required</body></html>";
@@ -13,7 +15,7 @@ MHDDaemon::MHDDaemon()
 MHDDaemon::~MHDDaemon()
 {
 	stop();
-	foreach (Handler& h, m_handlers)
+	foreach (Handler h, m_handlers)
 	{
 		delete h.handler;
 	}
@@ -27,13 +29,38 @@ void MHDDaemon::start(int port)
 	m_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, port, 0, 0, MHDDaemon::process, this,
 			MHD_OPTION_THREAD_POOL_SIZE, 3,
 			MHD_OPTION_NOTIFY_COMPLETED, MHDDaemon::finished, this,
+			MHD_OPTION_EXTERNAL_LOGGER, MHDDaemon::log, this,
 			MHD_OPTION_END);
 	if (!m_daemon)
 		throw RuntimeException(tr("Error starting httpd"));
 }
 
-void MHDDaemon::startSSL(int port)
+void MHDDaemon::startSSL(int port, QString pemFile)
 {
+	stop();
+
+	QByteArray pemData = QFile(pemFile).readAll();
+
+	m_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_SSL, port, 0, 0, MHDDaemon::process, this,
+			MHD_OPTION_THREAD_POOL_SIZE, 3,
+			MHD_OPTION_NOTIFY_COMPLETED, MHDDaemon::finished, this,
+			MHD_OPTION_EXTERNAL_LOGGER, MHDDaemon::log, this,
+			MHD_OPTION_HTTPS_MEM_KEY, pemData.constData(),
+			MHD_OPTION_HTTPS_MEM_CERT, pemData.constData(),
+			MHD_OPTION_END);
+
+	if (!m_daemon)
+		throw RuntimeException(tr("Error starting httpd"));
+}
+
+void MHDDaemon::log(void* t, const char* fmt, va_list ap)
+{
+	char* message = new char[512];
+	vsnprintf(message, 512, fmt, ap);
+
+	Logger::global()->enterLogMessage("HttpService", message);
+
+	delete [] message;
 }
 
 void MHDDaemon::stop()
@@ -73,7 +100,7 @@ int MHDDaemon::process(void* t, struct MHD_Connection* conn, const char* url, co
 			bool bad;
 
 			username = MHD_basic_auth_get_username_password(conn, &password);
-			bad = !username || m_strPassword != password;
+			bad = !username || This->m_strPassword != password;
 
 			free(password);
 			free(username);
@@ -82,7 +109,7 @@ int MHDDaemon::process(void* t, struct MHD_Connection* conn, const char* url, co
 			{
 				struct MHD_Response* response;
 
-				response = MHD_create_response_from_buffer(strlen(PAGE_AUTH_REQUIRED), PAGE_AUTH_REQUIRED, MHD_RESPMEM_PERSISTENT);
+				response = MHD_create_response_from_buffer(strlen(PAGE_AUTH_REQUIRED), const_cast<char*>(PAGE_AUTH_REQUIRED), MHD_RESPMEM_PERSISTENT);
 				MHD_queue_basic_auth_fail_response(conn, "FatRat Web Interface", response);
 				MHD_destroy_response(response);
 
@@ -93,7 +120,7 @@ int MHDDaemon::process(void* t, struct MHD_Connection* conn, const char* url, co
 		// Find the right handler
 		state->handler = 0;
 
-		foreach (Handler& h, This->m_handlers)
+		foreach (Handler h, This->m_handlers)
 		{
 			if (h.regexp.exactMatch(url))
 				state->handler = h.handler;
@@ -104,13 +131,15 @@ int MHDDaemon::process(void* t, struct MHD_Connection* conn, const char* url, co
 			// No handler -> error 404
 			return c.showErrorPage(MHD_HTTP_NOT_FOUND, "Not Found");
 		}
+
+		return MHD_YES;
 	}
 	else
 	{
 
 		// TODO: use the handler
 		if (!strcasecmp(method, MHD_HTTP_METHOD_GET))
-			state->handler.handleGet(url, c);
+			state->handler->handleGet(url, c);
 		else if (!strcasecmp(method, MHD_HTTP_METHOD_POST))
 		{
 			if (*upload_data_size)
@@ -132,11 +161,11 @@ int MHDDaemon::process(void* t, struct MHD_Connection* conn, const char* url, co
 			else
 			{
 				// data read, invoke the handler
-				state->handler.handlePost(url, c, state->postData);
+				state->handler->handlePost(url, c, state->postData);
 			}
 		}
 		else if (!strcasecmp(method, MHD_HTTP_METHOD_HEAD))
-			state->handler.handleHead(url, c);
+			state->handler->handleHead(url, c);
 		else
 		{
 			// return unsupported method

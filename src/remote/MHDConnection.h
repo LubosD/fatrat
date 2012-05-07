@@ -25,7 +25,7 @@ protected:
 	QMap<QString,QString> fields(enum MHD_ValueKind kind) const;
 private:
 	MHD_Connection* m_conn;
-	void* m_buffer;
+	char* m_buffer;
 	size_t m_length, m_capacity;
 
 	friend class MHDDaemon;

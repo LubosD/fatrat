@@ -18,7 +18,7 @@ public:
 	void setPassword(QString pass);
 
 	void start(int port);
-	void startSSL(int port);
+	void startSSL(int port, QString pemFile);
 	void stop();
 
 	// Takes ownership of the handler!
@@ -26,15 +26,16 @@ public:
 protected:
 	static int process(void* t, struct MHD_Connection* conn, const char* url, const char* method, const char* version, const char* upload_data, size_t* upload_data_size, void** ptr);
 	static void finished(void* t, struct MHD_Connection* conn, void** ptr, enum MHD_RequestTerminationCode toe); 
+	static void log(void* t, const char* fmt, va_list ap);
 private:
 	struct Handler
 	{
 		QRegExp regexp;
-		MHDService* service;
+		MHDService* handler;
 	};
 	struct State
 	{
-		Handler* handler;
+		MHDService* handler;
 		QByteArray postData;
 	};
 

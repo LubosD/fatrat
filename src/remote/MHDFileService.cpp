@@ -1,3 +1,4 @@
+#include "fatrat.h"
 #include "MHDFileService.h"
 #include <QFileInfo>
 #include <QFile>
@@ -63,7 +64,7 @@ void MHDFileService::handleGet(QString url, MHDConnection& conn)
 				else
 					rangeTo = info.size()-1;
 
-				if (from < 0 || to < 0 || to >= info.size())
+				if (rangeFrom < 0 || rangeTo < 0 || rangeTo >= info.size())
 				{
 					conn.showErrorPage(MHD_HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, "Requested Range Not Satisfiable");
 					return;
@@ -106,9 +107,9 @@ void MHDFileService::handleGet(QString url, MHDConnection& conn)
 
 		if (mimeType)
 			MHD_add_response_header(response, "Content-Type", mimeType);
-		MHD_add_response_header(response, "Server: FatRat " VERSION);
+		MHD_add_response_header(response, "Server", "FatRat " VERSION);
 		
-		MHD_queue_response(m_conn, code, response);
+		MHD_queue_response(conn.getConn(), code, response);
 		MHD_destroy_response(response);	
 	}
 }
@@ -118,7 +119,7 @@ ssize_t readCallback(void* ptr, uint64_t pos, char* buf, size_t max)
 	CBData* data = static_cast<CBData*>(ptr);
 	qint64 remaining = data->rangeTo - data->rangeFrom - pos;
 
-	if (max > remaining)
+	if (qint64(max) > remaining)
 		max = remaining;
 
 	if (!max)
