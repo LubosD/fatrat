@@ -51,11 +51,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMultiMap>
 #include <QProcess>
 #include <QFile>
-#include <pion/net/PionUser.hpp>
-#include <pion/net/HTTPBasicAuth.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include "pion/FileService.hpp"
 #include <cstdlib>
 #include <sstream>
 #include <locale.h>

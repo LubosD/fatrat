@@ -147,21 +147,6 @@ set(QT_USE_QTSVG TRUE)
 if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
 endif(WITH_DOCUMENTATION)
-if(WITH_WEBINTERFACE)
-	pkg_check_modules(pion-net REQUIRED "pion-net >= 3.0.0")
-	
-	if(pion-net_FOUND)
-		include_directories(${pion-net_INCLUDE_DIRS})
-		#message(STATUS "Pion libdir: ${pion-net_LIBDIR}")
-		
-		#FILE(GLOB pion_FileService "${pion-net_LIBDIR}/pion/plugins/FileService.*")
-		#if(pion_FileService MATCHES "^$")
-		#	message(FATAL_ERROR "Pion-net FileService plugin not found (libpion-net-plugins?) - ${pion_FileService}")
-		#endif(pion_FileService MATCHES "^$")
-	else(pion-net_FOUND)
-		message(FATAL_ERROR "No pion-net library found")
-	endif(pion-net_FOUND)
-endif(WITH_WEBINTERFACE)
 
 #set(CMAKE_REQUIRED_INCLUDES "sys/types.h")
 CHECK_INCLUDE_FILES("sys/types.h;attr/xattr.h" HAVE_XATTR_H)
@@ -517,8 +502,8 @@ if(WITH_WEBINTERFACE)
 		src/remote/HttpService.cpp
 		src/remote/SettingsWebForm.cpp
 		src/remote/XmlRpcService.cpp
-		src/remote/pion/FileService.cpp
 		src/remote/CertGenDlg.cpp
+		src/remote/httpd/HttpDaemon.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_MOC_HDRS
@@ -527,6 +512,7 @@ if(WITH_WEBINTERFACE)
 		src/remote/SettingsWebForm.h
 		src/remote/CertGenDlg.h
 		src/remote/HttpService.h
+		src/remote/httpd/HttpDaemon.h
 		src/captcha/CaptchaHttp.h
 	)
 	set(fatrat_UIS

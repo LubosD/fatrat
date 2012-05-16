@@ -40,15 +40,12 @@ respects for all of the code used other than "OpenSSL".
 #include <ctime>
 #include <openssl/ssl.h>
 #include <boost/system/system_error.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
-
-#include <pion/net/WebServer.hpp>
 
 class Queue;
 class Transfer;

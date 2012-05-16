@@ -18,4 +18,5 @@ gfx/resources.qrc.depends
 fatrat.creator.user
 fatrat
 fatrat-conf
+*.swp
 
