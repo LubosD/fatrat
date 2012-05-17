@@ -2,6 +2,7 @@
 #define HTTPDAEMON_H
 #include <QObject>
 #include <QMap>
+#include <QList>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <boost/shared_ptr.hpp>
@@ -20,9 +21,11 @@ public:
 	void setBindAddress(QString addr) { if (m_server <= 0) m_strBindAddress = addr; }
 	void setPort(unsigned short port) { if (m_server <= 0) m_port = port; }
 
+    void registerHandler(QString regexp, HttpHandler* handler);
+
 	virtual void start();
 	virtual void stop();
-private:
+protected:
 	void startV4();
 	void startV6();
 	bool pollCycle();
@@ -36,7 +39,7 @@ private:
 	virtual int writeBytes(int s, const char* buffer, size_t b);
 	static void throwErrnoException();
 	static void* pollThread(void* t);
-private:
+protected:
 	int m_server;
 	Poller* m_poller;
 	bool m_bUseV6;
@@ -55,12 +58,14 @@ private:
 		// request buffer
 		QByteArray requestBuffer;
 		long long bodyLength, bodyReceived;
+		void* userPointer;
 
 		void reset()
 		{
 			bodyLength = bodyReceived = 0;
 			handler = 0;
 			state = ReceivingHeaders;
+			userPointer = 0;
 		}
 	};
 	struct HttpRequest
@@ -68,9 +73,18 @@ private:
 		QString method, uri, queryString;
 		QMap<QString,QString> headers;
 		QMap<QString,QString> getVars, postVars;
+        HttpHandler* handler;
 	};
+    struct Handler
+    {
+        QString regexp;
+        HttpHandler* handler;
+    };
 
 	QMap<int,Client> m_clients;
+    QList<Handler> m_handlers;
+
+	friend class HttpResponse;
 };
 
 #endif

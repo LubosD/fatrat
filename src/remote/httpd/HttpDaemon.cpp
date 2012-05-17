@@ -1,5 +1,6 @@
 #include "HttpDaemon.h"
 #include "RuntimeException.h"
+#include <QRegExp>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -14,7 +15,13 @@ HttpDaemon::HttpDaemon()
 
 HttpDaemon::~HttpDaemon()
 {
-	stop();
+    stop();
+}
+
+void HttpDaemon::registerHandler(QString regexp, HttpHandler *handler)
+{
+    Handler h = { regexp, handler };
+    m_handlers << h;
 }
 
 void HttpDaemon::startV4()
@@ -211,11 +218,36 @@ bool HttpDaemon::tryProcessRequest(int s)
 		}
 	}
 
-	// TODO: find the handler
-	// no handler -> 404
-	//
-	// Client::Responding -> call the handler
-	// other state -> process already received bytes
+    int maxLen = 0;
+
+    request.handler = 0;
+
+    foreach (const Handler& h, m_handlers)
+    {
+        QRegExp re(h.regexp);
+        if (re.exactMatch(request.uri) && h.regexp.size() > maxLen)
+        {
+            maxLen = h.regexp.size();
+            request.handler = h.handler;
+        }
+    }
+
+    if (!request.handler)
+    {
+        // TODO: send 404
+
+        if (request.method == "POST")
+        {
+            // TODO: if post, check for 100 Continue support
+            // If no support, receive the body first
+        }
+        return true;
+    }
+    else
+    {
+        // TODO: Client::Responding -> call the handler
+        // other state -> process already received bytes
+    }
 
 	return true;
 }
