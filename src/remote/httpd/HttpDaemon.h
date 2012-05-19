@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QMap>
 #include <QList>
+#include "HttpRequest.h"
 #include <pthread.h>
 #include <sys/socket.h>
 #include <boost/shared_ptr.hpp>
@@ -29,14 +30,34 @@ protected:
 	void startV4();
 	void startV6();
 	bool pollCycle();
+
+    // Accepts a client connection and allocates required structures
 	void acceptClient();
+
+    // Drops the connection and frees all associated resources
 	void closeClient(int s);
+
+    // When PollIn is indicated
 	void readClient(int s);
+
+    // When PollOut is indicated
 	void writeClient(int s);
+
+    // Detect whether we have received a complete request (except for possible request body)
 	bool tryProcessRequest(int s);
+
+	void invokeHandlerChecked(int s, const HttpRequest& req, boost::shared_ptr<HttpResponse> resp);
+
+    // Parses URL-encoded form data
 	static QMap<QString,QString> parseUE(QByteArray ba);
+
+    // Reads data from a client socket
 	virtual int readBytes(int s, char* buffer, size_t max);
+
+    // Writes data into a client socket
 	virtual int writeBytes(int s, const char* buffer, size_t b);
+
+    // Throws a RuntimeException with an error msg based on errno
 	static void throwErrnoException();
 	static void* pollThread(void* t);
 protected:
@@ -57,24 +78,23 @@ protected:
 
 		// request buffer
 		QByteArray requestBuffer;
-		long long bodyLength, bodyReceived;
+        long long requestBodyLength, requestBodyReceived;
+        long long responseBodyLength, responseBodySent;
+
 		void* userPointer;
+        HttpRequest request;
 
 		void reset()
 		{
-			bodyLength = bodyReceived = 0;
+            requestBodyLength = requestBodyReceived = 0;
+            responseBodyLength = responseBodySent = 0;
 			handler = 0;
 			state = ReceivingHeaders;
 			userPointer = 0;
+            request = HttpRequest();
 		}
 	};
-	struct HttpRequest
-	{
-		QString method, uri, queryString;
-		QMap<QString,QString> headers;
-		QMap<QString,QString> getVars, postVars;
-        HttpHandler* handler;
-	};
+
     struct Handler
     {
         QString regexp;
