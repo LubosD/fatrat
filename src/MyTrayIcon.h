@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2012 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,14 +28,18 @@ respects for all of the code used other than "OpenSSL".
 #ifndef MYTRAYICON_H
 #define MYTRAYICON_H
 #include "tooltips/TrayToolTip.h"
+#include <cstdlib>
 #include <QtDebug>
 
 class MyTrayIcon : public QSystemTrayIcon
 {
 public:
-	MyTrayIcon(QWidget* parent) : QSystemTrayIcon(parent)
+	MyTrayIcon(QWidget* parent) : QSystemTrayIcon(parent), m_tip(0)
 	{
-		m_tip = new TrayToolTip;
+		const char* desktop = getenv("XDG_CURRENT_DESKTOP");
+
+		if (!desktop || strcmp(desktop, "Unity") != 0)
+			m_tip = new TrayToolTip;
 	}
 	
 	~MyTrayIcon()
@@ -45,7 +49,7 @@ public:
 	
 	bool event(QEvent* e)
 	{
-		if(e->type() == QEvent::ToolTip)
+		if (m_tip && e->type() == QEvent::ToolTip)
 		{
 			m_tip->regMove();
 			return true;
