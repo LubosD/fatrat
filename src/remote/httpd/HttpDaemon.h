@@ -52,14 +52,20 @@ protected:
 	static QMap<QString,QString> parseUE(QByteArray ba);
 
     // Reads data from a client socket
-	virtual int readBytes(int s, char* buffer, size_t max);
+	virtual int readBytes(int s, char* buffer, int max);
+
+	int readBytesOrRemnant(int s, char* buffer, int max);
 
     // Writes data into a client socket
-	virtual int writeBytes(int s, const char* buffer, size_t b);
+	virtual int writeBytes(int s, const char* buffer, int b);
+
+	HttpHandler* findHandler(QString uri);
 
     // Throws a RuntimeException with an error msg based on errno
 	static void throwErrnoException();
 	static void* pollThread(void* t);
+
+	static void parseHTTPRequest(HttpRequest& out, const QByteArray& req);
 protected:
 	int m_server;
 	Poller* m_poller;
@@ -77,7 +83,7 @@ protected:
 		HttpHandler* handler;
 
 		// request buffer
-		QByteArray requestBuffer;
+		QByteArray requestBuffer, remnantBuffer;
         long long requestBodyLength, requestBodyReceived;
         long long responseBodyLength, responseBodySent;
 

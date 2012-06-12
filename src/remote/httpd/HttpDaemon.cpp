@@ -10,6 +10,10 @@
 #include <boost/scoped_array.hpp>
 #include <netdb.h>
 #include <algorithm>
+#include <cassert>
+
+const int READ_BUFFER_LENGTH = 4*1024;
+const int MAX_URLENCODED_BODY = 1024;
 
 HttpDaemon::HttpDaemon()
 : m_server(0), m_poller(0), m_bUseV6(false), m_port(2233)
@@ -147,14 +151,59 @@ void HttpDaemon::closeClient(int s)
     m_clients.remove(s);
 }
 
+void HttpDaemon::parseHTTPRequest(HttpRequest& request, const QByteArray& req)
+{
+	QList<QByteArray> lines;
+
+	lines = req.split('\n');
+
+	// Parse request line
+	QList<QByteArray> seg = lines[0].split(' ');
+
+	if (lines.size() < 2 || seg.size() != 3)
+	{
+		// send bad request
+		response->sendErrorGeneric(400, "Bad Request");
+		closeClient(s);
+		return true;
+	}
+
+	request.method = seg[0];
+	request.uri = seg[1];
+
+	{
+		int pos = request.uri.indexOf('?');
+		QByteArray vars = request.uri.mid(pos+1).toLatin1();
+
+		request.getVars = parseUE(vars);
+		request.uri.truncate(pos); // remove query string
+	}
+
+    // Parse request headers
+    for (int i=1; i<lines.size()-1; i++)
+    {
+        QByteArray line = lines[i].trimmed();
+        int pos = line.indexOf(": ");
+
+        if (pos < 0)
+            continue;
+
+        request.headers[line.left(pos).toLower()] = line.mid(pos+2);
+    }
+
+}
+
 bool HttpDaemon::tryProcessRequest(int s)
 {
+	assert(m_clients.contains(s));
+
 	Client& c = m_clients[s];
     int pos;
-    QList<QByteArray> lines;
     QByteArray req;
     HttpRequest& request = c.request;
     boost::shared_ptr<HttpResponse> response;
+
+	assert(c.state == Client::ReceivingHeaders);
 
     // detect end-of-request (double \r\n)
     pos = c.requestBuffer.indexOf("\r\n\r\n");
@@ -162,48 +211,16 @@ bool HttpDaemon::tryProcessRequest(int s)
     if (pos < 0) // request not complete yet
 		return false;
 
+	// carve out the request
     req = c.requestBuffer.left(pos+4);
 
-    c.requestBuffer = c.requestBuffer.mid(pos+4);
-	lines = req.split('\n');
+	// this may be the body or another request
+    c.remnantBuffer = c.requestBuffer.mid(pos+4);
+	c.requestBuffer.clear();
+
+	parseHTTPRequest(request, req);
 
     response = boost::shared_ptr<HttpResponse>( new HttpResponse(this, s) );
-
-	// Parse request line
-    {
-        QList<QByteArray> seg = lines[0].split(' ');
-
-        if (lines.size() < 2 || seg.size() != 3)
-        {
-            // send bad request
-            response->sendErrorGeneric(400, "Bad Request");
-            closeClient(s);
-            return true;
-        }
-
-        request.method = seg[0];
-        request.uri = seg[1];
-
-        {
-            int pos = request.uri.indexOf('?');
-            QByteArray vars = request.uri.mid(pos+1).toLatin1();
-
-            request.getVars = parseUE(vars);
-            request.uri.truncate(pos); // remove query string
-        }
-    }
-
-    // Parse request headers
-	for (int i=1; i<lines.size()-1; i++)
-	{
-        QByteArray line = lines[i].trimmed();
-		int pos = line.indexOf(": ");
-
-		if (pos < 0)
-			continue;
-
-        request.headers[line.left(pos).toLower()] = line.mid(pos+2);
-	}
 
     // Check for request body presence
     c.requestBodyLength = request.headers["content-length"].toLongLong();
@@ -212,7 +229,7 @@ bool HttpDaemon::tryProcessRequest(int s)
     if ((c.requestBodyLength > 0) != (request.method == "POST"))
     {
         // send bad request
-        response->sendErrorGeneric(400, "Bad Request");
+        response->sendErrorGeneric(411, "Length Required");
         closeClient(s);
         return true;
     }
@@ -227,6 +244,14 @@ bool HttpDaemon::tryProcessRequest(int s)
 		{
 			// handle locally
 			c.state = Client::ReceivingUEBody;
+
+			// check body length (max 1024 bytes)
+			if (c.requestBodyLength > MAX_URLENCODED_BODY)
+			{
+				response->sendErrorGeneric(413, "Request Entity Too Large");
+				closeClient(s);
+				return true;
+			}
 		}
 		else
 		{
@@ -235,19 +260,7 @@ bool HttpDaemon::tryProcessRequest(int s)
 		}
 	}
 
-    // Find a handler
-    int maxLen = 0; // prefer longer regexps
-    c.handler = 0;
-
-    foreach (const Handler& h, m_handlers)
-    {
-        QRegExp re(h.regexp);
-        if (re.exactMatch(request.uri) && h.regexp.size() > maxLen)
-        {
-            maxLen = h.regexp.size();
-            c.handler = h.handler;
-        }
-    }
+	c.handler = findHandler(request.uri);
 
     if (!c.handler) // No handler found
     {
@@ -260,21 +273,31 @@ bool HttpDaemon::tryProcessRequest(int s)
         // send 404
         response->sendErrorGeneric(404, "Not Found");
     }
-    else // Invoke the handler
+    else if (c.state == Client::Responding) // Invoke the handler
     {
-        if (c.state == Client::Responding)
-        {
-            // Client::Responding -> call the handler
-            c.handler->handle(request, response, &c.userPointer);
-            // TODO: check if handler reacted
-        }
-        else if (!c.requestBuffer.isEmpty())
-        {
-            // TODO: other state -> process already received bytes
-        }
+		c.handler->handle(request, response, &c.userPointer);
+		// TODO: check if handler reacted
     }
 
 	return true;
+}
+
+HttpHandler* HttpDaemon::findHandler(QString uri)
+{
+	int maxLen = 0; // prefer longer regexps
+    HttpHandler* handler = 0;
+
+    foreach (const Handler& h, m_handlers)
+    {
+        QRegExp re(h.regexp);
+        if (re.exactMatch(request.uri) && h.regexp.size() > maxLen)
+        {
+            maxLen = h.regexp.size();
+            handler = h.handler;
+        }
+    }
+
+	return handler;
 }
 
 QMap<QString,QString> HttpDaemon::parseUE(QByteArray ba)
@@ -304,78 +327,97 @@ void HttpDaemon::invokeHandlerChecked(int s, const HttpRequest& req, boost::shar
 
 }
 
+// FIXME: rewrite into a big readBytes() loop, make callable from tryProcessRequest
 void HttpDaemon::readClient(int s)
 {
+	assert(m_clients.contains(s));
+
 	Client& c = m_clients[s];
-    boost::scoped_array<char> buf(new char[4*1024]);
+    boost::scoped_array<char> buf(new char[READ_BUFFER_LENGTH]);
     int rd;
 
-	if (c.state == Client::Responding)
-		return; // Shouldn't happen
-	else if (c.state == Client::ReceivingBody)
+	assert(c.state != Client::Responding); // TODO: how is this enforced?
+
+	while (c.state != Client::Responding && (rd = readBytes(s, buf.get(), READ_BUFFER_LENGTH)) > 0)
 	{
-        /*if (!c.handler)
+		switch (c.state)
 		{
-			closeClient(s);
-			return;
-        }*/
+		case Client::ReceivingBody:
+		{
+			long long toProcess = std::min<long long>(rd, c.requestBodyLength - c.requestBodyReceived);
 
-        assert(c.requestBodyLength > 0);
-
-        while ((rd = readBytes(s, buf.get(), 4*1024)) > 0 && c.requestBodyReceived < c.requestBodyLength)
-        {
-            long long toProcess = std::min<long long>(rd, c.requestBodyLength - c.requestBodyReceived);
-
-            // Drop data if no handler (delayed 404)
-            if (c.handler)
-                c.handler->write(&c.userPointer, c.request, buf.get(), size_t(toProcess));
-
-            c.requestBodyReceived += toProcess;
-
-            // Store the remaining bytes
-            if (rd > toProcess)
-                c.requestBuffer.append(buf.get() + toProcess, rd-toProcess);
-        }
-
-        assert(c.requestBodyReceived <= c.requestBodyLength);
-
-        if (c.requestBodyReceived == c.requestBodyLength)
-        {
-            // TODO: call handler
+			// Drop data if no handler (delayed 404)
 			if (c.handler)
-				c.handler;
-			else
-			{
-				// delayed POST 404
-				HttpResponse(this, s).sendErrorGeneric(404, "Not Found");
-			}
-        }
-	}
-    else if (c.state == Client::ReceivingUEBody)
-    {
-        // TODO: process locally
-        // TODO: check for max length
-    }
-	else if (c.state == Client::ReceivingHeaders)
-	{
-		while ((rd = readBytes(s, buf.get(), 4*1024)) > 0)
+				c.handler->write(&c.userPointer, c.request, buf.get(), size_t(toProcess));
+
+			c.requestBodyReceived += toProcess;
+
+			if (rd > toProcess)
+				c.remnantBuffer.append(buf.get() + toProcess, rd-toProcess);
+
+			assert(c.requestBodyReceived <= c.requestBodyLength);
+
+	        if (c.requestBodyReceived == c.requestBodyLength)
+    	    {
+        	    // TODO: call handler
+            	if (c.handler)
+                	c.handler;
+	            else
+    	        {
+        	        // delayed POST 404
+            	    HttpResponse(this, s).sendErrorGeneric(404, "Not Found");
+	            }
+    	    }
+			break;
+		}
+		case Client::ReceivingUEBody:
+		{
+			// TODO: process locally
+			break;
+		}
+		case Client::ReceivingHeaders:
 		{
 			c.requestBuffer.append(buf.get(), rd);
-			if (tryProcessRequest(s))
-				break;
+            tryProcessRequest(s);
+			break;
 		}
+		default:
+			assert(false);
+		}
+	}
 
-		if (rd < 0)
-		{
-			// TODO: log read error
-			closeClient(s);
-			return;
-		}
+	if (rd < 0)
+	{
+		// TODO: log error
+		closeClient(s);
 	}
 }
 
 void HttpDaemon::writeClient(int s)
 {
+}
+
+int HttpDaemon::readBytesOrRemnant(int s, char* buffer, int max)
+{
+	assert(m_clients.contains(s));
+	Client& c = m_clients[s];
+
+	if (!c.remnantBuffer.isEmpty())
+	{
+		int out = std::min<int>(max, c.remnantBuffer.size());
+		memcpy(buffer, c.remnantBuffer.constData(), out);
+
+		if (out < c.remnantBuffer.size())
+			c.remnantBuffer = c.remnantBuffer.mid(out);
+		else
+			c.remnantBuffer.clear();
+
+		return out;
+	}
+	else
+	{
+		return readBytes(s, buffer, max);
+	}
 }
 
 void HttpDaemon::acceptClient()
@@ -440,3 +482,8 @@ void HttpDaemon::stop()
 	}
 }
 
+#include "HttpDaemon.h"
+#include "HttpResponse.h"
+#include "HttpHandler.h"
+#include "RuntimeException.h"
+#include <QRegExp>

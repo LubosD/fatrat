@@ -46,6 +46,7 @@ void HttpResponse::sendResponseAsyncEnd()
 {
     // TODO: check sent length
     // TODO: mark as complete
+	// TODO: process extra incoming bytes left in the buffer
 }
 
 void HttpResponse::addHeader(QString name, QString value)
