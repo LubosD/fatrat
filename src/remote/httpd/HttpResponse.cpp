@@ -35,6 +35,7 @@ void HttpResponse::sendResponseAsyncStart(int code, const char* desc)
 {
 	markHandled();
     // TODO: remove from PollIn notifications!
+	// TODO: switch socket to blocking
 }
 
 void HttpResponse::sendResponseAsyncData(const char* data, size_t len)
@@ -47,6 +48,7 @@ void HttpResponse::sendResponseAsyncEnd()
     // TODO: check sent length
     // TODO: mark as complete
 	// TODO: process extra incoming bytes left in the buffer
+	// TODO: switch socket to non-blocking
 }
 
 void HttpResponse::addHeader(QString name, QString value)

@@ -46,8 +46,6 @@ protected:
     // Detect whether we have received a complete request (except for possible request body)
 	bool tryProcessRequest(int s);
 
-	void invokeHandlerChecked(int s, const HttpRequest& req, boost::shared_ptr<HttpResponse> resp);
-
     // Parses URL-encoded form data
 	static QMap<QString,QString> parseUE(QByteArray ba);
 
@@ -66,6 +64,7 @@ protected:
 	static void* pollThread(void* t);
 
 	static void parseHTTPRequest(HttpRequest& out, const QByteArray& req);
+	static void setFdUnblocking(int fd, bool unblocking);
 protected:
 	int m_server;
 	Poller* m_poller;

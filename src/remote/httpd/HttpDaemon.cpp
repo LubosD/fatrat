@@ -14,6 +14,8 @@
 
 const int READ_BUFFER_LENGTH = 4*1024;
 const int MAX_URLENCODED_BODY = 1024;
+const int EVENTS_PER_CYCLE = 5;
+const int SOCKET_BACKLOG = 5;
 
 HttpDaemon::HttpDaemon()
 : m_server(0), m_poller(0), m_bUseV6(false), m_port(2233)
@@ -111,10 +113,10 @@ void* HttpDaemon::pollThread(void* t)
 
 bool HttpDaemon::pollCycle()
 {
-	Poller::Event ev[5];
+	Poller::Event ev[EVENTS_PER_CYCLE];
 	int nfds;
 
-    nfds = m_poller->wait(500, ev, sizeof(ev)/sizeof(ev[0]));
+    nfds = m_poller->wait(500, ev, EVENTS_PER_CYCLE);
 
 	for (int i = 0; i < nfds; i++)
 	{
@@ -136,6 +138,7 @@ bool HttpDaemon::pollCycle()
 		}
 		else
 		{
+			assert(m_clients.contains(e.socket));
 			// This should never happen
 			m_poller->removeSocket(e.socket);
 			::close(e.socket);
@@ -276,7 +279,10 @@ bool HttpDaemon::tryProcessRequest(int s)
     else if (c.state == Client::Responding) // Invoke the handler
     {
 		c.handler->handle(request, response, &c.userPointer);
-		// TODO: check if handler reacted
+		// check if handler reacted
+
+		if (!response->wasHandled())
+			response->sendErrorGeneric(500, "Internal Server Error");
     }
 
 	return true;
@@ -321,13 +327,6 @@ QMap<QString,QString> HttpDaemon::parseUE(QByteArray ba)
 	return rv;
 }
 
-void HttpDaemon::invokeHandlerChecked(int s, const HttpRequest& req, boost::shared_ptr<HttpResponse> resp)
-{
-	Client& c = m_clients[s];
-
-}
-
-// FIXME: rewrite into a big readBytes() loop, make callable from tryProcessRequest
 void HttpDaemon::readClient(int s)
 {
 	assert(m_clients.contains(s));
@@ -343,12 +342,18 @@ void HttpDaemon::readClient(int s)
 		switch (c.state)
 		{
 		case Client::ReceivingBody:
+		case Client::ReceivingUEBody:
 		{
 			long long toProcess = std::min<long long>(rd, c.requestBodyLength - c.requestBodyReceived);
 
 			// Drop data if no handler (delayed 404)
 			if (c.handler)
-				c.handler->write(&c.userPointer, c.request, buf.get(), size_t(toProcess));
+			{
+				if (c.state == Client::ReceivingBody)
+					c.handler->write(&c.userPointer, c.request, buf.get(), size_t(toProcess));
+				else
+					c.requestBodyReceived += toProcess;
+			}
 
 			c.requestBodyReceived += toProcess;
 
@@ -359,20 +364,31 @@ void HttpDaemon::readClient(int s)
 
 	        if (c.requestBodyReceived == c.requestBodyLength)
     	    {
-        	    // TODO: call handler
+				c.state = Client::Responding;
+
+        	    // call handler
             	if (c.handler)
-                	c.handler;
+				{
+					boost::shared_ptr<HttpResponse> response = boost::shared_ptr<HttpResponse>( new HttpResponse(this, s) );
+
+					if (c.state == Client::ReceivingUEBody)
+					{
+						c.request.postVars = parseUE(c.requestBuffer);
+						c.requestBuffer.clear();
+					}
+					
+                	c.handler->handle(c.request, response, &c.userPointer);
+
+					// check if handled
+					if (!response->wasHandled())
+						response->sendErrorGeneric(500, "Internal Server Error");
+				}
 	            else
     	        {
         	        // delayed POST 404
             	    HttpResponse(this, s).sendErrorGeneric(404, "Not Found");
 	            }
     	    }
-			break;
-		}
-		case Client::ReceivingUEBody:
-		{
-			// TODO: process locally
 			break;
 		}
 		case Client::ReceivingHeaders:
@@ -395,6 +411,16 @@ void HttpDaemon::readClient(int s)
 
 void HttpDaemon::writeClient(int s)
 {
+	assert(m_clients.contains(s));
+
+	Client& c = m_clients[s];
+
+	assert(c.state == Client::Responding);
+
+	// TODO: Get current response mode
+	// If callback, call callback
+	// If simple, write buffer contents
+	// If async, we shouldn't be here
 }
 
 int HttpDaemon::readBytesOrRemnant(int s, char* buffer, int max)
@@ -444,10 +470,14 @@ void HttpDaemon::acceptClient()
 		c.state = Client::ReceivingHeaders;
 		m_clients[s] = c;
 
-		// TODO: make unblocking
-
+		setFdUnblocking(s, true);
 		m_poller->addSocket(s, Poller::PollerIn | Poller::PollerError);
 	}
+}
+
+void HttpDaemon::setFdUnblocking(int fd, bool unblocking)
+{
+	::fcntl(fd, F_SETFL, unblocking ? O_NONBLOCK : 0);
 }
 
 void HttpDaemon::start()
@@ -457,7 +487,7 @@ void HttpDaemon::start()
 	else
 		startV4();
 
-	if (::listen(m_server, 5) < 0)
+	if (::listen(m_server, SOCKET_BACKLOG) < 0)
 		throwErrnoException();
 
 	m_poller = Poller::createInstance(this);
@@ -470,20 +500,16 @@ void HttpDaemon::stop()
 	{
 		::close(m_server);
 		m_server = 0;
+
         pthread_join(m_thread, 0);
+
 		delete m_poller;
 		m_poller = 0;
 
-		for (QMap<int,Client>::iterator it = m_clients.begin(); it != m_clients.end(); it++)
-		{
-            ::close(it.key());
-		}
+		foreach (int s, m_client.keys())
+			::close(s);
+
 		m_clients.clear();
 	}
 }
 
-#include "HttpDaemon.h"
-#include "HttpResponse.h"
-#include "HttpHandler.h"
-#include "RuntimeException.h"
-#include <QRegExp>
