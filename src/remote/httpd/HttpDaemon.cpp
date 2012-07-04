@@ -364,13 +364,13 @@ void HttpDaemon::readClient(int s)
 
 	        if (c.requestBodyReceived == c.requestBodyLength)
     	    {
+                boost::shared_ptr<HttpResponse> response = boost::shared_ptr<HttpResponse>( new HttpResponse(this, s) );
+
 				c.state = Client::Responding;
 
         	    // call handler
             	if (c.handler)
 				{
-					boost::shared_ptr<HttpResponse> response = boost::shared_ptr<HttpResponse>( new HttpResponse(this, s) );
-
 					if (c.state == Client::ReceivingUEBody)
 					{
 						c.request.postVars = parseUE(c.requestBuffer);
@@ -386,7 +386,7 @@ void HttpDaemon::readClient(int s)
 	            else
     	        {
         	        // delayed POST 404
-            	    HttpResponse(this, s).sendErrorGeneric(404, "Not Found");
+                    response->sendErrorGeneric(404, "Not Found");
 	            }
     	    }
 			break;

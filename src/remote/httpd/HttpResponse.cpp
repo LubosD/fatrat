@@ -54,4 +54,7 @@ void HttpResponse::sendResponseAsyncEnd()
 void HttpResponse::addHeader(QString name, QString value)
 {
     m_headers[name] = value;
+
+    if (name.toLowerCase() == "content-length")
+        m_daemon->m_clients[m_id].responseBodyLength = value.toLongLong();
 }
