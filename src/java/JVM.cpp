@@ -109,7 +109,12 @@ void JVM::jvmStartup(QString libname)
 
 	jint res;
 	JavaVMInitArgs vm_args;
+#ifdef DEBUG_BUILD
+	JavaVMOption options[9];
+#else
 	JavaVMOption options[7];
+#endif
+	
 	JNIEnv* env;
 	QByteArray classpath = getClassPath().toUtf8();
 	int mb = getSettingsValue("java/maxheap").toInt();
@@ -129,6 +134,10 @@ void JVM::jvmStartup(QString libname)
 	options[4].optionString = const_cast<char*>("-XX:+UseParNewGC");
 	options[5].optionString = const_cast<char*>("-XX:MinHeapFreeRatio=5");
 	options[6].optionString = const_cast<char*>("-XX:MaxHeapFreeRatio=10");
+#ifdef DEBUG_BUILD
+	options[7].optionString = const_cast<char*>("-Xdebug");
+	options[8].optionString = const_cast<char*>("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8222");
+#endif
 
 	vm_args.version = 0x00010006;
 	vm_args.options = options;

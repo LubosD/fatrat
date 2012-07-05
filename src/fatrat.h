@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2012 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkProxy>
 #include "DelayedIcon.h"
 
-#define VERSION "1.2.0_beta1"
+#define VERSION "1.2.0_beta2"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
