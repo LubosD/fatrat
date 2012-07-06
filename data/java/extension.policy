@@ -3,4 +3,5 @@ grant {
 	permission java.util.PropertyPermission "*", "read";
 	permission java.lang.RuntimePermission "createClassLoader";
 	permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "getProtectionDomain";
 };
