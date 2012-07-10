@@ -250,7 +250,10 @@ void TorrentDownload::applySettings()
 		lend = lstart;
 	
 	if(m_session->listen_port() != lstart)
-		m_session->listen_on(std::pair<int,int>(lstart,lend));
+	{
+		libtorrent::error_code ec; // TODO: Do we use this in any way?
+		m_session->listen_on(std::pair<int,int>(lstart,lend), ec);
+	}
 	
 	bUPnP = getSettingsValue("torrent/mapping_upnp").toBool();
 	bNATPMP = getSettingsValue("torrent/mapping_natpmp").toBool();
@@ -333,9 +336,6 @@ void TorrentDownload::applySettings()
 			removeStatusWidget(m_labelDHTStats);
 	}
 	
-	m_session->set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
-	m_session->set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
-	
 	QString ua = getSettingsValue("torrent/ua").toString();
 	ua.replace("%v", VERSION);
 	
@@ -344,6 +344,8 @@ void TorrentDownload::applySettings()
 	settings.user_agent = ua.toStdString();
 	//settings.max_out_request_queue = 300;
 	//settings.piece_timeout = 50;
+	settings.unchoke_slots_limit = getSettingsValue("torrent/maxuploads").toInt();
+	settings.connections_limit = getSettingsValue("torrent/maxconnections").toInt();
 	settings.max_failcount = 7;
 	settings.request_queue_time = 30.f;
 	settings.max_out_request_queue = 100;
@@ -550,12 +552,11 @@ void TorrentDownload::init(QString source, QString target)
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
 				params.auto_managed = false;
+				params.url = ss;
 
-				m_handle = libtorrent::add_magnet_uri(*m_session, ss, params);
+				m_handle = m_session->add_torrent(params);
 			}
 			
-			
-			m_handle.set_ratio(1.2f);
 			
 			{
 				int limit;
@@ -855,8 +856,9 @@ libtorrent::entry TorrentDownload::bdecode_simple(QByteArray array)
 
 void TorrentDownload::lazy_bdecode_simple(libtorrent::lazy_entry& e, QByteArray array)
 {
+	libtorrent::error_code ec;
 	if(!array.isEmpty())
-		libtorrent::lazy_bdecode(array.constData(), array.constData() + array.size(), e);
+		libtorrent::lazy_bdecode(array.constData(), array.constData() + array.size(), e, ec);
 }
 
 libtorrent::entry TorrentDownload::bdecode(QString d)
@@ -926,7 +928,6 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_handle = m_session->add_torrent(params);
 		
-		m_handle.set_ratio(1.2f);
 		m_handle.set_max_uploads(getSettingsValue("torrent/maxuploads").toInt());
 		m_handle.set_max_connections(getSettingsValue("torrent/maxconnections").toInt());
 		
@@ -1386,7 +1387,7 @@ void TorrentWorker::doWork()
 		
 		if(!d->m_info)
 		{
-			if(!d->m_handle.has_metadata())
+			if(!d->m_handle.get_torrent_info().is_valid())
 				continue;
 			d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
 		}
@@ -1408,17 +1409,15 @@ void TorrentWorker::doWork()
 			if(d->mode() == Transfer::Download)
 			{
 				if(d->m_status.state == libtorrent::torrent_status::finished ||
-				  d->m_status.state == libtorrent::torrent_status::seeding || d->m_handle.is_seed())
+				  d->m_status.state == libtorrent::torrent_status::seeding || d->m_status.is_seeding)
 				{
 					d->setMode(Transfer::Upload);
 					d->enterLogMessage(tr("The torrent has been downloaded"));
-					d->m_handle.set_ratio(0);
 				}
 				else if(d->m_status.total_wanted == d->m_status.total_wanted_done)
 				{
 					d->enterLogMessage(tr("Requested parts of the torrent have been downloaded"));
 					d->setMode(Transfer::Upload);
-					d->m_handle.set_ratio(0);
 				}
 				d->m_handle.super_seeding(d->m_bSuperSeeding);
 			}
@@ -1435,7 +1434,7 @@ void TorrentWorker::doWork()
 						d->setMode(Transfer::Download);
 					}
 				}
-				if (d->m_handle.super_seeding() != d->m_bSuperSeeding)
+				if (d->m_status.super_seeding != d->m_bSuperSeeding)
 					d->m_handle.super_seeding(d->m_bSuperSeeding);
 			}
 			
