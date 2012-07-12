@@ -191,17 +191,17 @@ void TorrentOptsWidget::accepted()
 	
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
 	
-	std::vector<std::string> seeds = m_download->m_info->url_seeds();
+	std::set<std::string> seeds = m_download->m_handle.url_seeds();
 	foreach(QString url, m_seeds)
 	{
 		if(std::find(seeds.begin(), seeds.end(), url.toStdString()) == seeds.end())
 			m_download->m_handle.add_url_seed(url.toStdString());
 	}
-	for(size_t i=0;i<seeds.size();i++)
+	for(std::set<std::string>::iterator it=seeds.begin();it!=seeds.end();it++)
 	{
-		QString url = QString::fromUtf8(seeds[i].c_str());
+		QString url = QString::fromStdString(*it);
 		if(!m_seeds.contains(url))
-			m_download->m_handle.remove_url_seed(seeds[i]);
+			m_download->m_handle.remove_url_seed(*it);
 	}
 	
 	m_download->m_handle.replace_trackers(m_trackers);
