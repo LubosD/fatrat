@@ -1,7 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#cmakedefine WITH_GUI
+#define CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
+
 #cmakedefine WITH_BITTORRENT
 #cmakedefine WITH_NLS
 #cmakedefine WITH_JABBER
