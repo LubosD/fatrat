@@ -1387,7 +1387,7 @@ void TorrentWorker::doWork()
 		
 		if(!d->m_info)
 		{
-			if(!d->m_handle.get_torrent_info().is_valid())
+            if(!d->m_status.has_metadata)
 				continue;
 			d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
 		}
