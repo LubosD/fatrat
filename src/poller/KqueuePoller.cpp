@@ -30,7 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include <alloca.h>
+#include <cstdlib>
 
 KqueuePoller::KqueuePoller(QObject* parent)
 	: Poller(parent)

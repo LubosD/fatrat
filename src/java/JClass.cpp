@@ -33,7 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include "JScope.h"
 #include "JException.h"
 #include "RuntimeException.h"
-#include <alloca.h>
+#ifdef POSIX_LINUX
+#	include <alloca.h>
+#endif
+#include <cstdlib>
 #include <QtDebug>
 
 JClass::JClass(const JClass& cls)

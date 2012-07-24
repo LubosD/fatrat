@@ -48,7 +48,6 @@ respects for all of the code used other than "OpenSSL".
 
 #include <fstream>
 #include <stdexcept>
-#include <alloca.h>
 #include <memory>
 
 #include <QIcon>

@@ -41,7 +41,10 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 #include "JObject.h"
 #include "JSingleCObject.h"
-#include <alloca.h>
+#ifdef POSIX_LINUX
+#	include <alloca.h>
+#endif
+#include <cstdlib>
 #include <cassert>
 
 #include <QtDebug>

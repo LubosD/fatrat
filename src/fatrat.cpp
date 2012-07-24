@@ -630,7 +630,7 @@ void installSignalHandler()
 	memset(&act, 0, sizeof(act));
 
 	act.sa_handler = terminateHandler;
-	act.sa_flags = SA_NOMASK;
+	act.sa_flags = SA_NODEFER;
 
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGTERM, &act, 0);
