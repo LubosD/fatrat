@@ -638,6 +638,7 @@ QVariant XmlRpcService::Transfer_delete(QStringList luuid, bool withData)
 QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction)
 {
 	Queue* q;
+	QReadLocker r(&g_queuesLock);
 	HttpService::findQueue(uuidQueue, &q);
 
 	if (!q)
@@ -661,7 +662,6 @@ QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidT
 	if (!uuidTransfers.empty())
 	{
 		q->unlock();
-		g_queuesLock.unlock();
 		throw XmlRpcError(102, "One or more invalid transfer UUIDs");
 	}
 
@@ -695,12 +695,10 @@ QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidT
 	else
 	{
 		q->unlock();
-		g_queuesLock.unlock();
 		throw XmlRpcError(105, "Invalid move direction");
 	}
 
 	q->unlock();
-	g_queuesLock.unlock();
 
 	return QVariant();
 }
