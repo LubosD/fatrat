@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifndef POSIX_LINUX
+#	define lseek64 lseek
+#endif
+
 UrlClient::UrlClient()
 	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_postData(0), m_bTerminating(false)
 {

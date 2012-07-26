@@ -9,7 +9,7 @@ INCLUDE(CheckFunctionExists)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(FindPkgConfig)
 INCLUDE(FindBoost)
-INCLUDE(FindJNI)
+#INCLUDE(FindJNI)
 
 find_package(Qt4 REQUIRED)
 
@@ -50,6 +50,7 @@ endif(WITH_CXX0X)
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
 
+	INCLUDE(FindJNI)
 	find_package(JNI REQUIRED)
 	
 	include_directories(${JNI_INCLUDE_DIRS})
@@ -121,7 +122,6 @@ if(WITH_CURL)
 	endif(curl_FOUND)
 endif(WITH_CURL)
 
-ADD_DEFINITIONS(-Wl,--stack,524 288)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-ggdb)
 	ADD_DEFINITIONS(-DDEBUG_BUILD)
@@ -572,7 +572,12 @@ add_executable(fatrat-conf src/fatrat-conf.cpp)
 # This used to be a workaround until it started causing the exact opposite... oh dear!
 #STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
 #message(STATUS ${pion-net_LIBRARIES})
-target_link_libraries(fatrat -ldl -lpthread ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
+
+if (POSIX_LINUX)
+    set (DL_LDFLAGS "-ldl")
+endif (POSIX_LINUX)
+
+target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
 
 set(fatrat_DEV_HEADERS
