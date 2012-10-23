@@ -70,6 +70,7 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_JPLUGINS
 #	include "engines/JavaAccountStatusWidget.h"
 #	include "engines/SettingsJavaPluginForm.h"
+#	include "java/JVM.h"
 #	include "ExtensionMgr.h"
 #endif
 
@@ -167,39 +168,42 @@ void MainWindow::setupUi()
 		loadCSS();
 
 #ifdef WITH_JPLUGINS
-	m_premiumAccounts = new ClickableLabel(this);
-
-	m_premiumAccounts->setToolTip(tr("Premium account status..."));
-	m_premiumAccounts->setScaledContents(true);
-	m_premiumAccounts->setPixmap(QPixmap(":/fatrat/premium.png"));
-	m_premiumAccounts->setMaximumSize(16, 16);
-	m_premiumAccounts->setCursor(Qt::PointingHandCursor);
-	statusbar->insertPermanentWidget(1, m_premiumAccounts);
-	m_premiumAccounts->show();
-
-	m_updates = new ClickableLabel(this);
-	m_updates->setScaledContents(true);
-	m_updates->setToolTip(tr("Extension updates: %1").arg(0));
-	m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
-	m_updates->setMaximumSize(16, 16);
-	m_updates->setCursor(Qt::PointingHandCursor);
-	statusbar->insertPermanentWidget(1, m_updates);
-	m_updates->show();
-
-	m_extensionMgr = new ExtensionMgr;
-	connect(&m_extensionCheckTimer, SIGNAL(timeout()), m_extensionMgr, SLOT(loadFromServer()));
-	connect(m_extensionMgr, SIGNAL(loaded()), this, SLOT(updatesChecked()));
-
-	m_bUpdatesBubbleManuallyClosed = false;
-	m_extensionCheckTimer.setInterval(60*60*1000);
-
-	if (getSettingsValue("java/check_updates").toBool())
+	if (JVM::JVMAvailable())
 	{
-		m_extensionCheckTimer.start();
-		QTimer::singleShot(20*1000, m_extensionMgr, SLOT(loadFromServer()));
-	}
+		m_premiumAccounts = new ClickableLabel(this);
 
-	connect(m_updates, SIGNAL(clicked()), this, SLOT(showSettings()));
+		m_premiumAccounts->setToolTip(tr("Premium account status..."));
+		m_premiumAccounts->setScaledContents(true);
+		m_premiumAccounts->setPixmap(QPixmap(":/fatrat/premium.png"));
+		m_premiumAccounts->setMaximumSize(16, 16);
+		m_premiumAccounts->setCursor(Qt::PointingHandCursor);
+		statusbar->insertPermanentWidget(1, m_premiumAccounts);
+		m_premiumAccounts->show();
+
+		m_updates = new ClickableLabel(this);
+		m_updates->setScaledContents(true);
+		m_updates->setToolTip(tr("Extension updates: %1").arg(0));
+		m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
+		m_updates->setMaximumSize(16, 16);
+		m_updates->setCursor(Qt::PointingHandCursor);
+		statusbar->insertPermanentWidget(1, m_updates);
+		m_updates->show();
+
+		m_extensionMgr = new ExtensionMgr;
+		connect(&m_extensionCheckTimer, SIGNAL(timeout()), m_extensionMgr, SLOT(loadFromServer()));
+		connect(m_extensionMgr, SIGNAL(loaded()), this, SLOT(updatesChecked()));
+
+		m_bUpdatesBubbleManuallyClosed = false;
+		m_extensionCheckTimer.setInterval(60*60*1000);
+
+		if (getSettingsValue("java/check_updates").toBool())
+		{
+			m_extensionCheckTimer.start();
+			QTimer::singleShot(20*1000, m_extensionMgr, SLOT(loadFromServer()));
+		}
+
+		connect(m_updates, SIGNAL(clicked()), this, SLOT(showSettings()));
+	}
 #endif
 	
 	connectActions();
