@@ -40,7 +40,8 @@ respects for all of the code used other than "OpenSSL".
 #include <ctime>
 #include <openssl/ssl.h>
 #include <boost/system/system_error.hpp>
-#include <pion/net/HTTPResponseWriter.hpp>
+#include <pion/http/plugin_server.hpp>
+#include <pion/http/response_writer.hpp>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
 
@@ -48,7 +49,8 @@ respects for all of the code used other than "OpenSSL".
 #	error This file is not supposed to be included!
 #endif
 
-#include <pion/net/WebServer.hpp>
+#include <pion/http/server.hpp>
+#include <pion/http/plugin_service.hpp>
 
 class Queue;
 class Transfer;
@@ -83,8 +85,8 @@ private:
 	void killCaptchaClients();
 private:
 	static HttpService* m_instance;
-	pion::net::WebServer* m_server;
-	pion::net::HTTPAuthPtr m_auth_ptr;
+	pion::http::plugin_server* m_server;
+	pion::http::auth_ptr m_auth_ptr;
 	CaptchaHttp m_captchaHttp;
 	quint16 m_port;
 	QString m_strSSLPem;
@@ -94,27 +96,27 @@ private:
 	QList<RegisteredClient*> m_registeredCaptchaClients;
 	QMutex m_registeredCaptchaClientsMutex;
 
-	class LogService : public pion::net::WebService
+	class LogService : public pion::http::plugin_service
 	{
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	};
-	class TransferTreeBrowserService : public pion::net::WebService
+	class TransferTreeBrowserService : public pion::http::plugin_service
 	{
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	};
-	class TransferDownloadService : public pion::net::WebService
+	class TransferDownloadService : public pion::http::plugin_service
 	{
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	};
-	class SubclassService : public pion::net::WebService
+	class SubclassService : public pion::http::plugin_service
 	{
 	public:
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	};
-	/*class CaptchaService : public pion::net::WebService
+	/*class CaptchaService : public pion::http::plugin_service
 	{
 	public:
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	private:
 		class CapServCap
 		{
@@ -126,15 +128,15 @@ private:
 			std::string key1, key2;
 			char sig[8];
 			int inbuf;
-			pion::net::TCPConnectionPtr tcp_conn;
+			pion::tcp::connection_ptr tcp_conn;
 		} m_cap;
 	};*/
 
 	class CaptchaHttpResponseWriter;
-	class CaptchaService : public pion::net::WebService
+	class CaptchaService : public pion::http::plugin_service
 	{
 	public:
-		void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	};
 	struct RegisteredClient
 	{
@@ -151,16 +153,16 @@ private:
 		void terminate();
 	};
 
-	class CaptchaHttpResponseWriter : public pion::net::HTTPResponseWriter
+	class CaptchaHttpResponseWriter : public pion::http::response_writer
 	{
 	public:
-		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, pion::net::TCPConnectionPtr &tcp_conn, const pion::net::HTTPRequest& request, FinishedHandler handler = FinishedHandler())
-					      : pion::net::HTTPResponseWriter(tcp_conn, request, handler), client(cl)
+		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
+					      : pion::http::response_writer(tcp_conn, request, handler), client(cl)
 		{
 
 		}
 
-		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, pion::net::TCPConnectionPtr &tcp_conn, const pion::net::HTTPRequest& request, FinishedHandler handler = FinishedHandler())
+		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
 		{
 			return boost::shared_ptr<CaptchaHttpResponseWriter>(new CaptchaHttpResponseWriter(cl, tcp_conn, request, handler));
 		}
@@ -171,7 +173,7 @@ private:
 			m_http_response->prepareBuffersForSend(write_buffers, getTCPConnection()->getKeepAlive(),
 							       sendingChunkedMessage());
 		}*/
-		virtual void handleWrite(const boost::system::error_code &write_error, std::size_t bytes_written);
+		virtual void handle_write(const boost::system::error_code &write_error, std::size_t bytes_written);
 
 		HttpService::RegisteredClient* client;
 	};
@@ -179,14 +181,14 @@ private:
 	class WriteBackImpl : public TransferHttpService::WriteBack
 	{
 	public:
-		WriteBackImpl(pion::net::HTTPResponseWriterPtr& writer);
+		WriteBackImpl(pion::http::response_writer_ptr& writer);
 		void write(const char* data, size_t bytes);
 		void writeFail(QString error);
 		void writeNoCopy(void* data, size_t bytes);
 		void send();
 		void setContentType(const char* type);
 	private:
-		pion::net::HTTPResponseWriterPtr m_writer;
+		pion::http::response_writer_ptr m_writer;
 	};
 };
 

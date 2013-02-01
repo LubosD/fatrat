@@ -34,7 +34,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariantMap>
 #include <QQueue>
 #include <QPair>
-#include <pion/net/WebServer.hpp>
+#include <pion/http/server.hpp>
+#include <pion/http/plugin_service.hpp>
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -43,12 +44,12 @@ respects for all of the code used other than "OpenSSL".
 class Queue;
 class Transfer;
 
-class XmlRpcService : public QObject, public pion::net::WebService
+class XmlRpcService : public QObject, public pion::http::plugin_service
 {
 Q_OBJECT
 public:
 	XmlRpcService();
-	void operator()(pion::net::HTTPRequestPtr &request, pion::net::TCPConnectionPtr &tcp_conn);
+	void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
 	static void globalInit();
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);

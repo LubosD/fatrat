@@ -148,19 +148,19 @@ if(WITH_DOCUMENTATION)
 	set(QT_USE_QTHELP TRUE)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
-	pkg_check_modules(pion-net REQUIRED "pion-net >= 3.0.0")
+	pkg_check_modules(pion REQUIRED "pion >= 5.0.0")
 	
-	if(pion-net_FOUND)
-		include_directories(${pion-net_INCLUDE_DIRS})
+	if(pion_FOUND)
+		include_directories(${pion_INCLUDE_DIRS})
 		#message(STATUS "Pion libdir: ${pion-net_LIBDIR}")
 		
 		#FILE(GLOB pion_FileService "${pion-net_LIBDIR}/pion/plugins/FileService.*")
 		#if(pion_FileService MATCHES "^$")
 		#	message(FATAL_ERROR "Pion-net FileService plugin not found (libpion-net-plugins?) - ${pion_FileService}")
 		#endif(pion_FileService MATCHES "^$")
-	else(pion-net_FOUND)
-		message(FATAL_ERROR "No pion-net library found")
-	endif(pion-net_FOUND)
+	else(pion_FOUND)
+		message(FATAL_ERROR "No pion library found")
+	endif(pion_FOUND)
 endif(WITH_WEBINTERFACE)
 
 #set(CMAKE_REQUIRED_INCLUDES "sys/types.h")
@@ -577,7 +577,9 @@ if (POSIX_LINUX)
     set (DL_LDFLAGS "-ldl")
 endif (POSIX_LINUX)
 
-target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion-net_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
+message(STATUS "Pion: ${pion_LIBRARIES}")
+
+target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
 
 set(fatrat_DEV_HEADERS
