@@ -915,7 +915,8 @@ void TorrentDownload::load(const QDomNode& map)
 		libtorrent::add_torrent_params params;
 		std::vector<char> torrent_resume2 = std::vector<char>(torrent_resume.data(), torrent_resume.data()+torrent_resume.size());
 		
-		params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
+		//params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
+		params.storage_mode = libtorrent::storage_mode_sparse; // don't force full allocation upon load
 		params.ti = m_info;
 		
 		QByteArray path = str.toUtf8();
@@ -1239,8 +1240,7 @@ QVariantMap TorrentDownload::properties() const
 	comment.replace('\n', "<br>");
 	rv["comment"] = comment;
 
-	QString magnet = QString::fromStdString(libtorrent::make_magnet_uri(m_handle));
-	rv["magnetLink"] = magnet;
+	rv["magnetLink"] = remoteURI();
 
 	if(!d)
 		ratio = QString::fromUtf8("∞");
