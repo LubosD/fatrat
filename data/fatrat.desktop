@@ -9,7 +9,7 @@ Comment[sr@ijekavianlatin]=Qt Menadžer preuzimanja/slanja
 Comment[tr]=Qt tabanlı indirme/yükleme yöneticisi
 Comment[zh_TW]=基於-Qt 下載/上傳 管理員
 Comment[zh_CN]=基于-Qt 下载/上传 管理员
-Exec=fatrat
+Exec=fatrat %U
 Name=FatRat
 Name[sr]=ФатРат
 Name[sr@ijekavian]=ФатРат
@@ -26,3 +26,5 @@ Icon=fatrat
 StartupNotify=true
 Terminal=false
 Type=Application
+MimeType=x-scheme-handler/magnet;application/x-bittorrent
+
