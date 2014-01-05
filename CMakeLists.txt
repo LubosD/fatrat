@@ -579,7 +579,9 @@ endif (POSIX_LINUX)
 
 message(STATUS "Pion: ${pion_LIBRARIES}")
 
-target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES} ${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES} ${pion_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} -export-dynamic)
+target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
+	${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
+	${pion_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} crypto -export-dynamic)
 target_link_libraries(fatrat-conf ${QT_LIBRARIES})
 
 set(fatrat_DEV_HEADERS
