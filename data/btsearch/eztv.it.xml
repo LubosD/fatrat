@@ -7,7 +7,7 @@
 		<param name="postdata">SearchString1=%1&amp;SearchString=&amp;search=Search</param>
 		
 		<regexp name="name">class="epinfo"&gt;([^&lt;]+)&lt;</regexp>
-		<regexp name="link">&lt;a href="(http://torrent\.zoink\.it/[^"]+)"</regexp>
+		<regexp name="link">&lt;a href="(magnet:[^"]+)"</regexp>
 		<regexp name="info">&lt;a href="(/shows/[^"]+)"</regexp>
 	</engine>
 </search>
