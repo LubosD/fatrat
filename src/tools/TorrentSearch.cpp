@@ -373,7 +373,7 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data)
 
 QString TorrentSearch::completeUrl(QString surl, QString complete)
 {
-	if(surl.startsWith("http://"))
+	if(surl.startsWith("http://") || surl.startsWith("magnet:"))
 		return surl;
 	
 	QUrl url(complete);
