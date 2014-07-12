@@ -544,6 +544,9 @@ bool SearchTreeWidgetItem::operator<(const QTreeWidgetItem& other) const
 
 void SearchTreeWidgetItem::parseSize(QString in)
 {
+	// replace HTML-escaped spaces with actual spaces
+	in.replace("&nbsp;", " ");
+
 	int split = -1;
 	
 	if(in.isEmpty())
