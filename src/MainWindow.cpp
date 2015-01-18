@@ -345,6 +345,7 @@ void MainWindow::connectActions()
 	connect(actionSettings, SIGNAL(triggered()), this, SLOT(showSettings()));
 	
 	connect(TransferNotifier::instance(), SIGNAL(stateChanged(Transfer*,Transfer::State,Transfer::State)), this, SLOT(downloadStateChanged(Transfer*,Transfer::State,Transfer::State)));
+	connect(TransferNotifier::instance(), SIGNAL(modeChanged(Transfer*,Transfer::Mode,Transfer::Mode)), this, SLOT(downloadModeChanged(Transfer*,Transfer::Mode,Transfer::Mode)));
 	connect(actionBugReport, SIGNAL(triggered()), this, SLOT(reportBug()));
 	connect(actionCopyRemoteURI, SIGNAL(triggered()), this, SLOT(copyRemoteURI()));
 
@@ -1652,8 +1653,20 @@ void MainWindow::downloadStateChanged(Transfer* d, Transfer::State prev, Transfe
 	}
 }
 
-void MainWindow::downloadModeChanged(Transfer* /*t*/, Transfer::State /*prev*/, Transfer::State /*now*/)
+void MainWindow::downloadModeChanged(Transfer* d, Transfer::Mode prev, Transfer::Mode now)
 {
+	const bool popup = g_settings->value("showpopup", getSettingsDefault("showpopup")).toBool();
+
+	if(!popup)
+		return;
+
+	if(prev == Transfer::Download && now == Transfer::Upload)
+	{
+		m_trayIcon.showMessage(tr("Download completed"),
+				QString(tr("The download of \"%1\" has been completed. Starting the upload now.")).arg(d->name()),
+				QSystemTrayIcon::Information, g_settings->value("popuptime", getSettingsDefault("popuptime")).toInt()*1000);
+	}
+
 }
 
 QList<int> MainWindow::getSelection()
