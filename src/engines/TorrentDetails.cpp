@@ -141,7 +141,7 @@ void TorrentDetails::peerInfo()
 	if(row != -1)
 	{
 		const libtorrent::peer_info& info = m_pPeersModel->m_peers[row];
-		QMessageBox::information(treePeers, "FatRat", QString("Load balancing: %1").arg(info.load_balancing));
+		QMessageBox::information(treePeers, "FatRat", QString("Reciprocion rate: %1").arg(info.estimated_reciprocation_rate));
 	}
 }
 

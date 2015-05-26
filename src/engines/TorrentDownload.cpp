@@ -187,7 +187,9 @@ void TorrentDownload::globalInit()
 	
 	if(getSettingsValue("torrent/pex").toBool())
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
-	m_session->add_extension(&libtorrent::create_metadata_plugin);
+
+	// Deprecated. The replacement is added by default.
+	// m_session->add_extension(&libtorrent::create_metadata_plugin);
 	m_session->add_extension(&libtorrent::create_ut_metadata_plugin);
 	m_session->add_extension(&libtorrent::create_smart_ban_plugin);
 	
@@ -468,12 +470,14 @@ QString TorrentDownload::name() const
 {
 	if(m_handle.is_valid())
 	{
-		std::string str = m_handle.name();
+		libtorrent::torrent_status st;
 
-		if(str.empty() && m_status.state == libtorrent::torrent_status::downloading_metadata)
+		st = m_handle.status(libtorrent::torrent_handle::query_name);
+
+		if(st.name.empty() && m_status.state == libtorrent::torrent_status::downloading_metadata)
 			return tr("Downloading metadata: %1%").arg((int) m_status.progress*100);
 		else
-			return QString::fromUtf8(str.c_str());
+			return QString::fromUtf8(st.name.c_str());
 	}
 	else if(m_pFileDownload != 0)
 		return tr("Downloading the .torrent file...");
@@ -528,9 +532,12 @@ void TorrentDownload::init(QString source, QString target)
 				//p = data.data();
 				
 				libtorrent::add_torrent_params params;
-				m_info = new libtorrent::torrent_info(source.toStdString());
+				libtorrent::torrent_info* ti;
+
+				ti = new libtorrent::torrent_info(source.toStdString());
+				m_info.reset(ti);
 				
-				params.ti = m_info;
+				params.ti = ti;
 				params.save_path = target.toStdString();
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
@@ -651,22 +658,28 @@ bool TorrentDownload::storeTorrent()
 
 	str = dir.absoluteFilePath(str);
 
-	const libtorrent::torrent_info info = m_handle.get_torrent_info();
-	boost::shared_array<char> md = info.metadata();
-	int mdlen = info.metadata_size();
+	boost::intrusive_ptr<libtorrent::torrent_info const> info = m_handle.torrent_file();
 
-	QFile file(str);
-	if(!file.open(QIODevice::ReadWrite))
+	if (info)
 	{
-		qDebug() << "Unable to open" << str << "for writing";
-		return false;
-	}
+		boost::shared_array<char> md = info->metadata();
+		int mdlen = info->metadata_size();
 
-	file.write("d4:info");
-	file.write(md.get(), mdlen);
-	file.write("e");
-	file.close();
-	return true;
+		QFile file(str);
+		if(!file.open(QIODevice::ReadWrite))
+		{
+			qDebug() << "Unable to open" << str << "for writing";
+			return false;
+		}
+
+		file.write("d4:info");
+		file.write(md.get(), mdlen);
+		file.write("e");
+		file.close();
+		return true;
+	}
+	else
+		return false;
 }
 
 QString TorrentDownload::storedTorrentName() const
@@ -906,7 +919,10 @@ void TorrentDownload::load(const QDomNode& map)
 			return;
 		}
 		
-		m_info = new libtorrent::torrent_info(sfile.toStdString());
+		libtorrent::torrent_info* ti;
+		
+		ti = new libtorrent::torrent_info(sfile.toStdString());
+		m_info.reset(ti);
 		
 		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
 		
@@ -917,12 +933,12 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		//params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
 		params.storage_mode = libtorrent::storage_mode_sparse; // don't force full allocation upon load
-		params.ti = m_info;
+		params.ti = ti;
 		
 		QByteArray path = str.toUtf8();
 		params.save_path = path.constData();
 		if(!torrent_resume2.empty())
-			params.resume_data = &torrent_resume2;
+			params.resume_data = torrent_resume2;
 		params.paused = true;
 		params.auto_managed = false;
 		
@@ -1157,7 +1173,18 @@ QString TorrentDownload::message() const
 	else
 	{
 		if(m_status.num_complete >= 0 || m_status.num_incomplete >= 0)
-		   state = tr("Seeders: %1 | Leechers: %2").arg(m_status.num_complete).arg(m_status.num_incomplete);
+		{
+		   state = tr("Seeders: %1 | Leechers: %2");
+			if (m_status.num_complete >= 0)
+				state.arg(m_status.num_complete);
+			else
+				state.arg("?");
+			
+			if (m_status.num_incomplete >= 0)
+				state.arg(m_status.num_incomplete);
+			else
+				state.arg("?");
+		}
 	}
 	
 	return state;
@@ -1249,16 +1276,20 @@ QVariantMap TorrentDownload::properties() const
 	rv["ratio"] = ratio;
 
 	QVariantList files;
-	int i = 0;
 	std::vector<libtorrent::size_type> progresses;
 
 	m_handle.file_progress(progresses);
 
-	for(libtorrent::torrent_info::file_iterator it=m_info->begin_files();it!=m_info->end_files();it++,i++)
+	// num_files(), file_at()
+	for (int i = 0; i < m_info->num_files(); i++)
 	{
 		QVariantMap map;
-		map["name"] = QString::fromStdString(it->filename());
-		map["size"] = qint64(it->size);
+		libtorrent::file_entry fe;
+
+		fe = m_info->file_at(i);
+
+		map["name"] = QString::fromStdString(fe.path);
+		map["size"] = qint64(fe.size);
 		map["done"] = qint64(progresses[i]);
 		map["priority"] = m_vecPriorities[i];
 		files << map;
@@ -1351,7 +1382,7 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 			d->storeTorrent();
 
 			if (!d->m_info)
-				d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
+				d->m_info = d->m_handle.torrent_file();
 
 			d->createDefaultPriorityList();
 		}
@@ -1388,7 +1419,7 @@ void TorrentWorker::doWork()
 		{
             if(!d->m_status.has_metadata)
 				continue;
-			d->m_info = new libtorrent::torrent_info(d->m_handle.get_torrent_info());
+			d->m_info = d->m_handle.torrent_file();
 		}
 	}
 	

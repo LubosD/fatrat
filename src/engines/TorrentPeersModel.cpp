@@ -166,7 +166,7 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 			case 10:
 			{
 				int pcs = 0;
-				for ( size_t i=0;i<info.pieces.size();i++ )
+				for ( ssize_t i=0;i<info.pieces.size();i++ )
 					if ( info.pieces[i] )
 						pcs++;
 				QString pct = QString ( "%1%" ).arg ( ( int ) ( 100.0/double ( info.pieces.size() ) *pcs ) );
