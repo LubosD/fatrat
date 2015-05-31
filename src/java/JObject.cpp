@@ -511,7 +511,7 @@ void JObject::setNull()
 		m_object = 0;
 
 		if (!m_bWeak)
-			env->DeleteWeakGlobalRef(o);
+			env->DeleteWeakGlobalRef(jweak(o));
 		else
 			env->DeleteGlobalRef(o);
 	}
