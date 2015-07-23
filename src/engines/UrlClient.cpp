@@ -243,21 +243,7 @@ void UrlClient::processHeaders()
 		if(m_headers.contains("content-disposition") /*&& m_bAutoName*/)
 		{
 			QByteArray con = m_headers["content-disposition"];
-			int pos = con.indexOf("filename=");
-			
-			if(pos != -1)
-			{
-				QString name = con.mid(pos+9);
-				
-				QRegExp quoted("\"([^\"]+)\".*");
-				if(quoted.exactMatch(name))
-					name = quoted.cap(1);
-				
-				name.replace('/', '_');
-				qDebug() << "Automatically renaming to" << name;
-				//setTargetName(name);
-				emit renameTo(name);
-			}
+			processContentDisposition(con);
 		}
 	}
 	else
@@ -269,6 +255,50 @@ void UrlClient::processHeaders()
 	}
 	
 	m_headers.clear();
+}
+
+void UrlClient::processContentDisposition(const QByteArray& con)
+{
+	int pos = con.indexOf("filename=");
+	
+	if(pos != -1)
+	{
+		QString name = con.mid(pos+9);
+		
+		QRegExp quoted("\"([^\"]+)\".*");
+		if(quoted.exactMatch(name))
+			name = quoted.cap(1);
+		
+		name.replace('/', '_');
+		qDebug() << "Automatically renaming to" << name;
+		//setTargetName(name);
+		emit renameTo(name);
+	}
+	else
+	{
+		pos = con.indexOf("filename*=");
+
+		if (pos == -1)
+			return;
+
+		QByteArray name = con.mid(pos+10);
+		QString encoding, decName;
+
+		pos = name.indexOf("''");
+
+		if (pos == -1)
+			return;
+
+		encoding = name.left(pos);
+		name = name.mid(pos+2);
+		
+		if (encoding.compare("utf-8", Qt::CaseInsensitive) != 0)
+			return; // Qt can only handle UTF-8 url encoding
+
+		decName = QUrl::fromPercentEncoding(name);
+
+		emit renameTo(decName);
+	}
 }
 
 CURL* UrlClient::curlHandle()
