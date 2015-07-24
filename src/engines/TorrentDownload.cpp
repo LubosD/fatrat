@@ -1176,14 +1176,14 @@ QString TorrentDownload::message() const
 		{
 		   state = tr("Seeders: %1 | Leechers: %2");
 			if (m_status.num_complete >= 0)
-				state.arg(m_status.num_complete);
+				state = state.arg(m_status.num_complete);
 			else
-				state.arg("?");
+				state = state.arg("?");
 			
 			if (m_status.num_incomplete >= 0)
-				state.arg(m_status.num_incomplete);
+				state = state.arg(m_status.num_incomplete);
 			else
-				state.arg("?");
+				state = state.arg("?");
 		}
 	}
 	
