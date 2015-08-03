@@ -522,7 +522,7 @@ void CurlDownload::save(QDomDocument& doc, QDomNode& map) const
 		//sub.setAttribute("id", QString::number(i));
 		const UrlClient::UrlObject& url = m_urls[i];
 		
-		setXMLProperty(doc, sub, "address", QString(url.url.toEncoded()));
+		setXMLProperty(doc, sub, "address", QString(url.url.toString()));
 		setXMLProperty(doc, sub, "effective", QString(url.effective.toEncoded()));
 		setXMLProperty(doc, sub, "referrer", url.strReferrer);
 		setXMLProperty(doc, sub, "proxy", url.proxy.toString());
