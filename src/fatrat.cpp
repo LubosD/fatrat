@@ -115,7 +115,7 @@ static void dropPrivileges();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
-static bool m_bManualGraphicsSystem = false, m_bDisableJava = false, m_bJavaForceSearch = false;
+static bool m_bDisableJava = false, m_bJavaForceSearch = false;
 static QString m_strUnitTest;
 static QString m_strSettingsPath;
 static QString m_strPidFile, m_strSetUser;
@@ -132,7 +132,6 @@ int main(int argc,char** argv)
 	int rval;
 	QString arg;
 	
-	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
 	qsrand(time(0));
 	
 	QCoreApplication::setOrganizationName("Dolezel");
@@ -140,9 +139,6 @@ int main(int argc,char** argv)
 	QCoreApplication::setApplicationName("fatrat");
 	
 	arg = argsToArg(argc, argv);
-
-	if (!m_bManualGraphicsSystem)
-		QApplication::setGraphicsSystem("raster"); // native is too slow on Linux
 
 	if (!m_strPidFile.isEmpty())
 		writePidFile();
@@ -311,8 +307,6 @@ QString argsToArg(int argc,char** argv)
 			Logger::global()->toggleSysLog(true);
 		else if(argv[i][0] == '-')
 		{
-			if (!strcasecmp(argv[i], "-graphicssystem"))
-				m_bManualGraphicsSystem = true;
 			i++;
 		}
 		else

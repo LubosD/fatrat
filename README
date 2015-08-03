@@ -1,6 +1,6 @@
-FatRat is an open source download manager for Linux written in C++ and built on top of the Trolltech Qt 4 library.
+FatRat is an open source download manager for Linux written in C++ and built on top of the Qt 5 library.
 
-Copyright © 2006-2010 Luboš Doležel <lubos at dolezel.info>
+Copyright © 2006-2015 Luboš Doležel <lubos at dolezel.info>
 
 === GRAPHICS ===
 

@@ -35,6 +35,7 @@ respects for all of the code used other than "OpenSSL".
 #include "engines/JavaDownload.h"
 #include "captcha/Captcha.h"
 #include <QBuffer>
+#include <QNetworkCookieJar>
 #include <cassert>
 
 QMap<QString,JDownloadPlugin::RequesterReceiver> JDownloadPlugin::m_captchaCallbacks;

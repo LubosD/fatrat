@@ -27,7 +27,6 @@ respects for all of the code used other than "OpenSSL".
 
 #include "Proxy.h"
 #include <QSettings>
-#include <QHttp>
 #include <QtDebug>
 
 extern QSettings* g_settings;

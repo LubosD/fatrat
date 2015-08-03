@@ -356,7 +356,7 @@ void XmlRpc::parseCall(const QByteArray& call, QByteArray& function, QList<QVari
 	QDomElement methodName = root.firstChildElement("methodName");
 	if(methodName.isNull())
 		throw RuntimeException(QObject::tr("Not a valid XML-RPC call"));
-	function = methodName.firstChild().toText().data().toAscii();
+	function = methodName.firstChild().toText().data().toUtf8();
 
 	QDomElement e = root.firstChildElement("params");
 	if(!e.isNull())

@@ -61,7 +61,7 @@ respects for all of the code used other than "OpenSSL".
 #include "SpeedLimitWidget.h"
 #include "AppTools.h"
 #include "AboutDlg.h"
-#include "ReportBugDlg.h"
+#include <QProcess>
 #include "filterlineedit.h"
 #include "ClipboardMonitor.h"
 #include "ClickableLabel.h"
@@ -1809,7 +1809,7 @@ void MainWindow::menuActionTriggered()
 
 void MainWindow::reportBug()
 {
-	ReportBugDlg(this).exec();
+	QProcess::startDetached("xdg-open", QStringList() << QLatin1String("https://github.com/LubosD/fatrat/issues"));
 }
 
 void MainWindow::copyRemoteURI()

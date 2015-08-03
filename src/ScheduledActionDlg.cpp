@@ -49,7 +49,7 @@ void ScheduledActionDlg::load()
 		comboQueue->addItem(g_queues[i]->name());
 		comboQueue->setItemData(i, g_queues[i]->uuid());
 		
-		if(g_queues[i]->uuid() == m_action.queue)
+		if(g_queues[i]->uuid() == m_action.queue.toString())
 			comboQueue->setCurrentIndex(i);
 	}
 	g_queuesLock.unlock();

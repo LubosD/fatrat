@@ -136,7 +136,7 @@ void Scheduler::executeAction(const ScheduledAction& action)
 	for(int i=0;i<g_queues.size();i++)
 	{
 		Queue* q = g_queues[i];
-		if(q->uuid() == action.queue)
+		if(q->uuid() == action.queue.toString())
 		{
 			Logger::global()->enterLogMessage(tr("Scheduler"), tr("Executing a scheduled action: %1").arg(action.name));
 

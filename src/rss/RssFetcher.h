@@ -31,11 +31,12 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QXmlDefaultHandler>
 #include <QRegExp>
+#include <QNetworkAccessManager>
 
 struct RssFeed
 {
 	QString name, url;
-	int request;
+	QNetworkReply* reply;
 };
 
 struct RssItem
@@ -90,7 +91,7 @@ public:
 	static void dayMonthHeuristics(int& day, int& month);
 public slots:
 	void refresh();
-	void requestFinished(int id, bool error);
+	void requestFinished(QNetworkReply*);
 private:
 	static RssFetcher* m_instance;
 	
@@ -104,6 +105,7 @@ private:
 	RssItem m_itemNext;
 	RssItem::Next m_itemNextType;
 	QString m_strCurrentSource;
+	QNetworkAccessManager m_network;
 };
 
 #endif

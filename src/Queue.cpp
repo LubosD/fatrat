@@ -246,7 +246,7 @@ void Queue::loadQueue(const QDomNode& node)
 		}
 		else
 		{
-			qDebug() << "***ERROR*** Unable to createInstance " << n.attribute("class").toAscii();
+			qDebug() << "***ERROR*** Unable to createInstance " << n.attribute("class");
 
 			d = new PlaceholderTransfer(n.attribute("class"));
 			d->load(n);

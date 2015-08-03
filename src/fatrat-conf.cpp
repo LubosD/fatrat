@@ -14,7 +14,6 @@ int main(int argc, char** argv)
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
-	QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF-8") );
 	QCoreApplication app(argc, argv);
 	QSettings settings;
 

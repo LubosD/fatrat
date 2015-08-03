@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #ifndef CAPTCHAHTTP_H
 #define CAPTCHAHTTP_H
 #include "Captcha.h"
+#include <QObject>
 #include <QTime>
 #include <QHash>
 #include <QMutex>

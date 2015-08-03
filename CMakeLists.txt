@@ -1,6 +1,6 @@
 project(fatrat)
 
-cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -11,9 +11,20 @@ INCLUDE(FindPkgConfig)
 INCLUDE(FindBoost)
 #INCLUDE(FindJNI)
 
-find_package(Qt4 REQUIRED)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories(src)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Svg REQUIRED)
+find_package(Qt5DBus REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5Xml REQUIRED)
+find_package(Qt5LinguistTools REQUIRED)
+
+message(STATUS "XML: ${Qt5Xml_INCLUDE_DIRS}")
+include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS}
+	${Qt5Network_INCLUDE_DIRS} ${Qt5Svg_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
 
@@ -57,7 +68,7 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
-	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 0.16.0")
+	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 1.0.0")
 	
 	if(libtorrent_FOUND)
 		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
@@ -91,7 +102,10 @@ if(WITH_BITTORRENT)
 	#	message(FATAL_ERROR "No Boost asio")
 	#endif(ASIO_FOUND)
 	
-	set(QT_USE_QTWEBKIT TRUE)
+	find_package(Qt5WebKit REQUIRED)
+	find_package(Qt5WebKitWidgets REQUIRED)
+	set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebKit Qt5::WebKitWidgets)
+	include_directories(${Qt5WebKit_INCLUDE_DIRS})
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL -DBOOST_ASIO_DYN_LINK)
 endif(WITH_BITTORRENT)
 
@@ -137,15 +151,9 @@ CHECK_INCLUDE_FILES(sys/epoll.h HAVE_SYS_EPOLL_H)
 CHECK_FUNCTION_EXISTS(kqueue HAVE_KQUEUE)
 CONFIGURE_FILE(config.h.in config.h)
 
-#QT4_ADD_DBUS_INTERFACE (fatrat_SRCS dbus/interface.xml dbusinterface)
-
-set(QT_USE_QTDBUS TRUE)
-set(QT_USE_QTNETWORK TRUE)
-set(QT_USE_QTXML TRUE)
-set(QT_USE_QTSVG TRUE)
-
 if(WITH_DOCUMENTATION)
-	set(QT_USE_QTHELP TRUE)
+	find_package(Qt5Help REQUIRED)
+	set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::Help)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
 	pkg_check_modules(pion REQUIRED "pion >= 5.0.0")
@@ -170,9 +178,7 @@ if (HAVE_XATTR_H)
 	SET(XATTR_LIBRARIES "-lattr")
 endif (HAVE_XATTR_H)
 
-include( ${QT_USE_FILE} )
-add_definitions(${QT_DEFINITIONS})
-include_directories(./ ../ ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 set(fatrat_SRCS
 	src/MyApplication.cpp
@@ -207,7 +213,6 @@ set(fatrat_SRCS
 	src/XmlRpc.cpp
 	src/Scheduler.cpp
 	src/MyFileDialog.cpp
-	src/ReportBugDlg.cpp
 	src/Settings.cpp
 	src/QueueDlg.cpp
 	src/ClipboardMonitor.cpp
@@ -285,7 +290,6 @@ set(fatrat_MOC_HDRS
 	src/NewTransferDlg.h
 	src/Logger.h
 	src/MyApplication.h
-	src/ReportBugDlg.h
 	src/ClipboardMonitor.h
 	src/SettingsClipboardMonitorForm.h
 	src/TransferFactory.h
@@ -334,7 +338,6 @@ set(fatrat_UIS
 	src/SpeedLimitWidget.ui
 	src/UserAuthDlg.ui
 	src/WidgetHostDlg.ui
-	src/ReportBugDlg.ui
 	src/captcha/CaptchaQtDlg.ui
 
 	src/tools/HashDlg.ui
@@ -552,15 +555,15 @@ if(WITH_DOCUMENTATION)
 	)
 endif(WITH_DOCUMENTATION)
 
-qt4_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
+qt5_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
 
 set(fatrat_RCS
 	gfx/resources.qrc
 )
 
-qt4_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
-qt4_add_resources(fatrat_QRC_H gfx/resources.qrc)
-qt4_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
+qt5_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
+qt5_add_resources(fatrat_QRC_H gfx/resources.qrc)
+qt5_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
 locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts locale/fatrat_ru_RU.ts locale/fatrat_fr_FR.ts
 locale/fatrat_uk_UA.ts locale/fatrat_es_AR.ts locale/fatrat_es_ES.ts locale/fatrat_ca_ES.ts locale/fatrat_zh_CN.ts
 locale/fatrat_zh_TW.ts locale/fatrat_sr_RS.ts locale/fatrat_sr_BA.ts locale/fatrat_de_DE.ts)
@@ -580,9 +583,10 @@ endif (POSIX_LINUX)
 message(STATUS "Pion: ${pion_LIBRARIES}")
 
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
+	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
 	${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	${pion_LIBRARIES} ${QT_ADDITIONAL_LIBS} ${XATTR_LIBRARIES} crypto -export-dynamic)
-target_link_libraries(fatrat-conf ${QT_LIBRARIES})
+	${pion_LIBRARIES} ${XATTR_LIBRARIES} crypto -export-dynamic)
+target_link_libraries(fatrat-conf Qt5::Core)
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h

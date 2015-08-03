@@ -30,7 +30,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QString>
 #include <QUuid>
 #include <QNetworkProxy>
-#include <QHttp>
 
 struct Proxy
 {

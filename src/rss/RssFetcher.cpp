@@ -30,13 +30,14 @@ respects for all of the code used other than "OpenSSL".
 #include "Logger.h"
 #include "Queue.h"
 #include "Transfer.h"
-#include <QHttp>
 #include <QSettings>
 #include <QList>
 #include <QBuffer>
 #include <QUrl>
 #include <QDir>
 #include <QXmlSimpleReader>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QtDebug>
 
 extern QSettings* g_settings;
@@ -50,6 +51,7 @@ RssFetcher::RssFetcher()
 {
 	m_instance = this;
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
+	connect(&m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
 	applySettings();
 }
 
@@ -91,7 +93,7 @@ void RssFetcher::loadFeeds(QList<RssFeed>& items)
 	for(int i=0;i<amount;i++)
 	{
 		g_settings->setArrayIndex(i);
-		RssFeed f = { g_settings->value("name").toString(), g_settings->value("url").toString(), -1 };
+		RssFeed f = { g_settings->value("name").toString(), g_settings->value("url").toString(), 0 };
 		items << f;
 	}
 	
@@ -108,44 +110,32 @@ void RssFetcher::refresh()
 	
 	for(int i=0;i<m_feeds.size();i++)
 	{
-		QHttp* http = new QHttp(this);
-		QBuffer* buffer = new QBuffer(http);
-		QUrl url = m_feeds[i].url;
-		
-		connect(http, SIGNAL(requestFinished(int,bool)), this, SLOT(requestFinished(int,bool)));
-		
-		buffer->open(QIODevice::ReadWrite);
-		
-		http->setHost(url.host(), url.port(80));
+		QNetworkRequest request;
 
-		QString path = url.path();
-
-		if(url.hasQuery())
-			path += "?" + QString(url.encodedQuery());
-
-		m_feeds[i].request = http->get(path, buffer);
+		request.setUrl(m_feeds[i].url);
+		m_feeds[i].reply = m_network.get(request);
 	}
 }
 
-void RssFetcher::requestFinished(int id, bool error)
+void RssFetcher::requestFinished(QNetworkReply* reply)
 {
 	RssFeed* feed = 0;
 	bool bLast = true;
 	
 	for(int i=0;i<m_feeds.size();i++)
 	{
-		if(m_feeds[i].request == id)
+		if(m_feeds[i].reply == reply)
 			feed = &m_feeds[i];
-		if(m_feeds[i].request != id && m_feeds[i].request != -1)
+		if(m_feeds[i].reply != reply && m_feeds[i].reply != 0)
 			bLast = false;
 	}
 	
 	if(!feed)
 		return;
 	
-	if(!error)
+	if(reply->error() == QNetworkReply::NoError)
 	{
-		QIODevice* device = static_cast<QHttp*>(sender())->currentDestinationDevice();
+		QIODevice* device = reply;
 		
 		device->seek(0);
 		
@@ -174,7 +164,7 @@ void RssFetcher::requestFinished(int id, bool error)
 	}
 		
 	
-	feed->request = -1;
+	feed->reply = 0;
 	
 	if(bLast)
 		processItems();
