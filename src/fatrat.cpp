@@ -128,7 +128,7 @@ class MyApplication;
 
 int main(int argc,char** argv)
 {
-	QApplication* app = 0;
+	QCoreApplication* app = 0;
 	int rval;
 	QString arg;
 	
@@ -145,7 +145,10 @@ int main(int argc,char** argv)
 	if (!m_strSetUser.isEmpty())
 		dropPrivileges();
 	
-	app = new MyApplication(argc, argv, m_bStartGUI);
+	if (m_bStartGUI)
+		app = new MyApplication(argc, argv);
+	else
+		app = new QCoreApplication(argc, argv);
 
 	g_argc = argc;
 	g_argv = argv;

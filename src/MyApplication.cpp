@@ -31,8 +31,8 @@ respects for all of the code used other than "OpenSSL".
 #include "MyApplication.h"
 #include "Queue.h"
 
-MyApplication::MyApplication(int& argc, char** argv, bool gui)
-	: QApplication(argc, argv, gui)
+MyApplication::MyApplication(int& argc, char** argv)
+	: QApplication(argc, argv)
 {
 }
 

@@ -34,7 +34,7 @@ class MyApplication : public QApplication
 {
 Q_OBJECT
 public:
-	MyApplication(int& argc, char** argv, bool gui);
+	MyApplication(int& argc, char** argv);
 
 	virtual bool notify(QObject* receiver, QEvent* e);
 	virtual void saveState(QSessionManager&);
