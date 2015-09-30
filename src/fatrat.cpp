@@ -6,7 +6,7 @@ Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
-version 2 as published by the Free Software Foundation.
+version 3 as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,8 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 In addition, as a special exemption, Luboš Doležel gives permission
 to link the code of FatRat with the OpenSSL project's
@@ -593,7 +592,7 @@ void showHelp()
 {
 	std::cout << "FatRat download manager ("VERSION")\n\n"
 			"Copyright (C) 2006-2011 Lubos Dolezel\n"
-			"Licensed under the terms of the GNU GPL version 2 as published by the Free Software Foundation\n\n"
+			"Licensed under the terms of the GNU GPL version 3 as published by the Free Software Foundation\n\n"
 			"-f, --force      \tRun the program even if an instance already exists\n"
 			"-i, --hidden     \tHide the GUI at startup (only if the tray icon exists)\n"
 			"-n, --nogui      \tStart with no GUI at all\n"
