@@ -171,7 +171,7 @@ void JVM::jvmStartup(QString libname)
 	}
 	catch (...)
 	{
-		qDebug() << "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/fatrat-jplugins.jar, and try again";
+		qDebug() << "Failed to register JNI functions. This usually happens when there is an API discrepancy between the Java and the native code.\nPlease, remove ~/.local/share/fatrat/data/java/libs/fatrat-jplugins-core.jar, and try again";
 		abort();
 	}
 }
@@ -189,15 +189,12 @@ QString JVM::getClassPath()
 
 	foreach (QString f, list)
 	{
-		if (f == "fatrat-jplugins.jar")
+		if (f == "fatrat-jplugins-core.jar")
 			hasCore = true;
 		if (!rv.isEmpty())
 			rv += ':';
 		rv += dir.filePath(f);
 	}
-
-	if (!hasCore)
-		rv += ":" DATA_LOCATION "/data/java/fatrat-jplugins.jar";
 
 	// Now enumerate extra Java classpath libs
 	dir = (DATA_LOCATION "/data/java/libs");
@@ -206,6 +203,8 @@ QString JVM::getClassPath()
 	{
 		if (!rv.isEmpty())
 			rv += ':';
+		if (f == "fatrat-jplugins-core.jar" && hasCore) 
+			continue;
 		rv += dir.filePath(f);
 	}
 
