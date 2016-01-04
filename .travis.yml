@@ -4,7 +4,7 @@ sudo: required
 
 install:
     - sudo apt-get update
-    - sudo apt-get -y install cmake libpion-net-dev libtorrent-rasterbar-dev libgloox-dev libasio-dev openjdk-7-jdk qt5-default libqt5webkit5-dev libqt5svg5-dev
+    - sudo apt-get -y install cmake libpion-net-dev libtorrent-rasterbar-dev libgloox-dev libasio-dev openjdk-7-jdk qt5-default libqt5webkit5-dev libqt5svg5-dev qttools5-dev
 
 script:
     - cmake . -DCMAKE_INSTALL_PREFIX=_install-root -DWITH_EVERYTHING=On
