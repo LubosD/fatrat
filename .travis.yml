@@ -5,9 +5,12 @@ sudo: required
 before_install:
     - sudo add-apt-repository ppa:deluge-team/ppa -y
     - sudo apt-get update -q
+    - wget http://cz.archive.ubuntu.com/ubuntu/pool/universe/p/pion/libpion-5.0_5.0.6+dfsg-1build1_amd64.deb
+    - wget http://cz.archive.ubuntu.com/ubuntu/pool/universe/p/pion/libpion-dev_5.0.6+dfsg-1build1_amd64.deb
+    - sudo dpkg -i libpion-5.0_5.0.6+dfsg-1build1_amd64.deb libpion-dev_5.0.6+dfsg-1build1_amd64.deb
 
 install:
-    - sudo apt-get -y install cmake libpion-net-dev libtorrent-rasterbar-dev libgloox-dev libasio-dev openjdk-7-jdk qt5-default libqt5webkit5-dev libqt5svg5-dev qttools5-dev
+    - sudo apt-get -y install cmake libtorrent-rasterbar-dev libgloox-dev libasio-dev openjdk-7-jdk qt5-default libqt5webkit5-dev libqt5svg5-dev qttools5-dev
 
 script:
     - cmake . -DCMAKE_INSTALL_PREFIX=_install-root -DWITH_EVERYTHING=On
