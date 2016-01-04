@@ -1,5 +1,5 @@
 language: cpp
-dist: trusty
+dist: wily
 sudo: required
 
 install:
