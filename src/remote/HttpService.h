@@ -97,20 +97,20 @@ private:
 
 	class LogService : public pion::http::plugin_service
 	{
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
+		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	};
 	class TransferTreeBrowserService : public pion::http::plugin_service
 	{
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
+		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	};
 	class TransferDownloadService : public pion::http::plugin_service
 	{
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
+		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	};
 	class SubclassService : public pion::http::plugin_service
 	{
 	public:
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
+		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	};
 	/*class CaptchaService : public pion::http::plugin_service
 	{
@@ -135,7 +135,7 @@ private:
 	class CaptchaService : public pion::http::plugin_service
 	{
 	public:
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
+		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn);
 	};
 	struct RegisteredClient
 	{
@@ -155,13 +155,13 @@ private:
 	class CaptchaHttpResponseWriter : public pion::http::response_writer
 	{
 	public:
-		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
+		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, const pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
 					      : pion::http::response_writer(tcp_conn, request, handler), client(cl)
 		{
 
 		}
 
-		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
+		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, const pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
 		{
 			return boost::shared_ptr<CaptchaHttpResponseWriter>(new CaptchaHttpResponseWriter(cl, tcp_conn, request, handler));
 		}

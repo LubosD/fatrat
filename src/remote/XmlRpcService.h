@@ -48,7 +48,7 @@ class XmlRpcService : public QObject, public pion::http::plugin_service
 Q_OBJECT
 public:
 	XmlRpcService();
-	void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
+	void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	static void globalInit();
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);

@@ -244,7 +244,7 @@ void HttpService::setupSSL()
 	}
 }
 
-void HttpService::LogService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
+void HttpService::LogService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
 	QString uuidTransfer = QString::fromStdString(get_relative_resource(request->get_resource()));
@@ -277,7 +277,7 @@ void HttpService::LogService::operator()(pion::http::request_ptr &request, pion:
 	writer->send();
 }
 
-void HttpService::TransferTreeBrowserService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
+void HttpService::TransferTreeBrowserService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
 	QString uuidTransfer = QString::fromStdString(get_relative_resource(request->get_resource()));
@@ -371,7 +371,7 @@ void HttpService::TransferTreeBrowserService::operator()(pion::http::request_ptr
 	writer->send();
 }
 
-void HttpService::TransferDownloadService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
+void HttpService::TransferDownloadService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
 	QString transfer = QString::fromStdString(request->get_query("transfer"));
@@ -428,19 +428,19 @@ void HttpService::TransferDownloadService::operator()(pion::http::request_ptr &r
 	response_file.update();
 
 	pion::plugins::DiskFileSenderPtr sender_ptr(pion::plugins::DiskFileSender::create(response_file, request, tcp_conn, 8192));
-	sender_ptr->getWriter()->get_response().add_header("Content-Disposition", disposition.toStdString());
+	sender_ptr->get_writer()->get_response().add_header("Content-Disposition", disposition.toStdString());
 
 	if (unsigned long long fileSize = response_file.getFileSize())
 	{
 		std::stringstream fileSizeStream;
 		fileSizeStream << fileSize;
-		sender_ptr->getWriter()->get_response().add_header("Content-Length", fileSizeStream.str());
+		sender_ptr->get_writer()->get_response().add_header("Content-Length", fileSizeStream.str());
 	}
 
 	sender_ptr->send();
 }
 
-void HttpService::SubclassService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
+void HttpService::SubclassService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	pion::http::response_writer_ptr writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
 	HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(writer);
@@ -681,7 +681,7 @@ void HttpService::CaptchaHttpResponseWriter::handle_write(const boost::system::e
 	pion::http::response_writer::handle_write(write_error, bytes_written);
 }
 
-void HttpService::CaptchaService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
+void HttpService::CaptchaService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	if (request->has_query("id"))
 	{

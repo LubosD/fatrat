@@ -150,7 +150,7 @@ void XmlRpcService::globalInit()
 
 }
 
-void XmlRpcService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
+void XmlRpcService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	if (request->get_method() != pion::http::types::REQUEST_METHOD_POST)
 	{
