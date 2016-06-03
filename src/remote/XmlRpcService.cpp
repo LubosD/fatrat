@@ -36,10 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QStringList>
 #include <QFileInfo>
 #include <QTemporaryFile>
-#include <pion/http/response_writer.hpp>
 #include <QtDebug>
-
-using namespace pion::http;
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -150,33 +147,32 @@ void XmlRpcService::globalInit()
 
 }
 
-void XmlRpcService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
+void XmlRpcService::operator()(struct mg_connection *nc, struct http_message *hm)
 {
-	if (request->get_method() != pion::http::types::REQUEST_METHOD_POST)
+	std::string method(hm->method.p, hm->method.len);
+	if (method != "POST")
 	{
-		static const std::string NOT_ALLOWED_HTML_START =
-				"<html><head>\n"
-				"<title>405 Method Not Allowed</title>\n"
-				"</head><body>\n"
-				"<h1>Not Allowed</h1>\n"
-				"<p>The requested method \n";
-		static const std::string NOT_ALLOWED_HTML_FINISH =
-				" is not allowed on this server.</p>\n"
-				"</body></html>\n";
-		pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-		writer->get_response().set_status_code(types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
-		writer->get_response().set_status_message(types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
-		writer->write_no_copy(NOT_ALLOWED_HTML_START);
-		writer << request->get_method();
-		writer->write_no_copy(NOT_ALLOWED_HTML_FINISH);
-		writer->get_response().add_header("Allow", "GET, HEAD");
-		writer->send();
+		mg_printf(nc,  "HTTP/1.1 405 Method Not Allowed\r\n"
+					   "Content-Type: text/html\r\n"
+					   "Allow: GET, HEAD\r\n"
+					   "Connection: close\r\n"
+					   "\r\n"
+					   "<html><head>\n"
+					   "<title>405 Method Not Allowed</title>\n"
+					   "</head><body>\n"
+					   "<h1>Not Allowed</h1>\n"
+					   "<p>The requested method %s\n"
+					   " is not allowed on this server.</p>\n"
+					   "</body></html>\n", method.c_str());
+
+		nc->flags |= MG_F_SEND_AND_CLOSE;
 		return;
 	}
 
 	QByteArray data;
+	QByteArray body(hm->body.p, hm->body.len);
 
-	qDebug() << "XML-RPC call:" << request->get_content();
+	qDebug() << "XML-RPC call:" << body;
 
 	try
 	{
@@ -184,7 +180,7 @@ void XmlRpcService::operator()(const pion::http::request_ptr &request, const pio
 		QList<QVariant> args;
 		QVariant returnValue;
 
-		XmlRpc::parseCall(request->get_content(), function, args);
+		XmlRpc::parseCall(body, function, args);
 
 		if(function == "Queue.getTransfers")
 		{
@@ -239,9 +235,10 @@ void XmlRpcService::operator()(const pion::http::request_ptr &request, const pio
 		throw "400 Bad Request";
 	}
 
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	writer->write(data.data(), data.size());
-	writer->send();
+	mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: text/xml\r\n\r\n");
+
+	mg_send_http_chunk(nc, data.data(), data.size());
+	mg_send_http_chunk(nc, "", 0);
 }
 
 QVariant XmlRpcService::getTransferClasses(QList<QVariant>&)

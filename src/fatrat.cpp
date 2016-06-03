@@ -107,7 +107,7 @@ static void installSignalHandler();
 static void testJava();
 static void daemonize();
 static void initDbus();
-static void testNotif();
+// static void testNotif();
 static void writePidFile();
 static void dropPrivileges();
 
@@ -668,6 +668,7 @@ void daemonize()
 	daemon(true, false);
 }
 
+#if 0 // test code
 void testNotif()
 {
 	OrgFreedesktopNotificationsInterface* iface = new OrgFreedesktopNotificationsInterface(OrgFreedesktopNotificationsInterface::staticInterfaceName(), "/org/freedesktop/Notifications", QDBusConnection::sessionBus());
@@ -684,6 +685,7 @@ void testNotif()
 		iface2->event("warning", "fatrat", QVariantList(), "Summary", "Body", QByteArray(), QStringList(), 5000, 0);
 	}
 }
+#endif
 
 void initDbus()
 {

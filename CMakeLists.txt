@@ -28,10 +28,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
 
-# If you remove the following line, the Boost ASIO code used in pion will make libtorrent's Boost ASIO code crash
-# due to a curious symbol name conflict
-#ADD_DEFINITIONS(-fvisibility-inlines-hidden)
-
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
 	)
@@ -52,7 +48,7 @@ if(WITH_EVERYTHING)
 	set(WITH_JPLUGINS ON)
 endif(WITH_EVERYTHING)
 
-ADD_DEFINITIONS(-std=c++11)
+ADD_DEFINITIONS(-std=c++11 -O0)
 
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
@@ -152,19 +148,7 @@ if(WITH_DOCUMENTATION)
 	set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::Help)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
-	pkg_check_modules(pion REQUIRED "pion >= 5.0.0")
-	
-	if(pion_FOUND)
-		include_directories(${pion_INCLUDE_DIRS})
-		#message(STATUS "Pion libdir: ${pion-net_LIBDIR}")
-		
-		#FILE(GLOB pion_FileService "${pion-net_LIBDIR}/pion/plugins/FileService.*")
-		#if(pion_FileService MATCHES "^$")
-		#	message(FATAL_ERROR "Pion-net FileService plugin not found (libpion-net-plugins?) - ${pion_FileService}")
-		#endif(pion_FileService MATCHES "^$")
-	else(pion_FOUND)
-		message(FATAL_ERROR "No pion library found")
-	endif(pion_FOUND)
+	add_definitions(-DMG_ENABLE_THREADS -DMG_ENABLE_SSL -DMG_ENABLE_IPV6)
 endif(WITH_WEBINTERFACE)
 
 #set(CMAKE_REQUIRED_INCLUDES "sys/types.h")
@@ -516,8 +500,8 @@ if(WITH_WEBINTERFACE)
 		src/remote/HttpService.cpp
 		src/remote/SettingsWebForm.cpp
 		src/remote/XmlRpcService.cpp
-		src/remote/pion/FileService.cpp
 		src/remote/CertGenDlg.cpp
+		src/remote/mongoose.c
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_MOC_HDRS
@@ -568,20 +552,14 @@ add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 add_executable(fatrat-conf src/fatrat-conf.cpp)
 
-# This used to be a workaround until it started causing the exact opposite... oh dear!
-#STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
-#message(STATUS ${pion-net_LIBRARIES})
-
 if (POSIX_LINUX)
     set (DL_LDFLAGS "-ldl")
 endif (POSIX_LINUX)
 
-message(STATUS "Pion: ${pion_LIBRARIES}")
-
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
 	${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	${pion_LIBRARIES} ${XATTR_LIBRARIES} crypto -export-dynamic)
+	${XATTR_LIBRARIES} crypto -export-dynamic)
 target_link_libraries(fatrat-conf Qt5::Core)
 
 set(fatrat_DEV_HEADERS

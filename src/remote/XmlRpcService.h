@@ -33,22 +33,22 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariantMap>
 #include <QQueue>
 #include <QPair>
-#include <pion/http/server.hpp>
-#include <pion/http/plugin_service.hpp>
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
 
+#include "mongoose.h"
+
 class Queue;
 class Transfer;
 
-class XmlRpcService : public QObject, public pion::http::plugin_service
+class XmlRpcService : public QObject
 {
 Q_OBJECT
 public:
 	XmlRpcService();
-	void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
+	void operator()(struct mg_connection *nc, struct http_message *hm);
 	static void globalInit();
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);
