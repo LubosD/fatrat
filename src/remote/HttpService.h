@@ -109,24 +109,37 @@ private:
 	class LogService : public AuthenticatedRequestHandler
 	{
 	public:
-		static HTTPRequestHandler* instantiate() { return new LogService; }
+		LogService(const QString& mapping);
 		virtual void run() override;
+	private:
+		QString m_mapping;
 	};
-	/*
-	class TransferTreeBrowserService : public pion::http::plugin_service
-	{
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
-	};
-	class TransferDownloadService : public pion::http::plugin_service
-	{
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
-	};
-	class SubclassService : public pion::http::plugin_service
+
+	class TransferTreeBrowserService : public AuthenticatedRequestHandler
 	{
 	public:
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
+		TransferTreeBrowserService(const QString& mapping);
+		virtual void run() override;
+	private:
+		QString m_mapping;
 	};
-	*/
+	class TransferDownloadService : public AuthenticatedRequestHandler
+	{
+	public:
+		TransferDownloadService(const QString& mapping);
+		virtual void run() override;
+	private:
+		QString m_mapping;
+	};
+	class SubclassService : public AuthenticatedRequestHandler
+	{
+	public:
+		SubclassService(const QString& mapping);
+		virtual void run() override;
+	private:
+		QString m_mapping;
+	};
+
 	/*class CaptchaService : public pion::http::plugin_service
 	{
 	public:
@@ -185,20 +198,22 @@ private:
 
 		HttpService::RegisteredClient* client;
 	};
-
+	*/
 	class WriteBackImpl : public TransferHttpService::WriteBack
 	{
 	public:
-		WriteBackImpl(pion::http::response_writer_ptr& writer);
-		void write(const char* data, size_t bytes);
-		void writeFail(QString error);
-		void writeNoCopy(void* data, size_t bytes);
-		void send();
-		void setContentType(const char* type);
+		WriteBackImpl(Poco::Net::HTTPServerResponse& resp);
+		void write(const char* data, size_t bytes) override;
+		void writeFail(QString error) override;
+		void writeNoCopy(void* data, size_t bytes) override;
+		void send() override;
+		void setContentType(const char* type) override;
 	private:
-		pion::http::response_writer_ptr m_writer;
+		void sendHeaders();
+	private:
+		Poco::Net::HTTPServerResponse& m_response;
+		std::ostream* m_ostream = nullptr;
 	};
-	*/
 };
 
 

@@ -5,9 +5,10 @@
 class FileRequestHandler : public AuthenticatedRequestHandler
 {
 public:
-	FileRequestHandler(const char* root);
+	FileRequestHandler(const char* prefix, const char* root);
 	virtual void run() override;
 private:
+	const char* m_prefix;
 	const char* m_root;
 };
 

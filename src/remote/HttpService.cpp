@@ -43,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 #include <QStringList>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QDir>
 #include <QBuffer>
 #include <QImage>
@@ -87,7 +88,11 @@ HttpService::HttpService()
 	addSettingsPage(si);
 
 	addHandler("/xmlrpc", std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
-	addHandler("/log", LogService::instantiate);
+	addHandler("/log", []() { return new LogService(QLatin1String("/log")); });
+	addHandler("/subclass", []() { return new SubclassService(QLatin1String("/subclass")); });
+	addHandler("/browse", []() { return new TransferTreeBrowserService(QLatin1String("/browse")); });
+	addHandler("/download", []() { return new TransferDownloadService(QLatin1String("/download")); });
+	addHandler("/copyrights", []() { return new FileRequestHandler("/copyrights", DATA_LOCATION "/README"); });
 
 	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate, QVector<QVariant::Type>() << QVariant::String);
 
@@ -192,19 +197,9 @@ void HttpService::setup()
 		setupAuth();
 		setupSSL();
 
-		/*m_server->add_service("/xmlrpc", new XmlRpcService);
-		m_server->add_service("/subclass", new SubclassService);
-		m_server->add_service("/log", new LogService);
-		m_server->add_service("/browse", new TransferTreeBrowserService);
-		m_server->add_service("/", new pion::plugins::FileService);
-		m_server->set_service_option("/", "directory", DATA_LOCATION "/data/remote");
-		m_server->set_service_option("/", "file", DATA_LOCATION "/data/remote/index.html");
-		m_server->add_service("/copyrights", new pion::plugins::FileService);
-		m_server->set_service_option("/copyrights", "file", DATA_LOCATION "/README");
-		m_server->add_service("/download", new TransferDownloadService);
+		/*
 		m_server->add_service("/captcha", new CaptchaService);
-
-		m_server->start();*/
+		*/
 		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
 		std::cout << "Listening on port " << m_port << std::endl;
 	}
@@ -255,13 +250,20 @@ HTTPRequestHandler* HttpService::createRequestHandler(const HTTPServerRequest& r
 		}
 	}
 
-	return new FileRequestHandler(DATA_LOCATION "/data/remote");
+	return new FileRequestHandler("/", DATA_LOCATION "/data/remote/");
+}
+
+HttpService::LogService::LogService(const QString &mapping)
+	: m_mapping(mapping)
+{
 }
 
 void HttpService::LogService::run()
 {
-	QString uuidTransfer = QString::fromStdString(request().getURI().substr(5));
-	QString data;
+	QString data, uuidTransfer;
+	QString uri = QString::fromStdString(request().getURI());
+
+	uuidTransfer = uri.mid(m_mapping.length()+1);
 
 	if (uuidTransfer.isEmpty())
 		data = Logger::global()->logContents();
@@ -269,6 +271,10 @@ void HttpService::LogService::run()
 	{
 		Queue* q = 0;
 		Transfer* t = 0;
+
+		uuidTransfer = QUrl::fromPercentEncoding(uuidTransfer.toLatin1());
+		// qDebug() << "Transfer:" << uuidTransfer;
+
 		findTransfer(uuidTransfer, &q, &t);
 
 		if (!q || !t)
@@ -288,15 +294,21 @@ void HttpService::LogService::run()
 	response().setContentLength(ba.size());
 	response().sendBuffer(ba.data(), ba.size());
 }
-/*
-void HttpService::TransferTreeBrowserService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
-{
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	QString uuidTransfer = QString::fromStdString(get_relative_resource(request->get_resource()));
-	QString path = QString::fromStdString(request->get_query("path"));
 
-	path = path.replace("+", " ");
-	path = QUrl::fromPercentEncoding(path.toUtf8());
+HttpService::TransferTreeBrowserService::TransferTreeBrowserService(const QString &mapping)
+	: m_mapping(mapping)
+{
+}
+
+void HttpService::TransferTreeBrowserService::run()
+{
+	QUrl url(QString::fromStdString(request().getURI()));
+	QUrlQuery query(url);
+
+	QString uuidTransfer = url.path().mid(m_mapping.length()+1); // "/browse/"
+	QString path = query.queryItemValue("path");
+
+	uuidTransfer = QUrl::fromPercentEncoding(uuidTransfer.toLatin1());
 
 	if (uuidTransfer.startsWith("/"))
 		uuidTransfer = uuidTransfer.mid(1);
@@ -306,9 +318,7 @@ void HttpService::TransferTreeBrowserService::operator()(const pion::http::reque
 
 	if (path.contains("/..") || path.contains("../"))
 	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_FORBIDDEN);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_FORBIDDEN);
-		writer->send();
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_FORBIDDEN, ".. in path");
 		return;
 	}
 
@@ -316,9 +326,7 @@ void HttpService::TransferTreeBrowserService::operator()(const pion::http::reque
 
 	if (!q || !t)
 	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Transfer UUID not found");
 		return;
 	}
 
@@ -332,9 +340,7 @@ void HttpService::TransferTreeBrowserService::operator()(const pion::http::reque
 
 	if (!dir.cd(path))
 	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Not found");
 		return;
 	}
 
@@ -379,29 +385,31 @@ void HttpService::TransferTreeBrowserService::operator()(const pion::http::reque
 	q->unlock();
 	g_queuesLock.unlock();
 
-	writer->write(doc.toString(0).toStdString());
-	writer->send();
+	QByteArray ba = doc.toString(0).toUtf8();
+
+	response().setContentType("text/xml");
+	response().sendBuffer(ba.data(), ba.size());
 }
 
-void HttpService::TransferDownloadService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
+HttpService::TransferDownloadService::TransferDownloadService(const QString &mapping)
+	: m_mapping(mapping)
 {
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	QString transfer = QString::fromStdString(request->get_query("transfer"));
-	QString path = QString::fromStdString(request->get_query("path"));
+}
 
-	path = path.replace("+", " ");
-	path = QUrl::fromPercentEncoding(path.toUtf8());
+void HttpService::TransferDownloadService::run()
+{
+	QUrl url(QString::fromStdString(request().getURI()));
+	QUrlQuery query(url);
 
-	transfer = QUrl::fromPercentEncoding(transfer.toUtf8());
+	QString transfer = query.queryItemValue("transfer");
+	QString path = query.queryItemValue("path");
 
 	Queue* q = 0;
 	Transfer* t = 0;
 
 	if (path.contains("/..") || path.contains("../"))
 	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_FORBIDDEN);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_FORBIDDEN);
-		writer->send();
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_FORBIDDEN, ".. in path");
 		return;
 	}
 
@@ -409,9 +417,7 @@ void HttpService::TransferDownloadService::operator()(const pion::http::request_
 
 	if (!q || !t)
 	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Transfer UUID not found");
 		return;
 	}
 
@@ -435,29 +441,23 @@ void HttpService::TransferDownloadService::operator()(const pion::http::request_
 
 	disposition = QString("attachment; filename=\"%1\"").arg(disposition);
 
-	pion::plugins::DiskFile response_file;
-	response_file.setFilePath(path.toStdString());
-	response_file.update();
-
-	pion::plugins::DiskFileSenderPtr sender_ptr(pion::plugins::DiskFileSender::create(response_file, request, tcp_conn, 8192));
-	sender_ptr->get_writer()->get_response().add_header("Content-Disposition", disposition.toStdString());
-
-	if (unsigned long long fileSize = response_file.getFileSize())
-	{
-		std::stringstream fileSizeStream;
-		fileSizeStream << fileSize;
-		sender_ptr->get_writer()->get_response().add_header("Content-Length", fileSizeStream.str());
-	}
-
-	sender_ptr->send();
+	response().add("Content-Disposition", disposition.toStdString());
+	response().sendFile(path.toStdString(), "application/octet-stream");
 }
 
-void HttpService::SubclassService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
+HttpService::SubclassService::SubclassService(const QString &mapping)
+	: m_mapping(mapping)
 {
-	pion::http::response_writer_ptr writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
-	HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(writer);
-	QString transfer = QString::fromStdString(request->get_query("transfer"));
-	QString method = QString::fromStdString(get_relative_resource(request->get_resource()));
+}
+
+void HttpService::SubclassService::run()
+{
+	QUrl url(QString::fromStdString(request().getURI()));
+	QUrlQuery query(url);
+
+	HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(response());
+	QString transfer = query.queryItemValue("transfer");
+	QString method = url.path().mid(m_mapping.length()+1); // "/subclass/"
 
 	Queue* q = 0;
 	Transfer* t = 0;
@@ -472,27 +472,68 @@ void HttpService::SubclassService::operator()(const pion::http::request_ptr &req
 			g_queuesLock.unlock();
 		}
 
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Transfer UUID not found");
 		return;
 	}
 
 	QMultiMap<QString,QString> map;
-	pion::ihash_multimap params = request->get_queries();
-	for (pion::ihash_multimap::iterator it = params.begin(); it != params.end(); it++)
-	{
-		map.insert(QString::fromStdString(it->first), QString::fromStdString(it->second));
-	}
+	QList<QPair<QString, QString> > items = query.queryItems();
+
+	for (const QPair<QString, QString>& item : items)
+		map.insert(item.first, item.second);
 
 	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
-	s->process(method, map, &wb);
-	//writer->send();
+
+	if (s != nullptr)
+		s->process(method, map, &wb);
 
 	q->unlock();
 	g_queuesLock.unlock();
 }
-*/
+
+HttpService::WriteBackImpl::WriteBackImpl(Poco::Net::HTTPServerResponse& resp)
+	: m_response(resp)
+{
+}
+
+void HttpService::WriteBackImpl::sendHeaders()
+{
+	if (m_ostream)
+		return;
+
+	m_response.setChunkedTransferEncoding(true);
+	m_response.setStatusAndReason(Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_OK);
+	m_ostream = &m_response.send();
+}
+
+void HttpService::WriteBackImpl::write(const char* data, size_t bytes)
+{
+	sendHeaders();
+	m_ostream->write(static_cast<const char*>(data), bytes);
+}
+
+void HttpService::WriteBackImpl::writeFail(QString error)
+{
+	QByteArray ba = error.toUtf8();
+	m_response.setStatusAndReason(Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_INTERNAL_SERVER_ERROR);
+	m_response.sendBuffer(ba.data(), ba.size());
+}
+
+void HttpService::WriteBackImpl::writeNoCopy(void* data, size_t bytes)
+{
+	sendHeaders();
+	m_ostream->write(static_cast<const char*>(data), bytes);
+}
+
+void HttpService::WriteBackImpl::send()
+{
+	// No-op with poco
+}
+
+void HttpService::WriteBackImpl::setContentType(const char* type)
+{
+	m_response.setContentType(type);
+}
 
 int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
 {

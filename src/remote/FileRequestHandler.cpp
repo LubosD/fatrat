@@ -4,9 +4,10 @@
 #include <Poco/Net/HTTPServerResponse.h>
 #include <Poco/Net/HTTPServerRequest.h>
 #include <QMimeDatabase>
+#include <cstring>
 
-FileRequestHandler::FileRequestHandler(const char* root)
-	: m_root(root)
+FileRequestHandler::FileRequestHandler(const char* prefix, const char* root)
+	: m_prefix(prefix), m_root(root)
 {
 
 }
@@ -24,7 +25,7 @@ void FileRequestHandler::run()
 	}
 
 	fpath = m_root;
-	fpath += uri;
+	fpath += uri.substr(strlen(m_prefix));
 
 	QFileInfo fi(QString::fromStdString(fpath));
 
@@ -46,6 +47,12 @@ void FileRequestHandler::run()
 		}
 	}
 
-	QString mimeType = mimeDB.mimeTypeForFile(fi.absoluteFilePath()).name();
+	QString mimeType;
+
+	if (fi.absoluteFilePath().endsWith(".html"))
+		mimeType = QLatin1String("text/html");
+	else
+		mimeType = mimeDB.mimeTypeForFile(fi.absoluteFilePath()).name();
+
 	response().sendFile(fi.absoluteFilePath().toStdString(), mimeType.toStdString());
 }
