@@ -37,24 +37,24 @@ respects for all of the code used other than "OpenSSL".
 #include <QQueue>
 #include <QTimer>
 #include <ctime>
+#include <functional>
 #include <openssl/ssl.h>
-#include <boost/system/system_error.hpp>
-#include <pion/http/plugin_server.hpp>
-#include <pion/http/response_writer.hpp>
+#include <Poco/Net/HTTPServer.h>
+#include <Poco/Net/HTTPRequestHandler.h>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
+#include "XmlRpcService.h"
+
+using namespace Poco::Net;
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
 
-#include <pion/http/server.hpp>
-#include <pion/http/plugin_service.hpp>
-
 class Queue;
 class Transfer;
 
-class HttpService : public QObject
+class HttpService : public QObject, public HTTPRequestHandlerFactory
 {
 Q_OBJECT
 private:
@@ -76,16 +76,21 @@ public:
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 
 	static QVariant generateCertificate(QList<QVariant>&);
+
+	virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) override;
 private slots:
 	void keepalive(); // QTimer TODO
 private:
 	void addCaptchaClient(RegisteredClient* client);
 	void removeCaptchaClient(RegisteredClient* client);
 	void killCaptchaClients();
+
+	typedef std::function<HTTPRequestHandler*()> handler_t;
+	void addHandler(const QString& path, handler_t handler) { m_handlers[path] = handler; }
+
+	void logService(HTTPServerRequest &req, HTTPServerResponse &resp);
 private:
 	static HttpService* m_instance;
-	pion::http::plugin_server* m_server;
-	pion::http::auth_ptr m_auth_ptr;
 	CaptchaHttp m_captchaHttp;
 	quint16 m_port;
 	QString m_strSSLPem;
@@ -95,10 +100,19 @@ private:
 	QList<RegisteredClient*> m_registeredCaptchaClients;
 	QMutex m_registeredCaptchaClientsMutex;
 
-	class LogService : public pion::http::plugin_service
+	HTTPServer* m_server;
+	ServerSocket* m_socket;
+
+	QMap<QString, handler_t> m_handlers;
+	XmlRpcService m_xmlRpc;
+
+	class LogService : public AuthenticatedRequestHandler
 	{
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
+	public:
+		static HTTPRequestHandler* instantiate() { return new LogService; }
+		virtual void run() override;
 	};
+	/*
 	class TransferTreeBrowserService : public pion::http::plugin_service
 	{
 		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
@@ -112,6 +126,7 @@ private:
 	public:
 		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	};
+	*/
 	/*class CaptchaService : public pion::http::plugin_service
 	{
 	public:
@@ -131,6 +146,7 @@ private:
 		} m_cap;
 	};*/
 
+	/*
 	class CaptchaHttpResponseWriter;
 	class CaptchaService : public pion::http::plugin_service
 	{
@@ -165,13 +181,6 @@ private:
 		{
 			return boost::shared_ptr<CaptchaHttpResponseWriter>(new CaptchaHttpResponseWriter(cl, tcp_conn, request, handler));
 		}
-		/*virtual void prepareBuffersForSend(HTTPMessage::WriteBuffers& write_buffers) {
-			m_content_length = 0;
-			//if (getContentLength() > 0)
-			//	m_http_response->setContentLength(getContentLength());
-			m_http_response->prepareBuffersForSend(write_buffers, getTCPConnection()->getKeepAlive(),
-							       sendingChunkedMessage());
-		}*/
 		virtual void handle_write(const boost::system::error_code &write_error, std::size_t bytes_written);
 
 		HttpService::RegisteredClient* client;
@@ -189,6 +198,7 @@ private:
 	private:
 		pion::http::response_writer_ptr m_writer;
 	};
+	*/
 };
 
 

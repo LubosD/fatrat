@@ -33,8 +33,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariantMap>
 #include <QQueue>
 #include <QPair>
-#include <pion/http/server.hpp>
-#include <pion/http/plugin_service.hpp>
+#include <Poco/Net/AbstractHTTPRequestHandler.h>
+#include "AuthenticatedRequestHandler.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -43,17 +43,18 @@ respects for all of the code used other than "OpenSSL".
 class Queue;
 class Transfer;
 
-class XmlRpcService : public QObject, public pion::http::plugin_service
+class XmlRpcService : public QObject
 {
 Q_OBJECT
 public:
 	XmlRpcService();
-	void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
 	static void globalInit();
 	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
 	static void deregisterFunction(QString name);
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
+
+	Poco::Net::HTTPRequestHandler* createHandler();
 protected:
 	static QVariant getTransferClasses(QList<QVariant>&);
 	static QVariant getQueues(QList<QVariant>&);
@@ -95,6 +96,14 @@ private:
 		QVariant (*function)(QList<QVariant>&);
 		QVector<QVariant::Type> arguments;
 	};
+	class Handler : public AuthenticatedRequestHandler
+	{
+	public:
+		virtual void run() override;
+	private:
+		static QByteArray istream2ba(std::istream& is);
+	};
+
 	static QMap<QString,FunctionInfo> m_mapFunctions;
 	static XmlRpcService* m_instance;
 };

@@ -50,18 +50,16 @@ respects for all of the code used other than "OpenSSL".
 #include <QMultiMap>
 #include <QProcess>
 #include <QFile>
-#include <pion/http/basic_auth.hpp>
-#include <pion/http/response_writer.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include "pion/FileService.hpp"
 #include <cstdlib>
 #include <sstream>
+#include <iostream>
 #include <locale.h>
 #include <unistd.h>
 #include <string.h>
 #include <algorithm>
-
-using namespace pion::http;
+#include <Poco/Net/HTTPServerRequest.h>
+#include <Poco/Net/HTTPServerResponse.h>
+#include "FileRequestHandler.h"
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -70,12 +68,10 @@ extern QVector<EngineEntry> g_enginesDownload;
 
 HttpService* HttpService::m_instance = 0;
 
-#define HTTP_HEADERS "Server: FatRat/" VERSION "\r\n"
-
 struct AuthenticationFailure {};
 
 HttpService::HttpService()
-	: m_server(0), m_port(0)
+	: m_port(0), m_server(nullptr)
 {
 	m_instance = this;
 	applySettings();
@@ -90,6 +86,9 @@ HttpService::HttpService()
 	
 	addSettingsPage(si);
 
+	addHandler("/xmlrpc", std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
+	addHandler("/log", LogService::instantiate);
+
 	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate, QVector<QVariant::Type>() << QVariant::String);
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
@@ -103,14 +102,13 @@ HttpService::~HttpService()
 	m_instance = 0;
 	if(m_server)
 	{
-		m_server->stop();
-		delete m_server;
-		m_server = 0;
+		m_server->stopAll(true);
 	}
 }
 
 void HttpService::killCaptchaClients()
 {
+	/*
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
 	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
@@ -119,6 +117,7 @@ void HttpService::killCaptchaClients()
 		delete cl;
 	}
 	m_registeredCaptchaClients.clear();
+	*/
 }
 
 void HttpService::applySettings()
@@ -170,16 +169,9 @@ void HttpService::applySettings()
 
 void HttpService::setupAuth()
 {
-	pion::user_manager_ptr userManager(new pion::user_manager);
 	QString password = getSettingsValue("remote/password").toString();
 
-	m_auth_ptr = pion::http::auth_ptr( new pion::http::basic_auth(userManager, "FatRat Web Interface") );
-	m_server->set_authentication(m_auth_ptr);
-	m_auth_ptr->add_restrict("/");
-
-	m_auth_ptr->add_user("fatrat", password.toStdString());
-	m_auth_ptr->add_user("admin", password.toStdString());
-	m_auth_ptr->add_user("user", password.toStdString());
+	AuthenticatedRequestHandler::setPassword(password);
 }
 
 void HttpService::setup()
@@ -188,12 +180,19 @@ void HttpService::setup()
 	
 	try
 	{
-		m_server = new pion::http::plugin_server(m_port);
+		//m_server = new pion::http::plugin_server(m_port);
+		HTTPServerParams* params = new HTTPServerParams;
+
+		// if not SSL
+		m_socket = new ServerSocket(m_port);
+
+		m_server = new HTTPServer(this, *m_socket, params);
+		m_server->start();
 
 		setupAuth();
 		setupSSL();
 
-		m_server->add_service("/xmlrpc", new XmlRpcService);
+		/*m_server->add_service("/xmlrpc", new XmlRpcService);
 		m_server->add_service("/subclass", new SubclassService);
 		m_server->add_service("/log", new LogService);
 		m_server->add_service("/browse", new TransferTreeBrowserService);
@@ -205,7 +204,7 @@ void HttpService::setup()
 		m_server->add_service("/download", new TransferDownloadService);
 		m_server->add_service("/captcha", new CaptchaService);
 
-		m_server->start();
+		m_server->start();*/
 		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
 		std::cout << "Listening on port " << m_port << std::endl;
 	}
@@ -219,7 +218,7 @@ void HttpService::setup()
 void HttpService::setupSSL()
 {
 	m_bUseSSL = getSettingsValue("remote/ssl").toBool();
-	if (m_bUseSSL)
+	/*if (m_bUseSSL)
 	{
 		QString file = getSettingsValue("remote/ssl_pem").toString();
 		if (file.isEmpty() || !QFile::exists(file))
@@ -241,13 +240,27 @@ void HttpService::setupSSL()
 		Logger::global()->enterLogMessage("HttpService", tr("Running in plain HTTP mode"));
 		m_server->set_ssl_flag(false);
 		m_strSSLPem.clear();
-	}
+	}*/
 }
 
-void HttpService::LogService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
+HTTPRequestHandler* HttpService::createRequestHandler(const HTTPServerRequest& request)
 {
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	QString uuidTransfer = QString::fromStdString(get_relative_resource(request->get_resource()));
+	QString uri = QString::fromStdString(request.getURI());
+
+	for (auto e : m_handlers.keys())
+	{
+		if (uri.startsWith(e))
+		{
+			return m_handlers.value(e)();
+		}
+	}
+
+	return new FileRequestHandler(DATA_LOCATION "/data/remote");
+}
+
+void HttpService::LogService::run()
+{
+	QString uuidTransfer = QString::fromStdString(request().getURI().substr(5));
 	QString data;
 
 	if (uuidTransfer.isEmpty())
@@ -260,9 +273,7 @@ void HttpService::LogService::operator()(const pion::http::request_ptr &request,
 
 		if (!q || !t)
 		{
-			writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-			writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-			writer->send();
+			this->sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Queue/Transfer not found");
 			return;
 		}
 
@@ -272,11 +283,12 @@ void HttpService::LogService::operator()(const pion::http::request_ptr &request,
 		g_queuesLock.unlock();
 	}
 
-	writer->get_response().add_header("Content-Type", "text/plain");
-	writer->write(data.toStdString());
-	writer->send();
+	QByteArray ba = data.toUtf8();
+	response().setContentType("text/plain");
+	response().setContentLength(ba.size());
+	response().sendBuffer(ba.data(), ba.size());
 }
-
+/*
 void HttpService::TransferTreeBrowserService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
 {
 	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
@@ -480,38 +492,7 @@ void HttpService::SubclassService::operator()(const pion::http::request_ptr &req
 	q->unlock();
 	g_queuesLock.unlock();
 }
-
-HttpService::WriteBackImpl::WriteBackImpl(pion::http::response_writer_ptr& writer)
-	: m_writer(writer)
-{
-
-}
-
-void HttpService::WriteBackImpl::writeNoCopy(void* data, size_t bytes)
-{
-	m_writer->write_no_copy(data, bytes);
-}
-
-void HttpService::WriteBackImpl::send()
-{
-	m_writer->send();
-}
-
-void HttpService::WriteBackImpl::write(const char* data, size_t bytes)
-{
-	m_writer->write(data, bytes);
-}
-
-void HttpService::WriteBackImpl::setContentType(const char* type)
-{
-	m_writer->get_response().add_header("Content-Type", type);
-}
-
-void HttpService::WriteBackImpl::writeFail(QString error)
-{
-	m_writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-	m_writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-}
+*/
 
 int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
 {
@@ -599,75 +580,7 @@ QVariant HttpService::generateCertificate(QList<QVariant>& args)
 	return path;
 }
 
-
 /*
-void HttpService::CaptchaService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
-{
-	m_cap.writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
-
-	std::string upgrade, connection;
-	upgrade = request->getHeader("Upgrade");
-	connection = request->getHeader("Connection");
-	m_cap.key1 = request->getHeader("Sec-WebSocket-Key1");
-	m_cap.key2 = request->getHeader("Sec-WebSocket-Key2");
-
-	std::transform(connection.begin(), connection.end(), connection.begin(), ::tolower);
-	std::transform(upgrade.begin(), upgrade.end(), upgrade.begin(), ::tolower);
-
-	if (connection != "upgrade" || upgrade != "websocket" || m_cap.key1.empty() || m_cap.key2.empty())
-	{
-		m_cap.writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_BAD_REQUEST);
-		m_cap.writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST);
-		m_cap.writer->send();
-	}
-
-	// We need to get the eight bytes from the buffer asynchronously.
-	// This gets a bit tricky since there is some pion buffering involed.
-	const char *read_ptr;
-	const char *read_end_ptr;
-
-	m_cap.tcp_conn = tcp_conn;
-
-	tcp_conn->loadReadPosition(read_ptr, read_end_ptr);
-	m_cap.inbuf = read_end_ptr - read_ptr;
-
-	memcpy(m_cap.sig, read_ptr, std::max(8, m_cap.inbuf));
-
-	if (m_cap.inbuf < 8)
-		tcp_conn->async_read(boost::asio::transfer_at_least(8-m_cap.inbuf), m_cap);
-	else
-		m_cap.readDone();
-}
-
-void HttpService::CaptchaService::CapServCap::operator()(const boost::system::error_code& error, std::size_t bytes_transferred)
-{
-	if (error)
-		return;
-	memcpy(sig+inbuf, tcp_conn->getReadBuffer().data(), std::min<size_t>(bytes_transferred, 8-inbuf));
-	readDone();
-}
-
-void HttpService::CaptchaService::CapServCap::readDone()
-{
-	int num1 = 0, num2 = 0, spc1 = 0, spc2 = 0;
-	for (size_t i = 0; i < key1.size(); i++)
-	{
-		if (isdigit(key1[i]))
-			num1 = num1 * 10 + (key1[i] - '0');
-		else if (key1[i] == ' ')
-			spc1++;
-	}
-	for (size_t i = 0; i < key2.size(); i++)
-	{
-		if (isdigit(key2[i]))
-			num2 = num2 * 10 + (key2[i] - '0');
-		else if (key2[i] == ' ')
-			spc2++;
-	}
-}
-
-*/
-
 void HttpService::CaptchaHttpResponseWriter::handle_write(const boost::system::error_code &write_error, std::size_t bytes_written)
 {
 	if (!bytes_written)
@@ -762,9 +675,11 @@ void HttpService::RegisteredClient::keepalive()
 	writer->write(": keepalive\r\n\r\n");
 	writer->send_chunk(boost::bind(&HttpService::RegisteredClient::finished, this));
 }
+*/
 
 void HttpService::addCaptchaEvent(int id, QString url)
 {
+	/*
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
 	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
@@ -774,6 +689,7 @@ void HttpService::addCaptchaEvent(int id, QString url)
 		cl->captchaQueueLock.unlock();
 		cl->pushMore();
 	}
+	*/
 }
 
 void HttpService::addCaptchaClient(RegisteredClient* client)
@@ -793,15 +709,20 @@ bool HttpService::hasCaptchaHandlers()
 	return !m_registeredCaptchaClients.isEmpty();
 }
 
+
 void HttpService::keepalive()
 {
+	/*
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
 	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
 		cl->keepalive();
+	*/
 }
 
+/*
 void HttpService::RegisteredClient::terminate()
 {
-	writer->get_connection()->finish();
+	//writer->get_connection()->finish();
 }
+*/

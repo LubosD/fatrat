@@ -36,10 +36,10 @@ respects for all of the code used other than "OpenSSL".
 #include <QStringList>
 #include <QFileInfo>
 #include <QTemporaryFile>
-#include <pion/http/response_writer.hpp>
+#include <QBuffer>
 #include <QtDebug>
-
-using namespace pion::http;
+#include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/Net/HTTPServerRequest.h>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -150,33 +150,42 @@ void XmlRpcService::globalInit()
 
 }
 
-void XmlRpcService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
+Poco::Net::HTTPRequestHandler* XmlRpcService::createHandler()
 {
-	if (request->get_method() != pion::http::types::REQUEST_METHOD_POST)
+	return new Handler;
+}
+
+QByteArray XmlRpcService::Handler::istream2ba(std::istream& is)
+{
+	QBuffer buffer;
+	char buf[512];
+
+	buffer.open(QIODevice::WriteOnly);
+
+	while (is)
 	{
-		static const std::string NOT_ALLOWED_HTML_START =
-				"<html><head>\n"
-				"<title>405 Method Not Allowed</title>\n"
-				"</head><body>\n"
-				"<h1>Not Allowed</h1>\n"
-				"<p>The requested method \n";
-		static const std::string NOT_ALLOWED_HTML_FINISH =
-				" is not allowed on this server.</p>\n"
-				"</body></html>\n";
-		pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-		writer->get_response().set_status_code(types::RESPONSE_CODE_METHOD_NOT_ALLOWED);
-		writer->get_response().set_status_message(types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED);
-		writer->write_no_copy(NOT_ALLOWED_HTML_START);
-		writer << request->get_method();
-		writer->write_no_copy(NOT_ALLOWED_HTML_FINISH);
-		writer->get_response().add_header("Allow", "GET, HEAD");
-		writer->send();
+		is.read(buf, sizeof(buf));
+		buffer.write(buf, is.gcount());
+	}
+
+	return buffer.data();
+}
+
+void XmlRpcService::Handler::run()
+{
+	if (request().getMethod() != "POST")
+	{
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_METHOD_NOT_ALLOWED, "Method Not Allowed");
 		return;
 	}
 
-	QByteArray data;
+	QByteArray data, body;
 
-	qDebug() << "XML-RPC call:" << request->get_content();
+	body = istream2ba(request().stream());
+
+	//std::copy(std::istream_iterator<char>(request().stream()), std::istream_iterator<char>(), std::back_inserter(body));
+
+	qDebug() << "XML-RPC call:" << body;
 
 	try
 	{
@@ -184,7 +193,7 @@ void XmlRpcService::operator()(const pion::http::request_ptr &request, const pio
 		QList<QVariant> args;
 		QVariant returnValue;
 
-		XmlRpc::parseCall(request->get_content(), function, args);
+		XmlRpc::parseCall(body, function, args);
 
 		if(function == "Queue.getTransfers")
 		{
@@ -236,12 +245,13 @@ void XmlRpcService::operator()(const pion::http::request_ptr &request, const pio
 	catch(const RuntimeException& e) // syntax error from XmlRpc
 	{
 		qDebug() << "XmlRpcService::serve():" << e.what();
-		throw "400 Bad Request";
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_BAD_REQUEST, "Bad Request");
 	}
 
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	writer->write(data.data(), data.size());
-	writer->send();
+	response().setContentLength(data.size());
+	response().setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+	response().setContentType("text/xml");
+	response().sendBuffer(data.data(), data.size());
 }
 
 QVariant XmlRpcService::getTransferClasses(QList<QVariant>&)
