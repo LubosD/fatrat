@@ -144,6 +144,7 @@ protected:
 	void restoreWindowState(bool bStartHidden);
 	void connectActions();
 	void fillSettingsMenu();
+	void setupTrayIconMenu();
 	
 	void showTrayIcon();
 	void transferOpen(bool bOpenFile);
@@ -153,6 +154,7 @@ protected:
 private:
 	QTimer* m_timer;
 	MyTrayIcon m_trayIcon;
+	QMenu m_trayIconMenu;
 	TransfersModel* m_modelTransfers;
 	QLabel m_labelStatus;
 	QObject* m_pDetailsDisplay;

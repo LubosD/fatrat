@@ -135,6 +135,7 @@ void MainWindow::setupUi()
 	treeTransfers->setItemDelegate(new ProgressDelegate(treeTransfers));
 	
 	m_trayIcon.setIcon(QIcon(":/fatrat/fatrat.png"));
+	m_trayIcon.setToolTip("FatRat");
 	showTrayIcon();
 	
 	statusbar->addWidget(&m_labelStatus);
@@ -206,6 +207,7 @@ void MainWindow::setupUi()
 #endif
 	
 	connectActions();
+	setupTrayIconMenu();
 	
 	for(int i=0;i<m_statusWidgets.size();i++)
 	{
@@ -228,6 +230,20 @@ void MainWindow::setupUi()
 	fillSettingsMenu();
 	if (useSystemTheme)
 		applySystemTheme();
+}
+
+void MainWindow::setupTrayIconMenu()
+{
+	m_trayIconMenu.addAction(actionDisplay);
+	m_trayIconMenu.addAction(actionDropBox);
+	m_trayIconMenu.addSeparator();
+	m_trayIconMenu.addAction(actionPauseAll);
+	m_trayIconMenu.addSeparator();
+	m_trayIconMenu.addAction(actionHideAllInfoBars);
+	m_trayIconMenu.addSeparator();
+	m_trayIconMenu.addAction(actionQuit);
+
+	m_trayIcon.setContextMenu(&m_trayIconMenu);
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -434,22 +450,7 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 		else
 			actionDisplay->toggle();
 	}
-	else if(reason == QSystemTrayIcon::Context)
-	{
-		QMenu menu(this);
-		
-		menu.addAction(actionDisplay);
-		menu.addAction(actionDropBox);
-		menu.addSeparator();
-		menu.addAction(actionPauseAll);
-		menu.addSeparator();
-		menu.addAction(actionHideAllInfoBars);
-		menu.addSeparator();
-		menu.addAction(actionQuit);
-		
-		menu.exec(QCursor::pos());
-	}
-	else if(reason == QSystemTrayIcon::MiddleClick)
+	else if(reason == QSystemTrayIcon::MiddleClick || reason == QSystemTrayIcon::Context)
 	{
 		actionDropBox->toggle();
 	}
