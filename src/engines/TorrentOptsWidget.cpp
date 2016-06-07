@@ -91,11 +91,10 @@ void TorrentOptsWidget::load()
 	QHeaderView* hdr = treeFiles->header();
 	hdr->resizeSection(0, 350);
 	
-	for(libtorrent::torrent_info::file_iterator it = m_download->m_info->begin_files();
-		it != m_download->m_info->end_files();
-		it++)
+	for (int i = 0; i < m_download->m_info->num_files(); i++)
 	{
-		QStringList elems = QString::fromUtf8(it->filename().c_str()).split('/');
+		libtorrent::file_entry file = m_download->m_info->file_at(i);
+		QStringList elems = QString::fromStdString(file.path).split('/');
 		//QString name = elems.takeLast();
 		
 		QTreeWidgetItem* item = 0;
@@ -137,8 +136,8 @@ void TorrentOptsWidget::load()
 		}
 		
 		// fill in info
-		item->setText(1, formatSize(it->size));
-		item->setData(1, Qt::UserRole, qint64(it->size));
+		item->setText(1, formatSize(file.size));
+		item->setData(1, Qt::UserRole, qint64(file.size));
 		m_files << item;
 	}
 	
