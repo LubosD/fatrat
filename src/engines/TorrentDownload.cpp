@@ -541,6 +541,10 @@ void TorrentDownload::init(QString source, QString target)
 				params.storage_mode = storageMode;
 				params.paused = !isActive();
 				params.auto_managed = false;
+				params.flags = libtorrent::add_torrent_params::flag_duplicate_is_error;
+
+				if (!isActive())
+					params.flags |= libtorrent::add_torrent_params::flag_paused;
 				
 				m_handle = m_session->add_torrent(params);
 				//m_handle = m_session->add_torrent(m_info, target.toStdString(), libtorrent::entry(), storageMode, !isActive());
@@ -558,6 +562,10 @@ void TorrentDownload::init(QString source, QString target)
 				params.paused = !isActive();
 				params.auto_managed = false;
 				params.url = ss;
+				params.flags = libtorrent::add_torrent_params::flag_duplicate_is_error;
+
+				if (!isActive())
+					params.flags |= libtorrent::add_torrent_params::flag_paused;
 
 				m_handle = m_session->add_torrent(params);
 			}
