@@ -60,6 +60,8 @@ respects for all of the code used other than "OpenSSL".
 #include <algorithm>
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/Net/Context.h>
+#include <Poco/Net/SecureServerSocket.h>
 #include "FileRequestHandler.h"
 
 extern QList<Queue*> g_queues;
@@ -67,9 +69,7 @@ extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 extern QVector<EngineEntry> g_enginesDownload;
 
-HttpService* HttpService::m_instance = 0;
-
-struct AuthenticationFailure {};
+Poco::SharedPtr<HttpService> HttpService::m_instance;
 
 HttpService::HttpService()
 	: m_port(0), m_server(nullptr)
@@ -108,6 +108,7 @@ HttpService::~HttpService()
 	if(m_server)
 	{
 		m_server->stopAll(true);
+		delete m_server;
 	}
 }
 
@@ -185,17 +186,14 @@ void HttpService::setup()
 	
 	try
 	{
-		//m_server = new pion::http::plugin_server(m_port);
 		HTTPServerParams* params = new HTTPServerParams;
 
 		// if not SSL
-		m_socket = new ServerSocket(m_port);
-
-		m_server = new HTTPServer(this, *m_socket, params);
-		m_server->start();
-
 		setupAuth();
 		setupSSL();
+
+		m_server = new HTTPServer(m_instance, *m_socket, params);
+		m_server->start();
 
 		/*
 		m_server->add_service("/captcha", new CaptchaService);
@@ -213,29 +211,31 @@ void HttpService::setup()
 void HttpService::setupSSL()
 {
 	m_bUseSSL = getSettingsValue("remote/ssl").toBool();
-	/*if (m_bUseSSL)
+
+	if (m_bUseSSL)
 	{
 		QString file = getSettingsValue("remote/ssl_pem").toString();
 		if (file.isEmpty() || !QFile::exists(file))
 		{
 			Logger::global()->enterLogMessage("HttpService", tr("SSL key file not found, disabling HTTPS"));
-			m_server->set_ssl_flag(false);
+			m_socket.reset(new ServerSocket(m_port));
 			m_strSSLPem.clear();
 		}
 		else
 		{
 			Logger::global()->enterLogMessage("HttpService", tr("Loading a SSL key from %1").arg(file));
 			m_strSSLPem = file;
-			m_server->set_ssl_key_file(file.toStdString());
-			m_server->set_ssl_flag(true);
+
+			Context* context = new Context(Context::Usage::SERVER_USE, file.toStdString(),
+										   std::string(), std::string());
+			m_socket.reset(new SecureServerSocket(m_port, 5, context));
 		}
 	}
 	else
 	{
 		Logger::global()->enterLogMessage("HttpService", tr("Running in plain HTTP mode"));
-		m_server->set_ssl_flag(false);
-		m_strSSLPem.clear();
-	}*/
+		m_socket.reset(new ServerSocket(m_port));
+	}
 }
 
 HTTPRequestHandler* HttpService::createRequestHandler(const HTTPServerRequest& request)

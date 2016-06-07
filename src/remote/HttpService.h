@@ -38,7 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <ctime>
 #include <functional>
-#include <openssl/ssl.h>
+#include <memory>
 #include <Poco/Net/HTTPServer.h>
 #include <Poco/Net/HTTPRequestHandler.h>
 #include "captcha/CaptchaHttp.h"
@@ -90,7 +90,7 @@ private:
 
 	void logService(HTTPServerRequest &req, HTTPServerResponse &resp);
 private:
-	static HttpService* m_instance;
+	static Poco::SharedPtr<HttpService> m_instance;
 	CaptchaHttp m_captchaHttp;
 	quint16 m_port;
 	QString m_strSSLPem;
@@ -101,7 +101,7 @@ private:
 	QMutex m_registeredCaptchaClientsMutex;
 
 	HTTPServer* m_server;
-	ServerSocket* m_socket;
+	std::unique_ptr<ServerSocket> m_socket;
 
 	QMap<QString, handler_t> m_handlers;
 	XmlRpcService m_xmlRpc;
