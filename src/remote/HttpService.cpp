@@ -51,17 +51,22 @@ respects for all of the code used other than "OpenSSL".
 #include <QMultiMap>
 #include <QProcess>
 #include <QFile>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
 #include <locale.h>
 #include <unistd.h>
 #include <string.h>
+#include <poll.h>
 #include <algorithm>
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 #include <Poco/Net/Context.h>
 #include <Poco/Net/SecureServerSocket.h>
+#include <Poco/Net/WebSocket.h>
+#include <Poco/Net/HTMLForm.h>
 #include "FileRequestHandler.h"
 
 extern QList<Queue*> g_queues;
@@ -87,12 +92,14 @@ HttpService::HttpService()
 	
 	addSettingsPage(si);
 
-	addHandler("/xmlrpc", std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
-	addHandler("/log", []() { return new LogService(QLatin1String("/log")); });
-	addHandler("/subclass", []() { return new SubclassService(QLatin1String("/subclass")); });
-	addHandler("/browse", []() { return new TransferTreeBrowserService(QLatin1String("/browse")); });
-	addHandler("/download", []() { return new TransferDownloadService(QLatin1String("/download")); });
-	addHandler("/copyrights", []() { return new FileRequestHandler("/copyrights", DATA_LOCATION "/README"); });
+	addHandler(QRegExp("/xmlrpc"), std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
+	addHandler(QRegExp("/log.*"), []() { return new LogService(QLatin1String("/log")); });
+	addHandler(QRegExp("/subclass.*"), []() { return new SubclassService(QLatin1String("/subclass")); });
+	addHandler(QRegExp("/browse.*"), []() { return new TransferTreeBrowserService(QLatin1String("/browse")); });
+	addHandler(QRegExp("/download"), []() { return new TransferDownloadService(QLatin1String("/download")); });
+	addHandler(QRegExp("/copyrights"), []() { return new FileRequestHandler("/copyrights", DATA_LOCATION "/README"); });
+	addHandler(QRegExp("/captcha"), []() { return new CaptchaService; });
+	addHandler(QRegExp("/websocket"), []() { return new WebSocketService; });
 
 	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate, QVector<QVariant::Type>() << QVariant::String);
 
@@ -105,25 +112,27 @@ HttpService::~HttpService()
 	killCaptchaClients();
 
 	m_instance = 0;
-	if(m_server)
+	if (m_server)
 	{
-		m_server->stopAll(true);
-		delete m_server;
+		try
+		{
+			m_server->stopAll(true);
+		}
+		catch (...)
+		{
+		}
 	}
 }
 
 void HttpService::killCaptchaClients()
 {
-	/*
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	for (WebSocketService* s : m_registeredCaptchaClients)
 	{
-		cl->terminate();
-		delete cl;
+		s->terminate();
 	}
 	m_registeredCaptchaClients.clear();
-	*/
 }
 
 void HttpService::applySettings()
@@ -195,9 +204,6 @@ void HttpService::setup()
 		m_server = new HTTPServer(m_instance, *m_socket, params);
 		m_server->start();
 
-		/*
-		m_server->add_service("/captcha", new CaptchaService);
-		*/
 		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
 		std::cout << "Listening on port " << m_port << std::endl;
 	}
@@ -242,11 +248,11 @@ HTTPRequestHandler* HttpService::createRequestHandler(const HTTPServerRequest& r
 {
 	QString uri = QString::fromStdString(request.getURI());
 
-	for (auto e : m_handlers.keys())
+	for (const QPair<QRegExp, handler_t>& e : m_handlers)
 	{
-		if (uri.startsWith(e))
+		if (e.first.exactMatch(uri))
 		{
-			return m_handlers.value(e)();
+			return e.second();
 		}
 	}
 
@@ -621,125 +627,177 @@ QVariant HttpService::generateCertificate(QList<QVariant>& args)
 	return path;
 }
 
-/*
-void HttpService::CaptchaHttpResponseWriter::handle_write(const boost::system::error_code &write_error, std::size_t bytes_written)
+void HttpService::CaptchaService::run()
 {
-	if (!bytes_written)
+	QString solution;
+	int id;
+
+	if (!form().has("id") || !form().has("solution"))
 	{
-		// TODO: handle errors
-		HttpService::instance()->removeCaptchaClient(client);
-		send_final_chunk();
-		delete client;
-	}
-
-	pion::http::response_writer::handle_write(write_error, bytes_written);
-}
-
-void HttpService::CaptchaService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
-{
-	if (request->has_query("id"))
-	{
-		QString id = QString::fromStdString(request->get_query("id"));
-		QString solution = QString::fromStdString(request->get_query("solution"));
-
-		int iid = id.toInt();
-		HttpService::instance()->m_captchaHttp.captchaEntered(iid, solution);
-
-		pion::http::response_writer_ptr writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
-		writer->send();
-	}
-	else
-	{
-		// PROCEDURE
-		// Add an active connection
-
-		// ON EVENT:
-		// add event to queue
-		// lock the mutex - exit if locked
-		// send outstanding events
-		// unlock the mutex in the finished handler
-		// remove connection if handleWrite receives an error
-
-		RegisteredClient* client = new RegisteredClient;
-
-		client->writer = CaptchaHttpResponseWriter::create(client, tcp_conn, *request,
-								   boost::bind(&pion::tcp::connection::finish, tcp_conn));
-		HttpService::instance()->addCaptchaClient(client);
-
-		client->writer->get_response().add_header("Content-Type", "text/event-stream");
-		client->writer->get_response().add_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-		client->writer->get_response().add_header("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
-		client->writer->get_response().add_header("Pragma", "no-cache");
-	}
-}
-
-void HttpService::RegisteredClient::finished()
-{
-	writeInProgressLock.unlock();
-	pushMore();
-}
-
-void HttpService::RegisteredClient::pushMore()
-{
-	if (!writeInProgressLock.tryLock())
+		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_BAD_REQUEST, "id or solution missing");
 		return;
+	}
 
+	id = std::stoi(form().get("id"));
+	solution = QString::fromStdString(form().get("solution"));
+
+	HttpService::instance()->m_captchaHttp.captchaEntered(id, solution);
+
+	response().setStatusAndReason(Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_NO_CONTENT);
+	response().setContentLength(0);
+	response().send();
+}
+
+HttpService::WebSocketService::WebSocketService()
+{
+	if (::pipe(m_pipe) != 0)
+	{
+		m_pipe[0] = m_pipe[1] = -1;
+		throw std::runtime_error("Cannot create a wakeup pipe");
+	}
+}
+
+HttpService::WebSocketService::~WebSocketService()
+{
+	close(m_pipe[0]);
+	close(m_pipe[1]);
+}
+
+class WebSocketPublicFD : public WebSocket
+{
+public:
+	WebSocketPublicFD(HTTPServerRequest& request, HTTPServerResponse& response)
+		: WebSocket(request, response)
+	{
+	}
+
+	poco_socket_t sockfd() const { return WebSocket::sockfd(); }
+};
+
+void HttpService::WebSocketService::run()
+{
+	WebSocketPublicFD ws(request(), response());
+	const int fdWs = ws.sockfd();
+	bool stop = false;
+	struct pollfd fds[2] = { { fdWs, POLLIN, 0 }, { m_pipe[0], POLLIN, 0 } };
+
+	HttpService::instance()->addCaptchaClient(this);
+
+	try
+	{
+		while (!stop)
+		{
+			int ev = ::poll(fds, sizeof(fds)/sizeof(fds[0]), 500);
+
+			if (ev)
+			{
+				if (fds[0].revents)
+				{
+					// Data from client
+					int flags, len;
+					char buf[32];
+
+					len = ws.receiveFrame(buf, sizeof(buf), flags);
+
+					if (!len)
+						break; // Connection closed
+
+					if ((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_PING)
+						ws.sendFrame(nullptr, 0, WebSocket::FRAME_OP_PONG);
+					else if ((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_CLOSE)
+						break;
+				}
+				if (fds[1].revents)
+				{
+					int v;
+
+					read(m_pipe[0], &v, sizeof(v));
+
+					switch (v)
+					{
+						case -1:
+							stop = true;
+							break;
+						case 0:
+							// new captcha to be solved
+							pushMore(ws);
+							break;
+						case 1:
+						{
+							// pseudo-ping; real ping frames were failing for me in browsers
+							const char* text = "{\"type\": \"ping\"}";
+							ws.sendFrame(text, strlen(text));
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	catch (...)
+	{
+	}
+
+	if (!stop)
+	{
+		HttpService* service = HttpService::instance();
+		if (service)
+			service->removeCaptchaClient(this); // only remove self unless we were told to terminate
+	}
+}
+
+void HttpService::WebSocketService::pushMore(WebSocket& ws)
+{
 	captchaQueueLock.lock();
 
-	QByteArray buf;
 	while(!captchaQueue.isEmpty())
 	{
+		QJsonObject notif;
 		Captcha cap = captchaQueue.dequeue();
-		buf.append("data: ").append(QString::number(cap.first)).append(",").append(cap.second)
-				.append("\r\nid: ").append(QString::number(cap.first)).append("\r\n\r\n");
+		QByteArray ba;
+
+		notif.insert("type", "captcha");
+		notif.insert("id", cap.first);
+		notif.insert("url", cap.second);
+
+		ba = QJsonDocument(notif).toJson(QJsonDocument::JsonFormat::Compact);
+		ws.sendFrame(ba.data(), ba.size());
 	}
 
 	captchaQueueLock.unlock();
-
-	if (!buf.isEmpty())
-	{
-		writer->clear();
-
-		writer->write(buf.data(), buf.length());
-		writer->send_chunk(boost::bind(&HttpService::RegisteredClient::finished, this));
-	}
-	else
-		writeInProgressLock.unlock();
 }
 
-void HttpService::RegisteredClient::keepalive()
+void HttpService::WebSocketService::pushCaptcha(const Captcha& cap)
 {
-	if (!writeInProgressLock.tryLock())
-		return;
-
-	writer->clear();
-	writer->write(": keepalive\r\n\r\n");
-	writer->send_chunk(boost::bind(&HttpService::RegisteredClient::finished, this));
+	qDebug() << "Enqueueing captcha id" << cap.first;
+	captchaQueueLock.lock();
+	captchaQueue << cap;
+	captchaQueueLock.unlock();
+	wakeup(0);
 }
-*/
+
+void HttpService::WebSocketService::wakeup(int v)
+{
+	::write(m_pipe[1], &v, sizeof(v));
+}
 
 void HttpService::addCaptchaEvent(int id, QString url)
 {
-	/*
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	for (WebSocketService* ws : m_registeredCaptchaClients)
 	{
-		cl->captchaQueueLock.lock();
-		cl->captchaQueue << RegisteredClient::Captcha(id, url);
-		cl->captchaQueueLock.unlock();
-		cl->pushMore();
+		ws->pushCaptcha(WebSocketService::Captcha(id, url));
 	}
-	*/
 }
 
-void HttpService::addCaptchaClient(RegisteredClient* client)
+void HttpService::addCaptchaClient(WebSocketService* client)
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 	m_registeredCaptchaClients << client;
 }
 
-void HttpService::removeCaptchaClient(RegisteredClient* client)
+void HttpService::removeCaptchaClient(WebSocketService* client)
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 	m_registeredCaptchaClients.removeAll(client);
@@ -753,17 +811,8 @@ bool HttpService::hasCaptchaHandlers()
 
 void HttpService::keepalive()
 {
-	/*
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	for (WebSocketService* cl : m_registeredCaptchaClients)
 		cl->keepalive();
-	*/
 }
-
-/*
-void HttpService::RegisteredClient::terminate()
-{
-	//writer->get_connection()->finish();
-}
-*/

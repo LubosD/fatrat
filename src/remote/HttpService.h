@@ -36,10 +36,12 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QQueue>
 #include <QTimer>
+#include <QRegExp>
 #include <ctime>
 #include <functional>
 #include <memory>
 #include <Poco/Net/HTTPServer.h>
+#include <Poco/Net/WebSocket.h>
 #include <Poco/Net/HTTPRequestHandler.h>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
@@ -58,7 +60,7 @@ class HttpService : public QObject, public HTTPRequestHandlerFactory
 {
 Q_OBJECT
 private:
-	struct RegisteredClient;
+	class WebSocketService;
 public:
 	HttpService();
 	~HttpService();
@@ -81,12 +83,12 @@ public:
 private slots:
 	void keepalive(); // QTimer TODO
 private:
-	void addCaptchaClient(RegisteredClient* client);
-	void removeCaptchaClient(RegisteredClient* client);
+	void addCaptchaClient(WebSocketService* client);
+	void removeCaptchaClient(WebSocketService* client);
 	void killCaptchaClients();
 
 	typedef std::function<HTTPRequestHandler*()> handler_t;
-	void addHandler(const QString& path, handler_t handler) { m_handlers[path] = handler; }
+	void addHandler(const QRegExp& path, handler_t handler) { m_handlers << QPair<QRegExp, handler_t>(path, handler); }
 
 	void logService(HTTPServerRequest &req, HTTPServerResponse &resp);
 private:
@@ -97,13 +99,13 @@ private:
 	bool m_bUseSSL;
 
 	QTimer m_timer;
-	QList<RegisteredClient*> m_registeredCaptchaClients;
+	QList<WebSocketService*> m_registeredCaptchaClients;
 	QMutex m_registeredCaptchaClientsMutex;
 
 	HTTPServer* m_server;
 	std::unique_ptr<ServerSocket> m_socket;
 
-	QMap<QString, handler_t> m_handlers;
+	QList<QPair<QRegExp, handler_t>> m_handlers;
 	XmlRpcService m_xmlRpc;
 
 	class LogService : public AuthenticatedRequestHandler
@@ -139,66 +141,38 @@ private:
 	private:
 		QString m_mapping;
 	};
-
-	/*class CaptchaService : public pion::http::plugin_service
+	class CaptchaService : public AuthenticatedRequestHandler
 	{
 	public:
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
-	private:
-		class CapServCap
-		{
-		public:
-			void operator()(const boost::system::error_code& error, std::size_t bytes_transferred);
-			void readDone();
-
-			pion::net::HTTPResponseWriterPtr writer;
-			std::string key1, key2;
-			char sig[8];
-			int inbuf;
-			pion::tcp::connection_ptr tcp_conn;
-		} m_cap;
-	};*/
-
-	/*
-	class CaptchaHttpResponseWriter;
-	class CaptchaService : public pion::http::plugin_service
-	{
-	public:
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn);
+		virtual void run() override;
 	};
-	struct RegisteredClient
+	class WebSocketService : public AuthenticatedRequestHandler
 	{
+	public:
+		WebSocketService();
+		~WebSocketService();
+		virtual void run() override;
+
 		typedef QPair<int,QString> Captcha;
 
-		boost::shared_ptr<CaptchaHttpResponseWriter> writer;
+		// Enqueue a captcha and have it delivered
+		void pushCaptcha(const Captcha& cap);
+
+		void terminate() { wakeup(-1); }
+		void keepalive() { wakeup(1); }
+	private:
+		// Send captchas in queue to client
+		void pushMore(WebSocket& ws);
+
+		// Wakeup the loop
+		void wakeup(int v);
+	private:
+		int m_pipe[2];
 		QMutex writeInProgressLock;
 		QQueue<Captcha> captchaQueue;
 		QMutex captchaQueueLock;
-
-		void keepalive();
-		void pushMore();
-		void finished();
-		void terminate();
 	};
 
-	class CaptchaHttpResponseWriter : public pion::http::response_writer
-	{
-	public:
-		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, const pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
-					      : pion::http::response_writer(tcp_conn, request, handler), client(cl)
-		{
-
-		}
-
-		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, const pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
-		{
-			return boost::shared_ptr<CaptchaHttpResponseWriter>(new CaptchaHttpResponseWriter(cl, tcp_conn, request, handler));
-		}
-		virtual void handle_write(const boost::system::error_code &write_error, std::size_t bytes_written);
-
-		HttpService::RegisteredClient* client;
-	};
-	*/
 	class WriteBackImpl : public TransferHttpService::WriteBack
 	{
 	public:

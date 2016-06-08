@@ -17,12 +17,17 @@ void FileRequestHandler::run()
 	static QMimeDatabase mimeDB;
 	std::string uri = request().getURI();
 	std::string fpath;
+	size_t qpos;
 
 	if (uri.find("..") != std::string::npos)
 	{
 		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Not Found");
 		return;
 	}
+
+	qpos = uri.find('?');
+	if (qpos != std::string::npos)
+		uri.resize(qpos);
 
 	fpath = m_root;
 	fpath += uri.substr(strlen(m_prefix));

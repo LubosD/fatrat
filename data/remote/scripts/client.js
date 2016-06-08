@@ -1061,10 +1061,11 @@ function checkInt(varid) {
 	return v;
 }
 
+var ws;
+
 function handleCaptchaEvent(data) {
-	var pos = data.indexOf(",");
-	var id = data.substring(0, pos);
-	var url = data.substring(pos+1);
+    var id = data.id;
+    var url = data.url;
 	
 	/*if (window.webkitNotifications && window.webkitNotifications.checkPermission() == 0) {
 		var not = window.webkitNotifications.createNotification('', 'Captcha', 'There is a captcha to be solved in FatRat');
@@ -1083,24 +1084,40 @@ function handleCaptchaEvent(data) {
 		alert("For captcha input windows to show up, you need to allow this URL to open popup windows");
 	}
 	
-	win.onload = function() { setTimeout(function() {
-			if (win.screenX === 0)
-				alert("For captcha input windows to show up, you need to allow this URL to open popup windows");
-		}, 0);
-	};
+    setTimeout(function () {
+        if (win.closed || typeof win.closed == 'undefined' || parseInt(win.outerWidth) == 0) {
+            alert("For captcha input windows to show up, you need to allow this URL to open popup windows");
+        }
+        else {
+            win.focus();
+        }
+    }, 500);
+}
+
+function getWebSocketUrl() {
+    var loc = window.location, new_uri;
+
+    if (loc.protocol === "https:") {
+        new_uri = "wss:";
+    } else {
+        new_uri = "ws:";
+    }
+    new_uri += "//" + loc.host;
+    new_uri += "/websocket";
+
+    return new_uri;
 }
 
 function startCaptchaListener() {
-	if (window.EventSource) {
-		var source = new EventSource('/captcha');
-		source.addEventListener('message', function (event) {
-			handleCaptchaEvent(event.data);
-		});
-		//source.addEventListener('error', function() {
-		//	window.setTimeout('startCaptchaListener()', 500);
-		//});
-	} else {
-	}
+    ws = new ReconnectingWebSocket(getWebSocketUrl());
+
+    ws.onmessage = function(event) {
+        console.log("Received ws data: " + event.data);
+        var ev = JSON.parse(event.data);
+
+        if (ev.type == "captcha")
+            handleCaptchaEvent(ev);
+    };
 }
 
 function drawSpeedGraph(id, sdata) {

@@ -175,6 +175,7 @@ void XmlRpcService::Handler::run()
 {
 	if (request().getMethod() != "POST")
 	{
+		qDebug() << "Method" << QString::fromStdString(request().getMethod()) << "not allowed for XML-RPC";
 		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_METHOD_NOT_ALLOWED, "Method Not Allowed");
 		return;
 	}
@@ -182,8 +183,6 @@ void XmlRpcService::Handler::run()
 	QByteArray data, body;
 
 	body = istream2ba(request().stream());
-
-	//std::copy(std::istream_iterator<char>(request().stream()), std::istream_iterator<char>(), std::back_inserter(body));
 
 	qDebug() << "XML-RPC call:" << body;
 
