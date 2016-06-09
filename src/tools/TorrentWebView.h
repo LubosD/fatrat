@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #define TORRENTWEBVIEW_H
 #include <QWidget>
 #include <QTabWidget>
+#include <QNetworkAccessManager>
 #include "ui_TorrentWebView.h"
 
 class TorrentWebView : public QWidget, public Ui_TorrentWebView
@@ -38,12 +39,13 @@ public:
 public slots:
 	void titleChanged(QString title);
 	void progressChanged(int p);
-	void iconChanged();
-	void linkClicked(const QUrl&);
+	void iconChanged(const QUrl&);
+	void iconDownloaded();
 signals:
 	void changeTabTitle(QString);
 private:
 	QTabWidget* m_tab;
+	QNetworkAccessManager m_net;
 };
 
 #endif

@@ -23,7 +23,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWebView" name="browser" >
+	<widget class="QWebEngineView" name="browser" >
      <property name="sizePolicy" >
       <sizepolicy vsizetype="MinimumExpanding" hsizetype="Preferred" >
        <horstretch>0</horstretch>

@@ -28,16 +28,47 @@ respects for all of the code used other than "OpenSSL".
 #include "engines/TorrentDownload.h"
 #include "MainWindow.h"
 #include "fatrat.h"
+#include <QWebEnginePage>
+#include <QNetworkReply>
 #include <QtDebug>
+
+class MyWebPage : public QWebEnginePage
+{
+public:
+	MyWebPage(QObject* parent = nullptr)
+		: QWebEnginePage(parent)
+	{
+	}
+
+	bool acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool) override
+	{
+		if (type == QWebEnginePage::NavigationTypeLinkClicked)
+		{
+			QString s = url.toString();
+
+			qDebug() << "Clicked" << s;
+
+			if (TorrentDownload::acceptable(s, false) >= 3)
+			{
+				MainWindow* wnd = (MainWindow*) getMainWindow();
+				wnd->addTransfer(s, Transfer::Download, "TorrentDownload");
+				return false;
+			}
+
+		}
+		return true;
+	}
+
+};
 
 TorrentWebView::TorrentWebView(QTabWidget* w)
 	: m_tab(w)
 {
 	setupUi(this);
+	browser->setPage(new MyWebPage(browser));
 	connect(browser, SIGNAL(titleChanged(const QString&)), this, SLOT(titleChanged(QString)));
 	connect(browser, SIGNAL(loadProgress(int)), this, SLOT(progressChanged(int)));
-	connect(browser, SIGNAL(iconChanged()), this, SLOT(iconChanged()));
-	connect(browser, SIGNAL(linkClicked(const QUrl&)), this, SLOT(linkClicked(const QUrl&)));
+	connect(browser, SIGNAL(iconUrlChanged(const QUrl&)), this, SLOT(iconUrlChanged(const QUrl&)));
 }
 
 void TorrentWebView::titleChanged(QString title)
@@ -65,29 +96,40 @@ void TorrentWebView::progressChanged(int p)
 	}
 	else
 	{
-		browser->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 		statusbar->hide();
 	}
 }
 
-void TorrentWebView::iconChanged()
+void TorrentWebView::iconChanged(const QUrl& iconUrl)
 {
 	int i = m_tab->indexOf(this);
-	if(i != -1)
-		m_tab->setTabIcon(i, browser->icon());
+	if (i != -1)
+	{
+		if (!iconUrl.isValid())
+			m_tab->setTabIcon(i, QIcon());
+		else
+		{
+			QNetworkRequest request(iconUrl);
+			QNetworkReply* reply = m_net.get(request);
+
+			connect(reply, SIGNAL(finished()), this, SLOT(iconDownloaded()));
+		}
+	}
 	else
 		qDebug() << "Warning: cannot find my own index";
 }
 
-void TorrentWebView::linkClicked(const QUrl& u)
+void TorrentWebView::iconDownloaded()
 {
-	QString url = u.toString();
-	qDebug() << "Clicked" << url;
-	if(TorrentDownload::acceptable(url, false) >= 3)
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+	QByteArray ba = reply->readAll();
+	QPixmap pm;
+	int i = m_tab->indexOf(this);
+
+	if (i != -1)
 	{
-		MainWindow* wnd = (MainWindow*) getMainWindow();
-		wnd->addTransfer(url, Transfer::Download, "TorrentDownload");
+		if (pm.loadFromData(ba))
+			m_tab->setTabIcon(i, QIcon(pm));
 	}
-	else
-		browser->load(u);
 }
+
