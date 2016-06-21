@@ -248,13 +248,18 @@ HTTPRequestHandler* HttpService::createRequestHandler(const HTTPServerRequest& r
 {
 	QString uri = QString::fromStdString(request.getURI());
 
+	m_handlersMutex.lock();
+
 	for (const QPair<QRegExp, handler_t>& e : m_handlers)
 	{
 		if (e.first.exactMatch(uri))
 		{
+			m_handlersMutex.unlock();
 			return e.second();
 		}
 	}
+
+	m_handlersMutex.unlock();
 
 	return new FileRequestHandler("/", DATA_LOCATION "/data/remote/");
 }

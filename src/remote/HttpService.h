@@ -106,6 +106,7 @@ private:
 	std::unique_ptr<ServerSocket> m_socket;
 
 	QList<QPair<QRegExp, handler_t>> m_handlers;
+	QMutex m_handlersMutex;
 	XmlRpcService m_xmlRpc;
 
 	class LogService : public AuthenticatedRequestHandler
