@@ -352,7 +352,7 @@ void TorrentDownload::applySettings()
 	settings.cache_size = getSettingsValue("torrent/cache_size").toInt();
 	settings.disk_io_write_mode = getSettingsValue("torrent/disk_io_write_mode").toInt();
 	settings.disk_io_read_mode = getSettingsValue("torrent/disk_io_read_mode").toInt();
-	
+
 	QString external_ip = getSettingsValue("torrent/external_ip").toString();
 	if(!external_ip.isEmpty())
 		settings.announce_ip = external_ip.toStdString();
