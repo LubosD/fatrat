@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QHeaderView>
 #include <iostream>
 #include "fatrat.h"
+#include <libtorrent/torrent_info.hpp>
 
 TorrentOptsWidget::TorrentOptsWidget(QWidget* me, TorrentDownload* parent)
 	: m_download(parent), m_bUpdating(false)

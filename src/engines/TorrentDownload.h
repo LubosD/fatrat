@@ -42,6 +42,7 @@ respects for all of the code used other than "OpenSSL".
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
+#include <libtorrent/alert_types.hpp>
 #include "Proxy.h"
 #ifdef WITH_WEBINTERFACE
 #	include "remote/TransferHttpService.h"

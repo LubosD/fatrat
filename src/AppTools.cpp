@@ -30,7 +30,9 @@ respects for all of the code used other than "OpenSSL".
 #include "AppTools.h"
 
 #ifdef WITH_BITTORRENT
-#	include "tools/TorrentSearch.h"
+#   ifdef HAVE_WEBENGINE
+#       include "tools/TorrentSearch.h"
+#   endif
 #	include "tools/CreateTorrentDlg.h"
 #endif
 #ifdef WITH_JPLUGINS
@@ -44,7 +46,9 @@ QList<AppTool> g_tools;
 void initAppTools()
 {
 #ifdef WITH_BITTORRENT
+#   ifdef HAVE_WEBENGINE
 	g_tools << AppTool(QObject::tr("Torrent search"), TorrentSearch::create);
+#   endif
 	g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
 #endif
 	g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);

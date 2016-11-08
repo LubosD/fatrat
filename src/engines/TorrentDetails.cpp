@@ -38,7 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/peer_info.hpp>
-
+#include <libtorrent/torrent_info.hpp>
 
 TorrentDetails::TorrentDetails(QWidget* me, TorrentDownload* obj)
 	: m_download(obj), m_bFilled(false)

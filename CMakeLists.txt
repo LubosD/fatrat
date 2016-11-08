@@ -98,9 +98,16 @@ if(WITH_BITTORRENT)
 	#	message(FATAL_ERROR "No Boost asio")
 	#endif(ASIO_FOUND)
 	
-	find_package(Qt5WebEngine REQUIRED)
-	find_package(Qt5WebEngineWidgets REQUIRED)
+	find_package(Qt5WebEngine)
+	find_package(Qt5WebEngineWidgets)
 	set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebEngine Qt5::WebEngineWidgets)
+
+	if (Qt5WebEngine_FOUND)
+		set(HAVE_WEBENGINE TRUE)
+	else(Qt5WebEngine_FOUND)
+		message(WARNING "Qt WebEngine not found, BitTorrent search not available")
+	endif (Qt5WebEngine_FOUND)
+
 	include_directories(${Qt5WebEngine_INCLUDE_DIRS})
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL -DBOOST_ASIO_DYN_LINK)
 endif(WITH_BITTORRENT)
@@ -462,15 +469,12 @@ if(WITH_BITTORRENT)
 		src/engines/TorrentPiecesModel.cpp
 		src/engines/TorrentProgressWidget.cpp
 		src/engines/TorrentSettings.cpp
-		src/tools/TorrentSearch.cpp
-		src/tools/TorrentWebView.cpp
 		src/tools/CreateTorrentDlg.cpp
 		src/tools/ContextListWidget.cpp
 	)
+
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		src/tools/TorrentSearch.h
-		src/tools/TorrentWebView.h
 		src/tools/CreateTorrentDlg.h
 		src/tools/ContextListWidget.h
 		src/engines/TorrentDetails.h
@@ -484,13 +488,29 @@ if(WITH_BITTORRENT)
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
-		src/tools/TorrentSearch.ui
-		src/tools/TorrentWebView.ui
 		src/tools/CreateTorrentDlg.ui
 		src/engines/TorrentDetailsForm.ui
 		src/engines/TorrentOptsWidget.ui
 		src/engines/SettingsTorrentForm.ui
 	)
+
+	if (HAVE_WEBENGINE)
+		set(fatrat_SRCS
+			${fatrat_SRCS}
+			src/tools/TorrentSearch.cpp
+			src/tools/TorrentWebView.cpp
+		)
+		set(fatrat_MOC_HDRS
+			${fatrat_MOC_HDRS}
+			src/tools/TorrentSearch.h
+			src/tools/TorrentWebView.h
+		)
+		set(fatrat_UIS
+			${fatrat_UIS}
+			src/tools/TorrentSearch.ui
+			src/tools/TorrentWebView.ui
+		)
+	endif (HAVE_WEBENGINE)
 endif(WITH_BITTORRENT)
 
 if(WITH_JABBER)
@@ -573,7 +593,7 @@ add_executable(fatrat-conf src/fatrat-conf.cpp)
 #message(STATUS ${pion-net_LIBRARIES})
 
 if (POSIX_LINUX)
-    set (DL_LDFLAGS "-ldl")
+	set (DL_LDFLAGS "-ldl")
 endif (POSIX_LINUX)
 
 message(STATUS "Pion: ${pion_LIBRARIES}")

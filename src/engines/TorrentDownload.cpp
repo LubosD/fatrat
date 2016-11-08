@@ -44,6 +44,7 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/extensions/ut_metadata.hpp>
 #include <libtorrent/extensions/smart_ban.hpp>
 #include <libtorrent/magnet_uri.hpp>
+#include <libtorrent/torrent_info.hpp>
 
 #include <fstream>
 #include <stdexcept>

@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include <QPainter>
 #include <QtDebug>
+#include <libtorrent/torrent_info.hpp>
 
 TorrentFilesModel::TorrentFilesModel(QObject* parent, TorrentDownload* d)
 	: QAbstractListModel(parent), m_pieces(0), m_download(d)

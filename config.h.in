@@ -20,6 +20,7 @@
 
 #cmakedefine HAVE_SYS_EPOLL_H
 #cmakedefine HAVE_KQUEUE
+#cmakedefine HAVE_WEBENGINE
 
 #cmakedefine GLOOX_0_9
 #cmakedefine GLOOX_1_0
