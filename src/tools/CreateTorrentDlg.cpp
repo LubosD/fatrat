@@ -241,6 +241,7 @@ void CreateTorrentDlg::hasherFinished()
 	m_hasher = 0;
 }
 
+
 HasherThread::HasherThread(QByteArray baseDir, libtorrent::create_torrent* info, QObject* parent)
 	: QThread(parent), m_baseDir(baseDir), m_info(info), m_bAbort(false)
 {
@@ -252,32 +253,26 @@ HasherThread::~HasherThread()
 	wait();
 }
 
+class abort_exception : public std::exception
+{
+};
+
 void HasherThread::run()
 {
-	int num = m_info->num_pieces();
-	char* buf = new char[m_info->piece_length()];
-	
 	try
 	{
-		libtorrent::file_pool fp;
-		libtorrent::storage_interface* st = libtorrent::default_storage_constructor(m_info->files(), 0, m_baseDir.data(), fp, std::vector<boost::uint8_t>());
-		
-		for(int i=0;i<num && !m_bAbort;i++)
-		{
-			st->read(buf, i, 0, m_info->piece_size(i));
-			libtorrent::hasher h(buf, m_info->piece_size(i));
-			m_info->set_hash(i, h.final());
-			
-			emit progress(i);
-		}
-	}
-	catch(const std::exception& e)
-	{
-		std::string err = e.what();
-		m_strError = QString::fromUtf8(err.c_str());
-	}
-	
-	//delete st;
-	delete [] buf;
-}
+		libtorrent::set_piece_hashes(*m_info, m_baseDir.data(), [&](int p) {
+			if (m_bAbort)
+				throw abort_exception();
 
+			emit progress(p);
+		});
+	}
+	catch (const abort_exception& e)
+	{
+	}
+	catch (const std::exception& e)
+	{
+		m_strError = QString::fromStdString(e.what());
+	}
+}

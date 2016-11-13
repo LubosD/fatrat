@@ -28,9 +28,11 @@ respects for all of the code used other than "OpenSSL".
 #define TORRENTOPTSWIDGET_H
 #include <QObject>
 #include <QTimer>
+#include "config.h"
 #include "ui_TorrentOptsWidget.h"
 #include "WidgetHostChild.h"
 #include "TorrentDownload.h"
+#include <libtorrent/announce_entry.hpp>
 
 class TorrentOptsWidget : public QObject, public WidgetHostChild, Ui_TorrentOptsWidget
 {

@@ -161,7 +161,7 @@ void TorrentOptsWidget::load()
 	
 	m_trackers = m_download->m_handle.trackers();
 	for(size_t i=0;i<m_trackers.size();i++)
-		listTrackers->addItem(QString::fromUtf8(m_trackers[i].url.c_str()));
+		listTrackers->addItem(QString::fromStdString(m_trackers[i].url));
 	checkSuperSeeding->setChecked(m_download->m_bSuperSeeding);
 }
 

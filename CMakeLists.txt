@@ -28,9 +28,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
 
-# If you remove the following line, the Boost ASIO code used in pion will make libtorrent's Boost ASIO code crash
-# due to a curious symbol name conflict
-#ADD_DEFINITIONS(-fvisibility-inlines-hidden)
 
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
@@ -64,14 +61,15 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
-	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 1.0.0")
+	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 1.1.0")
 	
 	if(libtorrent_FOUND)
 		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
 		include_directories(${libtorrent_INCLUDE_DIRS})
 		
-		#if(libtorrent_VERSION GREATER 0.14.99)
 		set(LIBTORRENT_0_15 TRUE)
+		#if(libtorrent_VERSION GREATER 1.0.99)
+		#	set(LIBTORRENT_1_1 TRUE)
 		#endif(libtorrent_VERSION GREATER 0.14.99)
 	else(libtorrent_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent found")
@@ -100,16 +98,16 @@ if(WITH_BITTORRENT)
 	
 	find_package(Qt5WebEngine)
 	find_package(Qt5WebEngineWidgets)
-	set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebEngine Qt5::WebEngineWidgets)
 
 	if (Qt5WebEngine_FOUND)
 		set(HAVE_WEBENGINE TRUE)
+		set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebEngine Qt5::WebEngineWidgets)
 	else(Qt5WebEngine_FOUND)
 		message(WARNING "Qt WebEngine not found, BitTorrent search not available")
 	endif (Qt5WebEngine_FOUND)
 
 	include_directories(${Qt5WebEngine_INCLUDE_DIRS})
-	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL -DBOOST_ASIO_DYN_LINK)
+	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
 endif(WITH_BITTORRENT)
 
 if(WITH_JABBER)

@@ -45,6 +45,8 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/extensions/smart_ban.hpp>
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/torrent_info.hpp>
+#include <libtorrent/lazy_entry.hpp>
+#include <libtorrent/session_status.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -532,10 +534,9 @@ void TorrentDownload::init(QString source, QString target)
 				//p = data.data();
 				
 				libtorrent::add_torrent_params params;
-				libtorrent::torrent_info* ti;
+				boost::shared_ptr<libtorrent::torrent_info> ti(new libtorrent::torrent_info(source.toStdString()));
 
-				ti = new libtorrent::torrent_info(source.toStdString());
-				m_info.reset(ti);
+				m_info = ti;
 				
 				params.ti = ti;
 				params.save_path = target.toStdString();
@@ -666,7 +667,7 @@ bool TorrentDownload::storeTorrent()
 
 	str = dir.absoluteFilePath(str);
 
-	boost::intrusive_ptr<libtorrent::torrent_info const> info = m_handle.torrent_file();
+	boost::shared_ptr<const libtorrent::torrent_info> info = m_handle.torrent_file();
 
 	if (info)
 	{
@@ -927,10 +928,8 @@ void TorrentDownload::load(const QDomNode& map)
 			return;
 		}
 		
-		libtorrent::torrent_info* ti;
-		
-		ti = new libtorrent::torrent_info(sfile.toStdString());
-		m_info.reset(ti);
+		boost::shared_ptr<libtorrent::torrent_info> ti(new libtorrent::torrent_info(sfile.toStdString()));
+		m_info = ti;
 		
 		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
 		

@@ -135,7 +135,7 @@ private:
 #endif
 protected:
 	libtorrent::torrent_handle m_handle;
-	boost::intrusive_ptr<libtorrent::torrent_info const> m_info;
+	boost::shared_ptr<const libtorrent::torrent_info> m_info;
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;
