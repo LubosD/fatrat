@@ -216,8 +216,10 @@ void HttpDetails::refresh()
 			if (!s.client || s.urlIndex < 0)
 				continue;
 			QTreeWidgetItem* item;
-			QString url = m_download->m_urls[s.urlIndex].url.toString();
+			QUrl url = m_download->m_urls[s.urlIndex].url;
 			GradientWidget* gradient;
+
+			url.setUserInfo(QString());
 
 			if (j < treeActiveSegments->topLevelItemCount())
 				item = treeActiveSegments->topLevelItem(j);
@@ -228,7 +230,7 @@ void HttpDetails::refresh()
 			}
 			item->setData(0, Qt::UserRole, s.urlIndex);
 			item->setData(1, Qt::UserRole, i);
-			item->setText(0, url);
+			item->setText(0, url.toString());
 			gradient = static_cast<GradientWidget*>(treeActiveSegments->itemWidget(item, 1));
 
 			if (!gradient)
@@ -273,7 +275,9 @@ void HttpDetails::refresh()
 		{
 			int urlIndex = m_download->m_listActiveSegments[i];
 			QTreeWidgetItem* item;
-			QString url = m_download->m_urls[urlIndex].url.toString(); // TODO - this is a point of crash due to subclassing issues
+			QUrl url = m_download->m_urls[urlIndex].url; // TODO - this is a point of crash due to subclassing issues
+
+			url.setUserInfo(QString());
 
 			if (i < treeActiveSegments->topLevelItemCount())
 				item = treeActiveSegments->topLevelItem(i);
@@ -283,7 +287,7 @@ void HttpDetails::refresh()
 				treeActiveSegments->addTopLevelItem(item);
 			}
 			item->setData(0, Qt::UserRole, urlIndex);
-			item->setText(0, url);
+			item->setText(0, url.toString());
 			treeActiveSegments->removeItemWidget(item, 1);
 			item->setText(2, QString());
 			item->setText(3, QString());
@@ -297,7 +301,7 @@ void HttpDetails::refresh()
 
 	for (int i=0;i<m_download->m_urls.size();i++)
 	{
-		QString url = m_download->m_urls[i].url.toString();
+		QUrl url = m_download->m_urls[i].url;
 		QListWidgetItem* item;
 
 		if (i < listUrls->count())
@@ -307,7 +311,9 @@ void HttpDetails::refresh()
 			item = new QListWidgetItem(listUrls);
 			listUrls->addItem(item);
 		}
-		item->setText(url);
+
+		url.setUserInfo(QString());
+		item->setText(url.toString());
 	}
 	int count;
 	while ( (count = listUrls->count()) > m_download->m_urls.size())
@@ -315,8 +321,13 @@ void HttpDetails::refresh()
 
 	for (int i=0;i<m_download->m_urls.size();i++)
 	{
-		QString url = m_download->m_urls[i].url.toString();
+		QUrl temp = m_download->m_urls[i].url;
+		QString url;
 		QAction* a;
+
+		temp.setUserInfo(QString());
+		url = temp.toString();
+
 		if(url.size() > 50)
 		{
 			url.resize(47);
