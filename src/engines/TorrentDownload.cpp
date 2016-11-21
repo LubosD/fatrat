@@ -1283,7 +1283,7 @@ QVariantMap TorrentDownload::properties() const
 	rv["ratio"] = ratio;
 
 	QVariantList files;
-	std::vector<libtorrent::size_type> progresses;
+	std::vector<boost::int64_t> progresses;
 
 	m_handle.file_progress(progresses);
 
