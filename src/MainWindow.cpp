@@ -204,6 +204,8 @@ void MainWindow::setupUi()
 
 		connect(m_updates, SIGNAL(clicked()), this, SLOT(showSettings()));
 	}
+	else
+		m_premiumAccounts = nullptr;
 #endif
 	
 	connectActions();
@@ -367,7 +369,10 @@ void MainWindow::connectActions()
 	connect(actionPauseAll, SIGNAL(triggered()), this, SLOT(pauseAllTransfers()));
 
 #ifdef WITH_JPLUGINS
-	connect(m_premiumAccounts, SIGNAL(clicked()), this, SLOT(showPremiumStatus()));
+	if (m_premiumAccounts)
+	{
+		connect(m_premiumAccounts, SIGNAL(clicked()), this, SLOT(showPremiumStatus()));
+	}
 #endif
 }
 
