@@ -94,8 +94,12 @@ void HttpDetails::addUrl()
 	UrlClient::UrlObject obj;
 
 	obj.url = dlg.m_strURL;
-	obj.url.setUserName(dlg.m_strUser);
-	obj.url.setPassword(dlg.m_strPassword);
+
+	if (!dlg.m_strUser.isEmpty())
+	{
+		obj.url.setUserName(dlg.m_strUser);
+		obj.url.setPassword(dlg.m_strPassword);
+	}
 	obj.strReferrer = dlg.m_strReferrer;
 	obj.ftpMode = dlg.m_ftpMode;
 	obj.proxy = dlg.m_proxy;
@@ -126,8 +130,12 @@ void HttpDetails::editUrl()
 	if(dlg.exec() == QDialog::Accepted)
 	{
 		obj.url = dlg.m_strURL;
-		obj.url.setUserName(dlg.m_strUser);
-		obj.url.setPassword(dlg.m_strPassword);
+
+		if (!dlg.m_strUser.isEmpty())
+		{
+			obj.url.setUserName(dlg.m_strUser);
+			obj.url.setPassword(dlg.m_strPassword);
+		}
 		obj.strReferrer = dlg.m_strReferrer;
 		obj.ftpMode = dlg.m_ftpMode;
 		obj.proxy = dlg.m_proxy;

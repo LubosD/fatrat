@@ -47,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/torrent_info.hpp>
 #include <libtorrent/lazy_entry.hpp>
 #include <libtorrent/session_status.hpp>
+#include <libtorrent/announce_entry.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -1283,7 +1284,7 @@ QVariantMap TorrentDownload::properties() const
 	rv["ratio"] = ratio;
 
 	QVariantList files;
-	std::vector<libtorrent::size_type> progresses;
+	std::vector<boost::int64_t> progresses;
 
 	m_handle.file_progress(progresses);
 

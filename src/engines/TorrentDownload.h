@@ -43,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
 #include <libtorrent/alert_types.hpp>
+#include <libtorrent/torrent_status.hpp>
 #include "Proxy.h"
 #ifdef WITH_WEBINTERFACE
 #	include "remote/TransferHttpService.h"
@@ -135,7 +136,7 @@ private:
 #endif
 protected:
 	libtorrent::torrent_handle m_handle;
-	boost::shared_ptr<const libtorrent::torrent_info> m_info;
+	boost::shared_ptr<libtorrent::torrent_info const> m_info;
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;

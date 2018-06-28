@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/storage.hpp>
 #include <libtorrent/hasher.hpp>
 #include <libtorrent/file_pool.hpp>
+#include <stdexcept>
 
 CreateTorrentDlg::CreateTorrentDlg(QWidget* parent)
 	: QDialog(parent), m_hasher(0)
