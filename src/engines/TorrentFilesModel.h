@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/bitfield.hpp>
+#include <stdint.h>
 
 class TorrentDownload;
 
@@ -63,7 +64,7 @@ public:
 	void refresh(const libtorrent::bitfield* pieces);
 protected:
 	QList<libtorrent::file_entry> m_files;
-    std::vector<int64_t> m_progresses;
+	std::vector<int64_t> m_progresses;
 	const libtorrent::bitfield* m_pieces;
 private:
 	TorrentDownload* m_download;

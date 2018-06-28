@@ -47,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/torrent_info.hpp>
 #include <libtorrent/lazy_entry.hpp>
 #include <libtorrent/session_status.hpp>
+#include <libtorrent/announce_entry.hpp>
 
 #include <fstream>
 #include <stdexcept>

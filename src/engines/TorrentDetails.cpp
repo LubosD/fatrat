@@ -212,8 +212,8 @@ void TorrentDetails::refresh()
 			fill();
 		
 		// GENERAL
-		auto& next = m_download->m_status.next_announce;
-		auto& intv = m_download->m_status.announce_interval;
+		int next = std::chrono::duration_cast<std::chrono::seconds>(m_download->m_status.next_announce).count();
+		int intv = std::chrono::duration_cast<std::chrono::seconds>(m_download->m_status.announce_interval).count();
 		
 		// availability
 		QPalette palette = QApplication::palette(lineAvailability);
@@ -229,12 +229,8 @@ void TorrentDetails::refresh()
 		
 		lineTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
 				.arg(m_download->m_status.current_tracker.c_str())
-				.arg(std::chrono::duration_cast<std::chrono::hours>(next).count())
-				.arg(std::chrono::duration_cast<std::chrono::minutes>(next).count(),2,10,QChar('0'))
-				.arg(std::chrono::duration_cast<std::chrono::seconds>(next).count(),2,10,QChar('0'))
-				.arg(std::chrono::duration_cast<std::chrono::hours>(intv).count())
-				.arg(std::chrono::duration_cast<std::chrono::minutes>(intv).count(),2,10,QChar('0'))
-				.arg(std::chrono::duration_cast<std::chrono::seconds>(intv).count(),2,10,QChar('0')));
+				.arg(next / 3600).arg(next / 60,2,10,QChar('0')).arg(next % 60,2,10,QChar('0'))
+				.arg(intv / 3600).arg(intv / 60,2,10,QChar('0')).arg(intv % 60,2,10,QChar('0')));
 		
 		libtorrent::bitfield pieces = m_download->m_status.pieces;
 		
