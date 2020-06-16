@@ -84,6 +84,8 @@ void JObject::construct(const JClass& xcls, const char* sig, JArgs args)
 {
 	JNIEnv* env = *JVM::instance();
 	jclass cls = xcls;
+    
+	m_bWeak = false;
 
 	if (!cls)
 		throw RuntimeException(QObject::tr("Invalid JClass passed"));
@@ -157,7 +159,11 @@ JObject& JObject::operator=(const JObject& obj)
 
 	setNull();
 
-	m_object = env->NewGlobalRef(obj.m_object);
+    m_bWeak = obj.m_bWeak;
+    if (m_bWeak)
+        m_object = env->NewWeakGlobalRef(obj.m_object);
+    else
+        m_object = env->NewGlobalRef(obj.m_object);
 	return *this;
 }
 
@@ -509,7 +515,7 @@ void JObject::setNull()
 
 		m_object = 0;
 
-		if (!m_bWeak)
+		if (m_bWeak)
 			env->DeleteWeakGlobalRef(jweak(o));
 		else
 			env->DeleteGlobalRef(o);

@@ -11,6 +11,7 @@
 #include <QPen>
 #include <QBitmap>
 #include <QPainter>
+#include <QPainterPath>
 #include <QDesktopWidget>
 #include <QApplication>
 
