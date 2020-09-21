@@ -59,9 +59,6 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 #ifdef WITH_BITTORRENT
 	checkFeatureBitTorrent->setChecked(true);
 #endif
-#ifdef WITH_JABBER
-	checkFeatureJabber->setChecked(true);
-#endif
 #ifdef WITH_DOCUMENTATION
 	checkFeatureDocumentation->setChecked(true);
 #endif

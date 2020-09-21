@@ -74,10 +74,6 @@ respects for all of the code used other than "OpenSSL".
 #	include "remote/XmlRpcService.h"
 #endif
 
-#ifdef WITH_JABBER
-#	include "remote/JabberService.h"
-#endif
-
 #ifdef WITH_JPLUGINS
 #	include "java/JVM.h"
 #	include "engines/JavaDownload.h"
@@ -232,18 +228,12 @@ int main(int argc,char** argv)
 	if(!arg.isEmpty() && m_bStartGUI)
 		g_wndMain->addTransfer(arg);
 	
-#ifdef WITH_JABBER
-	new JabberService;
-#endif
 	new Scheduler;
 	
 	if(m_bStartGUI)
 		QApplication::setQuitOnLastWindowClosed(false);
 	rval = app->exec();
 	
-#ifdef WITH_JABBER
-	delete JabberService::instance();
-#endif
 #ifdef WITH_WEBINTERFACE
 	delete HttpService::instance();
 #endif

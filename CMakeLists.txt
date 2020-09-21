@@ -36,8 +36,6 @@ IF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 	SET(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 
-#set(WITH_CXX0X ON)
-
 if(WITH_EVERYTHING)
 	set(WITH_BITTORRENT ON)
 	set(WITH_JABBER ON)
@@ -108,23 +106,6 @@ if(WITH_BITTORRENT)
 	include_directories(${Qt5WebEngine_INCLUDE_DIRS})
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
 endif(WITH_BITTORRENT)
-
-if(WITH_JABBER)
-	pkg_check_modules(gloox REQUIRED "gloox >= 0.9.0.0")
-	
-	if(gloox_FOUND)
-		message(STATUS "gloox ${gloox_VERSION} found OK")
-		include_directories(${gloox_INCLUDE_DIRS})
-		
-		if(gloox_VERSION LESS 1.0)
-			set(GLOOX_0_9 TRUE)
-		else(gloox_VERSION LESS 1.0)
-			set(GLOOX_1_0 TRUE)
-		endif(gloox_VERSION LESS 1.0)
-	else(gloox_FOUND)
-		message(FATAL_ERROR "No libgloox found")
-	endif(gloox_FOUND)
-endif(WITH_JABBER)
 
 if(WITH_CURL)
 	pkg_check_modules(curl REQUIRED "libcurl >= 7.18.2")
@@ -523,23 +504,6 @@ if(WITH_BITTORRENT)
 		)
 	endif (HAVE_WEBENGINE)
 endif(WITH_BITTORRENT)
-
-if(WITH_JABBER)
-	set(fatrat_SRCS
-		${fatrat_SRCS}
-		src/remote/JabberService.cpp
-		src/remote/SettingsJabberForm.cpp
-	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
-		src/remote/JabberService.h
-		src/remote/SettingsJabberForm.h
-	)
-	set(fatrat_UIS
-		${fatrat_UIS}
-		src/remote/SettingsJabberForm.ui
-	)
-endif(WITH_JABBER)
 
 if(WITH_WEBINTERFACE)
 	set(fatrat_SRCS

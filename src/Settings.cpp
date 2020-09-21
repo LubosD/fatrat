@@ -42,10 +42,6 @@ respects for all of the code used other than "OpenSSL".
 #include "SettingsClipboardMonitorForm.h"
 #include "rss/SettingsRssForm.h"
 
-#ifdef WITH_JABBER
-#	include "remote/SettingsJabberForm.h"
-#endif
-
 QVector<SettingsItem> g_settingsPages;
 QSettings* g_settings = 0;
 
@@ -86,23 +82,6 @@ void initSettingsPages()
 	si.pfnApply = SettingsRssForm::applySettings;
 	
 	g_settingsPages << si;
-	
-#ifdef WITH_JABBER
-	si.icon = DelayedIcon(":/fatrat/jabber.png");
-	si.title = QObject::tr("Jabber");
-	si.lpfnCreate = SettingsJabberForm::create;
-	si.pfnApply = SettingsJabberForm::applySettings;
-#ifdef WITH_WEBINTERFACE
-	si.webSettingsScript = "/scripts/settings/jabber.js";
-	si.webSettingsIconURL = "/img/settings/jabber.png";
-	g_settingsPages << si;
-	si.webSettingsScript = si.webSettingsIconURL = 0;
-#else
-	g_settingsPages << si;
-#endif // WITH_WEBINTERFACE
-	
-
-#endif // WITH_JABBER
 	
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");

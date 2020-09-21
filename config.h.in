@@ -5,16 +5,11 @@
 
 #cmakedefine WITH_BITTORRENT
 #cmakedefine WITH_NLS
-#cmakedefine WITH_JABBER
 #cmakedefine WITH_WEBINTERFACE
 #cmakedefine WITH_DOCUMENTATION
 #cmakedefine WITH_CURL
 #cmakedefine WITH_JPLUGINS
 #cmakedefine WITH_CXX0X
-
-#ifdef WITH_WEBINTERFACE
-#	define PION_NET_PLUGINS "${pion-net_LIBDIR}/pion/plugins"
-#endif
 
 #cmakedefine ENABLE_FAKEDOWNLOAD
 
