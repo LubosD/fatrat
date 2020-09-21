@@ -49,6 +49,8 @@ respects for all of the code used other than "OpenSSL".
 #include <grp.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <openssl/ssl.h>
+#include <openssl/opensslv.h>
 
 #include "MainWindow.h"
 #include "QueueMgr.h"
@@ -154,6 +156,13 @@ int main(int argc,char** argv)
 
 	if(!m_bForceNewInstance)
 		processSession(arg);
+    
+    
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	SSL_library_init();
+#else
+	OPENSSL_init_ssl(0, NULL);
+#endif
 	
 #ifdef WITH_NLS
 	QTranslator translator;
