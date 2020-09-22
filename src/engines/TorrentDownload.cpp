@@ -40,7 +40,6 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
-#include <libtorrent/extensions/metadata_transfer.hpp>
 #include <libtorrent/extensions/ut_metadata.hpp>
 #include <libtorrent/extensions/smart_ban.hpp>
 #include <libtorrent/magnet_uri.hpp>
@@ -48,10 +47,13 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/lazy_entry.hpp>
 #include <libtorrent/session_status.hpp>
 #include <libtorrent/announce_entry.hpp>
+#include <libtorrent/read_resume_data.hpp>
+#include <libtorrent/write_resume_data.hpp>
 
 #include <fstream>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
 
 #include <QIcon>
 #include <QMenu>
@@ -150,12 +152,12 @@ int TorrentDownload::acceptable(QString uri, bool)
         return 0;
 }
 
-void TorrentDownload::globalInit()
+void TorrentDownload::applySettings(libtorrent::settings_pack& settings)
 {
 	QString ua = getSettingsValue("torrent/ua").toString();
 	short s1 = 0, s2 = 0, s3 = 0, s4 = 0;
 	QRegExp reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
-	
+
 	if(reVersion.indexIn(ua) != -1)
 	{
 		QStringList caps = reVersion.capturedTexts();
@@ -165,23 +167,120 @@ void TorrentDownload::globalInit()
 		if(caps.size() >= 5)
 			s4 = caps[4].toShort();
 	}
-	
-	libtorrent::fingerprint fp = libtorrent::fingerprint("FR", s1, s2, s3, s4);
+
+	std::string fingerprint = libtorrent::generate_fingerprint("FR", s1, s2, s3, s4);
 	if(ua.startsWith(QString::fromUtf8("μTorrent")))
-		fp = libtorrent::fingerprint("UT", s1, s2, s3, s4);
-	else if(ua.startsWith("Azureus"))
-		fp = libtorrent::fingerprint("AZ", s1, s2, s3, s4);
-	
-	int lstart,lend;
-	
-	lstart = getSettingsValue("torrent/listen_start").toInt();
-	lend = getSettingsValue("torrent/listen_end").toInt();
-	
-	if(lend < lstart)
-		lend = lstart;
-	
-	m_session = new libtorrent::session(fp, std::pair<int,int>(lstart,lend));
-	m_session->set_alert_mask(libtorrent::alert::all_categories);
+		fingerprint = libtorrent::generate_fingerprint("UT", s1, s2, s3, s4);
+	else if(ua.startsWith("libtorrent"))
+		fingerprint = libtorrent::generate_fingerprint("LT", s1, s2, s3, s4);
+
+	int lstart = getSettingsValue("torrent/listen_start").toInt();
+
+	settings.set_str(libtorrent::settings_pack::peer_fingerprint, fingerprint);
+	settings.set_str(libtorrent::settings_pack::listen_interfaces, QString("0000:%1, [::]:%1").arg(lstart).toStdString());
+
+	settings.set_bool(libtorrent::settings_pack::enable_upnp, getSettingsValue("torrent/mapping_upnp").toBool());
+	settings.set_bool(libtorrent::settings_pack::enable_natpmp, getSettingsValue("torrent/mapping_natpmp").toBool());
+	settings.set_bool(libtorrent::settings_pack::enable_lsd, getSettingsValue("torrent/mapping_lsd").toBool());
+
+	const bool dht = getSettingsValue("torrent/dht").toBool();
+	settings.set_bool(libtorrent::settings_pack::enable_dht, dht);
+
+	if (programHasGUI())
+	{
+		if (dht)
+			addStatusWidget(m_labelDHTStats, true);
+		else
+			removeStatusWidget(m_labelDHTStats);
+	}
+
+	settings.set_bool(libtorrent::settings_pack::alert_mask, libtorrent::alert_category::all);
+
+	ua.replace("%v", VERSION);
+	settings.set_str(libtorrent::settings_pack::user_agent, ua.toStdString());
+	settings.set_bool(libtorrent::settings_pack::use_dht_as_fallback, false); // i.e. use DHT always
+	settings.set_int(libtorrent::settings_pack::file_pool_size, getSettingsValue("torrent/maxfiles").toInt());
+	settings.set_int(libtorrent::settings_pack::unchoke_slots_limit, getSettingsValue("torrent/maxuploads").toInt());
+	settings.set_int(libtorrent::settings_pack::connections_limit, getSettingsValue("torrent/maxconnections").toInt());
+
+	// TODO: Remove cache_size and announce_ip from settings!
+	settings.set_int(libtorrent::settings_pack::disk_io_write_mode, getSettingsValue("torrent/disk_io_write_mode").toInt());
+	settings.set_int(libtorrent::settings_pack::disk_io_read_mode, getSettingsValue("torrent/disk_io_read_mode").toInt());
+
+	switch(getSettingsValue("torrent/enc_incoming").toInt())
+	{
+	case 0:
+		settings.set_int(libtorrent::settings_pack::in_enc_policy, libtorrent::settings_pack::pe_disabled); break;
+	case 1:
+		settings.set_int(libtorrent::settings_pack::in_enc_policy, libtorrent::settings_pack::pe_enabled); break;
+	case 2:
+		settings.set_int(libtorrent::settings_pack::in_enc_policy, libtorrent::settings_pack::pe_forced); break;
+	}
+	switch(getSettingsValue("torrent/enc_outgoing").toInt())
+	{
+	case 0:
+		settings.set_int(libtorrent::settings_pack::out_enc_policy, libtorrent::settings_pack::pe_disabled); break;
+	case 1:
+		settings.set_int(libtorrent::settings_pack::out_enc_policy, libtorrent::settings_pack::pe_enabled); break;
+	case 2:
+		settings.set_int(libtorrent::settings_pack::out_enc_policy, libtorrent::settings_pack::pe_forced); break;
+	}
+
+	switch(getSettingsValue("torrent/enc_level").toInt())
+	{
+	case 0:
+		settings.set_int(libtorrent::settings_pack::allowed_enc_level, libtorrent::settings_pack::pe_plaintext); break;
+	case 1:
+		settings.set_int(libtorrent::settings_pack::allowed_enc_level, libtorrent::settings_pack::pe_rc4); break;
+	case 2:
+		settings.set_int(libtorrent::settings_pack::allowed_enc_level, libtorrent::settings_pack::pe_both); break;
+	}
+
+	settings.set_bool(libtorrent::settings_pack::prefer_rc4, getSettingsValue("torrent/enc_rc4_prefer").toBool());
+
+	// Proxy settings
+
+	const Proxy proxy = Proxy::getProxy(getSettingsValue("torrent/proxy").toString());
+
+	if (proxy.nType != Proxy::ProxyNone)
+	{
+		settings.set_str(libtorrent::settings_pack::proxy_hostname, proxy.strIP.toStdString());
+		settings.set_int(libtorrent::settings_pack::proxy_port, proxy.nPort);
+
+		const bool bAuth = !proxy.strUser.isEmpty();
+		if (bAuth)
+		{
+			settings.set_str(libtorrent::settings_pack::proxy_username, proxy.strUser.toStdString());
+			settings.set_str(libtorrent::settings_pack::proxy_password, proxy.strUser.toStdString());
+		}
+
+		if (proxy.nType == Proxy::ProxyHttp)
+		{
+			if(bAuth)
+				settings.set_int(libtorrent::settings_pack::proxy_type, libtorrent::settings_pack::http_pw);
+			else
+				settings.set_int(libtorrent::settings_pack::proxy_type, libtorrent::settings_pack::http);
+		}
+		else if (proxy.nType == Proxy::ProxySocks5)
+		{
+			if(bAuth)
+				settings.set_int(libtorrent::settings_pack::proxy_type, libtorrent::settings_pack::socks5_pw);
+			else
+				settings.set_int(libtorrent::settings_pack::proxy_type, libtorrent::settings_pack::socks5);
+		}
+	}
+}
+
+void TorrentDownload::globalInit()
+{
+	libtorrent::session_params params;
+
+	QByteArray dhtState = getSettingsValue("torrent/dht_state").toByteArray();
+	params.dht_state = libtorrent::dht::read_dht_state(bdecode_simple(dhtState));
+
+	applySettings(params.settings);
+
+	m_session = new libtorrent::session(params);
 	
 	if(programHasGUI())
 		m_labelDHTStats = new QLabel;
@@ -190,11 +289,6 @@ void TorrentDownload::globalInit()
 	
 	if(getSettingsValue("torrent/pex").toBool())
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
-
-	// Deprecated. The replacement is added by default.
-	// m_session->add_extension(&libtorrent::create_metadata_plugin);
-	m_session->add_extension(&libtorrent::create_ut_metadata_plugin);
-	m_session->add_extension(&libtorrent::create_smart_ban_plugin);
 	
 	m_worker = new TorrentWorker;
 	
@@ -242,204 +336,10 @@ void TorrentDownload::globalInit()
 
 void TorrentDownload::applySettings()
 {
-	static bool bUPnPActive = false, bNATPMPActive = false, bLSDActive = false;
-	bool bUPnP, bNATPMP, bLSD;
-	int lstart,lend;
-	libtorrent::session_settings settings;
-	
-	lstart = getSettingsValue("torrent/listen_start").toInt();
-	lend = getSettingsValue("torrent/listen_end").toInt();
-	
-	if(lend < lstart)
-		lend = lstart;
-	
-	if(m_session->listen_port() != lstart)
-	{
-		libtorrent::error_code ec; // TODO: Do we use this in any way?
-		m_session->listen_on(std::pair<int,int>(lstart,lend), ec);
-	}
-	
-	bUPnP = getSettingsValue("torrent/mapping_upnp").toBool();
-	bNATPMP = getSettingsValue("torrent/mapping_natpmp").toBool();
-	bLSD = getSettingsValue("torrent/mapping_lsd").toBool();
-	
-	if(!bUPnP)
-		m_session->stop_upnp(); // libtorrent bug workaround
-	if(bUPnP != bUPnPActive)
-	{
-		if(bUPnP)
-			m_session->start_upnp();
-		//else
-		//	m_session->stop_upnp();
-		bUPnPActive = bUPnP;
-	}
-	if(!bNATPMP) // libtorrent bug workaround
-		m_session->stop_natpmp();
-	if(bNATPMP != bNATPMPActive)
-	{
-		if(bNATPMP)
-			m_session->start_natpmp();
-		//else
-		//	m_session->stop_natpmp();
-		bNATPMPActive = bNATPMP;
-	}
-	if(!bLSD) // libtorrent bug workaround
-		m_session->stop_lsd();
-	if(bLSD != bLSDActive)
-	{
-		if(bLSD)
-			m_session->start_lsd();
-		//else
-		//	m_session->stop_lsd();
-		bLSDActive = bLSD;
-	}
-	
-	if(getSettingsValue("torrent/dht").toBool())
-	{
-		QByteArray state = getSettingsValue("torrent/dht_state").toByteArray();
-		while(!m_bDHT)
-		{
-			try
-			{
-#ifdef LIBTORRENT_0_15
-				libtorrent::lazy_entry e;
-				lazy_bdecode_simple(e, state);
-				m_session->load_state(e);
-				m_session->start_dht();
-#else
-				m_session->start_dht(bdecode_simple(state));
-#endif
-				m_session->add_dht_router(std::pair<std::string, int>("router.bittorrent.com", 6881));
-				m_bDHT = true;
-				
-				Logger::global()->enterLogMessage("BitTorrent", tr("DHT started"));
-			}
-			catch(const std::exception& e)
-			{
-				m_bDHT = false;
-				Logger::global()->enterLogMessage("BitTorrent", tr("Failed to start DHT!") + ' ' + e.what());
-				
-				if(!state.isEmpty())
-				{
-					state.clear();
-					continue;
-				}
-				break;
-			}
-		}
-		
-		if(programHasGUI())
-			addStatusWidget(m_labelDHTStats, true);
-	}
-	else //if(m_bDHT)
-	{
-		m_session->stop_dht();
-		m_bDHT = false;
-		
-		if(programHasGUI())
-			removeStatusWidget(m_labelDHTStats);
-	}
-	
-	QString ua = getSettingsValue("torrent/ua").toString();
-	ua.replace("%v", VERSION);
-	
-	settings.file_pool_size = getSettingsValue("torrent/maxfiles").toInt();
-	settings.use_dht_as_fallback = false; // i.e. use DHT always
-	settings.user_agent = ua.toStdString();
-	//settings.max_out_request_queue = 300;
-	//settings.piece_timeout = 50;
-	settings.unchoke_slots_limit = getSettingsValue("torrent/maxuploads").toInt();
-	settings.connections_limit = getSettingsValue("torrent/maxconnections").toInt();
-	settings.max_failcount = 7;
-	settings.request_queue_time = 30.f;
-	settings.max_out_request_queue = 100;
-	settings.cache_size = getSettingsValue("torrent/cache_size").toInt();
-	settings.disk_io_write_mode = getSettingsValue("torrent/disk_io_write_mode").toInt();
-	settings.disk_io_read_mode = getSettingsValue("torrent/disk_io_read_mode").toInt();
+	libtorrent::settings_pack settings;
+	applySettings(settings);
 
-	QString external_ip = getSettingsValue("torrent/external_ip").toString();
-	if(!external_ip.isEmpty())
-		settings.announce_ip = external_ip.toStdString();
-	
-	m_session->set_settings(settings);
-	
-	libtorrent::pe_settings ps;
-	
-	switch(getSettingsValue("torrent/enc_incoming").toInt())
-	{
-	case 0:
-		ps.in_enc_policy = libtorrent::pe_settings::disabled; break;
-	case 1:
-		ps.in_enc_policy = libtorrent::pe_settings::enabled; break;
-	case 2:
-		ps.in_enc_policy = libtorrent::pe_settings::forced; break;
-	}
-	switch(getSettingsValue("torrent/enc_outgoing").toInt())
-	{
-	case 0:
-		ps.out_enc_policy = libtorrent::pe_settings::disabled; break;
-	case 1:
-		ps.out_enc_policy = libtorrent::pe_settings::enabled; break;
-	case 2:
-		ps.out_enc_policy = libtorrent::pe_settings::forced; break;
-	}
-	
-	switch(getSettingsValue("torrent/enc_level").toInt())
-	{
-	case 0:
-		ps.allowed_enc_level = libtorrent::pe_settings::plaintext; break;
-	case 1:
-		ps.allowed_enc_level = libtorrent::pe_settings::rc4; break;
-	case 2:
-		ps.allowed_enc_level = libtorrent::pe_settings::both;
-	}
-	
-	ps.prefer_rc4 = getSettingsValue("torrent/enc_rc4_prefer").toBool();
-	m_session->set_pe_settings(ps);
-	
-	// Proxy settings
-	QUuid proxy;
-	libtorrent::proxy_settings ltproxy;
-	
-	proxy = getSettingsValue("torrent/proxy").toString();
-	
-	ltproxy = proxyToLibtorrent(Proxy::getProxy(proxy));
-	m_session->set_proxy(ltproxy);
-}
-
-libtorrent::proxy_settings TorrentDownload::proxyToLibtorrent(Proxy p)
-{
-	libtorrent::proxy_settings s;
-	
-	if(p.nType != Proxy::ProxyNone)
-	{
-		s.hostname = p.strIP.toStdString();
-		s.port = p.nPort;
-		
-		bool bAuth = !p.strUser.isEmpty();
-		if(bAuth)
-		{
-			s.username = p.strUser.toStdString();
-			s.password = p.strPassword.toStdString();
-		}
-		
-		if(p.nType == Proxy::ProxyHttp)
-		{
-			if(bAuth)
-				s.type = libtorrent::proxy_settings::http_pw;
-			else
-				s.type = libtorrent::proxy_settings::http;
-		}
-		else if(p.nType == Proxy::ProxySocks5)
-		{
-			if(bAuth)
-				s.type = libtorrent::proxy_settings::socks5_pw;
-			else
-				s.type = libtorrent::proxy_settings::socks5;
-		}
-	}
-	
-	return s;
+	m_session->apply_settings(settings);
 }
 
 void TorrentDownload::globalExit()
@@ -447,18 +347,17 @@ void TorrentDownload::globalExit()
 	if(m_bDHT)
 	{
 		libtorrent::entry e;
-#ifdef LIBTORRENT_0_15
-		m_session->save_state(e, libtorrent::session::save_dht_state);
-#else
-		e = m_session->dht_state();
-#endif
+		auto params = m_session->session_state(libtorrent::session_handle::save_dht_state);
+		e = libtorrent::dht::save_dht_state(params.dht_state);
+
 		setSettingsValue("torrent/dht_state", bencode_simple(e));
 	}
 
 	// Without this the process could freeze for up to 60 seconds
-	libtorrent::session_settings s;
-	s.tracker_completion_timeout = s.tracker_receive_timeout = 5;
-	m_session->set_settings(s);
+	auto settings = m_session->get_settings();
+	settings.set_int(libtorrent::settings_pack::tracker_completion_timeout, 5);
+	settings.set_int(libtorrent::settings_pack::tracker_receive_timeout, 5);
+	m_session->apply_settings(settings);
 
 	m_session->abort();
 
@@ -525,50 +424,37 @@ void TorrentDownload::init(QString source, QString target)
 			if(localFile)
 			{
 				QFile in(source);
-				//QByteArray data;
-				//const char* p;
 				
 				if(!in.open(QIODevice::ReadOnly))
 					throw RuntimeException(tr("Unable to open the file!"));
 				
-				//data = in.readAll();
-				//p = data.data();
-				
 				libtorrent::add_torrent_params params;
-				boost::shared_ptr<libtorrent::torrent_info> ti(new libtorrent::torrent_info(source.toStdString()));
+				std::shared_ptr<libtorrent::torrent_info> ti = std::make_shared<libtorrent::torrent_info>(source.toStdString());
 
 				m_info = ti;
 				
 				params.ti = ti;
 				params.save_path = target.toStdString();
 				params.storage_mode = storageMode;
-				params.paused = !isActive();
-				params.auto_managed = false;
-				params.flags = libtorrent::add_torrent_params::flag_duplicate_is_error;
+				params.flags = libtorrent::torrent_flags::duplicate_is_error;
 
 				if (!isActive())
-					params.flags |= libtorrent::add_torrent_params::flag_paused;
+					params.flags |= libtorrent::torrent_flags::paused;
 				
 				m_handle = m_session->add_torrent(params);
 				//m_handle = m_session->add_torrent(m_info, target.toStdString(), libtorrent::entry(), storageMode, !isActive());
 			}
 			else
 			{
-				libtorrent::add_torrent_params params;
-				QByteArray path = source.toUtf8();
-				std::string ss = path.constData();
-
-				params.name = ss.c_str();
-				path = target.toUtf8();
-				params.save_path = path.constData();
+				libtorrent::add_torrent_params params = libtorrent::parse_magnet_uri(source.toStdString());
+				params.name = source.toStdString();
+				params.save_path = target.toStdString();
 				params.storage_mode = storageMode;
-				params.paused = !isActive();
-				params.auto_managed = false;
-				params.url = ss;
-				params.flags = libtorrent::add_torrent_params::flag_duplicate_is_error;
+
+				params.flags = libtorrent::torrent_flags::duplicate_is_error;
 
 				if (!isActive())
-					params.flags |= libtorrent::add_torrent_params::flag_paused;
+					params.flags |= libtorrent::torrent_flags::paused;
 
 				m_handle = m_session->add_torrent(params);
 			}
@@ -668,12 +554,11 @@ bool TorrentDownload::storeTorrent()
 
 	str = dir.absoluteFilePath(str);
 
-	boost::shared_ptr<const libtorrent::torrent_info> info = m_handle.torrent_file();
+	auto info = m_handle.torrent_file();
 
 	if (info)
 	{
-		boost::shared_array<char> md = info->metadata();
-		int mdlen = info->metadata_size();
+		auto is = info->info_section();
 
 		QFile file(str);
 		if(!file.open(QIODevice::ReadWrite))
@@ -683,7 +568,7 @@ bool TorrentDownload::storeTorrent()
 		}
 
 		file.write("d4:info");
-		file.write(md.get(), mdlen);
+		file.write(is.begin(), is.size());
 		file.write("e");
 		file.close();
 		return true;
@@ -699,7 +584,7 @@ QString TorrentDownload::storedTorrentName() const
 	
 	QString hash;
 	
-	const libtorrent::big_number& bn = m_info->info_hash();
+	auto bn = m_info->info_hash();
 	hash = QByteArray((char*) bn.begin(), 20).toHex();
 	
 	return QString("%1 - %2.torrent").arg(name()).arg(hash);
@@ -868,30 +753,23 @@ QString TorrentDownload::bencode(libtorrent::entry& e)
 	return bencode_simple(e).toBase64();
 }
 
-libtorrent::entry TorrentDownload::bdecode_simple(QByteArray array)
+libtorrent::bdecode_node TorrentDownload::bdecode_simple(QByteArray array)
 {
 	if(array.isEmpty())
-		return libtorrent::entry();
+		return libtorrent::bdecode_node();
 	else
-		return libtorrent::bdecode(array.constData(), array.constData() + array.size());
+		return libtorrent::bdecode(array);
 }
 
-void TorrentDownload::lazy_bdecode_simple(libtorrent::lazy_entry& e, QByteArray array)
-{
-	libtorrent::error_code ec;
-	if(!array.isEmpty())
-		libtorrent::lazy_bdecode(array.constData(), array.constData() + array.size(), e, ec);
-}
-
-libtorrent::entry TorrentDownload::bdecode(QString d)
+libtorrent::bdecode_node TorrentDownload::bdecode(QString d)
 {
 	if(d.isEmpty())
-		return libtorrent::entry();
+		return libtorrent::bdecode_node();
 	else
 	{
 		QByteArray array;
 		array = QByteArray::fromBase64(d.toUtf8());
-		return libtorrent::bdecode(array.constData(), array.constData() + array.size());
+		return libtorrent::bdecode(array);
 	}
 }
 
@@ -929,7 +807,7 @@ void TorrentDownload::load(const QDomNode& map)
 			return;
 		}
 		
-		boost::shared_ptr<libtorrent::torrent_info> ti(new libtorrent::torrent_info(sfile.toStdString()));
+		std::shared_ptr<libtorrent::torrent_info> ti = std::make_shared<libtorrent::torrent_info>(sfile.toStdString());
 		m_info = ti;
 		
 		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
@@ -938,6 +816,9 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		libtorrent::add_torrent_params params;
 		std::vector<char> torrent_resume2 = std::vector<char>(torrent_resume.data(), torrent_resume.data()+torrent_resume.size());
+
+		if(!torrent_resume2.empty())
+			params = libtorrent::read_resume_data(torrent_resume);
 		
 		//params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
 		params.storage_mode = libtorrent::storage_mode_sparse; // don't force full allocation upon load
@@ -945,10 +826,7 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		QByteArray path = str.toUtf8();
 		params.save_path = path.constData();
-		if(!torrent_resume2.empty())
-			params.resume_data = torrent_resume2;
-		params.paused = true;
-		params.auto_managed = false;
+		params.flags = libtorrent::torrent_flags::paused;
 		
 		m_handle = m_session->add_torrent(params);
 		
@@ -1057,28 +935,32 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 			int i;
 			for(i = 0; i < 3;)
 			{
-				libtorrent::alert* aaa;
-				std::unique_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
+				std::vector<libtorrent::alert*> alerts;
+				TorrentDownload::m_session->pop_alerts(&alerts);
 	
-				if((aaa = a.get()) == 0)
+				if (alerts.empty())
 				{
 					Sleeper::msleep(250);
 					i++;
 					continue;
 				}
 				
-				if(libtorrent::save_resume_data_alert* alert = dynamic_cast<libtorrent::save_resume_data_alert*>(aaa))
+				for (libtorrent::alert* aaa : alerts)
 				{
-					setXMLProperty(doc, map, "torrent_resume", bencode(*alert->resume_data));
-					break;
+					if(libtorrent::save_resume_data_alert* alert = dynamic_cast<libtorrent::save_resume_data_alert*>(aaa))
+					{
+						auto entry = libtorrent::write_resume_data(alert->params);
+						setXMLProperty(doc, map, "torrent_resume", bencode(entry));
+						break;
+					}
+					else if(dynamic_cast<libtorrent::save_resume_data_failed_alert*>(aaa))
+					{
+						std::cout << "Save data failed\n";
+						break;
+					}
+					else
+						m_worker->processAlert(aaa);
 				}
-				else if(dynamic_cast<libtorrent::save_resume_data_failed_alert*>(aaa))
-				{
-					std::cout << "Save data failed\n";
-					break;
-				}
-				else
-					m_worker->processAlert(aaa);
 			}
 			m_mutexAlerts.unlock();
 
@@ -1299,7 +1181,7 @@ QVariantMap TorrentDownload::properties() const
 		map["name"] = QString::fromStdString(fe.path);
 		map["size"] = qint64(fe.size);
 		map["done"] = qint64(progresses[i]);
-		map["priority"] = m_vecPriorities[i];
+		map["priority"] = int(m_vecPriorities[i]);
 		files << map;
 	}
 	rv["files"] = files;
@@ -1363,13 +1245,9 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 		else if(IS_ALERT(tracker_error_alert))
 		{
 			QString desc = tr("Tracker failure: %1, %2 times in a row ")
-					.arg(errmsg)
+					.arg(alert->failure_reason())
 					.arg(alert->times_in_row);
 				
-			if(alert->status_code != 0)
-				desc += tr("(error %1)").arg(alert->status_code);
-			else
-				desc += tr("(timeout)");
 			d->enterLogMessage(desc);
 		}
 		else if(IS_ALERT_S(tracker_warning_alert))
@@ -1492,16 +1370,12 @@ void TorrentWorker::doWork()
 	}
 	
 	QMutexLocker ll(&TorrentDownload::m_mutexAlerts);
-	while(true)
-	{
-		libtorrent::alert* aaa;
-		std::unique_ptr<libtorrent::alert> a = TorrentDownload::m_session->pop_alert();
-		
-		if((aaa = a.get()) == 0)
-			break;
-		
+	std::vector<libtorrent::alert*> alerts;
+
+	TorrentDownload::m_session->pop_alerts(&alerts);
+
+	for (libtorrent::alert* aaa : alerts)
 		processAlert(aaa);
-	}
 	
 	libtorrent::session_status st = TorrentDownload::m_session->status();
 	if(TorrentDownload::m_bDHT && TorrentDownload::m_labelDHTStats)

@@ -490,7 +490,7 @@ void Transfer::fireCompleted()
 	
 	qDebug() << "Executing" << exec;
 	
-	QProcess::startDetached(exec);
+	QProcess::startDetached("/bin/sh", QStringList() << "-c" << exec);
 }
 
 QString Transfer::autoActionCommand(State state) const

@@ -277,7 +277,7 @@ void MetalinkDownload::processMetalink(QString fileName)
 		MetaFile& m = files[i];
 		int mode = getSettingsValue("metalink/mode").toInt();
 
-		qSort(m.urls);
+		std::sort(m.urls.begin(), m.urls.end());
 
 		if (mode == 0 && !m.hasHTTP)
 			mode = 1;

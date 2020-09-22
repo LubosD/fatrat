@@ -113,7 +113,6 @@ static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
 static bool m_bDisableJava = false, m_bJavaForceSearch = false;
-static QString m_strUnitTest;
 static QString m_strSettingsPath;
 static QString m_strPidFile, m_strSetUser;
 
@@ -128,8 +127,6 @@ int main(int argc,char** argv)
 	QCoreApplication* app = 0;
 	int rval;
 	QString arg;
-	
-	qsrand(time(0));
 	
 	QCoreApplication::setOrganizationName("Dolezel");
 	QCoreApplication::setOrganizationDomain("dolezel.info");
@@ -290,8 +287,6 @@ QString argsToArg(int argc,char** argv)
 			m_strPidFile = argv[++i];
 		else if (!strcasecmp(argv[i], "--user") || !strcasecmp(argv[i], "-u"))
 			m_strSetUser = argv[++i];
-		else if( ( !strcasecmp(argv[i], "--test") || !strcasecmp(argv[i], "-t") ) && i+1 < argc)
-			m_strUnitTest = argv[++i];
 		else if(!strcasecmp(argv[i], "--no-java"))
 		{
 			qDebug() << "Disabling Java support";

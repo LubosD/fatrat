@@ -76,7 +76,7 @@ protected:
 			drag->setMimeData(data);
 			drag->setHotSpot(QPoint(-20, -20));
 			
-			drag->start(supportedActions);
+			drag->exec(supportedActions);
 		}
 	}
 };

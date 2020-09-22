@@ -46,7 +46,7 @@ if(WITH_EVERYTHING)
 	set(WITH_JPLUGINS ON)
 endif(WITH_EVERYTHING)
 
-ADD_DEFINITIONS(-std=c++11)
+ADD_DEFINITIONS(-std=c++14)
 
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
@@ -58,19 +58,13 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
-	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 1.1.0")
+	find_package(LibtorrentRasterbar 2.0.0 REQUIRED)
 	
-	if(libtorrent_FOUND)
+	if(LibtorrentRasterbar_FOUND)
 		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
-		include_directories(${libtorrent_INCLUDE_DIRS})
-		
-		set(LIBTORRENT_0_15 TRUE)
-		#if(libtorrent_VERSION GREATER 1.0.99)
-		#	set(LIBTORRENT_1_1 TRUE)
-		#endif(libtorrent_VERSION GREATER 0.14.99)
-	else(libtorrent_FOUND)
+	else(LibtorrentRasterbar_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent found")
-	endif(libtorrent_FOUND)
+	endif(LibtorrentRasterbar_FOUND)
 	
 	SET(Boost_USE_MULTITHREAD ON)
 	SET(Boost_USE_STATIC_LIBS OFF)
@@ -570,7 +564,7 @@ endif (POSIX_LINUX)
 
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
-	${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
+	LibtorrentRasterbar::torrent-rasterbar ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
 	${Poco_LIBRARIES} ${XATTR_LIBRARIES} crypto -export-dynamic)
 target_link_libraries(fatrat-conf Qt5::Core)
 

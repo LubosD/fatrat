@@ -77,7 +77,7 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 		{
 			case 0:
 			{
-				QString name = QString::fromStdString(m_files[i].path);
+				QString name = QString::fromStdString(m_download->m_info->files().file_path(i));
 				int p = name.indexOf('/');
 				
 				if(p != -1)
@@ -86,11 +86,11 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 				return name;
 			}
 			case 1:
-				return formatSize(m_files[i].size);
+				return formatSize(m_download->m_info->files().file_size(i));
 			case 2:
 				if(!m_progresses.empty())
 				{
-					int v = int( double(m_progresses[i])/double(m_files[i].size)*1000 );
+					int v = int( double(m_progresses[i])/double(m_download->m_info->files().file_size(i))*1000 );
 					return QString("%1%").arg(v / 10.0, 0, 'f', 1);
 				}
 				break;
@@ -116,52 +116,8 @@ bool TorrentFilesModel::hasChildren(const QModelIndex& parent) const
 	return !parent.isValid();
 }
 
-void TorrentFilesModel::fill()
-{
-	//for(libtorrent::torrent_info::file_iterator it=m_download->m_info->begin_files();it!=m_download->m_info->end_files();it++)
-	for (int i=0;i<m_download->m_info->num_files();i++)
-	{
-		m_files << m_download->m_info->file_at(i);
-	}
-}
-
 void TorrentFilesModel::refresh(const libtorrent::bitfield* pieces)
 {
-	/*int piece_size = m_download->m_info.piece_length();
-	for(int i=0;i<m_files.size();i++)
-	{
-		qint64 completed;
-		int piece_start = m_files[i].offset / piece_size;
-		int piece_end = (int) ((m_files[i].offset + m_files[i].size) / piece_size + 0.5f) - 1;
-		int piece = piece_start + 1;
-		
-		if((*pieces)[piece_start])
-			completed = piece_size - (m_files[i].offset % piece_size);
-		else
-			completed = 0;
-		
-		while(piece < piece_end)
-		{
-			if((*pieces)[piece])
-				completed += piece_size;
-			piece++;
-		}
-		
-		if(piece_end > piece_start && (*pieces)[piece_end])
-			completed += (m_files[i].offset + m_files[i].size) % piece_size;
-		
-		if(completed > m_files[i].size)
-			completed = m_files[i].size;
-		
-		float newval = 100.0/m_files[i].size*completed;
-		
-		
-		if(newval != m_progresses[i])
-		{
-			m_progresses[i] = newval;
-			dataChanged(createIndex(i, 2), createIndex(i, m_columns.size())); // refresh the view
-		}
-	}*/
 	m_pieces = pieces;
 	
 	if(m_download->m_handle.is_valid())
@@ -182,21 +138,22 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 		
 		quint32* buf = new quint32[myrect.width()];
 		
-		const libtorrent::file_entry& file = model->m_files[row];
+		const auto offset = model->m_download->m_info->files().file_offset(row);
+		const auto size = model->m_download->m_info->files().file_size(row);
 		int piece_size = model->m_download->m_info->piece_length();
 		
 		QImage im;
 		float sstart,send;
 		
-		sstart = (file.offset % piece_size) / float(piece_size);
-		send = 1.0f - ((file.offset + file.size) % piece_size) / float(piece_size);
+		sstart = (offset % piece_size) / float(piece_size);
+		send = 1.0f - ((offset + size) % piece_size) / float(piece_size);
 		
-		int start = file.offset/piece_size;
-		int end = ceilf( (file.offset+file.size)/float(piece_size) );
+		int start = offset/piece_size;
+		int end = ceilf( (offset+size)/float(piece_size) );
 		
 		const int allocated = (end-start+7)/8;
 		char* cpy = new char[allocated];
-		const char* src = model->m_pieces->bytes();
+		const char* src = model->m_pieces->data();
 		const int shift = start % 8;
 		
 		if(shift)

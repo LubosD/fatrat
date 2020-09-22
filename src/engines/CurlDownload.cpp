@@ -45,8 +45,10 @@ respects for all of the code used other than "OpenSSL".
 #include <QMessageBox>
 #include <QMenu>
 #include <QColor>
+#include <QRandomGenerator>
 #include <QtDebug>
 #include <iostream>
+#include <algorithm>
 #include <errno.h>
 #include <cassert>
 
@@ -110,7 +112,7 @@ void CurlDownload::init(QString uri, QString dest)
 	obj.proxy = getSettingsValue("httpftp/defaultproxy").toString();
 	obj.ftpMode = UrlClient::FtpPassive;
 	
-	m_dir = dest;
+	m_dir.setPath(dest);
 	m_dir.mkpath(".");
 	
 	QString scheme = obj.url.scheme();
@@ -250,92 +252,6 @@ void CurlDownload::changeActive(bool bActive)
 		else
 			startSegment(m_listActiveSegments[0]);
 
-		/*
-		// 1) find free spots
-		QList<FreeSegment> freeSegs;
-		qlonglong lastEnd = 0;
-		for(int i=0;i<m_segments.size();i++)
-		{
-			if (m_segments[i].offset > lastEnd)
-				freeSegs << FreeSegment(lastEnd, m_segments[i].offset-lastEnd);
-			lastEnd = m_segments[i].offset + m_segments[i].bytes;
-		}
-		if (lastEnd < m_nTotal)
-			freeSegs << FreeSegment(lastEnd, m_nTotal - lastEnd);
-		if ((!m_nTotal || m_segments.isEmpty()) && freeSegs.isEmpty())
-			freeSegs << FreeSegment(lastEnd, -1);
-		// 2) sort them
-		qSort(freeSegs.begin(), freeSegs.end());
-
-		// 3) make enough free spots
-		qDebug() << "Found" << freeSegs.size() << "free spots";
-		while(freeSegs.size() < m_listActiveSegments.size() && m_nTotal)
-		{
-			int pos = freeSegs.size()-1;
-
-			// 4) split the largest segment into halves
-			int odd = freeSegs[pos].bytes % 2;
-			qlonglong half = freeSegs[pos].bytes / 2;
-			if (half <= getSettingsValue("httpftp/minsegsize").toInt())
-				break;
-
-			freeSegs[pos].bytes = half + odd;
-			freeSegs << FreeSegment(freeSegs[pos].offset + freeSegs[pos].bytes, freeSegs[pos].bytes - odd);
-
-			qSort(freeSegs.begin(), freeSegs.end());
-		}
-		qDebug() << freeSegs.size() << "free spots after splitting work";
-
-		// 5) now allot the free spots to active segments
-
-		if (freeSegs.size() < m_listActiveSegments.size() && m_nTotal)
-		{
-			// the free spots were too small, remove some active segments
-			QSet<int> set = m_listActiveSegments.toSet();
-			QList<int> superficial;
-			// first select segments that download from the same URL more than once altogether
-			while (set.size() < m_listActiveSegments.size() && m_listActiveSegments.size() > freeSegs.size())
-			{
-				superficial = m_listActiveSegments;
-				foreach (int u, set)
-					superficial.removeOne(u);
-				// making the superficials unique to do the removal evenly
-				QSet<int> xset = superficial.toSet();
-				for (QSet<int>::iterator it=xset.begin(); it != xset.end() && m_listActiveSegments.size() > freeSegs.size(); it++)
-				{
-					m_listActiveSegments.removeOne(*it);
-				}
-				set = m_listActiveSegments.toSet();
-			}
-
-			while (m_listActiveSegments.size() > freeSegs.size())
-			{
-				// the last chance is to pick randomly any segments
-				// mathematically wrong - uneven distribution, but who cares
-				int r = qrand() % m_listActiveSegments.size();
-				m_listActiveSegments.removeAt(r);
-			}
-		}
-
-		for(int i=0, j=freeSegs.size()-1;i<m_listActiveSegments.size();i++,j--)
-		{
-			// 6) create a written segment for every active segment
-			Segment seg;
-			seg.offset = freeSegs[j].offset;
-			seg.bytes = 0;
-			seg.color = allocateSegmentColor();
-			seg.urlIndex = m_listActiveSegments[i];
-
-			// 7) now let's start a download thread for that segment
-			startSegment(seg, freeSegs[j].bytes);
-
-			m_segments << seg;
-
-			// allow only one segment if we don't know the file size yet
-			if(!m_nTotal)
-				break;
-		}*/
-
 		// 8) update the segment progress every 500 miliseconds
 		m_timer.start(500);
 	}
@@ -451,7 +367,7 @@ qulonglong CurlDownload::done() const
 
 void CurlDownload::load(const QDomNode& map)
 {
-	m_dir = getXMLProperty(map, "dir");
+	m_dir.setPath(getXMLProperty(map, "dir"));
 	m_nTotal = getXMLProperty(map, "knowntotal").toULongLong();
 	m_strFile = getXMLProperty(map, "filename");
 	m_bAutoName = getXMLProperty(map, "autoname").toInt() != 0;
@@ -583,7 +499,7 @@ void CurlDownload::autoCreateSegment()
 	else
 	{
 		// check for segments beyond the EOF (truncated file)
-		qSort(m_segments);
+		std::sort(m_segments.begin(), m_segments.end());
 		for (int i=0;i<m_segments.size();i++)
 		{
 			Segment& s = m_segments[i];
@@ -693,7 +609,7 @@ QString CurlDownload::remoteURI() const
 
 void CurlDownload::simplifySegments(QList<CurlDownload::Segment>& retval)
 {
-	qSort(retval);
+	std::sort(retval.begin(), retval.end());
 
 	for(int i=1;i<retval.size();i++)
 	{
@@ -965,8 +881,8 @@ void CurlDownload::startSegment(int urlIndex)
 		}
 
 		// 2) sort them
-		qSort(freeSegs.begin(), freeSegs.end());
-		qSort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
+		std::sort(freeSegs.begin(), freeSegs.end());
+		std::sort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
 
 		if (!freeSegsUnallocated.isEmpty())
 		{
@@ -1035,7 +951,7 @@ void CurlDownload::startSegment(int urlIndex)
 		if (freeSegs.isEmpty())
 			return; // This should never happen
 
-		qSort(freeSegs.begin(), freeSegs.end(), FreeSegment::compareByOffset);
+		std::sort(freeSegs.begin(), freeSegs.end(), FreeSegment::compareByOffset);
 
 		// Take the first one
 		// If it's an allocated space, take it only if bytes >= seglim*5
@@ -1126,6 +1042,7 @@ void CurlDownload::stopSegment(int index, bool restarting)
 
 QColor CurlDownload::allocateSegmentColor()
 {
+	QRandomGenerator rng;
 	for(size_t i=0;i<sizeof(g_colors)/sizeof(g_colors[0]);i++)
 	{
 		bool bFound = false;
@@ -1142,7 +1059,7 @@ QColor CurlDownload::allocateSegmentColor()
 			return g_colors[i];
 	}
 
-	return QColor(qrand()%256, qrand()%256, qrand()%256);
+	return QColor(rng()%256, rng()%256, rng()%256);
 }
 
 QObject* CurlDownload::createDetailsWidget(QWidget* w)

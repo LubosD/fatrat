@@ -78,9 +78,8 @@ public:
 	
 	static QByteArray bencode_simple(libtorrent::entry& e);
 	static QString bencode(libtorrent::entry& e);
-	static libtorrent::entry bdecode_simple(QByteArray d);
-	static void lazy_bdecode_simple(libtorrent::lazy_entry& e, QByteArray array);
-	static libtorrent::entry bdecode(QString d);
+	static libtorrent::bdecode_node bdecode_simple(QByteArray d);
+	static libtorrent::bdecode_node bdecode(QString d);
 	
 	static libtorrent::proxy_settings proxyToLibtorrent(Proxy p);
 	
@@ -125,6 +124,7 @@ private:
 	bool storeTorrent(QString orig);
 	bool storeTorrent();
 	QString storedTorrentName() const;
+	static void applySettings(libtorrent::settings_pack& settings);
 private slots:
 	void torrentFileDone(QNetworkReply* reply);
 	void torrentFileReadyRead();
@@ -136,12 +136,12 @@ private:
 #endif
 protected:
 	libtorrent::torrent_handle m_handle;
-	boost::shared_ptr<libtorrent::torrent_info const> m_info;
+	std::shared_ptr<const libtorrent::torrent_info> m_info;
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;
 	//qint64 m_nPrevDownload, m_nPrevUpload;
-	std::vector<int> m_vecPriorities;
+	std::vector<libtorrent::download_priority_t> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
 	QList<QString> m_urlSeeds;
 	
