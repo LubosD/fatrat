@@ -95,8 +95,8 @@ void TorrentOptsWidget::load()
 	
 	for (int i = 0; i < m_download->m_info->num_files(); i++)
 	{
-		libtorrent::file_entry file = m_download->m_info->file_at(i);
-		QStringList elems = QString::fromStdString(file.path).split('/');
+		auto path = m_download->m_info->files().file_path(i);
+		QStringList elems = QString::fromStdString(path).split('/');
 		//QString name = elems.takeLast();
 		
 		QTreeWidgetItem* item = 0;
@@ -138,8 +138,9 @@ void TorrentOptsWidget::load()
 		}
 		
 		// fill in info
-		item->setText(1, formatSize(file.size));
-		item->setData(1, Qt::UserRole, qint64(file.size));
+		auto size = m_download->m_info->files().file_size(i);
+		item->setText(1, formatSize(size));
+		item->setData(1, Qt::UserRole, qint64(size));
 		m_files << item;
 	}
 	
@@ -171,10 +172,10 @@ void TorrentOptsWidget::accepted()
 	if(!m_download->m_handle.is_valid() || !m_download->m_info)
 		return;
 	
-	for(int i=0;i<m_files.size();i++)
+	for (int i = 0; i < m_files.size(); i++)
 	{
 		bool yes = m_files[i]->checkState(0) == Qt::Checked;
-		int& prio = m_download->m_vecPriorities[i];
+		auto& prio = m_download->m_vecPriorities[i];
 		
 		if(yes && !prio)
 			prio = 1;
@@ -182,7 +183,7 @@ void TorrentOptsWidget::accepted()
 			prio = 0;
 	}
 	
-	for(std::vector<int>::const_iterator it = m_download->m_vecPriorities.begin();
+	for(auto it = m_download->m_vecPriorities.begin();
 		   it != m_download->m_vecPriorities.end(); it++)
 	{
 		std::cout << *it << ' ';
@@ -192,7 +193,7 @@ void TorrentOptsWidget::accepted()
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
 	
 	std::set<std::string> seeds = m_download->m_handle.url_seeds();
-	foreach(QString url, m_seeds)
+	for (QString url : m_seeds)
 	{
 		if(std::find(seeds.begin(), seeds.end(), url.toStdString()) == seeds.end())
 			m_download->m_handle.add_url_seed(url.toStdString());

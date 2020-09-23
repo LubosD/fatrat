@@ -54,7 +54,9 @@ QModelIndex TorrentFilesModel::parent(const QModelIndex&) const
 
 int TorrentFilesModel::rowCount(const QModelIndex&) const
 {
-	return m_files.size();
+	if (!m_download->m_info)
+		return 0;
+	return m_download->m_info->files().num_files();
 }
 
 QVariant TorrentFilesModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -68,7 +70,11 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 {
 	int i = index.row();
 	
-	if(i >= m_files.size())
+	if (!m_download->m_info)
+		return QVariant();
+
+	auto files = m_download->m_info->files();
+	if (i >= files.num_files())
 		return QVariant();
 		
 	if(role == Qt::DisplayRole)
@@ -122,7 +128,12 @@ void TorrentFilesModel::refresh(const libtorrent::bitfield* pieces)
 	
 	if(m_download->m_handle.is_valid())
 		m_download->m_handle.file_progress(m_progresses);
-	dataChanged(createIndex(0, 2), createIndex(m_files.size(), m_columns.size())); // refresh the view
+	int count = 0;
+	
+	if (m_download->m_info)
+		count = m_download->m_info->files().num_files();
+
+	dataChanged(createIndex(0, 2), createIndex(count, m_columns.size())); // refresh the view
 }
 
 void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -137,9 +148,10 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 		myrect.setWidth(myrect.width()-1);
 		
 		quint32* buf = new quint32[myrect.width()];
+		auto files = model->m_download->m_info->files();
 		
-		const auto offset = model->m_download->m_info->files().file_offset(row);
-		const auto size = model->m_download->m_info->files().file_size(row);
+		const auto offset = files.file_offset(row);
+		const auto size = files.file_size(row);
 		int piece_size = model->m_download->m_info->piece_length();
 		
 		QImage im;

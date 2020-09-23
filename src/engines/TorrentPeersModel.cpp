@@ -144,8 +144,6 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 					return tr ( "Connecting" );
 				else if ( info.flags & libtorrent::peer_info::handshake )
 					return tr ( "Handshaking" );
-				else if ( info.flags & libtorrent::peer_info::queued )
-					return tr ( "Queued" );
 				else
 				{
 					QString text;
@@ -159,6 +157,8 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 						text += "Remote_choked ";
 					if ( info.connection_type == libtorrent::peer_info::web_seed )
 						text += "WEB_SEED";
+					if ( info.flags & libtorrent::peer_info::on_parole )
+						text += "On parole";
 
 					return text;
 				}

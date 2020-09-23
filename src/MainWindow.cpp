@@ -651,7 +651,7 @@ void MainWindow::refreshQueues()
 			item->setText(0, g_queues[i]->name());
 		}
 		
-		item->setData(0, Qt::UserRole, qVariantFromValue((void*) g_queues[i]));
+		item->setData(0, Qt::UserRole, QVariant::fromValue((void*) g_queues[i]));
 	}
 	
 	while(i<treeQueues->topLevelItemCount())
@@ -999,7 +999,7 @@ void MainWindow::addTransfer(QString uri, Transfer::Mode mode, QString className
 	
 	if(!uri.isEmpty() && className.isEmpty())
 	{
-		QStringList l = uri.split('\n', QString::SkipEmptyParts);
+		QStringList l = uri.split('\n', Qt::SkipEmptyParts);
 		Transfer::BestEngine eng = Transfer::bestEngine(l[0], mode);
 		
 		if(eng.type != Transfer::ModeInvalid)
@@ -1023,9 +1023,9 @@ show_dialog:
 			throw RuntimeException();
 		
 		if(!sep)
-			uris = m_dlgNewTransfer->m_strURIs.split('\n', QString::SkipEmptyParts);
+			uris = m_dlgNewTransfer->m_strURIs.split('\n', Qt::SkipEmptyParts);
 		else
-			uris = m_dlgNewTransfer->m_strURIs.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+			uris = m_dlgNewTransfer->m_strURIs.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 		
 		if(uris.isEmpty())
 			throw RuntimeException();
@@ -1693,7 +1693,7 @@ QList<int> MainWindow::getSelection()
 				result << m_modelTransfers->remapIndex(row);
 		}
 		
-		qSort(result);
+		std::sort(result.begin(), result.end());
 	}
 	
 	return result;
@@ -1715,11 +1715,8 @@ void MainWindow::transferOpen(bool bOpenFile)
 		path = d->dataPath(bOpenFile);
 		
 		doneQueue(q, true, false);
-		
-		QString command = QString("%1 \"%2\"")
-				.arg(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString())
-				.arg(path);
-		QProcess::startDetached(command);
+
+		QProcess::startDetached(g_settings->value("fileexec", getSettingsDefault("fileexec")).toString(), QStringList() << path);
 	}
 }
 
@@ -1941,6 +1938,11 @@ void addMenuAction(const MenuAction& action)
 
 void addStatusWidget(QWidget* widget, bool bRight)
 {
+	if (!widget)
+	{
+		qWarning() << "addStatusWidget called with nullptr widget. This is a bug!";
+		return;
+	}
 	MainWindow* wnd = (MainWindow*) getMainWindow();
 	
 	if(wnd != 0)

@@ -197,7 +197,7 @@ void TorrentSearch::loadEngines(QString path)
 		
 		n = n.nextSiblingElement("engine");
 	}
-	qSort(m_engines.begin(), m_engines.end());
+	std::sort(m_engines.begin(), m_engines.end());
 }
 
 void TorrentSearch::search()

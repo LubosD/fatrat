@@ -49,6 +49,7 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/announce_entry.hpp>
 #include <libtorrent/read_resume_data.hpp>
 #include <libtorrent/write_resume_data.hpp>
+#include <libtorrent/session_stats.hpp>
 
 #include <fstream>
 #include <stdexcept>
@@ -152,7 +153,7 @@ int TorrentDownload::acceptable(QString uri, bool)
         return 0;
 }
 
-void TorrentDownload::applySettings(libtorrent::settings_pack& settings)
+void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 {
 	QString ua = getSettingsValue("torrent/ua").toString();
 	short s1 = 0, s2 = 0, s3 = 0, s4 = 0;
@@ -273,19 +274,17 @@ void TorrentDownload::applySettings(libtorrent::settings_pack& settings)
 
 void TorrentDownload::globalInit()
 {
+	if (programHasGUI())
+		m_labelDHTStats = new QLabel;
+
 	libtorrent::session_params params;
 
 	QByteArray dhtState = getSettingsValue("torrent/dht_state").toByteArray();
-	params.dht_state = libtorrent::dht::read_dht_state(bdecode_simple(dhtState));
+	params = libtorrent::read_session_params(bdecode_simple(dhtState), libtorrent::session_handle::save_dht_state);
 
-	applySettings(params.settings);
+	fillSettings(params.settings);
 
 	m_session = new libtorrent::session(params);
-	
-	if(programHasGUI())
-		m_labelDHTStats = new QLabel;
-	
-	applySettings();
 	
 	if(getSettingsValue("torrent/pex").toBool())
 		m_session->add_extension(&libtorrent::create_ut_pex_plugin);
@@ -337,7 +336,7 @@ void TorrentDownload::globalInit()
 void TorrentDownload::applySettings()
 {
 	libtorrent::settings_pack settings;
-	applySettings(settings);
+	fillSettings(settings);
 
 	m_session->apply_settings(settings);
 }
@@ -348,7 +347,7 @@ void TorrentDownload::globalExit()
 	{
 		libtorrent::entry e;
 		auto params = m_session->session_state(libtorrent::session_handle::save_dht_state);
-		e = libtorrent::dht::save_dht_state(params.dht_state);
+		e = libtorrent::write_session_params(params, libtorrent::session_handle::save_dht_state);
 
 		setSettingsValue("torrent/dht_state", bencode_simple(e));
 	}
@@ -932,8 +931,8 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 			m_mutexAlerts.lock();
 			m_handle.save_resume_data();
 			
-			int i;
-			for(i = 0; i < 3;)
+			bool saved = false;
+			for(int i = 0; i < 3 && !saved; i++)
 			{
 				std::vector<libtorrent::alert*> alerts;
 				TorrentDownload::m_session->pop_alerts(&alerts);
@@ -947,24 +946,25 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 				
 				for (libtorrent::alert* aaa : alerts)
 				{
-					if(libtorrent::save_resume_data_alert* alert = dynamic_cast<libtorrent::save_resume_data_alert*>(aaa))
+					if(libtorrent::save_resume_data_alert* alert = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(aaa))
 					{
 						auto entry = libtorrent::write_resume_data(alert->params);
 						setXMLProperty(doc, map, "torrent_resume", bencode(entry));
-						break;
+						saved = true;
 					}
-					else if(dynamic_cast<libtorrent::save_resume_data_failed_alert*>(aaa))
+					else if(libtorrent::alert_cast<libtorrent::save_resume_data_failed_alert>(aaa))
 					{
 						std::cout << "Save data failed\n";
-						break;
 					}
 					else
+					{
 						m_worker->processAlert(aaa);
+					}
 				}
 			}
 			m_mutexAlerts.unlock();
 
-			if (i == 3)
+			if (!saved)
 				std::cout << "Torrent state did not get saved!\n";
 		}
 	}
@@ -1014,13 +1014,10 @@ QString TorrentDownload::message() const
 	else if(m_pFileDownload != 0)
 		return tr("Downloading the .torrent file");
 	
-	if(!m_status.paused)
+	if(!(m_status.flags & libtorrent::torrent_flags::paused))
 	{
 		switch(m_status.state)
 		{
-		case libtorrent::torrent_status::queued_for_checking:
-			state = tr("Queued for checking");
-			break;
 		case libtorrent::torrent_status::checking_files:
 			state = tr("Checking files: %1%").arg(m_status.progress*100.f);
 			break;
@@ -1174,12 +1171,9 @@ QVariantMap TorrentDownload::properties() const
 	for (int i = 0; i < m_info->num_files(); i++)
 	{
 		QVariantMap map;
-		libtorrent::file_entry fe;
 
-		fe = m_info->file_at(i);
-
-		map["name"] = QString::fromStdString(fe.path);
-		map["size"] = qint64(fe.size);
+		map["name"] = QString::fromStdString(m_info->files().file_path(i));
+		map["size"] = qint64(m_info->files().file_size(i));
 		map["done"] = qint64(progresses[i]);
 		map["priority"] = int(m_vecPriorities[i]);
 		files << map;
@@ -1194,6 +1188,11 @@ TorrentWorker::TorrentWorker()
 {
 	m_timer.start(1000);
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
+
+	m_timerStats.start(1000 * 60);
+	connect(&m_timerStats, &QTimer::timeout, [=]{
+		TorrentDownload::m_session->post_session_stats();
+	});
 }
 
 void TorrentWorker::addObject(TorrentDownload* d)
@@ -1272,17 +1271,35 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 
 			d->createDefaultPriorityList();
 		}
+		else if (IS_ALERT(session_stats_alert))
+		{
+			static int dht_nodes_idx = -1, dht_torrents_idx = -1;
+
+			if (dht_nodes_idx == -1)
+				dht_nodes_idx = libtorrent::find_metric_idx("dht.dht_nodes");
+			if (dht_torrents_idx == -1)
+				dht_torrents_idx = libtorrent::find_metric_idx("dht.dht_torrents");
+
+			int dht_nodes = -1, dht_torrents = -1;
+
+			if (dht_nodes_idx != -1)
+				dht_nodes = alert->counters()[dht_nodes_idx];
+			if (dht_torrents_idx != -1)
+				dht_torrents = alert->counters()[dht_torrents_idx];
+
+			if(TorrentDownload::m_bDHT && TorrentDownload::m_labelDHTStats && (dht_nodes != -1 || dht_torrents != -1))
+			{
+				QString text = tr("<b>DHT:</b> %1 nodes, %2 torrents tracked").arg(dht_nodes).arg(dht_torrents);
+				TorrentDownload::m_labelDHTStats->setText(text);
+			}
+		}
 	}
 	else
 	{
-#ifdef LIBTORRENT_0_15
 		if (!IS_ALERT_S(dht_announce_alert) && !IS_ALERT_S(dht_get_peers_alert))
 		{
 			Logger::global()->enterLogMessage("BitTorrent", aaa->message().c_str());
 		}
-#else
-		Logger::global()->enterLogMessage("BitTorrent", aaa->message().c_str());
-#endif
 
 #undef IS_ALERT
 #undef IS_ALERT_S
@@ -1314,7 +1331,7 @@ void TorrentWorker::doWork()
 		if(!d->m_handle.is_valid() || !d->m_info)
 			continue;
 		
-		if(d->m_bHasHashCheck && d->m_status.state != libtorrent::torrent_status::checking_files && d->m_status.state != libtorrent::torrent_status::queued_for_checking)
+		if(d->m_bHasHashCheck && d->m_status.state != libtorrent::torrent_status::checking_files && d->m_status.state != libtorrent::torrent_status::checking_resume_data)
 		{
 			d->m_bHasHashCheck = false;
 			//d->m_nPrevDownload = d->done();
@@ -1322,6 +1339,8 @@ void TorrentWorker::doWork()
 		
 		if(d->isActive())
 		{
+			const bool isSuperSeeding = d->m_handle.flags() & libtorrent::torrent_flags::super_seeding;
+
 			if(d->mode() == Transfer::Download)
 			{
 				if(d->m_status.state == libtorrent::torrent_status::finished ||
@@ -1335,7 +1354,6 @@ void TorrentWorker::doWork()
 					d->enterLogMessage(tr("Requested parts of the torrent have been downloaded"));
 					d->setMode(Transfer::Upload);
 				}
-				d->m_handle.super_seeding(d->m_bSuperSeeding);
 			}
 			if(d->mode() == Transfer::Upload)
 			{
@@ -1350,8 +1368,16 @@ void TorrentWorker::doWork()
 						d->setMode(Transfer::Download);
 					}
 				}
-				if (d->m_status.super_seeding != d->m_bSuperSeeding)
-					d->m_handle.super_seeding(d->m_bSuperSeeding);
+			}
+
+			if (isSuperSeeding != d->m_bSuperSeeding)
+			{
+				auto flags = d->m_handle.flags();
+				if (d->m_bSuperSeeding)
+					flags |= libtorrent::torrent_flags::super_seeding;
+				else
+					flags &= ~libtorrent::torrent_flags::super_seeding;
+				d->m_handle.set_flags(flags);
 			}
 			
 			int down, up, sdown, sup;
@@ -1376,13 +1402,6 @@ void TorrentWorker::doWork()
 
 	for (libtorrent::alert* aaa : alerts)
 		processAlert(aaa);
-	
-	libtorrent::session_status st = TorrentDownload::m_session->status();
-	if(TorrentDownload::m_bDHT && TorrentDownload::m_labelDHTStats)
-	{
-		QString text = tr("<b>DHT:</b> %1 nodes (%2 globally)").arg(st.dht_nodes).arg(st.dht_global_nodes);
-		TorrentDownload::m_labelDHTStats->setText(text);
-	}
 }
 
 void TorrentDownload::forceReannounce()

@@ -124,7 +124,7 @@ private:
 	bool storeTorrent(QString orig);
 	bool storeTorrent();
 	QString storedTorrentName() const;
-	static void applySettings(libtorrent::settings_pack& settings);
+	static void fillSettings(libtorrent::settings_pack& settings);
 private slots:
 	void torrentFileDone(QNetworkReply* reply);
 	void torrentFileReadyRead();
@@ -185,7 +185,7 @@ public:
 public slots:
 	void doWork();
 private:
-	QTimer m_timer;
+	QTimer m_timer, m_timerStats;
 	QMutex m_mutex;
 	QList<TorrentDownload*> m_objects;
 };

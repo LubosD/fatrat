@@ -172,7 +172,7 @@ void TorrentSettings::cleanup()
 	
 	for(size_t i=0;i<torrents.size();i++)
 	{
-		const libtorrent::big_number& bn = torrents[i].info_hash();
+		auto bn = torrents[i].info_hash();
 		hashes << QByteArray((char*) bn.begin(), 20).toHex();
 	}
 	

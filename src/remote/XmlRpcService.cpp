@@ -673,7 +673,7 @@ QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidT
 		throw XmlRpcError(102, "One or more invalid transfer UUIDs");
 	}
 
-	qSort(positions.begin(), positions.end());
+	std::sort(positions.begin(), positions.end());
 
 	direction = direction.toLower();
 	if (direction == "up")
