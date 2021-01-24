@@ -44,7 +44,6 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/extensions/smart_ban.hpp>
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/torrent_info.hpp>
-#include <libtorrent/lazy_entry.hpp>
 #include <libtorrent/session_status.hpp>
 #include <libtorrent/announce_entry.hpp>
 #include <libtorrent/read_resume_data.hpp>
@@ -178,7 +177,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 	int lstart = getSettingsValue("torrent/listen_start").toInt();
 
 	settings.set_str(libtorrent::settings_pack::peer_fingerprint, fingerprint);
-	settings.set_str(libtorrent::settings_pack::listen_interfaces, QString("0000:%1, [::]:%1").arg(lstart).toStdString());
+	settings.set_str(libtorrent::settings_pack::listen_interfaces, QString("0.0.0.0:%1, [::]:%1").arg(lstart).toStdString());
 
 	settings.set_bool(libtorrent::settings_pack::enable_upnp, getSettingsValue("torrent/mapping_upnp").toBool());
 	settings.set_bool(libtorrent::settings_pack::enable_natpmp, getSettingsValue("torrent/mapping_natpmp").toBool());
@@ -195,7 +194,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 			removeStatusWidget(m_labelDHTStats);
 	}
 
-	settings.set_bool(libtorrent::settings_pack::alert_mask, libtorrent::alert_category::all);
+	settings.set_int(libtorrent::settings_pack::alert_mask, libtorrent::alert_category::status | libtorrent::alert_category::storage | libtorrent::alert_category::tracker | libtorrent::alert_category::error);
 
 	ua.replace("%v", VERSION);
 	settings.set_str(libtorrent::settings_pack::user_agent, ua.toStdString());
@@ -948,8 +947,8 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 				{
 					if(libtorrent::save_resume_data_alert* alert = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(aaa))
 					{
-						auto entry = libtorrent::write_resume_data(alert->params);
-						setXMLProperty(doc, map, "torrent_resume", bencode(entry));
+						auto entry = libtorrent::write_resume_data_buf(alert->params);
+						setXMLProperty(doc, map, "torrent_resume", QByteArray(entry.data(), entry.size()).toBase64());
 						saved = true;
 					}
 					else if(libtorrent::alert_cast<libtorrent::save_resume_data_failed_alert>(aaa))
@@ -1175,7 +1174,9 @@ QVariantMap TorrentDownload::properties() const
 		map["name"] = QString::fromStdString(m_info->files().file_path(i));
 		map["size"] = qint64(m_info->files().file_size(i));
 		map["done"] = qint64(progresses[i]);
-		map["priority"] = int(m_vecPriorities[i]);
+
+		if (m_vecPriorities.size() > i)
+			map["priority"] = int(m_vecPriorities[i]);
 		files << map;
 	}
 	rv["files"] = files;
