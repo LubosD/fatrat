@@ -102,7 +102,7 @@ protected:
 		// the last url object used for this segment
 		int urlIndex;
 		// pointer to a UrlClient instance, if the segment is active
-		UrlClient* client;
+		UrlClient* client = nullptr;
 		QColor color;
 
 		bool operator<(const Segment& s2) const;
