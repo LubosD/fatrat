@@ -395,6 +395,7 @@ QString TorrentDownload::dataPath(bool bDirect) const
 
 void TorrentDownload::createDefaultPriorityList()
 {
+	qDebug() << "createDefaultPriorityList()";
 	int numFiles = m_info->num_files();
 	m_vecPriorities.assign(numFiles, 1);
 }
@@ -552,11 +553,14 @@ bool TorrentDownload::storeTorrent()
 
 	str = dir.absoluteFilePath(str);
 
-	auto info = m_handle.torrent_file();
+	auto info = m_handle.torrent_file_with_hashes();
 
 	if (info)
 	{
-		auto is = info->info_section();
+		libtorrent::add_torrent_params ap;
+		ap.ti = info;
+		
+		auto buf = libtorrent::write_torrent_file_buf(ap, libtorrent::write_torrent_flags_t(0));
 
 		QFile file(str);
 		if(!file.open(QIODevice::ReadWrite))
@@ -565,9 +569,8 @@ bool TorrentDownload::storeTorrent()
 			return false;
 		}
 
-		file.write("d4:info");
-		file.write(is.begin(), is.size());
-		file.write("e");
+		file.write(buf.data(), buf.size());
+		
 		file.close();
 		return true;
 	}
@@ -1045,9 +1048,6 @@ QString TorrentDownload::message() const
 			else
 				state = state.arg('?');
 			break;
-		case libtorrent::torrent_status::allocating:
-			state = tr("Allocating: %1%").arg(m_status.progress*100.f);
-			break;
 		case libtorrent::torrent_status::downloading_metadata:
 			state = tr("Downloading metadata");
 			break;
@@ -1223,6 +1223,8 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 #define IS_ALERT(type) libtorrent::type* alert = dynamic_cast<libtorrent::type*>(aaa)
 #define IS_ALERT_S(type) dynamic_cast<libtorrent::type*>(aaa) != 0
 
+	qDebug() << "Alert type" << typeid(*aaa).name();
+
 	if(IS_ALERT(torrent_alert))
 	{
 		TorrentDownload* d = getByHandle(alert->handle);
@@ -1260,10 +1262,14 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 		}
 		else if(IS_ALERT_S(metadata_failed_alert))
 		{
+			qDebug() << "metadata_failed_alert";
+
 			d->enterLogMessage(tr("Failed to retrieve the metadata"));
 		}
 		else if(IS_ALERT_S(metadata_received_alert))
 		{
+			qDebug() << "metadata_received_alert";
+
 			d->enterLogMessage(tr("Successfully retrieved the metadata"));
 			d->storeTorrent();
 
@@ -1400,6 +1406,7 @@ void TorrentWorker::doWork()
 	std::vector<libtorrent::alert*> alerts;
 
 	TorrentDownload::m_session->pop_alerts(&alerts);
+	qDebug() << "pop_alerts:" << alerts.size();
 
 	for (libtorrent::alert* aaa : alerts)
 		processAlert(aaa);
