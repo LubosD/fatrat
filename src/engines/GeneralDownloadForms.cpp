@@ -212,7 +212,8 @@ void HttpUrlOptsDlg::init() {
   comboProxy->setCurrentIndex(0);
 
   if (m_proxy.isNull() && m_multi != 0) {
-    m_proxy = getSettingsValue("httpftp/defaultproxy").toString();
+    m_proxy =
+        QUuid::fromString(getSettingsValue("httpftp/defaultproxy").toString());
   }
 
   for (int i = 0; i < listProxy.size(); i++) {

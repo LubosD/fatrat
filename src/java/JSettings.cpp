@@ -85,7 +85,8 @@ jobject JSettings::getValue(JNIEnv* env, jclass, jstring jname,
   JString name(jname);
   QVariant v = getSettingsValue(name.str(), def);
 
-  if (v.type() == QVariant::String && v.toString() == def) return defValue;
+  if (v.metaType().id() == QVariant::String && v.toString() == def)
+    return defValue;
 
   JObject obj = JMap::nativeToBoxed(v);
   qDebug() << obj.getClass().getClassName();

@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QReadWriteLock>
 #include <QtDebug>
+#include <algorithm>
 
 #include "QueueMgr.h"
 #include "Settings.h"
@@ -285,7 +286,7 @@ void Queue::add(QList<Transfer*> d) {
 int Queue::moveDown(int n, bool nolock) {
   if (m_transfers.size() > n + 1) {
     if (!nolock) m_lock.lockForWrite();
-    m_transfers.swap(n, n + 1);
+    std::swap(m_transfers[n], m_transfers[n + 1]);
     if (!nolock) m_lock.unlock();
 
     return n + 1;
@@ -296,7 +297,7 @@ int Queue::moveDown(int n, bool nolock) {
 int Queue::moveUp(int n, bool nolock) {
   if (n > 0) {
     if (!nolock) m_lock.lockForWrite();
-    m_transfers.swap(n - 1, n);
+    std::swap(m_transfers[n - 1], m_transfers[n]);
     if (!nolock) m_lock.unlock();
     return n - 1;
   } else

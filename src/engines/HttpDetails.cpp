@@ -392,15 +392,17 @@ QMap<QString, QStringList> HttpDetails::loadMirrors() {
   if (!openDataFile(&file, "/data/mirrors.txt")) return rv;
   QString nextGrp;
   QStringList list;
-  QRegExp re("\\[([^\\]]+)\\]");
+  QRegularExpression re("\\[([^\\]]+)\\]");
 
   while (!file.atEnd()) {
     QString line = file.readLine().trimmed();
     if (line.isEmpty()) continue;
-    if (re.exactMatch(line)) {
+
+    QRegularExpressionMatch match = re.match(line);
+    if (match.hasMatch()) {
       if (!nextGrp.isEmpty()) rv[nextGrp] = list;
       list.clear();
-      nextGrp = re.cap(1);
+      nextGrp = match.captured(1);
     } else
       list << line;
   }

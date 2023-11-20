@@ -28,7 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #define RSSFETCHER_H
 #include <QNetworkAccessManager>
 #include <QObject>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTimer>
 #include <QXmlDefaultHandler>
 
@@ -46,10 +46,10 @@ struct RssItem {
 
 struct RssRegexp {
   QString source, target;
-  QRegExp regexp;
+  QRegularExpression regexp;
   QString queueUUID, from, to;
   QStringList epDone;
-  QRegExp linkRegexp;
+  QRegularExpression linkRegexp;
   int queueIndex;
   bool excludeManuals, includeTrailers, includeRepacks, addPaused;
 

@@ -160,7 +160,7 @@ void MainTab::contextMenuEvent(QContextMenuEvent* event) {
 }
 
 void MainTab::mousePressEvent(QMouseEvent* event) {
-  if (event->buttons() == Qt::MidButton) {
+  if (event->buttons() == Qt::MiddleButton) {
     QTabBar* bar = tabBar();
     m_index = bar->tabAt(bar->mapFrom(this, event->pos()));
     closeTab();

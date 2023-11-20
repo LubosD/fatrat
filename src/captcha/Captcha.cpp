@@ -32,7 +32,7 @@ respects for all of the code used other than "OpenSSL".
 QMap<int, Captcha::CaptchaProcess> Captcha::m_cb;
 QList<Captcha*> Captcha::m_decoders;
 int Captcha::m_next = 1;
-QMutex Captcha::m_mutex(QMutex::Recursive);
+QMutex Captcha::m_mutex;
 
 int Captcha::processCaptcha(QString url, CallbackFn callback) {
   QMutexLocker l(&m_mutex);

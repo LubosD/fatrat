@@ -36,7 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTextDocument>
 #include <QTimer>
@@ -95,8 +95,8 @@ TorrentSearch::TorrentSearch() : m_bSearching(false) {
 
   QTimer::singleShot(100, this, SLOT(setSearchFocus()));
   m_network = new QNetworkAccessManager(this);
-  m_network->setProxy(
-      Proxy::getProxy(g_settings->value("torrent/proxy_tracker").toString()));
+  m_network->setProxy(Proxy::getProxy(QUuid::fromString(
+      g_settings->value("torrent/proxy_tracker").toString())));
   connect(m_network, SIGNAL(finished(QNetworkReply*)), this,
           SLOT(searchDone(QNetworkReply*)));
 }
@@ -267,12 +267,12 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data) {
   try {
     int end, start;
 
-    start = data.indexOf(e->beginning);
+    start = data.indexOf(e->beginning.toUtf8());
     if (start < 0)
       throw RuntimeException(
           "Error parsing search engine's response - 'start'");
 
-    end = data.indexOf(e->ending, start);
+    end = data.indexOf(e->ending.toUtf8(), start);
     if (end < 0)
       throw RuntimeException("Error parsing search engine's response - 'end'");
 
@@ -291,27 +291,28 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data) {
 
       for (QMap<QString, RegExpParam>::iterator it = e->regexps.begin();
            it != e->regexps.end(); it++) {
-        QRegExp re(it.value().regexp);
+        QRegularExpression re(it.value().regexp);
         int pos = 0;
 
+        QRegularExpressionMatch match;
         for (int k = 0; k < it.value().match + 1; k++) {
-          pos = re.indexIn(ar, pos);
+          match = re.match(ar, pos);
 
-          if (pos < 0)
+          if (!match.hasMatch())
             throw RuntimeException(QString("Failed to match \"%1\" in \"%2\"")
                                        .arg(it.key())
                                        .arg(QString(ar)));
           else
-            pos++;  // FIXME
+            pos = match.capturedEnd(0);  // Move to the end of the match
         }
 
         QString text;
         if (e->formats.contains(it.key())) {
           text = e->formats[it.key()];
           for (int i = 0; i < re.captureCount(); i++)
-            text = text.arg(re.cap(i + 1));
+            text = text.arg(match.captured(i + 1));
         } else {
-          text = re.cap(it.value().field + 1);
+          text = match.captured(it.value().field + 1);
         }
 
         QTextDocument doc;  // FIXME: ineffective?
@@ -406,7 +407,7 @@ QList<QByteArray> TorrentSearch::splitArray(const QByteArray& src,
   int n, split = 0;
   QList<QByteArray> out;
 
-  while ((n = src.indexOf(sep, split)) != -1) {
+  while ((n = src.indexOf(sep.toUtf8(), split)) != -1) {
     out << src.mid(split, n - split);
     split = n + sep.size();
   }

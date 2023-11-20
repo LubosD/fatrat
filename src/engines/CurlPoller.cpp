@@ -35,8 +35,7 @@ CurlPoller* CurlPoller::m_instance = 0;
 
 int CurlPoller::m_nTransferTimeout = 20;
 
-CurlPoller::CurlPoller()
-    : m_bAbort(false), m_timeout(0), m_usersLock(QMutex::Recursive) {
+CurlPoller::CurlPoller() : m_bAbort(false), m_timeout(0), m_usersLock() {
   m_curlTimeout = 0;
   curl_global_init(CURL_GLOBAL_SSL);
   m_curlm = curl_multi_init();

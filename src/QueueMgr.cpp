@@ -273,7 +273,7 @@ void QueueMgr::pauseAllTransfers() {
       if (s == Transfer::Active || s == Transfer::ForcedActive ||
           s == Transfer::Waiting) {
         t->setState(Transfer::Paused);
-        m_paused[t->uuid()] = s;
+        m_paused[QUuid::fromString(t->uuid())] = s;
       }
     }
 
@@ -289,7 +289,7 @@ void QueueMgr::unpauseAllTransfers() {
 
     for (int i = 0; i < q->size(); i++) {
       Transfer* t = q->at(i);
-      QUuid uuid = t->uuid();
+      QUuid uuid = QUuid::fromString(t->uuid());
       if (m_paused.contains(uuid) && t->state() == Transfer::Paused)
         t->setState(m_paused[uuid]);
     }

@@ -70,8 +70,8 @@ respects for all of the code used other than "OpenSSL".
 
 #ifdef WITH_WEBINTERFACE
 #define XMLRPCSERVICE_AVOID_SHA_CONFLICT
-#include "remote/XmlRpcService.h"
 #include "Queue.h"
+#include "remote/XmlRpcService.h"
 
 extern QReadWriteLock g_queuesLock;
 #endif
@@ -88,7 +88,7 @@ extern QReadWriteLock g_queuesLock;
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
-QList<QRegExp> TorrentDownload::m_listBTLinks;
+QList<QRegularExpression> TorrentDownload::m_listBTLinks;
 QLabel* TorrentDownload::m_labelDHTStats = 0;
 QMutex TorrentDownload::m_mutexAlerts;
 
@@ -127,7 +127,7 @@ int TorrentDownload::acceptable(QString uri, bool) {
     istorrent = false;
 
     for (int i = 0; i < m_listBTLinks.size(); i++) {
-      if (m_listBTLinks[i].exactMatch(uri)) {
+      if (m_listBTLinks[i].match(uri).hasMatch()) {
         istorrent = true;
         break;
       } else
@@ -147,14 +147,14 @@ int TorrentDownload::acceptable(QString uri, bool) {
 void TorrentDownload::fillSettings(libtorrent::settings_pack& settings) {
   QString ua = getSettingsValue("torrent/ua").toString();
   short s1 = 0, s2 = 0, s3 = 0, s4 = 0;
-  QRegExp reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
+  QRegularExpression reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
 
-  if (reVersion.indexIn(ua) != -1) {
-    QStringList caps = reVersion.capturedTexts();
-    s1 = caps[1].toShort();
-    s2 = caps[2].toShort();
-    s3 = caps[3].toShort();
-    if (caps.size() >= 5) s4 = caps[4].toShort();
+  QRegularExpressionMatch match = reVersion.match(ua);
+  if (match.hasMatch()) {
+    s1 = match.captured(1).toShort();
+    s2 = match.captured(2).toShort();
+    s3 = match.captured(3).toShort();
+    if (match.lastCapturedIndex() >= 4) s4 = match.captured(4).toShort();
   }
 
   std::string fingerprint =
@@ -259,8 +259,8 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings) {
 
   // Proxy settings
 
-  const Proxy proxy =
-      Proxy::getProxy(getSettingsValue("torrent/proxy").toString());
+  const Proxy proxy = Proxy::getProxy(
+      QUuid::fromString(getSettingsValue("torrent/proxy").toString()));
 
   if (proxy.nType != Proxy::ProxyNone) {
     settings.set_str(libtorrent::settings_pack::proxy_hostname,
@@ -330,7 +330,7 @@ void TorrentDownload::globalInit() {
     while (!file.atEnd()) {
       QByteArray line = file.readLine().trimmed();
       if (line.isEmpty()) continue;
-      m_listBTLinks << QRegExp(line);
+      m_listBTLinks << QRegularExpression(line);
     }
   }
 
@@ -502,7 +502,8 @@ void TorrentDownload::init(QString source, QString target) {
 void TorrentDownload::downloadTorrent(QString source) {
   qDebug() << "downloadTorrent()";
 
-  QUuid webseed = getSettingsValue("torrent/proxy_webseed").toString();
+  QUuid webseed =
+      QUuid::fromString(getSettingsValue("torrent/proxy_webseed").toString());
   Proxy pr = Proxy::getProxy(webseed);
 
   m_pFileDownload = new QNetworkAccessManager(this);

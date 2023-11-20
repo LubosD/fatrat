@@ -28,7 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #define _USERAUTHDLG_H
 #include <QDialog>
 #include <QMessageBox>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "Auth.h"
 #include "ui_UserAuthDlg.h"
@@ -60,7 +60,7 @@ class UserAuthDlg : public QDialog, Ui_UserAuthDlg {
  public slots:
   virtual void accept() {
     if (m_bRegExpMode) {
-      QRegExp re(lineRegExp->text());
+      QRegularExpression re(lineRegExp->text());
       if (!re.isValid()) {
         QMessageBox::warning(
             this, "FatRat",

@@ -27,7 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "DbusImpl.h"
 
 #include <QReadWriteLock>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QtDBus/QtDBus>
 #include <QtDebug>
 
@@ -62,9 +62,9 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target,
     if (uris.isEmpty()) throw RuntimeException("No URIs were passed");
 
     if (!getSettingsValue("link_separator").toInt())
-      listUris = uris.split('\n', QString::SkipEmptyParts);
+      listUris = uris.split('\n', Qt::SkipEmptyParts);
     else
-      listUris = uris.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+      listUris = uris.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
     for (int i = 0; i < listUris.size(); i++)
       listUris[i] = listUris[i].trimmed();
 

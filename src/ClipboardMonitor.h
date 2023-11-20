@@ -28,7 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #define CLIPBOARDMONITOR_H
 #include <QClipboard>
 #include <QList>
-#include <QRegExp>
+#include <QRegularExpression>
 
 class ClipboardMonitor : public QObject {
   Q_OBJECT
@@ -44,7 +44,7 @@ class ClipboardMonitor : public QObject {
  private:
   QClipboard* m_clipboard;
   bool m_bEnabledGlobal, m_bEnabledSelection;
-  QList<QRegExp> m_regexps;
+  QList<QRegularExpression> m_regexps;
   static ClipboardMonitor* m_instance;
 };
 

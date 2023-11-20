@@ -91,23 +91,25 @@ HttpService::HttpService() : m_port(0), m_server(nullptr) {
 
   addSettingsPage(si);
 
-  addHandler(QRegExp("/xmlrpc"),
+  addHandler(QRegularExpression("/xmlrpc"),
              std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
-  addHandler(QRegExp("/log.*"),
+  addHandler(QRegularExpression("/log.*"),
              []() { return new LogService(QLatin1String("/log")); });
-  addHandler(QRegExp("/subclass.*"),
+  addHandler(QRegularExpression("/subclass.*"),
              []() { return new SubclassService(QLatin1String("/subclass")); });
-  addHandler(QRegExp("/browse.*"), []() {
+  addHandler(QRegularExpression("/browse.*"), []() {
     return new TransferTreeBrowserService(QLatin1String("/browse"));
   });
-  addHandler(QRegExp("/download"), []() {
+  addHandler(QRegularExpression("/download"), []() {
     return new TransferDownloadService(QLatin1String("/download"));
   });
-  addHandler(QRegExp("/copyrights"), []() {
+  addHandler(QRegularExpression("/copyrights"), []() {
     return new FileRequestHandler("/copyrights", DATA_LOCATION "/README");
   });
-  addHandler(QRegExp("/captcha"), []() { return new CaptchaService; });
-  addHandler(QRegExp("/websocket"), []() { return new WebSocketService; });
+  addHandler(QRegularExpression("/captcha"),
+             []() { return new CaptchaService; });
+  addHandler(QRegularExpression("/websocket"),
+             []() { return new WebSocketService; });
 
   XmlRpcService::registerFunction(
       "HttpService.generateCertificate", generateCertificate,
@@ -238,8 +240,8 @@ HTTPRequestHandler* HttpService::createRequestHandler(
 
   m_handlersMutex.lock();
 
-  for (const QPair<QRegExp, handler_t>& e : m_handlers) {
-    if (e.first.exactMatch(uri)) {
+  for (const QPair<QRegularExpression, handler_t>& e : m_handlers) {
+    if (e.first.match(uri).hasMatch()) {
       m_handlersMutex.unlock();
       return e.second();
     }

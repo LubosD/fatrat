@@ -74,15 +74,15 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #ifdef WITH_JPLUGINS
-#include "java/JVM.h"
 #include "engines/JavaDownload.h"
 #include "engines/JavaExtractor.h"
 #include "engines/JavaUpload.h"
-#include "tools/FileSharingSearch.h"
-#include "java/JClass.h"
-#include "java/JString.h"
 #include "java/JArray.h"
+#include "java/JClass.h"
 #include "java/JScope.h"
+#include "java/JString.h"
+#include "java/JVM.h"
+#include "tools/FileSharingSearch.h"
 #endif
 
 using namespace std;

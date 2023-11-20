@@ -66,10 +66,10 @@ respects for all of the code used other than "OpenSSL".
 #include "util/BalloonTip.h"
 
 #ifdef WITH_JPLUGINS
+#include "ExtensionMgr.h"
 #include "engines/JavaAccountStatusWidget.h"
 #include "engines/SettingsJavaPluginForm.h"
 #include "java/JVM.h"
-#include "ExtensionMgr.h"
 #endif
 
 #ifdef WITH_DOCUMENTATION
@@ -957,7 +957,7 @@ show_dialog:
     if (!sep)
       uris = m_dlgNewTransfer->m_strURIs.split('\n', Qt::SkipEmptyParts);
     else
-      uris = m_dlgNewTransfer->m_strURIs.split(QRegExp("\\s+"),
+      uris = m_dlgNewTransfer->m_strURIs.split(QRegularExpression("\\s+"),
                                                Qt::SkipEmptyParts);
 
     if (uris.isEmpty()) throw RuntimeException();

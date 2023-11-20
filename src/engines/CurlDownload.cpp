@@ -97,7 +97,7 @@ void CurlDownload::init(QString uri, QString dest) {
   if (obj.url.userInfo().isEmpty()) {
     QList<Auth> auths = Auth::loadAuths();
     foreach (Auth a, auths) {
-      if (!QRegExp(a.strRegExp).exactMatch(uri)) continue;
+      if (!QRegularExpression(a.strRegExp).match(uri).hasMatch()) continue;
 
       obj.url.setUserName(a.strUser);
       obj.url.setPassword(a.strPassword);
@@ -109,7 +109,8 @@ void CurlDownload::init(QString uri, QString dest) {
     }
   }
 
-  obj.proxy = getSettingsValue("httpftp/defaultproxy").toString();
+  obj.proxy =
+      QUuid::fromString(getSettingsValue("httpftp/defaultproxy").toString());
   obj.ftpMode = UrlClient::FtpPassive;
 
   m_dir.setPath(dest);
@@ -352,7 +353,7 @@ void CurlDownload::load(const QDomNode& map) {
 
     obj.url = getXMLProperty(url, "address");
     obj.strReferrer = getXMLProperty(url, "referrer");
-    obj.proxy = getXMLProperty(url, "proxy");
+    obj.proxy = QUuid::fromString(getXMLProperty(url, "proxy"));
     obj.ftpMode = (UrlClient::FtpMode)getXMLProperty(url, "ftpmode").toInt();
     obj.strBindAddress = getXMLProperty(url, "bindip");
     obj.effective = getXMLProperty(url, "effective");

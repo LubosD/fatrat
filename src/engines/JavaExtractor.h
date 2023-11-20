@@ -28,7 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #define JAVAEXTRACTOR_H
 
 #include <QMap>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <string>
 
 #include "JavaPersistentVariables.h"
@@ -81,7 +81,7 @@ class JavaExtractor : public StaticTransferMessage<Transfer>,
  private:
   struct JavaEngine {
     std::string name, shortName;
-    QRegExp regexp;
+    QRegularExpression regexp;
     JObject ownAcceptable;
     QString targetClass;
   };

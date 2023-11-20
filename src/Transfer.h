@@ -35,6 +35,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QUuid>
 
 #include "Logger.h"
+#include "WidgetHostChild.h"
 
 struct EngineEntry;
 class QObject;

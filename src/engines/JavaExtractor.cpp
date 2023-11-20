@@ -74,7 +74,7 @@ int JavaExtractor::acceptable(QString uri, bool, const EngineEntry* e) {
                                .arg(QString::fromStdString(en.name))
                                .arg(e.what()));
     }
-  } else if (en.regexp.exactMatch(uri))
+  } else if (en.regexp.match(uri).hasMatch())
     return 3;
 
   return 0;
@@ -129,7 +129,7 @@ void JavaExtractor::globalInit() {
         qDebug() << "Regexp:" << regexp;
 
         JavaEngine e = {"EXT - " + name.toStdString(), clsName.toStdString(),
-                        QRegExp(regexp)};
+                        QRegularExpression(regexp)};
 
         if (instance.instanceOf(
                 "info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))

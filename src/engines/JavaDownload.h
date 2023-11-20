@@ -100,7 +100,7 @@ class JavaDownload : public CurlDownload, protected JavaPersistentVariables {
 
   struct JavaEngine {
     std::string name, shortName;
-    QRegExp regexp;
+    QRegularExpression regexp;
     bool forceSingleTransfer, truncate;
     JObject ownAcceptable;
     QString configDialog;

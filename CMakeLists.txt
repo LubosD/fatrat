@@ -1,9 +1,11 @@
+cmake_minimum_required(VERSION 3.8)
 project(fatrat)
 
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-if(COMMAND cmake_policy)
-	cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x050F00)
 
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckIncludeFiles)
@@ -13,17 +15,18 @@ INCLUDE(FindBoost)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Svg REQUIRED)
-find_package(Qt5DBus REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5Xml REQUIRED)
-find_package(Qt5LinguistTools REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core5Compat)
+find_package(Qt6 REQUIRED COMPONENTS DBus)
+find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Network)
+find_package(Qt6 REQUIRED COMPONENTS Svg)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Xml)
 
-message(STATUS "XML: ${Qt5Xml_INCLUDE_DIRS}")
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS}
-	${Qt5Network_INCLUDE_DIRS} ${Qt5Svg_INCLUDE_DIRS})
+message(STATUS "XML: ${Qt6Xml_INCLUDE_DIRS}")
+include_directories(${Qt6Widgets_INCLUDE_DIRS} ${Qt6Xml_INCLUDE_DIRS}
+	${Qt6Network_INCLUDE_DIRS} ${Qt6Svg_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
@@ -45,8 +48,6 @@ if(WITH_EVERYTHING)
 	set(WITH_CURL ON)
 	set(WITH_JPLUGINS ON)
 endif(WITH_EVERYTHING)
-
-ADD_DEFINITIONS(-std=c++14)
 
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
@@ -86,18 +87,18 @@ if(WITH_BITTORRENT)
 	#else(ASIO_FOUND)
 	#	message(FATAL_ERROR "No Boost asio")
 	#endif(ASIO_FOUND)
-	
-	find_package(Qt5WebEngine)
-	find_package(Qt5WebEngineWidgets)
 
-	if (Qt5WebEngine_FOUND)
+	find_package(Qt6 REQUIRED COMPONENTS WebEngineCore)
+	find_package(Qt6 REQUIRED COMPONENTS WebEngineWidgets)
+
+	if (Qt6WebEngineCore_FOUND)
 		set(HAVE_WEBENGINE TRUE)
-		set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebEngine Qt5::WebEngineWidgets)
-	else(Qt5WebEngine_FOUND)
-		message(WARNING "Qt WebEngine not found, BitTorrent search not available")
-	endif (Qt5WebEngine_FOUND)
+		set(QT_LIBRARIES ${QT_LIBRAIRES} Qt6::WebEngineCore Qt6::WebEngineWidgets)
+	else(Qt6WebEngineCore_FOUND)
+		message(WARNING "Qt WebEngineCore not found, BitTorrent search not available")
+	endif (Qt6WebEngineCore_FOUND)
 
-	include_directories(${Qt5WebEngine_INCLUDE_DIRS})
+	include_directories(${Qt6WebEngineCore_INCLUDE_DIRS})
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
 endif(WITH_BITTORRENT)
 
@@ -127,8 +128,8 @@ CHECK_FUNCTION_EXISTS(kqueue HAVE_KQUEUE)
 CONFIGURE_FILE(config.h.in config.h)
 
 if(WITH_DOCUMENTATION)
-	find_package(Qt5Help REQUIRED)
-	set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::Help)
+	find_package(Qt6Help REQUIRED)
+	set(QT_LIBRARIES ${QT_LIBRARIES} Qt6::Help)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
 	find_path(POCO_INCLUDE Poco/Net/HTTPServer.h DOC "Poco header location")
@@ -541,15 +542,15 @@ if(WITH_DOCUMENTATION)
 	)
 endif(WITH_DOCUMENTATION)
 
-qt5_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
+qt6_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
 
 set(fatrat_RCS
 	gfx/resources.qrc
 )
 
-qt5_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
-qt5_add_resources(fatrat_QRC_H gfx/resources.qrc)
-qt5_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
+qt6_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
+qt6_add_resources(fatrat_QRC_H gfx/resources.qrc)
+qt6_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
 locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts locale/fatrat_ru_RU.ts locale/fatrat_fr_FR.ts
 locale/fatrat_uk_UA.ts locale/fatrat_es_AR.ts locale/fatrat_es_ES.ts locale/fatrat_ca_ES.ts locale/fatrat_zh_CN.ts
 locale/fatrat_zh_TW.ts locale/fatrat_sr_RS.ts locale/fatrat_sr_BA.ts locale/fatrat_de_DE.ts)
@@ -563,10 +564,10 @@ if (POSIX_LINUX)
 endif (POSIX_LINUX)
 
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
-	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
+	Qt6::Core5Compat Qt6::Widgets Qt6::Svg Qt6::Network Qt6::DBus Qt6::Xml
 	LibtorrentRasterbar::torrent-rasterbar ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	${Poco_LIBRARIES} ${XATTR_LIBRARIES} crypto -export-dynamic)
-target_link_libraries(fatrat-conf Qt5::Core)
+	${Poco_LIBRARIES} ${XATTR_LIBRARIES} crypto)
+target_link_libraries(fatrat-conf Qt6::Core Qt6::Core5Compat)
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
@@ -646,11 +647,16 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_DOCUMENTATION)
-	execute_process(COMMAND qcollectiongenerator
-	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhcp -o
-	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
+	find_program(QHELPGENERATOR_EXECUTABLE NAMES qhelpgenerator)
+	if(QHELPGENERATOR_EXECUTABLE)
+		execute_process(COMMAND ${QHELPGENERATOR_EXECUTABLE}
+		"${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhcp" -o
+		"${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc")
+		install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
+		install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
+	else()
+		 message(WARNING "qhelpgenerator not found.  Documentation not generated.")
+	endif()
 endif(WITH_DOCUMENTATION)
 
 install(FILES doc/fatrat.1 DESTINATION share/man/man1)

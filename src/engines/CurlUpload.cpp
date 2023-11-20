@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QFileInfo>
 #include <QMenu>
+#include <QRegularExpression>
 
 #include "Auth.h"
 #include "CurlPoller.h"
@@ -67,7 +68,7 @@ void CurlUpload::init(QString source, QString target) {
   if (m_strTarget.userInfo().isEmpty()) {
     QList<Auth> auths = Auth::loadAuths();
     foreach (Auth a, auths) {
-      if (!QRegExp(a.strRegExp).exactMatch(target)) continue;
+      if (!QRegularExpression(a.strRegExp).match(target).hasMatch()) continue;
 
       m_strTarget.setUserName(a.strUser);
       m_strTarget.setPassword(a.strPassword);
@@ -242,7 +243,7 @@ void CurlUpload::load(const QDomNode& map) {
   m_strName = getXMLProperty(map, "name");
   m_mode = (FtpMode)getXMLProperty(map, "ftpmode").toInt();
   m_nDone = getXMLProperty(map, "done").toLongLong();
-  m_proxy = getXMLProperty(map, "proxy");
+  m_proxy = QUuid::fromString(getXMLProperty(map, "proxy"));
   m_strBindAddress = getXMLProperty(map, "bindaddr");
 
   try {

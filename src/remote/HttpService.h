@@ -36,7 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QMap>
 #include <QMutex>
 #include <QQueue>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QThread>
 #include <QTimer>
 #include <QVariantMap>
@@ -92,8 +92,8 @@ class HttpService : public QObject, public HTTPRequestHandlerFactory {
   void killCaptchaClients();
 
   typedef std::function<HTTPRequestHandler*()> handler_t;
-  void addHandler(const QRegExp& path, handler_t handler) {
-    m_handlers << QPair<QRegExp, handler_t>(path, handler);
+  void addHandler(const QRegularExpression& path, handler_t handler) {
+    m_handlers << QPair<QRegularExpression, handler_t>(path, handler);
   }
 
   void logService(HTTPServerRequest& req, HTTPServerResponse& resp);
@@ -112,7 +112,7 @@ class HttpService : public QObject, public HTTPRequestHandlerFactory {
   HTTPServer* m_server;
   std::unique_ptr<ServerSocket> m_socket;
 
-  QList<QPair<QRegExp, handler_t>> m_handlers;
+  QList<QPair<QRegularExpression, handler_t>> m_handlers;
   QMutex m_handlersMutex;
   XmlRpcService m_xmlRpc;
 

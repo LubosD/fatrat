@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "NetIface.h"
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QtDebug>
 
@@ -39,7 +40,8 @@ QString getRoutingInterface4() {
 
   while (1) {
     QString line = route.readLine();
-    QStringList parts = line.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    QStringList parts =
+        line.split(QRegularExpression("\\W+"), Qt::SkipEmptyParts);
 
     if (line.isEmpty()) break;
 
@@ -57,7 +59,8 @@ QPair<qint64, qint64> getInterfaceStats(QString iface) {
 
   while (1) {
     QString line = dev.readLine().replace(':', ' ');
-    QStringList parts = line.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    QStringList parts =
+        line.split(QRegularExpression("\\W+"), Qt::SkipEmptyParts);
 
     if (line.isEmpty()) break;
     if (parts[0] == iface) {

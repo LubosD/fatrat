@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpFtpSettings.h"
 
 #include <QMessageBox>
+#include <QRegularExpression>
 
 #include "Settings.h"
 #include "UserAuthDlg.h"
@@ -49,7 +50,8 @@ void HttpFtpSettings::load() {
 
   // LOAD PROXYS
   m_listProxy = Proxy::loadProxys();
-  m_defaultProxy = getSettingsValue("httpftp/defaultproxy").toString();
+  m_defaultProxy =
+      QUuid::fromString(getSettingsValue("httpftp/defaultproxy").toString());
 
   comboDefaultProxy->clear();
   comboDefaultProxy->addItem(tr("None", "No proxy"));

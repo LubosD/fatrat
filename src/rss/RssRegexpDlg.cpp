@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "RssRegexpDlg.h"
 
 #include <QFileDialog>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QtDebug>
 
@@ -170,7 +171,7 @@ int RssRegexpDlg::exec() {
   checkTVSNoManuals->setChecked(m_regexp.excludeManuals);
   checkAddPaused->setChecked(m_regexp.addPaused);
 
-  if (!m_regexp.linkRegexp.isEmpty()) {
+  if (!m_regexp.linkRegexp.pattern().isEmpty()) {
     radioParsingExtract->setChecked(true);
     lineParsingRegexp->setText(m_regexp.linkRegexp.pattern());
   }
@@ -182,7 +183,9 @@ int RssRegexpDlg::exec() {
   updateParsing();
 
   if ((r = QDialog::exec()) == QDialog::Accepted) {
-    m_regexp.regexp = QRegExp(lineExpression->text(), Qt::CaseInsensitive);
+    m_regexp.regexp = QRegularExpression(lineExpression->text());
+    m_regexp.regexp.setPatternOptions(
+        QRegularExpression::CaseInsensitiveOption);
     m_regexp.target = lineTarget->text();
 
     m_regexp.queueUUID =
@@ -206,8 +209,9 @@ int RssRegexpDlg::exec() {
     m_regexp.includeTrailers = checkTVSTrailers->isChecked();
     m_regexp.excludeManuals = checkTVSNoManuals->isChecked();
     m_regexp.addPaused = checkAddPaused->isChecked();
-    m_regexp.linkRegexp =
-        QRegExp(lineParsingRegexp->text(), Qt::CaseInsensitive);
+    m_regexp.linkRegexp = QRegularExpression(lineParsingRegexp->text());
+    m_regexp.linkRegexp.setPatternOptions(
+        QRegularExpression::CaseInsensitiveOption);
   }
 
   return r;
@@ -230,8 +234,9 @@ void RssRegexpDlg::browse() {
 }
 
 void RssRegexpDlg::test() {
-  QRegExp r(lineExpression->text(), Qt::CaseInsensitive);
-  labelMatch->setPixmap((r.indexIn(lineText->text()) != -1)
-                            ? QPixmap(":/states/completed.png")
-                            : QPixmap(":/menu/delete.png"));
+  QRegularExpression r(lineExpression->text());
+  r.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch match = r.match(lineText->text());
+  labelMatch->setPixmap(match.hasMatch() ? QPixmap(":/states/completed.png")
+                                         : QPixmap(":/menu/delete.png"));
 }

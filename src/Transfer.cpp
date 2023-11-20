@@ -354,7 +354,7 @@ void Transfer::load(const QDomNode& map) {
   up = getXMLProperty(map, "uplimit").toInt();
   m_strComment = getXMLProperty(map, "comment");
   m_nTimeRunning = getXMLProperty(map, "timerunning").toLongLong();
-  m_uuid = getXMLProperty(map, "uuid");
+  m_uuid = QUuid::fromString(getXMLProperty(map, "uuid"));
 
   if (m_uuid.isNull()) m_uuid = QUuid::createUuid();
 
