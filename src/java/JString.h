@@ -29,41 +29,42 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 #include <jni.h>
-#include <QString>
+
 #include <QByteArray>
+#include <QString>
+
 #include "JObject.h"
 
-class JString : public JObject
-{
-public:
-	JString();
-	JString(jstring str);
-	JString(const char* str);
-	JString(const QString& str);
-	JString(const QByteArray& str);
-	JString(const JString& str);
+class JString : public JObject {
+ public:
+  JString();
+  JString(jstring str);
+  JString(const char* str);
+  JString(const QString& str);
+  JString(const QByteArray& str);
+  JString(const JString& str);
 #ifdef WITH_CXX0X
-	JString(JString&& str);
+  JString(JString&& str);
 #endif
 
-	JString& operator=(const char* str);
-	JString& operator=(const QString& str);
-	JString& operator=(const QByteArray& str);
-	JString& operator=(const JString& str);
+  JString& operator=(const char* str);
+  JString& operator=(const QString& str);
+  JString& operator=(const QByteArray& str);
+  JString& operator=(const JString& str);
 #ifdef WITH_CXX0X
-	JString& operator=(JString&& str);
+  JString& operator=(JString&& str);
 #endif
 
-	operator jstring() const;
-	operator QString() const;
-	operator QByteArray() const;
+  operator jstring() const;
+  operator QString() const;
+  operator QByteArray() const;
 
-	QString str() const;
-	size_t size() const;
-	size_t length() const { return size(); }
+  QString str() const;
+  size_t size() const;
+  size_t length() const { return size(); }
 };
 
-#endif // JSTRING_H
+#endif  // JSTRING_H

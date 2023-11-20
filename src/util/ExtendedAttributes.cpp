@@ -25,27 +25,28 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "ExtendedAttributes.h"
+
 #include <string>
 
 const char* ExtendedAttributes::ATTR_COMMENT = "user.xdg.comment";
 const char* ExtendedAttributes::ATTR_ORIGIN_URL = "user.xdg.origin.url";
 
 #if !defined(HAVE_XATTR_H)
-bool ExtendedAttributes::setAttribute(QString file, QString name, QByteArray value)
-{
-	return false;
+bool ExtendedAttributes::setAttribute(QString file, QString name,
+                                      QByteArray value) {
+  return false;
 }
 #else
 
 #include <attr/xattr.h>
 
-bool ExtendedAttributes::setAttribute(QString file, QString name, QByteArray value)
-{
-	std::string path = file.toStdString();
-	std::string sname = name.toStdString();
+bool ExtendedAttributes::setAttribute(QString file, QString name,
+                                      QByteArray value) {
+  std::string path = file.toStdString();
+  std::string sname = name.toStdString();
 
-	return !setxattr(path.c_str(), sname.c_string(), value.constData(), value.size(), 0);
+  return !setxattr(path.c_str(), sname.c_string(), value.constData(),
+                   value.size(), 0);
 }
 
 #endif
-

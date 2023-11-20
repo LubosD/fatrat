@@ -29,37 +29,40 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include <jni.h>
-#include <QThreadStorage>
+
 #include <QMap>
 #include <QString>
+#include <QThreadStorage>
+
 #include "JObject.h"
 
 class JObject;
 
-class JVM
-{
-public:
-	JVM(bool forceJreSearch = false);
-	virtual ~JVM();
-	static bool JVMAvailable();
-	static JVM* instance();
-	operator JNIEnv*();
+class JVM {
+ public:
+  JVM(bool forceJreSearch = false);
+  virtual ~JVM();
+  static bool JVMAvailable();
+  static JVM* instance();
+  operator JNIEnv*();
 
-	QMap<QString,QString> getPackageVersions();
+  QMap<QString, QString> getPackageVersions();
 
-	void detachCurrentThread();
-	void throwException(JObject& obj);
-private:
-	static QString getClassPath();
-	void jvmStartup(QString path);
-private:
-	static JVM* m_instance;
-	JavaVM* m_jvm;
-	QThreadStorage<JNIEnv**> m_env;
+  void detachCurrentThread();
+  void throwException(JObject& obj);
+
+ private:
+  static QString getClassPath();
+  void jvmStartup(QString path);
+
+ private:
+  static JVM* m_instance;
+  JavaVM* m_jvm;
+  QThreadStorage<JNIEnv**> m_env;
 };
 
-#endif // JVM_H
+#endif  // JVM_H

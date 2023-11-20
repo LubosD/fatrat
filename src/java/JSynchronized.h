@@ -29,30 +29,27 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 #include <jni.h>
+
 #include "JObject.h"
 #include "JVM.h"
 
-class JSynchronized
-{
-public:
-	JSynchronized(JObject* obj)
-		: m_object(obj)
-	{
-		JNIEnv* env = JVM::instance();
-		env->MonitorEnter(obj);
-	}
+class JSynchronized {
+ public:
+  JSynchronized(JObject* obj) : m_object(obj) {
+    JNIEnv* env = JVM::instance();
+    env->MonitorEnter(obj);
+  }
 
-	~JSynchronized()
-	{
-		JNIEnv* env = JVM::instance();
-		env->MonitorExit(m_object);
-	}
+  ~JSynchronized() {
+    JNIEnv* env = JVM::instance();
+    env->MonitorExit(m_object);
+  }
 
-private:
-	JObject* m_object;
+ private:
+  JObject* m_object;
 };
 
-#endif // JSYNCHRONIZED_H
+#endif  // JSYNCHRONIZED_H

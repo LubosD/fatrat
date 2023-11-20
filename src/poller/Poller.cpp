@@ -26,26 +26,21 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #if defined(HAVE_SYS_EPOLL_H)
-#	include "EpollPoller.h"
+#include "EpollPoller.h"
 #elif defined(HAVE_KQUEUE)
-#	include "KqueuePoller.h"
+#include "KqueuePoller.h"
 #endif
 
 #include "Poller.h"
 
-Poller* Poller::createInstance(QObject* parent)
-{
+Poller* Poller::createInstance(QObject* parent) {
 #if defined(HAVE_SYS_EPOLL_H)
-	return new EpollPoller(parent);
+  return new EpollPoller(parent);
 #elif defined(HAVE_KQUEUE)
-	return new KqueuePoller(parent);
+  return new KqueuePoller(parent);
 #else
 #	error Your OS is unsupported as there is no polling implementation written for it.
 #endif
 }
 
-Poller::Poller(QObject* parent)
-	: QObject(parent)
-{
-}
-
+Poller::Poller(QObject* parent) : QObject(parent) {}

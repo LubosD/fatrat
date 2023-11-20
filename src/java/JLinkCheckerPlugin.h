@@ -29,30 +29,34 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
-#include "JPlugin.h"
 #include <QStringList>
 
-class JLinkCheckerPlugin : public JPlugin
-{
-Q_OBJECT
-public:
-	JLinkCheckerPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JLinkCheckerPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+#include "JPlugin.h"
 
-	static void registerNatives();
-protected:
-	static void reportBroken(JNIEnv*, jobject, jarray);
-	static void reportWorking(JNIEnv*, jobject, jarray);
-	static void reportDone(JNIEnv*, jobject);
-signals:
-	void reportedBroken(QStringList);
-	void reportedWorking(QStringList);
-	void done();
-private:
-	//QStringList m_working, m_broken;
+class JLinkCheckerPlugin : public JPlugin {
+  Q_OBJECT
+ public:
+  JLinkCheckerPlugin(const JClass& cls, const char* sig = "()V",
+                     JArgs args = JArgs());
+  JLinkCheckerPlugin(const char* clsName, const char* sig = "()V",
+                     JArgs args = JArgs());
+
+  static void registerNatives();
+
+ protected:
+  static void reportBroken(JNIEnv*, jobject, jarray);
+  static void reportWorking(JNIEnv*, jobject, jarray);
+  static void reportDone(JNIEnv*, jobject);
+ signals:
+  void reportedBroken(QStringList);
+  void reportedWorking(QStringList);
+  void done();
+
+ private:
+  // QStringList m_working, m_broken;
 };
 
-#endif // JLINKCHECKERPLUGIN_H
+#endif  // JLINKCHECKERPLUGIN_H

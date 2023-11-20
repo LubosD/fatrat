@@ -28,46 +28,46 @@ respects for all of the code used other than "OpenSSL".
 #define FILESHARINGSEARCH_H
 
 #include <QWidget>
+
 #include "ui_FileSharingSearch.h"
 
 class JSearchPlugin;
 
-class FileSharingSearch : public QWidget, Ui_FileSharingSearch
-{
-    Q_OBJECT
-public:
-	FileSharingSearch(QWidget *parent = 0);
+class FileSharingSearch : public QWidget, Ui_FileSharingSearch {
+  Q_OBJECT
+ public:
+  FileSharingSearch(QWidget* parent = 0);
 
-	static void globalInit();
-	static void globalExit();
-	static QWidget* create() { return new FileSharingSearch; }
+  static void globalInit();
+  static void globalExit();
+  static QWidget* create() { return new FileSharingSearch; }
 
-protected:
-	void addSearchEngines();
-	void enableControls(bool enable);
-	void searchDone(QString cls);
-	void checkIfFinished();
-public slots:
-	void searchClicked();
-	void downloadClicked();
-	void setSearchFocus();
-public:
-	struct SearchResult
-	{
-		QString name, url, extraInfo;
-		qint64 fileSize;
-	};
-	struct SearchEngine
-	{
-		QString name, clsName;
-		//bool finished;
-	};
+ protected:
+  void addSearchEngines();
+  void enableControls(bool enable);
+  void searchDone(QString cls);
+  void checkIfFinished();
+ public slots:
+  void searchClicked();
+  void downloadClicked();
+  void setSearchFocus();
 
-	void addSearchResults(QString fromClass, QList<SearchResult>& res);
-	void searchFailed(QString fromClass);
-private:
-	static QList<SearchEngine> m_engines;
-	QList<JSearchPlugin*> m_remaining;
+ public:
+  struct SearchResult {
+    QString name, url, extraInfo;
+    qint64 fileSize;
+  };
+  struct SearchEngine {
+    QString name, clsName;
+    // bool finished;
+  };
+
+  void addSearchResults(QString fromClass, QList<SearchResult>& res);
+  void searchFailed(QString fromClass);
+
+ private:
+  static QList<SearchEngine> m_engines;
+  QList<JSearchPlugin*> m_remaining;
 };
 
-#endif // FILESHARINGSEARCH_H
+#endif  // FILESHARINGSEARCH_H

@@ -25,25 +25,21 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "CertGenDlg.h"
+
 #include <unistd.h>
 
-CertGenDlg::CertGenDlg(QWidget* parent) : QDialog(parent)
-{
-	setupUi(this);
+CertGenDlg::CertGenDlg(QWidget* parent) : QDialog(parent) {
+  setupUi(this);
 
-	char hn[HOST_NAME_MAX], dn[HOST_NAME_MAX];
-	if (gethostname(hn, sizeof hn) != -1)
-	{
-		if (getdomainname(dn, sizeof dn) != -1)
-		{
-			QString host = QString(hn) + '.' + dn;
-			lineHostname->setText(host);
-		}
-	}
+  char hn[HOST_NAME_MAX], dn[HOST_NAME_MAX];
+  if (gethostname(hn, sizeof hn) != -1) {
+    if (getdomainname(dn, sizeof dn) != -1) {
+      QString host = QString(hn) + '.' + dn;
+      lineHostname->setText(host);
+    }
+  }
 }
 
-void CertGenDlg::accept()
-{
-	if (!lineHostname->text().isEmpty())
-		QDialog::accept();
+void CertGenDlg::accept() {
+  if (!lineHostname->text().isEmpty()) QDialog::accept();
 }

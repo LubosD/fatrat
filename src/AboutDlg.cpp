@@ -25,77 +25,78 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "AboutDlg.h"
-#include "config.h"
-#include "fatrat.h"
+
 #include <QFile>
 #include <QHeaderView>
 
-extern QMap<QString,PluginInfo> g_plugins;
+#include "config.h"
+#include "fatrat.h"
 
-AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
-{
-	setupUi(this);
-	
-	QStringList items;
-	items << "FatRat" << tr("License") << tr("Translations") << tr("3rd parties")
-			<< tr("Features") << tr("Plugins");
-	
-	QIcon icon(":/fatrat/miscellaneous.png");
-	for(int i=0;i<items.size();i++)
-	{
-		QListWidgetItem* item = new QListWidgetItem(icon,items[i],listMenu);
-		listMenu->addItem(item);
-	}
-	
-	labelVersion->setText(tr("Version %1").arg(VERSION));
-	
-	loadFile(textLicense, "LICENSE");
-	loadFile(textTranslators, "TRANSLATIONS");
-	loadFile(text3rdParties, "README");
-		
+extern QMap<QString, PluginInfo> g_plugins;
+
+AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent) {
+  setupUi(this);
+
+  QStringList items;
+  items << "FatRat" << tr("License") << tr("Translations") << tr("3rd parties")
+        << tr("Features") << tr("Plugins");
+
+  QIcon icon(":/fatrat/miscellaneous.png");
+  for (int i = 0; i < items.size(); i++) {
+    QListWidgetItem* item = new QListWidgetItem(icon, items[i], listMenu);
+    listMenu->addItem(item);
+  }
+
+  labelVersion->setText(tr("Version %1").arg(VERSION));
+
+  loadFile(textLicense, "LICENSE");
+  loadFile(textTranslators, "TRANSLATIONS");
+  loadFile(text3rdParties, "README");
+
 #ifdef WITH_NLS
-	checkFeatureNLS->setChecked(true);
+  checkFeatureNLS->setChecked(true);
 #endif
 #ifdef WITH_BITTORRENT
-	checkFeatureBitTorrent->setChecked(true);
+  checkFeatureBitTorrent->setChecked(true);
 #endif
 #ifdef WITH_DOCUMENTATION
-	checkFeatureDocumentation->setChecked(true);
+  checkFeatureDocumentation->setChecked(true);
 #endif
 #ifdef WITH_WEBINTERFACE
-	checkFeatureWebInterface->setChecked(true);
+  checkFeatureWebInterface->setChecked(true);
 #endif
 #ifdef WITH_JPLUGINS
-	checkFeatureJavaExtensions->setChecked(true);
+  checkFeatureJavaExtensions->setChecked(true);
 #endif
-	
-	processPlugins();
-	listMenu->setCurrentRow(0);
+
+  processPlugins();
+  listMenu->setCurrentRow(0);
 }
 
-void AboutDlg::processPlugins()
-{
-	QString text;
-	for(QMap<QString,PluginInfo>::const_iterator it = g_plugins.constBegin();
-		   it != g_plugins.constEnd(); it++)
-	{
-		text += tr("<b>%1</b><br>File name: %2<br>Author: %3<br>Web site: <a href=\"%4\">%4</a>")
-				.arg(it->name).arg(it.key()).arg(it->author).arg(it->website);
-		text += "<p>";
-	}
-	textPlugins->setHtml(text);
+void AboutDlg::processPlugins() {
+  QString text;
+  for (QMap<QString, PluginInfo>::const_iterator it = g_plugins.constBegin();
+       it != g_plugins.constEnd(); it++) {
+    text += tr("<b>%1</b><br>File name: %2<br>Author: %3<br>Web site: <a "
+               "href=\"%4\">%4</a>")
+                .arg(it->name)
+                .arg(it.key())
+                .arg(it->author)
+                .arg(it->website);
+    text += "<p>";
+  }
+  textPlugins->setHtml(text);
 }
 
-void AboutDlg::loadFile(QTextEdit* edit, QString filename)
-{
-	QFile file;
-	QString name;
-	
-	name = DATA_LOCATION "/";
-	name += filename;
-	
-	file.setFileName(name);
-	file.open(QIODevice::ReadOnly);
-	
-	edit->setPlainText(QString::fromUtf8(file.readAll()));
+void AboutDlg::loadFile(QTextEdit* edit, QString filename) {
+  QFile file;
+  QString name;
+
+  name = DATA_LOCATION "/";
+  name += filename;
+
+  file.setFileName(name);
+  file.open(QIODevice::ReadOnly);
+
+  edit->setPlainText(QString::fromUtf8(file.readAll()));
 }

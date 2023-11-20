@@ -25,61 +25,56 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "CaptchaQt.h"
-#include "fatrat.h"
-#include "CaptchaQtDlg.h"
+
 #include <cassert>
 
-CaptchaQt::CaptchaQt()
-{
-	Captcha::registerCaptchaDecoder(this);
+#include "CaptchaQtDlg.h"
+#include "fatrat.h"
+
+CaptchaQt::CaptchaQt() { Captcha::registerCaptchaDecoder(this); }
+
+bool CaptchaQt::process(int id, QString url) {
+  if (!programHasGUI()) return false;
+
+  QMetaObject::invokeMethod(static_cast<QObject*>(this), "showDialog",
+                            Qt::QueuedConnection, Q_ARG(int, id),
+                            Q_ARG(QString, url));
+  return true;
 }
 
-bool CaptchaQt::process(int id, QString url)
-{
-	if (!programHasGUI())
-		return false;
+void CaptchaQt::showDialog(int id, QString url) {
+  CaptchaQtDlg* dlg = new CaptchaQtDlg;
+  m_dlgs[dlg] = id;
 
-	QMetaObject::invokeMethod(static_cast<QObject*>(this), "showDialog", Qt::QueuedConnection, Q_ARG(int, id), Q_ARG(QString, url));
-	return true;
+  dlg->load(url);
+
+  connect(dlg, SIGNAL(captchaEntered(QString)), this,
+          SLOT(captchaEntered(QString)));
+  dlg->show();
 }
 
-void CaptchaQt::showDialog(int id, QString url)
-{
-	CaptchaQtDlg* dlg = new CaptchaQtDlg;
-	m_dlgs[dlg] = id;
+void CaptchaQt::captchaEntered(QString text) {
+  CaptchaQtDlg* dlg = static_cast<CaptchaQtDlg*>(sender());
 
-	dlg->load(url);
+  assert(m_dlgs.contains(dlg));
 
-	connect(dlg, SIGNAL(captchaEntered(QString)), this, SLOT(captchaEntered(QString)));
-	dlg->show();
+  int id = m_dlgs[dlg];
+  m_dlgs.remove(dlg);
+
+  dlg->hide();
+  dlg->deleteLater();
+
+  returnResult(id, text);
 }
 
-void CaptchaQt::captchaEntered(QString text)
-{
-	CaptchaQtDlg* dlg = static_cast<CaptchaQtDlg*>(sender());
-
-	assert(m_dlgs.contains(dlg));
-
-	int id = m_dlgs[dlg];
-	m_dlgs.remove(dlg);
-
-	dlg->hide();
-	dlg->deleteLater();
-
-	returnResult(id, text);
-}
-
-void CaptchaQt::abort(int id)
-{
-	qDebug() << "CaptchaQt::abort():" << id;
-	for(QMap<CaptchaQtDlg*,int>::iterator it = m_dlgs.begin(); it != m_dlgs.end();)
-	{
-		if (it.value() == id)
-		{
-			it.key()->deleteLater();
-			it = m_dlgs.erase(it);
-		}
-		else
-			it++;
-	}
+void CaptchaQt::abort(int id) {
+  qDebug() << "CaptchaQt::abort():" << id;
+  for (QMap<CaptchaQtDlg*, int>::iterator it = m_dlgs.begin();
+       it != m_dlgs.end();) {
+    if (it.value() == id) {
+      it.key()->deleteLater();
+      it = m_dlgs.erase(it);
+    } else
+      it++;
+  }
 }

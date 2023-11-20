@@ -28,12 +28,11 @@ respects for all of the code used other than "OpenSSL".
 #define EXTENDEDATTRIBUTES_H
 #include <QString>
 
-namespace ExtendedAttributes
-{
-	extern const char* ATTR_COMMENT;
-	extern const char* ATTR_ORIGIN_URL;
+namespace ExtendedAttributes {
+extern const char* ATTR_COMMENT;
+extern const char* ATTR_ORIGIN_URL;
 
-	bool setAttribute(QString file, QString name, QByteArray value);
-}
+bool setAttribute(QString file, QString name, QByteArray value);
+}  // namespace ExtendedAttributes
 
 #endif

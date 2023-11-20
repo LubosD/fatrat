@@ -24,28 +24,27 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
 #ifndef JEXCEPTION_H
 #define JEXCEPTION_H
 #include "RuntimeException.h"
-
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include <QString>
+
 #include "JObject.h"
 
-class JException : public RuntimeException
-{
-public:
-	JException(QString msg, QString javaType, JObject obj);
-	QString javaType() const;
-	JObject javaObject() const { return m_javaObject; }
-private:
-	QString m_strJavaType;
-	JObject m_javaObject;
+class JException : public RuntimeException {
+ public:
+  JException(QString msg, QString javaType, JObject obj);
+  QString javaType() const;
+  JObject javaObject() const { return m_javaObject; }
+
+ private:
+  QString m_strJavaType;
+  JObject m_javaObject;
 };
 
-#endif // JEXCEPTION_H
+#endif  // JEXCEPTION_H

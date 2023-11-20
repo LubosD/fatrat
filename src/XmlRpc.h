@@ -30,13 +30,14 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QVariant>
 
-namespace XmlRpc
-{
-	QByteArray createCall(QByteArray function, const QList<QVariant>& args = QList<QVariant>());
-	QVariant parseResponse(const QByteArray& response);
-	QByteArray createResponse(const QVariant& value);
-	QByteArray createFaultResponse(int code, const QString& error);
-	void parseCall(const QByteArray& call, QByteArray& function, QList<QVariant>& args);
-}
+namespace XmlRpc {
+QByteArray createCall(QByteArray function,
+                      const QList<QVariant>& args = QList<QVariant>());
+QVariant parseResponse(const QByteArray& response);
+QByteArray createResponse(const QVariant& value);
+QByteArray createFaultResponse(int code, const QString& error);
+void parseCall(const QByteArray& call, QByteArray& function,
+               QList<QVariant>& args);
+}  // namespace XmlRpc
 
 #endif

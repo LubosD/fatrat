@@ -25,37 +25,31 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "MetalinkSettings.h"
+
 #include "Settings.h"
 #include "config.h"
 
-MetalinkSettings::MetalinkSettings(QWidget* w, QObject* p)
-	: QObject(p)
-{
-	setupUi(w);
+MetalinkSettings::MetalinkSettings(QWidget* w, QObject* p) : QObject(p) {
+  setupUi(w);
 
 #ifndef WITH_CURL
-	radioUseHTTP->setDisabled(true);
+  radioUseHTTP->setDisabled(true);
 #endif
 #ifndef WITH_BITTORRENT
-	radioUseTorrent->setDisabled(true);
+  radioUseTorrent->setDisabled(true);
 #endif
 }
 
-
-void MetalinkSettings::load()
-{
-	int mode = getSettingsValue("metalink/mode").toInt();
-	if (mode == 0)
-		radioUseHTTP->setChecked(true);
-	else if (mode == 1)
-		radioUseTorrent->setChecked(true);
+void MetalinkSettings::load() {
+  int mode = getSettingsValue("metalink/mode").toInt();
+  if (mode == 0)
+    radioUseHTTP->setChecked(true);
+  else if (mode == 1)
+    radioUseTorrent->setChecked(true);
 }
 
-void MetalinkSettings::accepted()
-{
-	int mode = 0;
-	if (radioUseTorrent->isChecked())
-		mode = 1;
-	setSettingsValue("metalink/mode", mode);
+void MetalinkSettings::accepted() {
+  int mode = 0;
+  if (radioUseTorrent->isChecked()) mode = 1;
+  setSettingsValue("metalink/mode", mode);
 }
-

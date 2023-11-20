@@ -25,71 +25,69 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "SettingsClipboardMonitorForm.h"
-#include "Settings.h"
+
 #include "ClipboardMonitor.h"
+#include "Settings.h"
 
-SettingsClipboardMonitorForm::SettingsClipboardMonitorForm(QWidget* me, QObject* parent) :
-    QObject(parent)
-{
-	setupUi(me);
-	connect(pushAdd, SIGNAL(clicked()), this, SLOT(actionAdd()));
-	connect(pushEdit, SIGNAL(clicked()), this, SLOT(actionEdit()));
-	connect(pushDelete, SIGNAL(clicked()), this, SLOT(actionDelete()));
+SettingsClipboardMonitorForm::SettingsClipboardMonitorForm(QWidget* me,
+                                                           QObject* parent)
+    : QObject(parent) {
+  setupUi(me);
+  connect(pushAdd, SIGNAL(clicked()), this, SLOT(actionAdd()));
+  connect(pushEdit, SIGNAL(clicked()), this, SLOT(actionEdit()));
+  connect(pushDelete, SIGNAL(clicked()), this, SLOT(actionDelete()));
 }
 
-void SettingsClipboardMonitorForm::load()
-{
-	listRegexps->clear();
+void SettingsClipboardMonitorForm::load() {
+  listRegexps->clear();
 
-	checkEnableGlobal->setChecked(getSettingsValue("clipboard/monitorglobal").toBool());
-	checkEnableSelection->setChecked(getSettingsValue("clipboard/monitorselection").toBool());
-	QStringList regexps = getSettingsValue("clipboard/regexps").toStringList();
-	foreach (QString regexp, regexps)
-	{
-		QListWidgetItem* item = new QListWidgetItem(QIcon(":/fatrat/miscellaneous.png"), regexp, listRegexps);
-		listRegexps->addItem(item);
-		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
-	}
+  checkEnableGlobal->setChecked(
+      getSettingsValue("clipboard/monitorglobal").toBool());
+  checkEnableSelection->setChecked(
+      getSettingsValue("clipboard/monitorselection").toBool());
+  QStringList regexps = getSettingsValue("clipboard/regexps").toStringList();
+  foreach (QString regexp, regexps) {
+    QListWidgetItem* item = new QListWidgetItem(
+        QIcon(":/fatrat/miscellaneous.png"), regexp, listRegexps);
+    listRegexps->addItem(item);
+    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled |
+                   Qt::ItemIsEditable);
+  }
 }
 
-void SettingsClipboardMonitorForm::accepted()
-{
-	setSettingsValue("clipboard/monitorglobal", checkEnableGlobal->isChecked());
-	setSettingsValue("clipboard/monitorselection", checkEnableSelection->isChecked());
+void SettingsClipboardMonitorForm::accepted() {
+  setSettingsValue("clipboard/monitorglobal", checkEnableGlobal->isChecked());
+  setSettingsValue("clipboard/monitorselection",
+                   checkEnableSelection->isChecked());
 
-	QStringList regexps;
-	for (int i=0;i<listRegexps->count();i++)
-	{
-		QListWidgetItem* item = listRegexps->item(i);
-		regexps << item->text();
-	}
+  QStringList regexps;
+  for (int i = 0; i < listRegexps->count(); i++) {
+    QListWidgetItem* item = listRegexps->item(i);
+    regexps << item->text();
+  }
 
-	setSettingsValue("clipboard/regexps", regexps);
-	applySettings();
+  setSettingsValue("clipboard/regexps", regexps);
+  applySettings();
 }
 
-void SettingsClipboardMonitorForm::applySettings()
-{
-	ClipboardMonitor::instance()->reloadSettings();
+void SettingsClipboardMonitorForm::applySettings() {
+  ClipboardMonitor::instance()->reloadSettings();
 }
 
-void SettingsClipboardMonitorForm::actionAdd()
-{
-	QListWidgetItem* item = new QListWidgetItem(QIcon(":/fatrat/miscellaneous.png"), QString(), listRegexps);
-	listRegexps->addItem(item);
-	item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
-	listRegexps->editItem(item);
+void SettingsClipboardMonitorForm::actionAdd() {
+  QListWidgetItem* item = new QListWidgetItem(
+      QIcon(":/fatrat/miscellaneous.png"), QString(), listRegexps);
+  listRegexps->addItem(item);
+  item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
+  listRegexps->editItem(item);
 }
 
-void SettingsClipboardMonitorForm::actionEdit()
-{
-	if(QListWidgetItem* item = listRegexps->currentItem())
-		listRegexps->editItem(item);
+void SettingsClipboardMonitorForm::actionEdit() {
+  if (QListWidgetItem* item = listRegexps->currentItem())
+    listRegexps->editItem(item);
 }
 
-void SettingsClipboardMonitorForm::actionDelete()
-{
-	int i = listRegexps->currentRow();
-	if(i != -1)
-		delete listRegexps->takeItem(i);
+void SettingsClipboardMonitorForm::actionDelete() {
+  int i = listRegexps->currentRow();
+  if (i != -1) delete listRegexps->takeItem(i);
 }

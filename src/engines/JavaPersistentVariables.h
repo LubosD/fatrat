@@ -27,22 +27,21 @@ respects for all of the code used other than "OpenSSL".
 #ifndef JAVAPERSISTENTVARIABLES_H
 #define JAVAPERSISTENTVARIABLES_H
 
+#include <QDomDocument>
+#include <QDomNode>
 #include <QMap>
 #include <QString>
 #include <QVariant>
-#include <QDomNode>
-#include <QDomDocument>
 
-class JavaPersistentVariables
-{
-public:
-	void setPersistentVariable(QString key, QVariant value);
-	QVariant getPersistentVariable(QString key);
-	void loadVars(const QDomNode& map);
-	void saveVars(QDomDocument& doc, QDomNode& map) const;
-private:
-	QMap<QString,QVariant> m_persistent;
+class JavaPersistentVariables {
+ public:
+  void setPersistentVariable(QString key, QVariant value);
+  QVariant getPersistentVariable(QString key);
+  void loadVars(const QDomNode& map);
+  void saveVars(QDomDocument& doc, QDomNode& map) const;
+
+ private:
+  QMap<QString, QVariant> m_persistent;
 };
 
 #endif
-

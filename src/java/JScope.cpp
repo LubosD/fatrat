@@ -25,31 +25,28 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JScope.h"
-#include "JVM.h"
-#include "JObject.h"
+
 #include <jni.h>
 
-JScope::JScope()
-	: m_bPopped(false)
-{
-	JNIEnv* env = *JVM::instance();
-	env->PushLocalFrame(16);
+#include "JObject.h"
+#include "JVM.h"
+
+JScope::JScope() : m_bPopped(false) {
+  JNIEnv* env = *JVM::instance();
+  env->PushLocalFrame(16);
 }
 
-jobject JScope::popWithRef(jobject ref)
-{
-	JNIEnv* env = *JVM::instance();
-	ref = env->PopLocalFrame(ref);
-	m_bPopped = true;
+jobject JScope::popWithRef(jobject ref) {
+  JNIEnv* env = *JVM::instance();
+  ref = env->PopLocalFrame(ref);
+  m_bPopped = true;
 
-	return ref;
+  return ref;
 }
 
-JScope::~JScope()
-{
-	if (!m_bPopped)
-	{
-		JNIEnv* env = *JVM::instance();
-		env->PopLocalFrame(0);
-	}
+JScope::~JScope() {
+  if (!m_bPopped) {
+    JNIEnv* env = *JVM::instance();
+    env->PopLocalFrame(0);
+  }
 }

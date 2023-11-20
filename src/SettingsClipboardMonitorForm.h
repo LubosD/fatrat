@@ -27,26 +27,31 @@ respects for all of the code used other than "OpenSSL".
 #ifndef SETTINGSCLIPBOARDMONITOR_H
 #define SETTINGSCLIPBOARDMONITOR_H
 
+#include <QString>
 #include <QWidget>
+
 #include "WidgetHostChild.h"
 #include "ui_SettingsClipboardMonitorForm.h"
-#include <QString>
 
-class SettingsClipboardMonitorForm : public QObject, Ui_SettingsClipboardMonitorForm, public WidgetHostChild
-{
-    Q_OBJECT
-public:
-	SettingsClipboardMonitorForm(QWidget* me, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsClipboardMonitorForm(me, parent); }
+class SettingsClipboardMonitorForm : public QObject,
+                                     Ui_SettingsClipboardMonitorForm,
+                                     public WidgetHostChild {
+  Q_OBJECT
+ public:
+  SettingsClipboardMonitorForm(QWidget* me, QObject* parent);
+  virtual void load();
+  virtual void accepted();
+  static WidgetHostChild* create(QWidget* me, QObject* parent) {
+    return new SettingsClipboardMonitorForm(me, parent);
+  }
 
-	static void applySettings();
-private slots:
-	void actionAdd();
-	void actionEdit();
-	void actionDelete();
-private:
+  static void applySettings();
+ private slots:
+  void actionAdd();
+  void actionEdit();
+  void actionDelete();
+
+ private:
 };
 
-#endif // SETTINGSCLIPBOARDMONITOR_H
+#endif  // SETTINGSCLIPBOARDMONITOR_H

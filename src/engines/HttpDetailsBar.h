@@ -26,33 +26,34 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef HTTPDETAILSBAR_H
 #define HTTPDETAILSBAR_H
-#include <QWidget>
-#include <QTimer>
 #include <QList>
 #include <QPair>
+#include <QTimer>
+#include <QWidget>
 
 class CurlDownload;
 
-class HttpDetailsBar : public QWidget
-{
-Q_OBJECT
-public:
-	HttpDetailsBar(QWidget* parent);
-	void setDownload(CurlDownload* d);
-protected slots:
-	void createSegment();
-	void stopSegment();
-protected:
-	virtual void paintEvent(QPaintEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
-	virtual void mouseMoveEvent(QMouseEvent* event);
+class HttpDetailsBar : public QWidget {
+  Q_OBJECT
+ public:
+  HttpDetailsBar(QWidget* parent);
+  void setDownload(CurlDownload* d);
+ protected slots:
+  void createSegment();
+  void stopSegment();
 
-	int getSegment(int x);
-private:
-	CurlDownload* m_download;
-	QTimer m_timer;
-	int m_sel, m_createX;
-	QList<QPair<int,int> > m_segs;
+ protected:
+  virtual void paintEvent(QPaintEvent* event);
+  virtual void mousePressEvent(QMouseEvent* event);
+  virtual void mouseMoveEvent(QMouseEvent* event);
+
+  int getSegment(int x);
+
+ private:
+  CurlDownload* m_download;
+  QTimer m_timer;
+  int m_sel, m_createX;
+  QList<QPair<int, int> > m_segs;
 };
 
 #endif

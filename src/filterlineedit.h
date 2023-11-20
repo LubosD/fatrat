@@ -36,22 +36,21 @@ namespace Utils {
 
 /* A fancy line edit customized for filtering purposes with a clear button. */
 
-class FilterLineEdit : public FancyLineEdit
-{
-    Q_OBJECT
-public:
-    explicit FilterLineEdit(QWidget *parent = 0);
+class FilterLineEdit : public FancyLineEdit {
+  Q_OBJECT
+ public:
+  explicit FilterLineEdit(QWidget *parent = 0);
 
-signals:
-    void filterChanged(const QString &);
+ signals:
+  void filterChanged(const QString &);
 
-private slots:
-    void slotTextChanged();
+ private slots:
+  void slotTextChanged();
 
-private:
-    QString m_lastFilterText;
+ private:
+  QString m_lastFilterText;
 };
 
-} // namespace Utils
+}  // namespace Utils
 
-#endif // FILTERLINEEDIT_H
+#endif  // FILTERLINEEDIT_H

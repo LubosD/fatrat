@@ -26,24 +26,28 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef SETTINGSNETWORKFORM_H
 #define SETTINGSNETWORKFORM_H
-#include "ui_SettingsNetworkForm.h"
-#include "WidgetHostChild.h"
 #include "Proxy.h"
+#include "WidgetHostChild.h"
+#include "ui_SettingsNetworkForm.h"
 
-class SettingsNetworkForm : public QObject, public WidgetHostChild, Ui_SettingsNetworkForm
-{
-Q_OBJECT
-public:
-	SettingsNetworkForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsNetworkForm(w, parent); }
-public slots:
-	void proxyAdd();
-	void proxyEdit();
-	void proxyDelete();
-private:
-	QList<Proxy> m_listProxy;
+class SettingsNetworkForm : public QObject,
+                            public WidgetHostChild,
+                            Ui_SettingsNetworkForm {
+  Q_OBJECT
+ public:
+  SettingsNetworkForm(QWidget* w, QObject* parent);
+  virtual void load();
+  virtual void accepted();
+  static WidgetHostChild* create(QWidget* w, QObject* parent) {
+    return new SettingsNetworkForm(w, parent);
+  }
+ public slots:
+  void proxyAdd();
+  void proxyEdit();
+  void proxyDelete();
+
+ private:
+  QList<Proxy> m_listProxy;
 };
 
 #endif

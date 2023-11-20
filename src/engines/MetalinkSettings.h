@@ -26,18 +26,22 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef METALINKSETTINGS_H
 #define METALINKSETTINGS_H
-#include "WidgetHostChild.h"
-#include "ui_SettingsMetalinkForm.h"
 #include <QWidget>
 
-class MetalinkSettings : public QObject, public WidgetHostChild, Ui_SettingsMetalinkForm
-{
-Q_OBJECT
-public:
-	MetalinkSettings(QWidget* w, QObject* p);
-	static WidgetHostChild* create(QWidget* w, QObject* p) { return new MetalinkSettings(w, p); }
-	virtual void load();
-	virtual void accepted();
+#include "WidgetHostChild.h"
+#include "ui_SettingsMetalinkForm.h"
+
+class MetalinkSettings : public QObject,
+                         public WidgetHostChild,
+                         Ui_SettingsMetalinkForm {
+  Q_OBJECT
+ public:
+  MetalinkSettings(QWidget* w, QObject* p);
+  static WidgetHostChild* create(QWidget* w, QObject* p) {
+    return new MetalinkSettings(w, p);
+  }
+  virtual void load();
+  virtual void accepted();
 };
 
-#endif // METALINKSETTINGS_H
+#endif  // METALINKSETTINGS_H

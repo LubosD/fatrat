@@ -30,17 +30,17 @@ respects for all of the code used other than "OpenSSL".
 
 struct NotifyNotification;
 
-class Notification : public QObject
-{
-Q_OBJECT
-public:
-	Notification();
-	~Notification();
+class Notification : public QObject {
+  Q_OBJECT
+ public:
+  Notification();
+  ~Notification();
 
-	void setMessage(QString summary, QString text, QString icon = QString());
-	void show(int timeout = 5000);
-private:
-	NotifyNotification* m_notif;
+  void setMessage(QString summary, QString text, QString icon = QString());
+  void show(int timeout = 5000);
+
+ private:
+  NotifyNotification* m_notif;
 };
 
 #endif

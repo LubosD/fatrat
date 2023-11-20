@@ -26,14 +26,13 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef AUTH_H
 #define AUTH_H
-#include <QString>
 #include <QList>
+#include <QString>
 
-struct Auth
-{
-	QString strRegExp, strUser, strPassword;
-	static QList<Auth> loadAuths();
-	static void saveAuths(const QList<Auth>& auths);
+struct Auth {
+  QString strRegExp, strUser, strPassword;
+  static QList<Auth> loadAuths();
+  static void saveAuths(const QList<Auth>& auths);
 };
 
 #endif

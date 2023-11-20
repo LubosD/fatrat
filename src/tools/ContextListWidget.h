@@ -26,22 +26,22 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef CONTEXTLISTWIDGET_H
 #define CONTEXTLISTWIDGET_H
-#include <QMenu>
 #include <QListWidget>
+#include <QMenu>
 
-class ContextListWidget : public QListWidget
-{
-Q_OBJECT
-public:
-	ContextListWidget(QWidget* parent);
-	void contextMenuEvent(QContextMenuEvent* event);
-public slots:
-	void addItem();
-	void addKnownItem();
-	void editItem();
-	void deleteItem();
-private:
-	QMenu m_menu;
+class ContextListWidget : public QListWidget {
+  Q_OBJECT
+ public:
+  ContextListWidget(QWidget* parent);
+  void contextMenuEvent(QContextMenuEvent* event);
+ public slots:
+  void addItem();
+  void addKnownItem();
+  void editItem();
+  void deleteItem();
+
+ private:
+  QMenu m_menu;
 };
 
 #endif

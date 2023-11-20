@@ -41,50 +41,52 @@ respects for all of the code used other than "OpenSSL".
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
 class QByteArray;
-template<class T> class QList;
-template<class Key, class Value> class QMap;
+template <class T>
+class QList;
+template <class Key, class Value>
+class QMap;
 class QString;
-class QStringList;
 class QVariant;
 
 /*
  * Adaptor class for interface info.dolezel.fatrat
  */
-class FatratAdaptor: public QDBusAbstractAdaptor
-{
-    Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "info.dolezel.fatrat")
-    Q_CLASSINFO("D-Bus Introspection", ""
-"  <interface name=\"info.dolezel.fatrat\" >\n"
-"    <method name=\"addTransfers\" >\n"
-"      <arg direction=\"in\" type=\"s\" name=\"uris\" />\n"
-"      <!-- separated by EOL -->\n"
-"    </method>\n"
-"    <method name=\"getQueues\" >\n"
-"      <arg direction=\"out\" type=\"as\" name=\"queues\" />\n"
-"      <!-- a list of names -->\n"
-"    </method>\n"
-"    <method name=\"addTransfersNonInteractive\" >\n"
-"      <arg direction=\"in\" type=\"s\" name=\"uris\" />\n"
-"      <!-- separated by EOL -->\n"
-"      <arg direction=\"in\" type=\"s\" name=\"target\" />\n"
-"      <arg direction=\"in\" type=\"s\" name=\"className\" />\n"
-"      <!-- \"auto\" for auto-detection -->\n"
-"      <arg direction=\"in\" type=\"i\" name=\"queueID\" />\n"
-"      <!-- an index, see getQueues -->\n"
-"    </method>\n"
-"  </interface>\n"
-        "")
-public:
-    FatratAdaptor(QObject *parent);
-    virtual ~FatratAdaptor();
+class FatratAdaptor : public QDBusAbstractAdaptor {
+  Q_OBJECT
+  Q_CLASSINFO("D-Bus Interface", "info.dolezel.fatrat")
+  Q_CLASSINFO("D-Bus Introspection",
+              ""
+              "  <interface name=\"info.dolezel.fatrat\" >\n"
+              "    <method name=\"addTransfers\" >\n"
+              "      <arg direction=\"in\" type=\"s\" name=\"uris\" />\n"
+              "      <!-- separated by EOL -->\n"
+              "    </method>\n"
+              "    <method name=\"getQueues\" >\n"
+              "      <arg direction=\"out\" type=\"as\" name=\"queues\" />\n"
+              "      <!-- a list of names -->\n"
+              "    </method>\n"
+              "    <method name=\"addTransfersNonInteractive\" >\n"
+              "      <arg direction=\"in\" type=\"s\" name=\"uris\" />\n"
+              "      <!-- separated by EOL -->\n"
+              "      <arg direction=\"in\" type=\"s\" name=\"target\" />\n"
+              "      <arg direction=\"in\" type=\"s\" name=\"className\" />\n"
+              "      <!-- \"auto\" for auto-detection -->\n"
+              "      <arg direction=\"in\" type=\"i\" name=\"queueID\" />\n"
+              "      <!-- an index, see getQueues -->\n"
+              "    </method>\n"
+              "  </interface>\n"
+              "")
+ public:
+  FatratAdaptor(QObject *parent);
+  virtual ~FatratAdaptor();
 
-public: // PROPERTIES
-public Q_SLOTS: // METHODS
-    void addTransfers(const QString &uris);
-    void addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, int queueID);
-    QStringList getQueues();
-Q_SIGNALS: // SIGNALS
+ public:          // PROPERTIES
+ public Q_SLOTS:  // METHODS
+  void addTransfers(const QString &uris);
+  void addTransfersNonInteractive(const QString &uris, const QString &target,
+                                  const QString &className, int queueID);
+  QStringList getQueues();
+ Q_SIGNALS:  // SIGNALS
 };
 
 #endif

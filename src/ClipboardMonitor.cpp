@@ -25,71 +25,64 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "ClipboardMonitor.h"
+
+#include <QApplication>
+
+#include "MainWindow.h"
 #include "Settings.h"
 #include "fatrat.h"
-#include "MainWindow.h"
-#include <QApplication>
 
 ClipboardMonitor* ClipboardMonitor::m_instance = 0;
 
-ClipboardMonitor::ClipboardMonitor()
-{
-	m_instance = this;
-	m_clipboard = QApplication::clipboard();
-	connect(m_clipboard, SIGNAL(changed(QClipboard::Mode)), this, SLOT(dataChanged(QClipboard::Mode)));
-	reloadSettings();
+ClipboardMonitor::ClipboardMonitor() {
+  m_instance = this;
+  m_clipboard = QApplication::clipboard();
+  connect(m_clipboard, SIGNAL(changed(QClipboard::Mode)), this,
+          SLOT(dataChanged(QClipboard::Mode)));
+  reloadSettings();
 }
 
-ClipboardMonitor::~ClipboardMonitor()
-{
-	m_instance = 0;
+ClipboardMonitor::~ClipboardMonitor() { m_instance = 0; }
+
+void ClipboardMonitor::reloadSettings() {
+  m_bEnabledGlobal = getSettingsValue("clipboard/monitorglobal").toBool();
+  m_bEnabledSelection = getSettingsValue("clipboard/monitorselection").toBool();
+  QStringList r = getSettingsValue("clipboard/regexps").toStringList();
+  QList<QRegularExpression> nr;
+
+  foreach (const QString& s, r) {
+    nr << QRegularExpression(s);
+  }
+  m_regexps = nr;
 }
 
-void ClipboardMonitor::reloadSettings()
-{
-	m_bEnabledGlobal = getSettingsValue("clipboard/monitorglobal").toBool();
-	m_bEnabledSelection = getSettingsValue("clipboard/monitorselection").toBool();
-	QStringList r = getSettingsValue("clipboard/regexps").toStringList();
-	QList<QRegExp> nr;
+void ClipboardMonitor::dataChanged(QClipboard::Mode mode) {
+  if ((!m_bEnabledGlobal && mode == QClipboard::Clipboard) ||
+      (!m_bEnabledSelection && mode == QClipboard::Selection))
+    return;
 
-	foreach (const QString& s, r)
-	{
-		nr << QRegExp(s);
-	}
-	m_regexps = nr;
-}
+  QString text = m_clipboard->text(mode);
+  if (text.isEmpty()) return;
 
-void ClipboardMonitor::dataChanged(QClipboard::Mode mode)
-{
-	if((!m_bEnabledGlobal && mode == QClipboard::Clipboard) ||
-	   (!m_bEnabledSelection && mode == QClipboard::Selection))
-		return;
+  QStringList links;
 
-	QString text = m_clipboard->text(mode);
-	if (text.isEmpty())
-		return;
+  foreach (const QRegularExpression& re, m_regexps) {
+    int pos = 0, start = links.size();
 
-	QStringList links;
+    QRegularExpressionMatch match = re.match(text, pos);
 
-	foreach (const QRegExp& re, m_regexps)
-	{
-		int pos = 0, start = links.size();
+    while (match.hasMatch()) {
+      links << match.captured(0);
+      pos = match.capturedEnd(0);
+      match = re.match(text, pos);
+    }
 
-		while ( (pos = re.indexIn(text, pos)) != -1)
-		{
-			links << re.cap(0);
-			pos += re.cap(0).length();
-		}
+    for (int i = start; i < links.size(); i++) text.remove(links[i]);
+  }
 
-		for (int i=start;i<links.size();i++)
-			text.remove(links[i]);
-	}
-
-	if (!links.isEmpty())
-	{
-		links.removeDuplicates();
-		MainWindow* w = static_cast<MainWindow*>(getMainWindow());
-		if (w)
-			w->addTransfer(links.join("\n"));
-	}
+  if (!links.isEmpty()) {
+    links.removeDuplicates();
+    MainWindow* w = static_cast<MainWindow*>(getMainWindow());
+    if (w) w->addTransfer(links.join("\n"));
+  }
 }

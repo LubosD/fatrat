@@ -25,75 +25,65 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "SettingsSchedulerForm.h"
-#include "Settings.h"
-#include "ScheduledActionDlg.h"
+
 #include <QMessageBox>
 
-SettingsSchedulerForm::SettingsSchedulerForm(QWidget* w, QObject* parent) : QObject(parent)
-{
-	setupUi(w);
-	
-	connect(pushAdd, SIGNAL(clicked()), this, SLOT(add()));
-	connect(pushEdit, SIGNAL(clicked()), this, SLOT(edit()));
-	connect(pushDelete, SIGNAL(clicked()), this, SLOT(remove()));
+#include "ScheduledActionDlg.h"
+#include "Settings.h"
+
+SettingsSchedulerForm::SettingsSchedulerForm(QWidget* w, QObject* parent)
+    : QObject(parent) {
+  setupUi(w);
+
+  connect(pushAdd, SIGNAL(clicked()), this, SLOT(add()));
+  connect(pushEdit, SIGNAL(clicked()), this, SLOT(edit()));
+  connect(pushDelete, SIGNAL(clicked()), this, SLOT(remove()));
 }
 
-void SettingsSchedulerForm::load()
-{
-	listTasks->clear();
-	Scheduler::loadActions(m_actions);
+void SettingsSchedulerForm::load() {
+  listTasks->clear();
+  Scheduler::loadActions(m_actions);
 
-	foreach(const ScheduledAction& a, m_actions)
-		listTasks->addItem(a.name);
+  foreach (const ScheduledAction& a, m_actions) listTasks->addItem(a.name);
 }
 
-void SettingsSchedulerForm::accepted()
-{
-	Scheduler::saveActions(m_actions);
-	applySettings();
+void SettingsSchedulerForm::accepted() {
+  Scheduler::saveActions(m_actions);
+  applySettings();
 }
 
-void SettingsSchedulerForm::applySettings()
-{
-	Scheduler::instance()->reload();
+void SettingsSchedulerForm::applySettings() { Scheduler::instance()->reload(); }
+
+void SettingsSchedulerForm::add() {
+  ScheduledActionDlg dlg(pushAdd->parentWidget());
+  if (dlg.exec() != QDialog::Accepted) return;
+  m_actions << dlg.m_action;
+  listTasks->addItem(dlg.m_action.name);
 }
 
-void SettingsSchedulerForm::add()
-{
-	ScheduledActionDlg dlg(pushAdd->parentWidget());
-	if (dlg.exec() != QDialog::Accepted)
-		return;
-	m_actions << dlg.m_action;
-	listTasks->addItem(dlg.m_action.name);
+void SettingsSchedulerForm::edit() {
+  int index = listTasks->currentRow();
+  if (index < 0) return;
+
+  ScheduledActionDlg dlg(pushAdd->parentWidget());
+  dlg.m_action = m_actions[index];
+
+  if (dlg.exec() != QDialog::Accepted) return;
+
+  m_actions[index] = dlg.m_action;
+  listTasks->item(index)->setText(dlg.m_action.name);
 }
 
-void SettingsSchedulerForm::edit()
-{
-	int index = listTasks->currentRow();
-	if(index < 0)
-		return;
+void SettingsSchedulerForm::remove() {
+  int index = listTasks->currentRow();
+  if (index < 0) return;
+  if (QMessageBox::warning(
+          pushAdd->parentWidget(), "FatRat",
+          tr("Do you really want to remove the selected scheduled action?"),
+          QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+    return;
+  }
 
-	ScheduledActionDlg dlg(pushAdd->parentWidget());
-	dlg.m_action = m_actions[index];
-
-	if (dlg.exec() != QDialog::Accepted)
-		return;
-
-	m_actions[index] = dlg.m_action;
-	listTasks->item(index)->setText(dlg.m_action.name);
-}
-
-void SettingsSchedulerForm::remove()
-{
-	int index = listTasks->currentRow();
-	if(index < 0)
-		return;
-	if(QMessageBox::warning(pushAdd->parentWidget(), "FatRat", tr("Do you really want to remove the selected scheduled action?"),
-				QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes)
-	{
-		return;
-	}
-
-	delete listTasks->takeItem(index);
-	m_actions.removeAt(index);
+  delete listTasks->takeItem(index);
+  m_actions.removeAt(index);
 }

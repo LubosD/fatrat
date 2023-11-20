@@ -25,56 +25,55 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "SettingsQueueForm.h"
+
 #include <QMessageBox>
 #include <QSystemTrayIcon>
+
 #include "Settings.h"
 
-SettingsQueueForm::SettingsQueueForm(QWidget* w, QObject* parent) : QObject(parent)
-{
-	setupUi(w);
+SettingsQueueForm::SettingsQueueForm(QWidget* w, QObject* parent)
+    : QObject(parent) {
+  setupUi(w);
 }
 
-void SettingsQueueForm::load()
-{
-	spinRetry->setValue( getSettingsValue("retrycount").toInt() );
-	checkRetryWorking->setChecked( getSettingsValue("retryworking").toBool() );
-	checkPopup->setChecked( getSettingsValue("showpopup").toBool() );
-	spinPopup->setValue( getSettingsValue("popuptime").toInt() );
-	checkEmail->setChecked( getSettingsValue("sendemail").toBool() );
-	lineSmtp->setText( getSettingsValue("smtpserver").toString() );
-	lineSender->setText( getSettingsValue("emailsender").toString() );
-	lineRecipient->setText( getSettingsValue("emailrcpt").toString() );
-	
-	checkPopup->setEnabled(QSystemTrayIcon::supportsMessages());
-	checkAutoRemove->setChecked( getSettingsValue("autoremove").toBool() );
-	checkTooltips->setChecked(getSettingsValue("queue_tooltips").toBool());
-	checkSync->setChecked( getSettingsValue("queue_synconwrite").toBool() );
+void SettingsQueueForm::load() {
+  spinRetry->setValue(getSettingsValue("retrycount").toInt());
+  checkRetryWorking->setChecked(getSettingsValue("retryworking").toBool());
+  checkPopup->setChecked(getSettingsValue("showpopup").toBool());
+  spinPopup->setValue(getSettingsValue("popuptime").toInt());
+  checkEmail->setChecked(getSettingsValue("sendemail").toBool());
+  lineSmtp->setText(getSettingsValue("smtpserver").toString());
+  lineSender->setText(getSettingsValue("emailsender").toString());
+  lineRecipient->setText(getSettingsValue("emailrcpt").toString());
+
+  checkPopup->setEnabled(QSystemTrayIcon::supportsMessages());
+  checkAutoRemove->setChecked(getSettingsValue("autoremove").toBool());
+  checkTooltips->setChecked(getSettingsValue("queue_tooltips").toBool());
+  checkSync->setChecked(getSettingsValue("queue_synconwrite").toBool());
 }
 
-void SettingsQueueForm::accepted()
-{
-	setSettingsValue("retrycount", spinRetry->value());
-	setSettingsValue("retryworking", checkRetryWorking->isChecked());
-	setSettingsValue("showpopup", checkPopup->isChecked());
-	setSettingsValue("popuptime", spinPopup->value());
-	setSettingsValue("sendemail", checkEmail->isChecked());
-	setSettingsValue("smtpserver", lineSmtp->text());
-	setSettingsValue("emailsender", lineSender->text());
-	setSettingsValue("emailrcpt", lineRecipient->text());
-	setSettingsValue("autoremove", checkAutoRemove->isChecked());
-	setSettingsValue("queue_tooltips", checkTooltips->isChecked());
-	setSettingsValue("queue_synconwrite", checkSync->isChecked());
+void SettingsQueueForm::accepted() {
+  setSettingsValue("retrycount", spinRetry->value());
+  setSettingsValue("retryworking", checkRetryWorking->isChecked());
+  setSettingsValue("showpopup", checkPopup->isChecked());
+  setSettingsValue("popuptime", spinPopup->value());
+  setSettingsValue("sendemail", checkEmail->isChecked());
+  setSettingsValue("smtpserver", lineSmtp->text());
+  setSettingsValue("emailsender", lineSender->text());
+  setSettingsValue("emailrcpt", lineRecipient->text());
+  setSettingsValue("autoremove", checkAutoRemove->isChecked());
+  setSettingsValue("queue_tooltips", checkTooltips->isChecked());
+  setSettingsValue("queue_synconwrite", checkSync->isChecked());
 }
 
-bool SettingsQueueForm::accept()
-{
-	if(checkEmail->isChecked())
-	{
-		if(!lineSender->text().contains('@') || !lineRecipient->text().contains('@'))
-		{
-			QMessageBox::critical(0, tr("Error"), tr("The e-mail address is incorrect."));
-			return false;
-		}
-	}
-	return true;
+bool SettingsQueueForm::accept() {
+  if (checkEmail->isChecked()) {
+    if (!lineSender->text().contains('@') ||
+        !lineRecipient->text().contains('@')) {
+      QMessageBox::critical(0, tr("Error"),
+                            tr("The e-mail address is incorrect."));
+      return false;
+    }
+  }
+  return true;
 }

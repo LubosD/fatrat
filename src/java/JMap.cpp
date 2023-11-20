@@ -25,87 +25,79 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JMap.h"
-#include "RuntimeException.h"
+
 #include <QtDebug>
 
-JMap::JMap()
-	: JObject("java.util.HashMap", JSignature())
-{
+#include "RuntimeException.h"
 
-}
+JMap::JMap() : JObject("java.util.HashMap", JSignature()) {}
 
 JMap::JMap(int initialCapacity)
-	: JObject("java.util.HashMap", JSignature().addInt(), JArgs() << initialCapacity)
-{
+    : JObject("java.util.HashMap", JSignature().addInt(),
+              JArgs() << initialCapacity) {}
 
+JMap::JMap(const JObject& that) : JObject(that) {}
+
+void JMap::put(JObject key, JObject value) {
+  call("put",
+       JSignature()
+           .add("java.lang.Object")
+           .add("java.lang.Object")
+           .ret("java.lang.Object"),
+       key, value);
 }
 
-JMap::JMap(const JObject& that)
-	: JObject(that)
-{
+JObject JMap::nativeToBoxed(QVariant var) {
+  switch (var.metaType().id()) {
+    case QVariant::Bool:
+      return nativeToBoxed(var.toBool());
+    case QVariant::Double:
+      return nativeToBoxed(var.toDouble());
+    case QVariant::UInt:
+    case QVariant::Int:
+      return nativeToBoxed(var.toInt());
+    case QVariant::ULongLong:
+    case QVariant::LongLong:
+      return nativeToBoxed(var.toLongLong());
+    case QVariant::Map:
+      break;
+    case QVariant::String:
+      return nativeToBoxed(var.toString());
+    case QVariant::StringList:
+      break;
+    default:
+      break;
+  }
 
+  qDebug() << "WARNING: JMap::nativeToBoxed(): the QVariant type was not "
+              "converted to a java.lang.Object";
+  return JObject();
 }
 
-void JMap::put(JObject key, JObject value)
-{
-	call("put", JSignature().add("java.lang.Object").add("java.lang.Object").ret("java.lang.Object"), key, value);
+template <typename T>
+void assignTo(JObject& val, QVariant& out) {
+  T tt;
+  JMap::boxedToNative(val, tt);
+  out = tt;
 }
 
-JObject JMap::nativeToBoxed(QVariant var)
-{
-	switch (var.type())
-	{
-	case QVariant::Bool:
-		return nativeToBoxed(var.toBool());
-	case QVariant::Double:
-		return nativeToBoxed(var.toDouble());
-	case QVariant::UInt:
-	case QVariant::Int:
-		return nativeToBoxed(var.toInt());
-	case QVariant::ULongLong:
-	case QVariant::LongLong:
-		return nativeToBoxed(var.toLongLong());
-	case QVariant::Map:
-		break;
-	case QVariant::String:
-		return nativeToBoxed(var.toString());
-	case QVariant::StringList:
-		break;
-	default:
-		break;
-	}
-
-	qDebug() << "WARNING: JMap::nativeToBoxed(): the QVariant type was not converted to a java.lang.Object";
-	return JObject();
-}
-
-template<typename T> void assignTo(JObject& val, QVariant& out)
-{
-	T tt;
-	JMap::boxedToNative(val, tt);
-	out = tt;
-}
-
-void JMap::boxedToNative(JObject& val, QVariant& out)
-{
-	if (val.instanceOf("java.lang.Integer"))
-		assignTo<int>(val, out);
-	else if (val.instanceOf("java.lang.Double"))
-		assignTo<double>(val, out);
-	else if (val.instanceOf("java.lang.Float"))
-		assignTo<float>(val, out);
-	else if (val.instanceOf("java.lang.Short"))
-		assignTo<short>(val, out);
-	else if (val.instanceOf("java.lang.Byte"))
-		assignTo<jbyte>(val, out);
-	else if (val.instanceOf("java.lang.Character"))
-		assignTo<wchar_t>(val, out);
-	else if (val.isString())
-		out = val.toStringShallow().str();
-	else if (val.isArray())
-	{
-		throw RuntimeException("Arrays are not supported");
-	}
-	else
-		out = val;
+void JMap::boxedToNative(JObject& val, QVariant& out) {
+  if (val.instanceOf("java.lang.Integer"))
+    assignTo<int>(val, out);
+  else if (val.instanceOf("java.lang.Double"))
+    assignTo<double>(val, out);
+  else if (val.instanceOf("java.lang.Float"))
+    assignTo<float>(val, out);
+  else if (val.instanceOf("java.lang.Short"))
+    assignTo<short>(val, out);
+  else if (val.instanceOf("java.lang.Byte"))
+    assignTo<jbyte>(val, out);
+  else if (val.instanceOf("java.lang.Character"))
+    assignTo<wchar_t>(val, out);
+  else if (val.isString())
+    out = val.toStringShallow().str();
+  else if (val.isArray()) {
+    throw RuntimeException("Arrays are not supported");
+  } else
+    out = val;
 }

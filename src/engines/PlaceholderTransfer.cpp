@@ -25,68 +25,46 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "PlaceholderTransfer.h"
-#include <cassert>
+
 #include <QtDebug>
+#include <cassert>
 
 PlaceholderTransfer::PlaceholderTransfer(QString strClass)
-	: m_strClass(strClass)
-{
+    : m_strClass(strClass) {}
+
+void PlaceholderTransfer::changeActive(bool bActive) {
+  if (bActive) setState(Failed);
 }
 
-void PlaceholderTransfer::changeActive(bool bActive)
-{
-	if (bActive)
-		setState(Failed);
+void PlaceholderTransfer::speeds(int& down, int& up) const { down = up = 0; }
+qulonglong PlaceholderTransfer::total() const { return 0; }
+qulonglong PlaceholderTransfer::done() const { return 0; }
+
+QString PlaceholderTransfer::name() const {
+  return tr("Error: transfer class %1 not found, this is a placeholder")
+      .arg(m_strClass);
+}
+QString PlaceholderTransfer::myClass() const { return m_strClass; }
+
+QString PlaceholderTransfer::message() const {
+  return tr("This is a placeholder");
 }
 
-void PlaceholderTransfer::speeds(int& down, int& up) const
-{
-	down = up = 0;
-}
-qulonglong PlaceholderTransfer::total() const
-{
-	return 0;
-}
-qulonglong PlaceholderTransfer::done() const
-{
-	return 0;
+void PlaceholderTransfer::load(const QDomNode& map) {
+  m_root = m_doc.importNode(map, true);
+  m_doc.appendChild(m_root);
+
+  Transfer::load(map);
 }
 
-QString PlaceholderTransfer::name() const
-{
-	return tr("Error: transfer class %1 not found, this is a placeholder").arg(m_strClass);
-}
-QString PlaceholderTransfer::myClass() const
-{
-	return m_strClass;
-}
+void PlaceholderTransfer::save(QDomDocument& doc, QDomNode& map) const {
+  // Transfer::save(doc, map);
 
-QString PlaceholderTransfer::message() const
-{
-	return tr("This is a placeholder");
+  QDomNode x = doc.importNode(m_root, true);
+
+  while (x.childNodes().count()) {
+    map.appendChild(x.childNodes().item(0));
+  }
 }
 
-void PlaceholderTransfer::load(const QDomNode& map)
-{
-	m_root = m_doc.importNode(map, true);
-	m_doc.appendChild(m_root);
-
-	Transfer::load(map);
-}
-
-void PlaceholderTransfer::save(QDomDocument& doc, QDomNode& map) const
-{
-	//Transfer::save(doc, map);
-
-	QDomNode x = doc.importNode(m_root, true);
-
-	while(x.childNodes().count())
-	{
-		map.appendChild(x.childNodes().item(0));
-	}
-}
-
-QString PlaceholderTransfer::dataPath(bool bDirect) const
-{
-	return QString();
-}
+QString PlaceholderTransfer::dataPath(bool bDirect) const { return QString(); }

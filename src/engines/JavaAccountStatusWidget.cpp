@@ -25,71 +25,72 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JavaAccountStatusWidget.h"
+
 #include <QtDebug>
 
 JavaAccountStatusWidget::JavaAccountStatusWidget(QWidget* parent)
-	: QFrame(parent)
-{
-	setupUi(this);
+    : QFrame(parent) {
+  setupUi(this);
 
-	QPalette p = treeWidget->palette();
-	QColor c = p.color(QPalette::Window);
-	p.setColor(QPalette::Base, c);
-	treeWidget->setPalette(p);
+  QPalette p = treeWidget->palette();
+  QColor c = p.color(QPalette::Window);
+  p.setColor(QPalette::Base, c);
+  treeWidget->setPalette(p);
 
-	m_plugins = JAccountStatusPlugin::createStatusPlugins();
+  m_plugins = JAccountStatusPlugin::createStatusPlugins();
 
-	treeWidget->header()->resizeSection(0, 25);
+  treeWidget->header()->resizeSection(0, 25);
 
-	foreach (JAccountStatusPlugin* p, m_plugins)
-	{
-		if (p->queryAccountBalance())
-		{
-			qDebug() << "Adding" << p->name();
-			QString text = QString("<b>%1:</b> %2").arg(p->name()).arg(tr("Requesting..."));
-			QTreeWidgetItem* item = new QTreeWidgetItem(treeWidget);
-			QLabel* label = new QLabel(treeWidget);
+  foreach (JAccountStatusPlugin* p, m_plugins) {
+    if (p->queryAccountBalance()) {
+      qDebug() << "Adding" << p->name();
+      QString text =
+          QString("<b>%1:</b> %2").arg(p->name()).arg(tr("Requesting..."));
+      QTreeWidgetItem* item = new QTreeWidgetItem(treeWidget);
+      QLabel* label = new QLabel(treeWidget);
 
-			label->setText(text);
-			item->setIcon(0, QIcon(":/states/waiting.png"));
-			treeWidget->setItemWidget(item, 1, label);
+      label->setText(text);
+      item->setIcon(0, QIcon(":/states/waiting.png"));
+      treeWidget->setItemWidget(item, 1, label);
 
-			m_items[p->name()] = item;
-			connect(p, SIGNAL(accountBalanceReceived(JAccountStatusPlugin::AccountState,QString)), this, SLOT(accountBalanceReceived(JAccountStatusPlugin::AccountState,QString)));
-		}
-	}
+      m_items[p->name()] = item;
+      connect(p,
+              SIGNAL(accountBalanceReceived(JAccountStatusPlugin::AccountState,
+                                            QString)),
+              this,
+              SLOT(accountBalanceReceived(JAccountStatusPlugin::AccountState,
+                                          QString)));
+    }
+  }
 }
 
-JavaAccountStatusWidget::~JavaAccountStatusWidget()
-{
-	qDeleteAll(m_plugins);
-}
+JavaAccountStatusWidget::~JavaAccountStatusWidget() { qDeleteAll(m_plugins); }
 
-void JavaAccountStatusWidget::accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString bal)
-{
-	JAccountStatusPlugin* p = static_cast<JAccountStatusPlugin*>(sender());
-	QTreeWidgetItem* item = m_items[p->name()];
-	QLabel* label = static_cast<QLabel*>(treeWidget->itemWidget(m_items[p->name()], 1));
+void JavaAccountStatusWidget::accountBalanceReceived(
+    JAccountStatusPlugin::AccountState state, QString bal) {
+  JAccountStatusPlugin* p = static_cast<JAccountStatusPlugin*>(sender());
+  QTreeWidgetItem* item = m_items[p->name()];
+  QLabel* label =
+      static_cast<QLabel*>(treeWidget->itemWidget(m_items[p->name()], 1));
 
-	label->setText(QString("<b>%1:</b> %2").arg(p->name()).arg(bal));
+  label->setText(QString("<b>%1:</b> %2").arg(p->name()).arg(bal));
 
-	const char* path;
+  const char* path;
 
-	switch (state)
-	{
-	case JAccountStatusPlugin::AccountBad:
-		path = ":/acc_state/red.png";
-		break;
-	case JAccountStatusPlugin::AccountWarning:
-		path = ":/acc_state/yellow.png";
-		break;
-	case JAccountStatusPlugin::AccountGood:
-		path = ":/acc_state/green.png";
-		break;
-	default:
-		path = ":/states/failed.png";
-		break;
-	}
+  switch (state) {
+    case JAccountStatusPlugin::AccountBad:
+      path = ":/acc_state/red.png";
+      break;
+    case JAccountStatusPlugin::AccountWarning:
+      path = ":/acc_state/yellow.png";
+      break;
+    case JAccountStatusPlugin::AccountGood:
+      path = ":/acc_state/green.png";
+      break;
+    default:
+      path = ":/states/failed.png";
+      break;
+  }
 
-	item->setIcon(0, QIcon(path));
+  item->setIcon(0, QIcon(path));
 }

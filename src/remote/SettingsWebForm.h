@@ -27,28 +27,32 @@ respects for all of the code used other than "OpenSSL".
 #ifndef SETTINGSWEBFORM_H
 #define SETTINGSWEBFORM_H
 #include <QObject>
-#include "fatrat.h"
-#include "config.h"
+
 #include "WidgetHostChild.h"
+#include "config.h"
+#include "fatrat.h"
 #include "ui_SettingsWebForm.h"
 
 #ifndef WITH_WEBINTERFACE
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
-class SettingsWebForm : public QObject, public WidgetHostChild, Ui_SettingsWebForm
-{
-Q_OBJECT
-public:
-	SettingsWebForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsWebForm(w, parent); }
+class SettingsWebForm : public QObject,
+                        public WidgetHostChild,
+                        Ui_SettingsWebForm {
+  Q_OBJECT
+ public:
+  SettingsWebForm(QWidget* w, QObject* parent);
+  virtual void load();
+  virtual void accepted();
+  static WidgetHostChild* create(QWidget* w, QObject* parent) {
+    return new SettingsWebForm(w, parent);
+  }
 
-	static void applySettings();
-public slots:
-	void browsePem();
-	void generatePem();
+  static void applySettings();
+ public slots:
+  void browsePem();
+  void generatePem();
 };
 
 #endif

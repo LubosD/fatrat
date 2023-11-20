@@ -25,40 +25,37 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "Auth.h"
+
 #include <QSettings>
 
 extern QSettings* g_settings;
 
-QList<Auth> Auth::loadAuths()
-{
-	QList<Auth> r;
-	
-	int count = g_settings->beginReadArray("httpftp/auths");
-	for(int i=0;i<count;i++)
-	{
-		Auth auth;
-		g_settings->setArrayIndex(i);
-		
-		auth.strRegExp = g_settings->value("regexp").toString();
-		auth.strUser = g_settings->value("user").toString();
-		auth.strPassword = g_settings->value("password").toString();
-		
-		r << auth;
-	}
-	g_settings->endArray();
-	
-	return r;
+QList<Auth> Auth::loadAuths() {
+  QList<Auth> r;
+
+  int count = g_settings->beginReadArray("httpftp/auths");
+  for (int i = 0; i < count; i++) {
+    Auth auth;
+    g_settings->setArrayIndex(i);
+
+    auth.strRegExp = g_settings->value("regexp").toString();
+    auth.strUser = g_settings->value("user").toString();
+    auth.strPassword = g_settings->value("password").toString();
+
+    r << auth;
+  }
+  g_settings->endArray();
+
+  return r;
 }
 
-void Auth::saveAuths(const QList<Auth>& auths)
-{
-	g_settings->beginWriteArray("httpftp/auths");
-	for(int i=0;i<auths.size();i++)
-	{
-		g_settings->setArrayIndex(i);
-		g_settings->setValue("regexp", auths[i].strRegExp);
-		g_settings->setValue("user", auths[i].strUser);
-		g_settings->setValue("password", auths[i].strPassword);
-	}
-	g_settings->endArray();
+void Auth::saveAuths(const QList<Auth>& auths) {
+  g_settings->beginWriteArray("httpftp/auths");
+  for (int i = 0; i < auths.size(); i++) {
+    g_settings->setArrayIndex(i);
+    g_settings->setValue("regexp", auths[i].strRegExp);
+    g_settings->setValue("user", auths[i].strUser);
+    g_settings->setValue("password", auths[i].strPassword);
+  }
+  g_settings->endArray();
 }

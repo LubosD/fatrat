@@ -26,103 +26,81 @@ respects for all of the code used other than "OpenSSL".
 
 #include "JSignature.h"
 
-JSignature::JSignature()
-	: m_strReturnValue("V"), m_bVariable(false)
-{
+JSignature::JSignature() : m_strReturnValue("V"), m_bVariable(false) {}
+
+JSignature::JSignature(QString var) : m_bVariable(true) {
+  m_strReturnValue = var;
 }
 
-JSignature::JSignature(QString var)
-	: m_bVariable(true)
-{
-	m_strReturnValue = var;
+JSignature& JSignature::add(QString cls) {
+  cls.replace('.', '/');
+  m_strArguments += 'L' + cls + ';';
+  return *this;
 }
 
-JSignature& JSignature::add(QString cls)
-{
-	cls.replace('.', '/');
-	m_strArguments += 'L'+cls+';';
-	return *this;
+JSignature& JSignature::addA(QString cls) {
+  cls.replace('.', '/');
+  m_strArguments += "[L" + cls + ';';
+  return *this;
 }
 
-JSignature& JSignature::addA(QString cls)
-{
-	cls.replace('.', '/');
-	m_strArguments += "[L"+cls+';';
-	return *this;
+JSignature& JSignature::addPrimitive(QString c) {
+  m_strArguments += c;
+  return *this;
 }
 
-JSignature& JSignature::addPrimitive(QString c)
-{
-	m_strArguments += c;
-	return *this;
+JSignature& JSignature::ret(QString cls) {
+  cls.replace('.', '/');
+  m_strReturnValue = 'L' + cls + ';';
+  return *this;
 }
 
-
-JSignature& JSignature::ret(QString cls)
-{
-	cls.replace('.', '/');
-	m_strReturnValue =  'L'+cls+';';
-	return *this;
+JSignature& JSignature::retA(QString cls) {
+  cls.replace('.', '/');
+  m_strReturnValue = "[L" + cls + ';';
+  return *this;
 }
 
-JSignature& JSignature::retA(QString cls)
-{
-	cls.replace('.', '/');
-	m_strReturnValue =  "[L"+cls+';';
-	return *this;
+JSignature& JSignature::retPrimitive(QString c) {
+  m_strReturnValue = c;
+  return *this;
 }
 
-JSignature& JSignature::retPrimitive(QString c)
-{
-	m_strReturnValue = c;
-	return *this;
+QString JSignature::str() const {
+  if (!m_bVariable)
+    return "(" + m_strArguments + ")" + m_strReturnValue;
+  else
+    return m_strReturnValue;
 }
 
-QString JSignature::str() const
-{
-	if (!m_bVariable)
-		return "("+m_strArguments+")"+m_strReturnValue;
-	else
-		return m_strReturnValue;
+JSignature JSignature::sig(QString cls) {
+  QString name = "L" + cls.replace('.', '/') + ';';
+  return JSignature(name);
 }
 
-JSignature JSignature::sig(QString cls)
-{
-	QString name = "L" + cls.replace('.', '/')+';';
-	return JSignature(name);
+JSignature JSignature::sigA(QString cls) {
+  QString name = "[L" + cls.replace('.', '/') + ';';
+  return JSignature(name);
 }
 
-JSignature JSignature::sigA(QString cls)
-{
-	QString name = "[L" + cls.replace('.', '/')+';';
-	return JSignature(name);
+JSignature& JSignature::add(const JGenerics& gencls) {
+  m_strArguments += gencls.str();
+  return *this;
 }
 
-JSignature& JSignature::add(const JGenerics& gencls)
-{
-	m_strArguments += gencls.str();
-	return *this;
-}
-
-JSignature& JSignature::addA(const JGenerics& gencls)
-{
-	m_strArguments += '[' + gencls.str();
-	return *this;
+JSignature& JSignature::addA(const JGenerics& gencls) {
+  m_strArguments += '[' + gencls.str();
+  return *this;
 }
 
 JGenerics::JGenerics(QString mainTypeName)
-	: m_strMainTypeName(mainTypeName.replace('.', '/'))
-{
+    : m_strMainTypeName(mainTypeName.replace('.', '/')) {}
+
+JGenerics& JGenerics::add(QString genericsArg) {
+  m_strArguments += "L" + genericsArg.replace('.', '/') + ';';
+  return *this;
 }
 
-JGenerics& JGenerics::add(QString genericsArg)
-{
-	m_strArguments += "L" + genericsArg.replace('.', '/') + ';';
-	return *this;
+QString JGenerics::str() const {
+  return 'L' + m_strMainTypeName + '<' + m_strArguments + ">;";
 }
-
-QString JGenerics::str() const
-{
-	return 'L' + m_strMainTypeName + '<' + m_strArguments + ">;";
-}
-

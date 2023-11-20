@@ -24,40 +24,39 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "config.h"
-#include <QWidget>
-#include <QList>
 #include "AppTools.h"
 
+#include <QList>
+#include <QWidget>
+
+#include "config.h"
+
 #ifdef WITH_BITTORRENT
-#   ifdef HAVE_WEBENGINE
-#       include "tools/TorrentSearch.h"
-#   endif
-#	include "tools/CreateTorrentDlg.h"
+#ifdef HAVE_WEBENGINE
+#include "tools/TorrentSearch.h"
+#endif
+#include "tools/CreateTorrentDlg.h"
 #endif
 #ifdef WITH_JPLUGINS
-#	include "tools/FileSharingSearch.h"
+#include "tools/FileSharingSearch.h"
 #endif
 
 #include "tools/HashDlg.h"
 
 QList<AppTool> g_tools;
 
-void initAppTools()
-{
+void initAppTools() {
 #ifdef WITH_BITTORRENT
-#   ifdef HAVE_WEBENGINE
-	g_tools << AppTool(QObject::tr("Torrent search"), TorrentSearch::create);
-#   endif
-	g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
+#ifdef HAVE_WEBENGINE
+  g_tools << AppTool(QObject::tr("Torrent search"), TorrentSearch::create);
 #endif
-	g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);
+  g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
+#endif
+  g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);
 #ifdef WITH_JPLUGINS
-	g_tools << AppTool(QObject::tr("File sharing server search"), FileSharingSearch::create);
+  g_tools << AppTool(QObject::tr("File sharing server search"),
+                     FileSharingSearch::create);
 #endif
 }
 
-void addAppTool(const AppTool& tool)
-{
-	g_tools << tool;
-}
+void addAppTool(const AppTool& tool) { g_tools << tool; }

@@ -25,78 +25,84 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JSettings.h"
-#include "JNativeMethod.h"
-#include "JClass.h"
-#include "JSignature.h"
-#include "JMap.h"
+
 #include "JArray.h"
+#include "JClass.h"
+#include "JMap.h"
+#include "JNativeMethod.h"
+#include "JSignature.h"
 #include "Settings.h"
 
-void JSettings::registerNatives()
-{
-	QList<JNativeMethod> natives;
+void JSettings::registerNatives() {
+  QList<JNativeMethod> natives;
 
-	natives << JNativeMethod("setValue", JSignature().addString().addString(), setValueString);
-	natives << JNativeMethod("setValue", JSignature().addString().addLong(), setValueLong);
-	natives << JNativeMethod("setValue", JSignature().addString().addBoolean(), setValueBoolean);
-	natives << JNativeMethod("setValue", JSignature().addString().addDouble(), setValueDouble);
-	natives << JNativeMethod("getValue", JSignature().addString().add("java.lang.Object").ret("java.lang.Object"), getValue);
-	natives << JNativeMethod("getValueArray", JSignature().addString().retA("java.lang.Object"), getValueArray);
+  natives << JNativeMethod("setValue", JSignature().addString().addString(),
+                           setValueString);
+  natives << JNativeMethod("setValue", JSignature().addString().addLong(),
+                           setValueLong);
+  natives << JNativeMethod("setValue", JSignature().addString().addBoolean(),
+                           setValueBoolean);
+  natives << JNativeMethod("setValue", JSignature().addString().addDouble(),
+                           setValueDouble);
+  natives << JNativeMethod(
+      "getValue",
+      JSignature().addString().add("java.lang.Object").ret("java.lang.Object"),
+      getValue);
+  natives << JNativeMethod("getValueArray",
+                           JSignature().addString().retA("java.lang.Object"),
+                           getValueArray);
 
-	JClass("info.dolezel.fatrat.plugins.config.Settings").registerNativeMethods(natives);
+  JClass("info.dolezel.fatrat.plugins.config.Settings")
+      .registerNativeMethods(natives);
 }
 
-void JSettings::setValueString(JNIEnv*, jclass, jstring jname, jstring jvalue)
-{
-	JString name(jname);
-	JString value(jvalue);
+void JSettings::setValueString(JNIEnv*, jclass, jstring jname, jstring jvalue) {
+  JString name(jname);
+  JString value(jvalue);
 
-	setSettingsValue(name.str(), value.str());
+  setSettingsValue(name.str(), value.str());
 }
 
-void JSettings::setValueLong(JNIEnv*, jclass, jstring jname, jlong value)
-{
-	JString name(jname);
-	setSettingsValue(name.str(), qlonglong(value));
+void JSettings::setValueLong(JNIEnv*, jclass, jstring jname, jlong value) {
+  JString name(jname);
+  setSettingsValue(name.str(), qlonglong(value));
 }
 
-void JSettings::setValueBoolean(JNIEnv*, jclass, jstring jname, jboolean value)
-{
-	JString name(jname);
-	setSettingsValue(name.str(), value);
+void JSettings::setValueBoolean(JNIEnv*, jclass, jstring jname,
+                                jboolean value) {
+  JString name(jname);
+  setSettingsValue(name.str(), value);
 }
 
-void JSettings::setValueDouble(JNIEnv*, jclass, jstring jname, jdouble value)
-{
-	JString name(jname);
-	setSettingsValue(name.str(), value);
+void JSettings::setValueDouble(JNIEnv*, jclass, jstring jname, jdouble value) {
+  JString name(jname);
+  setSettingsValue(name.str(), value);
 }
 
-jobject JSettings::getValue(JNIEnv* env, jclass, jstring jname, jobject defValue)
-{
-	const char* def = "----jplugin-def";
-	JString name(jname);
-	QVariant v = getSettingsValue(name.str(), def);
+jobject JSettings::getValue(JNIEnv* env, jclass, jstring jname,
+                            jobject defValue) {
+  const char* def = "----jplugin-def";
+  JString name(jname);
+  QVariant v = getSettingsValue(name.str(), def);
 
-	if (v.type() == QVariant::String && v.toString() == def)
-		return defValue;
+  if (v.metaType().id() == QVariant::String && v.toString() == def)
+    return defValue;
 
-	JObject obj = JMap::nativeToBoxed(v);
-	qDebug() << obj.getClass().getClassName();
-	return obj.getLocalRef();
+  JObject obj = JMap::nativeToBoxed(v);
+  qDebug() << obj.getClass().getClassName();
+  return obj.getLocalRef();
 }
 
-jarray JSettings::getValueArray(JNIEnv *, jclass, jstring name)
-{
-	JString id(name);
-	QList<QMap<QString, QVariant> > list = getSettingsArray(id.str());
+jarray JSettings::getValueArray(JNIEnv*, jclass, jstring name) {
+  JString id(name);
+  QList<QMap<QString, QVariant> > list = getSettingsArray(id.str());
 
-	JArray array = JArray::createObjectArray(list.size(), JClass("java.lang.String"));
-	for (int i = 0; i < list.size(); i++)
-	{
-		JObject obj = JMap::nativeToBoxed(list[i]["item"]);
-		array.setObject(i, obj);
-	}
+  JArray array =
+      JArray::createObjectArray(list.size(), JClass("java.lang.String"));
+  for (int i = 0; i < list.size(); i++) {
+    JObject obj = JMap::nativeToBoxed(list[i]["item"]);
+    array.setObject(i, obj);
+  }
 
-	return array.getLocalRef();
+  return array.getLocalRef();
 }

@@ -29,114 +29,122 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 #include <jni.h>
-#include <QObject>
+
 #include <QMetaType>
+#include <QObject>
 #include <QVariant>
+
 #include "JClass.h"
 #include "JSignature.h"
 
 class JString;
 class JArray;
 
-class JObject
-{
-public:
-	JObject();
-	JObject(jobject obj, bool weak = false);
-	JObject(const JObject& obj);
+class JObject {
+ public:
+  JObject();
+  JObject(jobject obj, bool weak = false);
+  JObject(const JObject& obj);
 #ifdef WITH_CXX0X
-	JObject(JObject&& obj);
+  JObject(JObject&& obj);
 #endif
-	JObject(const JClass& cls, const char* sig, JArgs args = JArgs());
-	JObject(const JClass& cls, JSignature sig, JArgs args = JArgs());
-	JObject(const char* clsName, const char* sig, JArgs args = JArgs());
-	JObject(const char* clsName, JSignature sig, JArgs args = JArgs());
-	virtual ~JObject();
+  JObject(const JClass& cls, const char* sig, JArgs args = JArgs());
+  JObject(const JClass& cls, JSignature sig, JArgs args = JArgs());
+  JObject(const char* clsName, const char* sig, JArgs args = JArgs());
+  JObject(const char* clsName, JSignature sig, JArgs args = JArgs());
+  virtual ~JObject();
 
-	JObject& operator=(const JObject& obj);
+  JObject& operator=(const JObject& obj);
 #ifdef WITH_CXX0X
-	JObject& operator=(JObject&& obj);
+  JObject& operator=(JObject&& obj);
 #endif
-	JObject& operator=(jobject obj);
-	operator jobject();
-	operator QVariant() { return toVariant(); }
+  JObject& operator=(jobject obj);
+  operator jobject();
+  operator QVariant() { return toVariant(); }
 
-	void setNull();
+  void setNull();
 
-	bool instanceOf(const char* cls) const;
-	bool isSameObject(jobject that) const;
-	bool isString() const;
-	JString toStringShallow() const;
-	QString toString() const;
-	bool isArray() const;
-	JArray toArray() const;
+  bool instanceOf(const char* cls) const;
+  bool isSameObject(jobject that) const;
+  bool isString() const;
+  JString toStringShallow() const;
+  QString toString() const;
+  bool isArray() const;
+  JArray toArray() const;
 
-	bool isNull() const;
-	JClass getClass() const;
+  bool isNull() const;
+  JClass getClass() const;
 
 #if !defined(WITH_CXX0X)
-	template<typename T1> QVariant call(const char *name, const JSignature& sig, T1 a1)
-	{
-		return call(name, sig, JArgs() << a1);
-	}
-	template<typename T1, typename T2> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2)
-	{
-		return call(name, sig, JArgs() << a1 << a2);
-	}
-	template<typename T1, typename T2, typename T3> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3)
-	{
-		return call(name, sig, JArgs() << a1 << a2 << a3);
-	}
-	template<typename T1, typename T2, typename T3, typename T4> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3, T4 a4)
-	{
-		return call(name, sig, JArgs() << a1 << a2 << a3 << a4);
-	}
-	template<typename T1, typename T2, typename T3, typename T4, typename T5> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
-	{
-		return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5);
-	}
-	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> QVariant call(const char *name, const JSignature& sig, T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
-	{
-		return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5 << a6);
-	}
+  template <typename T1>
+  QVariant call(const char* name, const JSignature& sig, T1 a1) {
+    return call(name, sig, JArgs() << a1);
+  }
+  template <typename T1, typename T2>
+  QVariant call(const char* name, const JSignature& sig, T1 a1, T2 a2) {
+    return call(name, sig, JArgs() << a1 << a2);
+  }
+  template <typename T1, typename T2, typename T3>
+  QVariant call(const char* name, const JSignature& sig, T1 a1, T2 a2, T3 a3) {
+    return call(name, sig, JArgs() << a1 << a2 << a3);
+  }
+  template <typename T1, typename T2, typename T3, typename T4>
+  QVariant call(const char* name, const JSignature& sig, T1 a1, T2 a2, T3 a3,
+                T4 a4) {
+    return call(name, sig, JArgs() << a1 << a2 << a3 << a4);
+  }
+  template <typename T1, typename T2, typename T3, typename T4, typename T5>
+  QVariant call(const char* name, const JSignature& sig, T1 a1, T2 a2, T3 a3,
+                T4 a4, T5 a5) {
+    return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5);
+  }
+  template <typename T1, typename T2, typename T3, typename T4, typename T5,
+            typename T6>
+  QVariant call(const char* name, const JSignature& sig, T1 a1, T2 a2, T3 a3,
+                T4 a4, T5 a5, T6 a6) {
+    return call(name, sig, JArgs() << a1 << a2 << a3 << a4 << a5 << a6);
+  }
 
 #else
 
-	 template<typename T> void addArg(JArgs& args, T arg)
-	 {
-		args << arg;
-	 }
-	 template<typename T, typename... Args> void addArg(JArgs& args, T arg, Args... xargs)
-	 {
-		addArg(args, arg);
-		addArg(args, xargs...);
-	 }
-	 template<typename... Args> QVariant call(const char *name, const JSignature& sig, Args... xargs)
-	 {
-		JArgs ja;
-		addArg(ja, xargs...);
-		return call(name, sig, ja);
-	 }
+  template <typename T>
+  void addArg(JArgs& args, T arg) {
+    args << arg;
+  }
+  template <typename T, typename... Args>
+  void addArg(JArgs& args, T arg, Args... xargs) {
+    addArg(args, arg);
+    addArg(args, xargs...);
+  }
+  template <typename... Args>
+  QVariant call(const char* name, const JSignature& sig, Args... xargs) {
+    JArgs ja;
+    addArg(ja, xargs...);
+    return call(name, sig, ja);
+  }
 #endif
 
-	QVariant call(const char* name, JSignature sig, JArgs args = JArgs());
-	QVariant call(const char* name, const char* sig = "()V", JArgs args = JArgs());
-	QVariant getValue(const char* name, JSignature sig) const;
-	QVariant getValue(const char* name, const char* sig) const;
-	void setValue(const char* name, JSignature sig, QVariant value);
-	void setValue(const char* name, const char* sig, QVariant value);
+  QVariant call(const char* name, JSignature sig, JArgs args = JArgs());
+  QVariant call(const char* name, const char* sig = "()V",
+                JArgs args = JArgs());
+  QVariant getValue(const char* name, JSignature sig) const;
+  QVariant getValue(const char* name, const char* sig) const;
+  void setValue(const char* name, JSignature sig, QVariant value);
+  void setValue(const char* name, const char* sig, QVariant value);
 
-	QVariant toVariant() const;
-	jobject getLocalRef();
-private:
-	void construct(const JClass& cls, const char* sig, JArgs args);
-protected:
-	jobject m_object;
-	bool m_bWeak;
+  QVariant toVariant() const;
+  jobject getLocalRef();
+
+ private:
+  void construct(const JClass& cls, const char* sig, JArgs args);
+
+ protected:
+  jobject m_object;
+  bool m_bWeak;
 };
 Q_DECLARE_METATYPE(JObject)
 
-#endif // JOBJECT_H
+#endif  // JOBJECT_H

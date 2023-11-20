@@ -26,56 +26,57 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef CURLSTAT_H
 #define CURLSTAT_H
-#include <QPair>
 #include <sys/time.h>
+
+#include <QPair>
 #include <QReadWriteLock>
 
-class CurlStat
-{
-public:
-	CurlStat();
-	virtual ~CurlStat();
+class CurlStat {
+ public:
+  CurlStat();
+  virtual ~CurlStat();
 
-	void speeds(int& down, int& up) const;
-	void setMaxUp(int bytespersec);
-	void setMaxDown(int bytespersec);
+  void speeds(int& down, int& up) const;
+  void setMaxUp(int bytespersec);
+  void setMaxDown(int bytespersec);
 
-	bool hasNextReadTime() const;
-	bool hasNextWriteTime() const;
-	timeval nextReadTime() const;
-	timeval nextWriteTime() const;
+  bool hasNextReadTime() const;
+  bool hasNextWriteTime() const;
+  timeval nextReadTime() const;
+  timeval nextWriteTime() const;
 
-	bool performsLimiting() const;
+  bool performsLimiting() const;
 
-	timeval lastOperation() const;
-	void resetStatistics();
+  timeval lastOperation() const;
+  void resetStatistics();
 
-	virtual bool idleCycle(const timeval& tvNow) = 0;
+  virtual bool idleCycle(const timeval& tvNow) = 0;
 
-	typedef QPair<long long,long> timedata_pair;
+  typedef QPair<long long, long> timedata_pair;
 
-	struct SpeedData
-	{
-		timedata_pair* stats;
-		timeval last, next, lastOp;
-		timedata_pair accum;
-		int max;
-		int nextStat;
-	};
+  struct SpeedData {
+    timedata_pair* stats;
+    timeval last, next, lastOp;
+    timedata_pair accum;
+    int max;
+    int nextStat;
+  };
 
-	static const int MAX_STATS;
-protected:
-	static int computeSpeed(const timedata_pair* data);
-	static void timeProcess(SpeedData& data, size_t bytes);
-	static bool isNull(const timeval& t);
+  static const int MAX_STATS;
 
-	void timeProcessDown(size_t bytes);
-	void timeProcessUp(size_t bytes);
-protected:
-	SpeedData m_down, m_up;
+ protected:
+  static int computeSpeed(const timedata_pair* data);
+  static void timeProcess(SpeedData& data, size_t bytes);
+  static bool isNull(const timeval& t);
 
-	friend class CurlUser;
-	friend class UrlClient;
+  void timeProcessDown(size_t bytes);
+  void timeProcessUp(size_t bytes);
+
+ protected:
+  SpeedData m_down, m_up;
+
+  friend class CurlUser;
+  friend class UrlClient;
 };
 
 #endif

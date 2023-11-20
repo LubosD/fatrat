@@ -25,98 +25,101 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JAccountStatusPlugin.h"
-#include "JString.h"
-#include "JArray.h"
+
 #include <QtDebug>
 
-QList<QPair<QString,QString> > JAccountStatusPlugin::m_listPlugins;
+#include "JArray.h"
+#include "JString.h"
+
+QList<QPair<QString, QString> > JAccountStatusPlugin::m_listPlugins;
 
 JAccountStatusPlugin::JAccountStatusPlugin(const JClass& cls, QString name)
-	: JPlugin(cls, "()V", JArgs()), m_strName(name)
-{
+    : JPlugin(cls, "()V", JArgs()), m_strName(name) {}
 
+void JAccountStatusPlugin::registerNatives() {
+  QList<JNativeMethod> natives;
+
+  natives << JNativeMethod(
+      "reportAccountBalance",
+      JSignature()
+          .add("info.dolezel.fatrat.plugins.AccountStatusPlugin$AccountState")
+          .addString(),
+      reportAccountBalance);
+
+  JClass("info.dolezel.fatrat.plugins.AccountStatusPlugin")
+      .registerNativeMethods(natives);
+
+  qRegisterMetaType<AccountState>();
 }
 
+void JAccountStatusPlugin::reportAccountBalance(JNIEnv*, jobject jthis,
+                                                jobject jstate, jstring jbal) {
+  JAccountStatusPlugin* This =
+      static_cast<JAccountStatusPlugin*>(getCObject(jthis));
+  QString strState =
+      JObject(jstate).call("name", JSignature().retString()).toString();
+  QString bal;
+  AccountState state = AccountError;
 
-void JAccountStatusPlugin::registerNatives()
-{
-	QList<JNativeMethod> natives;
+  if (jbal) bal = JString(jbal).str();
 
-	natives << JNativeMethod("reportAccountBalance",
-				 JSignature().add("info.dolezel.fatrat.plugins.AccountStatusPlugin$AccountState").addString(),
-				 reportAccountBalance);
+  if (strState == "AccountGood")
+    state = AccountGood;
+  else if (strState == "AccountWarning")
+    state = AccountWarning;
+  else if (strState == "AccountBad")
+    state = AccountBad;
 
-	JClass("info.dolezel.fatrat.plugins.AccountStatusPlugin").registerNativeMethods(natives);
-
-	qRegisterMetaType<AccountState>();
+  emit This->accountBalanceReceived(state, bal);
+  This->m_bTaskDone = true;
 }
 
-void JAccountStatusPlugin::reportAccountBalance(JNIEnv*, jobject jthis, jobject jstate, jstring jbal)
-{
-	JAccountStatusPlugin* This = static_cast<JAccountStatusPlugin*>(getCObject(jthis));
-	QString strState = JObject(jstate).call("name", JSignature().retString()).toString();
-	QString bal;
-	AccountState state = AccountError;
+QList<JAccountStatusPlugin*> JAccountStatusPlugin::createStatusPlugins() {
+  static bool firstTime = true;
 
-	if (jbal)
-		bal = JString(jbal).str();
+  if (firstTime) {
+    findPlugins();
+    firstTime = false;
+  }
 
-	if (strState == "AccountGood")
-		state = AccountGood;
-	else if (strState == "AccountWarning")
-		state = AccountWarning;
-	else if (strState == "AccountBad")
-		state = AccountBad;
+  QList<JAccountStatusPlugin*> rv;
 
-	emit This->accountBalanceReceived(state, bal);
-	This->m_bTaskDone = true;
+  for (int i = 0; i < m_listPlugins.size(); i++)
+    rv << new JAccountStatusPlugin(m_listPlugins[i].first,
+                                   m_listPlugins[i].second);
+
+  return rv;
 }
 
-QList<JAccountStatusPlugin*> JAccountStatusPlugin::createStatusPlugins()
-{
-	static bool firstTime = true;
+void JAccountStatusPlugin::findPlugins() {
+  JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+  JClass annotation(
+      "info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo");
 
-	if (firstTime)
-	{
-		findPlugins();
-		firstTime = false;
-	}
+  QList<QVariant> args;
 
-	QList<JAccountStatusPlugin*> rv;
+  args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
 
-	for (int i = 0; i < m_listPlugins.size(); i++)
-		rv << new JAccountStatusPlugin(m_listPlugins[i].first, m_listPlugins[i].second);
+  JArray arr = helper
+                   .callStatic("findAnnotatedClasses",
+                               JSignature()
+                                   .addString()
+                                   .add("java.lang.Class")
+                                   .retA("java.lang.Class"),
+                               args)
+                   .value<JArray>();
+  qDebug() << "Found" << arr.size()
+           << "annotated classes (AccountStatusPluginInfo)";
 
-	return rv;
-}
+  int classes = arr.size();
+  for (int i = 0; i < classes; i++) {
+    try {
+      JClass obj = (jobject)arr.getObject(i);
+      JObject ann = obj.getAnnotation(annotation);
+      QString name = ann.call("name", JSignature().retString()).toString();
 
-void JAccountStatusPlugin::findPlugins()
-{
-	JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
-	JClass annotation("info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo");
-
-	QList<QVariant> args;
-
-	args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
-
-	JArray arr = helper.callStatic("findAnnotatedClasses",
-					  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
-					  args).value<JArray>();
-	qDebug() << "Found" << arr.size() << "annotated classes (AccountStatusPluginInfo)";
-
-	int classes = arr.size();
-	for (int i = 0; i < classes; i++)
-	{
-		try
-		{
-			JClass obj = (jobject) arr.getObject(i);
-			JObject ann = obj.getAnnotation(annotation);
-			QString name = ann.call("name", JSignature().retString()).toString();
-
-			m_listPlugins << QPair<QString,QString>(obj.getClassName(), name);
-		}
-		catch (...)
-		{
-		}
-	}
+      m_listPlugins << QPair<QString, QString>(obj.getClassName(), name);
+    } catch (...) {
+    }
+  }
 }

@@ -25,151 +25,140 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "SpeedLimitWidget.h"
+
+#include <QLineEdit>
+#include <QMenu>
+#include <QWidgetAction>
+
 #include "MainWindow.h"
 #include "Queue.h"
 #include "fatrat.h"
-#include <QMenu>
-#include <QLineEdit>
-#include <QWidgetAction>
 
 extern MainWindow* g_wndMain;
 
-SpeedLimitWidget::SpeedLimitWidget(QWidget* parent)
-: QWidget(parent)
-{
-	setupUi(this);
-	m_timer.start(1000);
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-	
-	labelUp->setUpload(true);
-	labelUp2->setUpload(true);
+SpeedLimitWidget::SpeedLimitWidget(QWidget* parent) : QWidget(parent) {
+  setupUi(this);
+  m_timer.start(1000);
+  connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
+
+  labelUp->setUpload(true);
+  labelUp2->setUpload(true);
 }
 
-void SpeedLimitWidget::refresh()
-{
-	Queue* q = g_wndMain->getCurrentQueue();
-	if(q != 0)
-	{
-		int down,up;
-		q->speedLimits(down,up);
-		
-		g_wndMain->doneQueue(q, true, false);
-		
-		if(down > 0)
-			labelDown->setText(formatSize(down,true));
-		else
-			labelDown->setText(QString::fromUtf8("∞ kB/s"));
-		
-		if(up > 0)
-			labelUp->setText(formatSize(up,true));
-		else
-			labelUp->setText(QString::fromUtf8("∞ kB/s"));
-		
-		labelDown->refresh(down);
-		labelDown2->refresh(down);
-		labelUp->refresh(up);
-		labelUp2->refresh(up);
-	}
+void SpeedLimitWidget::refresh() {
+  Queue* q = g_wndMain->getCurrentQueue();
+  if (q != 0) {
+    int down, up;
+    q->speedLimits(down, up);
+
+    g_wndMain->doneQueue(q, true, false);
+
+    if (down > 0)
+      labelDown->setText(formatSize(down, true));
+    else
+      labelDown->setText(QString::fromUtf8("∞ kB/s"));
+
+    if (up > 0)
+      labelUp->setText(formatSize(up, true));
+    else
+      labelUp->setText(QString::fromUtf8("∞ kB/s"));
+
+    labelDown->refresh(down);
+    labelDown2->refresh(down);
+    labelUp->refresh(up);
+    labelUp2->refresh(up);
+  }
 }
 
-void SpeedLimitWidget::mouseDoubleClickEvent(QMouseEvent*)
-{
-	g_wndMain->queueItemProperties();
+void SpeedLimitWidget::mouseDoubleClickEvent(QMouseEvent*) {
+  g_wndMain->queueItemProperties();
 }
 
-void RightClickLabel::setLimit()
-{
-	Queue* q = g_wndMain->getCurrentQueue();
-	if(q != 0)
-	{
-		QAction* action = (QAction*) sender();
-		int speed = action->data().toInt() * 1024;
-		int down, up;
-		
-		q->speedLimits(down,up);
-		
-		if(m_bUpload)
-			up = speed;
-		else
-			down = speed;
-		
-		q->setSpeedLimits(down, up);
-		
-		g_wndMain->doneQueue(q);
-	}
+void RightClickLabel::setLimit() {
+  Queue* q = g_wndMain->getCurrentQueue();
+  if (q != 0) {
+    QAction* action = (QAction*)sender();
+    int speed = action->data().toInt() * 1024;
+    int down, up;
+
+    q->speedLimits(down, up);
+
+    if (m_bUpload)
+      up = speed;
+    else
+      down = speed;
+
+    q->setSpeedLimits(down, up);
+
+    g_wndMain->doneQueue(q);
+  }
 }
 
-void RightClickLabel::customSpeedEntered()
-{
-	QLineEdit* line = static_cast<QLineEdit*>(sender());
-	QString s = line->text();
-	int speed = 0;
+void RightClickLabel::customSpeedEntered() {
+  QLineEdit* line = static_cast<QLineEdit*>(sender());
+  QString s = line->text();
+  int speed = 0;
 
-	if (!s.isEmpty())
-		speed = s.toInt() * 1024;
+  if (!s.isEmpty()) speed = s.toInt() * 1024;
 
-	Queue* q = g_wndMain->getCurrentQueue();
-	if(q != 0)
-	{
-		int down, up;
+  Queue* q = g_wndMain->getCurrentQueue();
+  if (q != 0) {
+    int down, up;
 
-		q->speedLimits(down,up);
+    q->speedLimits(down, up);
 
-		if(m_bUpload)
-			up = speed;
-		else
-			down = speed;
+    if (m_bUpload)
+      up = speed;
+    else
+      down = speed;
 
-		q->setSpeedLimits(down, up);
+    q->setSpeedLimits(down, up);
 
-		g_wndMain->doneQueue(q);
-	}
+    g_wndMain->doneQueue(q);
+  }
 }
 
-void RightClickLabel::mousePressEvent(QMouseEvent* event)
-{
-	if(event->button() == Qt::RightButton)
-	{
-		QMenu menu;
-		QAction* action;
-		QLineEdit* lineEdit = new QLineEdit(&menu);
-		QWidgetAction* wa = new QWidgetAction(&menu);
-		int speed = (m_nSpeed) ? (m_nSpeed/1024) : 200;
+void RightClickLabel::mousePressEvent(QMouseEvent* event) {
+  if (event->button() == Qt::RightButton) {
+    QMenu menu;
+    QAction* action;
+    QLineEdit* lineEdit = new QLineEdit(&menu);
+    QWidgetAction* wa = new QWidgetAction(&menu);
+    int speed = (m_nSpeed) ? (m_nSpeed / 1024) : 200;
 
-		lineEdit->setText(QString::number(m_nSpeed/1024));
-		//lineEdit->setInputMask("00000");
-		wa->setDefaultWidget(lineEdit);
-		connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(customSpeedEntered()));
-		connect(lineEdit, SIGNAL(returnPressed()), &menu, SLOT(close()));
-		
-		menu.setSeparatorsCollapsible(false);
-		action = menu.addSeparator();
-		action->setText(m_bUpload ? tr("Upload") : tr("Download"));
-		menu.addAction(wa);
-		menu.addSeparator();
-		
-		action = menu.addAction(QString::fromUtf8("∞ kB/s"));
-		action->setData(0);
-		connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
-		menu.addSeparator();
-		
-		int step = speed/4;
-		speed *= 2;
-		
-		for(int i=0;i<8 && speed;i++)
-		{
-			action = menu.addAction(formatSize(speed*1024, true));
-			action->setData(speed);
-			connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
-			
-			speed -= step;
-		}
-		
-		menu.exec(QCursor::pos());
-	}
+    lineEdit->setText(QString::number(m_nSpeed / 1024));
+    // lineEdit->setInputMask("00000");
+    wa->setDefaultWidget(lineEdit);
+    connect(lineEdit, SIGNAL(returnPressed()), this,
+            SLOT(customSpeedEntered()));
+    connect(lineEdit, SIGNAL(returnPressed()), &menu, SLOT(close()));
+
+    menu.setSeparatorsCollapsible(false);
+    action = menu.addSeparator();
+    action->setText(m_bUpload ? tr("Upload") : tr("Download"));
+    menu.addAction(wa);
+    menu.addSeparator();
+
+    action = menu.addAction(QString::fromUtf8("∞ kB/s"));
+    action->setData(0);
+    connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
+    menu.addSeparator();
+
+    int step = speed / 4;
+    speed *= 2;
+
+    for (int i = 0; i < 8 && speed; i++) {
+      action = menu.addAction(formatSize(speed * 1024, true));
+      action->setData(speed);
+      connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
+
+      speed -= step;
+    }
+
+    menu.exec(QCursor::pos());
+  }
 }
 
-void RightClickLabel::mouseDoubleClickEvent(QMouseEvent*)
-{
-	g_wndMain->queueItemProperties();
+void RightClickLabel::mouseDoubleClickEvent(QMouseEvent*) {
+  g_wndMain->queueItemProperties();
 }

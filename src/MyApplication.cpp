@@ -24,44 +24,37 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "MyApplication.h"
+
 #include <QApplication>
 #include <QMessageBox>
 #include <typeinfo>
-#include "MyApplication.h"
+
 #include "Queue.h"
 
 MyApplication::MyApplication(int& argc, char** argv)
-	: QApplication(argc, argv)
-{
+    : QApplication(argc, argv) {}
+
+bool MyApplication::notify(QObject* receiver, QEvent* e) {
+  try {
+    QApplication::notify(receiver, e);
+  } catch (const std::exception& e) {
+    reportException(QString::fromUtf8(e.what()), typeid(e).name());
+  } catch (const RuntimeException& e) {
+    reportException(e.what(), "RuntimeException");
+  }
+
+  return false;
 }
 
-bool MyApplication::notify(QObject* receiver, QEvent* e)
-{
-	try
-	{
-		QApplication::notify(receiver, e);
-	}
-	catch(const std::exception& e)
-	{
-		reportException(QString::fromUtf8(e.what()), typeid(e).name());
-	}
-	catch(const RuntimeException& e)
-	{
-		reportException(e.what(), "RuntimeException");
-	}
+void MyApplication::saveState(QSessionManager&) { Queue::saveQueues(); }
 
-	return false;
-}
-
-void MyApplication::saveState(QSessionManager&)
-{
-	Queue::saveQueues();
-}
-
-void MyApplication::reportException(QString text, QString type)
-{
-	QMessageBox::critical(0, tr("Unhandled exception"),
-				       tr("The main handler has caught the following exception."
-				       " This is a bug and should be reported as such.\n\n"
-				       "Type of exception: %1\nMessage: %2").arg(type).arg(text));
+void MyApplication::reportException(QString text, QString type) {
+  QMessageBox::critical(
+      0, tr("Unhandled exception"),
+      tr("The main handler has caught the following exception."
+         " This is a bug and should be reported as such.\n\n"
+         "Type of exception: %1\nMessage: %2")
+          .arg(type)
+          .arg(text));
 }

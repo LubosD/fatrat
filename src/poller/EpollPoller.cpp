@@ -25,88 +25,66 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "EpollPoller.h"
-#include "RuntimeException.h"
-#include <sys/epoll.h>
-#include <errno.h>
+
 #include <alloca.h>
+#include <errno.h>
+#include <sys/epoll.h>
 #include <unistd.h>
 
-EpollPoller::EpollPoller(QObject* parent)
-	: Poller(parent)
-{
-	m_epoll = epoll_create(20);
-	if(m_epoll <= 0)
-		throw RuntimeException("epoll_create() failed");
+#include "RuntimeException.h"
+
+EpollPoller::EpollPoller(QObject* parent) : Poller(parent) {
+  m_epoll = epoll_create(20);
+  if (m_epoll <= 0) throw RuntimeException("epoll_create() failed");
 }
 
-EpollPoller::~EpollPoller()
-{
-	if(m_epoll > 0)
-		close(m_epoll);
+EpollPoller::~EpollPoller() {
+  if (m_epoll > 0) close(m_epoll);
 }
 
-int EpollPoller::handle()
-{
-	return m_epoll;
+int EpollPoller::handle() { return m_epoll; }
+
+int EpollPoller::addSocket(int socket, int flags) {
+  epoll_event event;
+  event.events = 0;
+  event.data.fd = socket;
+
+  if (flags & PollerIn) event.events |= EPOLLIN;
+  if (flags & PollerOut) event.events |= EPOLLOUT;
+  if (flags & PollerOneShot) event.events |= EPOLLONESHOT;
+  if (flags & PollerHup) event.events |= EPOLLHUP;
+
+  if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, socket, &event)) {
+    if (errno == ENOENT) {
+      if (epoll_ctl(m_epoll, EPOLL_CTL_ADD, socket, &event)) return errno;
+    } else
+      return errno;
+  }
+
+  return 0;
 }
 
-int EpollPoller::addSocket(int socket, int flags)
-{
-	epoll_event event;
-	event.events = 0;
-	event.data.fd = socket;
-	
-	if(flags & PollerIn)
-		event.events |= EPOLLIN;
-	if(flags & PollerOut)
-		event.events |= EPOLLOUT;
-	if(flags & PollerOneShot)
-		event.events |= EPOLLONESHOT;
-	if(flags & PollerHup)
-		event.events |= EPOLLHUP;
-	
-	if(epoll_ctl(m_epoll, EPOLL_CTL_MOD, socket, &event))
-	{
-		if(errno == ENOENT)
-		{
-			if(epoll_ctl(m_epoll, EPOLL_CTL_ADD, socket, &event))
-				return errno;
-		}
-		else
-			return errno;
-	}
-	
-	return 0;
+int EpollPoller::removeSocket(int socket) {
+  epoll_ctl(m_epoll, EPOLL_CTL_DEL, socket, 0);
+  return errno;
 }
 
-int EpollPoller::removeSocket(int socket)
-{
-	epoll_ctl(m_epoll, EPOLL_CTL_DEL, socket, 0);
-	return errno;
-}
+int EpollPoller::wait(int msec, Event* xev, int max) {
+  epoll_event* events = (epoll_event*)alloca(sizeof(epoll_event) * max);
+  int nfds;
 
-int EpollPoller::wait(int msec, Event* xev, int max)
-{
-	epoll_event* events = (epoll_event*) alloca(sizeof(epoll_event) * max);
-	int nfds;
-	
-	nfds = epoll_wait(m_epoll, events, max, msec);
-	
-	for(int i=0;i<nfds;i++)
-	{
-		Event& ev = xev[i];
-		ev.socket = events[i].data.fd;
-		ev.flags = 0;
-		
-		if(events[i].events & EPOLLIN)
-			ev.flags |= PollerIn;
-		if(events[i].events & EPOLLOUT)
-			ev.flags |= PollerOut;
-		if(events[i].events & EPOLLERR)
-			ev.flags |= PollerError;
-		if(events[i].events & EPOLLHUP)
-			ev.flags |= PollerHup;
-	}
-	
-	return nfds;
+  nfds = epoll_wait(m_epoll, events, max, msec);
+
+  for (int i = 0; i < nfds; i++) {
+    Event& ev = xev[i];
+    ev.socket = events[i].data.fd;
+    ev.flags = 0;
+
+    if (events[i].events & EPOLLIN) ev.flags |= PollerIn;
+    if (events[i].events & EPOLLOUT) ev.flags |= PollerOut;
+    if (events[i].events & EPOLLERR) ev.flags |= PollerError;
+    if (events[i].events & EPOLLHUP) ev.flags |= PollerHup;
+  }
+
+  return nfds;
 }

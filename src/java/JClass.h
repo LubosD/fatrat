@@ -29,53 +29,55 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include <jni.h>
-#include <QVariant>
+
 #include <QList>
-#include "JValue.h"
-#include "JSignature.h"
+#include <QVariant>
+
 #include "JNativeMethod.h"
+#include "JSignature.h"
+#include "JValue.h"
 
 typedef QList<QVariant> JArgs;
 class JObject;
 
-class JClass
-{
-public:
-	JClass(const JClass& cls);
+class JClass {
+ public:
+  JClass(const JClass& cls);
 #ifdef WITH_CXX0X
-	JClass(JClass&& cls);
+  JClass(JClass&& cls);
 #endif
-	JClass(QString clsName);
-	JClass(jclass cls);
-	JClass(jobject cls);
-	virtual ~JClass();
+  JClass(QString clsName);
+  JClass(jclass cls);
+  JClass(jobject cls);
+  virtual ~JClass();
 
-	operator jclass() const;
+  operator jclass() const;
 
-	QVariant callStatic(const char* name, JSignature sig, JArgs args = JArgs());
-	QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
-	QVariant getStaticValue(const char* name, JSignature sig) const;
-	QVariant getStaticValue(const char* name, const char* sig) const;
-	void setStaticValue(const char* name, JSignature sig, QVariant value);
-	void setStaticValue(const char* name, const char* sig, QVariant value);
+  QVariant callStatic(const char* name, JSignature sig, JArgs args = JArgs());
+  QVariant callStatic(const char* name, const char* sig, JArgs args = JArgs());
+  QVariant getStaticValue(const char* name, JSignature sig) const;
+  QVariant getStaticValue(const char* name, const char* sig) const;
+  void setStaticValue(const char* name, JSignature sig, QVariant value);
+  void setStaticValue(const char* name, const char* sig, QVariant value);
 
-	bool isNull() const { return !m_class; }
-	QString getClassName() const;
-	JObject toClassObject() const;
-	JObject getAnnotation(QString className);
-	JObject getAnnotation(JClass cls);
+  bool isNull() const { return !m_class; }
+  QString getClassName() const;
+  JObject toClassObject() const;
+  JObject getAnnotation(QString className);
+  JObject getAnnotation(JClass cls);
 
-	void registerNativeMethods(const QList<JNativeMethod>& m);
+  void registerNativeMethods(const QList<JNativeMethod>& m);
 
-	QVariant toVariant() const;
+  QVariant toVariant() const;
 
-	static JValue variantToValue(QVariant& v);
-private:
-	jclass m_class;
+  static JValue variantToValue(QVariant& v);
+
+ private:
+  jclass m_class;
 };
 
-#endif // JCLASS_H
+#endif  // JCLASS_H

@@ -29,7 +29,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include "JTransferPlugin.h"
@@ -37,32 +37,34 @@ respects for all of the code used other than "OpenSSL".
 
 class JavaUpload;
 
-class JUploadPlugin : public JTransferPlugin
-{
-public:
-	JUploadPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JUploadPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+class JUploadPlugin : public JTransferPlugin {
+ public:
+  JUploadPlugin(const JClass& cls, const char* sig = "()V",
+                JArgs args = JArgs());
+  JUploadPlugin(const char* clsName, const char* sig = "()V",
+                JArgs args = JArgs());
 
-	static void registerNatives();
-	
-	// JNI methods
-	static void startUploadChunk(JNIEnv *, jobject, jstring, jobjectArray, jlong, jlong);
-	static void putDownloadLink(JNIEnv *, jobject, jstring, jstring);
+  static void registerNatives();
 
-	virtual void setPersistentVariable(QString key, QVariant value);
-	virtual QVariant getPersistentVariable(QString key);
-	
-	class JMimePart : public JObject
-	{
-	public:
-		JMimePart(JObject obj);
-		enum MimePartType { MimePartValue, MimePartFile };
-		
-		MimePartType mimePartType();
-		QString name();
-		QString value();
-	};
-private:
+  // JNI methods
+  static void startUploadChunk(JNIEnv*, jobject, jstring, jobjectArray, jlong,
+                               jlong);
+  static void putDownloadLink(JNIEnv*, jobject, jstring, jstring);
+
+  virtual void setPersistentVariable(QString key, QVariant value);
+  virtual QVariant getPersistentVariable(QString key);
+
+  class JMimePart : public JObject {
+   public:
+    JMimePart(JObject obj);
+    enum MimePartType { MimePartValue, MimePartFile };
+
+    MimePartType mimePartType();
+    QString name();
+    QString value();
+  };
+
+ private:
 };
 
 #endif

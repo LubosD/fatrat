@@ -27,32 +27,34 @@ respects for all of the code used other than "OpenSSL".
 #ifndef CAPTCHAQTDLG_H
 #define CAPTCHAQTDLG_H
 #include <QDialog>
-#include <QTimer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTimer>
+
 #include "ui_CaptchaQtDlg.h"
 
-class CaptchaQtDlg : public QDialog, Ui_CaptchaQtDlg
-{
-Q_OBJECT
-public:
-	CaptchaQtDlg(QWidget* parent = 0);
-	void load(QString url);
-	virtual void accept();
-	virtual void reject();
-signals:
-	void captchaEntered(QString text = QString());
-private slots:
-	void secondElapsed();
-	void imageLoaded(QNetworkReply* reply);
-	void textChanged();
-private:
-	void updateInfo();
-private:
-	QString m_strUrl;
-	QTimer m_timer;
-	int m_nSecondsLeft;
-	QNetworkAccessManager m_network;
+class CaptchaQtDlg : public QDialog, Ui_CaptchaQtDlg {
+  Q_OBJECT
+ public:
+  CaptchaQtDlg(QWidget* parent = 0);
+  void load(QString url);
+  virtual void accept();
+  virtual void reject();
+ signals:
+  void captchaEntered(QString text = QString());
+ private slots:
+  void secondElapsed();
+  void imageLoaded(QNetworkReply* reply);
+  void textChanged();
+
+ private:
+  void updateInfo();
+
+ private:
+  QString m_strUrl;
+  QTimer m_timer;
+  int m_nSecondsLeft;
+  QNetworkAccessManager m_network;
 };
 
-#endif // CAPTCHAQTDLG_H
+#endif  // CAPTCHAQTDLG_H

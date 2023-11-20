@@ -25,58 +25,60 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "Notification.h"
-#include "RuntimeException.h"
+
 #include <QLibrary>
 
-static NotifyNotification* (*notify_notification_new)(const char *summary, const char *body, const char *icon) = 0;
-static bool (*notify_notification_update)(NotifyNotification *notification, const char *summary, const char *body, const char *icon) = 0;
-static bool (*notify_notification_show)(NotifyNotification *notification, void **error) = 0;
-static void (*notify_notification_set_timeout)(NotifyNotification *notification, int timeout) = 0;
+#include "RuntimeException.h"
 
-Notification::Notification()
-	: m_notif(0)
-{
-	if (!notify_notification_new)
-	{
-		QLibrary lib("libnotify.so.1");
-		if (!lib.load())
-			throw RuntimeException(tr("Libnotify not found."));
+static NotifyNotification *(*notify_notification_new)(const char *summary,
+                                                      const char *body,
+                                                      const char *icon) = 0;
+static bool (*notify_notification_update)(NotifyNotification *notification,
+                                          const char *summary, const char *body,
+                                          const char *icon) = 0;
+static bool (*notify_notification_show)(NotifyNotification *notification,
+                                        void **error) = 0;
+static void (*notify_notification_set_timeout)(NotifyNotification *notification,
+                                               int timeout) = 0;
 
-		*((void**) &notify_notification_new) = lib.resolve("notify_notification_new");
-		*((void**) &notify_notification_update) = lib.resolve("notify_notification_update");
-		*((void**) &notify_notification_show) = lib.resolve("notify_notification_set_timeout");
-		*((void**) &notify_notification_set_timeout) = lib.resolve("notify_notification_show");
-	}
+Notification::Notification() : m_notif(0) {
+  if (!notify_notification_new) {
+    QLibrary lib("libnotify.so.1");
+    if (!lib.load()) throw RuntimeException(tr("Libnotify not found."));
+
+    *((void **)&notify_notification_new) =
+        lib.resolve("notify_notification_new");
+    *((void **)&notify_notification_update) =
+        lib.resolve("notify_notification_update");
+    *((void **)&notify_notification_show) =
+        lib.resolve("notify_notification_set_timeout");
+    *((void **)&notify_notification_set_timeout) =
+        lib.resolve("notify_notification_show");
+  }
 }
 
-Notification::~Notification()
-{
-	// TODO: destroy m_notif
+Notification::~Notification() {
+  // TODO: destroy m_notif
 }
 
-void Notification::setMessage(QString summary, QString text, QString icon)
-{
-	std::string sum, txt, ico;
+void Notification::setMessage(QString summary, QString text, QString icon) {
+  std::string sum, txt, ico;
 
-	sum = summary.toStdString();
-	txt = text.toStdString();
-	ico = icon.toStdString();
+  sum = summary.toStdString();
+  txt = text.toStdString();
+  ico = icon.toStdString();
 
-	if (!m_notif)
-	{
-		m_notif = notify_notification_new(sum.c_str(), txt.c_str(), ico.c_str());
-		if (!m_notif)
-			throw RuntimeException(tr("Failed to create a notification"));
-	}
-	else
-	{
-		if (!notify_notification_update(m_notif, sum.c_str(), txt.c_str(), ico.c_str()))
-			throw RuntimeException(tr("Failed to update a notification"));
-	}
+  if (!m_notif) {
+    m_notif = notify_notification_new(sum.c_str(), txt.c_str(), ico.c_str());
+    if (!m_notif) throw RuntimeException(tr("Failed to create a notification"));
+  } else {
+    if (!notify_notification_update(m_notif, sum.c_str(), txt.c_str(),
+                                    ico.c_str()))
+      throw RuntimeException(tr("Failed to update a notification"));
+  }
 }
 
-void Notification::show(int timeout)
-{
-	notify_notification_set_timeout(m_notif, timeout);
-	notify_notification_show(m_notif, 0);
+void Notification::show(int timeout) {
+  notify_notification_set_timeout(m_notif, timeout);
+  notify_notification_show(m_notif, 0);
 }

@@ -25,105 +25,97 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "ScheduledActionDlg.h"
-#include "Queue.h"
+
 #include <QMessageBox>
 
-ScheduledActionDlg::ScheduledActionDlg(QWidget* parent)
-	: QDialog(parent)
-{
-	setupUi(this);
-	
-	connect(radioRepeated, SIGNAL(clicked()), this, SLOT(switchPages()));
-	connect(radioOneTime, SIGNAL(clicked()), this, SLOT(switchPages()));
+#include "Queue.h"
 
-	comboAction->addItems(QStringList() << tr("Resume all") << tr("Stop all") << tr("Set speed limit"));
-	connect(comboAction, SIGNAL(currentIndexChanged(int)), stackedArguments, SLOT(setCurrentIndex(int)));
+ScheduledActionDlg::ScheduledActionDlg(QWidget* parent) : QDialog(parent) {
+  setupUi(this);
+
+  connect(radioRepeated, SIGNAL(clicked()), this, SLOT(switchPages()));
+  connect(radioOneTime, SIGNAL(clicked()), this, SLOT(switchPages()));
+
+  comboAction->addItems(QStringList() << tr("Resume all") << tr("Stop all")
+                                      << tr("Set speed limit"));
+  connect(comboAction, SIGNAL(currentIndexChanged(int)), stackedArguments,
+          SLOT(setCurrentIndex(int)));
 }
 
-void ScheduledActionDlg::load()
-{
-	g_queuesLock.lockForRead();
-	for(int i=0;i<g_queues.size();i++)
-	{
-		comboQueue->addItem(g_queues[i]->name());
-		comboQueue->setItemData(i, g_queues[i]->uuid());
-		
-		if(g_queues[i]->uuid() == m_action.queue.toString())
-			comboQueue->setCurrentIndex(i);
-	}
-	g_queuesLock.unlock();
-	
-	lineName->setText(m_action.name);
-	timeEdit->setTime(m_action.whenRepeated);
-	dateTimeEdit->setDateTime(m_action.whenOneTime);
-	radioRepeated->setChecked(m_action.repeated);
-	radioOneTime->setChecked(!m_action.repeated);
-	comboAction->setCurrentIndex(int(m_action.action));
-	
-	for(int i=0;i<7;i++)
-		listWeekdays->item(i)->setCheckState(m_action.daysRepeated[i] ? Qt::Checked : Qt::Unchecked);
+void ScheduledActionDlg::load() {
+  g_queuesLock.lockForRead();
+  for (int i = 0; i < g_queues.size(); i++) {
+    comboQueue->addItem(g_queues[i]->name());
+    comboQueue->setItemData(i, g_queues[i]->uuid());
 
-	if(m_action.action == ScheduledAction::ActionSetSpeedLimit)
-	{
-		QList<QVariant> sp = m_action.actionArgument.toList();
-		if (sp.size() == 2)
-		{
-			lineDown->setText(QString::number(sp[0].toInt()/ 1024));
-			lineUp->setText(QString::number(sp[1].toInt() / 1024));
-		}
-	}
-	
-	switchPages();
+    if (g_queues[i]->uuid() == m_action.queue.toString())
+      comboQueue->setCurrentIndex(i);
+  }
+  g_queuesLock.unlock();
+
+  lineName->setText(m_action.name);
+  timeEdit->setTime(m_action.whenRepeated);
+  dateTimeEdit->setDateTime(m_action.whenOneTime);
+  radioRepeated->setChecked(m_action.repeated);
+  radioOneTime->setChecked(!m_action.repeated);
+  comboAction->setCurrentIndex(int(m_action.action));
+
+  for (int i = 0; i < 7; i++)
+    listWeekdays->item(i)->setCheckState(
+        m_action.daysRepeated[i] ? Qt::Checked : Qt::Unchecked);
+
+  if (m_action.action == ScheduledAction::ActionSetSpeedLimit) {
+    QList<QVariant> sp = m_action.actionArgument.toList();
+    if (sp.size() == 2) {
+      lineDown->setText(QString::number(sp[0].toInt() / 1024));
+      lineUp->setText(QString::number(sp[1].toInt() / 1024));
+    }
+  }
+
+  switchPages();
 }
 
-void ScheduledActionDlg::save()
-{
-	int index = comboQueue->currentIndex();
-	if (index == -1)
-		m_action.queue = QUuid();
-	else
-		m_action.queue = comboQueue->itemData(comboQueue->currentIndex()).toString();
-	m_action.name = lineName->text();
-	m_action.repeated = radioRepeated->isChecked();
-	m_action.whenRepeated = timeEdit->time();
-	m_action.whenOneTime = dateTimeEdit->dateTime();
-	m_action.action = ScheduledAction::ActionType(comboAction->currentIndex());
+void ScheduledActionDlg::save() {
+  int index = comboQueue->currentIndex();
+  if (index == -1)
+    m_action.queue = QUuid();
+  else
+    m_action.queue = QUuid::fromString(
+        comboQueue->itemData(comboQueue->currentIndex()).toString());
+  m_action.name = lineName->text();
+  m_action.repeated = radioRepeated->isChecked();
+  m_action.whenRepeated = timeEdit->time();
+  m_action.whenOneTime = dateTimeEdit->dateTime();
+  m_action.action = ScheduledAction::ActionType(comboAction->currentIndex());
 
-	if(m_action.action == ScheduledAction::ActionSetSpeedLimit)
-	{
-		QList<QVariant> sp;
-		sp << lineDown->text().toInt() * 1024;
-		sp << lineUp->text().toInt() * 1024;
-		m_action.actionArgument = sp;
-	}
-	
-	for(int i=0;i<7;i++)
-		m_action.daysRepeated[i] = listWeekdays->item(i)->checkState() == Qt::Checked;
+  if (m_action.action == ScheduledAction::ActionSetSpeedLimit) {
+    QList<QVariant> sp;
+    sp << lineDown->text().toInt() * 1024;
+    sp << lineUp->text().toInt() * 1024;
+    m_action.actionArgument = sp;
+  }
+
+  for (int i = 0; i < 7; i++)
+    m_action.daysRepeated[i] =
+        listWeekdays->item(i)->checkState() == Qt::Checked;
 }
 
-void ScheduledActionDlg::accept()
-{
-	if(lineName->text().isEmpty())
-	{
-		QMessageBox::warning(this, "FatRat", tr("Enter the action name!"));
-	}
-	else
-		QDialog::accept();
+void ScheduledActionDlg::accept() {
+  if (lineName->text().isEmpty()) {
+    QMessageBox::warning(this, "FatRat", tr("Enter the action name!"));
+  } else
+    QDialog::accept();
 }
 
-int ScheduledActionDlg::exec()
-{
-	load();
-	
-	int ret = QDialog::exec();
-	if(ret == QDialog::Accepted)
-		save();
-	
-	return ret;
+int ScheduledActionDlg::exec() {
+  load();
+
+  int ret = QDialog::exec();
+  if (ret == QDialog::Accepted) save();
+
+  return ret;
 }
 
-void ScheduledActionDlg::switchPages()
-{
-	stackedWidget->setCurrentIndex(radioOneTime->isChecked() ? 1 : 0);
+void ScheduledActionDlg::switchPages() {
+  stackedWidget->setCurrentIndex(radioOneTime->isChecked() ? 1 : 0);
 }
-

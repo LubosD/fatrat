@@ -30,35 +30,33 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QVector>
 
-#include "ui_SettingsDlg.h"
 #include "Transfer.h"
+#include "ui_SettingsDlg.h"
 
-class SettingsDlg : public QDialog, Ui_SettingsDlg
-{
-Q_OBJECT
-public:
-	SettingsDlg(QWidget* parent);
-	~SettingsDlg();
+class SettingsDlg : public QDialog, Ui_SettingsDlg {
+  Q_OBJECT
+ public:
+  SettingsDlg(QWidget* parent);
+  ~SettingsDlg();
 
-	void setPage(int i);
-	template <typename T> void setPageByType()
-	{
-		for (int i = 0; i < m_children.size(); i++)
-		{
-			if (dynamic_cast<T*>(m_children[i]))
-			{
-				setPage(i);
-				break;
-			}
-		}
-	}
-	
-	virtual void accept();
-	int exec();
-public slots:
-	void buttonClicked(QAbstractButton* btn);
-private:
-	QList<WidgetHostChild*> m_children;
+  void setPage(int i);
+  template <typename T>
+  void setPageByType() {
+    for (int i = 0; i < m_children.size(); i++) {
+      if (dynamic_cast<T*>(m_children[i])) {
+        setPage(i);
+        break;
+      }
+    }
+  }
+
+  virtual void accept();
+  int exec();
+ public slots:
+  void buttonClicked(QAbstractButton* btn);
+
+ private:
+  QList<WidgetHostChild*> m_children;
 };
 
 #endif

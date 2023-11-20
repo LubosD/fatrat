@@ -27,23 +27,25 @@ respects for all of the code used other than "OpenSSL".
 #ifndef SCHEDULEDACTIONDLG_H
 #define SCHEDULEDACTIONDLG_H
 #include <QDialog>
-#include "ui_ScheduledActionDlg.h"
-#include "Scheduler.h"
 
-class ScheduledActionDlg : public QDialog, Ui_ScheduledActionDlg
-{
-Q_OBJECT
-public:
-	ScheduledActionDlg(QWidget* parent);
-	int exec();
-	void accept();
-private:
-	void load();
-	void save();
-private slots:
-	void switchPages();
-public:
-	ScheduledAction m_action;
+#include "Scheduler.h"
+#include "ui_ScheduledActionDlg.h"
+
+class ScheduledActionDlg : public QDialog, Ui_ScheduledActionDlg {
+  Q_OBJECT
+ public:
+  ScheduledActionDlg(QWidget* parent);
+  int exec();
+  void accept();
+
+ private:
+  void load();
+  void save();
+ private slots:
+  void switchPages();
+
+ public:
+  ScheduledAction m_action;
 };
 
 #endif

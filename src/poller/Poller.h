@@ -26,31 +26,36 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef _POLLER_H
 #define _POLLER_H
-#include <QObject>
 #include <QList>
+#include <QObject>
 
-class Poller : public QObject
-{
-public:
-	static Poller* createInstance(QObject* parent = 0);
-	
-	enum Flags { PollerIn = 1, PollerOut = 2, PollerError = 4, PollerHup = 8, PollerOneShot = 16 };
-	
-	struct Event
-	{
-		int socket;
-		int flags;
-	};
-	
-	virtual int handle() = 0;
-	
-	// Should perform modify if the socket is already in the set
-	// provided that the underlying subsystem requires that.
-	virtual int addSocket(int socket, int flags) = 0;
-	virtual int removeSocket(int socket) = 0;
-	virtual int wait(int msec, Event* ev, int max) = 0;
-protected:
-	Poller(QObject* parent);
+class Poller : public QObject {
+ public:
+  static Poller* createInstance(QObject* parent = 0);
+
+  enum Flags {
+    PollerIn = 1,
+    PollerOut = 2,
+    PollerError = 4,
+    PollerHup = 8,
+    PollerOneShot = 16
+  };
+
+  struct Event {
+    int socket;
+    int flags;
+  };
+
+  virtual int handle() = 0;
+
+  // Should perform modify if the socket is already in the set
+  // provided that the underlying subsystem requires that.
+  virtual int addSocket(int socket, int flags) = 0;
+  virtual int removeSocket(int socket) = 0;
+  virtual int wait(int msec, Event* ev, int max) = 0;
+
+ protected:
+  Poller(QObject* parent);
 };
 
 #endif

@@ -27,28 +27,29 @@ respects for all of the code used other than "OpenSSL".
 #ifndef RSSREGEXPDLG_H
 #define RSSREGEXPDLG_H
 #include <QDialog>
-#include "ui_RssRegexpDlg.h"
-#include "RssFetcher.h"
 
-class RssRegexpDlg : public QDialog, Ui_RssRegexpDlg
-{
-Q_OBJECT
-public:
-	RssRegexpDlg(QWidget* parent);
-	int exec();
-protected slots:
-	void browse();
-	void test();
-	void updateTVS();
-	void updateParsing();
-	void linkClicked(const QString& link);
-	void queueChanged(int now);
-public:
-	QList<RssFeed> m_feeds;
-	
-	QString m_strFeedName;
-	RssRegexp m_regexp;
-	int m_nLastQueue;
+#include "RssFetcher.h"
+#include "ui_RssRegexpDlg.h"
+
+class RssRegexpDlg : public QDialog, Ui_RssRegexpDlg {
+  Q_OBJECT
+ public:
+  RssRegexpDlg(QWidget* parent);
+  int exec();
+ protected slots:
+  void browse();
+  void test();
+  void updateTVS();
+  void updateParsing();
+  void linkClicked(const QString& link);
+  void queueChanged(int now);
+
+ public:
+  QList<RssFeed> m_feeds;
+
+  QString m_strFeedName;
+  RssRegexp m_regexp;
+  int m_nLastQueue;
 };
 
 #endif

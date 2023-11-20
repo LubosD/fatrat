@@ -28,70 +28,77 @@ respects for all of the code used other than "OpenSSL".
 #define _TRANSFERSMODEL_H
 
 #include <QAbstractListModel>
+#include <QItemDelegate>
+#include <QMap>
+#include <QPixmap>
 #include <QStringList>
 #include <QTreeView>
-#include <QItemDelegate>
-#include "Queue.h"
-#include <QPixmap>
-#include <QMap>
 
-class ProgressDelegate : public QItemDelegate
-{
-public:
-	ProgressDelegate(QObject* parent=0) : QItemDelegate(parent) {}
-	QSize sizeHint(const QStyleOptionViewItem& /*option*/, const QModelIndex& /*index*/) const { return QSize(60,25); }
-	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+#include "Queue.h"
+
+class ProgressDelegate : public QItemDelegate {
+ public:
+  ProgressDelegate(QObject* parent = 0) : QItemDelegate(parent) {}
+  QSize sizeHint(const QStyleOptionViewItem& /*option*/,
+                 const QModelIndex& /*index*/) const {
+    return QSize(60, 25);
+  }
+  void paint(QPainter* painter, const QStyleOptionViewItem& option,
+             const QModelIndex& index) const;
 };
 
-class TransfersModel : public QAbstractListModel
-{
-Q_OBJECT
-public:
-	TransfersModel(QObject* parent);
-	~TransfersModel();
-	QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-	QModelIndex parent(const QModelIndex &index) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	int columnCount(const QModelIndex &parent) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	QVariant data(const QModelIndex &index, int role) const;
-	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
-	Qt::DropActions supportedDragActions() const;
-	QStringList mimeTypes() const { return QStringList("application/x-fatrat-transfer"); }
-	QMimeData* mimeData(const QModelIndexList &indexes) const;
-	
-	void setQueue(int q);
-	void refresh();
-	int remapIndex(int index);
-protected:
-	int m_queue;
-private:
-	int m_nLastRowCount;
-	QIcon* m_states[12];
-	QMap<int,int> m_filterMapping;
-	
-	struct RowData
-	{
-		Transfer::State state;
-		QString name, speedDown, speedUp, timeLeft, message, progress, size;
-		Transfer::Mode mode, primaryMode;
-		float fProgress;
-		
-		inline bool operator!=(const RowData& d2)
-		{
+class TransfersModel : public QAbstractListModel {
+  Q_OBJECT
+ public:
+  TransfersModel(QObject* parent);
+  ~TransfersModel();
+  QModelIndex index(int row, int column = 0,
+                    const QModelIndex& parent = QModelIndex()) const;
+  QModelIndex parent(const QModelIndex& index) const;
+  Qt::ItemFlags flags(const QModelIndex& index) const;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const;
+  int columnCount(const QModelIndex& parent) const;
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+  QVariant data(const QModelIndex& index, int role) const;
+  bool hasChildren(const QModelIndex& parent = QModelIndex()) const;
+  Qt::DropActions supportedDragActions() const;
+  QStringList mimeTypes() const {
+    return QStringList("application/x-fatrat-transfer");
+  }
+  QMimeData* mimeData(const QModelIndexList& indexes) const;
+
+  void setQueue(int q);
+  void refresh();
+  int remapIndex(int index);
+
+ protected:
+  int m_queue;
+
+ private:
+  int m_nLastRowCount;
+  QIcon* m_states[12];
+  QMap<int, int> m_filterMapping;
+
+  struct RowData {
+    Transfer::State state;
+    QString name, speedDown, speedUp, timeLeft, message, progress, size;
+    Transfer::Mode mode, primaryMode;
+    float fProgress;
+
+    inline bool operator!=(const RowData& d2) {
 #define COMP(n) n != d2.n
-			return COMP(state) || COMP(name) || COMP(speedDown) || COMP(speedUp) || COMP(timeLeft) || COMP(message) ||
-					COMP(progress) || COMP(size) || COMP(mode) || COMP(primaryMode);
+      return COMP(state) || COMP(name) || COMP(speedDown) || COMP(speedUp) ||
+             COMP(timeLeft) || COMP(message) || COMP(progress) || COMP(size) ||
+             COMP(mode) || COMP(primaryMode);
 #undef COMP
-		}
-	};
-	
-	static RowData createDataSet(Transfer* t);
-	
-	QVector<RowData> m_lastData;
-	
-	friend class ProgressDelegate;
+    }
+  };
+
+  static RowData createDataSet(Transfer* t);
+
+  QVector<RowData> m_lastData;
+
+  friend class ProgressDelegate;
 };
 
 #endif

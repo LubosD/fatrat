@@ -29,64 +29,70 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include <jni.h>
+
 #include <QMetaType>
+
 #include "JObject.h"
 
-class JArray : public JObject
-{
-public:
-	JArray();
-	JArray(jobject arr);
-	JArray(jarray arr);
-	JArray(const char* type, size_t length);
+class JArray : public JObject {
+ public:
+  JArray();
+  JArray(jobject arr);
+  JArray(jarray arr);
+  JArray(const char* type, size_t length);
 
-	size_t length() const { return size(); }
-	size_t size() const;
+  size_t length() const { return size(); }
+  size_t size() const;
 
-	static JArray createIntArray(size_t length) { return JArray("I", length); }
-	static JArray createLongLongArray(size_t length) { return JArray("J", length); }
-	static JArray createShortArray(size_t length) { return JArray("S", length); }
-	static JArray createWchar_tArray(size_t length) { return JArray("C", length); }
-	static JArray createByteArray(size_t length) { return JArray("B", length); }
-	static JArray createFloatArray(size_t length) { return JArray("F", length); }
-	static JArray createDoubleArray(size_t length) { return JArray("D", length); }
-	static JArray createBoolArray(size_t length) { return JArray("B", length); }
-	static JArray createObjectArray(size_t length, JClass type, JObject initialValue = JObject());
+  static JArray createIntArray(size_t length) { return JArray("I", length); }
+  static JArray createLongLongArray(size_t length) {
+    return JArray("J", length);
+  }
+  static JArray createShortArray(size_t length) { return JArray("S", length); }
+  static JArray createWchar_tArray(size_t length) {
+    return JArray("C", length);
+  }
+  static JArray createByteArray(size_t length) { return JArray("B", length); }
+  static JArray createFloatArray(size_t length) { return JArray("F", length); }
+  static JArray createDoubleArray(size_t length) { return JArray("D", length); }
+  static JArray createBoolArray(size_t length) { return JArray("B", length); }
+  static JArray createObjectArray(size_t length, JClass type,
+                                  JObject initialValue = JObject());
 
-	bool isInt() const { return instanceOf("[I"); }
-	bool isLongLong() const { return instanceOf("[J"); }
-	bool isShort() const { return instanceOf("[S"); }
-	bool isWchar_t() const { return instanceOf("[C"); }
-	bool isByte() const { return instanceOf("[B"); }
-	bool isFloat() const { return instanceOf("[F"); }
-	bool isDouble() const { return instanceOf("[D"); }
-	bool isBool() const { return instanceOf("[Z"); }
+  bool isInt() const { return instanceOf("[I"); }
+  bool isLongLong() const { return instanceOf("[J"); }
+  bool isShort() const { return instanceOf("[S"); }
+  bool isWchar_t() const { return instanceOf("[C"); }
+  bool isByte() const { return instanceOf("[B"); }
+  bool isFloat() const { return instanceOf("[F"); }
+  bool isDouble() const { return instanceOf("[D"); }
+  bool isBool() const { return instanceOf("[Z"); }
 
-	int getInt(int index) const;
-	void setInt(int index, int value);
-	qlonglong getLongLong(int index) const;
-	void setLongLong(int index, qlonglong value);
-	short getShort(int index) const;
-	void setShort(int index, short value);
-	wchar_t getWchar_t(int index) const;
-	void setWchar_t(int index, wchar_t value);
-	char getByte(int index) const;
-	void setByte(int index, char value);
-	float getFloat(int index) const;
-	void setFloat(int index, float value);
-	double getDouble(int index) const;
-	void setDouble(int index, double value);
-	bool getBool(int index) const;
-	void setBool(int index, bool value);
-	JObject getObject(int index) const;
-	void setObject(int index, JObject value);
+  int getInt(int index) const;
+  void setInt(int index, int value);
+  qlonglong getLongLong(int index) const;
+  void setLongLong(int index, qlonglong value);
+  short getShort(int index) const;
+  void setShort(int index, short value);
+  wchar_t getWchar_t(int index) const;
+  void setWchar_t(int index, wchar_t value);
+  char getByte(int index) const;
+  void setByte(int index, char value);
+  float getFloat(int index) const;
+  void setFloat(int index, float value);
+  double getDouble(int index) const;
+  void setDouble(int index, double value);
+  bool getBool(int index) const;
+  void setBool(int index, bool value);
+  JObject getObject(int index) const;
+  void setObject(int index, JObject value);
 
-	jarray getLocalRef();
+  jarray getLocalRef();
 };
 Q_DECLARE_METATYPE(JArray)
 
-#endif // JARRAY_H
+#endif  // JARRAY_H

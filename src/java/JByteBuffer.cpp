@@ -25,96 +25,81 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JByteBuffer.h"
+
 #include "JVM.h"
 
-JByteBuffer::JByteBuffer(jobject obj)
-{
-	JNIEnv* env = *JVM::instance();
-	m_object = env->NewGlobalRef(obj);
+JByteBuffer::JByteBuffer(jobject obj) {
+  JNIEnv* env = *JVM::instance();
+  m_object = env->NewGlobalRef(obj);
 }
 
-JByteBuffer::JByteBuffer(void* mem, size_t len)
-{
-	JNIEnv* env = *JVM::instance();
-	jobject obj = env->NewDirectByteBuffer(mem, len);
-	m_object = env->NewGlobalRef(obj);
-	env->DeleteLocalRef(obj);
+JByteBuffer::JByteBuffer(void* mem, size_t len) {
+  JNIEnv* env = *JVM::instance();
+  jobject obj = env->NewDirectByteBuffer(mem, len);
+  m_object = env->NewGlobalRef(obj);
+  env->DeleteLocalRef(obj);
 }
 
-JByteBuffer::JByteBuffer(const JByteBuffer& b)
-{
-	if (b.m_object)
-	{
-		JNIEnv* env = *JVM::instance();
-		m_object = env->NewGlobalRef(b.m_object);
-	}
-	m_buffer = b.m_buffer;
+JByteBuffer::JByteBuffer(const JByteBuffer& b) {
+  if (b.m_object) {
+    JNIEnv* env = *JVM::instance();
+    m_object = env->NewGlobalRef(b.m_object);
+  }
+  m_buffer = b.m_buffer;
 }
 
-JByteBuffer::JByteBuffer(size_t len)
-{
-	JNIEnv* env = *JVM::instance();
+JByteBuffer::JByteBuffer(size_t len) {
+  JNIEnv* env = *JVM::instance();
 
-	m_buffer.reset(new char[len]);
+  m_buffer.reset(new char[len]);
 
-	jobject obj = env->NewDirectByteBuffer(m_buffer.get(), len);
-	m_object = env->NewGlobalRef(obj);
-	env->DeleteLocalRef(obj);
+  jobject obj = env->NewDirectByteBuffer(m_buffer.get(), len);
+  m_object = env->NewGlobalRef(obj);
+  env->DeleteLocalRef(obj);
 }
 
-void* JByteBuffer::allocate(size_t len)
-{
-	JNIEnv* env = *JVM::instance();
-	if (m_object)
-		env->DeleteGlobalRef(m_object);
+void* JByteBuffer::allocate(size_t len) {
+  JNIEnv* env = *JVM::instance();
+  if (m_object) env->DeleteGlobalRef(m_object);
 
-	m_buffer.reset(new char[len]);
+  m_buffer.reset(new char[len]);
 
-	jobject obj = env->NewDirectByteBuffer(m_buffer.get(), len);
-	m_object = env->NewGlobalRef(obj);
-	env->DeleteLocalRef(obj);
+  jobject obj = env->NewDirectByteBuffer(m_buffer.get(), len);
+  m_object = env->NewGlobalRef(obj);
+  env->DeleteLocalRef(obj);
 
-	return m_buffer.get();
+  return m_buffer.get();
 }
 
-void* JByteBuffer::buffer()
-{
-	if (!m_object)
-		return 0;
-	JNIEnv* env = *JVM::instance();
-	return env->GetDirectBufferAddress(m_object);
+void* JByteBuffer::buffer() {
+  if (!m_object) return 0;
+  JNIEnv* env = *JVM::instance();
+  return env->GetDirectBufferAddress(m_object);
 }
 
-size_t JByteBuffer::length() const
-{
-	if (!m_object)
-		return 0;
-	JNIEnv* env = *JVM::instance();
-	return env->GetDirectBufferCapacity(m_object);
+size_t JByteBuffer::length() const {
+  if (!m_object) return 0;
+  JNIEnv* env = *JVM::instance();
+  return env->GetDirectBufferCapacity(m_object);
 }
 
-JByteBuffer& JByteBuffer::operator=(JByteBuffer& buf)
-{
-	JNIEnv* env = *JVM::instance();
-	if (m_object)
-	{
-		env->DeleteGlobalRef(m_object);
-		m_object = 0;
-	}
-	if (buf.m_object)
-		m_object = env->NewGlobalRef(buf.m_object);
-	m_buffer = buf.m_buffer;
+JByteBuffer& JByteBuffer::operator=(JByteBuffer& buf) {
+  JNIEnv* env = *JVM::instance();
+  if (m_object) {
+    env->DeleteGlobalRef(m_object);
+    m_object = 0;
+  }
+  if (buf.m_object) m_object = env->NewGlobalRef(buf.m_object);
+  m_buffer = buf.m_buffer;
 
-	return *this;
+  return *this;
 }
 
-JByteBuffer& JByteBuffer::operator=(jobject obj)
-{
-	JNIEnv* env = *JVM::instance();
-	if (m_object)
-		env->DeleteGlobalRef(m_object);
-	m_object = env->NewGlobalRef(m_object);
-	m_buffer.reset();
+JByteBuffer& JByteBuffer::operator=(jobject obj) {
+  JNIEnv* env = *JVM::instance();
+  if (m_object) env->DeleteGlobalRef(m_object);
+  m_object = env->NewGlobalRef(m_object);
+  m_buffer.reset();
 
-	return *this;
+  return *this;
 }

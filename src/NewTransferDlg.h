@@ -26,42 +26,44 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef NEWTRANSFERDLG_H
 #define NEWTRANSFERDLG_H
-#include <QWidget>
-#include "ui_NewTransferDlg.h"
-#include "Transfer.h"
-#include "Auth.h"
 #include <QDir>
+#include <QWidget>
 
-class NewTransferDlg : public QDialog, Ui_NewTransferDlg
-{
-Q_OBJECT
-public:
-	NewTransferDlg(QWidget* parent);
-	int exec();
-	void accepted();
-	void load();
-	void addLinks(QString links);
-private:
-	QString getDestination() const;
-	void setDestination(QString p);
-private slots:
-	void browse();
-	void browse2();
-	void switchMode();
-	void authData();
-	
-	void addTextFile();
-	void addClipboard();
-	
-	void queueChanged(int now);
-public:
-	QString m_strURIs,m_strDestination,m_strClass;
-	QStringList m_lastDirs;
-	Auth m_auth;
-	bool m_bDetails, m_bPaused, m_bNewTransfer;
-	int m_nDownLimit, m_nUpLimit, m_nClass;
-	Transfer::Mode m_mode;
-	int m_nQueue;
+#include "Auth.h"
+#include "Transfer.h"
+#include "ui_NewTransferDlg.h"
+
+class NewTransferDlg : public QDialog, Ui_NewTransferDlg {
+  Q_OBJECT
+ public:
+  NewTransferDlg(QWidget* parent);
+  int exec();
+  void accepted();
+  void load();
+  void addLinks(QString links);
+
+ private:
+  QString getDestination() const;
+  void setDestination(QString p);
+ private slots:
+  void browse();
+  void browse2();
+  void switchMode();
+  void authData();
+
+  void addTextFile();
+  void addClipboard();
+
+  void queueChanged(int now);
+
+ public:
+  QString m_strURIs, m_strDestination, m_strClass;
+  QStringList m_lastDirs;
+  Auth m_auth;
+  bool m_bDetails, m_bPaused, m_bNewTransfer;
+  int m_nDownLimit, m_nUpLimit, m_nClass;
+  Transfer::Mode m_mode;
+  int m_nQueue;
 };
 
 #endif

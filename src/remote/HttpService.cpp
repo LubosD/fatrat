@@ -24,50 +24,51 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "config.h"
-
 #include "HttpService.h"
-#include "Settings.h"
-#include "RuntimeException.h"
-#include "SettingsWebForm.h"
-#include "SpeedGraph.h"
-#include "Transfer.h"
-#include "Queue.h"
-#include "fatrat.h"
-#include "Logger.h"
-#include "TransferFactory.h"
-#include "dbus/DbusImpl.h"
-#include "remote/XmlRpcService.h"
 
+#include <Poco/Net/Context.h>
+#include <Poco/Net/HTMLForm.h>
+#include <Poco/Net/HTTPServerRequest.h>
+#include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/Net/SecureServerSocket.h>
+#include <Poco/Net/WebSocket.h>
+#include <locale.h>
+#include <poll.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <QBuffer>
+#include <QDir>
+#include <QFile>
+#include <QImage>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMultiMap>
+#include <QPainter>
+#include <QProcess>
 #include <QSettings>
-#include <QtDebug>
 #include <QStringList>
 #include <QUrl>
 #include <QUrlQuery>
-#include <QDir>
-#include <QBuffer>
-#include <QImage>
-#include <QPainter>
-#include <QMultiMap>
-#include <QProcess>
-#include <QFile>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <cstdlib>
-#include <sstream>
-#include <iostream>
-#include <locale.h>
-#include <unistd.h>
-#include <string.h>
-#include <poll.h>
+#include <QtDebug>
 #include <algorithm>
-#include <Poco/Net/HTTPServerRequest.h>
-#include <Poco/Net/HTTPServerResponse.h>
-#include <Poco/Net/Context.h>
-#include <Poco/Net/SecureServerSocket.h>
-#include <Poco/Net/WebSocket.h>
-#include <Poco/Net/HTMLForm.h>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+
 #include "FileRequestHandler.h"
+#include "Logger.h"
+#include "Queue.h"
+#include "RuntimeException.h"
+#include "Settings.h"
+#include "SettingsWebForm.h"
+#include "SpeedGraph.h"
+#include "Transfer.h"
+#include "TransferFactory.h"
+#include "config.h"
+#include "dbus/DbusImpl.h"
+#include "fatrat.h"
+#include "remote/XmlRpcService.h"
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -76,748 +77,679 @@ extern QVector<EngineEntry> g_enginesDownload;
 
 Poco::SharedPtr<HttpService> HttpService::m_instance;
 
-HttpService::HttpService()
-	: m_port(0), m_server(nullptr)
-{
-	m_instance = this;
-	applySettings();
-	
-	SettingsItem si;
-	si.lpfnCreate = SettingsWebForm::create;
-	si.title = tr("Web Interface");
-	si.icon = DelayedIcon(":/fatrat/webinterface.png");
-	si.pfnApply = SettingsWebForm::applySettings;
-	si.webSettingsScript = "/scripts/settings/webinterface.js";
-	si.webSettingsIconURL = "/img/settings/webinterface.png";
-	
-	addSettingsPage(si);
+HttpService::HttpService() : m_port(0), m_server(nullptr) {
+  m_instance = this;
+  applySettings();
 
-	addHandler(QRegExp("/xmlrpc"), std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
-	addHandler(QRegExp("/log.*"), []() { return new LogService(QLatin1String("/log")); });
-	addHandler(QRegExp("/subclass.*"), []() { return new SubclassService(QLatin1String("/subclass")); });
-	addHandler(QRegExp("/browse.*"), []() { return new TransferTreeBrowserService(QLatin1String("/browse")); });
-	addHandler(QRegExp("/download"), []() { return new TransferDownloadService(QLatin1String("/download")); });
-	addHandler(QRegExp("/copyrights"), []() { return new FileRequestHandler("/copyrights", DATA_LOCATION "/README"); });
-	addHandler(QRegExp("/captcha"), []() { return new CaptchaService; });
-	addHandler(QRegExp("/websocket"), []() { return new WebSocketService; });
+  SettingsItem si;
+  si.lpfnCreate = SettingsWebForm::create;
+  si.title = tr("Web Interface");
+  si.icon = DelayedIcon(":/fatrat/webinterface.png");
+  si.pfnApply = SettingsWebForm::applySettings;
+  si.webSettingsScript = "/scripts/settings/webinterface.js";
+  si.webSettingsIconURL = "/img/settings/webinterface.png";
 
-	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate, QVector<QVariant::Type>() << QVariant::String);
+  addSettingsPage(si);
 
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
-	m_timer.start(15 * 1000);
+  addHandler(QRegularExpression("/xmlrpc"),
+             std::bind(&XmlRpcService::createHandler, &m_xmlRpc));
+  addHandler(QRegularExpression("/log.*"),
+             []() { return new LogService(QLatin1String("/log")); });
+  addHandler(QRegularExpression("/subclass.*"),
+             []() { return new SubclassService(QLatin1String("/subclass")); });
+  addHandler(QRegularExpression("/browse.*"), []() {
+    return new TransferTreeBrowserService(QLatin1String("/browse"));
+  });
+  addHandler(QRegularExpression("/download"), []() {
+    return new TransferDownloadService(QLatin1String("/download"));
+  });
+  addHandler(QRegularExpression("/copyrights"), []() {
+    return new FileRequestHandler("/copyrights", DATA_LOCATION "/README");
+  });
+  addHandler(QRegularExpression("/captcha"),
+             []() { return new CaptchaService; });
+  addHandler(QRegularExpression("/websocket"),
+             []() { return new WebSocketService; });
+
+  XmlRpcService::registerFunction(
+      "HttpService.generateCertificate", generateCertificate,
+      QVector<QVariant::Type>() << QVariant::String);
+
+  connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
+  m_timer.start(15 * 1000);
 }
 
-HttpService::~HttpService()
-{
-	killCaptchaClients();
+HttpService::~HttpService() {
+  killCaptchaClients();
 
-	m_instance = 0;
-	if (m_server)
-	{
-		try
-		{
-			m_server->stopAll(true);
-		}
-		catch (...)
-		{
-		}
-	}
+  m_instance = 0;
+  if (m_server) {
+    try {
+      m_server->stopAll(true);
+    } catch (...) {
+    }
+  }
 }
 
-void HttpService::killCaptchaClients()
-{
-	QMutexLocker l(&m_registeredCaptchaClientsMutex);
+void HttpService::killCaptchaClients() {
+  QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	for (WebSocketService* s : m_registeredCaptchaClients)
-	{
-		s->terminate();
-	}
-	m_registeredCaptchaClients.clear();
+  for (WebSocketService* s : m_registeredCaptchaClients) {
+    s->terminate();
+  }
+  m_registeredCaptchaClients.clear();
 }
 
-void HttpService::applySettings()
-{
-	try
-	{
-		qDebug() << "HttpService::applySettings()";
-		bool enable = getSettingsValue("remote/enable").toBool();
-		if(enable)
-		{
-			if (!m_server)
-			{
-				setup();
-			}
-			else
-			{
-				quint16 port = getSettingsValue("remote/port").toUInt();
-				QString pemFile = getSettingsValue("remote/ssl_pem").toString();
-				bool useSSL = getSettingsValue("remote/ssl").toBool();
+void HttpService::applySettings() {
+  try {
+    qDebug() << "HttpService::applySettings()";
+    bool enable = getSettingsValue("remote/enable").toBool();
+    if (enable) {
+      if (!m_server) {
+        setup();
+      } else {
+        quint16 port = getSettingsValue("remote/port").toUInt();
+        QString pemFile = getSettingsValue("remote/ssl_pem").toString();
+        bool useSSL = getSettingsValue("remote/ssl").toBool();
 
-				if (port != m_port || m_strSSLPem != pemFile || m_bUseSSL != useSSL || (useSSL && m_strSSLPem.isEmpty()))
-				{
-					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port or SSL config change"));
+        if (port != m_port || m_strSSLPem != pemFile || m_bUseSSL != useSSL ||
+            (useSSL && m_strSSLPem.isEmpty())) {
+          Logger::global()->enterLogMessage(
+              "HttpService",
+              tr("Restarting the service due to a port or SSL config change"));
 
-					killCaptchaClients();
+          killCaptchaClients();
 
-					m_server->stop();
-					delete m_server;
-					setup();
-				}
-				else
-					setupAuth();
-			}
-		}
-		else if(!enable && m_server)
-		{
-			killCaptchaClients();
-			m_server->stop();
-			delete m_server;
-			m_server = 0;
-		}
-	}
-	catch(const RuntimeException& e)
-	{
-		qDebug() << e.what();
-		Logger::global()->enterLogMessage("HttpService", e.what());
-	}
+          m_server->stop();
+          delete m_server;
+          setup();
+        } else
+          setupAuth();
+      }
+    } else if (!enable && m_server) {
+      killCaptchaClients();
+      m_server->stop();
+      delete m_server;
+      m_server = 0;
+    }
+  } catch (const RuntimeException& e) {
+    qDebug() << e.what();
+    Logger::global()->enterLogMessage("HttpService", e.what());
+  }
 }
 
-void HttpService::setupAuth()
-{
-	QString password = getSettingsValue("remote/password").toString();
+void HttpService::setupAuth() {
+  QString password = getSettingsValue("remote/password").toString();
 
-	AuthenticatedRequestHandler::setPassword(password);
+  AuthenticatedRequestHandler::setPassword(password);
 }
 
-void HttpService::setup()
-{
-	m_port = getSettingsValue("remote/port").toUInt();
-	
-	try
-	{
-		HTTPServerParams* params = new HTTPServerParams;
+void HttpService::setup() {
+  m_port = getSettingsValue("remote/port").toUInt();
 
-		// if not SSL
-		setupAuth();
-		setupSSL();
+  try {
+    HTTPServerParams* params = new HTTPServerParams;
 
-		m_server = new HTTPServer(m_instance, *m_socket, params);
-		m_server->start();
+    // if not SSL
+    setupAuth();
+    setupSSL();
 
-		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
-		std::cout << "Listening on port " << m_port << std::endl;
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		Logger::global()->enterLogMessage("HttpService", tr("Failed to start: %1").arg(e.what()));
-	}
+    m_server = new HTTPServer(m_instance, *m_socket, params);
+    m_server->start();
+
+    Logger::global()->enterLogMessage("HttpService",
+                                      tr("Listening on port %1").arg(m_port));
+    std::cout << "Listening on port " << m_port << std::endl;
+  } catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    Logger::global()->enterLogMessage("HttpService",
+                                      tr("Failed to start: %1").arg(e.what()));
+  }
 }
 
-void HttpService::setupSSL()
-{
-	m_bUseSSL = getSettingsValue("remote/ssl").toBool();
+void HttpService::setupSSL() {
+  m_bUseSSL = getSettingsValue("remote/ssl").toBool();
 
-	if (m_bUseSSL)
-	{
-		QString file = getSettingsValue("remote/ssl_pem").toString();
-		if (file.isEmpty() || !QFile::exists(file))
-		{
-			Logger::global()->enterLogMessage("HttpService", tr("SSL key file not found, disabling HTTPS"));
-			m_socket.reset(new ServerSocket(m_port));
-			m_strSSLPem.clear();
-		}
-		else
-		{
-			Logger::global()->enterLogMessage("HttpService", tr("Loading a SSL key from %1").arg(file));
-			m_strSSLPem = file;
+  if (m_bUseSSL) {
+    QString file = getSettingsValue("remote/ssl_pem").toString();
+    if (file.isEmpty() || !QFile::exists(file)) {
+      Logger::global()->enterLogMessage(
+          "HttpService", tr("SSL key file not found, disabling HTTPS"));
+      m_socket.reset(new ServerSocket(m_port));
+      m_strSSLPem.clear();
+    } else {
+      Logger::global()->enterLogMessage(
+          "HttpService", tr("Loading a SSL key from %1").arg(file));
+      m_strSSLPem = file;
 
-			Context* context = new Context(Context::Usage::SERVER_USE, file.toStdString(),
-										   std::string(), std::string());
-			m_socket.reset(new SecureServerSocket(m_port, 5, context));
-		}
-	}
-	else
-	{
-		Logger::global()->enterLogMessage("HttpService", tr("Running in plain HTTP mode"));
-		m_socket.reset(new ServerSocket(m_port));
-	}
+      Context* context =
+          new Context(Context::Usage::SERVER_USE, file.toStdString(),
+                      std::string(), std::string());
+      m_socket.reset(new SecureServerSocket(m_port, 5, context));
+    }
+  } else {
+    Logger::global()->enterLogMessage("HttpService",
+                                      tr("Running in plain HTTP mode"));
+    m_socket.reset(new ServerSocket(m_port));
+  }
 }
 
-HTTPRequestHandler* HttpService::createRequestHandler(const HTTPServerRequest& request)
-{
-	QString uri = QString::fromStdString(request.getURI());
+HTTPRequestHandler* HttpService::createRequestHandler(
+    const HTTPServerRequest& request) {
+  QString uri = QString::fromStdString(request.getURI());
 
-	m_handlersMutex.lock();
+  m_handlersMutex.lock();
 
-	for (const QPair<QRegExp, handler_t>& e : m_handlers)
-	{
-		if (e.first.exactMatch(uri))
-		{
-			m_handlersMutex.unlock();
-			return e.second();
-		}
-	}
+  for (const QPair<QRegularExpression, handler_t>& e : m_handlers) {
+    if (e.first.match(uri).hasMatch()) {
+      m_handlersMutex.unlock();
+      return e.second();
+    }
+  }
 
-	m_handlersMutex.unlock();
+  m_handlersMutex.unlock();
 
-	return new FileRequestHandler("/", DATA_LOCATION "/data/remote/");
+  return new FileRequestHandler("/", DATA_LOCATION "/data/remote/");
 }
 
-HttpService::LogService::LogService(const QString &mapping)
-	: m_mapping(mapping)
-{
+HttpService::LogService::LogService(const QString& mapping)
+    : m_mapping(mapping) {}
+
+void HttpService::LogService::run() {
+  QString data, uuidTransfer;
+  QString uri = QString::fromStdString(request().getURI());
+
+  uuidTransfer = uri.mid(m_mapping.length() + 1);
+
+  if (uuidTransfer.isEmpty())
+    data = Logger::global()->logContents();
+  else {
+    Queue* q = 0;
+    Transfer* t = 0;
+
+    uuidTransfer = QUrl::fromPercentEncoding(uuidTransfer.toLatin1());
+    // qDebug() << "Transfer:" << uuidTransfer;
+
+    findTransfer(uuidTransfer, &q, &t);
+
+    if (!q || !t) {
+      this->sendErrorResponse(
+          Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND,
+          "Queue/Transfer not found");
+      return;
+    }
+
+    data = t->logContents();
+
+    q->unlock();
+    g_queuesLock.unlock();
+  }
+
+  QByteArray ba = data.toUtf8();
+  response().setContentType("text/plain");
+  response().setContentLength(ba.size());
+  response().sendBuffer(ba.data(), ba.size());
 }
 
-void HttpService::LogService::run()
-{
-	QString data, uuidTransfer;
-	QString uri = QString::fromStdString(request().getURI());
+HttpService::TransferTreeBrowserService::TransferTreeBrowserService(
+    const QString& mapping)
+    : m_mapping(mapping) {}
 
-	uuidTransfer = uri.mid(m_mapping.length()+1);
+void HttpService::TransferTreeBrowserService::run() {
+  QUrl url(QString::fromStdString(request().getURI()));
+  QUrlQuery query(url);
 
-	if (uuidTransfer.isEmpty())
-		data = Logger::global()->logContents();
-	else
-	{
-		Queue* q = 0;
-		Transfer* t = 0;
+  QString uuidTransfer = url.path().mid(m_mapping.length() + 1);  // "/browse/"
+  QString path = query.queryItemValue("path");
 
-		uuidTransfer = QUrl::fromPercentEncoding(uuidTransfer.toLatin1());
-		// qDebug() << "Transfer:" << uuidTransfer;
+  uuidTransfer = QUrl::fromPercentEncoding(uuidTransfer.toLatin1());
 
-		findTransfer(uuidTransfer, &q, &t);
+  if (uuidTransfer.startsWith("/")) uuidTransfer = uuidTransfer.mid(1);
 
-		if (!q || !t)
-		{
-			this->sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Queue/Transfer not found");
-			return;
-		}
+  Queue* q = 0;
+  Transfer* t = 0;
 
-		data = t->logContents();
+  if (path.contains("/..") || path.contains("../")) {
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_FORBIDDEN,
+                      ".. in path");
+    return;
+  }
 
-		q->unlock();
-		g_queuesLock.unlock();
-	}
+  findTransfer(uuidTransfer, &q, &t);
 
-	QByteArray ba = data.toUtf8();
-	response().setContentType("text/plain");
-	response().setContentLength(ba.size());
-	response().sendBuffer(ba.data(), ba.size());
+  if (!q || !t) {
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND,
+                      "Transfer UUID not found");
+    return;
+  }
+
+  QDomDocument doc;
+  QDomElement root, item;
+  QFileInfoList infoList;
+  QDir dir(t->dataPath());
+
+  if (path.startsWith("/")) path = path.mid(1);
+
+  if (!dir.cd(path)) {
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND,
+                      "Not found");
+    return;
+  }
+
+  root = doc.createElement("root");
+  doc.appendChild(root);
+
+  infoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+  foreach (QFileInfo info, infoList) {
+    item = doc.createElement("item");
+    item.setAttribute("id", path + "/" + info.fileName());
+    item.setAttribute("state", "closed");
+    item.setAttribute("type", "folder");
+
+    QDomElement content, name;
+    content = doc.createElement("content");
+    name = doc.createElement("name");
+
+    name.appendChild(doc.createTextNode(info.fileName()));
+    content.appendChild(name);
+    item.appendChild(content);
+    root.appendChild(item);
+  }
+
+  infoList = dir.entryInfoList(QDir::Files);
+  foreach (QFileInfo info, infoList) {
+    item = doc.createElement("item");
+    item.setAttribute("id", path + "/" + info.fileName());
+    item.setAttribute("type", "default");
+
+    QDomElement content, name;
+    content = doc.createElement("content");
+    name = doc.createElement("name");
+
+    name.appendChild(doc.createTextNode(info.fileName()));
+    content.appendChild(name);
+    item.appendChild(content);
+    root.appendChild(item);
+  }
+
+  q->unlock();
+  g_queuesLock.unlock();
+
+  QByteArray ba = doc.toString(0).toUtf8();
+
+  response().setContentType("text/xml");
+  response().sendBuffer(ba.data(), ba.size());
 }
 
-HttpService::TransferTreeBrowserService::TransferTreeBrowserService(const QString &mapping)
-	: m_mapping(mapping)
-{
+HttpService::TransferDownloadService::TransferDownloadService(
+    const QString& mapping)
+    : m_mapping(mapping) {}
+
+void HttpService::TransferDownloadService::run() {
+  QUrl url(QString::fromStdString(request().getURI()));
+  QUrlQuery query(url);
+
+  QString transfer = query.queryItemValue("transfer");
+  QString path = query.queryItemValue("path");
+
+  Queue* q = 0;
+  Transfer* t = 0;
+
+  if (path.contains("/..") || path.contains("../")) {
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_FORBIDDEN,
+                      ".. in path");
+    return;
+  }
+
+  findTransfer(transfer, &q, &t);
+
+  if (!q || !t) {
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND,
+                      "Transfer UUID not found");
+    return;
+  }
+
+  if (!path.startsWith("/")) path.prepend("/");
+  if (path.endsWith("/")) path = path.left(path.size() - 1);
+  path.prepend(t->dataPath(true));
+
+  q->unlock();
+  g_queuesLock.unlock();
+
+  QString disposition;
+  int last = path.lastIndexOf('/');
+  if (last > 0) {
+    disposition = path.mid(last + 1);
+    if (disposition.size() > 100) disposition.resize(100);
+  }
+
+  disposition = QString("attachment; filename=\"%1\"").arg(disposition);
+
+  response().add("Content-Disposition", disposition.toStdString());
+  response().sendFile(path.toStdString(), "application/octet-stream");
 }
 
-void HttpService::TransferTreeBrowserService::run()
-{
-	QUrl url(QString::fromStdString(request().getURI()));
-	QUrlQuery query(url);
+HttpService::SubclassService::SubclassService(const QString& mapping)
+    : m_mapping(mapping) {}
 
-	QString uuidTransfer = url.path().mid(m_mapping.length()+1); // "/browse/"
-	QString path = query.queryItemValue("path");
+void HttpService::SubclassService::run() {
+  QUrl url(QString::fromStdString(request().getURI()));
+  QUrlQuery query(url);
 
-	uuidTransfer = QUrl::fromPercentEncoding(uuidTransfer.toLatin1());
+  HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(response());
+  QString transfer = query.queryItemValue("transfer");
+  QString method = url.path().mid(m_mapping.length() + 1);  // "/subclass/"
 
-	if (uuidTransfer.startsWith("/"))
-		uuidTransfer = uuidTransfer.mid(1);
+  Queue* q = 0;
+  Transfer* t = 0;
 
-	Queue* q = 0;
-	Transfer* t = 0;
+  findTransfer(transfer, &q, &t);
 
-	if (path.contains("/..") || path.contains("../"))
-	{
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_FORBIDDEN, ".. in path");
-		return;
-	}
+  if (!q || !t || !dynamic_cast<TransferHttpService*>(t)) {
+    if (t) {
+      q->unlock();
+      g_queuesLock.unlock();
+    }
 
-	findTransfer(uuidTransfer, &q, &t);
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND,
+                      "Transfer UUID not found");
+    return;
+  }
 
-	if (!q || !t)
-	{
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Transfer UUID not found");
-		return;
-	}
+  QMultiMap<QString, QString> map;
+  QList<QPair<QString, QString> > items = query.queryItems();
 
-	QDomDocument doc;
-	QDomElement root, item;
-	QFileInfoList infoList;
-	QDir dir(t->dataPath());
+  for (const QPair<QString, QString>& item : items)
+    map.insert(item.first, item.second);
 
-	if (path.startsWith("/"))
-		path = path.mid(1);
+  TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
 
-	if (!dir.cd(path))
-	{
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Not found");
-		return;
-	}
+  if (s != nullptr) s->process(method, map, &wb);
 
-	root = doc.createElement("root");
-	doc.appendChild(root);
-
-	infoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-	foreach (QFileInfo info, infoList)
-	{
-		item = doc.createElement("item");
-		item.setAttribute("id", path+"/"+info.fileName());
-		item.setAttribute("state", "closed");
-		item.setAttribute("type", "folder");
-
-		QDomElement content, name;
-		content = doc.createElement("content");
-		name = doc.createElement("name");
-
-		name.appendChild(doc.createTextNode(info.fileName()));
-		content.appendChild(name);
-		item.appendChild(content);
-		root.appendChild(item);
-	}
-
-	infoList = dir.entryInfoList(QDir::Files);
-	foreach (QFileInfo info, infoList)
-	{
-		item = doc.createElement("item");
-		item.setAttribute("id", path+"/"+info.fileName());
-		item.setAttribute("type", "default");
-
-		QDomElement content, name;
-		content = doc.createElement("content");
-		name = doc.createElement("name");
-
-		name.appendChild(doc.createTextNode(info.fileName()));
-		content.appendChild(name);
-		item.appendChild(content);
-		root.appendChild(item);
-	}
-
-	q->unlock();
-	g_queuesLock.unlock();
-
-	QByteArray ba = doc.toString(0).toUtf8();
-
-	response().setContentType("text/xml");
-	response().sendBuffer(ba.data(), ba.size());
-}
-
-HttpService::TransferDownloadService::TransferDownloadService(const QString &mapping)
-	: m_mapping(mapping)
-{
-}
-
-void HttpService::TransferDownloadService::run()
-{
-	QUrl url(QString::fromStdString(request().getURI()));
-	QUrlQuery query(url);
-
-	QString transfer = query.queryItemValue("transfer");
-	QString path = query.queryItemValue("path");
-
-	Queue* q = 0;
-	Transfer* t = 0;
-
-	if (path.contains("/..") || path.contains("../"))
-	{
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_FORBIDDEN, ".. in path");
-		return;
-	}
-
-	findTransfer(transfer, &q, &t);
-
-	if (!q || !t)
-	{
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Transfer UUID not found");
-		return;
-	}
-
-	if (!path.startsWith("/"))
-		path.prepend("/");
-	if (path.endsWith("/"))
-		path = path.left(path.size()-1);
-	path.prepend(t->dataPath(true));
-
-	q->unlock();
-	g_queuesLock.unlock();
-
-	QString disposition;
-	int last = path.lastIndexOf('/');
-	if(last > 0)
-	{
-		disposition = path.mid(last+1);
-		if(disposition.size() > 100)
-			disposition.resize(100);
-	}
-
-	disposition = QString("attachment; filename=\"%1\"").arg(disposition);
-
-	response().add("Content-Disposition", disposition.toStdString());
-	response().sendFile(path.toStdString(), "application/octet-stream");
-}
-
-HttpService::SubclassService::SubclassService(const QString &mapping)
-	: m_mapping(mapping)
-{
-}
-
-void HttpService::SubclassService::run()
-{
-	QUrl url(QString::fromStdString(request().getURI()));
-	QUrlQuery query(url);
-
-	HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(response());
-	QString transfer = query.queryItemValue("transfer");
-	QString method = url.path().mid(m_mapping.length()+1); // "/subclass/"
-
-	Queue* q = 0;
-	Transfer* t = 0;
-
-	findTransfer(transfer, &q, &t);
-
-	if (!q || !t || !dynamic_cast<TransferHttpService*>(t))
-	{
-		if (t)
-		{
-			q->unlock();
-			g_queuesLock.unlock();
-		}
-
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND, "Transfer UUID not found");
-		return;
-	}
-
-	QMultiMap<QString,QString> map;
-	QList<QPair<QString, QString> > items = query.queryItems();
-
-	for (const QPair<QString, QString>& item : items)
-		map.insert(item.first, item.second);
-
-	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
-
-	if (s != nullptr)
-		s->process(method, map, &wb);
-
-	q->unlock();
-	g_queuesLock.unlock();
+  q->unlock();
+  g_queuesLock.unlock();
 }
 
 HttpService::WriteBackImpl::WriteBackImpl(Poco::Net::HTTPServerResponse& resp)
-	: m_response(resp)
-{
+    : m_response(resp) {}
+
+void HttpService::WriteBackImpl::sendHeaders() {
+  if (m_ostream) return;
+
+  m_response.setChunkedTransferEncoding(true);
+  m_response.setStatusAndReason(
+      Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_OK);
+  m_ostream = &m_response.send();
 }
 
-void HttpService::WriteBackImpl::sendHeaders()
-{
-	if (m_ostream)
-		return;
-
-	m_response.setChunkedTransferEncoding(true);
-	m_response.setStatusAndReason(Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_OK);
-	m_ostream = &m_response.send();
+void HttpService::WriteBackImpl::write(const char* data, size_t bytes) {
+  sendHeaders();
+  m_ostream->write(static_cast<const char*>(data), bytes);
 }
 
-void HttpService::WriteBackImpl::write(const char* data, size_t bytes)
-{
-	sendHeaders();
-	m_ostream->write(static_cast<const char*>(data), bytes);
+void HttpService::WriteBackImpl::writeFail(QString error) {
+  QByteArray ba = error.toUtf8();
+  m_response.setStatusAndReason(
+      Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_INTERNAL_SERVER_ERROR);
+  m_response.sendBuffer(ba.data(), ba.size());
 }
 
-void HttpService::WriteBackImpl::writeFail(QString error)
-{
-	QByteArray ba = error.toUtf8();
-	m_response.setStatusAndReason(Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_INTERNAL_SERVER_ERROR);
-	m_response.sendBuffer(ba.data(), ba.size());
+void HttpService::WriteBackImpl::writeNoCopy(void* data, size_t bytes) {
+  sendHeaders();
+  m_ostream->write(static_cast<const char*>(data), bytes);
 }
 
-void HttpService::WriteBackImpl::writeNoCopy(void* data, size_t bytes)
-{
-	sendHeaders();
-	m_ostream->write(static_cast<const char*>(data), bytes);
+void HttpService::WriteBackImpl::send() {
+  // No-op with poco
 }
 
-void HttpService::WriteBackImpl::send()
-{
-	// No-op with poco
+void HttpService::WriteBackImpl::setContentType(const char* type) {
+  m_response.setContentType(type);
 }
 
-void HttpService::WriteBackImpl::setContentType(const char* type)
-{
-	m_response.setContentType(type);
+int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t,
+                              bool lockForWrite) {
+  *q = 0;
+  *t = 0;
+
+  g_queuesLock.lockForRead();
+  for (int i = 0; i < g_queues.size(); i++) {
+    Queue* c = g_queues[i];
+    if (lockForWrite)
+      c->lockW();
+    else
+      c->lock();
+
+    for (int j = 0; j < c->size(); j++) {
+      if (c->at(j)->uuid() == transferUUID) {
+        *q = c;
+        *t = c->at(j);
+        return j;
+      }
+    }
+
+    c->unlock();
+  }
+
+  g_queuesLock.unlock();
+  return -1;
 }
 
-int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
-{
-	*q = 0;
-	*t = 0;
-	
-	g_queuesLock.lockForRead();
-	for(int i=0;i<g_queues.size();i++)
-	{
-		Queue* c = g_queues[i];
-		if (lockForWrite)
-			c->lockW();
-		else
-			c->lock();
-		
-		for(int j=0;j<c->size();j++)
-		{
-			if(c->at(j)->uuid() == transferUUID)
-			{
-				*q = c;
-				*t = c->at(j);
-				return j;
-			}
-		}
-		
-		c->unlock();
-	}
+void HttpService::findQueue(QString queueUUID, Queue** q) {
+  *q = 0;
 
-	g_queuesLock.unlock();
-	return -1;
+  QReadLocker r(&g_queuesLock);
+  for (int i = 0; i < g_queues.size(); i++) {
+    Queue* c = g_queues[i];
+
+    if (c->uuid() == queueUUID) {
+      *q = c;
+      return;
+    }
+  }
 }
 
-void HttpService::findQueue(QString queueUUID, Queue** q)
-{
-	*q = 0;
+QVariant HttpService::generateCertificate(QList<QVariant>& args) {
+  QString hostname = args[0].toString();
+  const char* script = DATA_LOCATION "/data/genssl.sh";
+  const char* config = DATA_LOCATION "/data/genssl.cnf";
+  const char* pemfile = "/tmp/fatrat-webui.pem";
 
-	QReadLocker r(&g_queuesLock);
-	for(int i=0;i<g_queues.size();i++)
-	{
-		Queue* c = g_queues[i];
+  QProcess prc;
 
-		if (c->uuid() == queueUUID)
-		{
-			*q = c;
-			return;
-		}
-	}
+  qDebug() << "Starting: " << script << " " << config;
+  prc.start(script, QStringList() << config << hostname);
+  prc.waitForFinished();
+
+  if (prc.exitCode() != 0)
+    throw XmlRpcService::XmlRpcError(
+        501, tr("Failed to generate a certificate, please ensure you have "
+                "'openssl' and 'sed' installed."));
+
+  QFile file(pemfile);
+  if (!file.open(QIODevice::ReadOnly))
+    throw XmlRpcService::XmlRpcError(
+        501, tr("Failed to generate a certificate, please ensure you have "
+                "'openssl' and 'sed' installed."));
+
+  QByteArray data = file.readAll();
+  QDir::home().mkpath(USER_PROFILE_PATH "/data");
+
+  QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) +
+                 "/data/fatrat-webui.pem";
+  QFile out(path);
+
+  if (!out.open(QIODevice::WriteOnly))
+    throw XmlRpcService::XmlRpcError(
+        502, tr("Failed to open %1 for writing.").arg(path));
+
+  out.write(data);
+
+  out.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+  out.close();
+  file.remove();
+
+  return path;
 }
 
-QVariant HttpService::generateCertificate(QList<QVariant>& args)
-{
-	QString hostname = args[0].toString();
-	const char* script = DATA_LOCATION "/data/genssl.sh";
-	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
+void HttpService::CaptchaService::run() {
+  QString solution;
+  int id;
 
-	QProcess prc;
+  if (!form().has("id") || !form().has("solution")) {
+    sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_BAD_REQUEST,
+                      "id or solution missing");
+    return;
+  }
 
-	qDebug() << "Starting: " << script << " " << config;
-	prc.start(script, QStringList() << config << hostname);
-	prc.waitForFinished();
+  id = std::stoi(form().get("id"));
+  solution = QString::fromStdString(form().get("solution"));
 
-	if (prc.exitCode() != 0)
-		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
+  HttpService::instance()->m_captchaHttp.captchaEntered(id, solution);
 
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-
-	QByteArray data = file.readAll();
-	QDir::home().mkpath(USER_PROFILE_PATH "/data");
-
-	QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/fatrat-webui.pem";
-	QFile out(path);
-
-	if (!out.open(QIODevice::WriteOnly))
-		throw XmlRpcService::XmlRpcError(502, tr("Failed to open %1 for writing.").arg(path));
-
-	out.write(data);
-
-	out.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
-	out.close();
-	file.remove();
-
-	return path;
+  response().setStatusAndReason(
+      Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_NO_CONTENT);
+  response().setContentLength(0);
+  response().send();
 }
 
-void HttpService::CaptchaService::run()
-{
-	QString solution;
-	int id;
-
-	if (!form().has("id") || !form().has("solution"))
-	{
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_BAD_REQUEST, "id or solution missing");
-		return;
-	}
-
-	id = std::stoi(form().get("id"));
-	solution = QString::fromStdString(form().get("solution"));
-
-	HttpService::instance()->m_captchaHttp.captchaEntered(id, solution);
-
-	response().setStatusAndReason(Poco::Net::HTTPServerResponse::HTTPStatus::HTTP_NO_CONTENT);
-	response().setContentLength(0);
-	response().send();
+HttpService::WebSocketService::WebSocketService() {
+  if (::pipe(m_pipe) != 0) {
+    m_pipe[0] = m_pipe[1] = -1;
+    throw std::runtime_error("Cannot create a wakeup pipe");
+  }
 }
 
-HttpService::WebSocketService::WebSocketService()
-{
-	if (::pipe(m_pipe) != 0)
-	{
-		m_pipe[0] = m_pipe[1] = -1;
-		throw std::runtime_error("Cannot create a wakeup pipe");
-	}
+HttpService::WebSocketService::~WebSocketService() {
+  close(m_pipe[0]);
+  close(m_pipe[1]);
 }
 
-HttpService::WebSocketService::~WebSocketService()
-{
-	close(m_pipe[0]);
-	close(m_pipe[1]);
-}
+class WebSocketPublicFD : public WebSocket {
+ public:
+  WebSocketPublicFD(HTTPServerRequest& request, HTTPServerResponse& response)
+      : WebSocket(request, response) {}
 
-class WebSocketPublicFD : public WebSocket
-{
-public:
-	WebSocketPublicFD(HTTPServerRequest& request, HTTPServerResponse& response)
-		: WebSocket(request, response)
-	{
-	}
-
-	poco_socket_t sockfd() const { return WebSocket::sockfd(); }
+  poco_socket_t sockfd() const { return WebSocket::sockfd(); }
 };
 
-void HttpService::WebSocketService::run()
-{
-	WebSocketPublicFD ws(request(), response());
-	const int fdWs = ws.sockfd();
-	bool stop = false;
-	struct pollfd fds[2] = { { fdWs, POLLIN, 0 }, { m_pipe[0], POLLIN, 0 } };
+void HttpService::WebSocketService::run() {
+  WebSocketPublicFD ws(request(), response());
+  const int fdWs = ws.sockfd();
+  bool stop = false;
+  struct pollfd fds[2] = {{fdWs, POLLIN, 0}, {m_pipe[0], POLLIN, 0}};
 
-	HttpService::instance()->addCaptchaClient(this);
+  HttpService::instance()->addCaptchaClient(this);
 
-	try
-	{
-		while (!stop)
-		{
-			int ev = ::poll(fds, sizeof(fds)/sizeof(fds[0]), 500);
+  try {
+    while (!stop) {
+      int ev = ::poll(fds, sizeof(fds) / sizeof(fds[0]), 500);
 
-			if (ev)
-			{
-				if (fds[0].revents)
-				{
-					// Data from client
-					int flags, len;
-					char buf[32];
+      if (ev) {
+        if (fds[0].revents) {
+          // Data from client
+          int flags, len;
+          char buf[32];
 
-					len = ws.receiveFrame(buf, sizeof(buf), flags);
+          len = ws.receiveFrame(buf, sizeof(buf), flags);
 
-					if (!len)
-						break; // Connection closed
+          if (!len) break;  // Connection closed
 
-					if ((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_PING)
-						ws.sendFrame(nullptr, 0, WebSocket::FRAME_OP_PONG);
-					else if ((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_CLOSE)
-						break;
-				}
-				if (fds[1].revents)
-				{
-					int v;
+          if ((flags & WebSocket::FRAME_OP_BITMASK) == WebSocket::FRAME_OP_PING)
+            ws.sendFrame(nullptr, 0, WebSocket::FRAME_OP_PONG);
+          else if ((flags & WebSocket::FRAME_OP_BITMASK) ==
+                   WebSocket::FRAME_OP_CLOSE)
+            break;
+        }
+        if (fds[1].revents) {
+          int v;
 
-					read(m_pipe[0], &v, sizeof(v));
+          read(m_pipe[0], &v, sizeof(v));
 
-					switch (v)
-					{
-						case -1:
-							stop = true;
-							break;
-						case 0:
-							// new captcha to be solved
-							pushMore(ws);
-							break;
-						case 1:
-						{
-							// pseudo-ping; real ping frames were failing for me in browsers
-							const char* text = "{\"type\": \"ping\"}";
-							ws.sendFrame(text, strlen(text));
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	catch (...)
-	{
-	}
+          switch (v) {
+            case -1:
+              stop = true;
+              break;
+            case 0:
+              // new captcha to be solved
+              pushMore(ws);
+              break;
+            case 1: {
+              // pseudo-ping; real ping frames were failing for me in browsers
+              const char* text = "{\"type\": \"ping\"}";
+              ws.sendFrame(text, strlen(text));
+              break;
+            }
+          }
+        }
+      }
+    }
+  } catch (...) {
+  }
 
-	if (!stop)
-	{
-		HttpService* service = HttpService::instance();
-		if (service)
-			service->removeCaptchaClient(this); // only remove self unless we were told to terminate
-	}
+  if (!stop) {
+    HttpService* service = HttpService::instance();
+    if (service)
+      service->removeCaptchaClient(
+          this);  // only remove self unless we were told to terminate
+  }
 }
 
-void HttpService::WebSocketService::pushMore(WebSocket& ws)
-{
-	captchaQueueLock.lock();
+void HttpService::WebSocketService::pushMore(WebSocket& ws) {
+  captchaQueueLock.lock();
 
-	while(!captchaQueue.isEmpty())
-	{
-		QJsonObject notif;
-		Captcha cap = captchaQueue.dequeue();
-		QByteArray ba;
+  while (!captchaQueue.isEmpty()) {
+    QJsonObject notif;
+    Captcha cap = captchaQueue.dequeue();
+    QByteArray ba;
 
-		notif.insert("type", "captcha");
-		notif.insert("id", cap.first);
-		notif.insert("url", cap.second);
+    notif.insert("type", "captcha");
+    notif.insert("id", cap.first);
+    notif.insert("url", cap.second);
 
-		ba = QJsonDocument(notif).toJson(QJsonDocument::JsonFormat::Compact);
-		ws.sendFrame(ba.data(), ba.size());
-	}
+    ba = QJsonDocument(notif).toJson(QJsonDocument::JsonFormat::Compact);
+    ws.sendFrame(ba.data(), ba.size());
+  }
 
-	captchaQueueLock.unlock();
+  captchaQueueLock.unlock();
 }
 
-void HttpService::WebSocketService::pushCaptcha(const Captcha& cap)
-{
-	qDebug() << "Enqueueing captcha id" << cap.first;
-	captchaQueueLock.lock();
-	captchaQueue << cap;
-	captchaQueueLock.unlock();
-	wakeup(0);
+void HttpService::WebSocketService::pushCaptcha(const Captcha& cap) {
+  qDebug() << "Enqueueing captcha id" << cap.first;
+  captchaQueueLock.lock();
+  captchaQueue << cap;
+  captchaQueueLock.unlock();
+  wakeup(0);
 }
 
-void HttpService::WebSocketService::wakeup(int v)
-{
-	::write(m_pipe[1], &v, sizeof(v));
+void HttpService::WebSocketService::wakeup(int v) {
+  ::write(m_pipe[1], &v, sizeof(v));
 }
 
-void HttpService::addCaptchaEvent(int id, QString url)
-{
-	QMutexLocker l(&m_registeredCaptchaClientsMutex);
+void HttpService::addCaptchaEvent(int id, QString url) {
+  QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	for (WebSocketService* ws : m_registeredCaptchaClients)
-	{
-		ws->pushCaptcha(WebSocketService::Captcha(id, url));
-	}
+  for (WebSocketService* ws : m_registeredCaptchaClients) {
+    ws->pushCaptcha(WebSocketService::Captcha(id, url));
+  }
 }
 
-void HttpService::addCaptchaClient(WebSocketService* client)
-{
-	QMutexLocker l(&m_registeredCaptchaClientsMutex);
-	m_registeredCaptchaClients << client;
+void HttpService::addCaptchaClient(WebSocketService* client) {
+  QMutexLocker l(&m_registeredCaptchaClientsMutex);
+  m_registeredCaptchaClients << client;
 }
 
-void HttpService::removeCaptchaClient(WebSocketService* client)
-{
-	QMutexLocker l(&m_registeredCaptchaClientsMutex);
-	m_registeredCaptchaClients.removeAll(client);
+void HttpService::removeCaptchaClient(WebSocketService* client) {
+  QMutexLocker l(&m_registeredCaptchaClientsMutex);
+  m_registeredCaptchaClients.removeAll(client);
 }
 
-bool HttpService::hasCaptchaHandlers()
-{
-	return !m_registeredCaptchaClients.isEmpty();
+bool HttpService::hasCaptchaHandlers() {
+  return !m_registeredCaptchaClients.isEmpty();
 }
 
+void HttpService::keepalive() {
+  QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-void HttpService::keepalive()
-{
-	QMutexLocker l(&m_registeredCaptchaClientsMutex);
-
-	for (WebSocketService* cl : m_registeredCaptchaClients)
-		cl->keepalive();
+  for (WebSocketService* cl : m_registeredCaptchaClients) cl->keepalive();
 }

@@ -24,27 +24,26 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
 #ifndef JSETTINGS_H
 #define JSETTINGS_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 #include <jni.h>
 
-class JSettings
-{
-public:
-	static void registerNatives();
-protected:
-	static void setValueString(JNIEnv *, jclass, jstring, jstring);
-	static void setValueLong(JNIEnv *, jclass, jstring, jlong);
-	static void setValueBoolean(JNIEnv *, jclass, jstring, jboolean);
-	static void setValueDouble(JNIEnv *, jclass, jstring, jdouble);
-	static jobject getValue(JNIEnv *, jclass, jstring, jobject);
-	static jarray getValueArray(JNIEnv *, jclass, jstring);
+class JSettings {
+ public:
+  static void registerNatives();
+
+ protected:
+  static void setValueString(JNIEnv *, jclass, jstring, jstring);
+  static void setValueLong(JNIEnv *, jclass, jstring, jlong);
+  static void setValueBoolean(JNIEnv *, jclass, jstring, jboolean);
+  static void setValueDouble(JNIEnv *, jclass, jstring, jdouble);
+  static jobject getValue(JNIEnv *, jclass, jstring, jobject);
+  static jarray getValueArray(JNIEnv *, jclass, jstring);
 };
 
-#endif // JSETTINGS_H
+#endif  // JSETTINGS_H

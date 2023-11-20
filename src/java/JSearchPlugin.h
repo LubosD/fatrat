@@ -24,33 +24,34 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
 #ifndef JSEARCHPLUGIN_H
 #define JSEARCHPLUGIN_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include "JTransferPlugin.h"
 
 class FileSharingSearch;
 
-class JSearchPlugin : public JPlugin
-{
-public:
-	JSearchPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JSearchPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+class JSearchPlugin : public JPlugin {
+ public:
+  JSearchPlugin(const JClass& cls, const char* sig = "()V",
+                JArgs args = JArgs());
+  JSearchPlugin(const char* clsName, const char* sig = "()V",
+                JArgs args = JArgs());
 
-	void setDialog(FileSharingSearch* dlg) { m_dialog = dlg; }
+  void setDialog(FileSharingSearch* dlg) { m_dialog = dlg; }
 
-	static void registerNatives();
-protected:
-	static void searchDone(JNIEnv*, jobject, jobjectArray);
-	//void findMyName();
-private:
-	FileSharingSearch* m_dialog;
+  static void registerNatives();
+
+ protected:
+  static void searchDone(JNIEnv*, jobject, jobjectArray);
+  // void findMyName();
+ private:
+  FileSharingSearch* m_dialog;
 };
 
-#endif // JSEARCHPLUGIN_H
+#endif  // JSEARCHPLUGIN_H

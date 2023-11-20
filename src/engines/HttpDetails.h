@@ -26,50 +26,56 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef HTTPDETAILS_H
 #define HTTPDETAILS_H
-#include <QWidget>
-#include <QTimer>
 #include <QColor>
 #include <QMenu>
+#include <QTimer>
+#include <QWidget>
+
 #include "ui_HttpDetails.h"
 
 class CurlDownload;
 
-class HttpDetails : public QObject, Ui_HttpDetails
-{
-Q_OBJECT
-public:
-	HttpDetails(QWidget* w);
-	void setDownload(CurlDownload* d);
-private slots:
-	void addSegment();
-	void deleteSegment();
-	void addUrl();
-	void editUrl();
-	void deleteUrl();
-	void refresh();
-	void addSegmentUrl();
-	void mirrorSearch();
-protected:
-	static QMap<QString,QStringList> loadMirrors();
-private:
-	QTimer m_timer;
-	CurlDownload* m_download;
-	QMenu m_menu;
-	// contains only URL actions
-	QList<QAction*> m_menuActions;
-	QAction* m_separator;
+class HttpDetails : public QObject, Ui_HttpDetails {
+  Q_OBJECT
+ public:
+  HttpDetails(QWidget* w);
+  void setDownload(CurlDownload* d);
+ private slots:
+  void addSegment();
+  void deleteSegment();
+  void addUrl();
+  void editUrl();
+  void deleteUrl();
+  void refresh();
+  void addSegmentUrl();
+  void mirrorSearch();
 
-	class GradientWidget : public QWidget
-	{
-	public:
-		GradientWidget(QColor color);
-		inline QColor color() const { return m_color; }
-		inline void setColor(QColor c) { m_color = c; update(); }
-	protected:
-		virtual void paintEvent(QPaintEvent* event);
-	private:
-		QColor m_color;
-	};
+ protected:
+  static QMap<QString, QStringList> loadMirrors();
+
+ private:
+  QTimer m_timer;
+  CurlDownload* m_download;
+  QMenu m_menu;
+  // contains only URL actions
+  QList<QAction*> m_menuActions;
+  QAction* m_separator;
+
+  class GradientWidget : public QWidget {
+   public:
+    GradientWidget(QColor color);
+    inline QColor color() const { return m_color; }
+    inline void setColor(QColor c) {
+      m_color = c;
+      update();
+    }
+
+   protected:
+    virtual void paintEvent(QPaintEvent* event);
+
+   private:
+    QColor m_color;
+  };
 };
 
 #endif

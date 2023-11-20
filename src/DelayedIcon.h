@@ -29,15 +29,13 @@ respects for all of the code used other than "OpenSSL".
 #include <QIcon>
 #include <QString>
 
-class DelayedIcon
-{
-public:
-	DelayedIcon(QString iconPath = QString());
-	operator QIcon() const;
-private:
-	QString m_iconPath;
+class DelayedIcon {
+ public:
+  DelayedIcon(QString iconPath = QString());
+  operator QIcon() const;
+
+ private:
+  QString m_iconPath;
 };
 
 #endif
-
-

@@ -29,45 +29,51 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
+
+#include <QMap>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QtDebug>
 
 #include "JObject.h"
 #include "JSingleCObject.h"
 #include "Transfer.h"
 #include "engines/StaticTransferMessage.h"
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QMap>
-#include <QtDebug>
 
 class JavaDownload;
 
-class JPlugin : public QObject, public JObject, public JSingleCObject<JPlugin>
-{
-Q_OBJECT
-public:
-	JPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+class JPlugin : public QObject, public JObject, public JSingleCObject<JPlugin> {
+  Q_OBJECT
+ public:
+  JPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
+  JPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
 
-	static void fetchPage(JNIEnv *, jobject, jstring, jobject, jstring, jobject);
+  static void fetchPage(JNIEnv*, jobject, jstring, jobject, jstring, jobject);
 
-	inline void setTransfer(StaticTransferMessage<Transfer>* t) { qDebug() << "Transfer: " << t; m_transfer = t; }
-	inline StaticTransferMessage<Transfer>* transfer() const { return m_transfer; }
+  inline void setTransfer(StaticTransferMessage<Transfer>* t) {
+    qDebug() << "Transfer: " << t;
+    m_transfer = t;
+  }
+  inline StaticTransferMessage<Transfer>* transfer() const {
+    return m_transfer;
+  }
 
-	virtual void abort();
-	virtual bool checkIfAlive();
+  virtual void abort();
+  virtual bool checkIfAlive();
 
-	static void registerNatives();
-private slots:
-	void fetchFinished(QNetworkReply*);
-protected:
-	typedef QPair<JPlugin*,JObject> RequesterReceiver;
+  static void registerNatives();
+ private slots:
+  void fetchFinished(QNetworkReply*);
 
-	StaticTransferMessage<Transfer>* m_transfer;
-	QMap<QNetworkReply*,RequesterReceiver> m_fetchCallbacks;
-	QNetworkAccessManager* m_network;
-	bool m_bTaskDone;
+ protected:
+  typedef QPair<JPlugin*, JObject> RequesterReceiver;
+
+  StaticTransferMessage<Transfer>* m_transfer;
+  QMap<QNetworkReply*, RequesterReceiver> m_fetchCallbacks;
+  QNetworkAccessManager* m_network;
+  bool m_bTaskDone;
 };
 
-#endif // JPLUGIN_H
+#endif  // JPLUGIN_H
