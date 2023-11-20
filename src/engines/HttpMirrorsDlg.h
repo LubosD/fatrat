@@ -30,36 +30,36 @@ respects for all of the code used other than "OpenSSL".
 #include <QMap>
 #include <QSet>
 #include <QThread>
+
 #include "ui_HttpMirrorsDlg.h"
 
-class HttpMirrorsDlg : public QDialog, Ui_HttpMirrorsDlg
-{
-Q_OBJECT
-public:
-	HttpMirrorsDlg(QWidget* parent);
-	~HttpMirrorsDlg();
-	void load(const QMap<QString, QStringList>& mirrors, QSet<QString> compatible);
-	QMap<QString,QStringList> pickedUrls() const;
-private:
+class HttpMirrorsDlg : public QDialog, Ui_HttpMirrorsDlg {
+  Q_OBJECT
+ public:
+  HttpMirrorsDlg(QWidget* parent);
+  ~HttpMirrorsDlg();
+  void load(const QMap<QString, QStringList>& mirrors,
+            QSet<QString> compatible);
+  QMap<QString, QStringList> pickedUrls() const;
 
-	class ProbeThread : public QThread
-	{
-	public:
-		ProbeThread(QMap<QString,QTreeWidgetItem*>& servers, QObject* parent);
-		~ProbeThread();
-		void stop() { m_bStop = true; }
-		virtual void run();
-	private:
-		QMap<QString,QTreeWidgetItem*> m_servers;
-		bool m_bStop;
-	} *m_probeThread;
+ private:
+  class ProbeThread : public QThread {
+   public:
+    ProbeThread(QMap<QString, QTreeWidgetItem*>& servers, QObject* parent);
+    ~ProbeThread();
+    void stop() { m_bStop = true; }
+    virtual void run();
 
-	class CSTreeWidgetItem : public QTreeWidgetItem
-	{
-	public:
-		CSTreeWidgetItem(QTreeWidgetItem* parent);
-		virtual bool operator<(const QTreeWidgetItem& other) const;
-	};
+   private:
+    QMap<QString, QTreeWidgetItem*> m_servers;
+    bool m_bStop;
+  }* m_probeThread;
+
+  class CSTreeWidgetItem : public QTreeWidgetItem {
+   public:
+    CSTreeWidgetItem(QTreeWidgetItem* parent);
+    virtual bool operator<(const QTreeWidgetItem& other) const;
+  };
 };
 
-#endif // HTTPMIRRORSDLG_H
+#endif  // HTTPMIRRORSDLG_H

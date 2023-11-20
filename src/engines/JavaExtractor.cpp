@@ -25,259 +25,252 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JavaExtractor.h"
-#include "java/JClass.h"
-#include "java/JObject.h"
-#include "java/JArray.h"
-#include "RuntimeException.h"
-#include "TransferFactory.h"
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include "java/JExtractorPlugin.h"
-#include "java/JByteBuffer.h"
-#include "java/JMap.h"
-#include "java/JException.h"
-#include <cassert>
 #include <QtDebug>
+#include <cassert>
 
-QMap<QString,JavaExtractor::JavaEngine> JavaExtractor::m_engines;
+#include "RuntimeException.h"
+#include "TransferFactory.h"
+#include "java/JArray.h"
+#include "java/JByteBuffer.h"
+#include "java/JClass.h"
+#include "java/JException.h"
+#include "java/JExtractorPlugin.h"
+#include "java/JMap.h"
+#include "java/JObject.h"
+
+QMap<QString, JavaExtractor::JavaEngine> JavaExtractor::m_engines;
 extern QList<JObject> g_configListeners;
 
 JavaExtractor::JavaExtractor(const char* clsName)
-	: m_strClass(clsName), m_plugin(0), m_reply(0)
-{
-	m_network = new QNetworkAccessManager(this);
-	// TODO: set proxy
-	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
+    : m_strClass(clsName), m_plugin(0), m_reply(0) {
+  m_network = new QNetworkAccessManager(this);
+  // TODO: set proxy
+  connect(m_network, SIGNAL(finished(QNetworkReply*)), this,
+          SLOT(finished(QNetworkReply*)));
 
-	m_plugin = new JExtractorPlugin(clsName);
-	m_plugin->setTransfer(this);
+  m_plugin = new JExtractorPlugin(clsName);
+  m_plugin->setTransfer(this);
 }
 
-JavaExtractor::~JavaExtractor()
-{
-	delete m_plugin;
+JavaExtractor::~JavaExtractor() { delete m_plugin; }
+
+int JavaExtractor::acceptable(QString uri, bool, const EngineEntry* e) {
+  qDebug() << "JavaExtractor::acceptable():" << uri << e->shortName;
+  assert(m_engines.contains(e->shortName));
+
+  JavaEngine& en = m_engines[e->shortName];
+
+  if (!en.ownAcceptable.isNull()) {
+    try {
+      return en.ownAcceptable
+          .call("acceptable", JSignature().addString().retInt(), JArgs() << uri)
+          .toInt();
+    } catch (RuntimeException& e) {
+      Logger::global()->enterLogMessage(
+          "JavaExtractor", QString("%1 threw an exception in acceptable(): %2")
+                               .arg(QString::fromStdString(en.name))
+                               .arg(e.what()));
+    }
+  } else if (en.regexp.exactMatch(uri))
+    return 3;
+
+  return 0;
 }
 
-int JavaExtractor::acceptable(QString uri, bool, const EngineEntry* e)
-{
-	qDebug() << "JavaExtractor::acceptable():" << uri << e->shortName;
-	assert(m_engines.contains(e->shortName));
+void JavaExtractor::globalInit() {
+  try {
+    JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
+    JClass annotation(
+        "info.dolezel.fatrat.plugins.annotations.ExtractorPluginInfo");
 
-	JavaEngine& en = m_engines[e->shortName];
+    JExtractorPlugin::registerNatives();
 
-	if (!en.ownAcceptable.isNull())
-	{
-		try
-		{
-			return en.ownAcceptable.call("acceptable", JSignature().addString().retInt(), JArgs() << uri).toInt();
-		}
-		catch (RuntimeException& e)
-		{
-			Logger::global()->enterLogMessage("JavaExtractor", QString("%1 threw an exception in acceptable(): %2")
-							  .arg(QString::fromStdString(en.name)).arg(e.what()));
-		}
-	}
-	else if (en.regexp.exactMatch(uri))
-		return 3;
+    JArgs args;
 
-	return 0;
+    args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
+
+    JArray arr = helper
+                     .callStatic("findAnnotatedClasses",
+                                 JSignature()
+                                     .addString()
+                                     .add("java.lang.Class")
+                                     .retA("java.lang.Class"),
+                                 args)
+                     .value<JArray>();
+    qDebug() << "Found" << arr.size()
+             << "annotated classes (ExtractorPluginInfo)";
+
+    int classes = arr.size();
+    for (int i = 0; i < classes; i++) {
+      try {
+        JClass obj = (jobject)arr.getObject(i);
+        JObject ann = obj.getAnnotation(annotation);
+        QString regexp =
+            ann.call("regexp", JSignature().retString()).toString();
+        QString name = ann.call("name", JSignature().retString()).toString();
+        QString targetClassName =
+            ann.call("transferClassName", JSignature().retString()).toString();
+        QString clsName = obj.getClassName();
+        JObject instance(obj, JSignature());
+
+        if (targetClassName.isEmpty()) {
+          JClass cls = JClass(
+              ann.call("transferClass", JSignature().ret("java.lang.Class"))
+                  .value<JObject>());
+          if (!cls.isNull() && cls.getClassName() != "java.lang.Object")
+            targetClassName = cls.getClassName();
+        }
+
+        qDebug() << "Class name:" << clsName;
+        qDebug() << "Name:" << name;
+        qDebug() << "Regexp:" << regexp;
+
+        JavaEngine e = {"EXT - " + name.toStdString(), clsName.toStdString(),
+                        QRegExp(regexp)};
+
+        if (instance.instanceOf(
+                "info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
+          e.ownAcceptable = instance;
+        if (instance.instanceOf(
+                "info.dolezel.fatrat.plugins.listeners.ConfigListener"))
+          g_configListeners << instance;
+        e.targetClass = targetClassName;
+
+        m_engines[clsName] = e;
+
+        EngineEntry entry;
+        entry.longName = m_engines[clsName].name.c_str();
+        entry.shortName = m_engines[clsName].shortName.c_str();
+        entry.lpfnAcceptable2 = JavaExtractor::acceptable;
+        entry.lpfnCreate2 = JavaExtractor::createInstance;
+        entry.lpfnInit = 0;
+        entry.lpfnExit = 0;
+        entry.lpfnMultiOptions = 0;
+
+        addTransferClass(entry, Transfer::Download);
+      } catch (const RuntimeException& e) {
+        qDebug() << e.what();
+      }
+    }
+  } catch (const RuntimeException& e) {
+    qDebug() << e.what();
+  }
 }
 
-void JavaExtractor::globalInit()
-{
-	try {
-		JClass helper("info.dolezel.fatrat.plugins.helpers.NativeHelpers");
-		JClass annotation("info.dolezel.fatrat.plugins.annotations.ExtractorPluginInfo");
+void JavaExtractor::globalExit() { m_engines.clear(); }
 
-		JExtractorPlugin::registerNatives();
-
-		JArgs args;
-
-		args << "info.dolezel.fatrat.plugins" << annotation.toVariant();
-
-		JArray arr = helper.callStatic("findAnnotatedClasses",
-						  JSignature().addString().add("java.lang.Class").retA("java.lang.Class"),
-						  args).value<JArray>();
-		qDebug() << "Found" << arr.size() << "annotated classes (ExtractorPluginInfo)";
-
-		int classes = arr.size();
-		for (int i = 0; i < classes; i++)
-		{
-			try
-			{
-				JClass obj = (jobject) arr.getObject(i);
-				JObject ann = obj.getAnnotation(annotation);
-				QString regexp = ann.call("regexp", JSignature().retString()).toString();
-				QString name = ann.call("name", JSignature().retString()).toString();
-				QString targetClassName = ann.call("transferClassName", JSignature().retString()).toString();
-				QString clsName = obj.getClassName();
-				JObject instance(obj, JSignature());
-
-				if (targetClassName.isEmpty())
-				{
-					JClass cls = JClass(ann.call("transferClass", JSignature().ret("java.lang.Class")).value<JObject>());
-					if (!cls.isNull() && cls.getClassName() != "java.lang.Object")
-						targetClassName = cls.getClassName();
-				}
-
-				qDebug() << "Class name:" << clsName;
-				qDebug() << "Name:" << name;
-				qDebug() << "Regexp:" << regexp;
-
-				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
-
-				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
-					e.ownAcceptable = instance;
-				if (instance.instanceOf("info.dolezel.fatrat.plugins.listeners.ConfigListener"))
-					g_configListeners << instance;
-				e.targetClass = targetClassName;
-
-				m_engines[clsName] = e;
-
-				EngineEntry entry;
-				entry.longName = m_engines[clsName].name.c_str();
-				entry.shortName = m_engines[clsName].shortName.c_str();
-				entry.lpfnAcceptable2 = JavaExtractor::acceptable;
-				entry.lpfnCreate2 = JavaExtractor::createInstance;
-				entry.lpfnInit = 0;
-				entry.lpfnExit = 0;
-				entry.lpfnMultiOptions = 0;
-
-				addTransferClass(entry, Transfer::Download);
-			}
-			catch (const RuntimeException& e)
-			{
-				qDebug() << e.what();
-			}
-		}
-	}
-	catch (const RuntimeException& e)
-	{
-		qDebug() << e.what();
-	}
+QString JavaExtractor::name() const {
+  return QString::fromStdString(m_engines[m_strClass].name);
 }
 
-void JavaExtractor::globalExit()
-{
-	m_engines.clear();
+void JavaExtractor::init(QString source, QString target) {
+  m_strUrl = source;
+  m_strTarget = target;
 }
 
-QString JavaExtractor::name() const
-{
-	return QString::fromStdString(m_engines[m_strClass].name);
+void JavaExtractor::load(const QDomNode& map) {
+  m_strUrl = getXMLProperty(map, "jplugin_url");
+  m_strTarget = getXMLProperty(map, "jplugin_target");
+
+  loadVars(map);
+
+  Transfer::load(map);
 }
 
-void JavaExtractor::init(QString source, QString target)
-{
-	m_strUrl = source;
-	m_strTarget = target;
+void JavaExtractor::save(QDomDocument& doc, QDomNode& map) const {
+  Transfer::save(doc, map);
+
+  saveVars(doc, map);
+
+  setXMLProperty(doc, map, "jplugin_url", m_strUrl);
+  setXMLProperty(doc, map, "jplugin_target", m_strTarget);
 }
 
-void JavaExtractor::load(const QDomNode& map)
-{
-	m_strUrl = getXMLProperty(map, "jplugin_url");
-	m_strTarget = getXMLProperty(map, "jplugin_target");
-
-	loadVars(map);
-
-	Transfer::load(map);
+void JavaExtractor::changeActive(bool nowActive) {
+  if (nowActive) {
+    if (m_strUrl.startsWith("http://") || m_strUrl.startsWith("https://"))
+      m_reply = m_network->get(QNetworkRequest(m_strUrl));
+    else {
+      logMessage(
+          tr("JavaExtractor: Not an HTTP(S) URI, passing the URI directly to "
+             "the extension"));
+      m_plugin->call("extractList",
+                     JSignature()
+                         .addString()
+                         .add("java.nio.ByteBuffer")
+                         .add("java.util.Map"),
+                     m_strUrl, JObject(), JObject());
+    }
+  } else {
+    if (m_reply) m_reply->abort();
+  }
 }
 
-void JavaExtractor::save(QDomDocument& doc, QDomNode& map) const
-{
-	Transfer::save(doc, map);
+void JavaExtractor::finishedExtraction(QList<QString> list) {
+  if (list.isEmpty()) {
+    setMessage(tr("Empty or invalid link list"));
+    setState(Failed);
+    return;
+  }
 
-	saveVars(doc, map);
+  QString clsName = m_engines[m_strClass].targetClass;
+  if (clsName.isEmpty()) {
+    BestEngine e = bestEngine(list[0], Download);
+    if (!e.engine) {
+      setMessage(tr("Failed to detect URL class: %1").arg(list[0]));
+      setState(Failed);
+      return;
+    }
 
-	setXMLProperty(doc, map, "jplugin_url", m_strUrl);
-	setXMLProperty(doc, map, "jplugin_target", m_strTarget);
+    clsName = e.engine->shortName;
+  }
+
+  QList<Transfer*> ts;
+  TransferFactory* f = TransferFactory::instance();
+  foreach (QString url, list) {
+    Transfer* t = f->createInstance(clsName);
+    t->init(url, m_strTarget);
+    t->setState(Waiting);
+    ts << t;
+  }
+
+  QMetaObject::invokeMethod(this, "replaceItself", Qt::QueuedConnection,
+                            Q_ARG(Transfer::TransferList, ts));
 }
 
-void JavaExtractor::changeActive(bool nowActive)
-{
-	if (nowActive)
-	{
-		if (m_strUrl.startsWith("http://") || m_strUrl.startsWith("https://"))
-			m_reply = m_network->get(QNetworkRequest(m_strUrl));
-		else
-		{
-			logMessage(tr("JavaExtractor: Not an HTTP(S) URI, passing the URI directly to the extension"));
-			m_plugin->call("extractList", JSignature().addString().add("java.nio.ByteBuffer").add("java.util.Map"), m_strUrl, JObject(), JObject());
-		}
-	}
-	else
-	{
-		if (m_reply)
-			m_reply->abort();
-	}
-}
+void JavaExtractor::finished(QNetworkReply* reply) {
+  m_reply = 0;
+  reply->deleteLater();
 
-void JavaExtractor::finishedExtraction(QList<QString> list)
-{
-	if (list.isEmpty())
-	{
-		setMessage(tr("Empty or invalid link list"));
-		setState(Failed);
-		return;
-	}
+  if (reply->error() != QNetworkReply::NoError) {
+    setMessage(reply->errorString());
+    setState(Failed);
+    return;
+  }
 
-	QString clsName = m_engines[m_strClass].targetClass;
-	if (clsName.isEmpty())
-	{
-		BestEngine e = bestEngine(list[0], Download);
-		if (!e.engine)
-		{
-			setMessage(tr("Failed to detect URL class: %1").arg(list[0]));
-			setState(Failed);
-			return;
-		}
+  QByteArray qbuf = reply->readAll();
+  JByteBuffer buf(qbuf.data(), qbuf.size());
 
-		clsName = e.engine->shortName;
-	}
+  QList<QByteArray> list = reply->rawHeaderList();
+  JMap map(list.size());
 
-	QList<Transfer*> ts;
-	TransferFactory* f = TransferFactory::instance();
-	foreach (QString url, list)
-	{
-		Transfer *t = f->createInstance(clsName);
-		t->init(url, m_strTarget);
-		t->setState(Waiting);
-		ts << t;
-	}
+  foreach (QByteArray ba, list) {
+    QString k, v;
 
-	QMetaObject::invokeMethod(this, "replaceItself", Qt::QueuedConnection, Q_ARG(Transfer::TransferList, ts));
-}
+    k = QString(ba).toLower();
+    v = QString(reply->rawHeader(ba)).trimmed();
+    qDebug() << "Header:" << k << v;
+    map.put(k, v);
+  }
 
-void JavaExtractor::finished(QNetworkReply* reply)
-{
-	m_reply = 0;
-	reply->deleteLater();
+  qDebug() << "JavaExtractor::finished:" << buf.toString();
+  logMessage(QLatin1String("JavaExtractor::finished(): OK"));
 
-	if (reply->error() != QNetworkReply::NoError)
-	{
-		setMessage(reply->errorString());
-		setState(Failed);
-		return;
-	}
-
-	QByteArray qbuf = reply->readAll();
-	JByteBuffer buf (qbuf.data(), qbuf.size());
-
-	QList<QByteArray> list = reply->rawHeaderList();
-	JMap map(list.size());
-
-	foreach (QByteArray ba, list)
-	{
-		QString k, v;
-
-		k = QString(ba).toLower();
-		v = QString(reply->rawHeader(ba)).trimmed();
-		qDebug() << "Header:" << k << v;
-		map.put(k, v);
-	}
-
-	qDebug() << "JavaExtractor::finished:" << buf.toString();
-	logMessage(QLatin1String("JavaExtractor::finished(): OK"));
-
-	m_plugin->call("extractList", JSignature().addString().add("java.nio.ByteBuffer").add("java.util.Map"), m_strUrl, buf, map);
+  m_plugin->call(
+      "extractList",
+      JSignature().addString().add("java.nio.ByteBuffer").add("java.util.Map"),
+      m_strUrl, buf, map);
 }

@@ -32,68 +32,61 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QTemporaryFile;
 
-class MetalinkDownload : public Transfer
-{
-Q_OBJECT
-public:
-	MetalinkDownload();
-	virtual ~MetalinkDownload();
+class MetalinkDownload : public Transfer {
+  Q_OBJECT
+ public:
+  MetalinkDownload();
+  virtual ~MetalinkDownload();
 
-	static void globalInit();
-	static int acceptable(QString url, bool);
+  static void globalInit();
+  static int acceptable(QString url, bool);
 
-	virtual void changeActive(bool nowActive);
-	virtual void init(QString source, QString target);
-	virtual void setObject(QString object) { m_strTarget = object; }
-	virtual QString object() const { return m_strTarget; }
-	virtual QString myClass() const { return "MetalinkDownload"; }
-	virtual QString name() const;
-	virtual QString message() const { return m_strMessage; }
-	virtual void speeds(int& down, int& up) const { down = up = 0; }
-	virtual qulonglong total() const { return 0; }
-	virtual qulonglong done() const { return 0; }
-	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map) const;
-	virtual QString remoteURI() const;
+  virtual void changeActive(bool nowActive);
+  virtual void init(QString source, QString target);
+  virtual void setObject(QString object) { m_strTarget = object; }
+  virtual QString object() const { return m_strTarget; }
+  virtual QString myClass() const { return "MetalinkDownload"; }
+  virtual QString name() const;
+  virtual QString message() const { return m_strMessage; }
+  virtual void speeds(int& down, int& up) const { down = up = 0; }
+  virtual qulonglong total() const { return 0; }
+  virtual qulonglong done() const { return 0; }
+  virtual void load(const QDomNode& map);
+  virtual void save(QDomDocument& doc, QDomNode& map) const;
+  virtual QString remoteURI() const;
 
-	static Transfer* createInstance() { return new MetalinkDownload; }
-private slots:
-	void done(QNetworkReply* reply);
-	void networkReadyRead();
-	void processMetalink(QString file);
-protected:
+  static Transfer* createInstance() { return new MetalinkDownload; }
+ private slots:
+  void done(QNetworkReply* reply);
+  void networkReadyRead();
+  void processMetalink(QString file);
 
-	struct Link
-	{
-		Link(QString _url, int _priority, bool _isTorrent) : url(_url), isTorrent(_isTorrent), priority(_priority)
-		{
-		}
+ protected:
+  struct Link {
+    Link(QString _url, int _priority, bool _isTorrent)
+        : url(_url), isTorrent(_isTorrent), priority(_priority) {}
 
-		QString url;
-		bool isTorrent;
-		int priority;
+    QString url;
+    bool isTorrent;
+    int priority;
 
-		bool operator<(const Link& that) const
-		{
-			return priority < that.priority;
-		}
-	};
-	struct MetaFile
-	{
-		QString name;
-		QList<Link> urls;
-		qlonglong fileSize;
-		QString comment;
-		QString hashMD5, hashSHA1;
+    bool operator<(const Link& that) const { return priority < that.priority; }
+  };
+  struct MetaFile {
+    QString name;
+    QList<Link> urls;
+    qlonglong fileSize;
+    QString comment;
+    QString hashMD5, hashSHA1;
 
-		bool hasHTTP, hasTorrent;
-	};
+    bool hasHTTP, hasTorrent;
+  };
 
-private:
-	QString m_strMessage, m_strSource, m_strTarget;
-	QNetworkAccessManager* m_network;
-	QTemporaryFile* m_file;
-	QNetworkReply* m_reply;
+ private:
+  QString m_strMessage, m_strSource, m_strTarget;
+  QNetworkAccessManager* m_network;
+  QTemporaryFile* m_file;
+  QNetworkReply* m_reply;
 };
 
-#endif // METALINKDOWNLOAD_H
+#endif  // METALINKDOWNLOAD_H

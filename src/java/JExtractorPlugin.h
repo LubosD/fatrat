@@ -24,31 +24,32 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
 #ifndef JEXTRACTORPLUGIN_H
 #define JEXTRACTORPLUGIN_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include "JTransferPlugin.h"
 #include "engines/JavaExtractor.h"
 
-class JExtractorPlugin : public JTransferPlugin
-{
-public:
-	JExtractorPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JExtractorPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+class JExtractorPlugin : public JTransferPlugin {
+ public:
+  JExtractorPlugin(const JClass& cls, const char* sig = "()V",
+                   JArgs args = JArgs());
+  JExtractorPlugin(const char* clsName, const char* sig = "()V",
+                   JArgs args = JArgs());
 
-	static void registerNatives();
+  static void registerNatives();
 
-	static void finishedExtraction(JNIEnv *, jobject, jobjectArray);
+  static void finishedExtraction(JNIEnv*, jobject, jobjectArray);
 
-	virtual void setPersistentVariable(QString key, QVariant value);
-	virtual QVariant getPersistentVariable(QString key);
-private:
+  virtual void setPersistentVariable(QString key, QVariant value);
+  virtual QVariant getPersistentVariable(QString key);
+
+ private:
 };
 
-#endif // JEXTRACTORPLUGIN_H
+#endif  // JEXTRACTORPLUGIN_H

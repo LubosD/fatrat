@@ -26,53 +26,58 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef SETTINGSJAVAPLUGIN_H
 #define SETTINGSJAVAPLUGIN_H
-#include <QObject>
-#include "WidgetHostChild.h"
-#include "ui_SettingsJavaPluginForm.h"
-#include "ExtensionDownloadDlg.h"
-#include <QNetworkAccessManager>
+#include <QDomDocument>
 #include <QList>
 #include <QMap>
-#include <QDomDocument>
+#include <QNetworkAccessManager>
+#include <QObject>
+
+#include "ExtensionDownloadDlg.h"
+#include "WidgetHostChild.h"
+#include "ui_SettingsJavaPluginForm.h"
 
 class QNetworkReply;
 
-class SettingsJavaPluginForm : public QObject, Ui_SettingsJavaPluginForm, public WidgetHostChild
-{
-Q_OBJECT
-public:
-	SettingsJavaPluginForm(QWidget* me, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsJavaPluginForm(me, parent); }
-private slots:
-	void finished(QNetworkReply* reply);
-	void finishedDownload(QNetworkReply* reply);
-	void uninstall();
-	void install();
-	void cancelDownload();
-private:
-	void setError(QString error);
-	void loadInstalled();
-	void askRestart();
-	void downloadNext();
-	void setupExtensionPages();
-	QWidget* constructPage(QDomDocument& doc);
-	void processPageElement(QDomElement& elem, QWidget* widget);
-private:
-	QNetworkAccessManager* m_network;
-	QNetworkReply* m_reply;
+class SettingsJavaPluginForm : public QObject,
+                               Ui_SettingsJavaPluginForm,
+                               public WidgetHostChild {
+  Q_OBJECT
+ public:
+  SettingsJavaPluginForm(QWidget* me, QObject* parent);
+  virtual void load();
+  virtual void accepted();
+  static WidgetHostChild* create(QWidget* me, QObject* parent) {
+    return new SettingsJavaPluginForm(me, parent);
+  }
+ private slots:
+  void finished(QNetworkReply* reply);
+  void finishedDownload(QNetworkReply* reply);
+  void uninstall();
+  void install();
+  void cancelDownload();
 
-	struct Plugin
-	{
-		QString name, version, desc;
-	};
-	QList<Plugin> m_availablePlugins;
-	QMap<QString,QString> m_installedPlugins;
-	QList<QPair<QString,bool> > m_toInstall;
-	ExtensionDownloadDlg m_dlgProgress;
+ private:
+  void setError(QString error);
+  void loadInstalled();
+  void askRestart();
+  void downloadNext();
+  void setupExtensionPages();
+  QWidget* constructPage(QDomDocument& doc);
+  void processPageElement(QDomElement& elem, QWidget* widget);
 
-	QMap<QWidget*,QString> m_extSettingsWidgets;
+ private:
+  QNetworkAccessManager* m_network;
+  QNetworkReply* m_reply;
+
+  struct Plugin {
+    QString name, version, desc;
+  };
+  QList<Plugin> m_availablePlugins;
+  QMap<QString, QString> m_installedPlugins;
+  QList<QPair<QString, bool> > m_toInstall;
+  ExtensionDownloadDlg m_dlgProgress;
+
+  QMap<QWidget*, QString> m_extSettingsWidgets;
 };
 
-#endif // SETTINGSJAVAPLUGIN_H
+#endif  // SETTINGSJAVAPLUGIN_H

@@ -30,23 +30,24 @@ QHash<qint64, JObject*> m_singleCObjectInstances;
 QReadWriteLock m_singleCObjectMutex(QReadWriteLock::Recursive);
 qint64 m_singleCObjectNextID = 1;
 
-static void NativeObject_disposeNative(JNIEnv* env, jobject jthis)
-{
-	qint64 id = JObject(jthis).getValue("nativeObjectId", JSignature::sigLong()).toLongLong();
+static void NativeObject_disposeNative(JNIEnv* env, jobject jthis) {
+  qint64 id = JObject(jthis)
+                  .getValue("nativeObjectId", JSignature::sigLong())
+                  .toLongLong();
 
-	QWriteLocker w(&m_singleCObjectMutex);
-	if (m_singleCObjectInstances.contains(id))
-	{
-		// The destructor will delete the object from the map
-		delete m_singleCObjectInstances[id];
-	}
+  QWriteLocker w(&m_singleCObjectMutex);
+  if (m_singleCObjectInstances.contains(id)) {
+    // The destructor will delete the object from the map
+    delete m_singleCObjectInstances[id];
+  }
 }
 
-void singleCObjectRegisterNatives()
-{
-	QList<JNativeMethod> natives;
+void singleCObjectRegisterNatives() {
+  QList<JNativeMethod> natives;
 
-	natives << JNativeMethod("disposeNative", JSignature(), NativeObject_disposeNative);
+  natives << JNativeMethod("disposeNative", JSignature(),
+                           NativeObject_disposeNative);
 
-	JClass("info.dolezel.fatrat.plugins.NativeObject").registerNativeMethods(natives);
+  JClass("info.dolezel.fatrat.plugins.NativeObject")
+      .registerNativeMethods(natives);
 }

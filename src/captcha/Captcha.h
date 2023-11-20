@@ -27,42 +27,41 @@ respects for all of the code used other than "OpenSSL".
 #ifndef CAPTCHA_H
 #define CAPTCHA_H
 
-#include <QString>
-#include <QMutex>
 #include <QList>
 #include <QMap>
+#include <QMutex>
+#include <QString>
 
-class Captcha
-{
-public:
-	typedef void (*CallbackFn)(QString /* url */, QString /* solution */);
+class Captcha {
+ public:
+  typedef void (*CallbackFn)(QString /* url */, QString /* solution */);
 
-	static int processCaptcha(QString url, CallbackFn fn);
-	static void abortCaptcha(int id);
-	static void abortCaptcha(QString url);
-	static void globalExit();
-protected:
-	// Captcha subclasses call its superclass
-	void returnResult(int id, QString solution);
-	// Captcha calls its subclasses
-	virtual bool process(int id, QString url) = 0;
-	// May get called with an id that has already been processed!
-	virtual void abort(int id) {}
-	static void registerCaptchaDecoder(Captcha* c);
-private:
-	struct CaptchaProcess
-	{
-		QString url, solution;
-		CallbackFn cb;
-		int decodersLeft;
-	};
+  static int processCaptcha(QString url, CallbackFn fn);
+  static void abortCaptcha(int id);
+  static void abortCaptcha(QString url);
+  static void globalExit();
 
-	static QMap<int,CaptchaProcess> m_cb;
-	// TODO: Implement decoder priorities?
-	static QList<Captcha*> m_decoders;
-	static int m_next;
-	static QMutex m_mutex;
+ protected:
+  // Captcha subclasses call its superclass
+  void returnResult(int id, QString solution);
+  // Captcha calls its subclasses
+  virtual bool process(int id, QString url) = 0;
+  // May get called with an id that has already been processed!
+  virtual void abort(int id) {}
+  static void registerCaptchaDecoder(Captcha* c);
+
+ private:
+  struct CaptchaProcess {
+    QString url, solution;
+    CallbackFn cb;
+    int decodersLeft;
+  };
+
+  static QMap<int, CaptchaProcess> m_cb;
+  // TODO: Implement decoder priorities?
+  static QList<Captcha*> m_decoders;
+  static int m_next;
+  static QMutex m_mutex;
 };
 
 #endif
-

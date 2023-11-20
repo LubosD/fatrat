@@ -25,37 +25,34 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "TorrentIPFilter.h"
-#include <boost/asio/ip/address.hpp>
-#include <QFile>
 
-bool loadIPFilter(QString textFile, libtorrent::ip_filter* filter)
-{
-	QFile file(textFile);
-	
-	if(!file.open(QIODevice::ReadOnly))
-		return false;
-	
-	while(file.canReadLine())
-	{
-		QByteArray line = file.readLine();
-		QByteArray from, to;
-		
-		int colon, dash;
-		
-		colon = line.indexOf(':') + 1;
-		if(!colon)
-			continue;
-		
-		dash = line.indexOf('-', colon+1);
-		if(dash < 0)
-			continue;
-		
-		from = line.mid(colon, dash-colon);
-		to = line.mid(dash+1);
-		
-		filter->add_rule(boost::asio::ip::make_address(from.data()),
-				 boost::asio::ip::make_address(to.data()), libtorrent::ip_filter::blocked);
-	}
-	
-	return true;
+#include <QFile>
+#include <boost/asio/ip/address.hpp>
+
+bool loadIPFilter(QString textFile, libtorrent::ip_filter* filter) {
+  QFile file(textFile);
+
+  if (!file.open(QIODevice::ReadOnly)) return false;
+
+  while (file.canReadLine()) {
+    QByteArray line = file.readLine();
+    QByteArray from, to;
+
+    int colon, dash;
+
+    colon = line.indexOf(':') + 1;
+    if (!colon) continue;
+
+    dash = line.indexOf('-', colon + 1);
+    if (dash < 0) continue;
+
+    from = line.mid(colon, dash - colon);
+    to = line.mid(dash + 1);
+
+    filter->add_rule(boost::asio::ip::make_address(from.data()),
+                     boost::asio::ip::make_address(to.data()),
+                     libtorrent::ip_filter::blocked);
+  }
+
+  return true;
 }

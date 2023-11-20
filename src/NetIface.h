@@ -26,8 +26,8 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef NETIFACE_H
 #define NETIFACE_H
-#include <QString>
 #include <QPair>
+#include <QString>
 
 QString getRoutingInterface4();
 QPair<qint64, qint64> getInterfaceStats(QString iface);

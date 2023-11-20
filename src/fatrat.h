@@ -27,14 +27,15 @@ respects for all of the code used other than "OpenSSL".
 #ifndef _FATRAT_H
 #define _FATRAT_H
 
+#include <QFile>
+#include <QIcon>
+#include <QList>
+#include <QNetworkProxy>
 #include <QString>
 #include <QThread>
 #include <QUuid>
-#include <QList>
 #include <QVariant>
-#include <QFile>
-#include <QIcon>
-#include <QNetworkProxy>
+
 #include "DelayedIcon.h"
 
 #define VERSION "1.2.0_beta2"
@@ -52,28 +53,25 @@ void restartApplication();
 void addStatusWidget(QWidget* widget, bool bRight);
 void removeStatusWidget(QWidget* widget);
 
-class Sleeper : public QThread
-{
-public:
-	static void sleep(unsigned long secs) {QThread::sleep(secs);}
-	static void msleep(unsigned long msecs) {QThread::msleep(msecs);}
-	static void usleep(unsigned long usecs) {QThread::usleep(usecs);}
+class Sleeper : public QThread {
+ public:
+  static void sleep(unsigned long secs) { QThread::sleep(secs); }
+  static void msleep(unsigned long msecs) { QThread::msleep(msecs); }
+  static void usleep(unsigned long usecs) { QThread::usleep(usecs); }
 };
 
-struct PluginInfo
-{
-	const char* version;
-	QString name, author, website;
+struct PluginInfo {
+  const char* version;
+  QString name, author, website;
 };
 
 class Transfer;
 class Queue;
 
-struct MenuAction
-{
-	DelayedIcon icon;
-	QString strName;
-	void (*lpfnTriggered)(Transfer* t, Queue* q);
+struct MenuAction {
+  DelayedIcon icon;
+  QString strName;
+  void (*lpfnTriggered)(Transfer* t, Queue* q);
 };
 
 void addMenuAction(const MenuAction& action);

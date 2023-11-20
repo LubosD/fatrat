@@ -28,15 +28,18 @@ respects for all of the code used other than "OpenSSL".
 #define EXTENSIONDOWNLOADDLG_H
 
 #include <QDialog>
+
 #include "ui_ExtensionDownloadDlg.h"
 
-class ExtensionDownloadDlg : public QDialog, Ui_ExtensionDownloadDlg
-{
-    Q_OBJECT
-public:
-    ExtensionDownloadDlg(QWidget *parent = 0);
-    void setNumSteps(int num) { progressBar->setRange(0, num); progressBar->setValue(0); }
-    void incStep() { progressBar->setValue(progressBar->value()+1); }
+class ExtensionDownloadDlg : public QDialog, Ui_ExtensionDownloadDlg {
+  Q_OBJECT
+ public:
+  ExtensionDownloadDlg(QWidget *parent = 0);
+  void setNumSteps(int num) {
+    progressBar->setRange(0, num);
+    progressBar->setValue(0);
+  }
+  void incStep() { progressBar->setValue(progressBar->value() + 1); }
 };
 
-#endif // EXTENSIONDOWNLOADDLG_H
+#endif  // EXTENSIONDOWNLOADDLG_H

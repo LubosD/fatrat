@@ -29,95 +29,103 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
-#include "CurlDownload.h"
-#include <QTimer>
 #include <QMap>
 #include <QMutex>
-#include "java/JObject.h"
-#include "WidgetHostChild.h"
-#include "ui_JavaDownloadOptsForm.h"
+#include <QTimer>
+
+#include "CurlDownload.h"
 #include "JavaPersistentVariables.h"
+#include "WidgetHostChild.h"
+#include "java/JObject.h"
+#include "ui_JavaDownloadOptsForm.h"
 
 class JDownloadPlugin;
 
-class JavaDownload : public CurlDownload, protected JavaPersistentVariables
-{
-Q_OBJECT
-public:
-	JavaDownload(const char* cls);
-	virtual ~JavaDownload();
+class JavaDownload : public CurlDownload, protected JavaPersistentVariables {
+  Q_OBJECT
+ public:
+  JavaDownload(const char* cls);
+  virtual ~JavaDownload();
 
-	static void globalInit();
-	static void globalExit();
-	static QStringList getConfigDialogs();
+  static void globalInit();
+  static void globalExit();
+  static QStringList getConfigDialogs();
 
-	virtual void init(QString source, QString target);
-	virtual QString myClass() const;
-	virtual QString name() const;
+  virtual void init(QString source, QString target);
+  virtual QString myClass() const;
+  virtual QString name() const;
 
-	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map) const;
-	virtual void changeActive(bool bActive);
-	virtual QObject* createDetailsWidget(QWidget* w) { return 0; }
-	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+  virtual void load(const QDomNode& map);
+  virtual void save(QDomDocument& doc, QDomNode& map) const;
+  virtual void changeActive(bool bActive);
+  virtual QObject* createDetailsWidget(QWidget* w) { return 0; }
+  virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 
-	virtual void fillContextMenu(QMenu& menu) {}
+  virtual void fillContextMenu(QMenu& menu) {}
 
-	virtual QString object() const { return m_strTarget; }
-	virtual void setObject(QString newdir);
+  virtual QString object() const { return m_strTarget; }
+  virtual void setObject(QString newdir);
 
-	virtual qulonglong done() const;
-	virtual void setState(State newState);
-	virtual QString remoteURI() const;
+  virtual qulonglong done() const;
+  virtual void setState(State newState);
+  virtual QString remoteURI() const;
 
-	static Transfer* createInstance(const EngineEntry* e) { return new JavaDownload(e->shortName); }
-	static int acceptable(QString uri, bool, const EngineEntry* e);
-protected:
-	void deriveName();
-	void startDownload(QString url, QList<QNetworkCookie> cookies, QString referrer = QString(), QString userAgent = QString(), QString postData = QString());
-	void setName(QString name) { m_strName = name; }
-private:
-	QString m_strClass;
-	QString m_strOriginal, m_strName, m_strTarget;
-	QUrl m_downloadUrl;
-	int m_nSecondsLeft;
-	QUuid m_proxy;
-	bool m_bHasLock, m_bTruncate;
+  static Transfer* createInstance(const EngineEntry* e) {
+    return new JavaDownload(e->shortName);
+  }
+  static int acceptable(QString uri, bool, const EngineEntry* e);
 
-	JDownloadPlugin* m_plugin;
+ protected:
+  void deriveName();
+  void startDownload(QString url, QList<QNetworkCookie> cookies,
+                     QString referrer = QString(),
+                     QString userAgent = QString(),
+                     QString postData = QString());
+  void setName(QString name) { m_strName = name; }
 
-	static QMap<QString,QMutex*> m_mutexes;
+ private:
+  QString m_strClass;
+  QString m_strOriginal, m_strName, m_strTarget;
+  QUrl m_downloadUrl;
+  int m_nSecondsLeft;
+  QUuid m_proxy;
+  bool m_bHasLock, m_bTruncate;
 
-	struct JavaEngine
-	{
-		std::string name, shortName;
-		QRegExp regexp;
-		bool forceSingleTransfer, truncate;
-		JObject ownAcceptable;
-		QString configDialog;
-	};
+  JDownloadPlugin* m_plugin;
 
-	static QMap<QString,JavaEngine> m_engines;
+  static QMap<QString, QMutex*> m_mutexes;
 
-	friend class JPlugin;
-	friend class JTransferPlugin;
-	friend class JDownloadPlugin;
-	friend class JavaDownloadOptsForm;
+  struct JavaEngine {
+    std::string name, shortName;
+    QRegExp regexp;
+    bool forceSingleTransfer, truncate;
+    JObject ownAcceptable;
+    QString configDialog;
+  };
+
+  static QMap<QString, JavaEngine> m_engines;
+
+  friend class JPlugin;
+  friend class JTransferPlugin;
+  friend class JDownloadPlugin;
+  friend class JavaDownloadOptsForm;
 };
 
-class JavaDownloadOptsForm : public QObject, public WidgetHostChild, Ui_JavaDownloadOptsForm
-{
-Q_OBJECT
-public:
-	JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj);
-	virtual void load();
-	virtual void accepted();
-	virtual bool accept();
-private:
-	JavaDownload* m_download;
+class JavaDownloadOptsForm : public QObject,
+                             public WidgetHostChild,
+                             Ui_JavaDownloadOptsForm {
+  Q_OBJECT
+ public:
+  JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj);
+  virtual void load();
+  virtual void accepted();
+  virtual bool accept();
+
+ private:
+  JavaDownload* m_download;
 };
 
-#endif // JAVADOWNLOAD_H
+#endif  // JAVADOWNLOAD_H

@@ -32,12 +32,11 @@ respects for all of the code used other than "OpenSSL".
 class CurlPoller;
 class CurlStat;
 
-class CurlPollingMaster : public CurlPoller, public CurlStat
-{
-public:
-	void doWork();
-	int handle();
-	virtual bool idleCycle(const timeval& tvNow);
+class CurlPollingMaster : public CurlPoller, public CurlStat {
+ public:
+  void doWork();
+  int handle();
+  virtual bool idleCycle(const timeval& tvNow);
 };
 
 #endif

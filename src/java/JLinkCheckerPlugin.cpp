@@ -25,56 +25,57 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JLinkCheckerPlugin.h"
+
 #include "JArray.h"
 #include "JString.h"
 
-JLinkCheckerPlugin::JLinkCheckerPlugin(const JClass& cls, const char* sig, JArgs args)
-	: JPlugin(cls, sig, args)
-{
+JLinkCheckerPlugin::JLinkCheckerPlugin(const JClass& cls, const char* sig,
+                                       JArgs args)
+    : JPlugin(cls, sig, args) {}
+
+JLinkCheckerPlugin::JLinkCheckerPlugin(const char* clsName, const char* sig,
+                                       JArgs args)
+    : JPlugin(clsName, sig, args) {}
+
+void JLinkCheckerPlugin::registerNatives() {
+  QList<JNativeMethod> natives;
+
+  natives << JNativeMethod("reportBroken", JSignature().addStringA(),
+                           reportBroken);
+  natives << JNativeMethod("reportWorking", JSignature().addStringA(),
+                           reportWorking);
+  natives << JNativeMethod("reportDone", JSignature(), reportDone);
+
+  JClass("info.dolezel.fatrat.plugins.LinkCheckerPlugin")
+      .registerNativeMethods(natives);
 }
 
-JLinkCheckerPlugin::JLinkCheckerPlugin(const char* clsName, const char* sig, JArgs args)
-	: JPlugin(clsName, sig, args)
-{
+void JLinkCheckerPlugin::reportBroken(JNIEnv*, jobject jthis, jarray jlinks) {
+  JLinkCheckerPlugin* This =
+      static_cast<JLinkCheckerPlugin*>(getCObject(jthis));
+  JArray arr(jlinks);
+  QStringList broken;
+
+  for (size_t i = 0; i < arr.size(); i++)
+    broken << arr.getObject(i).toStringShallow().str();
+
+  emit This->reportedBroken(broken);
 }
 
-void JLinkCheckerPlugin::registerNatives()
-{
-	QList<JNativeMethod> natives;
+void JLinkCheckerPlugin::reportWorking(JNIEnv*, jobject jthis, jarray jlinks) {
+  JLinkCheckerPlugin* This =
+      static_cast<JLinkCheckerPlugin*>(getCObject(jthis));
+  JArray arr(jlinks);
+  QStringList working;
 
-	natives << JNativeMethod("reportBroken", JSignature().addStringA(), reportBroken);
-	natives << JNativeMethod("reportWorking", JSignature().addStringA(), reportWorking);
-	natives << JNativeMethod("reportDone", JSignature(), reportDone);
+  for (size_t i = 0; i < arr.size(); i++)
+    working << arr.getObject(i).toStringShallow().str();
 
-	JClass("info.dolezel.fatrat.plugins.LinkCheckerPlugin").registerNativeMethods(natives);
+  emit This->reportedWorking(working);
 }
 
-void JLinkCheckerPlugin::reportBroken(JNIEnv*, jobject jthis, jarray jlinks)
-{
-	JLinkCheckerPlugin* This = static_cast<JLinkCheckerPlugin*>(getCObject(jthis));
-	JArray arr(jlinks);
-	QStringList broken;
-
-	for (size_t i = 0; i < arr.size(); i++)
-		broken << arr.getObject(i).toStringShallow().str();
-
-	emit This->reportedBroken(broken);
-}
-
-void JLinkCheckerPlugin::reportWorking(JNIEnv*, jobject jthis, jarray jlinks)
-{
-	JLinkCheckerPlugin* This = static_cast<JLinkCheckerPlugin*>(getCObject(jthis));
-	JArray arr(jlinks);
-	QStringList working;
-
-	for (size_t i = 0; i < arr.size(); i++)
-		working << arr.getObject(i).toStringShallow().str();
-
-	emit This->reportedWorking(working);
-}
-
-void JLinkCheckerPlugin::reportDone(JNIEnv*, jobject jthis)
-{
-	JLinkCheckerPlugin* This = static_cast<JLinkCheckerPlugin*>(getCObject(jthis));
-	emit This->done();
+void JLinkCheckerPlugin::reportDone(JNIEnv*, jobject jthis) {
+  JLinkCheckerPlugin* This =
+      static_cast<JLinkCheckerPlugin*>(getCObject(jthis));
+  emit This->done();
 }

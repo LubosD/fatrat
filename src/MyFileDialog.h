@@ -28,9 +28,9 @@ respects for all of the code used other than "OpenSSL".
 #define MYFILEDIALOG_H
 #include <QWidget>
 
-namespace MyFileDialog
-{
-	QString getExistingDirectory(QWidget* parent, QString caption, QString dir = QString());
+namespace MyFileDialog {
+QString getExistingDirectory(QWidget* parent, QString caption,
+                             QString dir = QString());
 }
 
 #endif

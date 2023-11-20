@@ -27,24 +27,29 @@ respects for all of the code used other than "OpenSSL".
 #ifndef TORRENTSETTINGS_H
 #define TORRENTSETTINGS_H
 #include <QObject>
+
 #include "Proxy.h"
 #include "WidgetHostChild.h"
 #include "ui_SettingsTorrentForm.h"
 
-class TorrentSettings : public QObject, public WidgetHostChild, Ui_SettingsTorrentForm
-{
-Q_OBJECT
-public:
-	TorrentSettings(QWidget* w, QObject* p);
-	static WidgetHostChild* create(QWidget* w, QObject* p) { return new TorrentSettings(w, p); }
-	virtual void load();
-	virtual void accepted();
+class TorrentSettings : public QObject,
+                        public WidgetHostChild,
+                        Ui_SettingsTorrentForm {
+  Q_OBJECT
+ public:
+  TorrentSettings(QWidget* w, QObject* p);
+  static WidgetHostChild* create(QWidget* w, QObject* p) {
+    return new TorrentSettings(w, p);
+  }
+  virtual void load();
+  virtual void accepted();
 
-	static void applySettings();
-public slots:
-	void cleanup();
-private:
-	QList<Proxy> m_listProxy;
+  static void applySettings();
+ public slots:
+  void cleanup();
+
+ private:
+  QList<Proxy> m_listProxy;
 };
 
 #endif

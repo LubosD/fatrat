@@ -26,86 +26,92 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef XMLRPCSERVICE_H
 #define XMLRPCSERVICE_H
-#include "config.h"
-#include <QByteArray>
-#include <QVector>
-#include <QMap>
-#include <QVariantMap>
-#include <QQueue>
-#include <QPair>
 #include <Poco/Net/AbstractHTTPRequestHandler.h>
+
+#include <QByteArray>
+#include <QMap>
+#include <QPair>
+#include <QQueue>
+#include <QVariantMap>
+#include <QVector>
+
 #include "AuthenticatedRequestHandler.h"
+#include "config.h"
 
 #ifndef WITH_WEBINTERFACE
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 class Queue;
 class Transfer;
 
-class XmlRpcService : public QObject
-{
-Q_OBJECT
-public:
-	XmlRpcService();
-	static void globalInit();
-	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
-	static void deregisterFunction(QString name);
-	static void findQueue(QString queueUUID, Queue** q);
-	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
+class XmlRpcService : public QObject {
+  Q_OBJECT
+ public:
+  XmlRpcService();
+  static void globalInit();
+  static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&),
+                               QVector<QVariant::Type> arguments);
+  static void deregisterFunction(QString name);
+  static void findQueue(QString queueUUID, Queue** q);
+  static int findTransfer(QString transferUUID, Queue** q, Transfer** t,
+                          bool lockForWrite = false);
 
-	Poco::Net::HTTPRequestHandler* createHandler();
-protected:
-	static QVariant getTransferClasses(QList<QVariant>&);
-	static QVariant getQueues(QList<QVariant>&);
-	static QVariant Queue_create(QList<QVariant>&);
-	static QVariant Queue_setProperties(QList<QVariant>&);
-	static QVariant Queue_getTransfers(QString uuid);
-	static QVariant Transfer_getProperties(QList<QVariant>&);
-	static QVariant Queue_moveTransfers(QString uuidQueue, QStringList uuidTransfers, QString direction);
-	static QVariant Transfer_getAdvancedProperties(QList<QVariant>&);
-	static QVariant Transfer_setProperties(QStringList uuid, QVariantMap properties);
-	static QVariant Transfer_delete(QStringList uuid, bool withData);
-	static QVariant Transfer_getSpeedGraph(QList<QVariant>&);
-	static QVariant Queue_getSpeedGraph(QList<QVariant>&);
-	static QVariant Queue_addTransfers(QList<QVariant>&);
-	static QVariant Queue_addTransferWithData(QList<QVariant>&);
-	static QVariant Settings_getValue(QList<QVariant>&);
-	static QVariant Settings_setValue(QList<QVariant>&);
-	static QVariant Settings_apply(QList<QVariant>&);
-	static QVariant Settings_getPages(QList<QVariant>&);
+  Poco::Net::HTTPRequestHandler* createHandler();
 
-	static QString speedDataToString(QQueue<QPair<int,int> > data);
-private slots:
-	void applyAllSettings();
-public:
-	struct XmlRpcError
-	{
-		XmlRpcError(int code, QString desc)
-		{
-			this->code = code;
-			this->desc = desc;
-		}
+ protected:
+  static QVariant getTransferClasses(QList<QVariant>&);
+  static QVariant getQueues(QList<QVariant>&);
+  static QVariant Queue_create(QList<QVariant>&);
+  static QVariant Queue_setProperties(QList<QVariant>&);
+  static QVariant Queue_getTransfers(QString uuid);
+  static QVariant Transfer_getProperties(QList<QVariant>&);
+  static QVariant Queue_moveTransfers(QString uuidQueue,
+                                      QStringList uuidTransfers,
+                                      QString direction);
+  static QVariant Transfer_getAdvancedProperties(QList<QVariant>&);
+  static QVariant Transfer_setProperties(QStringList uuid,
+                                         QVariantMap properties);
+  static QVariant Transfer_delete(QStringList uuid, bool withData);
+  static QVariant Transfer_getSpeedGraph(QList<QVariant>&);
+  static QVariant Queue_getSpeedGraph(QList<QVariant>&);
+  static QVariant Queue_addTransfers(QList<QVariant>&);
+  static QVariant Queue_addTransferWithData(QList<QVariant>&);
+  static QVariant Settings_getValue(QList<QVariant>&);
+  static QVariant Settings_setValue(QList<QVariant>&);
+  static QVariant Settings_apply(QList<QVariant>&);
+  static QVariant Settings_getPages(QList<QVariant>&);
 
-		int code;
-		QString desc;
-	};
-private:
-	struct FunctionInfo
-	{
-		QVariant (*function)(QList<QVariant>&);
-		QVector<QVariant::Type> arguments;
-	};
-	class Handler : public AuthenticatedRequestHandler
-	{
-	public:
-		virtual void run() override;
-	private:
-		static QByteArray istream2ba(std::istream& is);
-	};
+  static QString speedDataToString(QQueue<QPair<int, int> > data);
+ private slots:
+  void applyAllSettings();
 
-	static QMap<QString,FunctionInfo> m_mapFunctions;
-	static XmlRpcService* m_instance;
+ public:
+  struct XmlRpcError {
+    XmlRpcError(int code, QString desc) {
+      this->code = code;
+      this->desc = desc;
+    }
+
+    int code;
+    QString desc;
+  };
+
+ private:
+  struct FunctionInfo {
+    QVariant (*function)(QList<QVariant>&);
+    QVector<QVariant::Type> arguments;
+  };
+  class Handler : public AuthenticatedRequestHandler {
+   public:
+    virtual void run() override;
+
+   private:
+    static QByteArray istream2ba(std::istream& is);
+  };
+
+  static QMap<QString, FunctionInfo> m_mapFunctions;
+  static XmlRpcService* m_instance;
 };
 
 #endif

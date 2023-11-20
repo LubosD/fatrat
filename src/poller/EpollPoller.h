@@ -30,22 +30,22 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 
 #ifndef HAVE_SYS_EPOLL_H
-#	error This code is not supported on the current OS!
+#error This code is not supported on the current OS!
 #endif
 
-class EpollPoller : public Poller
-{
-public:
-	EpollPoller(QObject* parent);
-	virtual ~EpollPoller();
-	
-	virtual int handle();
-	
-	virtual int addSocket(int socket, int flags);
-	virtual int removeSocket(int socket);
-	virtual int wait(int msec, Event* ev, int max);
-private:
-	int m_epoll;
+class EpollPoller : public Poller {
+ public:
+  EpollPoller(QObject* parent);
+  virtual ~EpollPoller();
+
+  virtual int handle();
+
+  virtual int addSocket(int socket, int flags);
+  virtual int removeSocket(int socket);
+  virtual int wait(int msec, Event* ev, int max);
+
+ private:
+  int m_epoll;
 };
 
 #endif

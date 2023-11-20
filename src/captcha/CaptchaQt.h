@@ -27,25 +27,27 @@ respects for all of the code used other than "OpenSSL".
 #ifndef CAPTCHAQT_H
 #define CAPTCHAQT_H
 
-#include <QObject>
 #include <QMap>
+#include <QObject>
+
 #include "Captcha.h"
 
 class CaptchaQtDlg;
 
-class CaptchaQt : public QObject, public Captcha
-{
-Q_OBJECT
-public:
-	CaptchaQt();
-private slots:
-	void showDialog(int id, QString url);
-	void captchaEntered(QString text);
-protected:
-	virtual bool process(int id, QString url);
-	virtual void abort(int id);
-private:
-	QMap<CaptchaQtDlg*,int> m_dlgs;
+class CaptchaQt : public QObject, public Captcha {
+  Q_OBJECT
+ public:
+  CaptchaQt();
+ private slots:
+  void showDialog(int id, QString url);
+  void captchaEntered(QString text);
+
+ protected:
+  virtual bool process(int id, QString url);
+  virtual void abort(int id);
+
+ private:
+  QMap<CaptchaQtDlg*, int> m_dlgs;
 };
 
-#endif // CAPTCHAQT_H
+#endif  // CAPTCHAQT_H

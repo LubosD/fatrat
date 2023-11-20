@@ -27,23 +27,24 @@ respects for all of the code used other than "OpenSSL".
 #ifndef _QUEUEDLG_H
 #define _QUEUEDLG_H
 #include <QDialog>
+
 #include "ui_QueueDlg.h"
 
-class QueueDlg : public QDialog, Ui_QueueDlg
-{
-Q_OBJECT
-public:
-	QueueDlg(QWidget* parent = 0);
-	int exec();
-public slots:
-	virtual void accept();
-	void limitToggled(bool checked);
-	void browse();
-	void browseMove();
-public:
-	QString m_strName, m_strDefaultDirectory, m_strMoveDirectory;
-	int m_nDownLimit, m_nUpLimit, m_nDownTransfersLimit, m_nUpTransfersLimit;
-	bool m_bUpAsDown, m_bLimit;
+class QueueDlg : public QDialog, Ui_QueueDlg {
+  Q_OBJECT
+ public:
+  QueueDlg(QWidget* parent = 0);
+  int exec();
+ public slots:
+  virtual void accept();
+  void limitToggled(bool checked);
+  void browse();
+  void browseMove();
+
+ public:
+  QString m_strName, m_strDefaultDirectory, m_strMoveDirectory;
+  int m_nDownLimit, m_nUpLimit, m_nDownTransfersLimit, m_nUpTransfersLimit;
+  bool m_bUpAsDown, m_bLimit;
 };
 
 #endif

@@ -35,10 +35,11 @@ respects for all of the code used other than "OpenSSL".
  */
 
 #include "DbusAdaptor.h"
-#include <QtCore/QMetaObject>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QMetaObject>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
@@ -47,35 +48,34 @@ respects for all of the code used other than "OpenSSL".
  * Implementation of adaptor class FatratAdaptor
  */
 
-FatratAdaptor::FatratAdaptor(QObject *parent)
-    : QDBusAbstractAdaptor(parent)
-{
-    // constructor
-    setAutoRelaySignals(true);
+FatratAdaptor::FatratAdaptor(QObject *parent) : QDBusAbstractAdaptor(parent) {
+  // constructor
+  setAutoRelaySignals(true);
 }
 
-FatratAdaptor::~FatratAdaptor()
-{
-    // destructor
+FatratAdaptor::~FatratAdaptor() {
+  // destructor
 }
 
-void FatratAdaptor::addTransfers(const QString &uris)
-{
-    // handle method call info.dolezel.fatrat.addTransfers
-    QMetaObject::invokeMethod(parent(), "addTransfers", Q_ARG(QString, uris));
+void FatratAdaptor::addTransfers(const QString &uris) {
+  // handle method call info.dolezel.fatrat.addTransfers
+  QMetaObject::invokeMethod(parent(), "addTransfers", Q_ARG(QString, uris));
 }
 
-void FatratAdaptor::addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, int queueID)
-{
-    // handle method call info.dolezel.fatrat.addTransfersNonInteractive
-    QMetaObject::invokeMethod(parent(), "addTransfersNonInteractive", Q_ARG(QString, uris), Q_ARG(QString, target), Q_ARG(QString, className), Q_ARG(int, queueID));
+void FatratAdaptor::addTransfersNonInteractive(const QString &uris,
+                                               const QString &target,
+                                               const QString &className,
+                                               int queueID) {
+  // handle method call info.dolezel.fatrat.addTransfersNonInteractive
+  QMetaObject::invokeMethod(parent(), "addTransfersNonInteractive",
+                            Q_ARG(QString, uris), Q_ARG(QString, target),
+                            Q_ARG(QString, className), Q_ARG(int, queueID));
 }
 
-QStringList FatratAdaptor::getQueues()
-{
-    // handle method call info.dolezel.fatrat.getQueues
-    QStringList queues;
-    QMetaObject::invokeMethod(parent(), "getQueues", Q_RETURN_ARG(QStringList, queues));
-    return queues;
+QStringList FatratAdaptor::getQueues() {
+  // handle method call info.dolezel.fatrat.getQueues
+  QStringList queues;
+  QMetaObject::invokeMethod(parent(), "getQueues",
+                            Q_RETURN_ARG(QStringList, queues));
+  return queues;
 }
-

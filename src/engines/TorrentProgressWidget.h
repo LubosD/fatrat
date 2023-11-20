@@ -26,32 +26,34 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef TORRENTPROGRESSWIDGET_H
 #define TORRENTPROGRESSWIDGET_H
-#include <QWidget>
 #include <QImage>
 #include <QPaintEvent>
+#include <QWidget>
 #include <cmath>
 #include <cstring>
 #include <libtorrent/bitfield.hpp>
 
-class TorrentProgressWidget : public QWidget
-{
-Q_OBJECT
-public:
-	TorrentProgressWidget(QWidget* parent);
-	~TorrentProgressWidget();
-	
-	void generate(const libtorrent::bitfield& data);
-	void generate(const std::vector<int>& data);
-	
-	// blue colored
-	static QImage generate(const libtorrent::bitfield& data, int width, quint32* buf, float sstart = 0, float send = 0);
-	// grey colored
-	static QImage generate(const std::vector<int>& data, int width, quint32* buf, float sstart = 0, float send = -1);
-	
-	void paintEvent(QPaintEvent* event);
-private:
-	QImage m_image;
-	quint32* m_data;
+class TorrentProgressWidget : public QWidget {
+  Q_OBJECT
+ public:
+  TorrentProgressWidget(QWidget* parent);
+  ~TorrentProgressWidget();
+
+  void generate(const libtorrent::bitfield& data);
+  void generate(const std::vector<int>& data);
+
+  // blue colored
+  static QImage generate(const libtorrent::bitfield& data, int width,
+                         quint32* buf, float sstart = 0, float send = 0);
+  // grey colored
+  static QImage generate(const std::vector<int>& data, int width, quint32* buf,
+                         float sstart = 0, float send = -1);
+
+  void paintEvent(QPaintEvent* event);
+
+ private:
+  QImage m_image;
+  quint32* m_data;
 };
 
 #endif

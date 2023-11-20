@@ -29,35 +29,35 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include <jni.h>
 
-class JValue
-{
-public:
-	JValue();
-	JValue(const JValue& v);
-	JValue(jobject obj);
-	JValue(bool b);
-	JValue(char c);
-	JValue(wchar_t c);
-	JValue(short s);
-	JValue(int i);
-	JValue(long long l);
-	JValue(float f);
-	JValue(double d);
+class JValue {
+ public:
+  JValue();
+  JValue(const JValue& v);
+  JValue(jobject obj);
+  JValue(bool b);
+  JValue(char c);
+  JValue(wchar_t c);
+  JValue(short s);
+  JValue(int i);
+  JValue(long long l);
+  JValue(float f);
+  JValue(double d);
 
-	JValue& operator=(const JValue& v);
+  JValue& operator=(const JValue& v);
 
-	virtual ~JValue();
+  virtual ~JValue();
 
-	operator jvalue() const { return val(); }
-	jvalue val() const { return m_value; }
-private:
-	jvalue m_value;
-	bool m_bHasObject;
+  operator jvalue() const { return val(); }
+  jvalue val() const { return m_value; }
+
+ private:
+  jvalue m_value;
+  bool m_bHasObject;
 };
 
-#endif // JVALUE_H
+#endif  // JVALUE_H

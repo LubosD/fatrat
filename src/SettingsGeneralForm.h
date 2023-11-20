@@ -26,21 +26,24 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef _SETTINGSGENERALFORM_H
 #define _SETTINGSGENERALFORM_H
-#include "ui_SettingsGeneralForm.h"
 #include "WidgetHostChild.h"
+#include "ui_SettingsGeneralForm.h"
 
-class SettingsGeneralForm : public QObject, Ui_SettingsGeneralForm, public WidgetHostChild
-{
-Q_OBJECT
-public:
-	SettingsGeneralForm(QWidget* me, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* me, QObject* parent) { return new SettingsGeneralForm(me, parent); }
+class SettingsGeneralForm : public QObject,
+                            Ui_SettingsGeneralForm,
+                            public WidgetHostChild {
+  Q_OBJECT
+ public:
+  SettingsGeneralForm(QWidget* me, QObject* parent);
+  virtual void load();
+  virtual void accepted();
+  static WidgetHostChild* create(QWidget* me, QObject* parent) {
+    return new SettingsGeneralForm(me, parent);
+  }
 
-	static void applySettings();
-private slots:
-	void manageFavs();
+  static void applySettings();
+ private slots:
+  void manageFavs();
 };
 
 #endif

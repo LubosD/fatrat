@@ -26,8 +26,6 @@ respects for all of the code used other than "OpenSSL".
 
 #include "ExtensionDownloadDlg.h"
 
-ExtensionDownloadDlg::ExtensionDownloadDlg(QWidget *parent) :
-    QDialog(parent)
-{
-	setupUi(this);
+ExtensionDownloadDlg::ExtensionDownloadDlg(QWidget *parent) : QDialog(parent) {
+  setupUi(this);
 }

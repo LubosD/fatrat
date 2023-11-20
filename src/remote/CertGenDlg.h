@@ -27,16 +27,16 @@ respects for all of the code used other than "OpenSSL".
 #ifndef CERTGENDLG_H
 #define CERTGENDLG_H
 #include <QDialog>
+
 #include "ui_CertGenDlg.h"
 
-class CertGenDlg : public QDialog, Ui_CertGenDlg
-{
-Q_OBJECT
-public:
-	CertGenDlg(QWidget* parent = 0);
-	virtual void accept();
+class CertGenDlg : public QDialog, Ui_CertGenDlg {
+  Q_OBJECT
+ public:
+  CertGenDlg(QWidget* parent = 0);
+  virtual void accept();
 
-	QString getHostname() { return lineHostname->text(); }
+  QString getHostname() { return lineHostname->text(); }
 };
 
-#endif // CERTGENDLG_H
+#endif  // CERTGENDLG_H

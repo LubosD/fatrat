@@ -25,79 +25,61 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "KqueuePoller.h"
-#include "RuntimeException.h"
-#include <sys/types.h>
+
 #include <sys/event.h>
 #include <sys/time.h>
+#include <sys/types.h>
+
 #include <cstdlib>
 
-KqueuePoller::KqueuePoller(QObject* parent)
-	: Poller(parent)
-{
-	m_kqueue = kqueue();
-	if(m_kqueue <= 0)
-		throw RuntimeException("kqueue() failed");
+#include "RuntimeException.h"
+
+KqueuePoller::KqueuePoller(QObject* parent) : Poller(parent) {
+  m_kqueue = kqueue();
+  if (m_kqueue <= 0) throw RuntimeException("kqueue() failed");
 }
 
-KqueuePoller::~KqueuePoller()
-{
-	if(m_kqueue > 0)
-		close(m_kqueue);
+KqueuePoller::~KqueuePoller() {
+  if (m_kqueue > 0) close(m_kqueue);
 }
 
-int KqueuePoller::handle()
-{
-	return m_kqueue;
+int KqueuePoller::handle() { return m_kqueue; }
+
+int KqueuePoller::addSocket(int socket, int flags) {
+  struct kevent ev;
+  int eflags = EV_ADD | EV_ENABLE;
+  int efilters = 0;
+
+  if (flags & PollerIn) efilters |= EVFILT_READ;
+  if (flags & PollerOut) efilters |= EVFILT_WRITE;
+  if (flags & PollerOneShot) eflags |= EV_ONESHOT;
+  if (flags & PollerHup) eflags |= EV_EOF;
+
+  EV_SET(&ev, socket, efilters, eflags, 0, 0, 0);
+  return kevent(m_kqueue, &ev, 1, 0, 0, 0);
 }
 
-int KqueuePoller::addSocket(int socket, int flags)
-{
-	struct kevent ev;
-	int eflags = EV_ADD | EV_ENABLE;
-	int efilters = 0;
-	
-	if(flags & PollerIn)
-		efilters |= EVFILT_READ;
-	if(flags & PollerOut)
-		efilters |= EVFILT_WRITE;
-	if(flags & PollerOneShot)
-		eflags |= EV_ONESHOT;
-	if(flags & PollerHup)
-		eflags |= EV_EOF;
-	
-	EV_SET(&ev, socket, efilters, eflags, 0, 0, 0);
-	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
+int KqueuePoller::removeSocket(int socket) {
+  struct kevent ev;
+  EV_SET(&ev, socket, 0, EV_DELETE | EV_DISABLE, 0, 0, 0);
+  return kevent(m_kqueue, &ev, 1, 0, 0, 0);
 }
 
-int KqueuePoller::removeSocket(int socket)
-{
-	struct kevent ev;
-	EV_SET(&ev, socket, 0, EV_DELETE | EV_DISABLE, 0, 0, 0);
-	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
-}
+int KqueuePoller::wait(int msec, Event* ev, int max) {
+  struct kevent* evlist = (struct kevent*)alloca(sizeof(struct kevent) * max);
+  struct timespec tspec = {msec / 1000, (msec % 1000) * 1000000L};
 
-int KqueuePoller::wait(int msec, Event* ev, int max)
-{
-	struct kevent* evlist = (struct kevent*) alloca(sizeof(struct kevent) * max);
-	struct timespec tspec = { msec/1000, (msec%1000)*1000000L };
-	
-	int nev = kevent(m_kqueue, 0, 0, evlist, max, &tspec);
-	for(int i=0;i<nev;i++)
-	{
-		Event event = { evlist[i].ident, 0 };
-		
-		if(evlist[i].flags & EV_ERROR)
-			event.flags |= PollerError;
-		if(evlist[i].flags & EV_EOF)
-			event.flags |= PollerHup;
-		if(evlist[i].filter & EVFILT_READ)
-			event.flags |= PollerIn;
-		if(evlist[i].filter & EVFILT_WRITE)
-			event.flags |= PollerOut;
-		
-		ev[i] = event;
-	}
-	
-	return nev;
-}
+  int nev = kevent(m_kqueue, 0, 0, evlist, max, &tspec);
+  for (int i = 0; i < nev; i++) {
+    Event event = {evlist[i].ident, 0};
 
+    if (evlist[i].flags & EV_ERROR) event.flags |= PollerError;
+    if (evlist[i].flags & EV_EOF) event.flags |= PollerHup;
+    if (evlist[i].filter & EVFILT_READ) event.flags |= PollerIn;
+    if (evlist[i].filter & EVFILT_WRITE) event.flags |= PollerOut;
+
+    ev[i] = event;
+  }
+
+  return nev;
+}

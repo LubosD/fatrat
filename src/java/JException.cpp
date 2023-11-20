@@ -25,14 +25,12 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JException.h"
+
 #include <QtDebug>
 
 JException::JException(QString msg, QString javaType, JObject obj)
-	: RuntimeException(javaType+" - "+msg), m_strJavaType(javaType), m_javaObject(obj)
-{
-}
+    : RuntimeException(javaType + " - " + msg),
+      m_strJavaType(javaType),
+      m_javaObject(obj) {}
 
-QString JException::javaType() const
-{
-	return m_strJavaType;
-}
+QString JException::javaType() const { return m_strJavaType; }

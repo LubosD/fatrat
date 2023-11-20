@@ -25,110 +25,109 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "SettingsWebForm.h"
-#include "Settings.h"
-#include "HttpService.h"
-#include <QFileDialog>
-#include <QProcess>
-#include <QMessageBox>
+
 #include <QDir>
-#include "config.h"
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QProcess>
+
 #include "CertGenDlg.h"
+#include "HttpService.h"
+#include "Settings.h"
+#include "config.h"
 
 SettingsWebForm::SettingsWebForm(QWidget* w, QObject* parent)
-	: QObject(parent)
-{
-	setupUi(w);
+    : QObject(parent) {
+  setupUi(w);
 
-	connect(toolBrowsePEM, SIGNAL(clicked()), this, SLOT(browsePem()));
-	connect(pushGeneratePEM, SIGNAL(clicked()), this, SLOT(generatePem()));
+  connect(toolBrowsePEM, SIGNAL(clicked()), this, SLOT(browsePem()));
+  connect(pushGeneratePEM, SIGNAL(clicked()), this, SLOT(generatePem()));
 }
 
-void SettingsWebForm::load()
-{
-	checkEnable->setChecked(getSettingsValue("remote/enable").toBool());
-	spinPort->setValue(getSettingsValue("remote/port").toInt());
-	linePassword->setText(getSettingsValue("remote/password").toString());
-	groupSSL->setChecked(getSettingsValue("remote/ssl").toBool());
-	linePEM->setText(getSettingsValue("remote/ssl_pem").toString());
+void SettingsWebForm::load() {
+  checkEnable->setChecked(getSettingsValue("remote/enable").toBool());
+  spinPort->setValue(getSettingsValue("remote/port").toInt());
+  linePassword->setText(getSettingsValue("remote/password").toString());
+  groupSSL->setChecked(getSettingsValue("remote/ssl").toBool());
+  linePEM->setText(getSettingsValue("remote/ssl_pem").toString());
 }
 
-void SettingsWebForm::accepted()
-{
-	setSettingsValue("remote/enable", checkEnable->isChecked());
-	setSettingsValue("remote/port", spinPort->value());
-	setSettingsValue("remote/password", linePassword->text());
-	setSettingsValue("remote/ssl", groupSSL->isChecked());
-	setSettingsValue("remote/ssl_pem", linePEM->text());
+void SettingsWebForm::accepted() {
+  setSettingsValue("remote/enable", checkEnable->isChecked());
+  setSettingsValue("remote/port", spinPort->value());
+  setSettingsValue("remote/password", linePassword->text());
+  setSettingsValue("remote/ssl", groupSSL->isChecked());
+  setSettingsValue("remote/ssl_pem", linePEM->text());
 
-	applySettings();
+  applySettings();
 }
 
-void SettingsWebForm::applySettings()
-{
-	HttpService::instance()->applySettings();
+void SettingsWebForm::applySettings() {
+  HttpService::instance()->applySettings();
 }
 
-void SettingsWebForm::browsePem()
-{
-	QString file = QFileDialog::getOpenFileName(linePEM->parentWidget(), tr("Browse for PEM file"), QString(), tr("PEM files (*.pem)"));
-	if (!file.isEmpty())
-	{
-		linePEM->setText(file);
-	}
+void SettingsWebForm::browsePem() {
+  QString file = QFileDialog::getOpenFileName(
+      linePEM->parentWidget(), tr("Browse for PEM file"), QString(),
+      tr("PEM files (*.pem)"));
+  if (!file.isEmpty()) {
+    linePEM->setText(file);
+  }
 }
 
-void SettingsWebForm::generatePem()
-{
-	const char* script = DATA_LOCATION "/data/genssl.sh";
-	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
+void SettingsWebForm::generatePem() {
+  const char* script = DATA_LOCATION "/data/genssl.sh";
+  const char* config = DATA_LOCATION "/data/genssl.cnf";
+  const char* pemfile = "/tmp/fatrat-webui.pem";
 
-	CertGenDlg dlg(linePEM->parentWidget());
+  CertGenDlg dlg(linePEM->parentWidget());
 
-	if (dlg.exec() != QDialog::Accepted)
-		return;
+  if (dlg.exec() != QDialog::Accepted) return;
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-	QProcess prc;
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QProcess prc;
 
-	qDebug() << "Starting: " << script << " " << config;
-	prc.start(script, QStringList() << config << dlg.getHostname());
-	prc.waitForFinished();
+  qDebug() << "Starting: " << script << " " << config;
+  prc.start(script, QStringList() << config << dlg.getHostname());
+  prc.waitForFinished();
 
-	QApplication::restoreOverrideCursor();
+  QApplication::restoreOverrideCursor();
 
-	if (prc.exitCode() != 0)
-	{
-		QMessageBox::critical(linePEM->parentWidget(), "FatRat", tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-		return;
-	}
+  if (prc.exitCode() != 0) {
+    QMessageBox::critical(linePEM->parentWidget(), "FatRat",
+                          tr("Failed to generate a certificate, please ensure "
+                             "you have 'openssl' and 'sed' installed."));
+    return;
+  }
 
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		QMessageBox::critical(linePEM->parentWidget(), "FatRat", tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-		return;
-	}
+  QFile file(pemfile);
+  if (!file.open(QIODevice::ReadOnly)) {
+    QMessageBox::critical(linePEM->parentWidget(), "FatRat",
+                          tr("Failed to generate a certificate, please ensure "
+                             "you have 'openssl' and 'sed' installed."));
+    return;
+  }
 
-	QByteArray data = file.readAll();
-	QDir::home().mkpath(USER_PROFILE_PATH "/data");
+  QByteArray data = file.readAll();
+  QDir::home().mkpath(USER_PROFILE_PATH "/data");
 
-	QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/fatrat-webui.pem";
-	QFile out(path);
+  QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) +
+                 "/data/fatrat-webui.pem";
+  QFile out(path);
 
-	if (!out.open(QIODevice::WriteOnly))
-	{
-		QMessageBox::critical(linePEM->parentWidget(), "FatRat", tr("Failed to open %1 for writing.").arg(path));
-		return;
-	}
+  if (!out.open(QIODevice::WriteOnly)) {
+    QMessageBox::critical(linePEM->parentWidget(), "FatRat",
+                          tr("Failed to open %1 for writing.").arg(path));
+    return;
+  }
 
-	out.write(data);
+  out.write(data);
 
-	out.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
-	out.close();
-	file.remove();
-	linePEM->setText(path);
+  out.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+  out.close();
+  file.remove();
+  linePEM->setText(path);
 
-	QMessageBox::information(linePEM->parentWidget(), "FatRat", tr("The certificate has been generated."));
+  QMessageBox::information(linePEM->parentWidget(), "FatRat",
+                           tr("The certificate has been generated."));
 }
-

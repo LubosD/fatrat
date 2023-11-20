@@ -24,26 +24,25 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
 #ifndef JSCOPE_H
 #define JSCOPE_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 #include <jni.h>
 
 class JObject;
 
-class JScope
-{
-public:
-	JScope();
-	~JScope();
-	jobject popWithRef(jobject ref);
-private:
-	bool m_bPopped;
+class JScope {
+ public:
+  JScope();
+  ~JScope();
+  jobject popWithRef(jobject ref);
+
+ private:
+  bool m_bPopped;
 };
 
-#endif // JSCOPE_H
+#endif  // JSCOPE_H

@@ -26,25 +26,26 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef QUEUEVIEW_H
 #define QUEUEVIEW_H
-#include <QTreeWidget>
-#include <QMimeData>
 #include <QDragMoveEvent>
+#include <QMimeData>
+#include <QTreeWidget>
 
 #include "tooltips/QueueToolTip.h"
 
-class QueueView : public QTreeWidget
-{
-Q_OBJECT
-public:
-	QueueView(QWidget* parent);
-	bool dropMimeData(QTreeWidgetItem* parent, int index, const QMimeData* data, Qt::DropAction action);
-	QStringList mimeTypes() const;
-	void mouseMoveEvent(QMouseEvent* event);
-	void setCurrentRow(int row);
-protected slots:
-	void tooltipDestroyed(QObject* obj);
-private:
-	QueueToolTip* m_status;
+class QueueView : public QTreeWidget {
+  Q_OBJECT
+ public:
+  QueueView(QWidget* parent);
+  bool dropMimeData(QTreeWidgetItem* parent, int index, const QMimeData* data,
+                    Qt::DropAction action);
+  QStringList mimeTypes() const;
+  void mouseMoveEvent(QMouseEvent* event);
+  void setCurrentRow(int row);
+ protected slots:
+  void tooltipDestroyed(QObject* obj);
+
+ private:
+  QueueToolTip* m_status;
 };
 
 #endif

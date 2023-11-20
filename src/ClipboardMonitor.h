@@ -30,22 +30,22 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QRegExp>
 
-class ClipboardMonitor : public QObject
-{
-Q_OBJECT
-public:
-	ClipboardMonitor();
-	~ClipboardMonitor();
+class ClipboardMonitor : public QObject {
+  Q_OBJECT
+ public:
+  ClipboardMonitor();
+  ~ClipboardMonitor();
 
-	void reloadSettings();
-	static ClipboardMonitor* instance() { return m_instance; }
-private slots:
-	void dataChanged(QClipboard::Mode mode);
-private:
-	QClipboard* m_clipboard;
-	bool m_bEnabledGlobal, m_bEnabledSelection;
-	QList<QRegExp> m_regexps;
-	static ClipboardMonitor* m_instance;
+  void reloadSettings();
+  static ClipboardMonitor* instance() { return m_instance; }
+ private slots:
+  void dataChanged(QClipboard::Mode mode);
+
+ private:
+  QClipboard* m_clipboard;
+  bool m_bEnabledGlobal, m_bEnabledSelection;
+  QList<QRegExp> m_regexps;
+  static ClipboardMonitor* m_instance;
 };
 
 #endif

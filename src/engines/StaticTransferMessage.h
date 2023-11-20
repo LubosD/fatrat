@@ -20,13 +20,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef STATICTRANSFERMESSAGE_H
 #define STATICTRANSFERMESSAGE_H
 
-template <typename T> class StaticTransferMessage : public T
-{
-public:
-	void setMessage(QString text) { m_strMessage = text; }
-	QString message() const { return m_strMessage; }
-protected:
-	QString m_strMessage;
+template <typename T>
+class StaticTransferMessage : public T {
+ public:
+  void setMessage(QString text) { m_strMessage = text; }
+  QString message() const { return m_strMessage; }
+
+ protected:
+  QString m_strMessage;
 };
 
-#endif // STATICTRANSFERMESSAGE_H
+#endif  // STATICTRANSFERMESSAGE_H

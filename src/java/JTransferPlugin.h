@@ -29,43 +29,45 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
+
+#include <QMap>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "JPlugin.h"
 #include "Transfer.h"
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QMap>
 
 class JavaDownload;
 
-class JTransferPlugin : public JPlugin
-{
-	Q_OBJECT
-public:
-	JTransferPlugin(const JClass& cls, const char* sig = "()V", JArgs args = JArgs());
-	JTransferPlugin(const char* clsName, const char* sig = "()V", JArgs args = JArgs());
+class JTransferPlugin : public JPlugin {
+  Q_OBJECT
+ public:
+  JTransferPlugin(const JClass &cls, const char *sig = "()V",
+                  JArgs args = JArgs());
+  JTransferPlugin(const char *clsName, const char *sig = "()V",
+                  JArgs args = JArgs());
 
-	static void setMessage(JNIEnv *, jobject, jstring);
-	static void setState(JNIEnv *, jobject, jobject);
-	static void logMessage(JNIEnv *, jobject, jstring);
-	static void setPersistentVariable(JNIEnv *, jobject, jstring, jobject);
-	static jobject getPersistentVariable(JNIEnv *, jobject, jstring);
+  static void setMessage(JNIEnv *, jobject, jstring);
+  static void setState(JNIEnv *, jobject, jobject);
+  static void logMessage(JNIEnv *, jobject, jstring);
+  static void setPersistentVariable(JNIEnv *, jobject, jstring, jobject);
+  static jobject getPersistentVariable(JNIEnv *, jobject, jstring);
 
-	virtual void setPersistentVariable(QString key, QVariant value) = 0;
-	virtual QVariant getPersistentVariable(QString key) = 0;
+  virtual void setPersistentVariable(QString key, QVariant value) = 0;
+  virtual QVariant getPersistentVariable(QString key) = 0;
 
-	virtual void abort();
+  virtual void abort();
 
-	static void registerNatives();
-protected:
-	class JStateEnum : public JObject
-	{
-	public:
-		JStateEnum(jobject obj);
-		Transfer::State value() const;
-	};
+  static void registerNatives();
+
+ protected:
+  class JStateEnum : public JObject {
+   public:
+    JStateEnum(jobject obj);
+    Transfer::State value() const;
+  };
 };
 
-#endif // JTRANSFERPLUGIN_H
+#endif  // JTRANSFERPLUGIN_H

@@ -26,14 +26,6 @@ respects for all of the code used other than "OpenSSL".
 
 #include "DelayedIcon.h"
 
-DelayedIcon::DelayedIcon(QString iconPath)
-: m_iconPath(iconPath)
-{
-}
+DelayedIcon::DelayedIcon(QString iconPath) : m_iconPath(iconPath) {}
 
-DelayedIcon::operator QIcon() const
-{
-	return QIcon(m_iconPath);
-}
-
-
+DelayedIcon::operator QIcon() const { return QIcon(m_iconPath); }

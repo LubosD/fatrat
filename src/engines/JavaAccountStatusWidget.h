@@ -29,26 +29,28 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 #include <QFrame>
-#include "ui_JavaAccountStatusWidget.h"
-#include "java/JAccountStatusPlugin.h"
 #include <QListWidgetItem>
 #include <QMap>
 
-class JavaAccountStatusWidget : public QFrame, Ui_JavaAccountStatusWidget
-{
-Q_OBJECT
-public:
-	JavaAccountStatusWidget(QWidget* parent);
-	~JavaAccountStatusWidget();
-private slots:
-	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString bal);
-private:
-	QList<JAccountStatusPlugin*> m_plugins;
-	QMap<QString,QTreeWidgetItem*> m_items;
+#include "java/JAccountStatusPlugin.h"
+#include "ui_JavaAccountStatusWidget.h"
+
+class JavaAccountStatusWidget : public QFrame, Ui_JavaAccountStatusWidget {
+  Q_OBJECT
+ public:
+  JavaAccountStatusWidget(QWidget* parent);
+  ~JavaAccountStatusWidget();
+ private slots:
+  void accountBalanceReceived(JAccountStatusPlugin::AccountState state,
+                              QString bal);
+
+ private:
+  QList<JAccountStatusPlugin*> m_plugins;
+  QMap<QString, QTreeWidgetItem*> m_items;
 };
 
-#endif // JAVAACCOUNTSTATUSWIDGET_H
+#endif  // JAVAACCOUNTSTATUSWIDGET_H

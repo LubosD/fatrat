@@ -26,28 +26,27 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef PROXY_H
 #define PROXY_H
+#include <QNetworkProxy>
 #include <QString>
 #include <QUuid>
-#include <QNetworkProxy>
 
-struct Proxy
-{
-	Proxy() : nType(ProxyNone) {}
-	
-	QString strName, strIP, strUser, strPassword;
-	quint16 nPort;
-	enum ProxyType { ProxyNone=-1, ProxyHttp, ProxySocks5 } nType;
-	QUuid uuid;
-	
-	QString toString() const
-	{
-		return QString("%1 (%2)").arg(strName).arg( (nType==0) ? "HTTP" : "SOCKS 5");
-	}
-	operator QNetworkProxy() const;
-	//void setProxyTo(QHttp* http) const;
-	
-	static QList<Proxy> loadProxys();
-	static Proxy getProxy(QUuid uuid);
+struct Proxy {
+  Proxy() : nType(ProxyNone) {}
+
+  QString strName, strIP, strUser, strPassword;
+  quint16 nPort;
+  enum ProxyType { ProxyNone = -1, ProxyHttp, ProxySocks5 } nType;
+  QUuid uuid;
+
+  QString toString() const {
+    return QString("%1 (%2)").arg(strName).arg((nType == 0) ? "HTTP"
+                                                            : "SOCKS 5");
+  }
+  operator QNetworkProxy() const;
+  // void setProxyTo(QHttp* http) const;
+
+  static QList<Proxy> loadProxys();
+  static Proxy getProxy(QUuid uuid);
 };
 
 #endif

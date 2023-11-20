@@ -27,14 +27,12 @@ respects for all of the code used other than "OpenSSL".
 #ifndef _WIDGETHOSTCHILD_H
 #define _WIDGETHOSTCHILD_H
 
-class WidgetHostChild
-{
-public:
-	virtual ~WidgetHostChild() {}
-	virtual void load() {}
-	virtual bool accept() { return true; }
-	virtual void accepted() {}
+class WidgetHostChild {
+ public:
+  virtual ~WidgetHostChild() {}
+  virtual void load() {}
+  virtual bool accept() { return true; }
+  virtual void accepted() {}
 };
 
 #endif
-

@@ -27,19 +27,19 @@ respects for all of the code used other than "OpenSSL".
 #ifndef MYAPPLICATION_H
 #define MYAPPLICATION_H
 #include <QApplication>
+
 #include "RuntimeException.h"
 
-class MyApplication : public QApplication
-{
-Q_OBJECT
-public:
-	MyApplication(int& argc, char** argv);
+class MyApplication : public QApplication {
+  Q_OBJECT
+ public:
+  MyApplication(int& argc, char** argv);
 
-	virtual bool notify(QObject* receiver, QEvent* e);
-	virtual void saveState(QSessionManager&);
+  virtual bool notify(QObject* receiver, QEvent* e);
+  virtual void saveState(QSessionManager&);
 
-private:
-	static void reportException(QString text, QString type);
+ private:
+  static void reportException(QString text, QString type);
 };
 
 #endif

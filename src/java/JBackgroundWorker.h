@@ -27,28 +27,31 @@ respects for all of the code used other than "OpenSSL".
 #ifndef JBACKGROUNDOWORKER_H
 #define JBACKGROUNDOWORKER_H
 #include <QThread>
+
 #include "JObject.h"
 #include "JSingleCObject.h"
 
-class JBackgroundWorker : public QThread, public JObject, public JSingleCObject<JBackgroundWorker>
-{
-Q_OBJECT
-public:
-	JBackgroundWorker(jobject jthis, bool weak);
+class JBackgroundWorker : public QThread,
+                          public JObject,
+                          public JSingleCObject<JBackgroundWorker> {
+  Q_OBJECT
+ public:
+  JBackgroundWorker(jobject jthis, bool weak);
 
-	virtual void run();
+  virtual void run();
 
-	static void registerNatives();
+  static void registerNatives();
 
-	static void execute(JNIEnv *, jobject);
-	static jobject get(JNIEnv *, jobject);
-	static void updateProgress(JNIEnv*, jobject, jobject);
-private slots:
-	void finished();
-	void progressUpdated(JObject p);
-private:
-	JObject m_result;
-	JObject m_exception;
+  static void execute(JNIEnv *, jobject);
+  static jobject get(JNIEnv *, jobject);
+  static void updateProgress(JNIEnv *, jobject, jobject);
+ private slots:
+  void finished();
+  void progressUpdated(JObject p);
+
+ private:
+  JObject m_result;
+  JObject m_exception;
 };
 
 #endif

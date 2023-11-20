@@ -26,40 +26,40 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef EXTENSIONMGR_H
 #define EXTENSIONMGR_H
-#include "config.h"
-#include <QObject>
 #include <QMap>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QObject>
+
+#include "config.h"
 
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
-class ExtensionMgr : public QObject
-{
-Q_OBJECT
-public:
-    ExtensionMgr();
+class ExtensionMgr : public QObject {
+  Q_OBJECT
+ public:
+  ExtensionMgr();
 
-    struct PackageInfo
-    {
-	    QString name, desc, installedVersion, latestVersion;
-    };
+  struct PackageInfo {
+    QString name, desc, installedVersion, latestVersion;
+  };
 
-    QList<PackageInfo> getPackages();
-public slots:
-    void loadFromServer();
-signals:
-    void loaded();
-    void loadFailed();
-private slots:
-    void dataLoaded(QNetworkReply* req);
-private:
-    QList<PackageInfo> m_packages;
-    QMap<QString,QString> m_installedPackages;
-    QNetworkAccessManager m_network;
+  QList<PackageInfo> getPackages();
+ public slots:
+  void loadFromServer();
+ signals:
+  void loaded();
+  void loadFailed();
+ private slots:
+  void dataLoaded(QNetworkReply* req);
+
+ private:
+  QList<PackageInfo> m_packages;
+  QMap<QString, QString> m_installedPackages;
+  QNetworkAccessManager m_network;
 };
 
-#endif // EXTENSIONMGR_H
+#endif  // EXTENSIONMGR_H

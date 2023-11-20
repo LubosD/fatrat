@@ -29,24 +29,29 @@ respects for all of the code used other than "OpenSSL".
 #include <QObject>
 #include <QStringList>
 
-class DbusImpl : public QObject
-{
-Q_OBJECT
-public:
-	DbusImpl();
-	static DbusImpl* instance() { return m_instance; }
-public slots:
-	void addTransfers(QString uris);
-	QString addTransfersNonInteractive(QString uris, QString target, QString className, int queueID);
-	
-	// workaround for QHttp Qt bug - receiving side
-	void addTransfersNonInteractive2(QString uris, QString target, QString className, int queueID, QString* resp);
-	QStringList getQueues();
-public:
-	// workaround for QHttp Qt bug - emiting side
-	QString addTransfers(QString uris, QString target, QString className, int queueID);
-private:
-	static DbusImpl* m_instance;
+class DbusImpl : public QObject {
+  Q_OBJECT
+ public:
+  DbusImpl();
+  static DbusImpl* instance() { return m_instance; }
+ public slots:
+  void addTransfers(QString uris);
+  QString addTransfersNonInteractive(QString uris, QString target,
+                                     QString className, int queueID);
+
+  // workaround for QHttp Qt bug - receiving side
+  void addTransfersNonInteractive2(QString uris, QString target,
+                                   QString className, int queueID,
+                                   QString* resp);
+  QStringList getQueues();
+
+ public:
+  // workaround for QHttp Qt bug - emiting side
+  QString addTransfers(QString uris, QString target, QString className,
+                       int queueID);
+
+ private:
+  static DbusImpl* m_instance;
 };
 
 #endif

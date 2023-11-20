@@ -26,170 +26,177 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef HTTPSERVICE_H
 #define HTTPSERVICE_H
-#include "config.h"
-#include <QThread>
-#include <QMap>
+#include <Poco/Net/HTTPRequestHandler.h>
+#include <Poco/Net/HTTPServer.h>
+#include <Poco/Net/WebSocket.h>
+
 #include <QByteArray>
-#include <QVariantMap>
 #include <QFile>
-#include <QMutex>
 #include <QList>
+#include <QMap>
+#include <QMutex>
 #include <QQueue>
-#include <QTimer>
 #include <QRegExp>
+#include <QThread>
+#include <QTimer>
+#include <QVariantMap>
 #include <ctime>
 #include <functional>
 #include <memory>
-#include <Poco/Net/HTTPServer.h>
-#include <Poco/Net/WebSocket.h>
-#include <Poco/Net/HTTPRequestHandler.h>
-#include "captcha/CaptchaHttp.h"
-#include "remote/TransferHttpService.h"
+
 #include "XmlRpcService.h"
+#include "captcha/CaptchaHttp.h"
+#include "config.h"
+#include "remote/TransferHttpService.h"
 
 using namespace Poco::Net;
 
 #ifndef WITH_WEBINTERFACE
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
 
 class Queue;
 class Transfer;
 
-class HttpService : public QObject, public HTTPRequestHandlerFactory
-{
-Q_OBJECT
-private:
-	class WebSocketService;
-public:
-	HttpService();
-	~HttpService();
-	static HttpService* instance() { return m_instance; }
-	void applySettings();
-	
-	void setup();
-	void setupAuth();
-	void setupSSL();
+class HttpService : public QObject, public HTTPRequestHandlerFactory {
+  Q_OBJECT
+ private:
+  class WebSocketService;
 
-	void addCaptchaEvent(int id, QString url);
-	bool hasCaptchaHandlers();
+ public:
+  HttpService();
+  ~HttpService();
+  static HttpService* instance() { return m_instance; }
+  void applySettings();
 
-	static void findQueue(QString queueUUID, Queue** q);
-	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
+  void setup();
+  void setupAuth();
+  void setupSSL();
 
-	static QVariant generateCertificate(QList<QVariant>&);
+  void addCaptchaEvent(int id, QString url);
+  bool hasCaptchaHandlers();
 
-	virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) override;
-private slots:
-	void keepalive(); // QTimer TODO
-private:
-	void addCaptchaClient(WebSocketService* client);
-	void removeCaptchaClient(WebSocketService* client);
-	void killCaptchaClients();
+  static void findQueue(QString queueUUID, Queue** q);
+  static int findTransfer(QString transferUUID, Queue** q, Transfer** t,
+                          bool lockForWrite = false);
 
-	typedef std::function<HTTPRequestHandler*()> handler_t;
-	void addHandler(const QRegExp& path, handler_t handler) { m_handlers << QPair<QRegExp, handler_t>(path, handler); }
+  static QVariant generateCertificate(QList<QVariant>&);
 
-	void logService(HTTPServerRequest &req, HTTPServerResponse &resp);
-private:
-	static Poco::SharedPtr<HttpService> m_instance;
-	CaptchaHttp m_captchaHttp;
-	quint16 m_port;
-	QString m_strSSLPem;
-	bool m_bUseSSL;
+  virtual HTTPRequestHandler* createRequestHandler(
+      const HTTPServerRequest& request) override;
+ private slots:
+  void keepalive();  // QTimer TODO
+ private:
+  void addCaptchaClient(WebSocketService* client);
+  void removeCaptchaClient(WebSocketService* client);
+  void killCaptchaClients();
 
-	QTimer m_timer;
-	QList<WebSocketService*> m_registeredCaptchaClients;
-	QMutex m_registeredCaptchaClientsMutex;
+  typedef std::function<HTTPRequestHandler*()> handler_t;
+  void addHandler(const QRegExp& path, handler_t handler) {
+    m_handlers << QPair<QRegExp, handler_t>(path, handler);
+  }
 
-	HTTPServer* m_server;
-	std::unique_ptr<ServerSocket> m_socket;
+  void logService(HTTPServerRequest& req, HTTPServerResponse& resp);
 
-	QList<QPair<QRegExp, handler_t>> m_handlers;
-	QMutex m_handlersMutex;
-	XmlRpcService m_xmlRpc;
+ private:
+  static Poco::SharedPtr<HttpService> m_instance;
+  CaptchaHttp m_captchaHttp;
+  quint16 m_port;
+  QString m_strSSLPem;
+  bool m_bUseSSL;
 
-	class LogService : public AuthenticatedRequestHandler
-	{
-	public:
-		LogService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
+  QTimer m_timer;
+  QList<WebSocketService*> m_registeredCaptchaClients;
+  QMutex m_registeredCaptchaClientsMutex;
 
-	class TransferTreeBrowserService : public AuthenticatedRequestHandler
-	{
-	public:
-		TransferTreeBrowserService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-	class TransferDownloadService : public AuthenticatedRequestHandler
-	{
-	public:
-		TransferDownloadService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-	class SubclassService : public AuthenticatedRequestHandler
-	{
-	public:
-		SubclassService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-	class CaptchaService : public AuthenticatedRequestHandler
-	{
-	public:
-		virtual void run() override;
-	};
-	class WebSocketService : public AuthenticatedRequestHandler
-	{
-	public:
-		WebSocketService();
-		~WebSocketService();
-		virtual void run() override;
+  HTTPServer* m_server;
+  std::unique_ptr<ServerSocket> m_socket;
 
-		typedef QPair<int,QString> Captcha;
+  QList<QPair<QRegExp, handler_t>> m_handlers;
+  QMutex m_handlersMutex;
+  XmlRpcService m_xmlRpc;
 
-		// Enqueue a captcha and have it delivered
-		void pushCaptcha(const Captcha& cap);
+  class LogService : public AuthenticatedRequestHandler {
+   public:
+    LogService(const QString& mapping);
+    virtual void run() override;
 
-		void terminate() { wakeup(-1); }
-		void keepalive() { wakeup(1); }
-	private:
-		// Send captchas in queue to client
-		void pushMore(WebSocket& ws);
+   private:
+    QString m_mapping;
+  };
 
-		// Wakeup the loop
-		void wakeup(int v);
-	private:
-		int m_pipe[2];
-		QMutex writeInProgressLock;
-		QQueue<Captcha> captchaQueue;
-		QMutex captchaQueueLock;
-	};
+  class TransferTreeBrowserService : public AuthenticatedRequestHandler {
+   public:
+    TransferTreeBrowserService(const QString& mapping);
+    virtual void run() override;
 
-	class WriteBackImpl : public TransferHttpService::WriteBack
-	{
-	public:
-		WriteBackImpl(Poco::Net::HTTPServerResponse& resp);
-		void write(const char* data, size_t bytes) override;
-		void writeFail(QString error) override;
-		void writeNoCopy(void* data, size_t bytes) override;
-		void send() override;
-		void setContentType(const char* type) override;
-	private:
-		void sendHeaders();
-	private:
-		Poco::Net::HTTPServerResponse& m_response;
-		std::ostream* m_ostream = nullptr;
-	};
+   private:
+    QString m_mapping;
+  };
+  class TransferDownloadService : public AuthenticatedRequestHandler {
+   public:
+    TransferDownloadService(const QString& mapping);
+    virtual void run() override;
+
+   private:
+    QString m_mapping;
+  };
+  class SubclassService : public AuthenticatedRequestHandler {
+   public:
+    SubclassService(const QString& mapping);
+    virtual void run() override;
+
+   private:
+    QString m_mapping;
+  };
+  class CaptchaService : public AuthenticatedRequestHandler {
+   public:
+    virtual void run() override;
+  };
+  class WebSocketService : public AuthenticatedRequestHandler {
+   public:
+    WebSocketService();
+    ~WebSocketService();
+    virtual void run() override;
+
+    typedef QPair<int, QString> Captcha;
+
+    // Enqueue a captcha and have it delivered
+    void pushCaptcha(const Captcha& cap);
+
+    void terminate() { wakeup(-1); }
+    void keepalive() { wakeup(1); }
+
+   private:
+    // Send captchas in queue to client
+    void pushMore(WebSocket& ws);
+
+    // Wakeup the loop
+    void wakeup(int v);
+
+   private:
+    int m_pipe[2];
+    QMutex writeInProgressLock;
+    QQueue<Captcha> captchaQueue;
+    QMutex captchaQueueLock;
+  };
+
+  class WriteBackImpl : public TransferHttpService::WriteBack {
+   public:
+    WriteBackImpl(Poco::Net::HTTPServerResponse& resp);
+    void write(const char* data, size_t bytes) override;
+    void writeFail(QString error) override;
+    void writeNoCopy(void* data, size_t bytes) override;
+    void send() override;
+    void setContentType(const char* type) override;
+
+   private:
+    void sendHeaders();
+
+   private:
+    Poco::Net::HTTPServerResponse& m_response;
+    std::ostream* m_ostream = nullptr;
+  };
 };
-
 
 #endif

@@ -25,67 +25,67 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JSearchPlugin.h"
+
 #include "JArray.h"
 #include "tools/FileSharingSearch.h"
 
 JSearchPlugin::JSearchPlugin(const JClass& cls, const char* sig, JArgs args)
-	: JPlugin(cls, sig, args), m_dialog(0)
-{
-}
+    : JPlugin(cls, sig, args), m_dialog(0) {}
 
 JSearchPlugin::JSearchPlugin(const char* clsName, const char* sig, JArgs args)
-	: JPlugin(clsName, sig, args), m_dialog(0)
-{
-}
+    : JPlugin(clsName, sig, args), m_dialog(0) {}
 
-void JSearchPlugin::registerNatives()
-{
-	QList<JNativeMethod> natives;
+void JSearchPlugin::registerNatives() {
+  QList<JNativeMethod> natives;
 
-	natives << JNativeMethod("searchDone", JSignature().addA("info.dolezel.fatrat.plugins.SearchPlugin$SearchResult"), searchDone);
+  natives << JNativeMethod(
+      "searchDone",
+      JSignature().addA(
+          "info.dolezel.fatrat.plugins.SearchPlugin$SearchResult"),
+      searchDone);
 
-	JClass("info.dolezel.fatrat.plugins.SearchPlugin").registerNativeMethods(natives);
+  JClass("info.dolezel.fatrat.plugins.SearchPlugin")
+      .registerNativeMethods(natives);
 }
 
 /*
 void JSearchPlugin::findMyName()
 {
-	JObject ann = this->getClass().getAnnotation("info.dolezel.fatrat.plugins.annotations.SearchPluginInfo");
-	if (!ann.isNull())
-	{
-		m_strMyName = ann.call("name", JSignature().retString()).toString();
-	}
+        JObject ann =
+this->getClass().getAnnotation("info.dolezel.fatrat.plugins.annotations.SearchPluginInfo");
+        if (!ann.isNull())
+        {
+                m_strMyName = ann.call("name",
+JSignature().retString()).toString();
+        }
 }
 */
 
-void JSearchPlugin::searchDone(JNIEnv*, jobject jthis, jobjectArray sr)
-{
-	JSearchPlugin* This = static_cast<JSearchPlugin*>(getCObject(jthis));
+void JSearchPlugin::searchDone(JNIEnv*, jobject jthis, jobjectArray sr) {
+  JSearchPlugin* This = static_cast<JSearchPlugin*>(getCObject(jthis));
 
-	if (!sr)
-	{
-		// failed
-		This->m_dialog->searchFailed(This->getClass().getClassName());
-	}
-	else
-	{
-		JArray results(sr);
-		QList<FileSharingSearch::SearchResult> srs;
+  if (!sr) {
+    // failed
+    This->m_dialog->searchFailed(This->getClass().getClassName());
+  } else {
+    JArray results(sr);
+    QList<FileSharingSearch::SearchResult> srs;
 
-		for (unsigned int i = 0; i < results.length(); i++)
-		{
-			JObject obj = results.getObject(i);
-			FileSharingSearch::SearchResult sr;
+    for (unsigned int i = 0; i < results.length(); i++) {
+      JObject obj = results.getObject(i);
+      FileSharingSearch::SearchResult sr;
 
-			sr.name = obj.getValue("name", JSignature::sigString()).toString();
-			sr.url = obj.getValue("url", JSignature::sigString()).toString();
-			sr.extraInfo = obj.getValue("extraInfo", JSignature::sigString()).toString();
-			sr.fileSize = obj.getValue("fileSize", JSignature::sigLong()).toLongLong();
+      sr.name = obj.getValue("name", JSignature::sigString()).toString();
+      sr.url = obj.getValue("url", JSignature::sigString()).toString();
+      sr.extraInfo =
+          obj.getValue("extraInfo", JSignature::sigString()).toString();
+      sr.fileSize =
+          obj.getValue("fileSize", JSignature::sigLong()).toLongLong();
 
-			srs << sr;
-		}
+      srs << sr;
+    }
 
-		This->m_dialog->addSearchResults(This->getClass().getClassName(), srs);
-	}
-	This->m_bTaskDone = true;
+    This->m_dialog->addSearchResults(This->getClass().getClassName(), srs);
+  }
+  This->m_bTaskDone = true;
 }

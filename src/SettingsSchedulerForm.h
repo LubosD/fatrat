@@ -27,27 +27,30 @@ respects for all of the code used other than "OpenSSL".
 #ifndef SETTINGSSCHEDULERFORM_H
 #define SETTINGSSCHEDULERFORM_H
 
-#include "ui_SettingsSchedulerForm.h"
-#include "WidgetHostChild.h"
 #include "Scheduler.h"
+#include "WidgetHostChild.h"
+#include "ui_SettingsSchedulerForm.h"
 
-class SettingsSchedulerForm : public QObject, public WidgetHostChild, Ui_SettingsSchedulerForm
-{
-Q_OBJECT
-public:
-	SettingsSchedulerForm(QWidget* w, QObject* parent);
-	virtual void load();
-	virtual void accepted();
-	static WidgetHostChild* create(QWidget* w, QObject* parent) { return new SettingsSchedulerForm(w, parent); }
+class SettingsSchedulerForm : public QObject,
+                              public WidgetHostChild,
+                              Ui_SettingsSchedulerForm {
+  Q_OBJECT
+ public:
+  SettingsSchedulerForm(QWidget* w, QObject* parent);
+  virtual void load();
+  virtual void accepted();
+  static WidgetHostChild* create(QWidget* w, QObject* parent) {
+    return new SettingsSchedulerForm(w, parent);
+  }
 
-	static void applySettings();
-public slots:
-	void add();
-	void edit();
-	void remove();
-private:
-	QList<ScheduledAction> m_actions;
+  static void applySettings();
+ public slots:
+  void add();
+  void edit();
+  void remove();
+
+ private:
+  QList<ScheduledAction> m_actions;
 };
-
 
 #endif

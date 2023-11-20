@@ -28,22 +28,16 @@ respects for all of the code used other than "OpenSSL".
 #define CLICKABLELABEL_H
 #include <QLabel>
 
-class ClickableLabel : public QLabel
-{
-Q_OBJECT
-public:
-	ClickableLabel(QWidget* parent)
-		: QLabel(parent)
-	{
-	}
+class ClickableLabel : public QLabel {
+  Q_OBJECT
+ public:
+  ClickableLabel(QWidget* parent) : QLabel(parent) {}
 
-signals:
-	void clicked();
-protected:
-	virtual void mouseReleaseEvent ( QMouseEvent * event )
-	{
-		emit clicked();
-	}
+ signals:
+  void clicked();
+
+ protected:
+  virtual void mouseReleaseEvent(QMouseEvent* event) { emit clicked(); }
 };
 
-#endif // CLICKABLELABEL_H
+#endif  // CLICKABLELABEL_H

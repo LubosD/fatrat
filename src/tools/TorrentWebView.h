@@ -26,26 +26,27 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef TORRENTWEBVIEW_H
 #define TORRENTWEBVIEW_H
-#include <QWidget>
-#include <QTabWidget>
 #include <QNetworkAccessManager>
+#include <QTabWidget>
+#include <QWidget>
+
 #include "ui_TorrentWebView.h"
 
-class TorrentWebView : public QWidget, public Ui_TorrentWebView
-{
-Q_OBJECT
-public:
-	TorrentWebView(QTabWidget* w);
-public slots:
-	void titleChanged(QString title);
-	void progressChanged(int p);
-	void iconChanged(const QUrl&);
-	void iconDownloaded();
-signals:
-	void changeTabTitle(QString);
-private:
-	QTabWidget* m_tab;
-	QNetworkAccessManager m_net;
+class TorrentWebView : public QWidget, public Ui_TorrentWebView {
+  Q_OBJECT
+ public:
+  TorrentWebView(QTabWidget* w);
+ public slots:
+  void titleChanged(QString title);
+  void progressChanged(int p);
+  void iconChanged(const QUrl&);
+  void iconDownloaded();
+ signals:
+  void changeTabTitle(QString);
+
+ private:
+  QTabWidget* m_tab;
+  QNetworkAccessManager m_net;
 };
 
 #endif

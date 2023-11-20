@@ -26,34 +26,40 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef JACCOUNTSTATUSPLUGIN_H
 #define JACCOUNTSTATUSPLUGIN_H
-#include "JPlugin.h"
 #include <QList>
 #include <QPair>
 
-class JAccountStatusPlugin : public JPlugin
-{
-Q_OBJECT
-public:
-	static void registerNatives();
-	static QList<JAccountStatusPlugin*> createStatusPlugins();
+#include "JPlugin.h"
 
-	inline bool queryAccountBalance() { return call("queryAccountBalance", JSignature().retBoolean()).toBool(); }
-	inline QString name() { return m_strName; }
+class JAccountStatusPlugin : public JPlugin {
+  Q_OBJECT
+ public:
+  static void registerNatives();
+  static QList<JAccountStatusPlugin*> createStatusPlugins();
 
-	enum AccountState { AccountGood, AccountWarning, AccountBad, AccountError };
-signals:
-	void accountBalanceReceived(JAccountStatusPlugin::AccountState state, QString balance);
-private:
-	JAccountStatusPlugin(const JClass& cls, QString name);
+  inline bool queryAccountBalance() {
+    return call("queryAccountBalance", JSignature().retBoolean()).toBool();
+  }
+  inline QString name() { return m_strName; }
 
-	static void findPlugins();
+  enum AccountState { AccountGood, AccountWarning, AccountBad, AccountError };
+ signals:
+  void accountBalanceReceived(JAccountStatusPlugin::AccountState state,
+                              QString balance);
 
-	static void reportAccountBalance(JNIEnv* env, jobject jthis, jobject state, jstring jbal);
-private:
-	QString m_strName;
-	static QList<QPair<QString,QString> > m_listPlugins;
+ private:
+  JAccountStatusPlugin(const JClass& cls, QString name);
+
+  static void findPlugins();
+
+  static void reportAccountBalance(JNIEnv* env, jobject jthis, jobject state,
+                                   jstring jbal);
+
+ private:
+  QString m_strName;
+  static QList<QPair<QString, QString> > m_listPlugins;
 };
 
 Q_DECLARE_METATYPE(JAccountStatusPlugin::AccountState);
 
-#endif // JACCOUNTSTATUSPLUGIN_H
+#endif  // JACCOUNTSTATUSPLUGIN_H

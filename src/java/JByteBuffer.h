@@ -24,36 +24,36 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-
 #ifndef JBYTEBUFFER_H
 #define JBYTEBUFFER_H
 
 #include "config.h"
 #ifndef WITH_JPLUGINS
-#	error This file is not supposed to be included!
+#error This file is not supposed to be included!
 #endif
-#include "JObject.h"
 #include <tr1/memory>
 
-class JByteBuffer : public JObject
-{
-public:
-	JByteBuffer(jobject obj);
-	JByteBuffer(void* mem, size_t len);
-	JByteBuffer(const JByteBuffer& b);
-	JByteBuffer(size_t len);
-	JByteBuffer() {}
+#include "JObject.h"
 
-	void* allocate(size_t len);
+class JByteBuffer : public JObject {
+ public:
+  JByteBuffer(jobject obj);
+  JByteBuffer(void* mem, size_t len);
+  JByteBuffer(const JByteBuffer& b);
+  JByteBuffer(size_t len);
+  JByteBuffer() {}
 
-	void* buffer();
-	size_t length() const;
-	size_t size() const { return length(); }
+  void* allocate(size_t len);
 
-	JByteBuffer& operator=(JByteBuffer& buf);
-	JByteBuffer& operator=(jobject obj);
-private:
-	std::tr1::shared_ptr<char> m_buffer;
+  void* buffer();
+  size_t length() const;
+  size_t size() const { return length(); }
+
+  JByteBuffer& operator=(JByteBuffer& buf);
+  JByteBuffer& operator=(jobject obj);
+
+ private:
+  std::tr1::shared_ptr<char> m_buffer;
 };
 
-#endif // JBYTEBUFFER_H
+#endif  // JBYTEBUFFER_H

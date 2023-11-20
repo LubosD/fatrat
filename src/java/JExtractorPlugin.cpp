@@ -25,58 +25,53 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JExtractorPlugin.h"
-#include "JClass.h"
-#include "JString.h"
-#include "JArray.h"
+
 #include <QList>
 #include <QString>
 #include <QtDebug>
 
-JExtractorPlugin::JExtractorPlugin(const JClass& cls, const char* sig, JArgs args)
-	: JTransferPlugin(cls, sig, args)
-{
+#include "JArray.h"
+#include "JClass.h"
+#include "JString.h"
 
+JExtractorPlugin::JExtractorPlugin(const JClass& cls, const char* sig,
+                                   JArgs args)
+    : JTransferPlugin(cls, sig, args) {}
+
+JExtractorPlugin::JExtractorPlugin(const char* clsName, const char* sig,
+                                   JArgs args)
+    : JTransferPlugin(clsName, sig, args) {}
+
+void JExtractorPlugin::registerNatives() {
+  QList<JNativeMethod> natives;
+
+  natives << JNativeMethod("finishedExtraction", JSignature().addStringA(),
+                           finishedExtraction);
+
+  JClass("info.dolezel.fatrat.plugins.ExtractorPlugin")
+      .registerNativeMethods(natives);
 }
 
-JExtractorPlugin::JExtractorPlugin(const char* clsName, const char* sig, JArgs args)
-	: JTransferPlugin(clsName, sig, args)
-{
+void JExtractorPlugin::finishedExtraction(JNIEnv* env, jobject jthis,
+                                          jobjectArray jlinks) {
+  JExtractorPlugin* This = static_cast<JExtractorPlugin*>(getCObject(jthis));
+  JArray links(jlinks);
 
+  QList<QString> list;
+  qDebug() << list;
+  for (size_t i = 0; i < links.size(); i++) {
+    JString str = links.getObject(i).toStringShallow();
+    list << str.str();
+  }
+
+  static_cast<JavaExtractor*>(This->m_transfer)->finishedExtraction(list);
+  This->m_bTaskDone = true;
 }
 
-void JExtractorPlugin::registerNatives()
-{
-	QList<JNativeMethod> natives;
-
-	natives << JNativeMethod("finishedExtraction", JSignature().addStringA(), finishedExtraction);
-
-	JClass("info.dolezel.fatrat.plugins.ExtractorPlugin").registerNativeMethods(natives);
+void JExtractorPlugin::setPersistentVariable(QString key, QVariant value) {
+  static_cast<JavaExtractor*>(transfer())->setPersistentVariable(key, value);
 }
 
-void JExtractorPlugin::finishedExtraction(JNIEnv* env, jobject jthis, jobjectArray jlinks)
-{
-	JExtractorPlugin* This = static_cast<JExtractorPlugin*>(getCObject(jthis));
-	JArray links(jlinks);
-
-	QList<QString> list;
-	qDebug() << list;
-	for (size_t i = 0; i < links.size(); i++)
-	{
-		JString str = links.getObject(i).toStringShallow();
-		list << str.str();
-	}
-
-	static_cast<JavaExtractor*>(This->m_transfer)->finishedExtraction(list);
-	This->m_bTaskDone = true;
+QVariant JExtractorPlugin::getPersistentVariable(QString key) {
+  return static_cast<JavaExtractor*>(transfer())->getPersistentVariable(key);
 }
-
-void JExtractorPlugin::setPersistentVariable(QString key, QVariant value)
-{
-	static_cast<JavaExtractor*>(transfer())->setPersistentVariable(key, value);
-}
-
-QVariant JExtractorPlugin::getPersistentVariable(QString key)
-{
-	return static_cast<JavaExtractor*>(transfer())->getPersistentVariable(key);
-}
-

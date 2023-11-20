@@ -28,132 +28,143 @@ respects for all of the code used other than "OpenSSL".
 #define CURLDOWNLOAD_H
 #include <Transfer.h>
 #include <fatrat.h>
+
+#include <QDir>
+#include <QHash>
+#include <QTimer>
+#include <QUrl>
+#include <QUuid>
+
+#include "StaticTransferMessage.h"
 #include "engines/CurlUser.h"
 #include "engines/UrlClient.h"
-#include <QHash>
-#include <QUuid>
-#include <QDir>
-#include <QUrl>
-#include <QTimer>
-#include "StaticTransferMessage.h"
 
 class CurlPollingMaster;
 
-class CurlDownload : public StaticTransferMessage<Transfer>
-{
-Q_OBJECT
-public:
-	CurlDownload();
-	~CurlDownload();
-	
-	virtual void init(QString source, QString target);
-	virtual void changeActive(bool bActove);
-	virtual void setObject(QString object);
-	virtual QString object() const;
-	virtual QString myClass() const { return "GeneralDownload"; }
-	virtual QString name() const;
-	virtual void speeds(int& down, int& up) const;
-	virtual qulonglong total() const;
-	virtual qulonglong done() const;
-	virtual void load(const QDomNode& map);
-	virtual void save(QDomDocument& doc, QDomNode& map) const;
-	virtual void setSpeedLimits(int down, int up);
-	
-	static int acceptable(QString uri, bool);
-	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
-	static Transfer* createInstance() { return new CurlDownload; }
-	static void globalInit();
-	static void globalExit();
-	
-	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
-	virtual void fillContextMenu(QMenu& menu);
-	virtual QString remoteURI() const;
-	virtual QObject* createDetailsWidget(QWidget* w);
-protected:
-	QString filePath() const;
-private slots:
-	//void switchMirror();
-	void computeHash();
-	void clientRenameTo(QString name);
-	void clientLogMessage(QString msg);
-	void clientDone(QString error);
-	void clientTotalSizeKnown(qlonglong bytes);
-	void clientFailure(QString err);
-	void clientRangesUnsupported();
-	void updateSegmentProgress();
-private:
-	void generateName();
-	void init2(QString uri, QString dest);
-	void setTargetName(QString newFileName);
-	void processHeaders();
-	void checkFileContents();
-	
-	static int seek_function(int file, curl_off_t offset, int origin);
-	static size_t process_header(const char* ptr, size_t size, size_t nmemb, CurlDownload* This);
-	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, CurlDownload* This);
-protected:
-	// Represents a written segment, i.e. what's really been written to the on-disk file
-	struct Segment
-	{
-		// the start
-		qlonglong offset;
-		// how many bytes have already been transfered
-		qlonglong bytes;
-		// the last url object used for this segment
-		int urlIndex;
-		// pointer to a UrlClient instance, if the segment is active
-		UrlClient* client = nullptr;
-		QColor color;
+class CurlDownload : public StaticTransferMessage<Transfer> {
+  Q_OBJECT
+ public:
+  CurlDownload();
+  ~CurlDownload();
 
-		bool operator<(const Segment& s2) const;
-		operator QString() const
-		{
-			return QString("(struct Segment): offset: %1; bytes: %2; urlIndex: %3").arg(offset).arg(bytes).arg(urlIndex);
-		}
-	};
-	// Represents a blank spot in the file, i.e. a candidate for a new download thread
-	struct FreeSegment
-	{
-		FreeSegment(qlonglong _offset, qlonglong _bytes) : offset(_offset), bytes(_bytes), affectedClient(0) {}
+  virtual void init(QString source, QString target);
+  virtual void changeActive(bool bActove);
+  virtual void setObject(QString object);
+  virtual QString object() const;
+  virtual QString myClass() const { return "GeneralDownload"; }
+  virtual QString name() const;
+  virtual void speeds(int& down, int& up) const;
+  virtual qulonglong total() const;
+  virtual qulonglong done() const;
+  virtual void load(const QDomNode& map);
+  virtual void save(QDomDocument& doc, QDomNode& map) const;
+  virtual void setSpeedLimits(int down, int up);
 
-		qlonglong offset;
-		qlonglong bytes;
-		UrlClient* affectedClient;
+  static int acceptable(QString uri, bool);
+  static QDialog* createMultipleOptionsWidget(QWidget* parent,
+                                              QList<Transfer*>& transfers);
+  static Transfer* createInstance() { return new CurlDownload; }
+  static void globalInit();
+  static void globalExit();
 
-		bool operator<(const FreeSegment& s2) const;
-		static bool compareByOffset(const FreeSegment& s1, const FreeSegment& s2);
-	};
+  virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+  virtual void fillContextMenu(QMenu& menu);
+  virtual QString remoteURI() const;
+  virtual QObject* createDetailsWidget(QWidget* w);
 
-	void autoCreateSegment();
-	static void simplifySegments(QList<Segment>& in);
-	void fixActiveSegmentsList();
-	QColor allocateSegmentColor();
-	void startSegment(Segment& seg, qlonglong bytes);
-	void startSegment(int urlIndex);
-	void stopSegment(int index, bool restarting = false);
-protected:
-	QDir m_dir;
-	long long m_nTotal;
-	mutable long long m_nStart;
-	
-	QString m_strFile;
-	bool m_bAutoName;
-	
-	char m_errorBuffer[CURL_ERROR_SIZE];
-	
-	QList<UrlClient::UrlObject> m_urls;
-	QList<Segment> m_segments;
-	mutable QReadWriteLock m_segmentsLock;
-	CurlPollingMaster* m_master;
-	QTimer m_timer;
-	UrlClient* m_nameChanger;
-	QList<int> m_listActiveSegments;
-	
-	friend class HttpOptsWidget;
-	friend class HttpUrlOptsDlg;
-	friend class HttpDetailsBar;
-	friend class HttpDetails;
-	friend class MetalinkDownload;
+ protected:
+  QString filePath() const;
+ private slots:
+  // void switchMirror();
+  void computeHash();
+  void clientRenameTo(QString name);
+  void clientLogMessage(QString msg);
+  void clientDone(QString error);
+  void clientTotalSizeKnown(qlonglong bytes);
+  void clientFailure(QString err);
+  void clientRangesUnsupported();
+  void updateSegmentProgress();
+
+ private:
+  void generateName();
+  void init2(QString uri, QString dest);
+  void setTargetName(QString newFileName);
+  void processHeaders();
+  void checkFileContents();
+
+  static int seek_function(int file, curl_off_t offset, int origin);
+  static size_t process_header(const char* ptr, size_t size, size_t nmemb,
+                               CurlDownload* This);
+  static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes,
+                                 CurlDownload* This);
+
+ protected:
+  // Represents a written segment, i.e. what's really been written to the
+  // on-disk file
+  struct Segment {
+    // the start
+    qlonglong offset;
+    // how many bytes have already been transfered
+    qlonglong bytes;
+    // the last url object used for this segment
+    int urlIndex;
+    // pointer to a UrlClient instance, if the segment is active
+    UrlClient* client = nullptr;
+    QColor color;
+
+    bool operator<(const Segment& s2) const;
+    operator QString() const {
+      return QString("(struct Segment): offset: %1; bytes: %2; urlIndex: %3")
+          .arg(offset)
+          .arg(bytes)
+          .arg(urlIndex);
+    }
+  };
+  // Represents a blank spot in the file, i.e. a candidate for a new download
+  // thread
+  struct FreeSegment {
+    FreeSegment(qlonglong _offset, qlonglong _bytes)
+        : offset(_offset), bytes(_bytes), affectedClient(0) {}
+
+    qlonglong offset;
+    qlonglong bytes;
+    UrlClient* affectedClient;
+
+    bool operator<(const FreeSegment& s2) const;
+    static bool compareByOffset(const FreeSegment& s1, const FreeSegment& s2);
+  };
+
+  void autoCreateSegment();
+  static void simplifySegments(QList<Segment>& in);
+  void fixActiveSegmentsList();
+  QColor allocateSegmentColor();
+  void startSegment(Segment& seg, qlonglong bytes);
+  void startSegment(int urlIndex);
+  void stopSegment(int index, bool restarting = false);
+
+ protected:
+  QDir m_dir;
+  long long m_nTotal;
+  mutable long long m_nStart;
+
+  QString m_strFile;
+  bool m_bAutoName;
+
+  char m_errorBuffer[CURL_ERROR_SIZE];
+
+  QList<UrlClient::UrlObject> m_urls;
+  QList<Segment> m_segments;
+  mutable QReadWriteLock m_segmentsLock;
+  CurlPollingMaster* m_master;
+  QTimer m_timer;
+  UrlClient* m_nameChanger;
+  QList<int> m_listActiveSegments;
+
+  friend class HttpOptsWidget;
+  friend class HttpUrlOptsDlg;
+  friend class HttpDetailsBar;
+  friend class HttpDetails;
+  friend class MetalinkDownload;
 };
 
 #endif

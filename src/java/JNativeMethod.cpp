@@ -25,39 +25,29 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "JNativeMethod.h"
+
 #include <cassert>
 
-JNativeMethod::JNativeMethod()
-	: m_function(0)
-{
+JNativeMethod::JNativeMethod() : m_function(0) {}
+
+void JNativeMethod::setName(QString name) { m_strName = name.toStdString(); }
+
+void JNativeMethod::setSignature(JSignature sig) {
+  m_strSignature = sig.str().toStdString();
 }
 
-void JNativeMethod::setName(QString name)
-{
-	m_strName = name.toStdString();
-}
+void JNativeMethod::setSignature(const char* sig) { m_strSignature = sig; }
 
-void JNativeMethod::setSignature(JSignature sig)
-{
-	m_strSignature = sig.str().toStdString();
-}
+JNINativeMethod JNativeMethod::toStruct() const {
+  JNINativeMethod nm;
 
-void JNativeMethod::setSignature(const char* sig)
-{
-	m_strSignature = sig;
-}
+  assert(!m_strName.empty());
+  assert(!m_strSignature.empty());
+  assert(m_function != 0);
 
-JNINativeMethod JNativeMethod::toStruct() const
-{
-	JNINativeMethod nm;
+  nm.name = const_cast<char*>(m_strName.c_str());
+  nm.signature = const_cast<char*>(m_strSignature.c_str());
+  nm.fnPtr = m_function;
 
-	assert(!m_strName.empty());
-	assert(!m_strSignature.empty());
-	assert(m_function != 0);
-
-	nm.name = const_cast<char*>(m_strName.c_str());
-	nm.signature = const_cast<char*>(m_strSignature.c_str());
-	nm.fnPtr = m_function;
-
-	return nm;
+  return nm;
 }

@@ -28,42 +28,41 @@
 **************************************************************************/
 
 #include "filterlineedit.h"
+
 #include <QtGlobal>
 
 namespace Utils {
 
-FilterLineEdit::FilterLineEdit(QWidget *parent) :
-   FancyLineEdit(parent),
-   m_lastFilterText(text())
-{
-    // KDE has custom icons for this. Notice that icon namings are counter intuitive
-    // If these icons are not avaiable we use the freedesktop standard name before
-    // falling back to a bundled resource
-    QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
-		     QLatin1String("edit-clear-locationbar-rtl") :
-		     QLatin1String("edit-clear-locationbar-ltr"),
-		     QIcon::fromTheme(QLatin1String("edit-clear"), QIcon(QLatin1String(":/fatrat/editclear.png"))));
+FilterLineEdit::FilterLineEdit(QWidget *parent)
+    : FancyLineEdit(parent), m_lastFilterText(text()) {
+  // KDE has custom icons for this. Notice that icon namings are counter
+  // intuitive If these icons are not avaiable we use the freedesktop standard
+  // name before falling back to a bundled resource
+  QIcon icon = QIcon::fromTheme(
+      layoutDirection() == Qt::LeftToRight
+          ? QLatin1String("edit-clear-locationbar-rtl")
+          : QLatin1String("edit-clear-locationbar-ltr"),
+      QIcon::fromTheme(QLatin1String("edit-clear"),
+                       QIcon(QLatin1String(":/fatrat/editclear.png"))));
 
-    QPixmap pixmap = icon.pixmap(16);
-    setButtonPixmap(Right, pixmap);
-    setButtonVisible(Right, true);
+  QPixmap pixmap = icon.pixmap(16);
+  setButtonPixmap(Right, pixmap);
+  setButtonVisible(Right, true);
 #if QT_VERSION >= 0x040700
-    setPlaceholderText(tr("Filter"));
+  setPlaceholderText(tr("Filter"));
 #endif
-    setButtonToolTip(Right, tr("Clear text"));
-    setAutoHideButton(Right, true);
-    connect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
+  setButtonToolTip(Right, tr("Clear text"));
+  setAutoHideButton(Right, true);
+  connect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
+  connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
 }
 
-void FilterLineEdit::slotTextChanged()
-{
-    const QString newlyTypedText = text();
-    if (newlyTypedText != m_lastFilterText) {
-        m_lastFilterText = newlyTypedText;
-        emit filterChanged(m_lastFilterText);
-    }
+void FilterLineEdit::slotTextChanged() {
+  const QString newlyTypedText = text();
+  if (newlyTypedText != m_lastFilterText) {
+    m_lastFilterText = newlyTypedText;
+    emit filterChanged(m_lastFilterText);
+  }
 }
 
-
-} // namespace Utils
+}  // namespace Utils
