@@ -30,6 +30,9 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/event.h>
 #include <sys/time.h>
 #include <cstdlib>
+#ifdef __APPLE__
+#include <unistd.h> // close
+#endif
 
 KqueuePoller::KqueuePoller(QObject* parent)
 	: Poller(parent)
