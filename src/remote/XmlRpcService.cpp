@@ -36,10 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QStringList>
 #include <QFileInfo>
 #include <QTemporaryFile>
-#include <QBuffer>
 #include <QtDebug>
-#include <Poco/Net/HTTPServerResponse.h>
-#include <Poco/Net/HTTPServerRequest.h>
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -150,39 +147,18 @@ void XmlRpcService::globalInit()
 
 }
 
-Poco::Net::HTTPRequestHandler* XmlRpcService::createHandler()
+void XmlRpcService::handleRequest(const httplib::Request& req, httplib::Response& res)
 {
-	return new Handler;
-}
-
-QByteArray XmlRpcService::Handler::istream2ba(std::istream& is)
-{
-	QBuffer buffer;
-	char buf[512];
-
-	buffer.open(QIODevice::WriteOnly);
-
-	while (is)
+	if (req.method != "POST")
 	{
-		is.read(buf, sizeof(buf));
-		buffer.write(buf, is.gcount());
-	}
-
-	return buffer.data();
-}
-
-void XmlRpcService::Handler::run()
-{
-	if (request().getMethod() != "POST")
-	{
-		qDebug() << "Method" << QString::fromStdString(request().getMethod()) << "not allowed for XML-RPC";
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_METHOD_NOT_ALLOWED, "Method Not Allowed");
+		qDebug() << "Method" << QString::fromStdString(req.method) << "not allowed for XML-RPC";
+		res.status = 405;
+		res.set_content("Method Not Allowed", "text/plain");
 		return;
 	}
 
-	QByteArray data, body;
-
-	body = istream2ba(request().stream());
+	QByteArray data;
+	QByteArray body(req.body.data(), static_cast<int>(req.body.size()));
 
 	qDebug() << "XML-RPC call:" << body;
 
@@ -243,14 +219,14 @@ void XmlRpcService::Handler::run()
 	}
 	catch(const RuntimeException& e) // syntax error from XmlRpc
 	{
-		qDebug() << "XmlRpcService::serve():" << e.what();
-		sendErrorResponse(Poco::Net::HTTPResponse::HTTPStatus::HTTP_BAD_REQUEST, "Bad Request");
+		qDebug() << "XmlRpcService::handleRequest():" << e.what();
+		res.status = 400;
+		res.set_content("Bad Request", "text/plain");
+		return;
 	}
 
-	response().setContentLength(data.size());
-	response().setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
-	response().setContentType("text/xml");
-	response().sendBuffer(data.data(), data.size());
+	res.status = 200;
+	res.set_content(data.constData(), data.size(), "text/xml");
 }
 
 QVariant XmlRpcService::getTransferClasses(QList<QVariant>&)

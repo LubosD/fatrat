@@ -33,8 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include <QVariantMap>
 #include <QQueue>
 #include <QPair>
-#include <Poco/Net/AbstractHTTPRequestHandler.h>
-#include "AuthenticatedRequestHandler.h"
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#endif
+#include "httplib.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -54,7 +56,7 @@ public:
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 
-	Poco::Net::HTTPRequestHandler* createHandler();
+	void handleRequest(const httplib::Request& req, httplib::Response& res);
 protected:
 	static QVariant getTransferClasses(QList<QVariant>&);
 	static QVariant getQueues(QList<QVariant>&);
@@ -95,13 +97,6 @@ private:
 	{
 		QVariant (*function)(QList<QVariant>&);
 		QVector<QVariant::Type> arguments;
-	};
-	class Handler : public AuthenticatedRequestHandler
-	{
-	public:
-		virtual void run() override;
-	private:
-		static QByteArray istream2ba(std::istream& is);
 	};
 
 	static QMap<QString,FunctionInfo> m_mapFunctions;

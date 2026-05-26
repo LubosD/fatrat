@@ -131,33 +131,7 @@ if(WITH_DOCUMENTATION)
 	set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::Help)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
-	find_path(POCO_INCLUDE Poco/Net/HTTPServer.h DOC "Poco header location")
-
-	if (NOT POCO_INCLUDE)
-		message(FATAL_ERROR "Poco headers not found")
-	endif (NOT POCO_INCLUDE)
-
-	include_directories(${POCO_INCLUDE})
-	find_library(POCONET_LIBRARY NAMES PocoNet)
-
-	if (NOT POCONET_LIBRARY)
-		message(FATAL_ERROR "PocoNet library not found")
-	endif (NOT POCONET_LIBRARY)
-
-	find_library(POCONETSSL_LIBRARY NAMES PocoNetSSL)
-
-	if (NOT POCONETSSL_LIBRARY)
-		message(FATAL_ERROR "PocoNetSSL library not found")
-	endif (NOT POCONETSSL_LIBRARY)
-
-	find_library(POCOFOUNDATION_LIBRARY NAMES PocoFoundation)
-
-	if (NOT POCOFOUNDATION_LIBRARY)
-		message(FATAL_ERROR "PocoFoundation library not found")
-	endif (NOT POCOFOUNDATION_LIBRARY)
-
-	set(Poco_LIBRARIES ${POCONET_LIBRARY} ${POCONETSSL_LIBRARY} ${POCOFOUNDATION_LIBRARY})
-
+	add_definitions(-DCPPHTTPLIB_OPENSSL_SUPPORT)
 endif(WITH_WEBINTERFACE)
 
 #set(CMAKE_REQUIRED_INCLUDES "sys/types.h")
@@ -503,8 +477,6 @@ if(WITH_WEBINTERFACE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		src/remote/HttpService.cpp
-		src/remote/AuthenticatedRequestHandler.cpp
-		src/remote/FileRequestHandler.cpp
 		src/remote/SettingsWebForm.cpp
 		src/remote/XmlRpcService.cpp
 		src/remote/CertGenDlg.cpp
@@ -565,7 +537,7 @@ endif (POSIX_LINUX)
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
 	LibtorrentRasterbar::torrent-rasterbar ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	${Poco_LIBRARIES} ${XATTR_LIBRARIES} crypto -export-dynamic)
+	ssl crypto ${XATTR_LIBRARIES} -export-dynamic)
 target_link_libraries(fatrat-conf Qt5::Core)
 
 set(fatrat_DEV_HEADERS

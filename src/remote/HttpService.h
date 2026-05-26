@@ -40,14 +40,17 @@ respects for all of the code used other than "OpenSSL".
 #include <ctime>
 #include <functional>
 #include <memory>
-#include <Poco/Net/HTTPServer.h>
-#include <Poco/Net/WebSocket.h>
-#include <Poco/Net/HTTPRequestHandler.h>
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#endif
+#include "httplib.h"
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
 #include "XmlRpcService.h"
-
-using namespace Poco::Net;
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -56,7 +59,7 @@ using namespace Poco::Net;
 class Queue;
 class Transfer;
 
-class HttpService : public QObject, public HTTPRequestHandlerFactory
+class HttpService : public QObject
 {
 Q_OBJECT
 private:
@@ -66,10 +69,8 @@ public:
 	~HttpService();
 	static HttpService* instance() { return m_instance; }
 	void applySettings();
-	
+
 	void setup();
-	void setupAuth();
-	void setupSSL();
 
 	void addCaptchaEvent(int id, QString url);
 	bool hasCaptchaHandlers();
@@ -79,7 +80,6 @@ public:
 
 	static QVariant generateCertificate(QList<QVariant>&);
 
-	virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) override;
 private slots:
 	void keepalive(); // QTimer TODO
 private:
@@ -87,107 +87,99 @@ private:
 	void removeCaptchaClient(WebSocketService* client);
 	void killCaptchaClients();
 
-	typedef std::function<HTTPRequestHandler*()> handler_t;
-	void addHandler(const QRegExp& path, handler_t handler) { m_handlers << QPair<QRegExp, handler_t>(path, handler); }
-
-	void logService(HTTPServerRequest &req, HTTPServerResponse &resp);
+	void registerRoutes();
 private:
-	static Poco::SharedPtr<HttpService> m_instance;
+	static HttpService* m_instance;
 	CaptchaHttp m_captchaHttp;
-	quint16 m_port;
-	QString m_strSSLPem;
-	bool m_bUseSSL;
 
 	QTimer m_timer;
 	QList<WebSocketService*> m_registeredCaptchaClients;
 	QMutex m_registeredCaptchaClientsMutex;
 
-	HTTPServer* m_server;
-	std::unique_ptr<ServerSocket> m_socket;
+	std::unique_ptr<httplib::Server> m_server;
+	std::thread m_serverThread;
+	mutable std::mutex m_passwordMutex;
+	QString m_strPassword;
+	QString m_strSSLPem;
+	bool m_bUseSSL = false;
+	quint16 m_port = 0;
 
-	QList<QPair<QRegExp, handler_t>> m_handlers;
-	QMutex m_handlersMutex;
 	XmlRpcService m_xmlRpc;
 
-	class LogService : public AuthenticatedRequestHandler
+	class WebSocketService
 	{
 	public:
-		LogService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-
-	class TransferTreeBrowserService : public AuthenticatedRequestHandler
-	{
-	public:
-		TransferTreeBrowserService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-	class TransferDownloadService : public AuthenticatedRequestHandler
-	{
-	public:
-		TransferDownloadService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-	class SubclassService : public AuthenticatedRequestHandler
-	{
-	public:
-		SubclassService(const QString& mapping);
-		virtual void run() override;
-	private:
-		QString m_mapping;
-	};
-	class CaptchaService : public AuthenticatedRequestHandler
-	{
-	public:
-		virtual void run() override;
-	};
-	class WebSocketService : public AuthenticatedRequestHandler
-	{
-	public:
-		WebSocketService();
-		~WebSocketService();
-		virtual void run() override;
-
 		typedef QPair<int,QString> Captcha;
 
-		// Enqueue a captcha and have it delivered
-		void pushCaptcha(const Captcha& cap);
+		void pushCaptcha(const Captcha& cap) {
+			{
+				std::lock_guard<std::mutex> lk(m_mutex);
+				m_queue.enqueue(cap);
+			}
+			m_cv.notify_one();
+		}
 
-		void terminate() { wakeup(-1); }
-		void keepalive() { wakeup(1); }
-	private:
-		// Send captchas in queue to client
-		void pushMore(WebSocket& ws);
+		void terminate() {
+			m_terminate.store(true);
+			m_cv.notify_one();
+		}
 
-		// Wakeup the loop
-		void wakeup(int v);
+		void keepalive() {
+			m_sendPing.store(true);
+			m_cv.notify_one();
+		}
+
+		// Blocks up to timeout_ms if queue is empty. Returns drained queue.
+		QQueue<Captcha> waitAndDrain(int timeout_ms) {
+			std::unique_lock<std::mutex> lk(m_mutex);
+			m_cv.wait_for(lk, std::chrono::milliseconds(timeout_ms),
+				[this]{ return !m_queue.isEmpty() || m_terminate.load() || m_sendPing.load(); });
+			return std::move(m_queue);
+		}
+
+		bool shouldTerminate() const { return m_terminate.load(); }
+		bool takePing() { return m_sendPing.exchange(false); }
+
 	private:
-		int m_pipe[2];
-		QMutex writeInProgressLock;
-		QQueue<Captcha> captchaQueue;
-		QMutex captchaQueueLock;
+		std::mutex m_mutex;
+		std::condition_variable m_cv;
+		QQueue<Captcha> m_queue;
+		std::atomic<bool> m_terminate{false};
+		std::atomic<bool> m_sendPing{false};
 	};
 
 	class WriteBackImpl : public TransferHttpService::WriteBack
 	{
 	public:
-		WriteBackImpl(Poco::Net::HTTPServerResponse& resp);
-		void write(const char* data, size_t bytes) override;
-		void writeFail(QString error) override;
-		void writeNoCopy(void* data, size_t bytes) override;
-		void send() override;
-		void setContentType(const char* type) override;
+		explicit WriteBackImpl(httplib::Response& res) : m_res(res) {}
+
+		void write(const char* data, size_t bytes) override {
+			m_buffer.append(data, static_cast<int>(bytes));
+		}
+		void writeFail(QString error) override {
+			m_failed = true;
+			m_failMsg = error;
+		}
+		void writeNoCopy(void* data, size_t bytes) override {
+			m_buffer.append(static_cast<const char*>(data), static_cast<int>(bytes));
+		}
+		void send() override {
+			if (m_failed) {
+				m_res.status = 500;
+				m_res.set_content(m_failMsg.toUtf8().constData(), "text/plain");
+			} else {
+				m_res.set_content(m_buffer.constData(), m_buffer.size(),
+					m_contentType.empty() ? "application/octet-stream" : m_contentType.c_str());
+			}
+		}
+		void setContentType(const char* type) override { m_contentType = type; }
+
 	private:
-		void sendHeaders();
-	private:
-		Poco::Net::HTTPServerResponse& m_response;
-		std::ostream* m_ostream = nullptr;
+		httplib::Response& m_res;
+		QByteArray m_buffer;
+		std::string m_contentType;
+		bool m_failed = false;
+		QString m_failMsg;
 	};
 };
 

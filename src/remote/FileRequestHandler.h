@@ -1,15 +1,3 @@
-#ifndef FILEREQUESTHANDLER_H
-#define FILEREQUESTHANDLER_H
-#include "AuthenticatedRequestHandler.h"
-
-class FileRequestHandler : public AuthenticatedRequestHandler
-{
-public:
-	FileRequestHandler(const char* prefix, const char* root);
-	virtual void run() override;
-private:
-	const char* m_prefix;
-	const char* m_root;
-};
-
-#endif // FILEREQUESTHANDLER_H
+#pragma once
+// FileRequestHandler is replaced by httplib::Server::set_mount_point() in HttpService.cpp.
+// This file is kept to avoid breaking any stale includes.
