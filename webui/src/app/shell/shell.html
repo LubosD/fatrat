@@ -1,8 +1,9 @@
 <p-toolbar>
   <ng-template #end>
-    <label for="refresh-interval">Refresh every</label>
+    <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
     <p-select
       inputId="refresh-interval"
+      [ariaLabelledBy]="'refresh-interval-label'"
       [options]="allowedIntervals"
       [ngModel]="polling.intervalSeconds()"
       (ngModelChange)="polling.setIntervalSeconds($event)"

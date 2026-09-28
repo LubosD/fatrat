@@ -11,6 +11,7 @@ import { PollingService } from '../core/polling.service';
   selector: 'app-shell',
   imports: [FormsModule, Toolbar, Select, Splitter, QueueList, TransferTable],
   templateUrl: './shell.html',
+  styleUrl: './shell.scss',
 })
 export class Shell {
   protected readonly polling = inject(PollingService);
