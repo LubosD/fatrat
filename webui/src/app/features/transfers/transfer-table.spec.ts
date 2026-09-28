@@ -54,4 +54,15 @@ describe('TransferTable', () => {
 
     expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(0);
   });
+
+  it('trackByUuid returns the transfer uuid for row identity tracking', () => {
+    const transfersStoreStub = { transfers: () => [] };
+    TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [{ provide: TransfersStore, useValue: transfersStoreStub }],
+    });
+    const fixture = TestBed.createComponent(TransferTable);
+    const transfer = makeTransfer();
+    expect(fixture.componentInstance['trackByUuid'](0, transfer)).toBe('t1');
+  });
 });

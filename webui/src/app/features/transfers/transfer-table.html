@@ -1,4 +1,4 @@
-<p-table [value]="store.transfers()" dataKey="uuid" [rowHover]="true">
+<p-table [value]="store.transfers()" dataKey="uuid" [rowTrackBy]="trackByUuid" [rowHover]="true">
   <ng-template #header>
     <tr>
       <th>Name</th>
@@ -19,7 +19,7 @@
       <td>{{ formatSize(transfer.total) }}</td>
       <td>{{ formatSpeed(transfer.speeds.down) }}</td>
       <td>{{ formatSpeed(transfer.speeds.up) }}</td>
-      <td>{{ eta(transfer.total, transfer.done, transfer.speeds.down) }}</td>
+      <td>{{ formatEta(transfer.total, transfer.done, transfer.speeds.down) }}</td>
       <td>{{ transfer.message }}</td>
     </tr>
   </ng-template>
