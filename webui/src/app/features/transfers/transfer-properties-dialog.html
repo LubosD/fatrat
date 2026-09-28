@@ -1,0 +1,18 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Transfer Properties" [modal]="true">
+  <div class="field">
+    <label for="transfer-comment">Comment</label>
+    <textarea pTextarea id="transfer-comment" rows="4" [(ngModel)]="comment"></textarea>
+  </div>
+  <div class="field">
+    <label for="transfer-speed-down">Max download speed (KB/s)</label>
+    <p-inputnumber inputId="transfer-speed-down" [(ngModel)]="speedDown"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="transfer-speed-up">Max upload speed (KB/s)</label>
+    <p-inputnumber inputId="transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
+  </div>
+  <ng-template #footer>
+    <button pButton type="button" data-testid="transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
+    <button pButton type="button" data-testid="transfer-dialog-save" (click)="onSave()">Save</button>
+  </ng-template>
+</p-dialog>
