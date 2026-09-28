@@ -1,0 +1,26 @@
+<p-table [value]="store.transfers()" dataKey="uuid" [rowHover]="true">
+  <ng-template #header>
+    <tr>
+      <th>Name</th>
+      <th>Progress</th>
+      <th>Size</th>
+      <th>Down</th>
+      <th>Up</th>
+      <th>ETA</th>
+      <th>Message</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-transfer>
+    <tr>
+      <td>{{ transfer.name }}</td>
+      <td>
+        <p-progressbar [value]="progress(transfer.total, transfer.done)"></p-progressbar>
+      </td>
+      <td>{{ formatSize(transfer.total) }}</td>
+      <td>{{ formatSpeed(transfer.speeds.down) }}</td>
+      <td>{{ formatSpeed(transfer.speeds.up) }}</td>
+      <td>{{ eta(transfer.total, transfer.done, transfer.speeds.down) }}</td>
+      <td>{{ transfer.message }}</td>
+    </tr>
+  </ng-template>
+</p-table>
