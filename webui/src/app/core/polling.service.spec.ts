@@ -82,4 +82,34 @@ describe('PollingService', () => {
     sub.unsubscribe();
     vi.useRealTimers();
   });
+
+  it('a subscriber that joins after an interval change sees the new interval, not the construction-time default', () => {
+    vi.useFakeTimers();
+    const service = TestBed.inject(PollingService); // starts at 5s
+    service.setIntervalSeconds(2); // change before anyone has subscribed to ticks$ yet
+
+    const ticks: number[] = [];
+    const sub = service.ticks$.subscribe((n) => ticks.push(n)); // late subscriber
+
+    vi.advanceTimersByTime(2000);
+    expect(ticks.length).toBe(1); // proves it used the 2s interval, not a stale 5s one
+
+    sub.unsubscribe();
+    vi.useRealTimers();
+  });
+
+  it('setIntervalSeconds() is a no-op when called with the already-current value', () => {
+    vi.useFakeTimers();
+    const service = TestBed.inject(PollingService); // 5s
+    const ticks: number[] = [];
+    const sub = service.ticks$.subscribe((n) => ticks.push(n));
+
+    vi.advanceTimersByTime(3000);
+    service.setIntervalSeconds(5); // same as current — should not reset the pending wait
+    vi.advanceTimersByTime(2000); // total 5000ms from start
+    expect(ticks.length).toBe(1); // fires at the original t=5000, undisturbed by the no-op call
+
+    sub.unsubscribe();
+    vi.useRealTimers();
+  });
 });
