@@ -3,7 +3,7 @@ import { ConfirmationService } from 'primeng/api';
 import { TransferApi } from './api/transfer-api';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
-import { TransferState } from './api/models';
+import { TransferState, NewTransferOptions } from './api/models';
 
 @Injectable({ providedIn: 'root' })
 export class TransferActionsService {
@@ -72,6 +72,34 @@ export class TransferActionsService {
     this.transferApi.moveTransfers(queueUuid, uuids, direction).subscribe({
       next: () => this.transfersStore.refreshNow(),
       error: (err) => console.error('Failed to move transfers', err),
+    });
+  }
+
+  updateProperties(comment: string, speedLimits: { down: number; up: number }): void {
+    const uuids = this.transfersStore.selectedUuids();
+    if (uuids.length === 0) return;
+
+    this.transferApi
+      .setTransferProperties(uuids, { comment, userSpeedLimits: [speedLimits.down, speedLimits.up] })
+      .subscribe({
+        next: () => this.transfersStore.refreshNow(),
+        error: (err) => console.error('Failed to update transfer properties', err),
+      });
+  }
+
+  addTransfers(urls: string[], options: NewTransferOptions): void {
+    if (urls.length === 0) return;
+
+    this.transferApi.addTransfers(urls, options).subscribe({
+      next: () => this.transfersStore.refreshNow(),
+      error: (err) => console.error('Failed to add transfers', err),
+    });
+  }
+
+  addTransferWithData(file: File, options: NewTransferOptions): void {
+    this.transferApi.addTransferWithData(file, options).subscribe({
+      next: () => this.transfersStore.refreshNow(),
+      error: (err) => console.error('Failed to add transfer from file', err),
     });
   }
 

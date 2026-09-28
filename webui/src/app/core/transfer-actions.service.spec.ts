@@ -32,6 +32,8 @@ describe('TransferActionsService', () => {
   let setTransferProperties: ReturnType<typeof vi.fn>;
   let deleteTransfers: ReturnType<typeof vi.fn>;
   let moveTransfers: ReturnType<typeof vi.fn>;
+  let addTransfers: ReturnType<typeof vi.fn>;
+  let addTransferWithData: ReturnType<typeof vi.fn>;
   let confirm: ReturnType<typeof vi.fn>;
   let clearSelection: ReturnType<typeof vi.fn>;
   let refreshNow: ReturnType<typeof vi.fn>;
@@ -44,6 +46,8 @@ describe('TransferActionsService', () => {
     setTransferProperties = vi.fn().mockReturnValue(of(undefined));
     deleteTransfers = vi.fn().mockReturnValue(of(undefined));
     moveTransfers = vi.fn().mockReturnValue(of(undefined));
+    addTransfers = vi.fn().mockReturnValue(of(['new-uuid']));
+    addTransferWithData = vi.fn().mockReturnValue(of('new-uuid'));
     confirm = vi.fn();
     clearSelection = vi.fn();
     refreshNow = vi.fn();
@@ -54,7 +58,7 @@ describe('TransferActionsService', () => {
     TestBed.configureTestingModule({
       providers: [
         TransferActionsService,
-        { provide: TransferApi, useValue: { setTransferProperties, deleteTransfers, moveTransfers } },
+        { provide: TransferApi, useValue: { setTransferProperties, deleteTransfers, moveTransfers, addTransfers, addTransferWithData } },
         {
           provide: TransfersStore,
           useValue: {
@@ -157,5 +161,37 @@ describe('TransferActionsService', () => {
     selectedUuids = [];
     service.moveSelected('down');
     expect(moveTransfers).not.toHaveBeenCalled();
+  });
+
+  it('updateProperties() sets comment and userSpeedLimits as a [down, up] array, then refreshes', () => {
+    service.updateProperties('new comment', { down: 100, up: 50 });
+    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'new comment', userSpeedLimits: [100, 50] });
+    expect(refreshNow).toHaveBeenCalled();
+  });
+
+  it('updateProperties() does nothing when nothing is selected', () => {
+    selectedUuids = [];
+    service.updateProperties('x', { down: 0, up: 0 });
+    expect(setTransferProperties).not.toHaveBeenCalled();
+  });
+
+  it('addTransfers() calls TransferApi.addTransfers() and refreshes', () => {
+    const options = { upload: false, queueUuid: 'q1', targetClass: '', target: '/downloads', paused: false, speedLimits: { down: 0, up: 0 } };
+    service.addTransfers(['http://example.com/a'], options);
+    expect(addTransfers).toHaveBeenCalledWith(['http://example.com/a'], options);
+    expect(refreshNow).toHaveBeenCalled();
+  });
+
+  it('addTransfers() does nothing when the url list is empty', () => {
+    service.addTransfers([], { upload: false, queueUuid: 'q1', targetClass: '', target: '', paused: false, speedLimits: { down: 0, up: 0 } });
+    expect(addTransfers).not.toHaveBeenCalled();
+  });
+
+  it('addTransferWithData() calls TransferApi.addTransferWithData() and refreshes', () => {
+    const file = new File(['data'], 'test.torrent');
+    const options = { upload: false, queueUuid: 'q1', targetClass: '', target: '/downloads', paused: false, speedLimits: { down: 0, up: 0 } };
+    service.addTransferWithData(file, options);
+    expect(addTransferWithData).toHaveBeenCalledWith(file, options);
+    expect(refreshNow).toHaveBeenCalled();
   });
 });
