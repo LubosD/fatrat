@@ -20,6 +20,10 @@ describe('formatSize', () => {
   it('formats zero as 0 B', () => {
     expect(formatSize(0)).toBe('0 B');
   });
+
+  it('rounds fractional byte counts at the B tier', () => {
+    expect(formatSize(512.7)).toBe('513 B');
+  });
 });
 
 describe('formatSpeed', () => {

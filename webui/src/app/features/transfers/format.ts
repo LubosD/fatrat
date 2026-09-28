@@ -10,7 +10,7 @@ export function formatSize(bytes: number): string {
     unitIndex++;
   }
 
-  const formatted = unitIndex === 0 ? String(value) : value.toFixed(1);
+  const formatted = unitIndex === 0 ? String(Math.round(value)) : value.toFixed(1);
   return `${formatted} ${UNITS[unitIndex]}`;
 }
 
