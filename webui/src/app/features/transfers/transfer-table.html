@@ -1,6 +1,7 @@
 <p-table [value]="store.transfers()" dataKey="uuid" [rowTrackBy]="trackByUuid" [rowHover]="true">
   <ng-template #header>
     <tr>
+      <th></th>
       <th>Name</th>
       <th>Progress</th>
       <th>Size</th>
@@ -11,7 +12,16 @@
     </tr>
   </ng-template>
   <ng-template #body let-transfer>
-    <tr>
+    <tr [class.selected-row]="store.isSelected(transfer.uuid)">
+      <td>
+        <input
+          type="checkbox"
+          [attr.aria-label]="'Select ' + transfer.name"
+          [checked]="store.isSelected(transfer.uuid)"
+          (change)="store.toggleSelection(transfer.uuid)"
+          (click)="$event.stopPropagation()"
+        />
+      </td>
       <td>{{ transfer.name }}</td>
       <td>
         <p-progressbar [value]="progress(transfer.total, transfer.done)"></p-progressbar>

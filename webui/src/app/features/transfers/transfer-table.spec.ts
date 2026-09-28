@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TransferTable } from './transfer-table';
 import { TransfersStore } from '../../state/transfers.store';
+import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';
 
 function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
@@ -25,12 +26,34 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
   };
 }
 
+function makeTransfersStoreStub(transfers: Transfer[], selected: string[] = []) {
+  return {
+    transfers: () => transfers,
+    isSelected: (uuid: string) => selected.includes(uuid),
+    toggleSelection: vi.fn(),
+    selectOnly: vi.fn(),
+  };
+}
+
+function makeActionsStub() {
+  return {
+    resume: vi.fn(),
+    forceResume: vi.fn(),
+    pause: vi.fn(),
+    deleteSelected: vi.fn(),
+    deleteCompleted: vi.fn(),
+    moveSelected: vi.fn(),
+  };
+}
+
 describe('TransferTable', () => {
   it('renders one row per transfer with name, progress, size, speeds, ETA and message', () => {
-    const transfersStoreStub = { transfers: () => [makeTransfer()] };
     TestBed.configureTestingModule({
       imports: [TransferTable],
-      providers: [{ provide: TransfersStore, useValue: transfersStoreStub }],
+      providers: [
+        { provide: TransfersStore, useValue: makeTransfersStoreStub([makeTransfer()]) },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
     });
     const fixture = TestBed.createComponent(TransferTable);
     fixture.detectChanges();
@@ -44,10 +67,12 @@ describe('TransferTable', () => {
   });
 
   it('renders an empty table when there are no transfers', () => {
-    const transfersStoreStub = { transfers: () => [] };
     TestBed.configureTestingModule({
       imports: [TransferTable],
-      providers: [{ provide: TransfersStore, useValue: transfersStoreStub }],
+      providers: [
+        { provide: TransfersStore, useValue: makeTransfersStoreStub([]) },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
     });
     const fixture = TestBed.createComponent(TransferTable);
     fixture.detectChanges();
@@ -56,13 +81,53 @@ describe('TransferTable', () => {
   });
 
   it('trackByUuid returns the transfer uuid for row identity tracking', () => {
-    const transfersStoreStub = { transfers: () => [] };
     TestBed.configureTestingModule({
       imports: [TransferTable],
-      providers: [{ provide: TransfersStore, useValue: transfersStoreStub }],
+      providers: [
+        { provide: TransfersStore, useValue: makeTransfersStoreStub([]) },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
     });
     const fixture = TestBed.createComponent(TransferTable);
     const transfer = makeTransfer();
     expect(fixture.componentInstance['trackByUuid'](0, transfer)).toBe('t1');
+  });
+
+  it('renders a checkbox per row reflecting the selection state from the store', () => {
+    const store = makeTransfersStoreStub(
+      [makeTransfer({ uuid: 't1' }), makeTransfer({ uuid: 't2', name: 'other.zip' })],
+      ['t2'],
+    );
+    TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: store },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
+    });
+    const fixture = TestBed.createComponent(TransferTable);
+    fixture.detectChanges();
+
+    const checkboxes = fixture.nativeElement.querySelectorAll('input[type="checkbox"]');
+    expect(checkboxes.length).toBe(2);
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('toggling a checkbox calls TransfersStore.toggleSelection() with the transfer uuid', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })]);
+    TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: store },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
+    });
+    const fixture = TestBed.createComponent(TransferTable);
+    fixture.detectChanges();
+
+    const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
+    checkbox.dispatchEvent(new Event('change'));
+    expect(store.toggleSelection).toHaveBeenCalledWith('t1');
   });
 });
