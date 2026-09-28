@@ -1,0 +1,38 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="dialogHeader" [modal]="true">
+  <div class="field">
+    <label for="queue-name">Name</label>
+    <input pInputText id="queue-name" [(ngModel)]="name" />
+  </div>
+  <div class="field">
+    <label for="queue-default-directory">Target directory</label>
+    <input pInputText id="queue-default-directory" [(ngModel)]="defaultDirectory" />
+  </div>
+  <div class="field">
+    <label for="queue-move-directory">Move to directory after completion</label>
+    <input pInputText id="queue-move-directory" [(ngModel)]="moveDirectory" />
+  </div>
+  <div class="field">
+    <label for="queue-speed-down">Download speed limit (KB/s)</label>
+    <p-inputnumber inputId="queue-speed-down" [(ngModel)]="speedDown"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="queue-speed-up">Upload speed limit (KB/s)</label>
+    <p-inputnumber inputId="queue-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="queue-transfer-down">Max active downloads</label>
+    <p-inputnumber inputId="queue-transfer-down" [(ngModel)]="transferDown"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="queue-transfer-up">Max active uploads</label>
+    <p-inputnumber inputId="queue-transfer-up" [(ngModel)]="transferUp"></p-inputnumber>
+  </div>
+  <div class="field">
+    <p-checkbox [(ngModel)]="upAsDown" [binary]="true" inputId="queue-up-as-down"></p-checkbox>
+    <label for="queue-up-as-down">Count uploads as downloads</label>
+  </div>
+  <ng-template #footer>
+    <button pButton type="button" data-testid="queue-dialog-cancel" (click)="onCancel()">Cancel</button>
+    <button pButton type="button" data-testid="queue-dialog-save" (click)="onSave()">Save</button>
+  </ng-template>
+</p-dialog>
