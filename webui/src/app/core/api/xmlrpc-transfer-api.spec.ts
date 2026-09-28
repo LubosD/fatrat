@@ -6,6 +6,7 @@ import { XmlRpcClient } from '../xmlrpc/xmlrpc-client';
 
 describe('XmlRpcTransferApi', () => {
   let api: XmlRpcTransferApi;
+  let client: XmlRpcClient;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
@@ -13,6 +14,7 @@ describe('XmlRpcTransferApi', () => {
       providers: [provideHttpClient(), provideHttpClientTesting(), XmlRpcClient, XmlRpcTransferApi],
     });
     api = TestBed.inject(XmlRpcTransferApi);
+    client = TestBed.inject(XmlRpcClient);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
@@ -179,8 +181,9 @@ describe('XmlRpcTransferApi', () => {
     });
   });
 
-  it('addTransferWithData() cancels the pending HTTP call when unsubscribed before the file finishes reading', () => {
+  it('addTransferWithData() never calls the XML-RPC client when unsubscribed before the file finishes reading', async () => {
     const file = new File(['hello'], 'hello.txt');
+    const callSpy = vi.spyOn(client, 'call');
 
     const sub = api
       .addTransferWithData(file, {
@@ -194,7 +197,45 @@ describe('XmlRpcTransferApi', () => {
       .subscribe();
     sub.unsubscribe();
 
+    // Give the FileReader's async read a chance to actually complete before asserting nothing fired.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // The RxJS Subscriber this Observable forwards to XmlRpcClient.call() is already closed by
+    // the time FileReader resolves, so RxJS's own isStopped guard silently drops the eventual
+    // HTTP request no matter what - httpMock can't tell the fixed code apart from the buggy one.
+    // What genuinely distinguishes them is whether we bother calling into the client at all once
+    // cancelled: the buggy code called it unconditionally from the FileReader callback; the fixed
+    // code checks a `cancelled` flag first and skips the call entirely.
+    expect(callSpy).not.toHaveBeenCalled();
     httpMock.expectNone('/xmlrpc');
+  });
+
+  it('addTransferWithData() sends the request normally when not unsubscribed', async () => {
+    const file = new File(['hello'], 'hello.txt');
+
+    const resultPromise = new Promise<string>((resolve) => {
+      api
+        .addTransferWithData(file, {
+          upload: false,
+          queueUuid: 'q1',
+          targetClass: '',
+          target: '/downloads',
+          paused: false,
+          speedLimits: { down: 0, up: 0 },
+        })
+        .subscribe(resolve);
+    });
+
+    // Give the FileReader's async read a chance to complete so the HTTP call actually fires.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const req = httpMock.expectOne('/xmlrpc');
+    expect(req.request.body).toContain('<methodName>Queue_addTransferWithData</methodName>');
+    req.flush(
+      '<?xml version="1.0"?><methodResponse><params><param><value><string>t1</string></value></param></params></methodResponse>',
+    );
+
+    expect(await resultPromise).toEqual('t1');
   });
 
   it('callRaw() forwards the method name and params verbatim', () => {
