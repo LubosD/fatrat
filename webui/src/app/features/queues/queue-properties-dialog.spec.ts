@@ -100,4 +100,41 @@ describe('QueuePropertiesDialog', () => {
     expect(saved).toEqual([]);
     expect(visibleChanges).toEqual([false]);
   });
+
+  it('clears a previously-typed name when reopened with the same null queue (e.g. after Cancel)', () => {
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    const fixture = TestBed.createComponent(QueuePropertiesDialog);
+    fixture.componentRef.setInput('queue', null);
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    fixture.componentInstance.name = 'typed but not saved';
+    fixture.componentRef.setInput('visible', false); // simulates Cancel closing it
+    fixture.detectChanges();
+
+    // Reopen with queue still null (same reference) — this previously failed to reset.
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.name).toBe('');
+  });
+
+  it('discards unsaved edits when reopened on the same queue reference', () => {
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    const fixture = TestBed.createComponent(QueuePropertiesDialog);
+    const queue = makeQueue({ name: 'Movies' });
+    fixture.componentRef.setInput('queue', queue);
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    fixture.componentInstance.name = 'edited but not saved';
+    fixture.componentRef.setInput('visible', false);
+    fixture.detectChanges();
+
+    // Reopen with the exact same queue object reference — this previously failed to reset.
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.name).toBe('Movies');
+  });
 });

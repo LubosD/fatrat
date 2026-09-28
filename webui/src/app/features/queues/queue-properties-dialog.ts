@@ -37,17 +37,21 @@ export class QueuePropertiesDialog implements OnChanges {
   upAsDown = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('queue' in changes) {
-      const q = this.queue;
-      this.name = q?.name ?? '';
-      this.defaultDirectory = q?.defaultDirectory ?? '';
-      this.moveDirectory = q?.moveDirectory ?? '';
-      this.speedDown = q?.speedLimits.down ?? 0;
-      this.speedUp = q?.speedLimits.up ?? 0;
-      this.transferDown = q?.transferLimits.down ?? 0;
-      this.transferUp = q?.transferLimits.up ?? 0;
-      this.upAsDown = q?.upAsDown ?? false;
+    if ('queue' in changes || changes['visible']?.currentValue === true) {
+      this.resetForm();
     }
+  }
+
+  private resetForm(): void {
+    const q = this.queue;
+    this.name = q?.name ?? '';
+    this.defaultDirectory = q?.defaultDirectory ?? '';
+    this.moveDirectory = q?.moveDirectory ?? '';
+    this.speedDown = q?.speedLimits.down ?? 0;
+    this.speedUp = q?.speedLimits.up ?? 0;
+    this.transferDown = q?.transferLimits.down ?? 0;
+    this.transferUp = q?.transferLimits.up ?? 0;
+    this.upAsDown = q?.upAsDown ?? false;
   }
 
   protected get dialogHeader(): string {
