@@ -179,12 +179,32 @@ describe('XmlRpcTransferApi', () => {
     });
   });
 
+  it('addTransferWithData() cancels the pending HTTP call when unsubscribed before the file finishes reading', () => {
+    const file = new File(['hello'], 'hello.txt');
+
+    const sub = api
+      .addTransferWithData(file, {
+        upload: false,
+        queueUuid: 'q1',
+        targetClass: '',
+        target: '/downloads',
+        paused: false,
+        speedLimits: { down: 0, up: 0 },
+      })
+      .subscribe();
+    sub.unsubscribe();
+
+    httpMock.expectNone('/xmlrpc');
+  });
+
   it('callRaw() forwards the method name and params verbatim', () => {
     return new Promise<void>((done) => {
       api.callRaw('TorrentDownload.setFilePriorities', 't1', { '0': 1 }).subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>TorrentDownload.setFilePriorities</methodName>');
+      expect(req.request.body).toContain(
+        '<methodName>TorrentDownload.setFilePriorities</methodName>',
+      );
       req.flush('<?xml version="1.0"?><methodResponse><params></params></methodResponse>');
     });
   });

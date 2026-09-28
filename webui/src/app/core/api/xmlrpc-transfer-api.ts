@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TransferApi } from './transfer-api';
 import { XmlRpcClient } from '../xmlrpc/xmlrpc-client';
@@ -95,7 +95,9 @@ export class XmlRpcTransferApi extends TransferApi {
   }
 
   getQueues(): Observable<Queue[]> {
-    return this.client.call('getQueues').pipe(map((raw) => (raw as { [key: string]: XmlRpcValue }[]).map(toQueue)));
+    return this.client
+      .call('getQueues')
+      .pipe(map((raw) => (raw as { [key: string]: XmlRpcValue }[]).map(toQueue)));
   }
 
   createQueue(properties: Partial<Queue>): Observable<void> {
@@ -103,7 +105,9 @@ export class XmlRpcTransferApi extends TransferApi {
   }
 
   setQueueProperties(uuid: string, properties: Partial<Queue>): Observable<void> {
-    return this.client.call('Queue_setProperties', uuid, properties as XmlRpcValue).pipe(map(() => undefined));
+    return this.client
+      .call('Queue_setProperties', uuid, properties as XmlRpcValue)
+      .pipe(map(() => undefined));
   }
 
   getQueueTransfers(queueUuid: string): Observable<Transfer[]> {
@@ -127,7 +131,9 @@ export class XmlRpcTransferApi extends TransferApi {
   }
 
   getTransferProperties(uuid: string): Observable<Transfer> {
-    return this.client.call('Transfer_getProperties', uuid).pipe(map((raw) => toTransfer(raw as { [key: string]: XmlRpcValue })));
+    return this.client
+      .call('Transfer_getProperties', uuid)
+      .pipe(map((raw) => toTransfer(raw as { [key: string]: XmlRpcValue })));
   }
 
   getTransferAdvancedProperties(uuid: string): Observable<{ [key: string]: XmlRpcValue }> {
@@ -136,7 +142,10 @@ export class XmlRpcTransferApi extends TransferApi {
       .pipe(map((raw) => raw as { [key: string]: XmlRpcValue }));
   }
 
-  setTransferProperties(uuids: string[], properties: { [key: string]: XmlRpcValue }): Observable<void> {
+  setTransferProperties(
+    uuids: string[],
+    properties: { [key: string]: XmlRpcValue },
+  ): Observable<void> {
     return this.client.call('Transfer_setProperties', uuids, properties).pipe(map(() => undefined));
   }
 
@@ -166,24 +175,33 @@ export class XmlRpcTransferApi extends TransferApi {
 
   addTransferWithData(file: File, options: NewTransferOptions): Observable<string> {
     return new Observable<string>((subscriber) => {
-      XmlRpcBinary.fromFile(file).then((data) => {
-        const sub = this.client
-          .call(
-            'Queue_addTransferWithData',
-            options.upload,
-            options.queueUuid,
-            file.name,
-            data,
-            options.targetClass,
-            options.target,
-            options.paused,
-            options.speedLimits.down,
-            options.speedLimits.up,
-          )
-          .pipe(map((raw) => raw as string))
-          .subscribe(subscriber);
-        return () => sub.unsubscribe();
-      }, (err) => subscriber.error(err));
+      let cancelled = false;
+      let sub: Subscription | undefined;
+      XmlRpcBinary.fromFile(file).then(
+        (data) => {
+          if (cancelled) return;
+          sub = this.client
+            .call(
+              'Queue_addTransferWithData',
+              options.upload,
+              options.queueUuid,
+              file.name,
+              data,
+              options.targetClass,
+              options.target,
+              options.paused,
+              options.speedLimits.down,
+              options.speedLimits.up,
+            )
+            .pipe(map((raw) => raw as string))
+            .subscribe(subscriber);
+        },
+        (err) => subscriber.error(err),
+      );
+      return () => {
+        cancelled = true;
+        sub?.unsubscribe();
+      };
     });
   }
 

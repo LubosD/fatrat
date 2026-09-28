@@ -1,5 +1,13 @@
 import { Observable } from 'rxjs';
-import { Queue, Transfer, TransferClass, SettingsPage, SpeedSample, SpeedLimits, NewTransferOptions } from './models';
+import {
+  Queue,
+  Transfer,
+  TransferClass,
+  SettingsPage,
+  SpeedSample,
+  SpeedLimits,
+  NewTransferOptions,
+} from './models';
 import { XmlRpcValue } from '../xmlrpc/xmlrpc-value';
 
 /**
@@ -23,7 +31,10 @@ export abstract class TransferApi {
 
   abstract getTransferProperties(uuid: string): Observable<Transfer>;
   abstract getTransferAdvancedProperties(uuid: string): Observable<{ [key: string]: XmlRpcValue }>;
-  abstract setTransferProperties(uuids: string[], properties: { [key: string]: XmlRpcValue }): Observable<void>;
+  abstract setTransferProperties(
+    uuids: string[],
+    properties: { [key: string]: XmlRpcValue },
+  ): Observable<void>;
   abstract deleteTransfers(uuids: string[], withData: boolean): Observable<void>;
   abstract getTransferSpeedGraph(uuid: string): Observable<SpeedSample[]>;
 
