@@ -277,4 +277,84 @@ describe('Shell', () => {
     fixture.componentInstance['onTransferPropertiesSave']({ comment: 'new', speedLimits: { down: 1, up: 2 } });
     expect(actions.updateProperties).toHaveBeenCalledWith('new', { down: 1, up: 2 });
   });
+
+  it('"New Transfer" opens the new-transfer dialog', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    findByTestId(fixture.nativeElement, 'action-new-transfer').click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['showNewTransferDialog']()).toBe(true);
+  });
+
+  it('fetches transfer classes on construction and passes them to the new-transfer dialog', () => {
+    const getTransferClasses = vi.fn().mockReturnValue(of([{ mode: 'Download', shortName: 'http', longName: 'HTTP Download' }]));
+    TestBed.configureTestingModule({
+      imports: [Shell],
+      providers: [
+        { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() } },
+        {
+          provide: TransfersStore,
+          useValue: { transfers: () => [], selectedUuids: () => [], isSelected: () => false, toggleSelection: vi.fn(), selectOnly: vi.fn() },
+        },
+        { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn() } },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: QueueActionsService, useValue: makeQueueActionsStub() },
+        { provide: TransferApi, useValue: { getTransferClasses } },
+        ConfirmationService,
+      ],
+    });
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    expect(getTransferClasses).toHaveBeenCalled();
+    expect(fixture.componentInstance['transferClasses']()).toEqual([{ mode: 'Download', shortName: 'http', longName: 'HTTP Download' }]);
+  });
+
+  it('saving the new-transfer dialog with a file calls addTransferWithData()', () => {
+    const { actions } = configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    const file = new File(['data'], 'test.torrent');
+    fixture.componentInstance['onNewTransferSave']({
+      urls: [],
+      file,
+      queueUuid: 'q1',
+      targetClass: '',
+      target: '/downloads',
+      paused: false,
+      speedLimits: { down: 0, up: 0 },
+    });
+
+    expect(actions.addTransferWithData).toHaveBeenCalledWith(
+      file,
+      expect.objectContaining({ upload: false, queueUuid: 'q1', target: '/downloads' }),
+    );
+    expect(actions.addTransfers).not.toHaveBeenCalled();
+  });
+
+  it('saving the new-transfer dialog with urls and no file calls addTransfers()', () => {
+    const { actions } = configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    fixture.componentInstance['onNewTransferSave']({
+      urls: ['http://example.com/a'],
+      file: null,
+      queueUuid: 'q1',
+      targetClass: '',
+      target: '/downloads',
+      paused: false,
+      speedLimits: { down: 0, up: 0 },
+    });
+
+    expect(actions.addTransfers).toHaveBeenCalledWith(
+      ['http://example.com/a'],
+      expect.objectContaining({ upload: false, queueUuid: 'q1', target: '/downloads' }),
+    );
+    expect(actions.addTransferWithData).not.toHaveBeenCalled();
+  });
 });

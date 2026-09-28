@@ -9,16 +9,30 @@ import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
 import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
+import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
 import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
+import { TransferApi } from '../core/api/transfer-api';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
-import { Queue, Transfer } from '../core/api/models';
+import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
 
 @Component({
   selector: 'app-shell',
-  imports: [FormsModule, Toolbar, Select, Splitter, ButtonDirective, ConfirmDialog, QueueList, TransferTable, QueuePropertiesDialog, TransferPropertiesDialog],
+  imports: [
+    FormsModule,
+    Toolbar,
+    Select,
+    Splitter,
+    ButtonDirective,
+    ConfirmDialog,
+    QueueList,
+    TransferTable,
+    QueuePropertiesDialog,
+    TransferPropertiesDialog,
+    NewTransferDialog,
+  ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
@@ -28,7 +42,17 @@ export class Shell {
   protected readonly actions = inject(TransferActionsService);
   private readonly transfersStore = inject(TransfersStore);
   private readonly queueActions = inject(QueueActionsService);
-  private readonly queuesStore = inject(QueuesStore);
+  protected readonly queuesStore = inject(QueuesStore);
+  private readonly transferApi = inject(TransferApi);
+
+  protected readonly transferClasses = signal<TransferClass[]>([]);
+
+  constructor() {
+    this.transferApi.getTransferClasses().subscribe({
+      next: (classes) => this.transferClasses.set(classes),
+      error: (err) => console.error('Failed to load transfer classes', err),
+    });
+  }
 
   protected get hasSelection(): boolean {
     return this.transfersStore.selectedUuids().length > 0;
@@ -75,5 +99,27 @@ export class Shell {
 
   protected onTransferPropertiesSave(value: TransferPropertiesFormValue): void {
     this.actions.updateProperties(value.comment, value.speedLimits);
+  }
+
+  protected readonly showNewTransferDialog = signal(false);
+
+  protected openNewTransferDialog(): void {
+    this.showNewTransferDialog.set(true);
+  }
+
+  protected onNewTransferSave(value: NewTransferFormValue): void {
+    const options: NewTransferOptions = {
+      upload: false,
+      queueUuid: value.queueUuid,
+      targetClass: value.targetClass,
+      target: value.target,
+      paused: value.paused,
+      speedLimits: value.speedLimits,
+    };
+    if (value.file !== null) {
+      this.actions.addTransferWithData(value.file, options);
+    } else {
+      this.actions.addTransfers(value.urls, options);
+    }
   }
 }

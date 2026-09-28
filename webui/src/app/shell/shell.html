@@ -14,8 +14,18 @@
   (save)="onTransferPropertiesSave($event)"
 ></app-transfer-properties-dialog>
 
+<app-new-transfer-dialog
+  [queues]="queuesStore.queues()"
+  [transferClasses]="transferClasses()"
+  [defaultQueueUuid]="queuesStore.selectedQueueUuid()"
+  [visible]="showNewTransferDialog()"
+  (visibleChange)="showNewTransferDialog.set($event)"
+  (save)="onNewTransferSave($event)"
+></app-new-transfer-dialog>
+
 <p-toolbar>
   <ng-template #start>
+    <button pButton type="button" data-testid="action-new-transfer" (click)="openNewTransferDialog()">New Transfer</button>
     <button pButton type="button" data-testid="action-new-queue" (click)="openNewQueueDialog()">New Queue</button>
     <button pButton type="button" data-testid="action-queue-properties" [disabled]="!hasSelectedQueue" (click)="openQueuePropertiesDialog()">Queue Properties</button>
     <button pButton type="button" data-testid="action-resume" [disabled]="!hasSelection" (click)="actions.resume()">Resume</button>
