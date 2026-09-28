@@ -5,11 +5,17 @@
   </div>
   <div class="field">
     <label for="new-transfer-urls">URLs (one per line)</label>
-    <textarea pTextarea id="new-transfer-urls" rows="6" [(ngModel)]="urlsText"></textarea>
+    <textarea pTextarea id="new-transfer-urls" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel"></textarea>
+    @if (file !== null) {
+      <p class="hint">A local file is selected — typed URLs will be ignored.</p>
+    }
   </div>
   <div class="field">
     <label>Local file (e.g. a .torrent)</label>
     <p-fileupload mode="basic" [auto]="false" (onSelect)="onFileSelect($event)"></p-fileupload>
+    @if (file !== null) {
+      <button pButton type="button" data-testid="new-transfer-clear-file" (click)="onClearFile()">Clear file</button>
+    }
   </div>
   <div class="field">
     <label for="new-transfer-target">Target directory</label>

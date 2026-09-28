@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { FormsModule, NgModel } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
 import { InputText } from 'primeng/inputtext';
@@ -33,6 +33,8 @@ export class NewTransferDialog implements OnChanges {
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() save = new EventEmitter<NewTransferFormValue>();
 
+  @ViewChild('urlsModel') private urlsModel?: NgModel;
+
   urlsText = '';
   file: File | null = null;
   queueUuid = '';
@@ -57,10 +59,17 @@ export class NewTransferDialog implements OnChanges {
     this.paused = false;
     this.speedDown = 0;
     this.speedUp = 0;
+    this.urlsModel?.control.enable();
   }
 
   protected onFileSelect(event: FileSelectEvent): void {
     this.file = event.files[0] ?? null;
+    this.urlsModel?.control.disable();
+  }
+
+  protected onClearFile(): void {
+    this.file = null;
+    this.urlsModel?.control.enable();
   }
 
   protected onSave(): void {

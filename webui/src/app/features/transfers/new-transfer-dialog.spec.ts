@@ -88,6 +88,26 @@ describe('NewTransferDialog', () => {
     expect((saved[0] as { urls: string[] }).urls).toEqual([]);
   });
 
+  it('disables the URLs textarea once a file is selected', () => {
+    const fixture = setup();
+    fixture.componentInstance['onFileSelect']({ files: [new File(['data'], 'test.torrent')] } as unknown as import('primeng/fileupload').FileSelectEvent);
+
+    const textarea = fixture.nativeElement.querySelector('#new-transfer-urls');
+    expect(textarea.disabled).toBe(true);
+  });
+
+  it('onClearFile() clears the selected file and re-enables urls', () => {
+    const fixture = setup();
+    fixture.componentInstance['onFileSelect']({ files: [new File(['data'], 'test.torrent')] } as unknown as import('primeng/fileupload').FileSelectEvent);
+    expect(fixture.componentInstance.file).not.toBeNull();
+
+    fixture.componentInstance['onClearFile']();
+
+    expect(fixture.componentInstance.file).toBeNull();
+    const textarea = fixture.nativeElement.querySelector('#new-transfer-urls');
+    expect(textarea.disabled).toBe(false);
+  });
+
   it('closes without emitting save() on cancel', () => {
     const fixture = setup();
     const saved: unknown[] = [];
