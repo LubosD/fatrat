@@ -5,6 +5,23 @@ import { QueuesStore } from '../state/queues.store';
 import { TransfersStore } from '../state/transfers.store';
 import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
+import { QueueActionsService } from '../core/queue-actions.service';
+import { TransferApi } from '../core/api/transfer-api';
+import { Queue } from '../core/api/models';
+import { of } from 'rxjs';
+
+function makeQueue(overrides: Partial<Queue> = {}): Queue {
+  return {
+    uuid: 'q1',
+    name: 'Default',
+    defaultDirectory: '/downloads',
+    moveDirectory: '',
+    upAsDown: false,
+    transferLimits: { down: 0, up: 0 },
+    speedLimits: { down: 0, up: 0 },
+    ...overrides,
+  };
+}
 
 function makeActionsStub() {
   return {
@@ -14,18 +31,28 @@ function makeActionsStub() {
     deleteSelected: vi.fn(),
     deleteCompleted: vi.fn(),
     moveSelected: vi.fn(),
+    updateProperties: vi.fn(),
+    addTransfers: vi.fn(),
+    addTransferWithData: vi.fn(),
   };
+}
+
+function makeQueueActionsStub() {
+  return { createQueue: vi.fn(), updateQueueProperties: vi.fn() };
 }
 
 function configure(
   selectedUuids: string[],
   actions: ReturnType<typeof makeActionsStub> = makeActionsStub(),
   intervalSeconds = 5,
+  queues: Queue[] = [],
+  selectedQueueUuid: string | null = null,
+  queueActions: ReturnType<typeof makeQueueActionsStub> = makeQueueActionsStub(),
 ) {
   TestBed.configureTestingModule({
     imports: [Shell],
     providers: [
-      { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() } },
+      { provide: QueuesStore, useValue: { queues: () => queues, selectedQueueUuid: () => selectedQueueUuid, selectQueue: vi.fn() } },
       {
         provide: TransfersStore,
         useValue: {
@@ -41,10 +68,12 @@ function configure(
         useValue: { intervalSeconds: () => intervalSeconds, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn() },
       },
       { provide: TransferActionsService, useValue: actions },
+      { provide: QueueActionsService, useValue: queueActions },
+      { provide: TransferApi, useValue: { getTransferClasses: () => of([]) } },
       ConfirmationService,
     ],
   });
-  return actions;
+  return { actions, queueActions };
 }
 
 function findByTestId(root: HTMLElement, testId: string): HTMLButtonElement {
@@ -99,7 +128,7 @@ describe('Shell', () => {
   });
 
   it('clicking each toolbar button calls the corresponding TransferActionsService method', () => {
-    const actions = configure(['t1']);
+    const { actions } = configure(['t1']);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
@@ -132,5 +161,70 @@ describe('Shell', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('p-confirmdialog')).toBeTruthy();
+  });
+
+  it('"New Queue" opens the queue dialog with queue set to null', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    findByTestId(fixture.nativeElement, 'action-new-queue').click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['queueDialogTarget']()).toBeNull();
+    expect(fixture.componentInstance['showQueueDialog']()).toBe(true);
+  });
+
+  it('"Queue Properties" is disabled when no queue is selected', () => {
+    const queue = makeQueue({ uuid: 'q1', name: 'Movies' });
+    configure([], makeActionsStub(), 5, [queue], null);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(findByTestId(fixture.nativeElement, 'action-queue-properties').disabled).toBe(true);
+  });
+
+  it('"Queue Properties" is enabled and opens the dialog prefilled when a queue is selected', () => {
+    const queue = makeQueue({ uuid: 'q1', name: 'Movies' });
+    configure([], makeActionsStub(), 5, [queue], 'q1');
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(findByTestId(fixture.nativeElement, 'action-queue-properties').disabled).toBe(false);
+    findByTestId(fixture.nativeElement, 'action-queue-properties').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['queueDialogTarget']()).toEqual(queue);
+  });
+
+  it('saving the queue dialog with queueDialogTarget null calls createQueue()', () => {
+    const { queueActions } = configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    fixture.componentInstance['onQueueDialogSave']({
+      name: 'New',
+      defaultDirectory: '',
+      moveDirectory: '',
+      speedLimits: { down: 0, up: 0 },
+      transferLimits: { down: 0, up: 0 },
+      upAsDown: false,
+    });
+    expect(queueActions.createQueue).toHaveBeenCalled();
+  });
+
+  it('saving the queue dialog with a queueDialogTarget set calls updateQueueProperties()', () => {
+    const queue = makeQueue({ uuid: 'q1' });
+    const { queueActions } = configure([], makeActionsStub(), 5, [queue], 'q1');
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    fixture.componentInstance['openQueuePropertiesDialog']();
+
+    fixture.componentInstance['onQueueDialogSave']({
+      name: 'Renamed',
+      defaultDirectory: '',
+      moveDirectory: '',
+      speedLimits: { down: 0, up: 0 },
+      transferLimits: { down: 0, up: 0 },
+      upAsDown: false,
+    });
+    expect(queueActions.updateQueueProperties).toHaveBeenCalledWith('q1', expect.objectContaining({ name: 'Renamed' }));
   });
 });

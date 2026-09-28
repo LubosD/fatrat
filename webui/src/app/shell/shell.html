@@ -1,7 +1,16 @@
 <p-confirmDialog></p-confirmDialog>
 
+<app-queue-properties-dialog
+  [queue]="queueDialogTarget()"
+  [visible]="showQueueDialog()"
+  (visibleChange)="showQueueDialog.set($event)"
+  (save)="onQueueDialogSave($event)"
+></app-queue-properties-dialog>
+
 <p-toolbar>
   <ng-template #start>
+    <button pButton type="button" data-testid="action-new-queue" (click)="openNewQueueDialog()">New Queue</button>
+    <button pButton type="button" data-testid="action-queue-properties" [disabled]="!hasSelectedQueue" (click)="openQueuePropertiesDialog()">Queue Properties</button>
     <button pButton type="button" data-testid="action-resume" [disabled]="!hasSelection" (click)="actions.resume()">Resume</button>
     <button pButton type="button" data-testid="action-force-resume" [disabled]="!hasSelection" (click)="actions.forceResume()">Force Resume</button>
     <button pButton type="button" data-testid="action-pause" [disabled]="!hasSelection" (click)="actions.pause()">Pause</button>

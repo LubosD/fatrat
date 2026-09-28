@@ -5,6 +5,7 @@ import { QueuesStore } from './state/queues.store';
 import { TransfersStore } from './state/transfers.store';
 import { PollingService } from './core/polling.service';
 import { TransferActionsService } from './core/transfer-actions.service';
+import { QueueActionsService } from './core/queue-actions.service';
 
 describe('App', () => {
   beforeEach(() => {
@@ -34,6 +35,7 @@ describe('App', () => {
             moveSelected: vi.fn(),
           },
         },
+        { provide: QueueActionsService, useValue: { createQueue: vi.fn(), updateQueueProperties: vi.fn() } },
         ConfirmationService,
       ],
     });
