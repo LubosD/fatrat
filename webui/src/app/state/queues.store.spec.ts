@@ -85,4 +85,12 @@ describe('QueuesStore', () => {
     store.selectQueue('q2');
     expect(store.selectedQueueUuid()).toBe('q2');
   });
+
+  it('refreshNow() triggers an immediate fetch outside the poll cycle', () => {
+    getQueues.mockReturnValue(of([makeQueue('q1', 'Default')]));
+    const store = TestBed.inject(QueuesStore);
+    expect(getQueues).toHaveBeenCalledTimes(1); // construction
+    store.refreshNow();
+    expect(getQueues).toHaveBeenCalledTimes(2);
+  });
 });

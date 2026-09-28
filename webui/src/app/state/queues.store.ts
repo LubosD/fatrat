@@ -20,6 +20,11 @@ export class QueuesStore {
     this.selectedQueueUuid.set(uuid);
   }
 
+  /** Triggers an immediate fetch, bypassing the poll interval — call after a mutating action so the UI updates right away. */
+  refreshNow(): void {
+    this.refresh();
+  }
+
   private refresh(): void {
     this.transferApi.getQueues().subscribe((queues) => {
       this.queues.set(queues);
