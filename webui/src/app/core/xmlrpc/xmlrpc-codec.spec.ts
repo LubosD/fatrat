@@ -1,5 +1,5 @@
-import { encodeMethodCall } from './xmlrpc-codec';
-import { XmlRpcBinary } from './xmlrpc-value';
+import { decodeMethodResponse, encodeMethodCall } from './xmlrpc-codec';
+import { XmlRpcBinary, XmlRpcFault } from './xmlrpc-value';
 
 describe('encodeMethodCall', () => {
   it('encodes a call with no params', () => {
@@ -55,5 +55,89 @@ describe('encodeMethodCall', () => {
       '<?xml version="1.0"?><methodCall><methodName>Queue_getTransfers</methodName>' +
         '<params><param><value><string>uuid-1</string></value></param></params></methodCall>',
     );
+  });
+});
+
+describe('decodeMethodResponse', () => {
+  function response(paramsInner: string): string {
+    return `<?xml version="1.0"?><methodResponse><params>${paramsInner}</params></methodResponse>`;
+  }
+
+  it('decodes a single string param', () => {
+    const xml = response('<param><value><string>hello</string></value></param>');
+    expect(decodeMethodResponse(xml)).toBe('hello');
+  });
+
+  it('decodes int and double', () => {
+    expect(decodeMethodResponse(response('<param><value><int>7</int></value></param>'))).toBe(7);
+    expect(decodeMethodResponse(response('<param><value><double>1.5</double></value></param>'))).toBe(1.5);
+  });
+
+  it('decodes boolean', () => {
+    expect(decodeMethodResponse(response('<param><value><boolean>1</boolean></value></param>'))).toBe(true);
+    expect(decodeMethodResponse(response('<param><value><boolean>0</boolean></value></param>'))).toBe(false);
+  });
+
+  it('decodes dateTime.iso8601', () => {
+    const xml = response('<param><value><dateTime.iso8601>20260105T09:03:07</dateTime.iso8601></value></param>');
+    const result = decodeMethodResponse(xml) as Date;
+    expect(result.getFullYear()).toBe(2026);
+    expect(result.getMonth()).toBe(0);
+    expect(result.getDate()).toBe(5);
+    expect(result.getHours()).toBe(9);
+    expect(result.getMinutes()).toBe(3);
+    expect(result.getSeconds()).toBe(7);
+  });
+
+  it('decodes arrays', () => {
+    const xml = response(
+      '<param><value><array><data>' +
+        '<value><string>a</string></value><value><string>b</string></value>' +
+        '</data></array></value></param>',
+    );
+    expect(decodeMethodResponse(xml)).toEqual(['a', 'b']);
+  });
+
+  it('decodes structs', () => {
+    const xml = response(
+      '<param><value><struct>' +
+        '<member><name>name</name><value><string>q1</string></value></member>' +
+        '<member><name>upAsDown</name><value><boolean>1</boolean></value></member>' +
+        '</struct></value></param>',
+    );
+    expect(decodeMethodResponse(xml)).toEqual({ name: 'q1', upAsDown: true });
+  });
+
+  it('decodes base64', () => {
+    const xml = response('<param><value><base64>AAECAw==</base64></value></param>');
+    expect(decodeMethodResponse(xml)).toEqual({ base64: 'AAECAw==' });
+  });
+
+  it('returns an array of values for multiple params', () => {
+    const xml = response(
+      '<param><value><int>1</int></value></param><param><value><int>2</int></value></param>',
+    );
+    expect(decodeMethodResponse(xml)).toEqual([1, 2]);
+  });
+
+  it('returns null for an empty params list', () => {
+    expect(decodeMethodResponse(response(''))).toBeNull();
+  });
+
+  it('throws XmlRpcFault on a fault response', () => {
+    const xml =
+      '<?xml version="1.0"?><methodResponse><fault><value><struct>' +
+      '<member><name>faultCode</name><value><int>101</int></value></member>' +
+      '<member><name>faultString</name><value><string>Invalid queue UUID</string></value></member>' +
+      '</struct></value></fault></methodResponse>';
+    let caught: unknown;
+    try {
+      decodeMethodResponse(xml);
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(XmlRpcFault);
+    expect((caught as XmlRpcFault).faultCode).toBe(101);
+    expect((caught as XmlRpcFault).faultString).toBe('Invalid queue UUID');
   });
 });
