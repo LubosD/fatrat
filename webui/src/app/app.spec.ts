@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { ConfirmationService } from 'primeng/api';
 import { App } from './app';
 import { QueuesStore } from './state/queues.store';
 import { TransfersStore } from './state/transfers.store';
@@ -11,7 +12,16 @@ describe('App', () => {
       imports: [App],
       providers: [
         { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: () => {} } },
-        { provide: TransfersStore, useValue: { transfers: () => [] } },
+        {
+          provide: TransfersStore,
+          useValue: {
+            transfers: () => [],
+            selectedUuids: () => [],
+            isSelected: () => false,
+            toggleSelection: () => {},
+            selectOnly: () => {},
+          },
+        },
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: () => {} } },
         {
           provide: TransferActionsService,
@@ -24,6 +34,7 @@ describe('App', () => {
             moveSelected: vi.fn(),
           },
         },
+        ConfirmationService,
       ],
     });
   });

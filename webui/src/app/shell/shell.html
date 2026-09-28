@@ -1,4 +1,18 @@
+<p-confirmDialog></p-confirmDialog>
+
 <p-toolbar>
+  <ng-template #start>
+    <button pButton type="button" data-testid="action-resume" [disabled]="!hasSelection" (click)="actions.resume()">Resume</button>
+    <button pButton type="button" data-testid="action-force-resume" [disabled]="!hasSelection" (click)="actions.forceResume()">Force Resume</button>
+    <button pButton type="button" data-testid="action-pause" [disabled]="!hasSelection" (click)="actions.pause()">Pause</button>
+    <button pButton type="button" data-testid="action-delete" [disabled]="!hasSelection" (click)="actions.deleteSelected(false)">Delete</button>
+    <button pButton type="button" data-testid="action-delete-with-data" [disabled]="!hasSelection" (click)="actions.deleteSelected(true)">Delete with Data</button>
+    <button pButton type="button" data-testid="action-delete-completed" (click)="actions.deleteCompleted()">Delete Completed</button>
+    <button pButton type="button" data-testid="action-move-top" [disabled]="!hasSelection" (click)="actions.moveSelected('top')">Move to Top</button>
+    <button pButton type="button" data-testid="action-move-up" [disabled]="!hasSelection" (click)="actions.moveSelected('up')">Move Up</button>
+    <button pButton type="button" data-testid="action-move-down" [disabled]="!hasSelection" (click)="actions.moveSelected('down')">Move Down</button>
+    <button pButton type="button" data-testid="action-move-bottom" [disabled]="!hasSelection" (click)="actions.moveSelected('bottom')">Move to Bottom</button>
+  </ng-template>
   <ng-template #end>
     <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
     <p-select

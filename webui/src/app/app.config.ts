@@ -2,6 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideHttpClient } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { ConfirmationService } from 'primeng/api';
 import { TransferApi } from './core/api/transfer-api';
 import { XmlRpcTransferApi } from './core/api/xmlrpc-transfer-api';
 
@@ -11,5 +12,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     providePrimeNG({ theme: { preset: Aura } }),
     { provide: TransferApi, useClass: XmlRpcTransferApi },
+    ConfirmationService,
   ]
 };
