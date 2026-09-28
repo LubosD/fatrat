@@ -1,0 +1,12 @@
+<ul class="queue-list">
+  @for (queue of store.queues(); track queue.uuid) {
+    <li
+      data-testid="queue-item"
+      class="queue-item"
+      [class.selected]="queue.uuid === store.selectedQueueUuid()"
+      (click)="store.selectQueue(queue.uuid)"
+    >
+      {{ queue.name }}
+    </li>
+  }
+</ul>
