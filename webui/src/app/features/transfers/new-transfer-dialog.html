@@ -1,0 +1,45 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="New Transfer" [modal]="true">
+  <div class="field">
+    <label for="new-transfer-queue">Queue</label>
+    <p-select inputId="new-transfer-queue" [options]="queues" optionLabel="name" optionValue="uuid" [(ngModel)]="queueUuid"></p-select>
+  </div>
+  <div class="field">
+    <label for="new-transfer-urls">URLs (one per line)</label>
+    <textarea pTextarea id="new-transfer-urls" rows="6" [(ngModel)]="urlsText"></textarea>
+  </div>
+  <div class="field">
+    <label>Local file (e.g. a .torrent)</label>
+    <p-fileupload mode="basic" [auto]="false" (onSelect)="onFileSelect($event)"></p-fileupload>
+  </div>
+  <div class="field">
+    <label for="new-transfer-target">Target directory</label>
+    <input pInputText id="new-transfer-target" [(ngModel)]="target" />
+  </div>
+  <div class="field">
+    <label for="new-transfer-class">Download as</label>
+    <p-select
+      inputId="new-transfer-class"
+      [options]="transferClasses"
+      optionLabel="longName"
+      optionValue="shortName"
+      [(ngModel)]="targetClass"
+      placeholder="Automatically detect"
+    ></p-select>
+  </div>
+  <div class="field">
+    <label for="new-transfer-speed-down">Max download speed (KB/s)</label>
+    <p-inputnumber inputId="new-transfer-speed-down" [(ngModel)]="speedDown"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="new-transfer-speed-up">Max upload speed (KB/s)</label>
+    <p-inputnumber inputId="new-transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
+  </div>
+  <div class="field">
+    <p-checkbox [(ngModel)]="paused" [binary]="true" inputId="new-transfer-paused"></p-checkbox>
+    <label for="new-transfer-paused">Add paused</label>
+  </div>
+  <ng-template #footer>
+    <button pButton type="button" data-testid="new-transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
+    <button pButton type="button" data-testid="new-transfer-dialog-save" (click)="onSave()">Add</button>
+  </ng-template>
+</p-dialog>
