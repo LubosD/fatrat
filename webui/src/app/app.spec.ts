@@ -3,6 +3,7 @@ import { App } from './app';
 import { QueuesStore } from './state/queues.store';
 import { TransfersStore } from './state/transfers.store';
 import { PollingService } from './core/polling.service';
+import { TransferActionsService } from './core/transfer-actions.service';
 
 describe('App', () => {
   beforeEach(() => {
@@ -12,6 +13,17 @@ describe('App', () => {
         { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: () => {} } },
         { provide: TransfersStore, useValue: { transfers: () => [] } },
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: () => {} } },
+        {
+          provide: TransferActionsService,
+          useValue: {
+            resume: vi.fn(),
+            forceResume: vi.fn(),
+            pause: vi.fn(),
+            deleteSelected: vi.fn(),
+            deleteCompleted: vi.fn(),
+            moveSelected: vi.fn(),
+          },
+        },
       ],
     });
   });

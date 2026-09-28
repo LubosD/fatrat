@@ -3,6 +3,18 @@ import { Shell } from './shell';
 import { QueuesStore } from '../state/queues.store';
 import { TransfersStore } from '../state/transfers.store';
 import { PollingService } from '../core/polling.service';
+import { TransferActionsService } from '../core/transfer-actions.service';
+
+function makeActionsStub() {
+  return {
+    resume: vi.fn(),
+    forceResume: vi.fn(),
+    pause: vi.fn(),
+    deleteSelected: vi.fn(),
+    deleteCompleted: vi.fn(),
+    moveSelected: vi.fn(),
+  };
+}
 
 describe('Shell', () => {
   it('renders the queue list and transfer table', () => {
@@ -12,6 +24,7 @@ describe('Shell', () => {
         { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() } },
         { provide: TransfersStore, useValue: { transfers: () => [] } },
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn() } },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
       ],
     });
     const fixture = TestBed.createComponent(Shell);
@@ -28,6 +41,7 @@ describe('Shell', () => {
         { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() } },
         { provide: TransfersStore, useValue: { transfers: () => [] } },
         { provide: PollingService, useValue: { intervalSeconds: () => 15, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn() } },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
       ],
     });
     const fixture = TestBed.createComponent(Shell);

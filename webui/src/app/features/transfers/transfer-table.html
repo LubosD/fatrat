@@ -1,4 +1,11 @@
-<p-table [value]="store.transfers()" dataKey="uuid" [rowTrackBy]="trackByUuid" [rowHover]="true">
+<p-table
+  [value]="store.transfers()"
+  dataKey="uuid"
+  [rowTrackBy]="trackByUuid"
+  [rowHover]="true"
+  [contextMenu]="cm"
+  (onContextMenuSelect)="onContextMenuSelect($event)"
+>
   <ng-template #header>
     <tr>
       <th></th>
@@ -12,7 +19,7 @@
     </tr>
   </ng-template>
   <ng-template #body let-transfer>
-    <tr [class.selected-row]="store.isSelected(transfer.uuid)">
+    <tr [pContextMenuRow]="transfer" [class.selected-row]="store.isSelected(transfer.uuid)">
       <td>
         <input
           type="checkbox"
@@ -34,3 +41,5 @@
     </tr>
   </ng-template>
 </p-table>
+
+<p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>

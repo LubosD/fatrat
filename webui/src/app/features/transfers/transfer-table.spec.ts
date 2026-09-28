@@ -130,4 +130,68 @@ describe('TransferTable', () => {
     checkbox.dispatchEvent(new Event('change'));
     expect(store.toggleSelection).toHaveBeenCalledWith('t1');
   });
+
+  it('right-clicking an unselected row replaces the selection with just that row', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })]);
+    const table = TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: store },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
+    }).createComponent(TransferTable);
+    table.detectChanges();
+
+    table.componentInstance['onContextMenuSelect']({ data: makeTransfer({ uuid: 't1' }), originalEvent: new Event('contextmenu'), index: 0 });
+    expect(store.selectOnly).toHaveBeenCalledWith('t1');
+  });
+
+  it('right-clicking an already-selected row does not change the selection', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })], ['t1']);
+    const table = TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: store },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+      ],
+    }).createComponent(TransferTable);
+    table.detectChanges();
+
+    table.componentInstance['onContextMenuSelect']({ data: makeTransfer({ uuid: 't1' }), originalEvent: new Event('contextmenu'), index: 0 });
+    expect(store.selectOnly).not.toHaveBeenCalled();
+  });
+
+  it('the context menu items call the corresponding TransferActionsService methods', () => {
+    const actions = makeActionsStub();
+    const table = TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: makeTransfersStoreStub([]) },
+        { provide: TransferActionsService, useValue: actions },
+      ],
+    }).createComponent(TransferTable);
+    table.detectChanges();
+
+    const items = table.componentInstance['contextMenuItems'] as { label: string; command: () => void }[];
+    const byLabel = (label: string) => items.find((i) => i.label === label)!;
+
+    byLabel('Resume').command();
+    expect(actions.resume).toHaveBeenCalled();
+    byLabel('Force Resume').command();
+    expect(actions.forceResume).toHaveBeenCalled();
+    byLabel('Pause').command();
+    expect(actions.pause).toHaveBeenCalled();
+    byLabel('Delete').command();
+    expect(actions.deleteSelected).toHaveBeenCalledWith(false);
+    byLabel('Delete with Data').command();
+    expect(actions.deleteSelected).toHaveBeenCalledWith(true);
+    byLabel('Move to Top').command();
+    expect(actions.moveSelected).toHaveBeenCalledWith('top');
+    byLabel('Move Up').command();
+    expect(actions.moveSelected).toHaveBeenCalledWith('up');
+    byLabel('Move Down').command();
+    expect(actions.moveSelected).toHaveBeenCalledWith('down');
+    byLabel('Move to Bottom').command();
+    expect(actions.moveSelected).toHaveBeenCalledWith('bottom');
+  });
 });
