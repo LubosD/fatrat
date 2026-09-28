@@ -1,0 +1,10 @@
+{
+  "/xmlrpc": { "target": "http://localhost:9091", "secure": false },
+  "/log": { "target": "http://localhost:9091", "secure": false },
+  "/subclass": { "target": "http://localhost:9091", "secure": false },
+  "/browse": { "target": "http://localhost:9091", "secure": false },
+  "/download": { "target": "http://localhost:9091", "secure": false },
+  "/captcha": { "target": "http://localhost:9091", "secure": false },
+  "/websocket": { "target": "http://localhost:9091", "secure": false, "ws": true },
+  "/copyrights": { "target": "http://localhost:9091", "secure": false }
+}
