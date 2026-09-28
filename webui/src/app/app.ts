@@ -1,11 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { TransferApi } from './core/api/transfer-api';
+import { Queue } from './core/api/models';
 
 @Component({
   selector: 'app-root',
-  imports: [],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('webui');
+  private readonly transferApi = inject(TransferApi);
+  readonly queues = signal<Queue[] | null>(null);
+  readonly error = signal<string | null>(null);
+
+  constructor() {
+    this.transferApi.getQueues().subscribe({
+      next: (queues) => this.queues.set(queues),
+      error: (err) => this.error.set(String(err)),
+    });
+  }
 }
