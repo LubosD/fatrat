@@ -1,13 +1,1 @@
-<h1>FatRat Web UI — Phase 1 scaffold</h1>
-@if (error(); as err) {
-  <p>Error calling getQueues(): {{ err }}</p>
-} @else if (queues(); as qs) {
-  <p>Loaded {{ qs.length }} queue(s) from the backend.</p>
-  <ul>
-    @for (q of qs; track q.uuid) {
-      <li>{{ q.name }} ({{ q.uuid }})</li>
-    }
-  </ul>
-} @else {
-  <p>Loading queues…</p>
-}
+<app-shell></app-shell>

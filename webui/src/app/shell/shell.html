@@ -1,0 +1,23 @@
+<p-toolbar>
+  <ng-template #end>
+    <label for="refresh-interval">Refresh every</label>
+    <p-select
+      inputId="refresh-interval"
+      [options]="allowedIntervals"
+      [ngModel]="polling.intervalSeconds()"
+      (ngModelChange)="polling.setIntervalSeconds($event)"
+    >
+      <ng-template let-seconds #selectedItem>{{ seconds }} seconds</ng-template>
+      <ng-template let-seconds #item>{{ seconds }} seconds</ng-template>
+    </p-select>
+  </ng-template>
+</p-toolbar>
+
+<p-splitter [panelSizes]="[20, 80]" styleClass="shell-splitter">
+  <ng-template #panel>
+    <app-queue-list></app-queue-list>
+  </ng-template>
+  <ng-template #panel>
+    <app-transfer-table></app-transfer-table>
+  </ng-template>
+</p-splitter>
