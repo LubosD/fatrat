@@ -140,4 +140,24 @@ describe('decodeMethodResponse', () => {
     expect((caught as XmlRpcFault).faultCode).toBe(101);
     expect((caught as XmlRpcFault).faultString).toBe('Invalid queue UUID');
   });
+
+  it('throws when the response has no methodResponse root', () => {
+    const xml = '<?xml version="1.0"?><html><body>502 Bad Gateway</body></html>';
+    expect(() => decodeMethodResponse(xml)).toThrow(/methodResponse/);
+  });
+
+  it('throws when a struct member is missing name or value', () => {
+    const xml = response(
+      '<param><value><struct>' + '<member><name>name</name></member>' + '</struct></value></param>',
+    );
+    expect(() => decodeMethodResponse(xml)).toThrow(/member/);
+  });
+
+  it('throws when the fault struct is missing faultCode or faultString', () => {
+    const xml =
+      '<?xml version="1.0"?><methodResponse><fault><value><struct>' +
+      '<member><name>faultString</name><value><string>oops</string></value></member>' +
+      '</struct></value></fault></methodResponse>';
+    expect(() => decodeMethodResponse(xml)).toThrow(/faultCode|faultString/);
+  });
 });

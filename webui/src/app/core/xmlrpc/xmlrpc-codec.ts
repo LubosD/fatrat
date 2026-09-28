@@ -83,9 +83,10 @@ function decodeStruct(structNode: Element): { [key: string]: XmlRpcValue } {
   for (const memberNode of findChildren(structNode, 'member')) {
     const nameNode = findChild(memberNode, 'name');
     const valueNode = findChild(memberNode, 'value');
-    if (nameNode && valueNode) {
-      result[textOf(nameNode)] = decodeValueNode(valueNode);
+    if (!nameNode || !valueNode) {
+      throw new Error('XML-RPC struct member is missing <name> or <value>');
     }
+    result[textOf(nameNode)] = decodeValueNode(valueNode);
   }
   return result;
 }
@@ -127,14 +128,22 @@ export function decodeMethodResponse(xmlText: string): XmlRpcValue {
     throw new Error(`Failed to parse XML-RPC response: ${parserErrors[0].textContent}`);
   }
 
+  const root = doc.documentElement;
+  if (!root || root.nodeName !== 'methodResponse') {
+    throw new Error('XML-RPC response is missing a <methodResponse> root element');
+  }
+
   const faultNodes = doc.getElementsByTagName('fault');
   if (faultNodes.length > 0) {
     const valueNode = findChild(faultNodes[0], 'value');
     if (!valueNode) {
       throw new Error('XML-RPC fault element is missing its value');
     }
-    const fault = decodeValueNode(valueNode) as { faultCode: number; faultString: string };
-    throw new XmlRpcFault(Number(fault.faultCode), String(fault.faultString));
+    const fault = decodeValueNode(valueNode) as { faultCode?: unknown; faultString?: unknown };
+    if (typeof fault.faultCode !== 'number' || typeof fault.faultString !== 'string') {
+      throw new Error('XML-RPC fault is missing faultCode or faultString');
+    }
+    throw new XmlRpcFault(fault.faultCode, fault.faultString);
   }
 
   const paramNodes = Array.from(doc.getElementsByTagName('param'));
