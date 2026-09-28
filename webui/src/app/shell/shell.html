@@ -7,6 +7,13 @@
   (save)="onQueueDialogSave($event)"
 ></app-queue-properties-dialog>
 
+<app-transfer-properties-dialog
+  [transfer]="transferPropertiesTarget()"
+  [visible]="showTransferPropertiesDialog()"
+  (visibleChange)="showTransferPropertiesDialog.set($event)"
+  (save)="onTransferPropertiesSave($event)"
+></app-transfer-properties-dialog>
+
 <p-toolbar>
   <ng-template #start>
     <button pButton type="button" data-testid="action-new-queue" (click)="openNewQueueDialog()">New Queue</button>
@@ -16,6 +23,7 @@
     <button pButton type="button" data-testid="action-pause" [disabled]="!hasSelection" (click)="actions.pause()">Pause</button>
     <button pButton type="button" data-testid="action-delete" [disabled]="!hasSelection" (click)="actions.deleteSelected(false)">Delete</button>
     <button pButton type="button" data-testid="action-delete-with-data" [disabled]="!hasSelection" (click)="actions.deleteSelected(true)">Delete with Data</button>
+    <button pButton type="button" data-testid="action-properties" [disabled]="!hasSelection" (click)="openTransferPropertiesDialog()">Properties</button>
     <button pButton type="button" data-testid="action-delete-completed" (click)="actions.deleteCompleted()">Delete Completed</button>
     <button pButton type="button" data-testid="action-move-top" [disabled]="!hasSelection" (click)="actions.moveSelected('top')">Move to Top</button>
     <button pButton type="button" data-testid="action-move-up" [disabled]="!hasSelection" (click)="actions.moveSelected('up')">Move Up</button>

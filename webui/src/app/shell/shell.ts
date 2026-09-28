@@ -8,16 +8,17 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
+import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
 import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
-import { Queue } from '../core/api/models';
+import { Queue, Transfer } from '../core/api/models';
 
 @Component({
   selector: 'app-shell',
-  imports: [FormsModule, Toolbar, Select, Splitter, ButtonDirective, ConfirmDialog, QueueList, TransferTable, QueuePropertiesDialog],
+  imports: [FormsModule, Toolbar, Select, Splitter, ButtonDirective, ConfirmDialog, QueueList, TransferTable, QueuePropertiesDialog, TransferPropertiesDialog],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
@@ -59,5 +60,20 @@ export class Shell {
     } else {
       this.queueActions.updateQueueProperties(target.uuid, value);
     }
+  }
+
+  protected readonly showTransferPropertiesDialog = signal(false);
+  protected readonly transferPropertiesTarget = signal<Transfer | null>(null);
+
+  protected openTransferPropertiesDialog(): void {
+    const uuids = this.transfersStore.selectedUuids();
+    const representative =
+      uuids.length > 0 ? (this.transfersStore.transfers().find((t) => t.uuid === uuids[0]) ?? null) : null;
+    this.transferPropertiesTarget.set(representative);
+    this.showTransferPropertiesDialog.set(true);
+  }
+
+  protected onTransferPropertiesSave(value: TransferPropertiesFormValue): void {
+    this.actions.updateProperties(value.comment, value.speedLimits);
   }
 }

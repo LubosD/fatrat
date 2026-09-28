@@ -7,7 +7,7 @@ import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
-import { Queue } from '../core/api/models';
+import { Queue, Transfer } from '../core/api/models';
 import { of } from 'rxjs';
 
 function makeQueue(overrides: Partial<Queue> = {}): Queue {
@@ -19,6 +19,28 @@ function makeQueue(overrides: Partial<Queue> = {}): Queue {
     upAsDown: false,
     transferLimits: { down: 0, up: 0 },
     speedLimits: { down: 0, up: 0 },
+    ...overrides,
+  };
+}
+
+function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
+  return {
+    uuid: 't1',
+    name: 'file.zip',
+    state: 'Active',
+    class: 'HttpDownload',
+    message: '',
+    mode: 'Download',
+    primaryMode: 'Download',
+    dataPath: '/downloads/file.zip',
+    dataPathIsDir: false,
+    total: 1000,
+    done: 250,
+    comment: '',
+    object: '',
+    timeRunning: 10,
+    speeds: { down: 0, up: 0 },
+    userSpeedLimits: { down: 0, up: 0 },
     ...overrides,
   };
 }
@@ -48,6 +70,7 @@ function configure(
   queues: Queue[] = [],
   selectedQueueUuid: string | null = null,
   queueActions: ReturnType<typeof makeQueueActionsStub> = makeQueueActionsStub(),
+  transfers: Transfer[] = [],
 ) {
   TestBed.configureTestingModule({
     imports: [Shell],
@@ -56,7 +79,7 @@ function configure(
       {
         provide: TransfersStore,
         useValue: {
-          transfers: () => [],
+          transfers: () => transfers,
           selectedUuids: () => selectedUuids,
           isSelected: () => false,
           toggleSelection: vi.fn(),
@@ -226,5 +249,32 @@ describe('Shell', () => {
       upAsDown: false,
     });
     expect(queueActions.updateQueueProperties).toHaveBeenCalledWith('q1', expect.objectContaining({ name: 'Renamed' }));
+  });
+
+  it('"Properties" is disabled with nothing selected', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(findByTestId(fixture.nativeElement, 'action-properties').disabled).toBe(true);
+  });
+
+  it('"Properties" is enabled and opens the dialog prefilled from the first selected transfer when something is selected', () => {
+    const t1 = makeTransfer({ uuid: 't1', comment: 'hello' });
+    configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [t1]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(findByTestId(fixture.nativeElement, 'action-properties').disabled).toBe(false);
+    findByTestId(fixture.nativeElement, 'action-properties').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['transferPropertiesTarget']()).toEqual(t1);
+  });
+
+  it('saving the transfer properties dialog calls TransferActionsService.updateProperties()', () => {
+    const { actions } = configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [makeTransfer({ uuid: 't1' })]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    fixture.componentInstance['onTransferPropertiesSave']({ comment: 'new', speedLimits: { down: 1, up: 2 } });
+    expect(actions.updateProperties).toHaveBeenCalledWith('new', { down: 1, up: 2 });
   });
 });
