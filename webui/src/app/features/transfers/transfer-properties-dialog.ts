@@ -26,6 +26,9 @@ export class TransferPropertiesDialog implements OnChanges {
   speedDown = 0;
   speedUp = 0;
 
+  // Also reset when the dialog is (re)opened, not just when the input reference changes —
+  // reopening with a reference-equal input (e.g. null again, or the same object) would
+  // otherwise leave stale, previously-edited-but-cancelled form values in place.
   ngOnChanges(changes: SimpleChanges): void {
     if ('transfer' in changes || changes['visible']?.currentValue === true) {
       this.resetForm();

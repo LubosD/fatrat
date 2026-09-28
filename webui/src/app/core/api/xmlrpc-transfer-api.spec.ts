@@ -238,6 +238,49 @@ describe('XmlRpcTransferApi', () => {
     expect(await resultPromise).toEqual('t1');
   });
 
+  it('createQueue() array-encodes speedLimits instead of struct-encoding it', () => {
+    return new Promise<void>((done) => {
+      api.createQueue({ name: 'Movies', speedLimits: { down: 100, up: 50 } }).subscribe(() => done());
+
+      const req = httpMock.expectOne('/xmlrpc');
+      expect(req.request.body).toContain('<methodName>Queue_create</methodName>');
+      expect(req.request.body).toContain(
+        '<member><name>speedLimits</name><value><array><data><value><int>100</int></value><value><int>50</int></value></data></array></value></member>',
+      );
+      req.flush('<?xml version="1.0"?><methodResponse><params></params></methodResponse>');
+    });
+  });
+
+  it('setQueueProperties() array-encodes transferLimits instead of struct-encoding it', () => {
+    return new Promise<void>((done) => {
+      api
+        .setQueueProperties('q1', { transferLimits: { down: 5, up: 3 } })
+        .subscribe(() => done());
+
+      const req = httpMock.expectOne('/xmlrpc');
+      expect(req.request.body).toContain('<methodName>Queue_setProperties</methodName>');
+      expect(req.request.body).toContain(
+        '<member><name>transferLimits</name><value><array><data><value><int>5</int></value><value><int>3</int></value></data></array></value></member>',
+      );
+      req.flush('<?xml version="1.0"?><methodResponse><params></params></methodResponse>');
+    });
+  });
+
+  it('createQueue() without speedLimits/transferLimits only sends the given fields', () => {
+    return new Promise<void>((done) => {
+      api.createQueue({ name: 'X' }).subscribe(() => done());
+
+      const req = httpMock.expectOne('/xmlrpc');
+      expect(req.request.body).toContain('<methodName>Queue_create</methodName>');
+      expect(req.request.body).toContain(
+        '<param><value><struct><member><name>name</name><value><string>X</string></value></member></struct></value></param>',
+      );
+      expect(req.request.body).not.toContain('speedLimits');
+      expect(req.request.body).not.toContain('transferLimits');
+      req.flush('<?xml version="1.0"?><methodResponse><params></params></methodResponse>');
+    });
+  });
+
   it('callRaw() forwards the method name and params verbatim', () => {
     return new Promise<void>((done) => {
       api.callRaw('TorrentDownload.setFilePriorities', 't1', { '0': 1 }).subscribe(() => done());

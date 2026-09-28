@@ -44,6 +44,9 @@
     <p-checkbox [(ngModel)]="paused" [binary]="true" inputId="new-transfer-paused"></p-checkbox>
     <label for="new-transfer-paused">Add paused</label>
   </div>
+  <!-- PrimeNG's Dialog detects footer content via a ContentChild query keyed on a
+       template-ref variable named "footer" — <p-footer> projection does not work here
+       (and Footer from primeng/api isn't a standalone component anyway). -->
   <ng-template #footer>
     <button pButton type="button" data-testid="new-transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
     <button pButton type="button" data-testid="new-transfer-dialog-save" (click)="onSave()">Add</button>

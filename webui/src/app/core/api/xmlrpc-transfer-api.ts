@@ -53,6 +53,21 @@ function toTransfer(raw: { [key: string]: XmlRpcValue }): Transfer {
   };
 }
 
+// Backend (XmlRpcService::Queue_create/Queue_setProperties) requires speedLimits/transferLimits
+// as a 2-element [down, up] array, not a {down, up} struct — convert only the fields present.
+function toQueuePropertiesPayload(properties: Partial<Queue>): { [key: string]: XmlRpcValue } {
+  const payload: { [key: string]: XmlRpcValue } = {
+    ...properties,
+  } as unknown as { [key: string]: XmlRpcValue };
+  if (properties.speedLimits) {
+    payload['speedLimits'] = [properties.speedLimits.down, properties.speedLimits.up];
+  }
+  if (properties.transferLimits) {
+    payload['transferLimits'] = [properties.transferLimits.down, properties.transferLimits.up];
+  }
+  return payload;
+}
+
 function toTransferClass(raw: { [key: string]: XmlRpcValue }): TransferClass {
   return {
     mode: raw['mode'] as TransferClass['mode'],
@@ -101,12 +116,14 @@ export class XmlRpcTransferApi extends TransferApi {
   }
 
   createQueue(properties: Partial<Queue>): Observable<void> {
-    return this.client.call('Queue_create', properties as XmlRpcValue).pipe(map(() => undefined));
+    return this.client
+      .call('Queue_create', toQueuePropertiesPayload(properties))
+      .pipe(map(() => undefined));
   }
 
   setQueueProperties(uuid: string, properties: Partial<Queue>): Observable<void> {
     return this.client
-      .call('Queue_setProperties', uuid, properties as XmlRpcValue)
+      .call('Queue_setProperties', uuid, toQueuePropertiesPayload(properties))
       .pipe(map(() => undefined));
   }
 
