@@ -66,4 +66,41 @@ describe('QueueList', () => {
 
     expect(fixture.nativeElement.querySelectorAll('[data-testid="queue-item"]').length).toBe(0);
   });
+
+  it('calls selectQueue() when Enter is pressed on a queue item', () => {
+    const selectQueue = vi.fn();
+    const queuesStoreStub = {
+      queues: () => [makeQueue('q1', 'Default')],
+      selectedQueueUuid: () => null,
+      selectQueue,
+    };
+    TestBed.configureTestingModule({
+      imports: [QueueList],
+      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+    });
+    const fixture = TestBed.createComponent(QueueList);
+    fixture.detectChanges();
+
+    const item = fixture.nativeElement.querySelector('[data-testid="queue-item"]');
+    item.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(selectQueue).toHaveBeenCalledWith('q1');
+  });
+
+  it('marks the selected item with aria-current', () => {
+    const queuesStoreStub = {
+      queues: () => [makeQueue('q1', 'Default'), makeQueue('q2', 'Second')],
+      selectedQueueUuid: () => 'q2',
+      selectQueue: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [QueueList],
+      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+    });
+    const fixture = TestBed.createComponent(QueueList);
+    fixture.detectChanges();
+
+    const items = fixture.nativeElement.querySelectorAll('[data-testid="queue-item"]');
+    expect(items[0].getAttribute('aria-current')).toBeNull();
+    expect(items[1].getAttribute('aria-current')).toBe('true');
+  });
 });

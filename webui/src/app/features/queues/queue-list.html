@@ -4,7 +4,12 @@
       data-testid="queue-item"
       class="queue-item"
       [class.selected]="queue.uuid === store.selectedQueueUuid()"
+      [attr.aria-current]="queue.uuid === store.selectedQueueUuid() ? 'true' : null"
+      role="button"
+      tabindex="0"
       (click)="store.selectQueue(queue.uuid)"
+      (keydown.enter)="store.selectQueue(queue.uuid)"
+      (keydown.space)="store.selectQueue(queue.uuid); $event.preventDefault()"
     >
       {{ queue.name }}
     </li>
