@@ -209,4 +209,20 @@ describe('TransferDetails', () => {
     t1Subject.next([{ key: '/movies', label: 'movies', leaf: false }]);
     expect(fixture.componentInstance['treeNodes']()).toEqual([{ key: '/shows', label: 'shows', leaf: false }]);
   });
+
+  it('renders the registered subclass panel when detailsScript matches', () => {
+    configure(['t1'], [makeTransfer({ uuid: 't1', detailsScript: '/scripts/transfers/TorrentDownload.js' })]);
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-torrent-download-details-placeholder')).toBeTruthy();
+  });
+
+  it('renders no subclass panel when detailsScript has no registry entry', () => {
+    configure(['t1'], [makeTransfer({ uuid: 't1', detailsScript: undefined })]);
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-torrent-download-details-placeholder')).toBeNull();
+  });
 });

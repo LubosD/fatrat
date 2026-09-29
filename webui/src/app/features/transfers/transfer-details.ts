@@ -1,13 +1,15 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
+import { NgComponentOutlet } from '@angular/common';
 import { Tree } from 'primeng/tree';
 import type { TreeNode } from 'primeng/api';
 import type { TreeNodeExpandEvent, TreeNodeSelectEvent } from 'primeng/tree';
 import { TransfersStore } from '../../state/transfers.store';
 import { BrowseService } from '../../core/browse.service';
+import { TRANSFER_DETAIL_COMPONENTS } from './transfer-detail-registry';
 
 @Component({
   selector: 'app-transfer-details',
-  imports: [Tree],
+  imports: [Tree, NgComponentOutlet],
   templateUrl: './transfer-details.html',
 })
 export class TransferDetails {
@@ -23,6 +25,11 @@ export class TransferDetails {
   });
 
   protected readonly treeNodes = signal<TreeNode[]>([]);
+
+  protected readonly detailComponent = computed(() => {
+    const script = this.selectedTransfer()?.detailsScript;
+    return script ? (TRANSFER_DETAIL_COMPONENTS[script] ?? null) : null;
+  });
 
   /**
    * The uuid of the transfer we last fetched (or cleared) the tree for. A plain instance field

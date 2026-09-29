@@ -14,6 +14,12 @@
         ></p-tree>
       }
     </fieldset>
+    @if (detailComponent(); as cmp) {
+      <fieldset>
+        <legend>Transfer details</legend>
+        <ng-container *ngComponentOutlet="cmp"></ng-container>
+      </fieldset>
+    }
   </div>
 } @else {
   <p>Select a single transfer to view details.</p>
