@@ -67,7 +67,11 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="0"><app-transfer-table></app-transfer-table></p-tabpanel>
-        <p-tabpanel value="1" [lazy]="true"><app-transfer-details></app-transfer-details></p-tabpanel>
+        <p-tabpanel value="1" [lazy]="true">
+          <ng-template #content>
+            <app-transfer-details></app-transfer-details>
+          </ng-template>
+        </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
   </ng-template>

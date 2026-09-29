@@ -73,6 +73,7 @@ function configure(
   queueActions: ReturnType<typeof makeQueueActionsStub> = makeQueueActionsStub(),
   transfers: Transfer[] = [],
 ) {
+  const browseService = { list: vi.fn().mockReturnValue(of([])) };
   TestBed.configureTestingModule({
     imports: [Shell],
     providers: [
@@ -94,11 +95,11 @@ function configure(
       { provide: TransferActionsService, useValue: actions },
       { provide: QueueActionsService, useValue: queueActions },
       { provide: TransferApi, useValue: { getTransferClasses: () => of([]) } },
-      { provide: BrowseService, useValue: { list: () => of([]) } },
+      { provide: BrowseService, useValue: browseService },
       ConfirmationService,
     ],
   });
-  return { actions, queueActions };
+  return { actions, queueActions, browseService };
 }
 
 function findByTestId(root: HTMLElement, testId: string): HTMLButtonElement {
@@ -370,5 +371,36 @@ describe('Shell', () => {
     expect(Array.from(root.querySelectorAll('p-tab')).some((el) => el.textContent?.includes('Transfers'))).toBe(true);
     expect(Array.from(root.querySelectorAll('p-tab')).some((el) => el.textContent?.includes('Details'))).toBe(true);
     expect(root.querySelector('app-transfer-table')).toBeTruthy();
+  });
+
+  it('does not call BrowseService.list when a directory-backed transfer is selected but the Details tab is never opened', async () => {
+    const dirTransfer = makeTransfer({ uuid: 't1', dataPathIsDir: true });
+    const { browseService } = configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [dirTransfer]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(browseService.list).not.toHaveBeenCalled();
+  });
+
+  it('activating the Details tab renders TransferDetails and triggers BrowseService.list', async () => {
+    const dirTransfer = makeTransfer({ uuid: 't1', dataPathIsDir: true });
+    const { browseService } = configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [dirTransfer]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const detailsTab = Array.from(root.querySelectorAll('p-tab')).find((el) => el.textContent?.includes('Details')) as HTMLElement;
+    expect(detailsTab).toBeTruthy();
+    detailsTab.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('app-transfer-details')).toBeTruthy();
+    expect(browseService.list).toHaveBeenCalled();
   });
 });
