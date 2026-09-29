@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, SimpleChanges, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { ProgressBar } from 'primeng/progressbar';
 import { Select } from 'primeng/select';
@@ -51,12 +52,25 @@ function toTorrentDownloadProperties(raw: { [key: string]: XmlRpcValue }): Torre
   templateUrl: './torrent-download-details.html',
   imports: [TableModule, ProgressBar, Select, FormsModule],
 })
-export class TorrentDownloadDetails implements OnChanges {
+export class TorrentDownloadDetails implements OnChanges, OnDestroy {
   @Input({ required: true }) transfer!: Transfer;
 
   private readonly transferApi = inject(TransferApi);
   protected readonly torrentApi = inject(TorrentDownloadApiService);
   private readonly polling = inject(PollingService);
+
+  private readonly pollSubscription: Subscription;
+
+  constructor() {
+    this.pollSubscription = this.polling.ticks$.subscribe(() => {
+      this.refreshImages();
+      this.fetchProperties();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSubscription.unsubscribe();
+  }
 
   protected readonly formatSize = formatSize;
   protected readonly formatSpeed = formatSpeed;

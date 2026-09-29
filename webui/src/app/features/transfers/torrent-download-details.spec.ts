@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
-import { NEVER } from 'rxjs';
+import { NEVER, Observable, of, Subject } from 'rxjs';
 import { TorrentDownloadDetails } from './torrent-download-details';
 import { TransferApi } from '../../core/api/transfer-api';
 import { TorrentDownloadApiService } from '../../core/torrent-download-api.service';
@@ -30,13 +29,16 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
   };
 }
 
-function configure(getTransferAdvancedProperties = vi.fn().mockReturnValue(of({}))) {
+function configure(
+  getTransferAdvancedProperties = vi.fn().mockReturnValue(of({})),
+  ticks$: Observable<number> = NEVER,
+) {
   TestBed.configureTestingModule({
     imports: [TorrentDownloadDetails],
     providers: [
       { provide: TransferApi, useValue: { getTransferAdvancedProperties } },
       { provide: TorrentDownloadApiService, useValue: { setFilePriorities: vi.fn().mockReturnValue(of(undefined)) } },
-      { provide: PollingService, useValue: { ticks$: NEVER } },
+      { provide: PollingService, useValue: { ticks$ } },
     ],
   });
   return { getTransferAdvancedProperties };
@@ -205,5 +207,34 @@ describe('TorrentDownloadDetails', () => {
     // t2's file must not have been mutated by t1's stale response.
     expect(fixture.componentInstance['properties']()?.files[0].name).toBe('t2-file.txt');
     expect(fixture.componentInstance['properties']()?.files[0].priority).toBe(1);
+  });
+
+  it('refetches properties and bumps the image cache-buster on every poll tick', () => {
+    const ticks$ = new Subject<number>();
+    const { getTransferAdvancedProperties } = configure(vi.fn().mockReturnValue(of({})), ticks$);
+    const fixture = TestBed.createComponent(TorrentDownloadDetails);
+    fixture.componentRef.setInput('transfer', makeTransfer());
+    fixture.detectChanges();
+    expect(getTransferAdvancedProperties).toHaveBeenCalledTimes(1);
+    const firstImageUrl = fixture.componentInstance['progressImageUrl']();
+
+    ticks$.next(0);
+
+    expect(getTransferAdvancedProperties).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance['progressImageUrl']()).not.toBe(firstImageUrl);
+  });
+
+  it('unsubscribes from poll ticks on destroy', () => {
+    const ticks$ = new Subject<number>();
+    const { getTransferAdvancedProperties } = configure(vi.fn().mockReturnValue(of({})), ticks$);
+    const fixture = TestBed.createComponent(TorrentDownloadDetails);
+    fixture.componentRef.setInput('transfer', makeTransfer());
+    fixture.detectChanges();
+    expect(getTransferAdvancedProperties).toHaveBeenCalledTimes(1);
+
+    fixture.destroy();
+    ticks$.next(0);
+
+    expect(getTransferAdvancedProperties).toHaveBeenCalledTimes(1);
   });
 });
