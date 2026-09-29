@@ -34,3 +34,29 @@
     </td>
   </tr>
 </table>
+<p-table [value]="properties()?.files ?? []">
+  <ng-template #header>
+    <tr>
+      <th>File Name</th>
+      <th>File Size</th>
+      <th>Progress</th>
+      <th>Priority</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-file let-i="rowIndex">
+    <tr data-testid="file-row">
+      <td>{{ fileName(file.name) }}</td>
+      <td>{{ formatSize(file.size) }}</td>
+      <td><p-progressbar [value]="fileProgress(file)"></p-progressbar></td>
+      <td>
+        <p-select
+          [options]="priorityOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="file.priority"
+          (ngModelChange)="onPriorityChange(i, $event)"
+        ></p-select>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

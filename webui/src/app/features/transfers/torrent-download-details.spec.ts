@@ -120,4 +120,52 @@ describe('TorrentDownloadDetails', () => {
     expect(getTransferAdvancedProperties).toHaveBeenNthCalledWith(1, 't1');
     expect(getTransferAdvancedProperties).toHaveBeenNthCalledWith(2, 't2');
   });
+
+  it('renders a row per file with size, progress and priority', () => {
+    configure(
+      vi.fn().mockReturnValue(
+        of({
+          files: [
+            { name: 'movie/video.mkv', size: 1000, done: 500, priority: 1 },
+            { name: 'movie/subs.srt', size: 100, done: 100, priority: 4 },
+          ],
+        }),
+      ),
+    );
+    const fixture = TestBed.createComponent(TorrentDownloadDetails);
+    fixture.componentRef.setInput('transfer', makeTransfer());
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="file-row"]');
+    expect(rows.length).toBe(2);
+    expect(rows[0].textContent).toContain('video.mkv');
+    expect(rows[1].textContent).toContain('subs.srt');
+  });
+
+  it('calls TorrentDownloadApiService.setFilePriorities and optimistically updates local state on priority change', () => {
+    const setFilePriorities = vi.fn().mockReturnValue(of(undefined));
+    TestBed.configureTestingModule({
+      imports: [TorrentDownloadDetails],
+      providers: [
+        {
+          provide: TransferApi,
+          useValue: {
+            getTransferAdvancedProperties: vi
+              .fn()
+              .mockReturnValue(of({ files: [{ name: 'a.txt', size: 10, done: 0, priority: 1 }] })),
+          },
+        },
+        { provide: TorrentDownloadApiService, useValue: { setFilePriorities } },
+        { provide: PollingService, useValue: { ticks$: NEVER } },
+      ],
+    });
+    const fixture = TestBed.createComponent(TorrentDownloadDetails);
+    fixture.componentRef.setInput('transfer', makeTransfer());
+    fixture.detectChanges();
+
+    fixture.componentInstance['onPriorityChange'](0, 7);
+
+    expect(setFilePriorities).toHaveBeenCalledWith('t1', { 0: 7 });
+    expect(fixture.componentInstance['properties']()?.files[0].priority).toBe(7);
+  });
 });

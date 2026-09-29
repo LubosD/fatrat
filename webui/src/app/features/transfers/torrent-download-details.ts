@@ -1,4 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
+import { TableModule } from 'primeng/table';
+import { ProgressBar } from 'primeng/progressbar';
+import { Select } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
 import { TransferApi } from '../../core/api/transfer-api';
 import { TorrentDownloadApiService } from '../../core/torrent-download-api.service';
 import { PollingService } from '../../core/polling.service';
@@ -45,6 +49,7 @@ function toTorrentDownloadProperties(raw: { [key: string]: XmlRpcValue }): Torre
 @Component({
   selector: 'app-torrent-download-details',
   templateUrl: './torrent-download-details.html',
+  imports: [TableModule, ProgressBar, Select, FormsModule],
 })
 export class TorrentDownloadDetails implements OnChanges {
   @Input({ required: true }) transfer!: Transfer;
@@ -95,5 +100,38 @@ export class TorrentDownloadDetails implements OnChanges {
     const uuid = encodeURIComponent(this.transfer.uuid);
     this.progressImageUrl.set(`/subclass/progress?transfer=${uuid}&xx=${this.cacheBusterCounter}`);
     this.availabilityImageUrl.set(`/subclass/availability?transfer=${uuid}&xx=${this.cacheBusterCounter}`);
+  }
+
+  protected readonly priorityOptions = [
+    { label: 'Do not download', value: 0 },
+    { label: 'Normal', value: 1 },
+    { label: 'Increased', value: 4 },
+    { label: 'Maximum', value: 7 },
+  ];
+
+  protected fileName(path: string): string {
+    const slash = path.indexOf('/');
+    return slash === -1 ? path : `[...]${path.slice(slash)}`;
+  }
+
+  protected fileProgress(file: TorrentDownloadFile): number {
+    return file.size > 0 ? Math.min(100, Math.round((100 * file.done) / file.size)) : 0;
+  }
+
+  protected onPriorityChange(fileIndex: number, priority: number): void {
+    const current = this.properties();
+    if (!current) {
+      return;
+    }
+    this.torrentApi.setFilePriorities(this.transfer.uuid, { [fileIndex]: priority }).subscribe({
+      next: () => {
+        this.properties.update((props) =>
+          props
+            ? { ...props, files: props.files.map((f, i) => (i === fileIndex ? { ...f, priority } : f)) }
+            : props,
+        );
+      },
+      error: (err) => console.error('Failed to set file priority', err),
+    });
   }
 }
