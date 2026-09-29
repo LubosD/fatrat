@@ -1,0 +1,36 @@
+<fieldset>
+  <legend>Progress</legend>
+  <img [src]="progressImageUrl()" alt="" />
+</fieldset>
+<fieldset>
+  <legend>Availability</legend>
+  <img [src]="availabilityImageUrl()" alt="" />
+</fieldset>
+<table>
+  <tr>
+    <td>Speed:</td>
+    <td>{{ formatSpeed(transfer.speeds.down) }} down, {{ formatSpeed(transfer.speeds.up) }} up</td>
+    <td>Progress:</td>
+    <td>{{ progressText() }}</td>
+  </tr>
+  <tr>
+    <td>Total download:</td>
+    <td>{{ properties()?.totalDownload }}</td>
+    <td>Total upload:</td>
+    <td>{{ properties()?.totalUpload }}</td>
+  </tr>
+  <tr>
+    <td>Share ratio:</td>
+    <td>{{ properties()?.ratio }}</td>
+    <td>Magnet link:</td>
+    <td><input type="text" readonly data-testid="magnet-link" [value]="properties()?.magnetLink ?? ''" /></td>
+  </tr>
+  <tr>
+    <td>Comment:</td>
+    <td colspan="3" data-testid="comment">
+      @for (line of commentLines(); track $index) {
+        <div>{{ line }}</div>
+      }
+    </td>
+  </tr>
+</table>
