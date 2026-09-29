@@ -17,7 +17,7 @@
     @if (detailComponent(); as cmp) {
       <fieldset>
         <legend>Transfer details</legend>
-        <ng-container *ngComponentOutlet="cmp"></ng-container>
+        <ng-container *ngComponentOutlet="cmp; inputs: { transfer: transfer }"></ng-container>
       </fieldset>
     }
   </div>

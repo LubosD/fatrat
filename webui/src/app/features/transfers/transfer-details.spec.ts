@@ -1,9 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
+import { of, Subject, NEVER } from 'rxjs';
 import { TransferDetails } from './transfer-details';
 import { TransfersStore } from '../../state/transfers.store';
 import { BrowseService } from '../../core/browse.service';
+import { TransferApi } from '../../core/api/transfer-api';
+import { TorrentDownloadApiService } from '../../core/torrent-download-api.service';
+import { PollingService } from '../../core/polling.service';
 import { Transfer } from '../../core/api/models';
 
 function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
@@ -37,6 +40,9 @@ function configure(selectedUuids: string[], transfers: Transfer[]) {
     providers: [
       { provide: TransfersStore, useValue: { transfers: transfersSignal, selectedUuids: selectedUuidsSignal } },
       { provide: BrowseService, useValue: { list: browseList } },
+      { provide: TransferApi, useValue: { getTransferAdvancedProperties: () => of({}) } },
+      { provide: TorrentDownloadApiService, useValue: { setFilePriorities: () => of(undefined) } },
+      { provide: PollingService, useValue: { ticks$: NEVER } },
     ],
   });
   return { browseList, transfersSignal, selectedUuidsSignal };
@@ -215,7 +221,7 @@ describe('TransferDetails', () => {
     const fixture = TestBed.createComponent(TransferDetails);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('app-torrent-download-details-placeholder')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-torrent-download-details')).toBeTruthy();
   });
 
   it('renders no subclass panel when detailsScript has no registry entry', () => {
@@ -223,6 +229,6 @@ describe('TransferDetails', () => {
     const fixture = TestBed.createComponent(TransferDetails);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('app-torrent-download-details-placeholder')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-torrent-download-details')).toBeNull();
   });
 });
