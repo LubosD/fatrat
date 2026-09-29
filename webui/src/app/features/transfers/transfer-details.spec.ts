@@ -1,5 +1,6 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { TransferDetails } from './transfer-details';
 import { TransfersStore } from '../../state/transfers.store';
 import { BrowseService } from '../../core/browse.service';
@@ -29,14 +30,16 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
 
 function configure(selectedUuids: string[], transfers: Transfer[]) {
   const browseList = vi.fn().mockReturnValue(of([]));
+  const transfersSignal = signal<Transfer[]>(transfers);
+  const selectedUuidsSignal = signal<string[]>(selectedUuids);
   TestBed.configureTestingModule({
     imports: [TransferDetails],
     providers: [
-      { provide: TransfersStore, useValue: { transfers: () => transfers, selectedUuids: () => selectedUuids } },
+      { provide: TransfersStore, useValue: { transfers: transfersSignal, selectedUuids: selectedUuidsSignal } },
       { provide: BrowseService, useValue: { list: browseList } },
     ],
   });
-  return { browseList };
+  return { browseList, transfersSignal, selectedUuidsSignal };
 }
 
 describe('TransferDetails', () => {
@@ -132,5 +135,78 @@ describe('TransferDetails', () => {
       node: { key: '/movies', label: 'movies', leaf: false },
     });
     expect(navigateTo).not.toHaveBeenCalled();
+  });
+
+  it('refetches the browse tree when the selected transfer uuid changes', async () => {
+    const { browseList, selectedUuidsSignal } = configure(
+      ['t1'],
+      [makeTransfer({ uuid: 't1', dataPathIsDir: true }), makeTransfer({ uuid: 't2', dataPathIsDir: true })],
+    );
+    browseList.mockReturnValue(of([{ key: '/movies', label: 'movies', leaf: false }]));
+
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(browseList).toHaveBeenCalledWith('t1', '');
+    expect(browseList).toHaveBeenCalledTimes(1);
+
+    browseList.mockReturnValue(of([{ key: '/shows', label: 'shows', leaf: false }]));
+    selectedUuidsSignal.set(['t2']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(browseList).toHaveBeenCalledWith('t2', '');
+    expect(browseList).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not refetch the browse tree when transfers() updates but the selected transfer is unchanged (Bug 1)', async () => {
+    const { browseList, transfersSignal } = configure(['t1'], [makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    browseList.mockReturnValue(of([{ key: '/movies', label: 'movies', leaf: false }]));
+
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(browseList).toHaveBeenCalledTimes(1);
+
+    // Simulate a poll tick: TransfersStore.refresh() sets a brand-new array of brand-new Transfer
+    // objects with the same primitive field values — nothing about the selection actually changed.
+    transfersSignal.set([makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(browseList).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a stale browse.list response from a previously-selected transfer (Bug 2)', async () => {
+    const { browseList, selectedUuidsSignal } = configure(
+      ['t1'],
+      [makeTransfer({ uuid: 't1', dataPathIsDir: true }), makeTransfer({ uuid: 't2', dataPathIsDir: true })],
+    );
+    const t1Subject = new Subject<{ key: string; label: string; leaf: boolean }[]>();
+    const t2Subject = new Subject<{ key: string; label: string; leaf: boolean }[]>();
+    browseList.mockReturnValueOnce(t1Subject);
+
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(browseList).toHaveBeenCalledWith('t1', '');
+
+    browseList.mockReturnValueOnce(t2Subject);
+    selectedUuidsSignal.set(['t2']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(browseList).toHaveBeenCalledWith('t2', '');
+
+    // t2's response arrives first and renders correctly.
+    t2Subject.next([{ key: '/shows', label: 'shows', leaf: false }]);
+    expect(fixture.componentInstance['treeNodes']()).toEqual([{ key: '/shows', label: 'shows', leaf: false }]);
+
+    // t1's stale response arrives late — it must not clobber the currently-displayed t2 data.
+    t1Subject.next([{ key: '/movies', label: 'movies', leaf: false }]);
+    expect(fixture.componentInstance['treeNodes']()).toEqual([{ key: '/shows', label: 'shows', leaf: false }]);
   });
 });

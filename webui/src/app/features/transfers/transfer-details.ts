@@ -24,15 +24,36 @@ export class TransferDetails {
 
   protected readonly treeNodes = signal<TreeNode[]>([]);
 
+  /**
+   * The uuid of the transfer we last fetched (or cleared) the tree for. A plain instance field
+   * rather than a signal: TransfersStore.refresh() replaces `transfers` with a brand-new array of
+   * brand-new Transfer objects on every poll tick, so selectedTransfer() produces a new object
+   * reference every tick even when the selection hasn't changed. Angular's effect() reruns
+   * whenever any signal it reads changes by reference, so without this manual guard the effect
+   * below would refetch on every poll tick instead of only when the selection actually changes.
+   */
+  private lastFetchedUuid: string | null = null;
+
   constructor() {
     effect(() => {
       const transfer = this.selectedTransfer();
+      const uuid = transfer?.uuid ?? null;
+      if (uuid === this.lastFetchedUuid) {
+        return;
+      }
+      this.lastFetchedUuid = uuid;
       if (!transfer?.dataPathIsDir) {
         this.treeNodes.set([]);
         return;
       }
-      this.browse.list(transfer.uuid, '').subscribe({
-        next: (nodes) => this.treeNodes.set(nodes),
+      const transferUuid = transfer.uuid;
+      this.browse.list(transferUuid, '').subscribe({
+        next: (nodes) => {
+          // Guard against a stale response: only apply it if this is still the selected transfer.
+          if (this.selectedTransfer()?.uuid === transferUuid) {
+            this.treeNodes.set(nodes);
+          }
+        },
         error: (err) => console.error('Failed to list transfer directory', err),
       });
     });
@@ -49,8 +70,13 @@ export class TransferDetails {
     if (!transfer || node.leaf || node.children) {
       return;
     }
-    this.browse.list(transfer.uuid, node.key ?? '').subscribe({
+    const transferUuid = transfer.uuid;
+    this.browse.list(transferUuid, node.key ?? '').subscribe({
       next: (children) => {
+        // Guard against a stale response: only apply it if this is still the selected transfer.
+        if (this.selectedTransfer()?.uuid !== transferUuid) {
+          return;
+        }
         node.children = children;
         this.treeNodes.set([...this.treeNodes()]);
       },
