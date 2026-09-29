@@ -64,4 +64,73 @@ describe('TransferDetails', () => {
     expect(link.getAttribute('href')).toBe('/download?transfer=t1');
     expect(link.textContent).toContain('file.zip');
   });
+
+  it('loads and renders the root of the browse tree for a directory transfer', async () => {
+    const { browseList } = configure(['t1'], [makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    browseList.mockReturnValue(of([{ key: '/movies', label: 'movies', leaf: false }]));
+
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(browseList).toHaveBeenCalledWith('t1', '');
+    expect(fixture.nativeElement.textContent).toContain('movies');
+  });
+
+  it('does not render a download link for a directory transfer', async () => {
+    const { browseList } = configure(['t1'], [makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    browseList.mockReturnValue(of([]));
+
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('a[data-testid="download-link"]')).toBeNull();
+  });
+
+  it('fetches children lazily on node expand and merges them into the tree', async () => {
+    const { browseList } = configure(['t1'], [makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    browseList.mockReturnValue(of([{ key: '/movies', label: 'movies', leaf: false }]));
+
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    browseList.mockReturnValue(of([{ key: '/movies/one.mkv', label: 'one.mkv', leaf: true }]));
+    fixture.componentInstance['onNodeExpand']({
+      originalEvent: new Event('click'),
+      node: fixture.componentInstance['treeNodes']()[0],
+    });
+
+    expect(browseList).toHaveBeenCalledWith('t1', '/movies');
+    expect(fixture.componentInstance['treeNodes']()[0].children).toEqual([{ key: '/movies/one.mkv', label: 'one.mkv', leaf: true }]);
+  });
+
+  it('navigates to the download URL when a leaf node is selected', () => {
+    configure(['t1'], [makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    const navigateTo = vi.spyOn(fixture.componentInstance as any, 'navigateTo');
+
+    fixture.componentInstance['onNodeSelect']({
+      originalEvent: new Event('click'),
+      node: { key: '/readme.txt', label: 'readme.txt', leaf: true },
+    });
+    expect(navigateTo).toHaveBeenCalledWith('/download?transfer=t1&path=%2Freadme.txt');
+  });
+
+  it('does nothing when a folder node is selected', () => {
+    configure(['t1'], [makeTransfer({ uuid: 't1', dataPathIsDir: true })]);
+    const fixture = TestBed.createComponent(TransferDetails);
+    fixture.detectChanges();
+    const navigateTo = vi.spyOn(fixture.componentInstance as any, 'navigateTo');
+
+    fixture.componentInstance['onNodeSelect']({
+      originalEvent: new Event('click'),
+      node: { key: '/movies', label: 'movies', leaf: false },
+    });
+    expect(navigateTo).not.toHaveBeenCalled();
+  });
 });
