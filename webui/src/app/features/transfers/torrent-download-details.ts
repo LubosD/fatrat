@@ -118,16 +118,24 @@ export class TorrentDownloadDetails implements OnChanges {
     return file.size > 0 ? Math.min(100, Math.round((100 * file.done) / file.size)) : 0;
   }
 
+  protected readonly trackByFileName = (_: number, file: TorrentDownloadFile): string => file.name;
+
   protected onPriorityChange(fileIndex: number, priority: number): void {
     const current = this.properties();
     if (!current) {
       return;
     }
-    this.torrentApi.setFilePriorities(this.transfer.uuid, { [fileIndex]: priority }).subscribe({
+    const requestUuid = this.transfer.uuid;
+    const fileName = current.files[fileIndex]?.name;
+    this.torrentApi.setFilePriorities(requestUuid, { [fileIndex]: priority }).subscribe({
       next: () => {
+        // Guard against a stale response: only apply it if this is still the selected transfer.
+        if (this.transfer.uuid !== requestUuid) {
+          return;
+        }
         this.properties.update((props) =>
           props
-            ? { ...props, files: props.files.map((f, i) => (i === fileIndex ? { ...f, priority } : f)) }
+            ? { ...props, files: props.files.map((f) => (f.name === fileName ? { ...f, priority } : f)) }
             : props,
         );
       },

@@ -34,7 +34,7 @@
     </td>
   </tr>
 </table>
-<p-table [value]="properties()?.files ?? []">
+<p-table [value]="properties()?.files ?? []" dataKey="name" [rowTrackBy]="trackByFileName">
   <ng-template #header>
     <tr>
       <th>File Name</th>

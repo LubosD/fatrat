@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { NEVER } from 'rxjs';
 import { TorrentDownloadDetails } from './torrent-download-details';
 import { TransferApi } from '../../core/api/transfer-api';
@@ -167,5 +167,43 @@ describe('TorrentDownloadDetails', () => {
 
     expect(setFilePriorities).toHaveBeenCalledWith('t1', { 0: 7 });
     expect(fixture.componentInstance['properties']()?.files[0].priority).toBe(7);
+  });
+
+  it('does not apply a stale setFilePriorities response after the transfer input has switched to a different torrent', () => {
+    const priorityResponse$ = new Subject<void>();
+    const setFilePriorities = vi.fn().mockReturnValue(priorityResponse$);
+    const getTransferAdvancedProperties = vi.fn().mockImplementation((uuid: string) =>
+      uuid === 't1'
+        ? of({ files: [{ name: 't1-file.txt', size: 10, done: 0, priority: 1 }] })
+        : of({ files: [{ name: 't2-file.txt', size: 20, done: 0, priority: 1 }] }),
+    );
+    TestBed.configureTestingModule({
+      imports: [TorrentDownloadDetails],
+      providers: [
+        { provide: TransferApi, useValue: { getTransferAdvancedProperties } },
+        { provide: TorrentDownloadApiService, useValue: { setFilePriorities } },
+        { provide: PollingService, useValue: { ticks$: NEVER } },
+      ],
+    });
+    const fixture = TestBed.createComponent(TorrentDownloadDetails);
+    fixture.componentRef.setInput('transfer', makeTransfer({ uuid: 't1' }));
+    fixture.detectChanges();
+
+    // Trigger a priority change on t1, but don't resolve it yet.
+    fixture.componentInstance['onPriorityChange'](0, 7);
+    expect(setFilePriorities).toHaveBeenCalledWith('t1', { 0: 7 });
+
+    // Switch to a different torrent (t2) before t1's response arrives.
+    fixture.componentRef.setInput('transfer', makeTransfer({ uuid: 't2' }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance['properties']()?.files[0].name).toBe('t2-file.txt');
+
+    // Now resolve t1's stale response.
+    priorityResponse$.next();
+    priorityResponse$.complete();
+
+    // t2's file must not have been mutated by t1's stale response.
+    expect(fixture.componentInstance['properties']()?.files[0].name).toBe('t2-file.txt');
+    expect(fixture.componentInstance['properties']()?.files[0].priority).toBe(1);
   });
 });
