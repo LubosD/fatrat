@@ -99,8 +99,15 @@ export class TorrentDownloadDetails implements OnChanges, OnDestroy {
   }
 
   private fetchProperties(): void {
-    this.transferApi.getTransferAdvancedProperties(this.transfer.uuid).subscribe({
-      next: (raw) => this.properties.set(toTorrentDownloadProperties(raw)),
+    const requestUuid = this.transfer.uuid;
+    this.transferApi.getTransferAdvancedProperties(requestUuid).subscribe({
+      next: (raw) => {
+        // Guard against a stale response: only apply it if this is still the selected transfer.
+        if (this.transfer.uuid !== requestUuid) {
+          return;
+        }
+        this.properties.set(toTorrentDownloadProperties(raw));
+      },
       error: (err) => console.error('Failed to fetch torrent details', err),
     });
   }

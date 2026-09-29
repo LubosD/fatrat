@@ -209,6 +209,41 @@ describe('TorrentDownloadDetails', () => {
     expect(fixture.componentInstance['properties']()?.files[0].priority).toBe(1);
   });
 
+  it('does not apply a stale fetchProperties response after the transfer input has switched to a different torrent', () => {
+    const t1Response$ = new Subject<{ [key: string]: unknown }>();
+    const getTransferAdvancedProperties = vi.fn().mockImplementation((uuid: string) =>
+      uuid === 't1' ? t1Response$ : of({ totalDownload: 't2-total', ratio: 't2-ratio', comment: '', files: [] }),
+    );
+    TestBed.configureTestingModule({
+      imports: [TorrentDownloadDetails],
+      providers: [
+        { provide: TransferApi, useValue: { getTransferAdvancedProperties } },
+        { provide: TorrentDownloadApiService, useValue: { setFilePriorities: vi.fn().mockReturnValue(of(undefined)) } },
+        { provide: PollingService, useValue: { ticks$: NEVER } },
+      ],
+    });
+    const fixture = TestBed.createComponent(TorrentDownloadDetails);
+
+    // Select transfer A (t1). Its fetchProperties() fires via ngOnChanges but doesn't resolve yet.
+    fixture.componentRef.setInput('transfer', makeTransfer({ uuid: 't1' }));
+    fixture.detectChanges();
+    expect(getTransferAdvancedProperties).toHaveBeenCalledWith('t1');
+
+    // Switch to a different torrent (t2) before t1's response arrives. t2's own fetchProperties()
+    // resolves synchronously via `of(...)`.
+    fixture.componentRef.setInput('transfer', makeTransfer({ uuid: 't2' }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance['properties']()?.totalDownload).toBe('t2-total');
+
+    // Now resolve t1's now-stale response.
+    t1Response$.next({ totalDownload: 't1-total', ratio: 't1-ratio', comment: '', files: [] });
+    t1Response$.complete();
+
+    // properties() must still reflect t2's data, not t1's stale response.
+    expect(fixture.componentInstance['properties']()?.totalDownload).toBe('t2-total');
+    expect(fixture.componentInstance['properties']()?.ratio).toBe('t2-ratio');
+  });
+
   it('refetches properties and bumps the image cache-buster on every poll tick', () => {
     const ticks$ = new Subject<number>();
     const { getTransferAdvancedProperties } = configure(vi.fn().mockReturnValue(of({})), ticks$);
