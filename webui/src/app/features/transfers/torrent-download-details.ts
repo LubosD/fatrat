@@ -23,7 +23,7 @@ interface TorrentDownloadProperties {
 }
 
 function toTorrentDownloadProperties(raw: { [key: string]: XmlRpcValue }): TorrentDownloadProperties {
-  const rawFiles = (raw['files'] as XmlRpcValue[] | undefined) ?? [];
+  const rawFiles = Array.isArray(raw['files']) ? raw['files'] : [];
   return {
     totalDownload: typeof raw['totalDownload'] === 'string' ? raw['totalDownload'] : '',
     totalUpload: typeof raw['totalUpload'] === 'string' ? raw['totalUpload'] : '',
