@@ -1,0 +1,12 @@
+@if (selectedTransfer(); as transfer) {
+  <div class="transfer-details">
+    <fieldset>
+      <legend>Download transfer data</legend>
+      @if (!transfer.dataPathIsDir) {
+        <a data-testid="download-link" [href]="downloadUrl(transfer.uuid)">Download the file ({{ transfer.name }})</a>
+      }
+    </fieldset>
+  </div>
+} @else {
+  <p>Select a single transfer to view details.</p>
+}
