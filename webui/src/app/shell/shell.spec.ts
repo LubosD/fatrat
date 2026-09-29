@@ -7,6 +7,7 @@ import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
+import { BrowseService } from '../core/browse.service';
 import { Queue, Transfer } from '../core/api/models';
 import { of } from 'rxjs';
 
@@ -93,6 +94,7 @@ function configure(
       { provide: TransferActionsService, useValue: actions },
       { provide: QueueActionsService, useValue: queueActions },
       { provide: TransferApi, useValue: { getTransferClasses: () => of([]) } },
+      { provide: BrowseService, useValue: { list: () => of([]) } },
       ConfirmationService,
     ],
   });
@@ -303,6 +305,7 @@ describe('Shell', () => {
         { provide: TransferActionsService, useValue: makeActionsStub() },
         { provide: QueueActionsService, useValue: makeQueueActionsStub() },
         { provide: TransferApi, useValue: { getTransferClasses } },
+        { provide: BrowseService, useValue: { list: () => of([]) } },
         ConfirmationService,
       ],
     });
@@ -356,5 +359,16 @@ describe('Shell', () => {
       expect.objectContaining({ upload: false, queueUuid: 'q1', target: '/downloads' }),
     );
     expect(actions.addTransferWithData).not.toHaveBeenCalled();
+  });
+
+  it('renders Transfers and Details tabs', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(Array.from(root.querySelectorAll('p-tab')).some((el) => el.textContent?.includes('Transfers'))).toBe(true);
+    expect(Array.from(root.querySelectorAll('p-tab')).some((el) => el.textContent?.includes('Details'))).toBe(true);
+    expect(root.querySelector('app-transfer-table')).toBeTruthy();
   });
 });

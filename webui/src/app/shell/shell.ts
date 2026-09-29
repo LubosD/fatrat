@@ -5,8 +5,10 @@ import { Select } from 'primeng/select';
 import { Splitter } from 'primeng/splitter';
 import { ButtonDirective } from 'primeng/button';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
+import { TransferDetails } from '../features/transfers/transfer-details';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
 import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
@@ -27,6 +29,12 @@ import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/
     Splitter,
     ButtonDirective,
     ConfirmDialog,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    TransferDetails,
     QueueList,
     TransferTable,
     QueuePropertiesDialog,

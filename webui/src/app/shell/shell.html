@@ -60,6 +60,15 @@
     <app-queue-list></app-queue-list>
   </ng-template>
   <ng-template #panel>
-    <app-transfer-table></app-transfer-table>
+    <p-tabs value="0" class="details-tabs">
+      <p-tablist>
+        <p-tab value="0">Transfers</p-tab>
+        <p-tab value="1">Details</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0"><app-transfer-table></app-transfer-table></p-tabpanel>
+        <p-tabpanel value="1" [lazy]="true"><app-transfer-details></app-transfer-details></p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   </ng-template>
 </p-splitter>
