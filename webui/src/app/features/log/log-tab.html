@@ -1,0 +1,14 @@
+<div class="log-tab">
+  <fieldset>
+    <legend>Global Log</legend>
+    <pre #globalLogEl class="log-panel" data-testid="global-log">{{ globalLog() }}</pre>
+  </fieldset>
+  <fieldset>
+    <legend>Transfer Log</legend>
+    @if (selectedTransferUuid(); as uuid) {
+      <pre #transferLogEl class="log-panel" data-testid="transfer-log">{{ transferLog() }}</pre>
+    } @else {
+      <p>Select a single transfer to view its log.</p>
+    }
+  </fieldset>
+</div>
