@@ -75,9 +75,32 @@ describe('LogTab', () => {
     expect(getGlobalLog).toHaveBeenCalledTimes(2);
   });
 
+  it('refetches the transfer log when the selected transfer changes while active, without waiting for a poll tick', () => {
+    const getTransferLog = vi.fn().mockReturnValue(of(''));
+    const { selectedUuidsSignal } = configure(['t1'], vi.fn().mockReturnValue(of('')), getTransferLog);
+    const fixture = TestBed.createComponent(LogTab);
+    fixture.componentRef.setInput('active', true);
+    fixture.detectChanges();
+    expect(getTransferLog).toHaveBeenCalledTimes(1);
+    expect(getTransferLog).toHaveBeenCalledWith('t1');
+
+    selectedUuidsSignal.set(['t2']);
+    fixture.detectChanges();
+
+    expect(getTransferLog).toHaveBeenCalledWith('t2');
+    expect(getTransferLog.mock.calls.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('ignores a stale transfer-log response for a transfer that is no longer selected', () => {
-    const responseSubject = new Subject<string>();
-    const getTransferLog = vi.fn().mockReturnValue(responseSubject);
+    // Distinct subjects per transfer: selecting t2 while active now legitimately triggers its own
+    // fetch (the fix under test above), so t1's and t2's responses must be distinguishable, or
+    // this test couldn't tell a "stale t1 response" apart from a "fresh t2 response" arriving on
+    // the same observable.
+    const t1Subject = new Subject<string>();
+    const t2Subject = new Subject<string>();
+    const getTransferLog = vi
+      .fn()
+      .mockImplementation((uuid: string) => (uuid === 't1' ? t1Subject : t2Subject));
     const { selectedUuidsSignal } = configure(['t1'], vi.fn().mockReturnValue(of('')), getTransferLog);
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', true);
@@ -85,7 +108,7 @@ describe('LogTab', () => {
 
     selectedUuidsSignal.set(['t2']);
     fixture.detectChanges();
-    responseSubject.next('stale t1 log');
+    t1Subject.next('stale t1 log');
 
     expect(fixture.componentInstance['transferLog']()).toBe('');
   });
