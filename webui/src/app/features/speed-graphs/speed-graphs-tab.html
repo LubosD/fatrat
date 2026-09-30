@@ -1,0 +1,13 @@
+<div class="speed-graphs">
+  @if (selectedTransferUuid(); as uuid) {
+    <app-speed-graph-chart title="Transfer Speed" [samples]="transferSamples()"></app-speed-graph-chart>
+  } @else {
+    <p>Select a single transfer to view its speed graph.</p>
+  }
+
+  @if (queuesStore.selectedQueueUuid(); as queueUuid) {
+    <app-speed-graph-chart title="Queue Speed" [samples]="queueSamples()"></app-speed-graph-chart>
+  } @else {
+    <p>Select a queue to view its speed graph.</p>
+  }
+</div>
