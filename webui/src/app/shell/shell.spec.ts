@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ConfirmationService } from 'primeng/api';
 import { Shell } from './shell';
 import { QueuesStore } from '../state/queues.store';
@@ -8,8 +9,11 @@ import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
 import { BrowseService } from '../core/browse.service';
+import { LogService } from '../core/log.service';
+import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
+import { LogTab } from '../features/log/log-tab';
 import { Queue, Transfer } from '../core/api/models';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 function makeQueue(overrides: Partial<Queue> = {}): Queue {
   return {
@@ -90,12 +94,16 @@ function configure(
       },
       {
         provide: PollingService,
-        useValue: { intervalSeconds: () => intervalSeconds, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn() },
+        useValue: { intervalSeconds: () => intervalSeconds, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() },
       },
       { provide: TransferActionsService, useValue: actions },
       { provide: QueueActionsService, useValue: queueActions },
-      { provide: TransferApi, useValue: { getTransferClasses: () => of([]) } },
+      {
+        provide: TransferApi,
+        useValue: { getTransferClasses: () => of([]), getTransferSpeedGraph: () => of([]), getQueueSpeedGraph: () => of([]) },
+      },
       { provide: BrowseService, useValue: browseService },
+      { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
       ConfirmationService,
     ],
   });
@@ -302,11 +310,12 @@ describe('Shell', () => {
           provide: TransfersStore,
           useValue: { transfers: () => [], selectedUuids: () => [], isSelected: () => false, toggleSelection: vi.fn(), selectOnly: vi.fn() },
         },
-        { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn() } },
+        { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() } },
         { provide: TransferActionsService, useValue: makeActionsStub() },
         { provide: QueueActionsService, useValue: makeQueueActionsStub() },
-        { provide: TransferApi, useValue: { getTransferClasses } },
+        { provide: TransferApi, useValue: { getTransferClasses, getTransferSpeedGraph: () => of([]), getQueueSpeedGraph: () => of([]) } },
         { provide: BrowseService, useValue: { list: () => of([]) } },
+        { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
         ConfirmationService,
       ],
     });
@@ -402,5 +411,45 @@ describe('Shell', () => {
 
     expect(root.querySelector('app-transfer-details')).toBeTruthy();
     expect(browseService.list).toHaveBeenCalled();
+  });
+
+  it('renders Speed Graphs and Log tabs, and only the active tab is marked active', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const tabs = Array.from(root.querySelectorAll('p-tab'));
+    expect(tabs.some((el) => el.textContent?.includes('Speed Graphs'))).toBe(true);
+    expect(tabs.some((el) => el.textContent?.includes('Log'))).toBe(true);
+
+    // Transfers tab (value "0") is selected by default. Both new panels are [lazy]="true", and
+    // PrimeNG's TabPanel never instantiates lazy content until that panel is activated at least
+    // once (confirmed against node_modules/primeng/fesm2022/primeng-tabs.mjs's shouldRender()),
+    // matching the established Phase 3a "Details tab is never opened" behavior tested above — so
+    // neither app-speed-graphs-tab nor app-log-tab exists in the DOM yet.
+    expect(root.querySelector('app-speed-graphs-tab')).toBeNull();
+    expect(root.querySelector('app-log-tab')).toBeNull();
+
+    // Activate Speed Graphs (value "2"): its content renders for the first time with
+    // active=true, while Log (value "3") remains unrendered.
+    fixture.componentInstance['activeTab'].set('2');
+    fixture.detectChanges();
+
+    const speedGraphsTabDebugEl = fixture.debugElement.query(By.directive(SpeedGraphsTab));
+    expect(speedGraphsTabDebugEl).toBeTruthy();
+    expect(speedGraphsTabDebugEl.componentInstance.active).toBe(true);
+    expect(root.querySelector('app-log-tab')).toBeNull();
+
+    // Activate Log (value "3"): Speed Graphs' component instance persists (lazy content, once
+    // rendered, is only hidden — not destroyed) but its `active` input flips to false, proving
+    // the [active] binding tracks the current tab rather than being a one-shot initial value.
+    fixture.componentInstance['activeTab'].set('3');
+    fixture.detectChanges();
+
+    const logTabDebugEl = fixture.debugElement.query(By.directive(LogTab));
+    expect(logTabDebugEl).toBeTruthy();
+    expect(logTabDebugEl.componentInstance.active).toBe(true);
+    expect(speedGraphsTabDebugEl.componentInstance.active).toBe(false);
   });
 });

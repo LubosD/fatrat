@@ -60,16 +60,28 @@
     <app-queue-list></app-queue-list>
   </ng-template>
   <ng-template #panel>
-    <p-tabs value="0" class="details-tabs">
+    <p-tabs [(value)]="activeTab" class="details-tabs">
       <p-tablist>
         <p-tab value="0">Transfers</p-tab>
         <p-tab value="1">Details</p-tab>
+        <p-tab value="2">Speed Graphs</p-tab>
+        <p-tab value="3">Log</p-tab>
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="0"><app-transfer-table></app-transfer-table></p-tabpanel>
         <p-tabpanel value="1" [lazy]="true">
           <ng-template #content>
             <app-transfer-details></app-transfer-details>
+          </ng-template>
+        </p-tabpanel>
+        <p-tabpanel value="2" [lazy]="true">
+          <ng-template #content>
+            <app-speed-graphs-tab [active]="activeTab() === '2'"></app-speed-graphs-tab>
+          </ng-template>
+        </p-tabpanel>
+        <p-tabpanel value="3" [lazy]="true">
+          <ng-template #content>
+            <app-log-tab [active]="activeTab() === '3'"></app-log-tab>
           </ng-template>
         </p-tabpanel>
       </p-tabpanels>

@@ -12,6 +12,8 @@ import { TransferDetails } from '../features/transfers/transfer-details';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
 import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
+import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
+import { LogTab } from '../features/log/log-tab';
 import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
@@ -35,6 +37,8 @@ import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/
     TabPanels,
     TabPanel,
     TransferDetails,
+    SpeedGraphsTab,
+    LogTab,
     QueueList,
     TransferTable,
     QueuePropertiesDialog,
@@ -54,6 +58,7 @@ export class Shell {
   private readonly transferApi = inject(TransferApi);
 
   protected readonly transferClasses = signal<TransferClass[]>([]);
+  protected readonly activeTab = signal('0');
 
   constructor() {
     this.transferApi.getTransferClasses().subscribe({
