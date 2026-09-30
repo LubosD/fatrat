@@ -89,9 +89,32 @@ describe('SpeedGraphsTab', () => {
     expect(getTransferSpeedGraph).toHaveBeenCalledTimes(2);
   });
 
+  it('refetches the transfer graph when the selected transfer changes while active, without waiting for a poll tick', () => {
+    const getTransferSpeedGraph = vi.fn().mockReturnValue(of([]));
+    const { selectedUuidsSignal } = configure(['t1'], 'q1', getTransferSpeedGraph);
+    const fixture = TestBed.createComponent(SpeedGraphsTab);
+    fixture.componentRef.setInput('active', true);
+    fixture.detectChanges();
+    expect(getTransferSpeedGraph).toHaveBeenCalledTimes(1);
+    expect(getTransferSpeedGraph).toHaveBeenCalledWith('t1');
+
+    selectedUuidsSignal.set(['t2']);
+    fixture.detectChanges();
+
+    expect(getTransferSpeedGraph).toHaveBeenCalledWith('t2');
+    expect(getTransferSpeedGraph.mock.calls.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('ignores a stale speed-graph response for a transfer that is no longer selected', () => {
-    const responseSubject = new Subject<{ down: number; up: number }[]>();
-    const getTransferSpeedGraph = vi.fn().mockReturnValue(responseSubject);
+    // Distinct subjects per transfer: selecting t2 while active now legitimately triggers its own
+    // fetch (that's the fix under test elsewhere), so t1's and t2's responses must be
+    // distinguishable, or this test couldn't tell a "stale t1 response" apart from a "fresh t2
+    // response" arriving on the same observable.
+    const t1Subject = new Subject<{ down: number; up: number }[]>();
+    const t2Subject = new Subject<{ down: number; up: number }[]>();
+    const getTransferSpeedGraph = vi
+      .fn()
+      .mockImplementation((uuid: string) => (uuid === 't1' ? t1Subject : t2Subject));
     const { selectedUuidsSignal } = configure(['t1'], 'q1', getTransferSpeedGraph);
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
@@ -100,7 +123,7 @@ describe('SpeedGraphsTab', () => {
     // Selection changes to a different transfer before t1's response arrives.
     selectedUuidsSignal.set(['t2']);
     fixture.detectChanges();
-    responseSubject.next([{ down: 999, up: 999 }]);
+    t1Subject.next([{ down: 999, up: 999 }]);
 
     expect(fixture.componentInstance['transferSamples']()).toEqual([]);
   });

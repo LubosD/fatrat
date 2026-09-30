@@ -1,4 +1,14 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SpeedGraphChart } from './speed-graph-chart';
 import { TransferApi } from '../../core/api/transfer-api';
@@ -29,6 +39,33 @@ export class SpeedGraphsTab implements OnChanges, OnDestroy {
   protected readonly queueSamples = signal<SpeedSample[]>([]);
 
   private pollSubscription: Subscription | null = null;
+
+  /**
+   * The transfer/queue uuids we last saw the selection effect fire for. Plain instance fields
+   * rather than signals, mirroring TransferDetails.lastFetchedUuid. Seeded (via field
+   * initializers, which run before the constructor body below) to the *current* signal values
+   * rather than a sentinel: ngOnChanges already issues the activation refresh() when `active`
+   * transitions to true, and this effect's first run happens on the same change-detection pass.
+   * Seeding to the current values means that first run sees "no change" and stays a no-op, so we
+   * don't double-fetch at the exact moment of activation; any real selection change afterwards
+   * still differs from these seeded values and is caught normally.
+   */
+  private lastTransferUuid: string | null | undefined = this.selectedTransferUuid();
+  private lastQueueUuid: string | null | undefined = this.queuesStore.selectedQueueUuid();
+
+  constructor() {
+    effect(() => {
+      const transferUuid = this.selectedTransferUuid();
+      const queueUuid = this.queuesStore.selectedQueueUuid();
+      const selectionChanged =
+        transferUuid !== this.lastTransferUuid || queueUuid !== this.lastQueueUuid;
+      this.lastTransferUuid = transferUuid;
+      this.lastQueueUuid = queueUuid;
+      if (selectionChanged && this.active) {
+        this.refresh();
+      }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!('active' in changes)) {
