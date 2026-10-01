@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, of } from 'rxjs';
 import { activeGatedPoll, PollEmission } from './active-gated-poll';
 
 type Fetch = (selection: string) => Observable<string>;
@@ -150,7 +150,36 @@ describe('activeGatedPoll', () => {
     // The stale activation response arrives late — it must produce no emission.
     firstResponse.next('stale activation data');
 
-    expect(emissions).toEqual([{ value: 'tick data', isActivation: false }]);
+    // isActivation is true here: this is the first value to ever emit for this selection, even
+    // though it happened to be triggered by a tick that won a race against the (never-resolved)
+    // activation fetch. Under the old tick===null check this was (incorrectly) false; the fixed
+    // semantics correctly treat "first displayed data for a newly-current selection" as an
+    // activation emission regardless of which underlying fetch happened to win the race.
+    expect(emissions).toEqual([{ value: 'tick data', isActivation: true }]);
+  });
+
+  it('correctly flags the surviving fetch as isActivation when ticks$ synchronously replays a buffered tick (shareReplay simulation)', () => {
+    // Simulates what PollingService.ticks$ does now that it's shareReplay({ bufferSize: 1,
+    // refCount: false }): a fresh subscription to ticks$ synchronously replays the last real
+    // tick. Combined with startWith(null) (implemented as concat(of(null), ticks$)), a fresh
+    // selection-level subscription synchronously sees TWO values back-to-back: null, then the
+    // replayed real tick. With an async fetch, switchMap cancels the null-triggered fetch before
+    // it can emit, so only the tick-triggered fetch survives — but it must still be reported as
+    // isActivation: true, since it's the first (and only) emission for this selection.
+    const active$ = new Subject<boolean>();
+    const selection$ = new Subject<string>();
+    const ticks$ = new ReplaySubject<number>(1);
+    ticks$.next(5); // a real tick already buffered, as shareReplay would replay synchronously
+    const response = new Subject<string>();
+    const fetch = vi.fn<Fetch>().mockReturnValue(response);
+    const emissions: PollEmission<string>[] = [];
+    activeGatedPoll(active$, selection$, ticks$, fetch).subscribe((e) => emissions.push(e));
+
+    active$.next(true);
+    selection$.next('s1');
+    response.next('data');
+
+    expect(emissions).toEqual([{ value: 'data', isActivation: true }]);
   });
 
   it('stops fetching once the returned observable is unsubscribed', () => {

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
+import { delay, of, Subject } from 'rxjs';
 import { LogTab } from './log-tab';
 import { LogService } from '../../core/log.service';
 import { TransfersStore } from '../../state/transfers.store';
@@ -139,5 +139,53 @@ describe('LogTab', () => {
     // Selection change re-triggers the transfer-log stream (isActivation: true for it); the
     // global-log stream is unaffected by transfer selection, so only one more scroll call.
     expect(scrollToBottom).toHaveBeenCalledTimes(1);
+  });
+
+  it('integration: still scrolls to bottom on a selection change after a real poll tick has elapsed, using the real (shareReplay-backed) PollingService', async () => {
+    // Regression test for the activeGatedPoll/ticks$-shareReplay race: PollingService.ticks$ is
+    // NOT mocked here (unlike every other test in this file) — it's the real, production
+    // shareReplay({ bufferSize: 1, refCount: false }) observable. The fetches are genuinely async
+    // (delay(1)) rather than of(...), since the bug only manifests for async fetches. This proves
+    // the full stack (real ticks$ + activeGatedPoll + LogTab) preserves isActivation end to end.
+    vi.useFakeTimers();
+    try {
+      const selectedUuidsSignal = signal(['t1']);
+      const getGlobalLog = vi.fn().mockReturnValue(of('global').pipe(delay(1)));
+      const getTransferLog = vi.fn().mockReturnValue(of('transfer').pipe(delay(1)));
+      TestBed.configureTestingModule({
+        imports: [LogTab],
+        providers: [
+          { provide: LogService, useValue: { getGlobalLog, getTransferLog } },
+          { provide: TransfersStore, useValue: { selectedUuids: selectedUuidsSignal } },
+          // No PollingService override — use the real, app-wide singleton with its real
+          // shareReplay'd ticks$.
+        ],
+      });
+      const fixture = TestBed.createComponent(LogTab);
+      fixture.componentRef.setInput('active', true);
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(1);
+      fixture.detectChanges();
+
+      const scrollToBottom = vi.spyOn(fixture.componentInstance as any, 'scrollToBottom');
+
+      // Let a real poll tick elapse so PollingService.ticks$'s shareReplay buffer now holds a
+      // real tick number — the exact precondition that triggered the original bug.
+      await vi.advanceTimersByTimeAsync(5001);
+      fixture.detectChanges();
+      scrollToBottom.mockClear();
+
+      // Change selection: this re-subscribes to the real ticks$ fresh, which synchronously
+      // replays the buffered real tick right after activeGatedPoll's startWith(null) — the race
+      // that used to silently cancel the activation fetch and lose isActivation.
+      selectedUuidsSignal.set(['t2']);
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(1);
+      fixture.detectChanges();
+
+      expect(scrollToBottom).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

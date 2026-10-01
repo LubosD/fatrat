@@ -3,7 +3,12 @@ import { map, startWith, switchMap } from 'rxjs/operators';
 
 export interface PollEmission<T> {
   value: T;
-  /** True for the emission immediately triggered by activation or a selection change, before any poll tick has fired for it. */
+  /**
+   * True for the first value to actually emit after this selection became current (whether that
+   * fetch happened to be triggered by activation/a selection change, or by a tick that won a race
+   * against the activation fetch and emitted first instead), false for every emission after that
+   * for the same selection.
+   */
   isActivation: boolean;
 }
 
@@ -34,14 +39,21 @@ export function activeGatedPoll<S, T>(
       !active
         ? EMPTY
         : selection$.pipe(
-            switchMap((selection) =>
-              ticks$.pipe(
+            switchMap((selection) => {
+              let hasEmitted = false;
+              return ticks$.pipe(
                 startWith(null as number | null),
-                switchMap((tick) =>
-                  fetch(selection).pipe(map((value) => ({ value, isActivation: tick === null }))),
+                switchMap(() =>
+                  fetch(selection).pipe(
+                    map((value) => {
+                      const isActivation = !hasEmitted;
+                      hasEmitted = true;
+                      return { value, isActivation };
+                    }),
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
     ),
   );
