@@ -449,7 +449,7 @@ describe('Shell', () => {
 
     const logTabDebugEl = fixture.debugElement.query(By.directive(LogTab));
     expect(logTabDebugEl).toBeTruthy();
-    expect(logTabDebugEl.componentInstance.active).toBe(true);
+    expect(logTabDebugEl.componentInstance.active()).toBe(true);
     expect(speedGraphsTabDebugEl.componentInstance.active()).toBe(false);
   });
 });

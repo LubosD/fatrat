@@ -6,9 +6,6 @@ import { LogService } from '../../core/log.service';
 import { TransfersStore } from '../../state/transfers.store';
 import { PollingService } from '../../core/polling.service';
 
-// selectedUuids is backed by a REAL signal(), not a plain closure — see the identical comment in
-// speed-graphs-tab.spec.ts for why (LogTab's selectedTransferUuid computed() needs an actual
-// Signal to track, or a test that changes the "selection" after first read has no effect).
 function configure(
   selectedUuids: string[] = [],
   getGlobalLog = vi.fn().mockReturnValue(of('')),
@@ -28,21 +25,27 @@ function configure(
 }
 
 describe('LogTab', () => {
-  it('does not fetch anything while inactive', () => {
+  it('does not fetch anything while inactive', async () => {
     const { getGlobalLog, getTransferLog } = configure(['t1']);
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', false);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getGlobalLog).not.toHaveBeenCalled();
     expect(getTransferLog).not.toHaveBeenCalled();
   });
 
-  it('fetches the global log on activation, and the transfer log when exactly one transfer is selected', () => {
-    const { getGlobalLog, getTransferLog } = configure(['t1'], vi.fn().mockReturnValue(of('global')), vi.fn().mockReturnValue(of('transfer')));
+  it('fetches the global log on activation, and the transfer log when exactly one transfer is selected', async () => {
+    const { getGlobalLog, getTransferLog } = configure(
+      ['t1'],
+      vi.fn().mockReturnValue(of('global')),
+      vi.fn().mockReturnValue(of('transfer')),
+    );
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getGlobalLog).toHaveBeenCalled();
     expect(getTransferLog).toHaveBeenCalledWith('t1');
@@ -50,20 +53,23 @@ describe('LogTab', () => {
     expect(fixture.componentInstance['transferLog']()).toBe('transfer');
   });
 
-  it('shows a placeholder instead of the transfer log when selection is not exactly one', () => {
+  it('shows a placeholder instead of the transfer log when selection is not exactly one', async () => {
     configure([]);
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Select a single transfer');
   });
 
-  it('refetches on every poll tick while active, and stops on deactivation', () => {
+  it('refetches on every poll tick while active, and stops on deactivation', async () => {
     const { getGlobalLog, ticks$ } = configure(['t1']);
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(getGlobalLog).toHaveBeenCalledTimes(1);
 
     ticks$.next(1);
@@ -71,58 +77,67 @@ describe('LogTab', () => {
 
     fixture.componentRef.setInput('active', false);
     fixture.detectChanges();
+    await fixture.whenStable();
     ticks$.next(2);
     expect(getGlobalLog).toHaveBeenCalledTimes(2);
   });
 
-  it('refetches the transfer log when the selected transfer changes while active, without waiting for a poll tick', () => {
+  it('refetches the transfer log when the selected transfer changes while active, without waiting for a poll tick', async () => {
     const getTransferLog = vi.fn().mockReturnValue(of(''));
     const { selectedUuidsSignal } = configure(['t1'], vi.fn().mockReturnValue(of('')), getTransferLog);
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(getTransferLog).toHaveBeenCalledTimes(1);
     expect(getTransferLog).toHaveBeenCalledWith('t1');
 
     selectedUuidsSignal.set(['t2']);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getTransferLog).toHaveBeenCalledWith('t2');
     expect(getTransferLog.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('ignores a stale transfer-log response for a transfer that is no longer selected', () => {
-    // Distinct subjects per transfer: selecting t2 while active now legitimately triggers its own
-    // fetch (the fix under test above), so t1's and t2's responses must be distinguishable, or
-    // this test couldn't tell a "stale t1 response" apart from a "fresh t2 response" arriving on
-    // the same observable.
-    const t1Subject = new Subject<string>();
-    const t2Subject = new Subject<string>();
-    const getTransferLog = vi
-      .fn()
-      .mockImplementation((uuid: string) => (uuid === 't1' ? t1Subject : t2Subject));
+  it('applies the freshest response even when an older request for a previous selection resolves late', async () => {
+    const t1Response = new Subject<string>();
+    const t2Response = new Subject<string>();
+    const getTransferLog = vi.fn().mockImplementation((uuid: string) => (uuid === 't1' ? t1Response : t2Response));
     const { selectedUuidsSignal } = configure(['t1'], vi.fn().mockReturnValue(of('')), getTransferLog);
     const fixture = TestBed.createComponent(LogTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     selectedUuidsSignal.set(['t2']);
     fixture.detectChanges();
-    t1Subject.next('stale t1 log');
+    await fixture.whenStable();
 
-    expect(fixture.componentInstance['transferLog']()).toBe('');
+    t2Response.next('fresh t2 log');
+    t1Response.next('stale t1 log');
+
+    expect(fixture.componentInstance['transferLog']()).toBe('fresh t2 log');
   });
 
-  it('scrolls to bottom on activation but not on a subsequent poll-triggered refresh', () => {
-    const { ticks$ } = configure(['t1']);
+  it('scrolls to bottom on activation and on a selection change, but not on a subsequent poll-triggered refresh', async () => {
+    const { ticks$, selectedUuidsSignal } = configure(['t1']);
     const fixture = TestBed.createComponent(LogTab);
     const scrollToBottom = vi.spyOn(fixture.componentInstance as any, 'scrollToBottom');
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(scrollToBottom).toHaveBeenCalledTimes(2); // once for global log, once for transfer log
 
     scrollToBottom.mockClear();
     ticks$.next(1);
     expect(scrollToBottom).not.toHaveBeenCalled();
+
+    selectedUuidsSignal.set(['t2']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    // Selection change re-triggers the transfer-log stream (isActivation: true for it); the
+    // global-log stream is unaffected by transfer selection, so only one more scroll call.
+    expect(scrollToBottom).toHaveBeenCalledTimes(1);
   });
 });
