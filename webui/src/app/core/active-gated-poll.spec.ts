@@ -1,4 +1,4 @@
-import { Observable, Subject, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
 import { activeGatedPoll, PollEmission } from './active-gated-poll';
 
 type Fetch = (selection: string) => Observable<string>;
@@ -102,6 +102,55 @@ describe('activeGatedPoll', () => {
     s1Response.next('stale s1 data');
 
     expect(emissions).toEqual([{ value: 'fresh s2 data', isActivation: true }]);
+  });
+
+  it('fetches again after reactivation when selection$ replays its current value', () => {
+    // Uses a BehaviorSubject rather than the plain Subject the other tests use: the doc-comment
+    // precondition on selection$ is specifically about replaying its current value to a fresh
+    // subscription, which only a replaying source (BehaviorSubject/ReplaySubject(1), or
+    // toObservable() in real call sites) provides.
+    const active$ = new Subject<boolean>();
+    const selection$ = new BehaviorSubject<string>('s1');
+    const ticks$ = new Subject<number>();
+    const fetch = vi.fn<Fetch>().mockReturnValue(of('data'));
+    const emissions: PollEmission<string>[] = [];
+    activeGatedPoll(active$, selection$, ticks$, fetch).subscribe((e) => emissions.push(e));
+
+    active$.next(true);
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    active$.next(false);
+    fetch.mockClear();
+
+    active$.next(true);
+
+    expect(fetch).toHaveBeenCalledWith('s1');
+    expect(emissions[emissions.length - 1]).toEqual({ value: 'data', isActivation: true });
+  });
+
+  it('cancels a stale in-flight request when a poll tick fires before it resolves', () => {
+    const active$ = new Subject<boolean>();
+    const selection$ = new Subject<string>();
+    const ticks$ = new Subject<number>();
+    const firstResponse = new Subject<string>();
+    const secondResponse = new Subject<string>();
+    const fetch = vi
+      .fn<Fetch>()
+      .mockReturnValueOnce(firstResponse)
+      .mockReturnValueOnce(secondResponse);
+    const emissions: PollEmission<string>[] = [];
+    activeGatedPoll(active$, selection$, ticks$, fetch).subscribe((e) => emissions.push(e));
+
+    active$.next(true);
+    selection$.next('s1');
+    // A real tick fires before the activation fetch resolves — the ticks$-level switchMap
+    // should cancel the first (activation) fetch in favor of this one.
+    ticks$.next(1);
+    secondResponse.next('tick data');
+    // The stale activation response arrives late — it must produce no emission.
+    firstResponse.next('stale activation data');
+
+    expect(emissions).toEqual([{ value: 'tick data', isActivation: false }]);
   });
 
   it('stops fetching once the returned observable is unsubscribed', () => {

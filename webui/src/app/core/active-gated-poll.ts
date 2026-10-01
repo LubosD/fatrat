@@ -14,6 +14,14 @@ export interface PollEmission<T> {
  * cancelled outright — there's nothing left to apply late, which is what makes the "stale
  * response overwrites current state" bug class structurally impossible here, rather than
  * something each caller has to guard against by hand with a captured-uuid comparison.
+ *
+ * `selection$` must replay its current value to new subscribers. Each time `active$` re-emits,
+ * the outer switchMap unsubscribes from and re-subscribes to `selection$.pipe(...)` from
+ * scratch; a plain hot `Subject` with no replay would give that fresh subscription nothing
+ * until the *next* selection change, so reactivating (inactive -> active again) would silently
+ * produce no fetch at all. Use a source that replays its latest value to new subscribers, such
+ * as a signal-derived observable via Angular's `toObservable()` (which is backed internally by
+ * a `ReplaySubject(1)`), or a `BehaviorSubject`/`ReplaySubject(1)` directly.
  */
 export function activeGatedPoll<S, T>(
   active$: Observable<boolean>,
