@@ -98,6 +98,35 @@ describe('PollingService', () => {
     vi.useRealTimers();
   });
 
+  it('two subscribers to ticks$ at different times stay in lockstep instead of each running an independently-timed interval', () => {
+    // Before the fix, ticks$ is a cold observable: every .subscribe() re-executes the whole
+    // pipe (including a fresh `interval()`), so a second subscriber joining mid-stream gets its
+    // own independently-timed sequence instead of sharing the first subscriber's timer. This
+    // mirrors activeGatedPoll's real usage, where each data stream in a component subscribes to
+    // ticks$ separately and a selection change tears down and resubscribes to it.
+    vi.useFakeTimers();
+    const service = TestBed.inject(PollingService); // 5s interval
+
+    const firstTicks: number[] = [];
+    const sub1 = service.ticks$.subscribe((n) => firstTicks.push(n));
+
+    // Let the first subscriber's timer run partway, then join a second subscriber mid-stream.
+    vi.advanceTimersByTime(3000);
+    const secondTicks: number[] = [];
+    const sub2 = service.ticks$.subscribe((n) => secondTicks.push(n));
+
+    // At t=5000 (2000ms after the second subscriber joined), the shared timer fires: both
+    // subscribers should see it. A cold implementation would give the second subscriber its own
+    // fresh 5s timer starting at t=3000, so it would NOT have fired yet at t=5000.
+    vi.advanceTimersByTime(2000);
+    expect(firstTicks.length).toBe(1);
+    expect(secondTicks.length).toBe(1);
+
+    sub1.unsubscribe();
+    sub2.unsubscribe();
+    vi.useRealTimers();
+  });
+
   it('setIntervalSeconds() is a no-op when called with the already-current value', () => {
     vi.useFakeTimers();
     const service = TestBed.inject(PollingService); // 5s

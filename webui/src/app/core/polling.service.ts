@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 
 const STORAGE_KEY = 'fatrat.webui.pollIntervalSeconds';
 const ALLOWED_INTERVALS = [2, 5, 15, 30] as const;
@@ -32,9 +32,26 @@ export class PollingService {
   // instead of the construction-time default.
   private readonly intervalChanges$ = new BehaviorSubject<number>(this.intervalSeconds());
 
-  /** Emits an increasing tick count every `intervalSeconds()` seconds; switching intervals cancels the pending wait and restarts immediately. */
+  // Multicast with shareReplay({ bufferSize: 1, refCount: false }) (not plain share()) so every
+  // subscriber — regardless of how many, or when they join — observes the SAME underlying timer
+  // in lockstep, rather than each .subscribe() re-running the pipe and starting its own fresh
+  // interval(). This matters because consumers like activeGatedPoll() subscribe to ticks$ fresh
+  // on every selection change: with a cold source each such resubscription would reset that
+  // stream's timer independently of any other stream subscribed to ticks$ elsewhere. refCount:
+  // false (rather than true) keeps the shared interval() alive even when the subscriber count
+  // drops to zero (e.g. a tab closed and reopened), instead of tearing it down and restarting it
+  // from scratch on the next subscription — appropriate here because PollingService is a
+  // `providedIn: 'root'` singleton for the lifetime of the app, so there's no real "fully torn
+  // down" state to economize for, and refCount: true would reintroduce a milder version of the
+  // same resync bug this fix is for. bufferSize: 1 means a late subscriber immediately replays
+  // the most recent tick instead of waiting for the next one; this is harmless for ticks$'s
+  // consumers (activeGatedPoll always prepends its own `startWith(null)` before switching into
+  // ticks$, so it never treats a replayed tick as the activation emission) and matches
+  // intervalChanges$'s existing BehaviorSubject semantics just above.
+  /** Emits an increasing tick count every `intervalSeconds()` seconds; switching intervals cancels the pending wait and restarts immediately. Multicast — all subscribers share one timer. */
   readonly ticks$: Observable<number> = this.intervalChanges$.pipe(
     switchMap((seconds) => interval(seconds * 1000).pipe(map((n) => n + 1))),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
 
   setIntervalSeconds(seconds: number): void {
