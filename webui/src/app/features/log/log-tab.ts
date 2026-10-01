@@ -29,6 +29,11 @@ export class LogTab {
   @ViewChild('transferLogEl') private transferLogEl?: ElementRef<HTMLElement>;
 
   constructor() {
+    // of(undefined) satisfies activeGatedPoll's "selection$ must replay its current value to new
+    // subscribers" precondition here only because it's a true constant: a cold Observable
+    // re-executes (and so re-emits undefined) on every fresh subscription, which happens to look
+    // like a replay. Don't copy this for a selection that can actually change over time — that
+    // needs a genuinely replaying source (BehaviorSubject, ReplaySubject(1), or toObservable()).
     activeGatedPoll(toObservable(this.active), of(undefined), this.polling.ticks$, () =>
       this.logService.getGlobalLog().pipe(
         catchError((err) => {
