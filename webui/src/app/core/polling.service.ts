@@ -44,10 +44,12 @@ export class PollingService {
   // `providedIn: 'root'` singleton for the lifetime of the app, so there's no real "fully torn
   // down" state to economize for, and refCount: true would reintroduce a milder version of the
   // same resync bug this fix is for. bufferSize: 1 means a late subscriber immediately replays
-  // the most recent tick instead of waiting for the next one; this is harmless for ticks$'s
-  // consumers (activeGatedPoll always prepends its own `startWith(null)` before switching into
-  // ticks$, so it never treats a replayed tick as the activation emission) and matches
-  // intervalChanges$'s existing BehaviorSubject semantics just above.
+  // the most recent tick instead of waiting for the next one — this IS significant for
+  // activeGatedPoll(): a replayed tick arrives synchronously right after its `startWith(null)`
+  // sentinel on every resubscribe, so activeGatedPoll can no longer tell "this is the activation
+  // emission" from tick identity alone (`tick === null`). It now tracks activation with a
+  // per-subscription "has this selection emitted yet" flag instead — see active-gated-poll.ts —
+  // specifically because of this replay behavior, not despite it.
   /** Emits an increasing tick count every `intervalSeconds()` seconds; switching intervals cancels the pending wait and restarts immediately. Multicast — all subscribers share one timer. */
   readonly ticks$: Observable<number> = this.intervalChanges$.pipe(
     switchMap((seconds) => interval(seconds * 1000).pipe(map((n) => n + 1))),
