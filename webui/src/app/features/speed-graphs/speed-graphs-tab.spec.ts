@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
+import { delay, of, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 import { SpeedGraphsTab } from './speed-graphs-tab';
 import { TransferApi } from '../../core/api/transfer-api';
@@ -134,5 +134,58 @@ describe('SpeedGraphsTab', () => {
     t1Response.next([{ down: 999, up: 999 }]);
 
     expect(fixture.componentInstance['transferSamples']()).toEqual([{ down: 1, up: 2 }]);
+  });
+
+  it('integration: still fetches the fresh selection after a real poll tick has elapsed, using the real (shareReplay-backed) PollingService', async () => {
+    // Mirrors the equivalent test in log-tab.spec.ts — PollingService.ticks$ is NOT mocked here
+    // (unlike every other test in this file): it's the real, production
+    // shareReplay({ bufferSize: 1, refCount: false }) observable. Fetches are genuinely async
+    // (delay(1)) rather than of(...), since the activeGatedPoll/ticks$-shareReplay race this
+    // guards against only manifests for async fetches. SpeedGraphsTab discards `isActivation`
+    // entirely, so it can't exhibit that specific bug — this test instead proves the more basic
+    // property that still depends on the same real stack: a selection change after a real tick
+    // has elapsed still reliably produces a fetch for the NEW selection, through the real,
+    // multicast ticks$, not just through a mocked Subject that happens to behave differently.
+    vi.useFakeTimers();
+    try {
+      const selectedUuidsSignal = signal(['t1']);
+      const selectedQueueUuidSignal = signal<string | null>('q1');
+      const getTransferSpeedGraph = vi.fn().mockReturnValue(of([{ down: 1, up: 2 }]).pipe(delay(1)));
+      const getQueueSpeedGraph = vi.fn().mockReturnValue(of([]).pipe(delay(1)));
+      TestBed.configureTestingModule({
+        imports: [SpeedGraphsTab],
+        providers: [
+          { provide: TransferApi, useValue: { getTransferSpeedGraph, getQueueSpeedGraph } },
+          { provide: TransfersStore, useValue: { selectedUuids: selectedUuidsSignal } },
+          { provide: QueuesStore, useValue: { selectedQueueUuid: selectedQueueUuidSignal } },
+          // No PollingService override — use the real, app-wide singleton with its real
+          // shareReplay'd ticks$.
+        ],
+      });
+      const fixture = TestBed.createComponent(SpeedGraphsTab);
+      fixture.componentRef.setInput('active', true);
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(1);
+      fixture.detectChanges();
+
+      // Let a real poll tick elapse so PollingService.ticks$'s shareReplay buffer now holds a
+      // real tick number — the exact precondition that triggered the original bug.
+      await vi.advanceTimersByTimeAsync(5001);
+      fixture.detectChanges();
+      getTransferSpeedGraph.mockClear();
+      getTransferSpeedGraph.mockReturnValue(of([{ down: 9, up: 9 }]).pipe(delay(1)));
+
+      // Change selection: this re-subscribes to the real ticks$ fresh, which synchronously
+      // replays the buffered real tick right after activeGatedPoll's startWith(null).
+      selectedUuidsSignal.set(['t2']);
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(1);
+      fixture.detectChanges();
+
+      expect(getTransferSpeedGraph).toHaveBeenCalledWith('t2');
+      expect(fixture.componentInstance['transferSamples']()).toEqual([{ down: 9, up: 9 }]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
