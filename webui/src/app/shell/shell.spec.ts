@@ -438,7 +438,7 @@ describe('Shell', () => {
 
     const speedGraphsTabDebugEl = fixture.debugElement.query(By.directive(SpeedGraphsTab));
     expect(speedGraphsTabDebugEl).toBeTruthy();
-    expect(speedGraphsTabDebugEl.componentInstance.active).toBe(true);
+    expect(speedGraphsTabDebugEl.componentInstance.active()).toBe(true);
     expect(root.querySelector('app-log-tab')).toBeNull();
 
     // Activate Log (value "3"): Speed Graphs' component instance persists (lazy content, once
@@ -450,6 +450,6 @@ describe('Shell', () => {
     const logTabDebugEl = fixture.debugElement.query(By.directive(LogTab));
     expect(logTabDebugEl).toBeTruthy();
     expect(logTabDebugEl.componentInstance.active).toBe(true);
-    expect(speedGraphsTabDebugEl.componentInstance.active).toBe(false);
+    expect(speedGraphsTabDebugEl.componentInstance.active()).toBe(false);
   });
 });

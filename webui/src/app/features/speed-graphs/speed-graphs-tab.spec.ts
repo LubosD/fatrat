@@ -7,12 +7,9 @@ import { TransfersStore } from '../../state/transfers.store';
 import { QueuesStore } from '../../state/queues.store';
 import { PollingService } from '../../core/polling.service';
 
-// selectedUuids/selectedQueueUuid are backed by REAL signal()s, not plain closures returning a
-// fixed value — SpeedGraphsTab derives selectedTransferUuid via computed(), and Angular's
-// computed() only tracks reactive dependencies through actual Signal reads. A plain function
-// mock would let the component read an initial value, but computed() would then cache that
-// forever (no signal to invalidate it), so a test that tries to change the "selection" after the
-// component has already read it once needs a real signal for that change to be observed at all.
+// selectedUuids/selectedQueueUuid are backed by REAL signal()s, not plain closures — SpeedGraphsTab
+// derives selectedTransferUuid via computed() and feeds both through toObservable(), both of which
+// only track reactive dependencies through actual Signal reads.
 function configure(
   selectedUuids: string[] = [],
   selectedQueueUuid: string | null = 'q1',
@@ -35,49 +32,56 @@ function configure(
 }
 
 describe('SpeedGraphsTab', () => {
-  it('does not fetch anything while inactive', () => {
+  it('does not fetch anything while inactive', async () => {
     const { getTransferSpeedGraph, getQueueSpeedGraph } = configure(['t1']);
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', false);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getTransferSpeedGraph).not.toHaveBeenCalled();
     expect(getQueueSpeedGraph).not.toHaveBeenCalled();
   });
 
-  it('fetches both graphs immediately on activation', () => {
+  it('fetches both graphs immediately on activation', async () => {
     const { getTransferSpeedGraph, getQueueSpeedGraph } = configure(['t1'], 'q1');
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getTransferSpeedGraph).toHaveBeenCalledWith('t1');
     expect(getQueueSpeedGraph).toHaveBeenCalledWith('q1');
   });
 
-  it('shows a placeholder instead of the transfer chart when selection is not exactly one', () => {
+  it('shows a placeholder instead of the transfer chart when selection is not exactly one', async () => {
     configure([]);
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Select a single transfer');
   });
 
-  it('shows a placeholder instead of the queue chart when no queue is selected', () => {
+  it('shows a placeholder instead of the queue chart when no queue is selected', async () => {
     configure(['t1'], null);
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Select a queue');
   });
 
-  it('refetches on every poll tick while active, and stops on deactivation', () => {
+  it('refetches on every poll tick while active, and stops on deactivation', async () => {
     const { getTransferSpeedGraph, ticks$ } = configure(['t1'], 'q1');
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(getTransferSpeedGraph).toHaveBeenCalledTimes(1);
 
     ticks$.next(1);
@@ -85,46 +89,50 @@ describe('SpeedGraphsTab', () => {
 
     fixture.componentRef.setInput('active', false);
     fixture.detectChanges();
+    await fixture.whenStable();
     ticks$.next(2);
     expect(getTransferSpeedGraph).toHaveBeenCalledTimes(2);
   });
 
-  it('refetches the transfer graph when the selected transfer changes while active, without waiting for a poll tick', () => {
+  it('refetches the transfer graph when the selected transfer changes while active, without waiting for a poll tick', async () => {
     const getTransferSpeedGraph = vi.fn().mockReturnValue(of([]));
     const { selectedUuidsSignal } = configure(['t1'], 'q1', getTransferSpeedGraph);
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(getTransferSpeedGraph).toHaveBeenCalledTimes(1);
     expect(getTransferSpeedGraph).toHaveBeenCalledWith('t1');
 
     selectedUuidsSignal.set(['t2']);
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getTransferSpeedGraph).toHaveBeenCalledWith('t2');
     expect(getTransferSpeedGraph.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('ignores a stale speed-graph response for a transfer that is no longer selected', () => {
-    // Distinct subjects per transfer: selecting t2 while active now legitimately triggers its own
-    // fetch (that's the fix under test elsewhere), so t1's and t2's responses must be
-    // distinguishable, or this test couldn't tell a "stale t1 response" apart from a "fresh t2
-    // response" arriving on the same observable.
-    const t1Subject = new Subject<{ down: number; up: number }[]>();
-    const t2Subject = new Subject<{ down: number; up: number }[]>();
+  it('applies the freshest response even when an older request for a previous selection resolves late', async () => {
+    const t1Response = new Subject<{ down: number; up: number }[]>();
+    const t2Response = new Subject<{ down: number; up: number }[]>();
     const getTransferSpeedGraph = vi
       .fn()
-      .mockImplementation((uuid: string) => (uuid === 't1' ? t1Subject : t2Subject));
+      .mockImplementation((uuid: string) => (uuid === 't1' ? t1Response : t2Response));
     const { selectedUuidsSignal } = configure(['t1'], 'q1', getTransferSpeedGraph);
     const fixture = TestBed.createComponent(SpeedGraphsTab);
     fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
+    await fixture.whenStable();
 
-    // Selection changes to a different transfer before t1's response arrives.
     selectedUuidsSignal.set(['t2']);
     fixture.detectChanges();
-    t1Subject.next([{ down: 999, up: 999 }]);
+    await fixture.whenStable();
 
-    expect(fixture.componentInstance['transferSamples']()).toEqual([]);
+    t2Response.next([{ down: 1, up: 2 }]);
+    // t1's response arrives late, after the switch to t2 — activeGatedPoll's switchMap already
+    // unsubscribed from it, so this must have no effect at all (not just be "ignored").
+    t1Response.next([{ down: 999, up: 999 }]);
+
+    expect(fixture.componentInstance['transferSamples']()).toEqual([{ down: 1, up: 2 }]);
   });
 });
