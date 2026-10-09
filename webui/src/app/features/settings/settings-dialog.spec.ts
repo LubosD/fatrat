@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { SettingsDialog } from './settings-dialog';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
@@ -114,5 +114,42 @@ describe('SettingsDialog', () => {
 
     expect(getSettingsPages).toHaveBeenCalledTimes(2);
     expect(getDraft(fixture).get('torrent/maxratio')).toBeUndefined();
+  });
+
+  it('ignores a stale getSettingsPages response from a prior, already-closed dialog session', () => {
+    const firstPage = makePage({ title: 'Stale BitTorrent' });
+    const secondPage = makePage({ title: 'Fresh Web Interface', script: '/scripts/settings/webinterface.js' });
+
+    const firstResponse = new Subject<SettingsPage[]>();
+    const secondResponse = new Subject<SettingsPage[]>();
+    const getSettingsPages = vi.fn().mockReturnValueOnce(firstResponse).mockReturnValueOnce(secondResponse);
+    configure(getSettingsPages);
+
+    const fixture = TestBed.createComponent(SettingsDialog);
+
+    // First open: request is issued but left pending.
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    // Closed again before the first request resolves.
+    fixture.componentRef.setInput('visible', false);
+    fixture.detectChanges();
+
+    // Reopened: a second, fresh request is issued.
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    expect(getSettingsPages).toHaveBeenCalledTimes(2);
+
+    // The second (fresher) session's response arrives first.
+    secondResponse.next([secondPage]);
+    secondResponse.complete();
+
+    // The first (now-stale) session's response arrives afterwards and must be ignored.
+    firstResponse.next([firstPage]);
+    firstResponse.complete();
+
+    expect(fixture.componentInstance['pages']()).toEqual([secondPage]);
+    expect(fixture.componentInstance['selectedPage']()).toEqual(secondPage);
   });
 });

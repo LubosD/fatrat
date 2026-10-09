@@ -23,11 +23,21 @@ export class SettingsDialog implements OnChanges {
   protected readonly pages = signal<SettingsPage[]>([]);
   protected readonly selectedPage = signal<SettingsPage | null>(null);
 
+  /**
+   * Bumped on every open so a response from a prior, already-closed dialog session can be
+   * detected and ignored if it resolves after a newer session's response (rapid close/reopen).
+   */
+  private openSessionId = 0;
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']?.currentValue === true) {
       this.draft.clear();
+      const sessionId = ++this.openSessionId;
       this.transferApi.getSettingsPages().subscribe({
         next: (pages) => {
+          if (sessionId !== this.openSessionId) {
+            return;
+          }
           this.pages.set(pages);
           this.selectedPage.set(pages.length > 0 ? pages[0] : null);
         },
