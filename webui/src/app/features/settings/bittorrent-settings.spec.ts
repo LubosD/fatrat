@@ -78,7 +78,13 @@ describe('BittorrentSettings', () => {
       'torrent/external_ip': '203.0.113.9',
       'torrent/enc_incoming': 1,
       'torrent/enc_outgoing': 0,
-      'torrent/enc_level': 2,
+      // 102, not 2: allocation/enc_incoming/enc_outgoing/enc_level are all small-int <select>
+      // enums drawn from the same {0,1,2} domain, so with only 4 such fields at least two must
+      // coincide by pigeonhole — applyLoadedValues() does a blind Number(...) with no domain
+      // validation, so an out-of-domain sentinel here is harmless and lets this specific field
+      // stay distinguishable from every other field in this test (in particular from
+      // torrent/allocation, which otherwise shares value 2 with the real enc_level option).
+      'torrent/enc_level': 102,
       'torrent/enc_rc4_prefer': true,
       'torrent/mapping_upnp': false,
       'torrent/mapping_natpmp': true,
