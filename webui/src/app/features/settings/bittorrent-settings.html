@@ -12,14 +12,20 @@
       <p-inputnumber inputId="bt-max-ratio" [(ngModel)]="maxRatio" [minFractionDigits]="1" (ngModelChange)="stage('torrent/maxratio', $event)"></p-inputnumber>
     </div>
     <div class="field">
-      <label for="bt-max-connections-global">Maximum connections (global/per torrent)</label>
+      <label for="bt-max-connections-global">Maximum connections (global)</label>
       <p-inputnumber inputId="bt-max-connections-global" [(ngModel)]="maxConnectionsGlobal" [min]="10" (ngModelChange)="stage('torrent/maxconnections', $event)"></p-inputnumber>
-      <p-inputnumber [(ngModel)]="maxConnectionsPerTorrent" [min]="10" (ngModelChange)="stage('torrent/maxconnections_loc', $event)"></p-inputnumber>
     </div>
     <div class="field">
-      <label for="bt-max-uploads-global">Maximum uploads (global/per torrent)</label>
+      <label for="bt-max-connections-local">Maximum connections (per torrent)</label>
+      <p-inputnumber inputId="bt-max-connections-local" [(ngModel)]="maxConnectionsPerTorrent" [min]="10" (ngModelChange)="stage('torrent/maxconnections_loc', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-max-uploads-global">Maximum uploads (global)</label>
       <p-inputnumber inputId="bt-max-uploads-global" [(ngModel)]="maxUploadsGlobal" [min]="1" (ngModelChange)="stage('torrent/maxuploads', $event)"></p-inputnumber>
-      <p-inputnumber [(ngModel)]="maxUploadsPerTorrent" [min]="1" (ngModelChange)="stage('torrent/maxuploads_loc', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-max-uploads-local">Maximum uploads (per torrent)</label>
+      <p-inputnumber inputId="bt-max-uploads-local" [(ngModel)]="maxUploadsPerTorrent" [min]="1" (ngModelChange)="stage('torrent/maxuploads_loc', $event)"></p-inputnumber>
     </div>
     <div class="field">
       <label for="bt-max-open-files">Maximum open files</label>

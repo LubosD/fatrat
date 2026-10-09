@@ -59,13 +59,63 @@ describe('BittorrentSettings', () => {
   });
 
   it('populates fields from the fetched values, using the correct (fixed) ratio key', () => {
-    const { } = configure(vi.fn().mockReturnValue(of(makeValues({ 'torrent/maxratio': 1.5 }))));
+    // Distinct, easily-distinguishable values per field (including both
+    // global/per-torrent pairs and the three encryption <select> fields) so
+    // that a transposition bug swapping any two field assignments in
+    // applyLoadedValues() would make this test fail.
+    const overrides: Record<string, unknown> = {
+      'torrent/listen_start': 6881,
+      'torrent/listen_end': 6889,
+      'torrent/maxratio': 1.5,
+      'torrent/maxconnections': 201,
+      'torrent/maxuploads': 5,
+      'torrent/maxconnections_loc': 51,
+      'torrent/maxuploads_loc': 3,
+      'torrent/maxfiles': 52,
+      'torrent/dht': true,
+      'torrent/pex': false,
+      'torrent/allocation': 2,
+      'torrent/external_ip': '203.0.113.9',
+      'torrent/enc_incoming': 1,
+      'torrent/enc_outgoing': 0,
+      'torrent/enc_level': 2,
+      'torrent/enc_rc4_prefer': true,
+      'torrent/mapping_upnp': false,
+      'torrent/mapping_natpmp': true,
+      'torrent/mapping_lsd': false,
+    };
+    // Expected component property name for each backend key, verified against
+    // BittorrentSettings['applyLoadedValues'].
+    const expectedProperty: Record<string, string> = {
+      'torrent/listen_start': 'listenStart',
+      'torrent/listen_end': 'listenEnd',
+      'torrent/maxratio': 'maxRatio',
+      'torrent/maxconnections': 'maxConnectionsGlobal',
+      'torrent/maxuploads': 'maxUploadsGlobal',
+      'torrent/maxconnections_loc': 'maxConnectionsPerTorrent',
+      'torrent/maxuploads_loc': 'maxUploadsPerTorrent',
+      'torrent/maxfiles': 'maxOpenFiles',
+      'torrent/dht': 'dht',
+      'torrent/pex': 'pex',
+      'torrent/allocation': 'allocation',
+      'torrent/external_ip': 'externalIp',
+      'torrent/enc_incoming': 'encryptionIncoming',
+      'torrent/enc_outgoing': 'encryptionOutgoing',
+      'torrent/enc_level': 'encryptionLevel',
+      'torrent/enc_rc4_prefer': 'encryptionPreferRc4',
+      'torrent/mapping_upnp': 'portMappingUpnp',
+      'torrent/mapping_natpmp': 'portMappingNatpmp',
+      'torrent/mapping_lsd': 'portMappingLsd',
+    };
+
+    configure(vi.fn().mockReturnValue(of(makeValues(overrides))));
     const fixture = TestBed.createComponent(BittorrentSettings);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance['maxRatio']).toBe(1.5);
-    expect(fixture.componentInstance['listenStart']).toBe(6881);
-    expect(fixture.componentInstance['dht']).toBe(true);
+    for (const key of KEYS) {
+      const propertyName = expectedProperty[key];
+      expect(fixture.componentInstance[propertyName as keyof BittorrentSettings]).toBe(overrides[key]);
+    }
   });
 
   it('prefers a staged draft value over the fetched value', () => {
