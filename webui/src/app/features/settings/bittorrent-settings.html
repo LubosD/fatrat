@@ -1,0 +1,81 @@
+<div class="settings-form">
+  <fieldset>
+    <legend>Main</legend>
+    <div class="field">
+      <label for="bt-listen-start">Listen port (from)</label>
+      <p-inputnumber inputId="bt-listen-start" [(ngModel)]="listenStart" [min]="1024" [max]="65535" (ngModelChange)="stage('torrent/listen_start', $event)"></p-inputnumber>
+      <label for="bt-listen-end">Listen port (to)</label>
+      <p-inputnumber inputId="bt-listen-end" [(ngModel)]="listenEnd" [min]="1024" [max]="65535" (ngModelChange)="stage('torrent/listen_end', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-max-ratio">Seed up to ratio (default value)</label>
+      <p-inputnumber inputId="bt-max-ratio" [(ngModel)]="maxRatio" [minFractionDigits]="1" (ngModelChange)="stage('torrent/maxratio', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-max-connections-global">Maximum connections (global/per torrent)</label>
+      <p-inputnumber inputId="bt-max-connections-global" [(ngModel)]="maxConnectionsGlobal" [min]="10" (ngModelChange)="stage('torrent/maxconnections', $event)"></p-inputnumber>
+      <p-inputnumber [(ngModel)]="maxConnectionsPerTorrent" [min]="10" (ngModelChange)="stage('torrent/maxconnections_loc', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-max-uploads-global">Maximum uploads (global/per torrent)</label>
+      <p-inputnumber inputId="bt-max-uploads-global" [(ngModel)]="maxUploadsGlobal" [min]="1" (ngModelChange)="stage('torrent/maxuploads', $event)"></p-inputnumber>
+      <p-inputnumber [(ngModel)]="maxUploadsPerTorrent" [min]="1" (ngModelChange)="stage('torrent/maxuploads_loc', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-max-open-files">Maximum open files</label>
+      <p-inputnumber inputId="bt-max-open-files" [(ngModel)]="maxOpenFiles" [min]="5" (ngModelChange)="stage('torrent/maxfiles', $event)"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="bt-allocation">File allocation mode</label>
+      <p-select inputId="bt-allocation" [(ngModel)]="allocation" [options]="allocationOptions" optionLabel="label" optionValue="value" (ngModelChange)="stage('torrent/allocation', $event)"></p-select>
+    </div>
+    <div class="field">
+      <label for="bt-external-ip">External IP</label>
+      <input pInputText id="bt-external-ip" [(ngModel)]="externalIp" (ngModelChange)="stage('torrent/external_ip', $event)" />
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="dht" [binary]="true" inputId="bt-dht" (ngModelChange)="stage('torrent/dht', $event)"></p-checkbox>
+      <label for="bt-dht">Enable distributed tracker (DHT)</label>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="pex" [binary]="true" inputId="bt-pex" (ngModelChange)="stage('torrent/pex', $event)"></p-checkbox>
+      <label for="bt-pex">Enable uTorrent Peer Exchange</label>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="portMappingLsd" [binary]="true" inputId="bt-lsd" (ngModelChange)="stage('torrent/mapping_lsd', $event)"></p-checkbox>
+      <label for="bt-lsd">Enable Local Service Discovery</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Encryption</legend>
+    <div class="field">
+      <label for="bt-enc-incoming">Encryption of incoming connections</label>
+      <p-select inputId="bt-enc-incoming" [(ngModel)]="encryptionIncoming" [options]="encryptionModeOptions" optionLabel="label" optionValue="value" (ngModelChange)="stage('torrent/enc_incoming', $event)"></p-select>
+    </div>
+    <div class="field">
+      <label for="bt-enc-outgoing">Encryption of outgoing connections</label>
+      <p-select inputId="bt-enc-outgoing" [(ngModel)]="encryptionOutgoing" [options]="encryptionModeOptions" optionLabel="label" optionValue="value" (ngModelChange)="stage('torrent/enc_outgoing', $event)"></p-select>
+    </div>
+    <div class="field">
+      <label for="bt-enc-level">Encryption levels</label>
+      <p-select inputId="bt-enc-level" [(ngModel)]="encryptionLevel" [options]="encryptionLevelOptions" optionLabel="label" optionValue="value" (ngModelChange)="stage('torrent/enc_level', $event)"></p-select>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="encryptionPreferRc4" [binary]="true" inputId="bt-enc-rc4" (ngModelChange)="stage('torrent/enc_rc4_prefer', $event)"></p-checkbox>
+      <label for="bt-enc-rc4">Prefer RC4</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Port mapping</legend>
+    <div class="field">
+      <p-checkbox [(ngModel)]="portMappingUpnp" [binary]="true" inputId="bt-upnp" (ngModelChange)="stage('torrent/mapping_upnp', $event)"></p-checkbox>
+      <label for="bt-upnp">Enable UPnP</label>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="portMappingNatpmp" [binary]="true" inputId="bt-natpmp" (ngModelChange)="stage('torrent/mapping_natpmp', $event)"></p-checkbox>
+      <label for="bt-natpmp">Enable NAT-PMP</label>
+    </div>
+  </fieldset>
+</div>
