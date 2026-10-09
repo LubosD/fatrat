@@ -1,0 +1,38 @@
+<div class="settings-form">
+  <div class="field">
+    <p-checkbox [(ngModel)]="enable" [binary]="true" inputId="wi-enable" (ngModelChange)="stage('remote/enable', $event)"></p-checkbox>
+    <label for="wi-enable">Enable remote web control</label>
+  </div>
+  <div class="field">
+    <label for="wi-port">Port</label>
+    <p-inputnumber inputId="wi-port" [(ngModel)]="port" [min]="1024" [max]="65535" [useGrouping]="false" (ngModelChange)="stage('remote/port', $event)"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="wi-password">Password</label>
+    <input pInputText type="password" id="wi-password" [(ngModel)]="password" (ngModelChange)="stage('remote/password', $event)" />
+  </div>
+  <p>Username: Use "admin" or "fatrat", both are equivalent.</p>
+  <fieldset>
+    <legend>
+      <p-checkbox [(ngModel)]="ssl" [binary]="true" inputId="wi-ssl" (ngModelChange)="stage('remote/ssl', $event)"></p-checkbox>
+      <label for="wi-ssl">Use HTTPS</label>
+    </legend>
+    <div class="field">
+      <label for="wi-ssl-pem">PEM file</label>
+      <input pInputText id="wi-ssl-pem" [(ngModel)]="sslPem" (ngModelChange)="stage('remote/ssl_pem', $event)" />
+    </div>
+    <button pButton type="button" data-testid="webinterface-generate-cert" (click)="openCertDialog()">Generate a self-signed certificate...</button>
+    <p>After toggling HTTPS or changing the certificate file, you may have to change the URL in your browser's location bar or press F5 to reload and accept the new certificate.</p>
+  </fieldset>
+</div>
+
+<p-dialog [visible]="showCertDialog()" (visibleChange)="showCertDialog.set($event)" header="Generate a self-signed certificate" [modal]="true">
+  <div class="field">
+    <label for="wi-cert-hostname">Hostname for the generated self-signed certificate</label>
+    <input pInputText id="wi-cert-hostname" [(ngModel)]="certHostname" />
+  </div>
+  <ng-template #footer>
+    <button pButton type="button" data-testid="webinterface-cert-cancel" (click)="showCertDialog.set(false)">Cancel</button>
+    <button pButton type="button" data-testid="webinterface-cert-ok" (click)="generateCertificate()">OK</button>
+  </ng-template>
+</p-dialog>
