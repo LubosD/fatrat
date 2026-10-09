@@ -12,6 +12,7 @@ import { BrowseService } from '../core/browse.service';
 import { LogService } from '../core/log.service';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
+import { SettingsDialog } from '../features/settings/settings-dialog';
 import { Queue, Transfer } from '../core/api/models';
 import { of, Subject } from 'rxjs';
 
@@ -100,7 +101,15 @@ function configure(
       { provide: QueueActionsService, useValue: queueActions },
       {
         provide: TransferApi,
-        useValue: { getTransferClasses: () => of([]), getTransferSpeedGraph: () => of([]), getQueueSpeedGraph: () => of([]) },
+        useValue: {
+          getTransferClasses: () => of([]),
+          getTransferSpeedGraph: () => of([]),
+          getQueueSpeedGraph: () => of([]),
+          getSettingsPages: () => of([]),
+          getSettingsValues: () => of([]),
+          setSettingsValues: () => of(undefined),
+          applySettings: () => of(undefined),
+        },
       },
       { provide: BrowseService, useValue: browseService },
       { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
@@ -313,7 +322,18 @@ describe('Shell', () => {
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() } },
         { provide: TransferActionsService, useValue: makeActionsStub() },
         { provide: QueueActionsService, useValue: makeQueueActionsStub() },
-        { provide: TransferApi, useValue: { getTransferClasses, getTransferSpeedGraph: () => of([]), getQueueSpeedGraph: () => of([]) } },
+        {
+          provide: TransferApi,
+          useValue: {
+            getTransferClasses,
+            getTransferSpeedGraph: () => of([]),
+            getQueueSpeedGraph: () => of([]),
+            getSettingsPages: () => of([]),
+            getSettingsValues: () => of([]),
+            setSettingsValues: () => of(undefined),
+            applySettings: () => of(undefined),
+          },
+        },
         { provide: BrowseService, useValue: { list: () => of([]) } },
         { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
         ConfirmationService,
@@ -451,5 +471,16 @@ describe('Shell', () => {
     expect(logTabDebugEl).toBeTruthy();
     expect(logTabDebugEl.componentInstance.active()).toBe(true);
     expect(speedGraphsTabDebugEl.componentInstance.active()).toBe(false);
+  });
+
+  it('"Settings" opens the settings dialog', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    findByTestId(fixture.nativeElement, 'action-settings').click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['showSettingsDialog']()).toBe(true);
   });
 });

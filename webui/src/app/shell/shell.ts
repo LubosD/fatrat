@@ -12,6 +12,7 @@ import { TransferDetails } from '../features/transfers/transfer-details';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
 import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
+import { SettingsDialog } from '../features/settings/settings-dialog';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { PollingService } from '../core/polling.service';
@@ -44,6 +45,7 @@ import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/
     QueuePropertiesDialog,
     TransferPropertiesDialog,
     NewTransferDialog,
+    SettingsDialog,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
@@ -134,5 +136,11 @@ export class Shell {
     } else {
       this.actions.addTransfers(value.urls, options);
     }
+  }
+
+  protected readonly showSettingsDialog = signal(false);
+
+  protected openSettingsDialog(): void {
+    this.showSettingsDialog.set(true);
   }
 }

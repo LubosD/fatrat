@@ -23,6 +23,11 @@
   (save)="onNewTransferSave($event)"
 ></app-new-transfer-dialog>
 
+<app-settings-dialog
+  [visible]="showSettingsDialog()"
+  (visibleChange)="showSettingsDialog.set($event)"
+></app-settings-dialog>
+
 <p-toolbar>
   <ng-template #start>
     <button pButton type="button" data-testid="action-new-transfer" (click)="openNewTransferDialog()">New Transfer</button>
@@ -39,6 +44,7 @@
     <button pButton type="button" data-testid="action-move-up" [disabled]="!hasSelection" (click)="actions.moveSelected('up')">Move Up</button>
     <button pButton type="button" data-testid="action-move-down" [disabled]="!hasSelection" (click)="actions.moveSelected('down')">Move Down</button>
     <button pButton type="button" data-testid="action-move-bottom" [disabled]="!hasSelection" (click)="actions.moveSelected('bottom')">Move to Bottom</button>
+    <button pButton type="button" data-testid="action-settings" (click)="openSettingsDialog()">Settings</button>
   </ng-template>
   <ng-template #end>
     <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
