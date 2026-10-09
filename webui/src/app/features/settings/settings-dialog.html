@@ -1,0 +1,34 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Settings" [modal]="true" [style]="{ width: '700px', height: '500px' }">
+  <div class="settings-layout">
+    <ul class="settings-page-list">
+      @for (page of pages(); track page.script) {
+        <li
+          data-testid="settings-page-item"
+          [class.selected]="page === selectedPage()"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="page.title"
+          (click)="selectPage(page)"
+          (keydown.enter)="selectPage(page)"
+          (keydown.space)="selectPage(page); $event.preventDefault()"
+        >
+          <img [src]="page.icon" alt="" />
+          <span>{{ page.title }}</span>
+        </li>
+      }
+    </ul>
+    <div class="settings-page-content">
+      @if (selectedPage(); as page) {
+        @if (pageComponent(page); as cmp) {
+          <ng-container *ngComponentOutlet="cmp"></ng-container>
+        } @else {
+          <p>This settings page isn't supported in this UI yet.</p>
+        }
+      }
+    </div>
+  </div>
+  <ng-template #footer>
+    <button pButton type="button" data-testid="settings-dialog-cancel" (click)="onCancel()">Cancel</button>
+    <button pButton type="button" data-testid="settings-dialog-ok" (click)="onOk()">OK</button>
+  </ng-template>
+</p-dialog>
