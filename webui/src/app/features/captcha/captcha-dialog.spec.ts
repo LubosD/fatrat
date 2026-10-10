@@ -135,6 +135,26 @@ describe('CaptchaDialog', () => {
     expect(fixture.componentInstance['visible']()).toBe(false);
   });
 
+  it('calling submit() twice in a row when a second event is already queued only answers the first event once, leaving the second untouched', () => {
+    vi.useFakeTimers();
+    const { captchaEvents$, submitSolution } = configure();
+    const fixture = TestBed.createComponent(CaptchaDialog);
+    fixture.detectChanges();
+    captchaEvents$.next({ id: 10, url: 'http://example.com/c10.png' });
+    fixture.detectChanges();
+    captchaEvents$.next({ id: 11, url: 'http://example.com/c11.png' }); // queued behind #10
+    fixture.detectChanges();
+
+    fixture.componentInstance['solution'] = 'first';
+    fixture.componentInstance['submit'](); // answers #10, advances to #11
+    fixture.componentInstance['submit'](); // stale second call — must NOT also answer #11
+
+    expect(submitSolution).toHaveBeenCalledTimes(1);
+    expect(submitSolution).toHaveBeenCalledWith(10, 'first');
+    expect(fixture.componentInstance['current']()).toEqual({ id: 11, url: 'http://example.com/c11.png' });
+    expect(fixture.componentInstance['visible']()).toBe(true);
+  });
+
   it('clears the typed solution field between captchas', () => {
     vi.useFakeTimers();
     const { captchaEvents$ } = configure();

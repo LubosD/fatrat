@@ -32,6 +32,19 @@ export class CaptchaDialog {
 
   private countdownTimer: ReturnType<typeof setInterval> | null = null;
 
+  /**
+   * Guards against a second submit()/cancel() call landing in the same synchronous turn as a
+   * first one (a double-click, or Enter-key autorepeat) before anything has had a chance to
+   * re-render. Without this, the second call would read the ALREADY-ADVANCED `current()` (the
+   * next queued captcha) fresh and answer it with stale/empty input the user never saw — the
+   * reference check in finish() alone doesn't catch this, since a zero-arg submit()/cancel() call
+   * captures `current()` live at call time, not from an earlier render. Cleared via a zero-delay
+   * timer (not a microtask) so it reliably outlives the remainder of the current synchronous
+   * script, including any immediately-following call, while still being gone well before any
+   * later, separate click/keypress/timer tick.
+   */
+  private locked = false;
+
   constructor() {
     this.socket.captchaEvents$.subscribe((event) => {
       this.queue.update((q) => [...q, event]);
@@ -42,11 +55,17 @@ export class CaptchaDialog {
   }
 
   protected submit(): void {
-    this.finish(this.solution);
+    const event = this.current();
+    if (event !== null) {
+      this.finish(event, this.solution);
+    }
   }
 
   protected cancel(): void {
-    this.finish('');
+    const event = this.current();
+    if (event !== null) {
+      this.finish(event, '');
+    }
   }
 
   protected onVisibleChange(value: boolean): void {
@@ -55,11 +74,22 @@ export class CaptchaDialog {
     }
   }
 
-  private finish(solution: string): void {
-    const event = this.current();
-    if (event === null) {
+  /**
+   * `event` is the specific captcha this call is meant to answer, captured by the caller at the
+   * moment it decided to act (a click, an Enter keypress, or a countdown tick) — NOT re-read from
+   * `current()` here. A second, stale call for an already-answered event (e.g. a double-click,
+   * or Enter firing in the same instant the countdown expires) must bail out rather than silently
+   * operating on whatever the queue has advanced to since, which would skip the next captcha with
+   * an empty solution before the user ever saw it.
+   */
+  private finish(event: CaptchaEvent, solution: string): void {
+    if (this.locked || event !== this.current()) {
       return;
     }
+    this.locked = true;
+    setTimeout(() => {
+      this.locked = false;
+    }, 0);
     this.captchaHttp.submitSolution(event.id, solution).subscribe({
       error: (err) => console.error('Failed to submit captcha solution', err),
     });
@@ -73,11 +103,12 @@ export class CaptchaDialog {
 
   private startCountdown(): void {
     this.secondsRemaining.set(COUNTDOWN_SECONDS);
+    const event = this.current();
     this.countdownTimer = setInterval(() => {
       const remaining = this.secondsRemaining() - 1;
       this.secondsRemaining.set(remaining);
-      if (remaining <= 0) {
-        this.finish('');
+      if (remaining <= 0 && event !== null) {
+        this.finish(event, '');
       }
     }, 1000);
   }
