@@ -13,6 +13,8 @@ import { LogService } from '../core/log.service';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { SettingsDialog } from '../features/settings/settings-dialog';
+import { CaptchaSocketService } from '../core/captcha-socket.service';
+import { CaptchaHttpService } from '../core/captcha-http.service';
 import { Queue, Transfer } from '../core/api/models';
 import { of, Subject } from 'rxjs';
 
@@ -113,6 +115,8 @@ function configure(
       },
       { provide: BrowseService, useValue: browseService },
       { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
+      { provide: CaptchaSocketService, useValue: { captchaEvents$: new Subject() } },
+      { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
       ConfirmationService,
     ],
   });
@@ -336,6 +340,8 @@ describe('Shell', () => {
         },
         { provide: BrowseService, useValue: { list: () => of([]) } },
         { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
+        { provide: CaptchaSocketService, useValue: { captchaEvents$: new Subject() } },
+        { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
         ConfirmationService,
       ],
     });
@@ -482,5 +488,13 @@ describe('Shell', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance['showSettingsDialog']()).toBe(true);
+  });
+
+  it('mounts the captcha dialog', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-captcha-dialog')).toBeTruthy();
   });
 });

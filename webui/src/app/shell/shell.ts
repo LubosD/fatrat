@@ -13,6 +13,7 @@ import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-
 import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
+import { CaptchaDialog } from '../features/captcha/captcha-dialog';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { PollingService } from '../core/polling.service';
@@ -46,6 +47,7 @@ import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/
     TransferPropertiesDialog,
     NewTransferDialog,
     SettingsDialog,
+    CaptchaDialog,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',

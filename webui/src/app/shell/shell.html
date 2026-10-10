@@ -28,6 +28,8 @@
   (visibleChange)="showSettingsDialog.set($event)"
 ></app-settings-dialog>
 
+<app-captcha-dialog></app-captcha-dialog>
+
 <p-toolbar>
   <ng-template #start>
     <button pButton type="button" data-testid="action-new-transfer" (click)="openNewTransferDialog()">New Transfer</button>
