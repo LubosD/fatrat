@@ -20,3 +20,7 @@ fatrat
 fatrat-conf
 moc_*
 
+webui/node_modules/
+webui/dist/
+webui/.angular/
+

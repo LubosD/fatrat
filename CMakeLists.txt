@@ -497,6 +497,29 @@ if(WITH_WEBINTERFACE)
 	)
 endif(WITH_WEBINTERFACE)
 
+option(WITH_WEBUI "Build the Angular web UI (requires Node.js/npm) and install it into data/remote" OFF)
+
+if(WITH_WEBUI)
+	find_program(NPM_EXECUTABLE npm)
+	if(NOT NPM_EXECUTABLE)
+		message(FATAL_ERROR "WITH_WEBUI is ON but npm was not found in PATH")
+	endif()
+
+	set(WEBUI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/webui)
+	set(WEBUI_DIST_DIR ${WEBUI_SRC_DIR}/dist/webui/browser)
+	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
+
+	add_custom_target(webui ALL
+		COMMAND ${NPM_EXECUTABLE} ci
+		COMMAND ${NPM_EXECUTABLE} run build -- --configuration production
+		COMMAND ${CMAKE_COMMAND} -E rm -rf ${WEBUI_TARGET_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${WEBUI_DIST_DIR} ${WEBUI_TARGET_DIR}
+		WORKING_DIRECTORY ${WEBUI_SRC_DIR}
+		COMMENT "Building the Angular web UI and installing it into data/remote"
+		VERBATIM
+	)
+endif(WITH_WEBUI)
+
 if(WITH_DOCUMENTATION)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
