@@ -509,6 +509,16 @@ if(WITH_WEBUI)
 	set(WEBUI_DIST_DIR ${WEBUI_SRC_DIR}/dist/webui/browser)
 	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
 
+	# NOTE: unconditionally replaces data/remote/ with the Angular build output. While the legacy
+	# jQuery UI still lives there (pre-cutover), enabling WITH_WEBUI discards it from the working
+	# tree on every build (recoverable via `git checkout -- data/remote/` since it's tracked).
+	#
+	# NOTE: this target has no staleness tracking (add_custom_target, not add_custom_command with
+	# OUTPUT/DEPENDS), so it re-runs `npm ci` + a full production `ng build` on every invocation of
+	# `cmake --build .`, not just when webui/ actually changed. Deliberate: real incremental
+	# tracking would need a glob over webui/src (which doesn't auto-detect new files without
+	# re-running cmake) and to second-guess npm's own staleness check for node_modules, both more
+	# likely to ship a silently-stale UI than to save a rebuild.
 	add_custom_target(webui ALL
 		COMMAND ${NPM_EXECUTABLE} ci
 		COMMAND ${NPM_EXECUTABLE} run build -- --configuration production
