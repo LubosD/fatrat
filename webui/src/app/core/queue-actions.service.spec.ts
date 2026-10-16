@@ -2,23 +2,33 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { QueueActionsService } from './queue-actions.service';
 import { TransferApi } from './api/transfer-api';
+import { ConfirmationService } from 'primeng/api';
+import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
 
 describe('QueueActionsService', () => {
   let createQueue: ReturnType<typeof vi.fn>;
   let setQueueProperties: ReturnType<typeof vi.fn>;
   let refreshNow: ReturnType<typeof vi.fn>;
+  let deleteQueue: ReturnType<typeof vi.fn>;
+  let confirm: ReturnType<typeof vi.fn>;
+  let transfersRefresh: ReturnType<typeof vi.fn>;
   let service: QueueActionsService;
 
   beforeEach(() => {
     createQueue = vi.fn().mockReturnValue(of(undefined));
     setQueueProperties = vi.fn().mockReturnValue(of(undefined));
     refreshNow = vi.fn();
+    deleteQueue = vi.fn().mockReturnValue(of(undefined));
+    confirm = vi.fn();
+    transfersRefresh = vi.fn();
 
     TestBed.configureTestingModule({
       providers: [
         QueueActionsService,
-        { provide: TransferApi, useValue: { createQueue, setQueueProperties } },
+        { provide: TransferApi, useValue: { createQueue, setQueueProperties, deleteQueue } },
+        { provide: ConfirmationService, useValue: { confirm } },
+        { provide: TransfersStore, useValue: { refreshNow: transfersRefresh } },
         { provide: QueuesStore, useValue: { refreshNow } },
       ],
     });
@@ -35,6 +45,24 @@ describe('QueueActionsService', () => {
     service.updateQueueProperties('q1', { name: 'Renamed' });
     expect(setQueueProperties).toHaveBeenCalledWith('q1', { name: 'Renamed' });
     expect(refreshNow).toHaveBeenCalled();
+  });
+
+  it('confirmDeleteEmptyQueue() asks for confirmation and deletes only once accepted', () => {
+    service.confirmDeleteEmptyQueue({ uuid: 'q1', name: 'Movies' } as never);
+    expect(deleteQueue).not.toHaveBeenCalled();
+    expect(confirm.mock.calls[0][0].message).toContain('Movies');
+
+    confirm.mock.calls[0][0].accept();
+    expect(deleteQueue).toHaveBeenCalledWith('q1', {});
+    expect(refreshNow).toHaveBeenCalled();
+    expect(transfersRefresh).toHaveBeenCalled();
+  });
+
+  it('deleteQueue() passes the options through and refreshes', () => {
+    service.deleteQueue({ uuid: 'q1', name: 'Movies' } as never, { moveTo: 'q2' });
+    expect(deleteQueue).toHaveBeenCalledWith('q1', { moveTo: 'q2' });
+    expect(refreshNow).toHaveBeenCalled();
+    expect(transfersRefresh).toHaveBeenCalled();
   });
 
   it('createQueue() does not refresh when the API call errors', () => {

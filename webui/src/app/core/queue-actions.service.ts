@@ -1,15 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { TransferApi } from './api/transfer-api';
 import { QueuesStore } from '../state/queues.store';
-import { Queue } from './api/models';
+import { DeleteQueueOptions, Queue } from './api/models';
 import { TransfersStore } from '../state/transfers.store';
-import { map, of, switchMap } from 'rxjs';
+import { ConfirmationService } from 'primeng/api';
+import { Observable, map, of, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class QueueActionsService {
   private readonly transferApi = inject(TransferApi);
   private readonly queuesStore = inject(QueuesStore);
   private readonly transfersStore = inject(TransfersStore);
+  private readonly confirmation = inject(ConfirmationService);
 
   createQueue(properties: Partial<Queue>): void {
     this.transferApi.createQueue(properties).subscribe({
@@ -22,6 +24,29 @@ export class QueueActionsService {
     this.transferApi.setQueueProperties(uuid, properties).subscribe({
       next: () => this.queuesStore.refreshNow(),
       error: (err) => console.error('Failed to update queue properties', err),
+    });
+  }
+
+  countTransfers(uuid: string): Observable<number> {
+    return this.transferApi.getQueueTransfers(uuid).pipe(map((transfers) => transfers.length));
+  }
+
+  /** Confirmation for a queue that holds no transfers; non-empty queues go through the delete dialog. */
+  confirmDeleteEmptyQueue(queue: Queue): void {
+    this.confirmation.confirm({
+      header: 'Confirm Delete',
+      message: `Delete the empty queue "${queue.name}"?`,
+      accept: () => this.deleteQueue(queue, {}),
+    });
+  }
+
+  deleteQueue(queue: Queue, options: DeleteQueueOptions): void {
+    this.transferApi.deleteQueue(queue.uuid, options).subscribe({
+      next: () => {
+        this.queuesStore.refreshNow();
+        this.transfersStore.refreshNow();
+      },
+      error: (err) => console.error('Failed to delete queue', err),
     });
   }
 

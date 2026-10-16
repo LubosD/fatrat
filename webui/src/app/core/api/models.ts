@@ -8,6 +8,13 @@ export interface Stats {
   queues: { [queueUuid: string]: SpeedLimits };
 }
 
+export interface DeleteQueueOptions {
+  /** Move the queue's transfers here; mutually exclusive with deleteTransfers. */
+  moveTo?: string;
+  deleteTransfers?: boolean;
+  withData?: boolean;
+}
+
 export interface Queue {
   uuid: string;
   name: string;

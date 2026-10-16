@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import {
+  DeleteQueueOptions,
   Queue,
   Transfer,
   TransferClass,
@@ -34,6 +35,7 @@ export abstract class TransferApi {
   abstract getQueues(): Observable<Queue[]>;
   abstract createQueue(properties: Partial<Queue>): Observable<void>;
   abstract setQueueProperties(uuid: string, properties: Partial<Queue>): Observable<void>;
+  abstract deleteQueue(uuid: string, options?: DeleteQueueOptions): Observable<void>;
   abstract getQueueTransfers(queueUuid: string): Observable<Transfer[]>;
   abstract getQueueSpeedGraph(queueUuid: string): Observable<SpeedSample[]>;
   abstract moveTransfers(

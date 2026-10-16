@@ -144,7 +144,7 @@ describe('QueueList', () => {
     expect(selectQueue).toHaveBeenCalledWith('q2');
 
     const items = fixture.componentInstance['contextMenuItems'] as { label?: string; command?: () => void }[];
-    expect(items.map((i) => i.label)).toEqual(['Resume All', 'Stop All', undefined, 'Properties']);
+    expect(items.map((i) => i.label)).toEqual(['Resume All', 'Stop All', undefined, 'Properties', undefined, 'Delete Queue']);
     const onProperties = vi.fn();
     fixture.componentInstance.propertiesRequested.subscribe(onProperties);
     items[0].command!();

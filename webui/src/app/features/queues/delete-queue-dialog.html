@@ -1,0 +1,34 @@
+<p-dialog [visible]="visible" (visibleChange)="visibleChange.emit($event)" header="Delete Queue" [modal]="true" styleClass="fr-dialog">
+  <p data-testid="delete-queue-message">
+    Delete the queue "{{ queue?.name }}"? It holds {{ transferCount }} {{ transferCount === 1 ? 'transfer' : 'transfers' }}.
+  </p>
+  @if (otherQueues.length > 0) {
+    <div class="field">
+      <p-radiobutton name="delete-mode" value="move" [(ngModel)]="mode" inputId="delete-mode-move"></p-radiobutton>
+      <label for="delete-mode-move">Move the transfers to another queue</label>
+    </div>
+    <div class="field">
+      <p-select
+        [options]="otherQueues"
+        optionLabel="name"
+        optionValue="uuid"
+        [(ngModel)]="moveTo"
+        [disabled]="mode !== 'move'"
+        appendTo="body"
+        data-testid="delete-queue-target"
+      ></p-select>
+    </div>
+  }
+  <div class="field">
+    <p-radiobutton name="delete-mode" value="delete" [(ngModel)]="mode" inputId="delete-mode-keep"></p-radiobutton>
+    <label for="delete-mode-keep">Delete the transfers, keep their files</label>
+  </div>
+  <div class="field">
+    <p-radiobutton name="delete-mode" value="deleteWithData" [(ngModel)]="mode" inputId="delete-mode-data"></p-radiobutton>
+    <label for="delete-mode-data">Delete the transfers with their data</label>
+  </div>
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="delete-queue-cancel" (click)="close()">Cancel</button>
+    <button pButton type="button" severity="danger" data-testid="delete-queue-confirm" (click)="onDelete()">Delete</button>
+  </ng-template>
+</p-dialog>

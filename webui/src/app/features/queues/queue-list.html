@@ -19,3 +19,11 @@
   }
 </ul>
 <p-contextMenu #cm [model]="contextMenuItems" appendTo="body"></p-contextMenu>
+<app-delete-queue-dialog
+  [queue]="deleteTarget()"
+  [otherQueues]="otherQueues()"
+  [transferCount]="deleteTransferCount()"
+  [visible]="showDeleteDialog()"
+  (visibleChange)="showDeleteDialog.set($event)"
+  (confirmed)="onDeleteConfirmed($event)"
+></app-delete-queue-dialog>

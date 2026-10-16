@@ -7,6 +7,7 @@ import { JsonValue } from './json-value';
 import {
   DirectoryListing,
   NewTransferOptions,
+  DeleteQueueOptions,
   Queue,
   SettingsPage,
   SpeedSample,
@@ -47,6 +48,14 @@ export class RestTransferApi extends TransferApi {
     return this.rest
       .patch<Queue>(`/queues/${encodeURIComponent(uuid)}`, properties)
       .pipe(map(() => undefined));
+  }
+
+  deleteQueue(uuid: string, options: DeleteQueueOptions = {}): Observable<void> {
+    const query: Record<string, string | boolean> = {};
+    if (options.moveTo) query['moveTo'] = options.moveTo;
+    if (options.deleteTransfers) query['deleteTransfers'] = true;
+    if (options.withData) query['withData'] = true;
+    return this.rest.delete<void>(`/queues/${encodeURIComponent(uuid)}`, query).pipe(map(() => undefined));
   }
 
   getQueueTransfers(queueUuid: string): Observable<Transfer[]> {
