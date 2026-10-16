@@ -10,3 +10,15 @@ if(WITH_BITTORRENT)
 	target_link_libraries(tst_torrentpiecemap Qt5::Core Qt5::Test LibtorrentRasterbar::torrent-rasterbar)
 	add_test(NAME torrentpiecemap COMMAND tst_torrentpiecemap)
 endif(WITH_BITTORRENT)
+
+add_executable(tst_legacyregex tst_legacyregex.cpp)
+target_link_libraries(tst_legacyregex Qt5::Core Qt5::Test)
+add_test(NAME legacyregex COMMAND tst_legacyregex)
+
+add_executable(tst_rssfeedparser tst_rssfeedparser.cpp)
+target_link_libraries(tst_rssfeedparser Qt5::Core Qt5::Test)
+add_test(NAME rssfeedparser COMMAND tst_rssfeedparser)
+
+add_executable(tst_xmlrpc tst_xmlrpc.cpp ${CMAKE_SOURCE_DIR}/src/XmlRpc.cpp)
+target_link_libraries(tst_xmlrpc Qt5::Core Qt5::Xml Qt5::Test)
+add_test(NAME xmlrpc COMMAND tst_xmlrpc)
