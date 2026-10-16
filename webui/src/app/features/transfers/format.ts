@@ -36,3 +36,16 @@ export function formatEta(total: number, done: number, bytesPerSecond: number): 
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   return `${hours}h ${minutes}m`;
 }
+
+/** Keeps both ends of an over-long name readable: "very-long-na…-name.iso". */
+export function elideMiddle(text: string, maxLength: number): string {
+  if (maxLength <= 0 || text.length <= maxLength) return text;
+
+  const ellipsis = '...';
+  if (maxLength <= ellipsis.length) return ellipsis.slice(0, maxLength);
+
+  const keep = maxLength - ellipsis.length;
+  const head = Math.ceil(keep / 2);
+  const tail = keep - head;
+  return `${text.slice(0, head)}${ellipsis}${tail > 0 ? text.slice(text.length - tail) : ''}`;
+}

@@ -6,13 +6,15 @@ import type { MenuItem } from 'primeng/api';
 import { TransfersStore, availableTransferActions } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';
-import { formatEta, formatSize, formatSpeed } from './format';
+import { elideMiddle, formatEta, formatSize, formatSpeed } from './format';
 import { progressPercent, stateIconPath, stateLabelText } from './transfer-presentation';
 import { createTransferMenuItems, withAvailability } from './transfer-menu';
 
 export const LONG_PRESS_MS = 500;
 /** A finger that drifts further than this is scrolling, not pressing. */
 const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
+/** Cards are narrower than the table, so names get less room before being elided. */
+const CARD_NAME_MAX_LENGTH = 60;
 
 /**
  * Touch-friendly alternative to TransferTable: one card per transfer. Tap selects a card; a long
@@ -39,6 +41,7 @@ export class TransferCards {
   protected readonly formatSize = formatSize;
   protected readonly formatSpeed = formatSpeed;
   protected readonly formatEta = formatEta;
+  protected readonly elideName = (name: string): string => elideMiddle(name, CARD_NAME_MAX_LENGTH);
   protected readonly progress = progressPercent;
   protected readonly stateIcon = stateIconPath;
   protected readonly stateLabel = stateLabelText;

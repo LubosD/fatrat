@@ -1,4 +1,4 @@
-import { formatSize, formatSpeed, formatEta } from './format';
+import { formatSize, formatSpeed, formatEta, elideMiddle } from './format';
 
 describe('formatSize', () => {
   it('formats bytes below 1 KB as B', () => {
@@ -61,4 +61,26 @@ describe('formatEta', () => {
     // total - done == seconds remaining, at a fixed speed of 1 B/s, keeps the math in the test obvious.
     return seconds;
   }
+});
+
+describe('elideMiddle', () => {
+  it('leaves a short name untouched', () => {
+    expect(elideMiddle('file.zip', 20)).toBe('file.zip');
+  });
+
+  it('leaves a name of exactly the limit untouched', () => {
+    expect(elideMiddle('abcdefghij', 10)).toBe('abcdefghij');
+  });
+
+  it('drops the middle of an over-long name', () => {
+    expect(elideMiddle('abcdefghijklmnop', 10)).toBe('abcd...nop');
+  });
+
+  it('never returns more characters than the limit', () => {
+    expect(elideMiddle('x'.repeat(300), 60)).toHaveLength(60);
+  });
+
+  it('falls back to the ellipsis for tiny limits', () => {
+    expect(elideMiddle('abcdef', 2)).toBe('..');
+  });
 });

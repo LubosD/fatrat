@@ -9,7 +9,10 @@ import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';
 import { progressPercent, stateIconPath, stateLabelText } from './transfer-presentation';
 import { createTransferMenuItems, withAvailability } from './transfer-menu';
-import { formatEta, formatSize, formatSpeed } from './format';
+import { elideMiddle, formatEta, formatSize, formatSpeed } from './format';
+
+/** Magnet links without metadata yet carry hash-long names; elide them instead of letting the column stretch. */
+const TABLE_NAME_MAX_LENGTH = 80;
 
 @Component({
   selector: 'app-transfer-table',
@@ -25,6 +28,7 @@ export class TransferTable {
   protected readonly formatSize = formatSize;
   protected readonly formatSpeed = formatSpeed;
   protected readonly formatEta = formatEta;
+  protected readonly elideName = (name: string): string => elideMiddle(name, TABLE_NAME_MAX_LENGTH);
 
   protected readonly trackByUuid = (_: number, transfer: Transfer): string => transfer.uuid;
 

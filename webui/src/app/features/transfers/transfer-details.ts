@@ -6,6 +6,9 @@ import type { TreeNodeExpandEvent, TreeNodeSelectEvent } from 'primeng/tree';
 import { TransfersStore } from '../../state/transfers.store';
 import { BrowseService } from '../../core/browse.service';
 import { TRANSFER_DETAIL_COMPONENTS } from './transfer-detail-registry';
+import { elideMiddle } from './format';
+
+const DETAILS_NAME_MAX_LENGTH = 80;
 
 @Component({
   selector: 'app-transfer-details',
@@ -23,6 +26,8 @@ export class TransferDetails {
     }
     return this.store.transfers().find((t) => t.uuid === uuids[0]) ?? null;
   });
+
+  protected readonly elideName = (name: string): string => elideMiddle(name, DETAILS_NAME_MAX_LENGTH);
 
   protected readonly treeNodes = signal<TreeNode[]>([]);
 

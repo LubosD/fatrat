@@ -48,7 +48,7 @@
         <td class="state-cell">
           <img [src]="stateIcon(transfer)" [alt]="stateLabel(transfer)" [title]="stateLabel(transfer)" width="16" height="16" />
         </td>
-        <td class="name-cell">{{ transfer.name }}</td>
+        <td class="name-cell" [title]="transfer.name">{{ elideName(transfer.name) }}</td>
         <td class="progress-cell">
           <p-progressbar [value]="progress(transfer.total, transfer.done)"></p-progressbar>
         </td>

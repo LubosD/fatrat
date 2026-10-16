@@ -27,7 +27,7 @@
       }
       <img class="card-state" [src]="stateIcon(transfer)" [alt]="stateLabel(transfer)" width="16" height="16" />
       <div class="card-body">
-        <div class="card-name">{{ transfer.name }}</div>
+        <div class="card-name" [title]="transfer.name">{{ elideName(transfer.name) }}</div>
         <p-progressbar [value]="progress(transfer.total, transfer.done)"></p-progressbar>
         <div class="card-stats">
           <span>{{ formatSize(transfer.total) }}</span>

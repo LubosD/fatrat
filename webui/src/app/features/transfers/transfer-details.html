@@ -3,7 +3,7 @@
     <fieldset>
       <legend>Download transfer data</legend>
       @if (!transfer.dataPathIsDir) {
-        <a data-testid="download-link" [href]="downloadUrl(transfer.uuid)">Download the file ({{ transfer.name }})</a>
+        <a data-testid="download-link" [title]="transfer.name" [href]="downloadUrl(transfer.uuid)">Download the file ({{ elideName(transfer.name) }})</a>
       } @else {
         <p-tree
           [value]="treeNodes()"
