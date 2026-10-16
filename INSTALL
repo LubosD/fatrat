@@ -1,4 +1,4 @@
-FatRat uses the CMake build system.
+FatRat uses the CMake build system (3.16 or newer). It needs Qt 6.5 or newer and a C++17 compiler.
 
 An example compilation procedure:
 
@@ -18,7 +18,7 @@ Should you need to make install to a different directory, the traditional DESTDI
 +-------------------------------+-----------------------+----------------------------------------------+
 | Translations                  | WITH_NLS              | ---                                          |
 | HTTP(S)/FTP(S) support        | WITH_CURL             | libcurl 7.18.2, Linux 2.6.2 or newer         |
-| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.15.0, ASIO, QtWebKit  |
+| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.15.0, ASIO, QtWebEngine |
 | Jabber remote control         | WITH_JABBER           | gloox 0.9/1.0                                |
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
 | Web interface                 | WITH_WEBINTERFACE     | libpion-net                                  |
