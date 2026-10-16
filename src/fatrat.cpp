@@ -170,8 +170,7 @@ int main(int argc,char** argv)
 	// Init download engines (let them load settings)
 	initSettingsDefaults(m_strSettingsPath);
 	
-	if(m_bStartGUI)
-		initSettingsPages();
+	initSettingsPages();
 
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)

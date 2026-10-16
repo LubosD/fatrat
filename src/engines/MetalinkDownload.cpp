@@ -24,8 +24,11 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "config.h"
 #include "MetalinkDownload.h"
-#include "MetalinkSettings.h"
+#ifdef WITH_GUI
+#	include "MetalinkSettings.h"
+#endif
 #include "Settings.h"
 #include "config.h"
 #include <QUrl>
@@ -71,7 +74,9 @@ void MetalinkDownload::globalInit()
 
 	si.icon = DelayedIcon(":/fatrat/metalink.png");
 	si.title = tr("Metalink");
+#ifdef WITH_GUI
 	si.lpfnCreate = MetalinkSettings::create;
+#endif
 
 	addSettingsPage(si);
 }

@@ -34,7 +34,9 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JException.h"
 #include "fatrat.h"
 #include "Settings.h"
-#include "SettingsJavaPluginForm.h"
+#ifdef WITH_GUI
+#	include "SettingsJavaPluginForm.h"
+#endif
 
 #include <QApplication>
 #include <QMessageBox>
@@ -371,7 +373,9 @@ void JavaDownload::globalInit()
 	SettingsItem si;
 	si.title = tr("Extensions");
 	si.icon = DelayedIcon(":/menu/java_plugin.png");
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsJavaPluginForm::create;
+#endif
 	addSettingsPage(si);
 }
 

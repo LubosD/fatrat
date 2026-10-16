@@ -31,16 +31,20 @@ respects for all of the code used other than "OpenSSL".
 #include <QSettings>
 #include <QVector>
 #include <QDir>
-#include <QMessageBox>
 #include <iostream>
 
-#include "SettingsGeneralForm.h"
-#include "SettingsDropBoxForm.h"
-#include "SettingsNetworkForm.h"
-#include "SettingsQueueForm.h"
-#include "SettingsSchedulerForm.h"
-#include "SettingsClipboardMonitorForm.h"
-#include "rss/SettingsRssForm.h"
+#include "Scheduler.h"
+#include "rss/RssFetcher.h"
+#ifdef WITH_GUI
+#	include <QMessageBox>
+#	include "SettingsGeneralForm.h"
+#	include "SettingsDropBoxForm.h"
+#	include "SettingsNetworkForm.h"
+#	include "SettingsQueueForm.h"
+#	include "SettingsSchedulerForm.h"
+#	include "SettingsClipboardMonitorForm.h"
+#	include "rss/SettingsRssForm.h"
+#endif
 
 QVector<SettingsItem> g_settingsPages;
 QSettings* g_settings = 0;
@@ -51,6 +55,7 @@ void initSettingsPages()
 {
 	SettingsItem si;
 	
+#ifdef WITH_GUI
 	si.icon = DelayedIcon(":/fatrat/fatrat.png");
 	si.title = QObject::tr("Main");
 	si.lpfnCreate = SettingsGeneralForm::create;
@@ -75,26 +80,33 @@ void initSettingsPages()
 	si.lpfnCreate = SettingsNetworkForm::create;
 	
 	g_settingsPages << si;
+#endif
 	
 	si.icon = DelayedIcon(":/fatrat/rss.png");
 	si.title = QObject::tr("RSS");
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsRssForm::create;
-	si.pfnApply = SettingsRssForm::applySettings;
+#endif
+	si.pfnApply = [] { RssFetcher::instance()->applySettings(); };
 	
 	g_settingsPages << si;
 	
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsSchedulerForm::create;
-	si.pfnApply = SettingsSchedulerForm::applySettings;
+#endif
+	si.pfnApply = [] { Scheduler::instance()->reload(); };
 	g_settingsPages << si;
 
+#ifdef WITH_GUI
 	si.icon = DelayedIcon(":/fatrat/clipboard.png");
 	si.title = QObject::tr("Clipboard monitor");
 	si.lpfnCreate = SettingsClipboardMonitorForm::create;
 	//si.pfnApply = SettingsClipboardMonitorForm::applySettings;
 	
 	g_settingsPages << si;
+#endif
 }
 
 void addSettingsPage(const SettingsItem& i)
@@ -166,8 +178,10 @@ void initSettingsDefaults(QString manualPath)
 		const char* error = "Your installation is incomplete.\nIf you compiled FatRat from source, please learn how to install programs first!\n";
 		std::cerr << error;
 
-		if (getenv("DISPLAY"))
+#ifdef WITH_GUI
+		if (programHasGUI() && getenv("DISPLAY"))
 			QMessageBox::critical(0, "FatRat", error);
+#endif
 		exit(1);
 	}
 

@@ -29,7 +29,9 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpService.h"
 #include "Settings.h"
 #include "RuntimeException.h"
-#include "SettingsWebForm.h"
+#ifdef WITH_GUI
+#	include "SettingsWebForm.h"
+#endif
 #include "SpeedGraph.h"
 #include "Transfer.h"
 #include "Queue.h"
@@ -78,10 +80,12 @@ HttpService::HttpService()
 	applySettings();
 
 	SettingsItem si;
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsWebForm::create;
+#endif
 	si.title = tr("Web Interface");
 	si.icon = DelayedIcon(":/fatrat/webinterface.png");
-	si.pfnApply = SettingsWebForm::applySettings;
+	si.pfnApply = [] { HttpService::instance()->applySettings(); };
 	si.webSettingsScript = "/scripts/settings/webinterface.js";
 	si.webSettingsIconURL = "/img/settings/webinterface.png";
 

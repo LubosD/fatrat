@@ -30,7 +30,9 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "Queue.h"
 #include "TorrentDownload.h"
-#include "TorrentSettings.h"
+#ifdef WITH_GUI
+#	include "TorrentSettings.h"
+#endif
 #include "TorrentDetails.h"
 #include "TorrentOptsWidget.h"
 #include "RuntimeException.h"
@@ -317,8 +319,10 @@ void TorrentDownload::globalInit()
 	
 	si.icon = DelayedIcon(":/fatrat/bittorrent.png");
 	si.title = tr("BitTorrent");
+#ifdef WITH_GUI
 	si.lpfnCreate = TorrentSettings::create;
-	si.pfnApply = TorrentSettings::applySettings;
+#endif
+	si.pfnApply = TorrentDownload::applySettings;
 
 #ifdef WITH_WEBINTERFACE
 	// register XML-RPC functions

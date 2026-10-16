@@ -31,7 +31,9 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "RuntimeException.h"
 #include "GeneralDownloadForms.h"
-#include "HttpFtpSettings.h"
+#ifdef WITH_GUI
+#	include "HttpFtpSettings.h"
+#endif
 #include "tools/HashDlg.h"
 #include "util/ExtendedAttributes.h"
 #include "CurlPoller.h"
@@ -165,7 +167,9 @@ void CurlDownload::globalInit()
 	SettingsItem si;
 	si.icon = DelayedIcon(":/fatrat/httpftp.png");
 	si.title = tr("HTTP/FTP");
+#ifdef WITH_GUI
 	si.lpfnCreate = HttpFtpSettings::create;
+#endif
 	
 	addSettingsPage(si);
 }
