@@ -35,7 +35,8 @@ respects for all of the code used other than "OpenSSL".
 #include "TorrentOptsWidget.h"
 #include "RuntimeException.h"
 #include "rss/RssFetcher.h"
-#include "TorrentProgressWidget.h"
+#include "TorrentPieceMap.h"
+#include "util/BmpWriter.h"
 
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/alert_types.hpp>
@@ -64,7 +65,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QVector>
 #include <QLabel>
 #include <QBuffer>
-#include <QImage>
 #include <QtDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -1087,7 +1087,7 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 		if (method == "progress")
 		{
 			libtorrent::bitfield pieces = m_handle.status().pieces;
-			QImage img(WIDTH, 1, QImage::Format_RGB32);
+			std::vector<quint32> img(WIDTH, 0xffffffff);
 
 			if(pieces.empty() && m_info->total_size() == m_status.total_done)
 			{
@@ -1095,32 +1095,26 @@ void TorrentDownload::process(QString method, QMap<QString,QString> args, WriteB
 				pieces.set_all();
 			}
 			if (!pieces.empty())
-				TorrentProgressWidget::generate(pieces, WIDTH, reinterpret_cast<quint32*>(img.bits()));
-			else
-				img.fill(0xffffffff);
+				TorrentPieceMap::renderPieces(pieces, WIDTH, img.data());
 
-			QBuffer bbuf;
+			QByteArray bmp = encodeBmp(img.data(), WIDTH, 1);
+			wb->setContentType("image/bmp");
 
-			img.save(&bbuf, "PNG");
-			wb->setContentType("image/png");
-
-			wb->write(bbuf.buffer().data(), bbuf.size());
+			wb->write(bmp.data(), bmp.size());
 			wb->send();
 		}
 		else if (method == "availability")
 		{
 			std::vector<int> avail;
-			QBuffer bbuf;
-
 			m_handle.piece_availability(avail);
 
-			QImage img(WIDTH, 1, QImage::Format_RGB32);
-			TorrentProgressWidget::generate(avail, WIDTH, reinterpret_cast<quint32*>(img.bits()));
+			std::vector<quint32> img(WIDTH);
+			TorrentPieceMap::renderAvailability(avail, WIDTH, img.data());
 
-			img.save(&bbuf, "PNG");
-			wb->setContentType("image/png");
+			QByteArray bmp = encodeBmp(img.data(), WIDTH, 1);
+			wb->setContentType("image/bmp");
 
-			wb->write(bbuf.buffer().data(), bbuf.size());
+			wb->write(bmp.data(), bmp.size());
 			wb->send();
 		}
 		else

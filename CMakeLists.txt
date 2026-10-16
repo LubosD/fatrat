@@ -455,6 +455,7 @@ if(WITH_BITTORRENT)
 		${fatrat_SRCS}
 		src/engines/TorrentDownload.cpp
 		src/engines/TorrentIPFilter.cpp
+		src/engines/TorrentPieceMap.cpp
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}
