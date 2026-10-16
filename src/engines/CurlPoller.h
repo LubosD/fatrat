@@ -59,7 +59,8 @@ protected:
 	void epollEnable(int socket, int events);
 	void pollingCycle(bool oneshot);
 	static int socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp);
-	static int timer_callback(CURLM* multi, long newtimeout, long* timeout);
+	static int timer_callback(CURLM* multi, long newtimeout, CurlPoller* This);
+	static long long nowMs();
 	static void setTransferTimeout(int timeout);
 	static int getTransferTimeout() { return m_nTransferTimeout; }
 protected:
@@ -69,7 +70,7 @@ protected:
 	bool m_bAbort;
 	CURLM* m_curlm;
 	Poller* m_poller;
-	int m_curlTimeout;
+	long long m_curlDeadline; // monotonic ms when libcurl wants a CURL_SOCKET_TIMEOUT action, -1 if none
 	long m_timeout;
 	
 	typedef QMap<int, QPair<int,CurlStat*> > sockets_hash;

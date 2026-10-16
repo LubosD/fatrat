@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 
 #include "CurlPoller.h"
+#include <chrono>
 #include "CurlPollingMaster.h"
 #include <QtDebug>
 #include <cassert>
@@ -37,7 +38,7 @@ int CurlPoller::m_nTransferTimeout = 20;
 CurlPoller::CurlPoller()
 	: m_bAbort(false), m_timeout(0)
 {
-	m_curlTimeout = 0;
+	m_curlDeadline = -1;
 	// Not thread-safe, so only the main instance (not polling masters) does this
 	if(!m_instance)
 		curl_global_init(CURL_GLOBAL_SSL);
@@ -90,10 +91,12 @@ void CurlPoller::pollingCycle(bool oneshot)
 	int numEvents = m_poller->wait(!oneshot ? m_timeout : 0, events, sizeof(events) / sizeof(events[0]));
 
 	m_usersLock.lock();
-	if(!numEvents)
+	// libcurl's timer must be serviced even when sockets are busy, otherwise
+	// connection setup (resolver, happy eyeballs...) may stall
+	if(!numEvents || (m_curlDeadline >= 0 && nowMs() >= m_curlDeadline))
 	{
-		// The timer has fired, libcurl will set a new one through timer_callback if it needs one
-		m_curlTimeout = -1;
+		// libcurl will set a new timer through timer_callback if it needs one
+		m_curlDeadline = -1;
 		curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	}
 
@@ -119,11 +122,10 @@ void CurlPoller::pollingCycle(bool oneshot)
 
 	gettimeofday(&tvNow, 0);
 
-	// 0 means "call me right away" (e.g. data pending inside the TLS layer), -1 means no timer
-	if(m_curlTimeout < 0 || m_curlTimeout > 500)
+	if(m_curlDeadline < 0)
 		m_timeout = 500;
 	else
-		m_timeout = m_curlTimeout;
+		m_timeout = qBound<long long>(0, m_curlDeadline - nowMs(), 500);
 
 	while (!m_queueToDelete.isEmpty())
 	{
@@ -275,7 +277,7 @@ void CurlPoller::checkErrors(timeval tvNow)
 void CurlPoller::run()
 {
 	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
-	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, &m_curlTimeout);
+	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, this);
 
 	while(!m_bAbort)
 		pollingCycle(false);
@@ -286,9 +288,15 @@ void CurlPoller::epollEnable(int socket, int events)
 	m_poller->addSocket(socket, events);
 }
 
-int CurlPoller::timer_callback(CURLM* multi, long newtimeout, long* timeout)
+long long CurlPoller::nowMs()
 {
-	*timeout = newtimeout;
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+int CurlPoller::timer_callback(CURLM* multi, long newtimeout, CurlPoller* This)
+{
+	// 0 means "call me right away", -1 means no timer
+	This->m_curlDeadline = (newtimeout < 0) ? -1 : nowMs() + newtimeout;
 	return 0;
 }
 
