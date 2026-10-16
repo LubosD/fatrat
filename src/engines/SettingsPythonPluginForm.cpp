@@ -220,7 +220,24 @@ void SettingsPythonPluginForm::installSelected()
 	QString repository = item->data(1, Qt::UserRole).toString();
 	QString error;
 
-	if (!PluginRepository::install(repository, plugin, &error))
+	QStringList dependencies = PluginRepository::dependenciesOf(repository, plugin);
+	bool withDependencies = false;
+
+	if (!dependencies.isEmpty())
+	{
+		// Dependencies come from PyPI, not from the repository the user
+		// chose, so they get their own question naming every package.
+		if (QMessageBox::warning(getMainWindow(), "FatRat",
+			tr("%1 needs these packages from the Python Package Index:\n\n%2\n\n"
+			   "They will be downloaded with pip and installed for this plugin only. "
+			   "Install them?").arg(plugin).arg(dependencies.join(QLatin1String("\n"))),
+			QMessageBox::Yes | QMessageBox::Cancel) != QMessageBox::Yes)
+			return;
+
+		withDependencies = true;
+	}
+
+	if (!PluginRepository::install(repository, plugin, &error, withDependencies))
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat",
 			tr("Could not install %1: %2").arg(plugin).arg(error));

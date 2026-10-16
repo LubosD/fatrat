@@ -52,6 +52,10 @@ public:
 	QString directory;
 	QString name, version, description, entry, license, homepage, apiVersion, minFatRat;
 	QStringList permissions;
+	// PyPI requirements the plugin needs. Installing them is a separate,
+	// explicitly confirmed step: it runs pip, which fetches and executes
+	// code the user did not pick themselves.
+	QStringList dependencies;
 	// The plugin's settings page, declared as data so that every FatRat
 	// interface can render the same thing.
 	QJsonArray config;

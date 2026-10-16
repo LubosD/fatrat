@@ -91,7 +91,8 @@ void printUsage()
                 "  remove-repo <id>\t\tForget a repository; installed plugins stay\n"
                 "  refresh [id]\t\t\tFetch repositories again\n"
                 "  available\t\t\tList what the repositories offer\n"
-                "  install <repo-id> <plugin>\tInstall or update one plugin\n"
+                "  install <repo-id> <plugin> [--with-dependencies]\n"
+                "               \t\t\tInstall or update one plugin\n"
                 "  uninstall <plugin>\t\tRemove an installed plugin\n"
                 "  list\t\t\t\tList installed plugins\n"
                 "  updates\t\t\tList plugins with a newer version available\n\n"
@@ -179,7 +180,23 @@ static int pluginCommand(const QStringList& arguments)
 
 	if (command == "install" && arguments.size() > 2)
 	{
-		if (!PluginRepository::install(arguments[1], arguments[2], &error))
+		QStringList dependencies = PluginRepository::dependenciesOf(arguments[1], arguments[2]);
+		bool withDependencies = arguments.contains("--with-dependencies");
+
+		if (!dependencies.isEmpty() && !withDependencies)
+		{
+			// Packages from PyPI are code the user did not choose, so
+			// they never come along unasked.
+			cerr << qPrintable(arguments[2]) << " needs these packages from PyPI:" << endl;
+			foreach (const QString& dependency, dependencies)
+				cerr << "  " << qPrintable(dependency) << endl;
+			cerr << "Install them too with: fatrat-conf plugins install "
+			     << qPrintable(arguments[1]) << " " << qPrintable(arguments[2])
+			     << " --with-dependencies" << endl;
+			return 1;
+		}
+
+		if (!PluginRepository::install(arguments[1], arguments[2], &error, withDependencies))
 		{
 			cerr << "ERROR: " << qPrintable(error) << endl;
 			return 1;

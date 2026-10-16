@@ -37,6 +37,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
+
+#include <cstdlib>
 #include <QtDebug>
 
 // The plugin API version manifests are checked against. Kept here rather than
@@ -566,7 +568,112 @@ QList<PluginRepository::Available> PluginRepository::available()
 	return rv;
 }
 
-bool PluginRepository::install(const QString& repositoryId, const QString& plugin, QString* error)
+QString PluginRepository::pythonExecutable()
+{
+	// An override, for a build whose interpreter has no pip of its own (and
+	// for tests): whatever runs pip must be the same Python the plugins
+	// will be imported by, or the packages land where nothing reads them.
+	if (const char* env = getenv("FATRAT_PYTHON_EXECUTABLE"))
+	{
+		if (*env)
+			return QString::fromLocal8Bit(env);
+	}
+
+	// Otherwise the interpreter FatRat was built against.
+#ifdef FATRAT_PYTHON_EXECUTABLE
+	QString configured = QLatin1String(FATRAT_PYTHON_EXECUTABLE);
+
+	if (!configured.isEmpty())
+		return configured;
+#endif
+	return QLatin1String("python3");
+}
+
+QString PluginRepository::vendorPath(const QString& plugin)
+{
+	return QDir(installedPath()).filePath(plugin + QLatin1String("/_vendor"));
+}
+
+QStringList PluginRepository::dependenciesOf(const QString& repositoryId, const QString& plugin)
+{
+	QMutexLocker locker(&s_mutex);
+
+	load();
+
+	foreach (const Repository& repository, s_repositories)
+	{
+		if (repository.id != repositoryId)
+			continue;
+
+		QString directory = repository.local ? repository.source
+						     : QDir(repositoriesPath()).filePath(repository.id);
+		RepositoryManifest manifest = RepositoryManifest::read(directory);
+
+		foreach (const RepositoryPlugin& entry, manifest.plugins)
+		{
+			if (entry.name != plugin)
+				continue;
+
+			return PluginManifest::read(QDir(directory).filePath(entry.source),
+						    API_VERSION).dependencies;
+		}
+	}
+
+	return QStringList();
+}
+
+/* Fetches a plugin's requirements into its own _vendor directory.
+ *
+ * Per plugin rather than into the user's site-packages: two plugins may want
+ * incompatible versions, and removing a plugin should take its dependencies
+ * with it.
+ */
+static bool runPip(const QString& plugin, const QStringList& requirements, QString* error)
+{
+	QString target = PluginRepository::vendorPath(plugin);
+	QStringList arguments;
+
+	QDir().mkpath(target);
+
+	arguments << "-m" << "pip" << "install" << "--no-input" << "--disable-pip-version-check"
+		  << "--target" << target << requirements;
+
+	QProcess process;
+
+	process.start(PluginRepository::pythonExecutable(), arguments);
+
+	if (!process.waitForStarted(10000))
+	{
+		if (error)
+			*error = QObject::tr("could not run %1").arg(PluginRepository::pythonExecutable());
+		return false;
+	}
+
+	if (!process.waitForFinished(600000))
+	{
+		process.kill();
+		if (error)
+			*error = QObject::tr("pip timed out");
+		return false;
+	}
+
+	if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+	{
+		QString message = QString::fromUtf8(process.readAllStandardError()).trimmed();
+
+		if (message.isEmpty())
+			message = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+		if (error)
+			*error = message.isEmpty() ? QObject::tr("pip failed") : message;
+
+		return false;
+	}
+
+	return true;
+}
+
+bool PluginRepository::install(const QString& repositoryId, const QString& plugin, QString* error,
+			       bool withDependencies)
 {
 	QMutexLocker locker(&s_mutex);
 
@@ -656,6 +763,16 @@ bool PluginRepository::install(const QString& repositoryId, const QString& plugi
 		return false;
 	}
 
+	// Dependencies are code from PyPI that the user did not choose, so they
+	// are never installed as a side effect of installing a plugin.
+	if (!pluginManifest.dependencies.isEmpty() && !withDependencies)
+	{
+		if (error)
+			*error = QObject::tr("%1 needs these packages from PyPI: %2")
+				.arg(plugin).arg(pluginManifest.dependencies.join(QLatin1String(", ")));
+		return false;
+	}
+
 	QDir().mkpath(installedPath());
 
 	QString target = QDir(installedPath()).filePath(plugin);
@@ -680,6 +797,14 @@ bool PluginRepository::install(const QString& repositoryId, const QString& plugi
 	}
 	else if (!copyDirectory(pluginSource, target, error))
 		return false;
+
+	if (!pluginManifest.dependencies.isEmpty() && !runPip(plugin, pluginManifest.dependencies, error))
+	{
+		// A plugin without its dependencies would only fail on import, in
+		// a way the user cannot act on.
+		uninstallLocked(plugin, 0);
+		return false;
+	}
 
 	Installed record;
 
@@ -709,6 +834,12 @@ bool PluginRepository::uninstall(const QString& plugin, QString* error)
 	QMutexLocker locker(&s_mutex);
 
 	load();
+
+	return uninstallLocked(plugin, error);
+}
+
+bool PluginRepository::uninstallLocked(const QString& plugin, QString* error)
+{
 
 	QString target = QDir(installedPath()).filePath(plugin);
 	QFileInfo info(target);

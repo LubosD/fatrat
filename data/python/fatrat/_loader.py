@@ -41,7 +41,11 @@ def load(name: str, directory: str, entry: str) -> List[registry.PluginDescripto
 
     module_name = "%s.%s" % (PACKAGE, name.replace("-", "_"))
 
-    # A plugin may ship helper modules next to its entry point.
+    # A plugin may ship helper modules next to its entry point, and its
+    # dependencies (if it declared any) live in _vendor beside them.
+    vendor = os.path.join(directory, "_vendor")
+    if os.path.isdir(vendor) and vendor not in sys.path:
+        sys.path.insert(0, vendor)
     if directory not in sys.path:
         sys.path.insert(0, directory)
 

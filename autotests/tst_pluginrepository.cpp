@@ -20,6 +20,7 @@ private slots:
 	void installsFromALocalRepositoryBySymlink();
 	void uninstallForgetsThePlugin();
 	void removingARepositoryLeavesInstalledPluginsAlone();
+	void refusesToInstallDependenciesWithoutConsent();
 	void clonesAGitRepositoryAndPinsItsRevision();
 	void reportsAnUpdateAfterTheRepositoryMovesOn();
 private:
@@ -193,6 +194,34 @@ void tst_pluginrepository::removingARepositoryLeavesInstalledPluginsAlone()
 	QVERIFY(PluginRepository::repositories().isEmpty());
 	// Dropping the source does not uninstall what the user installed from it.
 	QCOMPARE(PluginRepository::installed().size(), 1);
+}
+
+/* Packages from PyPI are code the user did not choose, so installing a plugin
+ * never drags them in by itself.
+ */
+void tst_pluginrepository::refusesToInstallDependenciesWithoutConsent()
+{
+	QString path = makeRepository("needs-packages", "1.0.0");
+	QString error;
+
+	// Give the plugin a dependency.
+	QFile plugin(path + "/sample/plugin.json");
+
+	plugin.open(QIODevice::WriteOnly | QIODevice::Truncate);
+	plugin.write(R"({"schema": 1, "name": "sample", "version": "1.0.0", "api": "1",
+		"entry": "sample.py", "dependencies": ["feedparser", "  "]})");
+	plugin.close();
+
+	QVERIFY2(PluginRepository::addRepository(path, &error), qPrintable(error));
+
+	// Blank entries are dropped rather than handed to pip.
+	QCOMPARE(PluginRepository::dependenciesOf("needs-packages", "sample"),
+		 QStringList() << "feedparser");
+
+	QVERIFY(!PluginRepository::install("needs-packages", "sample", &error));
+	QVERIFY2(error.contains("feedparser"), qPrintable(error));
+	QVERIFY(PluginRepository::installed().isEmpty());
+	QVERIFY(!QFileInfo::exists(QDir(PluginRepository::installedPath()).filePath("sample")));
 }
 
 void tst_pluginrepository::clonesAGitRepositoryAndPinsItsRevision()

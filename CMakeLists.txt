@@ -76,10 +76,16 @@ endif(WITH_JPLUGINS)
 if(WITH_PYPLUGINS)
 	set(WITH_CURL ON)
 
-	find_package(Python3 3.11 REQUIRED COMPONENTS Development.Embed)
+	# Interpreter as well as Development.Embed: plugin dependencies are
+	# installed by running that interpreter's pip.
+	find_package(Python3 3.11 REQUIRED COMPONENTS Interpreter Development.Embed)
 	find_package(pybind11 2.10 REQUIRED)
 
 	message(STATUS "Python ${Python3_VERSION} found OK, pybind11 ${pybind11_VERSION}")
+
+	# Plugin dependencies have to be installed for the interpreter that is
+	# embedded, not for whatever "python3" happens to be on PATH.
+	add_definitions(-DFATRAT_PYTHON_EXECUTABLE="${Python3_EXECUTABLE}")
 endif(WITH_PYPLUGINS)
 
 if(WITH_BITTORRENT)

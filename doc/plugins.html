@@ -117,6 +117,25 @@ desktop settings dialog and in the web interface, and the values land in the
 settings keys you name.
 </p>
 
+<h3>Dependencies</h3>
+
+<p>
+Most plugins need nothing but the standard library and <code>fatrat</code>.
+When yours genuinely needs a library, list it in the manifest:
+</p>
+
+<pre>  "dependencies": ["feedparser"]</pre>
+
+<p>
+FatRat will not install those packages as a side effect of installing your
+plugin: it names them and asks first, because they come from PyPI rather than
+from the repository the user chose. They are then fetched with pip into a
+<code>_vendor</code> directory inside your plugin, so two plugins may depend on
+different versions of the same package, and removing a plugin removes its
+dependencies with it. Keep the list short: every entry is one more thing the
+user has to trust.
+</p>
+
 <h3>Publishing</h3>
 
 <p>

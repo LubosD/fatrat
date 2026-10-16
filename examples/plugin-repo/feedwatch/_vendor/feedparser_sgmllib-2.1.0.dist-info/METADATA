@@ -1,0 +1,25 @@
+Metadata-Version: 2.4
+Name: feedparser-sgmllib
+Version: 2.1.0
+Summary: sgmllib from Python 2.7. For feedparser use only.
+License-Expression: PSF-2.0
+License-File: LICENSE
+Maintainer: Kurt McKee
+Maintainer-email: contactme@kurtmckee.org
+Requires-Python: >=3.10
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Project-URL: Changelog, https://feedparser-sgmllib.readthedocs.io/en/latest/changelog/
+Project-URL: Documentation, https://feedparser-sgmllib.readthedocs.io
+Project-URL: Source, https://github.com/python-syndication/feedparser-sgmllib
+Description-Content-Type: text/x-rst
+
+feedparser-sgmllib
+##################
+
+sgmllib from Python 2.7. For feedparser use only.
+

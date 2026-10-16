@@ -103,7 +103,23 @@ public:
 	// Re-fetch one repository, or all of them when id is empty.
 	static bool refresh(const QString& id, QString* error);
 
-	static bool install(const QString& repositoryId, const QString& plugin, QString* error);
+	/* Installs, or updates, one plugin.
+	 *
+	 * A plugin that declares `dependencies` is refused unless
+	 * `withDependencies` is true: those packages are fetched from PyPI with
+	 * pip and are code the user did not choose, so asking is the whole
+	 * point. Use dependenciesOf() to find out what would be installed.
+	 */
+	static bool install(const QString& repositoryId, const QString& plugin, QString* error,
+			    bool withDependencies = false);
+
+	// What `plugin` would pull in from PyPI, read from the repository copy.
+	static QStringList dependenciesOf(const QString& repositoryId, const QString& plugin);
+
+	// Where a plugin's dependencies are installed, and the interpreter used
+	// to install them.
+	static QString vendorPath(const QString& plugin);
+	static QString pythonExecutable();
 	static bool uninstall(const QString& plugin, QString* error);
 
 	// Plugins whose repository now offers a version other than the one that
@@ -122,6 +138,8 @@ private:
 	static bool copyDirectory(const QString& from, const QString& to, QString* error);
 	static void load();
 	static void save();
+	// uninstall() with the lock already held (install() rolls back with it).
+	static bool uninstallLocked(const QString& plugin, QString* error);
 };
 
 #endif // PLUGINREPOSITORY_H

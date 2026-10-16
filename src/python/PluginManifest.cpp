@@ -70,6 +70,17 @@ PluginManifest PluginManifest::read(const QString& directory, const QString& api
 	for (QJsonArray::const_iterator it = permissions.begin(); it != permissions.end(); it++)
 		manifest.permissions << (*it).toString();
 
+	QJsonArray dependencies = root.value(QLatin1String("dependencies")).toArray();
+	for (QJsonArray::const_iterator it = dependencies.begin(); it != dependencies.end(); it++)
+	{
+		QString requirement = (*it).toString().trimmed();
+
+		// Nothing clever: a requirement FatRat cannot read is one it will
+		// not hand to pip.
+		if (!requirement.isEmpty())
+			manifest.dependencies << requirement;
+	}
+
 	if (manifest.name.isEmpty())
 	{
 		manifest.error = QObject::tr("plugin.json has no name");

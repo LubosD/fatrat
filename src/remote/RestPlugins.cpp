@@ -160,15 +160,35 @@ static RestResult installPlugin(const RestRequest& req)
 	QJsonObject body = req.jsonObject();
 	QString repository = RestApi::asString(body.value("repository"), "repository");
 	QString plugin = RestApi::asString(body.value("plugin"), "plugin");
+	bool withDependencies = body.contains("withDependencies")
+		&& RestApi::asBool(body.value("withDependencies"), "withDependencies");
 	QString error;
 
-	if (!PluginRepository::install(repository, plugin, &error))
+	// Packages from PyPI are code the user did not pick, so the client has
+	// to say yes to them specifically, having been told what they are.
+	QStringList dependencies = PluginRepository::dependenciesOf(repository, plugin);
+
+	if (!dependencies.isEmpty() && !withDependencies)
+	{
+		throw RestError(422, "dependencies_required",
+				QString("%1 needs these packages from PyPI: %2")
+					.arg(plugin).arg(dependencies.join(", ")));
+	}
+
+	if (!PluginRepository::install(repository, plugin, &error, withDependencies))
 		throw RestError(422, "install_failed", error);
 
 	QJsonObject rv;
 
 	rv["plugin"] = plugin;
 	rv["repository"] = repository;
+
+	QJsonArray installedDependencies;
+
+	foreach (const QString& dependency, dependencies)
+		installedDependencies << dependency;
+
+	rv["dependencies"] = installedDependencies;
 	// Worth saying in the response: the engines are registered at startup.
 	rv["restartRequired"] = true;
 
@@ -191,6 +211,13 @@ static RestResult listAvailable(const RestRequest& req)
 		o["description"] = entry.plugin.description;
 		o["repository"] = entry.repository;
 		o["installedVersion"] = entry.installedVersion;
+
+		QJsonArray dependencies;
+
+		foreach (const QString& dependency, PluginRepository::dependenciesOf(entry.repository, entry.plugin.name))
+			dependencies << dependency;
+
+		o["dependencies"] = dependencies;
 
 		rv << o;
 	}

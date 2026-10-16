@@ -13,6 +13,11 @@
       "name": "extras",
       "source": "./extras",
       "description": "Extractor, upload, search and account-status examples."
+    },
+    {
+      "name": "feedwatch",
+      "source": "./feedwatch",
+      "description": "Needs feedparser from PyPI; shows how dependencies are declared and confirmed."
     }
   ]
 }
