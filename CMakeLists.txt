@@ -689,7 +689,8 @@ endif (POSIX_LINUX)
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	${fatrat_QT_LIBS}
 	${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	ssl crypto ${XATTR_LIBRARIES} -export-dynamic)
+	ssl crypto ${XATTR_LIBRARIES})
+set_target_properties(fatrat PROPERTIES ENABLE_EXPORTS ON)
 if(WITH_BITTORRENT)
 	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
 endif(WITH_BITTORRENT)
