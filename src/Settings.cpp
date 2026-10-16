@@ -94,16 +94,18 @@ void initSettingsPages()
 	
 	g_settingsPages << si;
 	
-	si.webSettingsScript = 0;
-	si.webSettingsIconURL = 0;
-	
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
 #ifdef WITH_GUI
 	si.lpfnCreate = SettingsSchedulerForm::create;
 #endif
 	si.pfnApply = [] { Scheduler::instance()->reload(); };
+	si.webSettingsScript = "/scripts/settings/scheduler.js";
+	si.webSettingsIconURL = "/img/settings/scheduler.png";
 	g_settingsPages << si;
+
+	si.webSettingsScript = 0;
+	si.webSettingsIconURL = 0;
 
 #ifdef WITH_GUI
 	si.icon = DelayedIcon(":/fatrat/clipboard.png");

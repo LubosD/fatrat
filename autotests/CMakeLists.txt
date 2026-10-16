@@ -40,6 +40,14 @@ target_include_directories(tst_rssresources PRIVATE ${CMAKE_SOURCE_DIR}/src ${CM
 target_link_libraries(tst_rssresources Qt6::Core Qt6::Network Qt6::Test)
 add_test(NAME rssresources COMMAND tst_rssresources)
 
+add_executable(tst_scheduleresources tst_scheduleresources.cpp
+	${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
+	${CMAKE_SOURCE_DIR}/src/remote/SchedulerJson.cpp
+	${CMAKE_SOURCE_DIR}/src/SchedulerStore.cpp)
+target_include_directories(tst_scheduleresources PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
+target_link_libraries(tst_scheduleresources Qt6::Core Qt6::Network Qt6::Test)
+add_test(NAME scheduleresources COMMAND tst_scheduleresources)
+
 if(WITH_TUI)
 	foreach(t format httpclient store keymap render connection settings)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)

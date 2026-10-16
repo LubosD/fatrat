@@ -41,7 +41,7 @@ SettingsSchedulerForm::SettingsSchedulerForm(QWidget* w, QObject* parent) : QObj
 void SettingsSchedulerForm::load()
 {
 	listTasks->clear();
-	Scheduler::loadActions(m_actions);
+	ScheduledAction::loadAll(m_actions);
 
 	foreach(const ScheduledAction& a, m_actions)
 		listTasks->addItem(a.name);
@@ -49,7 +49,7 @@ void SettingsSchedulerForm::load()
 
 void SettingsSchedulerForm::accepted()
 {
-	Scheduler::saveActions(m_actions);
+	ScheduledAction::saveAll(m_actions);
 	applySettings();
 }
 
@@ -63,6 +63,7 @@ void SettingsSchedulerForm::add()
 	ScheduledActionDlg dlg(pushAdd->parentWidget());
 	if (dlg.exec() != QDialog::Accepted)
 		return;
+	dlg.m_action.id = ScheduledAction::newId();
 	m_actions << dlg.m_action;
 	listTasks->addItem(dlg.m_action.name);
 }

@@ -39,6 +39,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QThread>
+#include <exception>
 #include <QReadWriteLock>
 #include <QTemporaryFile>
 #include <QJsonDocument>
@@ -999,6 +1001,26 @@ static RestResult listDirectories(const RestRequest& req)
 	return RestResult::ok(DirectoryListing::list(req.query.value("path"), fallback, req.queryBool("showHidden")));
 }
 
+void RestResources::onMainThread(const std::function<void()>& fn)
+{
+	QCoreApplication* app = QCoreApplication::instance();
+
+	if (QThread::currentThread() == app->thread())
+	{
+		fn();
+		return;
+	}
+
+	std::exception_ptr failure;
+	QMetaObject::invokeMethod(app, [&] {
+		try { fn(); }
+		catch (...) { failure = std::current_exception(); }
+	}, Qt::BlockingQueuedConnection);
+
+	if (failure)
+		std::rethrow_exception(failure);
+}
+
 void RestResources::registerAll()
 {
 	RestApi::registerRoute("GET", "/transfer-classes", getTransferClasses);
@@ -1030,4 +1052,5 @@ void RestResources::registerAll()
 	RestApi::registerRoute("POST", "/settings/web-interface/certificate", generateCertificate);
 
 	registerRss();
+	registerScheduler();
 }

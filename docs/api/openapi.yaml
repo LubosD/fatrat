@@ -390,6 +390,39 @@ paths:
       tags: [rss]
       responses:
         "202": { description: Accepted }
+  /scheduler/actions:
+    get:
+      summary: List the scheduled actions
+      description: |
+        The scheduler runs in the server whether or not any user interface is attached. It checks once a
+        minute, in the server's local time zone, so `time` and `at` are local times of the server.
+      tags: [scheduler]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ScheduledAction" } } } } }
+    post:
+      summary: Add a scheduled action
+      tags: [scheduler]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledActionProperties" } } } }
+      responses:
+        "201": { description: Created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledAction" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /scheduler/actions/{action}:
+    parameters:
+      - { name: action, in: path, required: true, schema: { type: string }, description: Scheduled action id }
+    patch:
+      summary: Change a scheduled action
+      tags: [scheduler]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledActionProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledAction" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a scheduled action
+      tags: [scheduler]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
 components:
   parameters:
     queue: { name: queue, in: path, required: true, schema: { type: string }, description: Queue UUID }
@@ -539,6 +572,38 @@ components:
         target: { type: string }
         paused: { type: boolean }
         speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    ScheduledAction:
+      type: object
+      required: [id, name, queue, action, repeated, time, days, at]
+      description: |
+        `speedLimit` is only present when `action` is `speedLimit`. `time` and `days` apply when `repeated` is
+        true, `at` when it is false. A value that does not apply may be empty.
+      properties:
+        id: { type: string }
+        name: { type: string }
+        queue: { type: string, description: UUID of the queue the action is applied to }
+        action: { type: string, enum: [resume, stop, speedLimit], description: "resume or stop every transfer of the queue, or set its speed limits" }
+        speedLimit: { $ref: "#/components/schemas/SpeedPair" }
+        repeated: { type: boolean }
+        time: { type: string, pattern: '^\d\d:\d\d$', description: "Local time of day, HH:mm" }
+        days: { type: array, minItems: 7, maxItems: 7, items: { type: boolean }, description: "Whether the action runs on Monday, Tuesday, ... Sunday" }
+        at: { type: string, description: "Local date and time of a one-time action, yyyy-MM-ddTHH:mm" }
+    ScheduledActionProperties:
+      type: object
+      additionalProperties: false
+      description: |
+        `name`, `queue` and `action` are required when creating, and so are `time` (repeated, the default) or
+        `at` (when `repeated` is false). `speedLimit` is required for the `speedLimit` action. A repeated action
+        needs at least one day; `days` defaults to every day.
+      properties:
+        name: { type: string, minLength: 1 }
+        queue: { type: string }
+        action: { type: string, enum: [resume, stop, speedLimit] }
+        speedLimit: { $ref: "#/components/schemas/SpeedPair" }
+        repeated: { type: boolean }
+        time: { type: string, pattern: '^\d\d:\d\d$' }
+        days: { type: array, minItems: 7, maxItems: 7, items: { type: boolean } }
+        at: { type: string }
     SettingsPage:
       type: object
       required: [title, script, icon]
