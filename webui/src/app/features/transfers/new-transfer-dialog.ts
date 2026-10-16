@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
@@ -36,6 +36,7 @@ export class NewTransferDialog implements OnChanges {
   @Output() save = new EventEmitter<NewTransferFormValue>();
 
   @ViewChild('urlsModel') private urlsModel?: NgModel;
+  @ViewChild('urlsModel', { read: ElementRef }) private urlsEl?: ElementRef<HTMLTextAreaElement>;
 
   urlsText = '';
   file: File | null = null;
@@ -57,7 +58,25 @@ export class NewTransferDialog implements OnChanges {
       // Background polling hands us a fresh `queues` array every refresh; while the dialog is open
       // that must not reset the form or close the directory picker — only fill in a missing queue.
       this.queueUuid = this.defaultQueueUuid ?? this.queues[0]?.uuid ?? '';
+      this.target = this.queueDefaultDir(this.queueUuid);
     }
+  }
+
+  protected focusUrls(): void {
+    this.urlsEl?.nativeElement.focus();
+  }
+
+  private queueDefaultDir(uuid: string): string {
+    return this.queues.find((q) => q.uuid === uuid)?.defaultDirectory ?? '';
+  }
+
+  // Follow the queue's default directory, but never overwrite a directory the user typed/picked.
+  protected onQueueChange(uuid: string): void {
+    const previousDefault = this.queueDefaultDir(this.queueUuid);
+    if (this.target === '' || this.target === previousDefault) {
+      this.target = this.queueDefaultDir(uuid);
+    }
+    this.queueUuid = uuid;
   }
 
   private resetForm(): void {
@@ -65,7 +84,7 @@ export class NewTransferDialog implements OnChanges {
     this.file = null;
     this.queueUuid = this.defaultQueueUuid ?? this.queues[0]?.uuid ?? '';
     this.targetClass = '';
-    this.target = '';
+    this.target = this.queueDefaultDir(this.queueUuid);
     this.paused = false;
     this.pickerOpen = false;
     this.speedDown = 0;

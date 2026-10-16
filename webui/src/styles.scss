@@ -46,6 +46,11 @@ legend {
   }
 }
 
+.field > .fr-grow {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .hint {
   margin: 0.25rem 0 0;
   font-size: 0.875em;

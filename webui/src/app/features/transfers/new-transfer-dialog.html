@@ -1,11 +1,11 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="New Transfer" [modal]="true" styleClass="fr-dialog">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="New Transfer" [modal]="true" styleClass="fr-dialog" (onShow)="focusUrls()">
   <div class="field">
     <label for="new-transfer-queue">Queue</label>
-    <p-select inputId="new-transfer-queue" [options]="queues" optionLabel="name" optionValue="uuid" [(ngModel)]="queueUuid"></p-select>
+    <p-select inputId="new-transfer-queue" [options]="queues" optionLabel="name" optionValue="uuid" [ngModel]="queueUuid" (ngModelChange)="onQueueChange($event)"></p-select>
   </div>
   <div class="field">
     <label for="new-transfer-urls">URLs (one per line)</label>
-    <textarea pTextarea id="new-transfer-urls" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel"></textarea>
+    <textarea pTextarea id="new-transfer-urls" class="fr-grow" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel"></textarea>
     @if (file !== null) {
       <p class="hint">A local file is selected — typed URLs will be ignored.</p>
     }

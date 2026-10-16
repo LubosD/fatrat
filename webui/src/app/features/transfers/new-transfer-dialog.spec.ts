@@ -59,7 +59,17 @@ describe('NewTransferDialog', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.urlsText).toBe('');
-    expect(fixture.componentInstance.target).toBe('');
+    expect(fixture.componentInstance.target).toBe('/downloads');
+  });
+
+  it('pre-fills the target with the selected queue default directory and follows queue changes', () => {
+    const fixture = setup([makeQueue({ uuid: 'q1', defaultDirectory: '/a' }), makeQueue({ uuid: 'q2', defaultDirectory: '/b' })]);
+    expect(fixture.componentInstance.target).toBe('/a');
+    fixture.componentInstance['onQueueChange']('q2');
+    expect(fixture.componentInstance.target).toBe('/b');
+    fixture.componentInstance.target = '/custom';
+    fixture.componentInstance['onQueueChange']('q1');
+    expect(fixture.componentInstance.target).toBe('/custom');
   });
 
   it('emits save() with urls split from the textarea, trimmed, and empty lines dropped', () => {
@@ -145,6 +155,7 @@ describe('NewTransferDialog', () => {
 
   it('puts the directory chosen in the picker into the target field', () => {
     const fixture = setup();
+    fixture.componentInstance.target = '';
     const el = fixture.nativeElement as HTMLElement;
     (el.querySelector('[data-testid="new-transfer-browse"]') as HTMLElement).click();
     fixture.detectChanges();
