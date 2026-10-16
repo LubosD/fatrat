@@ -445,6 +445,26 @@ void FormDialog::cancel()
 	close();
 }
 
+// The cursor counts UTF-16 units; arrow keys and deletion must not split a surrogate pair
+static int stepBack(const QString& t, int pos)
+{
+	if (pos <= 0)
+		return 0;
+	pos--;
+	if (pos > 0 && t[pos].isLowSurrogate() && t[pos - 1].isHighSurrogate())
+		pos--;
+	return pos;
+}
+
+static int stepForward(const QString& t, int pos)
+{
+	if (pos >= t.size())
+		return t.size();
+	if (t[pos].isHighSurrogate() && pos + 1 < t.size() && t[pos + 1].isLowSurrogate())
+		return pos + 2;
+	return pos + 1;
+}
+
 void FormDialog::handleText(FormField& f, const Event& e)
 {
 	f.cursor = qBound(0, f.cursor, int(f.text.size()));
@@ -470,17 +490,21 @@ void FormDialog::handleText(FormField& f, const Event& e)
 	}
 	switch (e.key)
 	{
-		case KeyLeft: f.cursor = qMax(0, f.cursor - 1); break;
-		case KeyRight: f.cursor = qMin(int(f.text.size()), f.cursor + 1); break;
+		case KeyLeft: f.cursor = stepBack(f.text, f.cursor); break;
+		case KeyRight: f.cursor = stepForward(f.text, f.cursor); break;
 		case KeyHome: f.cursor = 0; break;
 		case KeyEnd: f.cursor = f.text.size(); break;
 		case KeyBackspace:
 			if (f.cursor > 0)
-				f.text.remove(--f.cursor, 1);
+			{
+				const int to = stepBack(f.text, f.cursor);
+				f.text.remove(to, f.cursor - to);
+				f.cursor = to;
+			}
 			break;
 		case KeyDelete:
 			if (f.cursor < f.text.size())
-				f.text.remove(f.cursor, 1);
+				f.text.remove(f.cursor, stepForward(f.text, f.cursor) - f.cursor);
 			break;
 		default:
 			if (e.isPrintable())

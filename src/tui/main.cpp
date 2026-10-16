@@ -117,7 +117,11 @@ int main(int argc, char** argv)
 		if (QUrl(urlText).userInfo().size())
 			fprintf(stderr, "Ignoring the user name and password in the URL; use --password-file or FATRAT_PASSWORD.\n");
 		ep.insecure = p.isSet("insecure");
-		desc = urlText;
+		{
+			QUrl shown(urlText);
+			shown.setUserInfo(QString()); // never display a password that was put in the URL
+			desc = shown.toString();
+		}
 		for (const QString& fp : conf.value("fingerprints/" + ep.host + ":" + QString::number(ep.port)).toStringList())
 			ep.trustedFingerprints.insert(fp);
 	}
@@ -177,13 +181,15 @@ int main(int argc, char** argv)
 	ApiClient api(&http);
 	App app(&api);
 	app.setDescription(desc);
+	if (ep.kind == Endpoint::Tcp && ep.host != "localhost" && ep.host != "127.0.0.1" && ep.host != "::1")
+		app.toast(QObject::tr("Plain HTTP: the password travels unencrypted. Use https:// if the server offers it."), true);
 
 	if (pipe(g_signalPipe) == 0)
 	{
 		signal(SIGTERM, onSignal);
 		signal(SIGHUP, onSignal);
 		auto* sn = new QSocketNotifier(g_signalPipe[0], QSocketNotifier::Read, &qapp);
-		QObject::connect(sn, &QSocketNotifier::activated, &qapp, [&]() { app.requestQuit(); });
+		QObject::connect(sn, &QSocketNotifier::activated, &qapp, [&]() { app.quitNow(); });
 	}
 
 	QObject::connect(&app, &App::quit, &qapp, &QCoreApplication::quit);
@@ -294,6 +300,14 @@ int main(int argc, char** argv)
 	QObject::connect(in, &QSocketNotifier::activated, &qapp, [&]() {
 		std::vector<Event> events;
 		nc.readEvents(events);
+		// a readable stdin that never yields input means the terminal is gone
+		static int emptyWakeups = 0;
+		emptyWakeups = events.empty() ? emptyWakeups + 1 : 0;
+		if (emptyWakeups > 20)
+		{
+			app.quitNow();
+			return;
+		}
 		for (const Event& e : events)
 		{
 			if (e.type == Event::Key && e.ctrl && e.key == 'c')

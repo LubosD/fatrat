@@ -22,7 +22,9 @@ namespace tui
 		const QueueInfo* currentQueue() const;
 		QString currentQueueUuid() const;
 		int queueCount(const QString& uuid) const;
-		void setQueueCount(const QString& uuid, int n) { m_counts[uuid] = n; }
+		void setQueueCount(const QString& uuid, int n, int busy = 0) { m_counts[uuid] = n; m_busy[uuid] = busy; }
+		// True if a queue other than the selected one has transfers that are running or about to run
+		bool otherQueuesBusy() const;
 		void setQueues(const QVector<QueueInfo>& q);
 		void selectQueue(int index);
 		void selectQueueByUuid(const QString& uuid);
@@ -71,7 +73,7 @@ namespace tui
 		void clampCursor();
 
 		QVector<QueueInfo> m_queues;
-		QMap<QString, int> m_counts;
+		QMap<QString, int> m_counts, m_busy;
 		int m_queueIndex = 0;
 		QVector<TransferInfo> m_transfers;
 		int m_cursor = 0;

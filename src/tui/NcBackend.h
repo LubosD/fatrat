@@ -31,6 +31,8 @@ namespace tui
 		int m_cx = 0, m_cy = 0;
 		bool m_buttonDown = false;
 		std::vector<wint_t> m_leftCodes;
+		bool m_inPaste = false;
+		QString m_pasteText;
 		qint64 m_lastPressMs = 0;
 		int m_lastPressX = -1, m_lastPressY = -1;
 	};

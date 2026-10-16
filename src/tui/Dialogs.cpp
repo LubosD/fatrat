@@ -19,7 +19,7 @@ qint64 parseKb(const QString& s, bool* ok)
 	}
 	bool good;
 	const qint64 v = t.toLongLong(&good);
-	*ok = good && v >= 0;
+	*ok = good && v >= 0 && v < (qint64(1) << 40); // far beyond any real link, and keeps the product in range
 	return v * 1024;
 }
 
@@ -268,7 +268,11 @@ void newTransfer(App& app)
 		});
 
 		d->setSubmit(app.tr("Add"), [&app, modes](FormDialog& f) {
-			const QStringList parts = f.text("links").split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+			// a path with spaces in it is one file, not several links
+			const QString whole = f.text("links").trimmed();
+			QStringList parts = f.text("links").split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+			if (parts.size() > 1 && !whole.contains("://") && QFileInfo(expandPath(whole)).isFile())
+				parts = QStringList{ whole };
 			if (parts.isEmpty())
 			{
 				f.setError(app.tr("Enter at least one link"));
@@ -318,7 +322,8 @@ void editTransfer(App& app, const TransferInfo& t)
 	d->addText("down", app.tr("Speed limit down"), kbText(t.userSpeedLimits.down), "KB/s, 0 = none");
 	d->addText("up", app.tr("Speed limit up"), kbText(t.userSpeedLimits.up), "KB/s, 0 = none");
 	const QString uuid = t.uuid;
-	d->setSubmit(app.tr("Save"), [&app, uuid](FormDialog& f) {
+	const TransferInfo orig = t;
+	d->setSubmit(app.tr("Save"), [&app, uuid, orig](FormDialog& f) {
 		bool ok1, ok2;
 		const qint64 down = parseKb(f.text("down"), &ok1), up = parseKb(f.text("up"), &ok2);
 		if (!ok1 || !ok2)
@@ -326,8 +331,17 @@ void editTransfer(App& app, const TransferInfo& t)
 			f.setError(app.tr("Speed limits must be whole numbers"));
 			return false;
 		}
-		app.api().patchTransfer(uuid, QJsonObject{ { "comment", f.text("comment") }, { "object", f.text("object") }, { "userSpeedLimits", limitsJson(down, up) } },
-			app.reply(app.tr("Cannot save the properties")));
+		// send only what changed: the limits are shown in whole KB/s and must not be rounded silently
+		QJsonObject o;
+		if (f.text("comment") != orig.comment)
+			o["comment"] = f.text("comment");
+		if (f.text("object") != orig.object)
+			o["object"] = f.text("object");
+		if (f.text("down") != kbText(orig.userSpeedLimits.down) || f.text("up") != kbText(orig.userSpeedLimits.up))
+			o["userSpeedLimits"] = limitsJson(down, up);
+		if (o.isEmpty())
+			return true;
+		app.api().patchTransfer(uuid, o, app.reply(app.tr("Cannot save the properties")));
 		return true;
 	});
 	app.push(std::move(d));

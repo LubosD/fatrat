@@ -321,9 +321,37 @@ private slots:
 		QVERIFY(arrowX > 0);
 		d.handle(Event::mouseEvent(Event::Press, arrowX, selRow));
 		QCOMPARE(d.value("s"), QString("2"));
-		// a click outside cancels
+		// a click outside does not throw the input away
 		d.handle(Event::mouseEvent(Event::Press, 0, 0));
-		QVERIFY(d.finished());
+		QVERIFY(!d.finished());
+	}
+
+	void formSurvivesAStrayClick()
+	{
+		FormDialog d("Keep", 60);
+		d.addText("a", "Name", "typed");
+		TextCanvas c(80, 24);
+		HitMap hits;
+		d.draw(c, hits, { 0, 0, 80, 24 });
+		d.handle(Event::mouseEvent(Event::Press, 0, 0));
+		d.handle(Event::mouseEvent(Event::Press, 0, 0, 3));
+		QVERIFY(!d.finished());
+		QCOMPARE(d.text("a"), QString("typed"));
+	}
+
+	void editingNeverSplitsASurrogatePair()
+	{
+		FormDialog d("Emoji", 60);
+		d.addText("a", "Name", QString::fromUtf8("x\xf0\x9f\x9a\x80"));
+		TextCanvas c(80, 24);
+		HitMap hits;
+		d.draw(c, hits, { 0, 0, 80, 24 });
+		d.handle(Event::keyEvent(KeyBackspace));
+		QCOMPARE(d.text("a"), QString("x"));
+		d.handle(Event::pasteEvent(QString::fromUtf8("\xf0\x9f\x9a\x80")));
+		d.handle(Event::keyEvent(KeyLeft));
+		d.handle(Event::keyEvent(KeyDelete));
+		QCOMPARE(d.text("a"), QString("x"));
 	}
 
 	void choiceDialogLetters()

@@ -123,7 +123,7 @@ namespace tui
 		HttpParser m_parser;
 		QTimer* m_timer;
 		int m_timeoutMs = 15000;
-		bool m_connected = false, m_certPending = false, m_sentOnThisConn = false, m_gotBytes = false;
+		bool m_connected = false, m_certPending = false, m_sentOnThisConn = false, m_gotBytes = false, m_connReused = false;
 		QString m_certFingerprint;
 		QList<QSslError> m_lastSslErrors;
 	};

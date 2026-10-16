@@ -5,7 +5,9 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTemporaryDir>
+#include "ServerManager.h"
 #include <QtTest>
+#include <sys/stat.h>
 
 using namespace tui;
 
@@ -174,6 +176,105 @@ private slots:
 		HttpResponse r = run(c, "GET", "/");
 		QCOMPARE(r.status, 0);
 		QVERIFY(!r.error.isEmpty());
+	}
+
+	void postIsNotResentOnAFreshConnection()
+	{
+		QTcpServer srv;
+		QVERIFY(srv.listen(QHostAddress::LocalHost));
+		int requests = 0;
+		connect(&srv, &QTcpServer::newConnection, [&]() {
+			QTcpSocket* s = srv.nextPendingConnection();
+			connect(s, &QTcpSocket::readyRead, [&, s]() {
+				if (s->readAll().contains("POST"))
+					requests++;
+				s->close(); // the server dies after receiving the request, without an answer
+			});
+		});
+		HttpClient c;
+		Endpoint ep;
+		ep.kind = Endpoint::Tcp;
+		ep.host = "127.0.0.1";
+		ep.port = srv.serverPort();
+		c.setEndpoint(ep);
+		HttpResponse r = run(c, "POST", "/x", "{}");
+		QCOMPARE(r.status, 0);
+		QTest::qWait(200);
+		QCOMPARE(requests, 1); // a duplicate "add transfer" would be wrong
+	}
+
+	void staleKeepAliveConnectionIsRetried()
+	{
+		QTcpServer srv;
+		QVERIFY(srv.listen(QHostAddress::LocalHost));
+		int connections = 0;
+		connect(&srv, &QTcpServer::newConnection, [&]() {
+			QTcpSocket* s = srv.nextPendingConnection();
+			const int n = ++connections;
+			connect(s, &QTcpSocket::readyRead, [n, s]() {
+				s->readAll();
+				if (n == 1)
+				{
+					s->write("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok");
+					QTimer::singleShot(50, s, [s]() { s->close(); }); // idle timeout of the server
+				}
+				else
+					s->write("HTTP/1.1 200 OK\r\nContent-Length: 3\r\n\r\nnew");
+			});
+		});
+		HttpClient c;
+		Endpoint ep;
+		ep.kind = Endpoint::Tcp;
+		ep.host = "127.0.0.1";
+		ep.port = srv.serverPort();
+		c.setEndpoint(ep);
+		QCOMPARE(run(c, "GET", "/a").body, QByteArray("ok"));
+		QTest::qWait(300); // the server has closed the idle connection by now
+		QCOMPARE(run(c, "GET", "/b").body, QByteArray("new"));
+	}
+
+	void changingTheEndpointDoesNotWedgeTheQueue()
+	{
+		QTcpServer slow, fast;
+		QVERIFY(slow.listen(QHostAddress::LocalHost));
+		QVERIFY(fast.listen(QHostAddress::LocalHost));
+		connect(&fast, &QTcpServer::newConnection, [&]() {
+			QTcpSocket* s = fast.nextPendingConnection();
+			connect(s, &QTcpSocket::readyRead, [s]() { s->readAll(); s->write("HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\nx"); });
+		});
+		HttpClient c;
+		Endpoint ep;
+		ep.kind = Endpoint::Tcp;
+		ep.host = "127.0.0.1";
+		ep.port = slow.serverPort(); // accepts but never answers
+		c.setEndpoint(ep);
+		HttpResponse first;
+		bool firstDone = false;
+		c.request("GET", "/a", [&](const HttpResponse& r) { first = r; firstDone = true; });
+		QTest::qWait(100);
+		ep.port = fast.serverPort();
+		c.setEndpoint(ep);
+		QVERIFY(firstDone);
+		QCOMPARE(first.status, 0);
+		QCOMPARE(run(c, "GET", "/b").body, QByteArray("x"));
+	}
+
+	void socketDirectoryMustBePrivate()
+	{
+		QTemporaryDir dir;
+		QString err;
+		// a directory that does not exist is created with mode 0700
+		QVERIFY(ServerManager::prepareSocketDirectory(dir.path() + "/new", &err));
+		struct stat st;
+		QCOMPARE(stat(qPrintable(dir.path() + "/new"), &st), 0);
+		QCOMPARE(int(st.st_mode & 0777), 0700);
+		// an existing directory that others can enter is refused, and left alone
+		QVERIFY(QDir().mkdir(dir.path() + "/open"));
+		chmod(qPrintable(dir.path() + "/open"), 0755);
+		QVERIFY(!ServerManager::prepareSocketDirectory(dir.path() + "/open", &err));
+		QVERIFY(!err.isEmpty());
+		QCOMPARE(stat(qPrintable(dir.path() + "/open"), &st), 0);
+		QCOMPARE(int(st.st_mode & 0777), 0755);
 	}
 
 	void apiErrorBodyIsParsed()

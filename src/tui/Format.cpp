@@ -56,13 +56,17 @@ QString formatDuration(double seconds)
 // Independent of the C library's locale, so the layout is the same in tests and in any terminal
 static int cellWidth(char32_t c)
 {
-	if (c == 0 || (c >= 0x300 && c <= 0x36F) || (c >= 0x200B && c <= 0x200F) || (c >= 0xFE00 && c <= 0xFE0F))
+	if (c == 0 || (c >= 0x300 && c <= 0x36F) || (c >= 0x483 && c <= 0x489) || (c >= 0x591 && c <= 0x5BD) || (c >= 0x610 && c <= 0x61A)
+		|| (c >= 0x64B && c <= 0x65F) || (c >= 0x900 && c <= 0x902) || c == 0x93C || (c >= 0x941 && c <= 0x948) || c == 0x94D
+		|| c == 0xE31 || (c >= 0xE34 && c <= 0xE3A) || (c >= 0xE47 && c <= 0xE4E) || (c >= 0x1AB0 && c <= 0x1AFF)
+		|| (c >= 0x1DC0 && c <= 0x1DFF) || (c >= 0x200B && c <= 0x200F) || (c >= 0x20D0 && c <= 0x20FF) || (c >= 0xFE00 && c <= 0xFE0F)
+		|| (c >= 0xFE20 && c <= 0xFE2F) || (c >= 0xE0100 && c <= 0xE01EF))
 		return 0;
 	if (c < 0x1100)
 		return 1;
 	if ((c >= 0x1100 && c <= 0x115F) || (c >= 0x2E80 && c <= 0xA4CF) || (c >= 0xAC00 && c <= 0xD7A3)
 		|| (c >= 0xF900 && c <= 0xFAFF) || (c >= 0xFE30 && c <= 0xFE6F) || (c >= 0xFF00 && c <= 0xFF60)
-		|| (c >= 0xFFE0 && c <= 0xFFE6) || (c >= 0x1F300 && c <= 0x1F64F) || (c >= 0x1F900 && c <= 0x1F9FF)
+		|| (c >= 0xFFE0 && c <= 0xFFE6) || (c >= 0x1F300 && c <= 0x1F64F) || (c >= 0x1F680 && c <= 0x1F6FF) || (c >= 0x1F900 && c <= 0x1F9FF) || (c >= 0x1FA00 && c <= 0x1FAFF)
 		|| (c >= 0x20000 && c <= 0x3FFFD))
 		return 2;
 	return 1;

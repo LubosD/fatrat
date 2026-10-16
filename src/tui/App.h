@@ -73,6 +73,8 @@ namespace tui
 		void askPassword(const QString& message = QString());
 		void askCertificate(const QString& subject, const QString& fingerprint, const QStringList& problems);
 		void requestQuit();
+		// Quits at once without asking (signals, a vanished terminal): the server it started is only stopped if it is idle
+		void quitNow();
 		void setServer(ServerManager* s) { m_server = s; }
 		void setDescription(const QString& d) { m_description = d; }
 		void setPaused(bool p) { m_paused = p; }
@@ -98,6 +100,7 @@ namespace tui
 		void drawChrome(Canvas& c, const Rect& area);
 		void applyConnectionResult(const ApiResult& r);
 		void finishQuit(bool stopServer);
+		bool anythingActive() const;
 		void pruneDialogs();
 
 		ApiClient* m_api;

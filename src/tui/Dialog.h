@@ -95,6 +95,8 @@ namespace tui
 
 		void draw(Canvas& c, HitMap& hits, const Rect& screen) override;
 		void handle(const Event& e) override;
+		// A stray click must not throw away what was typed
+		void outsideClick() override {}
 
 	private:
 		struct Shortcut { int key; bool ctrl; QString keyLabel, label; std::function<void(FormDialog&)> fn; };
@@ -134,8 +136,10 @@ namespace tui
 		ChoiceDialog(const QString& title, const QStringList& message, const QVector<Choice>& choices, std::function<void(int)> done);
 		void draw(Canvas& c, HitMap& hits, const Rect& screen) override;
 		void handle(const Event& e) override;
-		void outsideClick() override { finish(-1); }
+		void outsideClick() override { if (m_cancelOnOutside) finish(-1); }
+		void setCancelOnOutside(bool b) { m_cancelOnOutside = b; }
 	private:
+		bool m_cancelOnOutside = true;
 		void finish(int result);
 		QString m_title;
 		QStringList m_message;

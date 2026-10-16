@@ -44,6 +44,10 @@ namespace tui
 		ListNav m_files, m_logNav;
 		int m_rows = 10;
 		QMap<int, int> m_pending;     // file index -> priority not applied yet
-		int m_gen = 0;
+		int m_gen = 0, m_applied = 0;
+		std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
+
+	public:
+		~DetailsView() override { *m_alive = false; }
 	};
 }

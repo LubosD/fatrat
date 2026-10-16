@@ -20,6 +20,14 @@ int Store::queueCount(const QString& uuid) const
 	return m_counts.value(uuid, -1);
 }
 
+bool Store::otherQueuesBusy() const
+{
+	for (auto it = m_busy.begin(); it != m_busy.end(); ++it)
+		if (it.value() > 0 && it.key() != currentQueueUuid())
+			return true;
+	return false;
+}
+
 void Store::setQueues(const QVector<QueueInfo>& q)
 {
 	const QString selected = currentQueueUuid();
@@ -183,9 +191,13 @@ void Store::clearMarks() { m_marks.clear(); }
 
 QStringList Store::targets() const
 {
+	// what the filter hides is neither shown nor affected
+	QSet<QString> shown;
+	for (int i : visible())
+		shown.insert(m_transfers[i].uuid);
 	QStringList out;
 	for (const TransferInfo& t : m_transfers)
-		if (m_marks.contains(t.uuid))
+		if (m_marks.contains(t.uuid) && shown.contains(t.uuid))
 			out << t.uuid;
 	if (out.isEmpty())
 		if (const TransferInfo* c = current())

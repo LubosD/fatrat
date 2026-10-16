@@ -34,6 +34,8 @@ private slots:
 		QCOMPARE(fitRight("ab", 4), QString("  ab"));
 		QCOMPARE(elide("abcdefgh", 5), QString::fromUtf8("abcd…"));
 		QCOMPARE(elide("abc", 5), QString("abc"));
+		QCOMPARE(displayWidth(QString::fromUtf8("e\xcc\x81")), 1);          // e + combining acute
+		QCOMPARE(displayWidth(QString::fromUtf8("\xf0\x9f\x9a\x80")), 2); // rocket
 		// a wide character must not be cut in half
 		QCOMPARE(displayWidth(fit(QString::fromUtf8("日本語"), 5)), 5);
 	}

@@ -167,11 +167,42 @@ void ApiClient::patchTransfer(const QString& uuid, const QJsonObject& props, Cal
 
 void ApiClient::deleteTransfers(const QStringList& uuids, bool withData, Callback cb)
 {
-	QStringList qs;
-	for (const QString& u : uuids)
-		qs << "uuid=" + encode(u);
-	qs << QString("withData=") + (withData ? "true" : "false");
-	call("DELETE", "/transfers?" + qs.join('&'), QJsonValue(), std::move(cb));
+	// the uuids are in the query string: send long selections in several requests
+	const int batch = 40;
+	auto pending = std::make_shared<int>((uuids.size() + batch - 1) / batch);
+	auto first = std::make_shared<ApiResult>();
+	auto failed = std::make_shared<bool>(false);
+	if (*pending == 0)
+	{
+		if (cb)
+			cb(ApiResult{});
+		return;
+	}
+	for (int i = 0; i < uuids.size(); i += batch)
+	{
+		QStringList qs;
+		for (const QString& u : uuids.mid(i, batch))
+			qs << "uuid=" + encode(u);
+		qs << QString("withData=") + (withData ? "true" : "false");
+		call("DELETE", "/transfers?" + qs.join('&'), QJsonValue(), [=](const ApiResult& r) {
+			if (!r.ok() && !*failed)
+			{
+				*failed = true;
+				*first = r;
+			}
+			if (--*pending == 0 && cb)
+			{
+				if (*failed)
+					cb(*first);
+				else
+				{
+					ApiResult ok;
+					ok.status = 204;
+					cb(ok);
+				}
+			}
+		});
+	}
 }
 
 void ApiClient::moveTransfers(const QString& q, const QStringList& uuids, const QString& dir, Callback cb)

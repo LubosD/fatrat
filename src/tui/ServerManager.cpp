@@ -54,6 +54,39 @@ QString ServerManager::findServerBinary(const QString& hint)
 	return QString();
 }
 
+// The directory holds a socket that needs no password, so it must belong to us and be closed to others.
+// A directory is only created (mode 0700) when it does not exist; an existing one is checked, never chmod-ed.
+bool ServerManager::prepareSocketDirectory(const QString& dir, QString* error)
+{
+	const QByteArray path = dir.toLocal8Bit();
+	// create the missing ancestors with the default mode, but the last component privately
+	const QString parent = QFileInfo(dir).absolutePath();
+	if (!QFileInfo::exists(parent))
+		QDir().mkpath(parent);
+	if (mkdir(path.constData(), 0700) != 0 && errno != EEXIST)
+	{
+		*error = tr("Cannot create %1: %2").arg(dir, QString::fromLocal8Bit(strerror(errno)));
+		return false;
+	}
+	struct stat st;
+	if (lstat(path.constData(), &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != getuid() || (st.st_mode & 077) != 0)
+	{
+		*error = tr("The directory %1 for the server socket must be a real directory owned by you with mode 0700.\nUse --socket with a path in such a directory.").arg(dir);
+		return false;
+	}
+	return true;
+}
+
+// A pid file can be stale, so only signal a process that really is FatRat
+static bool isFatratProcess(pid_t pid)
+{
+	QFile f(QString("/proc/%1/cmdline").arg(pid));
+	if (!f.open(QIODevice::ReadOnly))
+		return false;
+	const QByteArray cmd = f.readAll().split('\0').value(0);
+	return QFileInfo(QString::fromLocal8Bit(cmd)).fileName().startsWith("fatrat");
+}
+
 bool ServerManager::probe(const QString& socketPath, int timeoutMs)
 {
 	QLocalSocket s;
@@ -89,6 +122,10 @@ QString ServerManager::lastLogLines(int n) const
 void ServerManager::start()
 {
 	m_steps.clear();
+	m_done = false;
+	m_pid = 0;
+	m_started = false;
+	m_timer.stop();
 	if (probe(m_opt.socketPath))
 	{
 		m_started = false;
@@ -113,8 +150,12 @@ void ServerManager::start()
 	m_steps << tr("binary    %1").arg(bin);
 	m_steps << tr("socket    %1").arg(m_opt.socketPath);
 
-	QDir().mkpath(QFileInfo(m_opt.socketPath).absolutePath());
-	chmod(QFileInfo(m_opt.socketPath).absolutePath().toLocal8Bit().constData(), 0700);
+	QString dirError;
+	if (!prepareSocketDirectory(QFileInfo(m_opt.socketPath).absolutePath(), &dirError))
+	{
+		emit failed(dirError);
+		return;
+	}
 	QDir().mkpath(QFileInfo(m_opt.logPath).absolutePath());
 
 	QStringList args = { "--nogui", "--rest-socket", m_opt.socketPath };
@@ -188,7 +229,7 @@ void ServerManager::check()
 
 void ServerManager::stop()
 {
-	if (m_pid > 0)
+	if (m_pid > 0 && isFatratProcess(pid_t(m_pid)))
 		kill(pid_t(m_pid), SIGTERM);
 	QFile::remove(pidFile());
 	m_started = false;
@@ -201,7 +242,7 @@ QString ServerManager::stopRunning(const QString& socketPath, bool* ok)
 	if (!pf.open(QIODevice::ReadOnly))
 		return tr("No server started by fatrat-tui is known (no %1).").arg(pf.fileName());
 	const pid_t pid = pid_t(pf.readAll().trimmed().toLongLong());
-	if (pid <= 0 || kill(pid, SIGTERM) != 0)
+	if (pid <= 0 || !isFatratProcess(pid) || kill(pid, SIGTERM) != 0)
 	{
 		QFile::remove(pf.fileName());
 		return tr("The server is not running any more.");

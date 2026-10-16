@@ -28,8 +28,9 @@ void LogView::poll()
 	const int gen = ++m_gen;
 	const QString uuid = m_transferUuid;
 	auto cb = [this, gen, uuid](const ApiResult& r) {
-		if (gen != m_gen || uuid != m_transferUuid)
+		if (gen < m_applied || uuid != m_transferUuid)
 			return;
+		m_applied = gen;
 		if (!r.ok())
 		{
 			if (r.status == 404)

@@ -68,9 +68,10 @@ void DetailsView::poll()
 	const int gen = ++m_gen;
 	const QString uuid = ApiClient::encode(m_uuid);
 
-	m_app.api().get("/transfers/" + uuid, [this, gen](const ApiResult& r) {
-		if (gen != m_gen)
+	m_app.api().get("/transfers/" + uuid, [this, gen, alive = m_alive](const ApiResult& r) {
+		if (!*alive || gen < m_applied)
 			return;
+		m_applied = gen;
 		if (r.status == 404)
 		{
 			m_app.toast(m_app.tr("The transfer no longer exists"), true);
@@ -83,20 +84,20 @@ void DetailsView::poll()
 			m_haveTransfer = true;
 		}
 	});
-	m_app.api().transferDetails(m_uuid, [this, gen](const ApiResult& r) {
-		if (gen == m_gen && r.ok())
+	m_app.api().transferDetails(m_uuid, [this, gen, alive = m_alive](const ApiResult& r) {
+		if (*alive && gen >= m_applied && r.ok())
 			m_info = r.json.toObject();
 	});
-	m_app.api().get("/transfers/" + uuid + "/speed-data", [this, gen](const ApiResult& r) {
-		if (gen != m_gen || !r.ok())
+	m_app.api().get("/transfers/" + uuid + "/speed-data", [this, gen, alive = m_alive](const ApiResult& r) {
+		if (!*alive || gen < m_applied || !r.ok())
 			return;
 		m_speeds.clear();
 		for (const QJsonValue& v : r.json.toArray())
 			m_speeds << SpeedPair::fromJson(v);
 	});
 	if (m_tab == Log)
-		m_app.api().transferLog(m_uuid, [this, gen](const ApiResult& r) {
-			if (gen != m_gen || !r.ok())
+		m_app.api().transferLog(m_uuid, [this, gen, alive = m_alive](const ApiResult& r) {
+			if (!*alive || gen < m_applied || !r.ok())
 				return;
 			m_log = QString::fromUtf8(r.raw).split('\n');
 			while (!m_log.isEmpty() && m_log.last().isEmpty())
@@ -156,7 +157,9 @@ void DetailsView::apply()
 	for (auto it = m_pending.begin(); it != m_pending.end(); ++it)
 		items.append(QJsonObject{ { "index", it.key() }, { "priority", it.value() } });
 	const int n = m_pending.size();
-	m_app.api().setFilePriorities(m_uuid, items, m_app.reply(m_app.tr("Cannot set the priorities"), [this, n]() {
+	m_app.api().setFilePriorities(m_uuid, items, m_app.reply(m_app.tr("Cannot set the priorities"), [this, n, alive = m_alive]() {
+		if (!*alive)
+			return;
 		m_pending.clear();
 		m_app.toast(m_app.tr("Applied %1 priority change(s)").arg(n));
 		poll();

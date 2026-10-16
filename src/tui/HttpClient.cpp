@@ -252,7 +252,8 @@ HttpClient::~HttpClient()
 void HttpClient::setEndpoint(const Endpoint& ep)
 {
 	m_ep = ep;
-	dropSocket();
+	// requests that were sent to the old endpoint fail; callers retry on their next poll
+	abortAll(tr("The connection settings changed"));
 }
 
 bool HttpClient::isConnected() const
@@ -280,6 +281,7 @@ void HttpClient::dropSocket()
 	m_certPending = false;
 	m_sentOnThisConn = false;
 	m_gotBytes = false;
+	m_connReused = false;
 }
 
 void HttpClient::request(const QByteArray& method, const QString& path, Callback cb, const QByteArray& body)
@@ -304,15 +306,15 @@ void HttpClient::abortAll(const QString& reason)
 	dropSocket();
 	HttpResponse r;
 	r.error = reason;
-	if (m_current)
-		finishCurrent(r);
-	while (!m_queue.empty())
-	{
-		Pending p = std::move(m_queue.front());
-		m_queue.pop_front();
+	// take everything out first, so that no callback can start the next request
+	std::unique_ptr<Pending> cur = std::move(m_current);
+	std::deque<Pending> queued;
+	queued.swap(m_queue);
+	if (cur && cur->cb)
+		cur->cb(r);
+	for (Pending& p : queued)
 		if (p.cb)
 			p.cb(r);
-	}
 }
 
 void HttpClient::pump()
@@ -480,7 +482,10 @@ void HttpClient::onData()
 		if (!keep)
 			dropSocket();
 		else
+		{
 			m_timer->stop();
+			m_connReused = true;
+		}
 		finishCurrent(r);
 	}
 }
@@ -499,7 +504,8 @@ void HttpClient::onSocketClosed(const QString& err)
 	}
 
 	const bool hadConnection = m_connected;
-	const bool retry = m_current && !m_current->retried && hadConnection && m_sentOnThisConn && !m_gotBytes;
+	// only a connection that already served a request may have been closed by the server while idle
+	const bool retry = m_current && !m_current->retried && hadConnection && m_connReused && m_sentOnThisConn && !m_gotBytes;
 	dropSocket();
 
 	if (!m_current)

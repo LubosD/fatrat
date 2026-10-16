@@ -25,6 +25,8 @@ namespace tui
 		static QString defaultLogPath();
 		static QString findServerBinary(const QString& hint);
 		// True if something accepts connections on the socket
+		// Creates the directory of the socket privately, or refuses one that others could tamper with
+		static bool prepareSocketDirectory(const QString& dir, QString* error);
 		static bool probe(const QString& socketPath, int timeoutMs = 200);
 		// Sends SIGTERM to a server started earlier by a TUI (from its pid file); returns a message
 		static QString stopRunning(const QString& socketPath, bool* ok);

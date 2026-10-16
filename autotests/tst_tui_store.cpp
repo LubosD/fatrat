@@ -79,6 +79,16 @@ private slots:
 		QVERIFY(!s.current());
 		QVERIFY(s.targets().isEmpty());
 	}
+	void hiddenMarkedTransfersAreNotTargets()
+	{
+		Store s;
+		s.setQueues({ mkq("q") });
+		s.setTransfers("q", { mk("a", "ubuntu.iso"), mk("b", "debian.iso") });
+		s.markAll();
+		QCOMPARE(s.targets().size(), 2);
+		s.setFilter("ubuntu");
+		QCOMPARE(s.targets(), QStringList({ "a" }));
+	}
 	void availabilityFollowsState()
 	{
 		Store s;
@@ -95,6 +105,18 @@ private slots:
 		QVERIFY(!a.pause);
 		QVERIFY(a.moveUp);
 		QVERIFY(!a.moveDown);
+	}
+	void otherQueuesBusy()
+	{
+		Store s;
+		s.setQueues({ mkq("q1"), mkq("q2") });
+		QVERIFY(!s.otherQueuesBusy());
+		s.setQueueCount("q2", 3, 1);
+		QVERIFY(s.otherQueuesBusy());
+		s.setQueueCount("q2", 3, 0);
+		QVERIFY(!s.otherQueuesBusy());
+		s.setQueueCount("q1", 1, 1); // the selected queue is judged from its transfers
+		QVERIFY(!s.otherQueuesBusy());
 	}
 	void queueSelectionSurvivesRefresh()
 	{

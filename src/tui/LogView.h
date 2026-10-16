@@ -26,6 +26,6 @@ namespace tui
 		QString m_transferUuid, m_transferName, m_needle;
 		int m_top = 0, m_rows = 10;
 		bool m_follow = true;
-		int m_gen = 0;
+		int m_gen = 0, m_applied = 0;
 	};
 }

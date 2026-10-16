@@ -183,8 +183,15 @@ void App::tick()
 			for (const QueueInfo& other : q)
 				if (other.uuid != m_store.currentQueueUuid())
 					m_api->queueTransfers(other.uuid, [this, uuid = other.uuid](const ApiResult& rr) {
-						if (rr.ok())
-							m_store.setQueueCount(uuid, rr.json.toArray().size());
+						if (!rr.ok())
+							return;
+						int busy = 0;
+						for (const QJsonValue& v : rr.json.toArray())
+						{
+							const TransferInfo t = TransferInfo::fromJson(v.toObject());
+							busy += t.isActive() || t.state == TransferInfo::Waiting;
+						}
+						m_store.setQueueCount(uuid, rr.json.toArray().size(), busy);
 					});
 			if (m_tab == Tab::Transfers && !m_details)
 				m_api->queueTransfers(m_store.currentQueueUuid(), [this](const ApiResult&) {});
@@ -317,9 +324,10 @@ void App::askCertificate(const QString& subject, const QString& fingerprint, con
 		msg << "  " + p;
 	msg << "";
 	msg << tr("Subject  %1").arg(subject);
-	msg << tr("SHA-256  %1").arg(fingerprint);
+	msg << tr("SHA-256  %1").arg(fingerprint.left(fingerprint.size() / 2 + 1));
+	msg << QString("        %1").arg(fingerprint.mid(fingerprint.size() / 2 + 1));
 	QVector<Choice> ch = { { "T", tr("Trust for this session"), 0 }, { "R", tr("Remember this fingerprint"), 1 }, { "Q", tr("Quit"), -1 } };
-	push(std::make_unique<ChoiceDialog>(tr("Certificate"), msg, ch, [this](int r) {
+	auto cert = std::make_unique<ChoiceDialog>(tr("Certificate"), msg, ch, [this](int r) {
 		if (r < 0)
 		{
 			m_api->http()->rejectCertificate();
@@ -329,7 +337,9 @@ void App::askCertificate(const QString& subject, const QString& fingerprint, con
 		m_api->http()->acceptCertificate();
 		if (certificateDecision)
 			certificateDecision(r == 1);
-	}));
+	});
+	cert->setCancelOnOutside(false);
+	push(std::move(cert));
 }
 
 void App::showHelp()
@@ -412,14 +422,21 @@ void App::showHelp()
 
 // --------------------------------------------------------------------- quit
 
+bool App::anythingActive() const
+{
+	if (m_store.stats().total.down > 0 || m_store.stats().total.up > 0)
+		return true;
+	for (const TransferInfo& t : m_store.transfers())
+		if (t.isActive() || t.state == TransferInfo::Waiting)
+			return true;
+	return m_store.otherQueuesBusy();
+}
+
 void App::requestQuit()
 {
 	if (m_server && m_server->startedByUs())
 	{
-		bool active = m_store.stats().total.down > 0 || m_store.stats().total.up > 0;
-		for (const TransferInfo& t : m_store.transfers())
-			active |= t.isActive();
-		if (active)
+		if (anythingActive())
 		{
 			QVector<Choice> ch = { { "K", tr("Keep it running (downloads continue)"), 0 }, { "S", tr("Stop the server and quit"), 1 }, { "C", tr("Cancel"), -1 } };
 			push(std::make_unique<ChoiceDialog>(tr("Quit"), QStringList{ tr("This TUI started the FatRat server, and transfers are active.") }, ch,
@@ -429,6 +446,11 @@ void App::requestQuit()
 		return finishQuit(true);
 	}
 	finishQuit(false);
+}
+
+void App::quitNow()
+{
+	finishQuit(m_server && m_server->startedByUs() && !anythingActive());
 }
 
 void App::finishQuit(bool stopServer)
@@ -456,9 +478,9 @@ void App::drawChrome(Canvas& c, const Rect& area)
 		case Conn::AuthFailed: state = g.dot + tr(" password required"); titleStyle = Style::Error; break;
 	}
 	c.fill({ 0, 0, W, 1 }, titleStyle);
-	c.put(0, 0, " FatRat   " + state + "  " + m_description, titleStyle);
 	const SpeedPair t = m_store.stats().total;
 	const QString rates = g.down + " " + formatSpeed(t.down) + "   " + g.up + " " + formatSpeed(t.up) + " ";
+	c.put(0, 0, fit(" FatRat   " + state + "  " + m_description, qMax(0, W - displayWidth(rates) - 1)), titleStyle);
 	c.put(W - displayWidth(rates), 0, rates, titleStyle);
 
 	// tabs

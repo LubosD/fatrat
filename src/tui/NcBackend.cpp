@@ -1,7 +1,9 @@
 #include "NcBackend.h"
+#include "Format.h"
 #include <QDateTime>
 #include <clocale>
 #include <cstdio>
+#include <cstring>
 #include <ncurses.h>
 
 namespace tui
@@ -139,6 +141,9 @@ void NcBackend::put(int x, int y, const QString& text, Style style)
 	const bool colors = has_colors();
 	const int attr = (colors ? attrFor(style) : 0) | extraAttrs(style)
 		| (!colors && (style == Style::Selected || style == Style::Title || style == Style::KeyBar || style == Style::Status || style == Style::TabOn || style == Style::MenuSel) ? A_REVERSE : 0);
+	// ncurses would wrap text that passes the right edge onto the next row
+	if (x + displayWidth(t) > COLS)
+		t = fit(t, COLS - x);
 	attrset(attr);
 	mvaddnstr(y, x, t.toUtf8().constData(), -1);
 	attrset(A_NORMAL);
@@ -305,6 +310,11 @@ void NcBackend::readEvents(std::vector<Event>& out)
 				const int low = b & 3;
 				if (b & 64)
 				{
+					if (low > 1) // horizontal scrolling
+					{
+						i += used - 1;
+						continue;
+					}
 					e.mouse = low == 1 ? Event::WheelDown : Event::WheelUp;
 					if (!release)
 						out.push_back(e);
@@ -349,27 +359,57 @@ void NcBackend::readEvents(std::vector<Event>& out)
 			}
 		}
 
-		// bracketed paste: ESC [ 2 0 0 ~ ... ESC [ 2 0 1 ~
+		// bracketed paste: ESC [ 2 0 0 ~ ... ESC [ 2 0 1 ~, possibly spread over several reads
 		auto seq = [&](size_t at, const char* text) {
 			for (size_t k = 0; text[k]; k++)
 				if (at + k >= codes.size() || special[at + k] || codes[at + k] != wint_t(text[k]))
 					return false;
 			return true;
 		};
+		// true if the rest of this read is a proper prefix of the marker (the rest follows in the next read)
+		auto splitMarker = [&](size_t at, const char* text) {
+			const size_t have = codes.size() - at - 1;
+			if (have >= strlen(text))
+				return false;
+			for (size_t k = 0; k < have; k++)
+				if (special[at + 1 + k] || codes[at + 1 + k] != wint_t(text[k]))
+					return false;
+			return true;
+		};
+		auto carryOver = [&](size_t from) {
+			for (size_t k = from; k < codes.size(); k++)
+				m_leftCodes.push_back(codes[k]);
+		};
+
+		if (m_inPaste)
+		{
+			if (!sp && code == 27 && seq(i + 1, "[201~"))
+			{
+				out.push_back(Event::pasteEvent(m_pasteText));
+				m_pasteText.clear();
+				m_inPaste = false;
+				i += 5;
+			}
+			else if (!sp && code == 27 && !carried && splitMarker(i, "[201~"))
+			{
+				carryOver(i);
+				return;
+			}
+			else if (!sp)
+				m_pasteText += QString::fromUcs4(reinterpret_cast<const char32_t*>(&codes[i]), 1);
+			continue;
+		}
 		if (!sp && code == 27 && seq(i + 1, "[200~"))
 		{
-			QString text;
-			size_t j = i + 6;
-			for (; j < codes.size(); j++)
-			{
-				if (codes[j] == 27 && seq(j + 1, "[201~"))
-					break;
-				if (!special[j])
-					text += QString::fromUcs4(reinterpret_cast<const char32_t*>(&codes[j]), 1);
-			}
-			out.push_back(Event::pasteEvent(text));
-			i = j + 5;
+			m_inPaste = true;
+			m_pasteText.clear();
+			i += 5;
 			continue;
+		}
+		if (!sp && code == 27 && !carried && codes.size() - i > 1 && splitMarker(i, "[200~"))
+		{
+			carryOver(i);
+			return;
 		}
 
 		if (sp && code == KEY_RESIZE)
