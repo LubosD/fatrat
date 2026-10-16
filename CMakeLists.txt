@@ -419,6 +419,7 @@ if(WITH_JPLUGINS)
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}
+		src/engines/JavaDownloadOptsForm.cpp
 		src/engines/JavaAccountStatusWidget.cpp
 		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/SettingsJavaPluginForm.cpp
@@ -440,6 +441,7 @@ if(WITH_JPLUGINS)
 	)
 	set(fatrat_GUI_MOC_HDRS
 		${fatrat_GUI_MOC_HDRS}
+		src/engines/JavaDownloadOptsForm.h
 		src/engines/JavaAccountStatusWidget.h
 		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h

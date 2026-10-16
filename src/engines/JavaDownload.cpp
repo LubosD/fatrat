@@ -38,8 +38,6 @@ respects for all of the code used other than "OpenSSL".
 #	include "SettingsJavaPluginForm.h"
 #endif
 
-#include <QApplication>
-#include <QMessageBox>
 #include <QtDebug>
 #include <cassert>
 
@@ -397,48 +395,4 @@ QStringList JavaDownload::getConfigDialogs()
 	}
 
 	return rv;
-}
-
-WidgetHostChild* JavaDownload::createOptionsWidget(QWidget* w)
-{
-	return new JavaDownloadOptsForm(w, this);
-}
-
-JavaDownloadOptsForm::JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj)
-	: m_download(myobj)
-{
-	setupUi(me);
-}
-
-void JavaDownloadOptsForm::load()
-{
-	labelClass->setText(m_download->m_strClass);
-	lineURL->setText(m_download->m_strOriginal);
-}
-
-void JavaDownloadOptsForm::accepted()
-{
-	QString newUrl = lineURL->text();
-
-	if (newUrl != m_download->m_strOriginal)
-	{
-		m_download->m_strOriginal = newUrl;
-		if (m_download->isActive())
-			m_download->setState(Transfer::Waiting); // restart
-	}
-}
-
-bool JavaDownloadOptsForm::accept()
-{
-	QString newUrl = lineURL->text();
-
-	if (newUrl != m_download->m_strOriginal)
-	{
-		if (!JavaDownload::m_engines[m_download->m_strClass].regexp.exactMatch(newUrl))
-		{
-			QMessageBox::warning(getMainWindow(), "FatRat", tr("Invalid URL."));
-			return false;
-		}
-	}
-	return true;
 }
