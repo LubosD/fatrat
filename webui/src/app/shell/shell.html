@@ -47,15 +47,12 @@
       <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
     </div>
   </p-drawer>
-} @else {
-  <header class="shell-header">
-    <img src="img/logo.png" alt="FatRat" class="shell-logo" />
-  </header>
 }
 
 @if (!viewport.isMobile()) {
 <p-toolbar>
   <ng-template #start>
+    <img src="img/logo.svg" alt="FatRat" class="shell-logo" />
     @for (group of toolbarGroups; track $index) {
       <span class="toolbar-group">
         @for (action of group; track action.id) {

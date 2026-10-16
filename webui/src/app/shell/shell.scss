@@ -4,16 +4,10 @@
   height: 100%;
 }
 
-.shell-header {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  background: var(--p-content-background);
-}
-
 .shell-logo {
   display: block;
-  height: 48px;
+  height: 28px;
+  margin-right: 0.75rem;
 }
 
 :host ::ng-deep .p-toolbar {
