@@ -1,0 +1,291 @@
+openapi: 3.1.0
+info:
+  title: FatRat remote API
+  version: "1"
+  description: |
+    JSON API used by the FatRat web UI. All paths are under /api/v1.
+    Authentication: HTTP Basic (any user name, the password from the Web Interface settings),
+    unchanged from the previous XML-RPC endpoint.
+    Every non-GET request must be sent with Content-Type: application/json (or multipart/form-data
+    for the transfer upload) and, if it carries an Origin header, that origin's host must equal Host.
+servers:
+  - url: /api/v1
+paths:
+  /transfer-classes:
+    get:
+      summary: Download and upload engines
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/TransferClass" } } } } }
+  /queues:
+    get:
+      summary: List queues
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Queue" } } } } }
+    post:
+      summary: Create a queue
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/QueueProperties" } } } }
+      responses:
+        "201": { description: Created (Location header points at the queue), content: { application/json: { schema: { $ref: "#/components/schemas/Queue" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}:
+    patch:
+      summary: Partially update a queue
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/QueueProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Queue" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}/transfers:
+    get:
+      summary: Transfers of a queue, in queue order
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Transfer" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      summary: Add transfers
+      description: |
+        application/json adds one transfer per entry of `urls`.
+        multipart/form-data adds one transfer from the uploaded `file` part (a .torrent, metalink, ...);
+        the `options` part is a JSON string with the same fields as the JSON body, minus `urls`.
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: "#/components/schemas/AddTransfers" } }
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, options]
+              properties:
+                file: { type: string, format: binary }
+                options: { type: string, description: "JSON-encoded AddTransfers without urls" }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { type: object, required: [uuids], properties: { uuids: { type: array, items: { type: string } } } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}/transfers/move:
+    post:
+      summary: Reorder transfers within a queue
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uuids, direction]
+              properties:
+                uuids: { type: array, items: { type: string } }
+                direction: { enum: [top, up, down, bottom] }
+      responses:
+        "204": { description: Moved }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}/speed-data:
+    get:
+      summary: Recent aggregate speed samples of the queue (oldest first)
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SpeedPair" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers:
+    patch:
+      summary: Update several transfers (all-or-nothing)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uuids, properties]
+              properties:
+                uuids: { type: array, items: { type: string } }
+                properties: { $ref: "#/components/schemas/TransferProperties" }
+      responses:
+        "204": { description: Updated }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete several transfers
+      parameters:
+        - { name: uuid, in: query, required: true, schema: { type: array, items: { type: string } }, style: form, explode: true }
+        - { $ref: "#/components/parameters/withData" }
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}:
+    get:
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Transfer" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/TransferProperties" } } } }
+      responses:
+        "204": { description: Updated }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      parameters: [ { $ref: "#/components/parameters/transfer" }, { $ref: "#/components/parameters/withData" } ]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/details:
+    get:
+      summary: Engine-specific properties (an empty object if the engine has none)
+      description: For BitTorrent - totalDownload, totalUpload (strings), comment (HTML string), magnetLink, ratio (string), files [{name, size, done, priority?}].
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/speed-data:
+    get:
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SpeedPair" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/torrent/file-priorities:
+    put:
+      summary: Set per-file priorities of a BitTorrent transfer
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required: [index, priority]
+                properties:
+                  index: { type: integer, minimum: 0 }
+                  priority: { type: integer, description: "0 = do not download, 1 = normal, 4 = increased, 7 = maximum" }
+      responses:
+        "204": { description: Applied }
+        "404": { description: Unknown transfer, or not a BitTorrent transfer, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "409": { description: Torrent not ready (no valid handle yet), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  /settings:
+    get:
+      summary: Read settings values
+      parameters:
+        - { name: key, in: query, required: true, schema: { type: array, items: { type: string } }, style: form, explode: true }
+      responses:
+        "200": { description: Object keyed by the requested keys; unset values are null, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+    patch:
+      summary: Write settings values
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses:
+        "204": { description: Stored }
+  /settings/apply:
+    post:
+      summary: Apply stored settings (runs asynchronously on the main thread)
+      responses:
+        "202": { description: Accepted }
+  /settings/pages:
+    get:
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SettingsPage" } } } } }
+  /settings/web-interface/certificate:
+    post:
+      summary: Generate a self-signed certificate for the web interface
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [hostname], properties: { hostname: { type: string } } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, required: [path], properties: { path: { type: string } } } } } }
+        "500": { $ref: "#/components/responses/Error" }
+components:
+  parameters:
+    queue: { name: queue, in: path, required: true, schema: { type: string }, description: Queue UUID }
+    transfer: { name: transfer, in: path, required: true, schema: { type: string }, description: Transfer UUID }
+    withData: { name: withData, in: query, required: false, schema: { type: boolean, default: false }, description: Also delete the downloaded data }
+  responses:
+    Error:
+      description: Error
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent" }
+            message: { type: string }
+    SpeedPair:
+      type: object
+      required: [down, up]
+      properties: { down: { type: integer }, up: { type: integer } }
+    TransferClass:
+      type: object
+      required: [mode, shortName, longName]
+      properties: { mode: { enum: [Download, Upload] }, shortName: { type: string }, longName: { type: string } }
+    Queue:
+      type: object
+      required: [uuid, name, defaultDirectory, moveDirectory, upAsDown, transferLimits, speedLimits]
+      properties:
+        uuid: { type: string }
+        name: { type: string }
+        defaultDirectory: { type: string }
+        moveDirectory: { type: string }
+        upAsDown: { type: boolean }
+        transferLimits: { $ref: "#/components/schemas/SpeedPair" }
+        speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    QueueProperties:
+      type: object
+      additionalProperties: false
+      description: Any subset of the writable Queue fields.
+      properties:
+        name: { type: string }
+        defaultDirectory: { type: string }
+        moveDirectory: { type: string }
+        upAsDown: { type: boolean }
+        transferLimits: { $ref: "#/components/schemas/SpeedPair" }
+        speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    Transfer:
+      type: object
+      required: [uuid, name, state, class, message, mode, primaryMode, dataPath, dataPathIsDir, total, done, comment, object, timeRunning, speeds, userSpeedLimits]
+      properties:
+        uuid: { type: string }
+        name: { type: string }
+        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed, Ready, Testing] }
+        class: { type: string }
+        message: { type: string }
+        mode: { enum: [Download, Upload] }
+        primaryMode: { enum: [Download, Upload] }
+        dataPath: { type: string }
+        dataPathIsDir: { type: boolean }
+        total: { type: integer, format: int64 }
+        done: { type: integer, format: int64 }
+        comment: { type: string }
+        object: { type: string }
+        timeRunning: { type: number }
+        speeds: { $ref: "#/components/schemas/SpeedPair" }
+        userSpeedLimits: { $ref: "#/components/schemas/SpeedPair" }
+        detailsScript: { type: string, description: "Only for engines with an engine-specific details view" }
+    TransferProperties:
+      type: object
+      additionalProperties: false
+      description: Any subset of the writable Transfer fields.
+      properties:
+        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed, Ready, Testing] }
+        comment: { type: string }
+        object: { type: string }
+        userSpeedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    AddTransfers:
+      type: object
+      required: [urls, upload, class, target, paused, speedLimits]
+      properties:
+        urls: { type: array, items: { type: string } }
+        upload: { type: boolean }
+        class: { type: string, description: "Engine short name, or empty to autodetect" }
+        target: { type: string }
+        paused: { type: boolean }
+        speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    SettingsPage:
+      type: object
+      required: [title, script, icon]
+      properties: { title: { type: string }, script: { type: string }, icon: { type: string } }
