@@ -22,7 +22,7 @@
         <div class="field">
           <label for="rss-re-target">Target directory</label>
           <p-inputgroup>
-            <input pInputText id="rss-re-target" [(ngModel)]="target" />
+            <input pInputText id="rss-re-target" appPathSuggest [(ngModel)]="target" />
             <button pButton type="button" severity="secondary" label="Browse…" data-testid="rss-re-browse" (click)="pickerOpen = true"></button>
           </p-inputgroup>
         </div>

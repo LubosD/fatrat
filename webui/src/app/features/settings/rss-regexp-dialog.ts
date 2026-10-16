@@ -14,6 +14,7 @@ import { DirectoryPicker } from '../../shared/directory-picker/directory-picker'
 import { RssApi } from '../../core/rss-api.service';
 import { Queue, RssFeed, RssRegexp, RssTestResult, RssTvsMode } from '../../core/api/models';
 import { EPISODE_EXAMPLE, RssEpisodeMode, defaultRange, isValidEpisode } from './rss-episode';
+import { PathSuggest } from '../../shared/path-suggest/path-suggest';
 
 export interface RssRegexpFormValue {
   feedId: string;
@@ -40,7 +41,7 @@ type TestState = { kind: 'idle' } | { kind: 'result'; result: RssTestResult } | 
   selector: 'app-rss-regexp-dialog',
   imports: [
     FormsModule, Dialog, InputText, Checkbox, RadioButton, Select, ButtonDirective, InputGroup,
-    Tabs, TabList, Tab, TabPanels, TabPanel, DirectoryPicker,
+    Tabs, TabList, Tab, TabPanels, TabPanel, DirectoryPicker, PathSuggest,
   ],
   templateUrl: './rss-regexp-dialog.html',
   styleUrl: './rss-dialogs.scss',

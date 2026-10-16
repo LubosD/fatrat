@@ -7,6 +7,7 @@ import { Checkbox } from 'primeng/checkbox';
 import { ButtonDirective } from 'primeng/button';
 import { TransferApi } from '../../core/api/transfer-api';
 import { DirectoryEntry } from '../../core/api/models';
+import { PathSuggest } from '../path-suggest/path-suggest';
 
 /**
  * Modal picker for a directory on the machine running FatRat. Navigates with the server-side
@@ -14,7 +15,7 @@ import { DirectoryEntry } from '../../core/api/models';
  */
 @Component({
   selector: 'app-directory-picker',
-  imports: [FormsModule, Dialog, InputText, Checkbox, ButtonDirective],
+  imports: [FormsModule, Dialog, InputText, Checkbox, ButtonDirective, PathSuggest],
   templateUrl: './directory-picker.html',
   styleUrl: './directory-picker.scss',
 })

@@ -8,6 +8,7 @@ import { ButtonDirective } from 'primeng/button';
 import { InputGroup } from 'primeng/inputgroup';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Queue } from '../../core/api/models';
+import { PathSuggest } from '../../shared/path-suggest/path-suggest';
 
 export interface QueueFormValue {
   name: string;
@@ -20,7 +21,7 @@ export interface QueueFormValue {
 
 @Component({
   selector: 'app-queue-properties-dialog',
-  imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, ButtonDirective, InputGroup, DirectoryPicker],
+  imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
   templateUrl: './queue-properties-dialog.html',
 })
 export class QueuePropertiesDialog implements OnChanges {

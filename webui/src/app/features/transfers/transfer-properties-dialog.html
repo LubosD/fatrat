@@ -15,7 +15,7 @@
     <div class="field">
       <label for="transfer-object">Data directory</label>
       <p-inputgroup>
-        <input pInputText id="transfer-object" [(ngModel)]="object" />
+        <input pInputText id="transfer-object" appPathSuggest [(ngModel)]="object" (keydown.enter)="$event.defaultPrevented || onSave()" />
         <button pButton type="button" severity="secondary" label="Browse…" data-testid="transfer-browse-object" (click)="pickerOpen = true"></button>
       </p-inputgroup>
     </div>

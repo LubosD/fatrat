@@ -19,7 +19,7 @@ function makeQueue(overrides: Partial<Queue> = {}): Queue {
 
 describe('QueuePropertiesDialog', () => {
   it('shows "New Queue" and blank fields when queue is null', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     fixture.componentRef.setInput('queue', null);
     fixture.componentRef.setInput('visible', true);
@@ -31,7 +31,7 @@ describe('QueuePropertiesDialog', () => {
   });
 
   it('shows "Queue Properties" and prefills fields when a queue is given', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     fixture.componentRef.setInput('queue', makeQueue({ name: 'Movies', speedLimits: { down: 102400, up: 51200 } }));
     fixture.componentRef.setInput('visible', true);
@@ -44,7 +44,7 @@ describe('QueuePropertiesDialog', () => {
   });
 
   it('resets the form when the queue input changes to a different queue', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     fixture.componentRef.setInput('queue', makeQueue({ name: 'Movies' }));
     fixture.componentRef.setInput('visible', true);
@@ -57,7 +57,7 @@ describe('QueuePropertiesDialog', () => {
   });
 
   it('emits save() with the current form values and closes', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     fixture.componentRef.setInput('queue', null);
     fixture.componentRef.setInput('visible', true);
@@ -86,7 +86,7 @@ describe('QueuePropertiesDialog', () => {
   });
 
   it('closes without emitting save() on cancel', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     fixture.componentRef.setInput('queue', null);
     fixture.componentRef.setInput('visible', true);
@@ -104,7 +104,7 @@ describe('QueuePropertiesDialog', () => {
   });
 
   it('clears a previously-typed name when reopened with the same null queue (e.g. after Cancel)', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     fixture.componentRef.setInput('queue', null);
     fixture.componentRef.setInput('visible', true);
@@ -122,7 +122,7 @@ describe('QueuePropertiesDialog', () => {
   });
 
   it('discards unsaved edits when reopened on the same queue reference', () => {
-    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
     const queue = makeQueue({ name: 'Movies' });
     fixture.componentRef.setInput('queue', queue);

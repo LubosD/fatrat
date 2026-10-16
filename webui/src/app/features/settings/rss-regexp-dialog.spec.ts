@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { RssRegexpDialog, RssRegexpFormValue } from './rss-regexp-dialog';
 import { RssApi } from '../../core/rss-api.service';
 import { Queue, RssFeed, RssRegexp } from '../../core/api/models';
+import { TransferApi } from '../../core/api/transfer-api';
 
 const feeds: RssFeed[] = [{ id: 'f1', name: 'Feed 1', url: 'http://1' }, { id: 'f2', name: 'Feed 2', url: 'http://2' }];
 const queues = [
@@ -27,7 +28,7 @@ type Dialog = {
 function create(regexp: RssRegexp | null, api: Partial<RssApi> = {}) {
   TestBed.configureTestingModule({
     imports: [RssRegexpDialog],
-    providers: [{ provide: RssApi, useValue: api }],
+    providers: [{ provide: RssApi, useValue: api }, { provide: TransferApi, useValue: { browseDirectories: vi.fn() } }],
   });
   const fixture = TestBed.createComponent(RssRegexpDialog);
   fixture.componentRef.setInput('regexp', regexp);

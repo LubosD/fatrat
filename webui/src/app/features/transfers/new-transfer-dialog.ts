@@ -11,6 +11,7 @@ import { ButtonDirective } from 'primeng/button';
 import { InputGroup } from 'primeng/inputgroup';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Queue, TransferClass } from '../../core/api/models';
+import { PathSuggest } from '../../shared/path-suggest/path-suggest';
 
 export interface NewTransferFormValue {
   urls: string[];
@@ -24,7 +25,7 @@ export interface NewTransferFormValue {
 
 @Component({
   selector: 'app-new-transfer-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, FileUpload, ButtonDirective, InputGroup, DirectoryPicker],
+  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, FileUpload, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
   templateUrl: './new-transfer-dialog.html',
 })
 export class NewTransferDialog implements OnChanges {

@@ -1,6 +1,8 @@
+import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { TransferPropertiesDialog } from './transfer-properties-dialog';
 import { Transfer } from '../../core/api/models';
+import { TransferApi } from '../../core/api/transfer-api';
 
 function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
   return {
@@ -26,7 +28,7 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
 
 describe('TransferPropertiesDialog', () => {
   it('prefills the form from the given transfer', () => {
-    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(TransferPropertiesDialog);
     fixture.componentRef.setInput('transfer', makeTransfer());
     fixture.componentRef.setInput('visible', true);
@@ -38,7 +40,7 @@ describe('TransferPropertiesDialog', () => {
   });
 
   it('leaves the form blank when transfer is null', () => {
-    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(TransferPropertiesDialog);
     fixture.componentRef.setInput('transfer', null);
     fixture.componentRef.setInput('visible', true);
@@ -49,7 +51,7 @@ describe('TransferPropertiesDialog', () => {
   });
 
   it('emits save() with the current form values and closes', () => {
-    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(TransferPropertiesDialog);
     fixture.componentRef.setInput('transfer', makeTransfer());
     fixture.componentRef.setInput('visible', true);
@@ -68,7 +70,7 @@ describe('TransferPropertiesDialog', () => {
   });
 
   it('clears a previously-typed comment when reopened with the same null transfer (e.g. after Cancel)', () => {
-    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(TransferPropertiesDialog);
     fixture.componentRef.setInput('transfer', null);
     fixture.componentRef.setInput('visible', true);
@@ -85,7 +87,7 @@ describe('TransferPropertiesDialog', () => {
   });
 
   it('discards unsaved edits when reopened on the same transfer reference', () => {
-    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+    TestBed.configureTestingModule({ imports: [TransferPropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(TransferPropertiesDialog);
     const transfer = makeTransfer({ comment: 'original' });
     fixture.componentRef.setInput('transfer', transfer);
@@ -104,7 +106,7 @@ describe('TransferPropertiesDialog', () => {
 
   describe('data directory', () => {
     function open(transfer: Transfer) {
-      TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+      TestBed.configureTestingModule({ imports: [TransferPropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
       const fixture = TestBed.createComponent(TransferPropertiesDialog);
       fixture.componentRef.setInput('transfer', transfer);
       fixture.componentRef.setInput('visible', true);
@@ -113,6 +115,49 @@ describe('TransferPropertiesDialog', () => {
       fixture.componentInstance.save.subscribe((v) => saved.push(v));
       return { component: fixture.componentInstance, saved };
     }
+
+    describe('Enter in the data directory field', () => {
+      function openWithSuggestions() {
+        vi.useFakeTimers();
+        const browseDirectories = vi.fn(() =>
+          of({ path: '/', parent: '', entries: [{ name: 'data', path: '/data' }] }),
+        );
+        TestBed.configureTestingModule({
+          imports: [TransferPropertiesDialog],
+          providers: [{ provide: TransferApi, useValue: { browseDirectories } }],
+        });
+        const fixture = TestBed.createComponent(TransferPropertiesDialog);
+        fixture.componentRef.setInput('transfer', makeTransfer({ object: '/downloads' }));
+        fixture.componentRef.setInput('visible', true);
+        fixture.detectChanges();
+        const saved: unknown[] = [];
+        fixture.componentInstance.save.subscribe((v) => saved.push(v));
+        const input = document.getElementById('transfer-object') as HTMLInputElement;
+        input.focus();
+        input.value = '/d';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        vi.advanceTimersByTime(200);
+        return { input, saved };
+      }
+      const enter = (input: HTMLInputElement) =>
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+
+      afterEach(() => vi.useRealTimers());
+
+      it('saves when no suggestion is highlighted', () => {
+        const { input, saved } = openWithSuggestions();
+        enter(input);
+        expect(saved.length).toBe(1);
+      });
+
+      it('completes the highlighted suggestion instead of saving', () => {
+        const { input, saved } = openWithSuggestions();
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+        enter(input);
+        expect(saved.length).toBe(0);
+        expect(input.value).toBe('/data/');
+      });
+    });
 
     it('prefills from the transfer and omits object from save() when unchanged', () => {
       const { component, saved } = open(makeTransfer({ object: '/downloads' }));

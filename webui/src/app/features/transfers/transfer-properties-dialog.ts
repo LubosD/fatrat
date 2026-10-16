@@ -8,6 +8,7 @@ import { InputText } from 'primeng/inputtext';
 import { InputGroup } from 'primeng/inputgroup';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Transfer } from '../../core/api/models';
+import { PathSuggest } from '../../shared/path-suggest/path-suggest';
 
 export interface TransferPropertiesFormValue {
   comment: string;
@@ -18,7 +19,7 @@ export interface TransferPropertiesFormValue {
 
 @Component({
   selector: 'app-transfer-properties-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputNumber, ButtonDirective, InputText, InputGroup, DirectoryPicker],
+  imports: [FormsModule, Dialog, Textarea, InputNumber, ButtonDirective, InputText, InputGroup, DirectoryPicker, PathSuggest],
   templateUrl: './transfer-properties-dialog.html',
 })
 export class TransferPropertiesDialog implements OnChanges {

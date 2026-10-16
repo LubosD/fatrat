@@ -20,7 +20,7 @@
   <div class="field">
     <label for="new-transfer-target">Target directory</label>
     <p-inputgroup>
-      <input pInputText id="new-transfer-target" [(ngModel)]="target" />
+      <input pInputText id="new-transfer-target" appPathSuggest [(ngModel)]="target" />
       <button pButton type="button" severity="secondary" label="Browse…" data-testid="new-transfer-browse" (click)="pickerOpen = true"></button>
     </p-inputgroup>
   </div>

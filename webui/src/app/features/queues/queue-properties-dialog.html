@@ -6,14 +6,14 @@
   <div class="field">
     <label for="queue-default-directory">Target directory</label>
     <p-inputgroup>
-      <input pInputText id="queue-default-directory" [(ngModel)]="defaultDirectory" />
+      <input pInputText id="queue-default-directory" appPathSuggest [(ngModel)]="defaultDirectory" />
       <button pButton type="button" severity="secondary" label="Browse…" data-testid="queue-browse-default" (click)="pickerTarget = 'defaultDirectory'"></button>
     </p-inputgroup>
   </div>
   <div class="field">
     <label for="queue-move-directory">Move to directory after completion</label>
     <p-inputgroup>
-      <input pInputText id="queue-move-directory" [(ngModel)]="moveDirectory" />
+      <input pInputText id="queue-move-directory" appPathSuggest [(ngModel)]="moveDirectory" />
       <button pButton type="button" severity="secondary" label="Browse…" data-testid="queue-browse-move" (click)="pickerTarget = 'moveDirectory'"></button>
     </p-inputgroup>
   </div>
