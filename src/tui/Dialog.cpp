@@ -100,7 +100,7 @@ FormDialog::FormDialog(const QString& title, int width) : m_title(title), m_widt
 {
 }
 
-FormField& FormDialog::addText(const QString& id, const QString& label, const QString& value, const QString& suffix)
+FormField& FormPanel::addText(const QString& id, const QString& label, const QString& value, const QString& suffix)
 {
 	FormField f;
 	f.type = FormField::Text;
@@ -110,7 +110,7 @@ FormField& FormDialog::addText(const QString& id, const QString& label, const QS
 	return m_fields.last();
 }
 
-FormField& FormDialog::addSelect(const QString& id, const QString& label, const QStringList& options, const QStringList& values, int index)
+FormField& FormPanel::addSelect(const QString& id, const QString& label, const QStringList& options, const QStringList& values, int index)
 {
 	FormField f;
 	f.type = FormField::Select;
@@ -120,7 +120,7 @@ FormField& FormDialog::addSelect(const QString& id, const QString& label, const 
 	return m_fields.last();
 }
 
-FormField& FormDialog::addCheck(const QString& id, const QString& label, bool checked)
+FormField& FormPanel::addCheck(const QString& id, const QString& label, bool checked)
 {
 	FormField f;
 	f.type = FormField::Check;
@@ -129,7 +129,7 @@ FormField& FormDialog::addCheck(const QString& id, const QString& label, bool ch
 	return m_fields.last();
 }
 
-FormField& FormDialog::addRadio(const QString& id, const QString& label, const QStringList& options, const QString& hotkeys, int index)
+FormField& FormPanel::addRadio(const QString& id, const QString& label, const QStringList& options, const QString& hotkeys, int index)
 {
 	FormField f;
 	f.type = FormField::Radio;
@@ -138,7 +138,7 @@ FormField& FormDialog::addRadio(const QString& id, const QString& label, const Q
 	return m_fields.last();
 }
 
-void FormDialog::addLabel(const QString& text)
+void FormPanel::addLabel(const QString& text)
 {
 	FormField f;
 	f.type = FormField::Label;
@@ -146,14 +146,14 @@ void FormDialog::addLabel(const QString& text)
 	m_fields.push_back(f);
 }
 
-void FormDialog::addSpacer()
+void FormPanel::addSpacer()
 {
 	FormField f;
 	f.type = FormField::Spacer;
 	m_fields.push_back(f);
 }
 
-FormField* FormDialog::field(const QString& id)
+FormField* FormPanel::field(const QString& id)
 {
 	for (FormField& f : m_fields)
 		if (f.id == id)
@@ -161,7 +161,7 @@ FormField* FormDialog::field(const QString& id)
 	return nullptr;
 }
 
-QString FormDialog::text(const QString& id) const
+QString FormPanel::text(const QString& id) const
 {
 	for (const FormField& f : m_fields)
 		if (f.id == id)
@@ -169,7 +169,7 @@ QString FormDialog::text(const QString& id) const
 	return QString();
 }
 
-void FormDialog::setText(const QString& id, const QString& value)
+void FormPanel::setText(const QString& id, const QString& value)
 {
 	if (FormField* f = field(id))
 	{
@@ -179,7 +179,7 @@ void FormDialog::setText(const QString& id, const QString& value)
 	}
 }
 
-int FormDialog::index(const QString& id) const
+int FormPanel::index(const QString& id) const
 {
 	for (const FormField& f : m_fields)
 		if (f.id == id)
@@ -187,7 +187,7 @@ int FormDialog::index(const QString& id) const
 	return -1;
 }
 
-QString FormDialog::value(const QString& id) const
+QString FormPanel::value(const QString& id) const
 {
 	for (const FormField& f : m_fields)
 		if (f.id == id)
@@ -195,7 +195,7 @@ QString FormDialog::value(const QString& id) const
 	return QString();
 }
 
-bool FormDialog::checked(const QString& id) const
+bool FormPanel::checked(const QString& id) const
 {
 	for (const FormField& f : m_fields)
 		if (f.id == id)
@@ -203,18 +203,7 @@ bool FormDialog::checked(const QString& id) const
 	return false;
 }
 
-void FormDialog::setSubmit(const QString& label, std::function<bool(FormDialog&)> fn)
-{
-	m_submitLabel = label;
-	m_onSubmit = std::move(fn);
-}
-
-void FormDialog::addShortcut(int key, bool ctrl, const QString& keyLabel, const QString& label, std::function<void(FormDialog&)> fn)
-{
-	m_shortcuts.push_back({ key, ctrl, keyLabel, label, std::move(fn) });
-}
-
-void FormDialog::focusField(const QString& id)
+void FormPanel::focusField(const QString& id)
 {
 	m_focusInit = true; // an explicit choice wins over the default of the first text field
 	for (int i = 0; i < m_fields.size(); i++)
@@ -222,7 +211,7 @@ void FormDialog::focusField(const QString& id)
 			m_focus = i;
 }
 
-QStringList FormDialog::wrap(const QString& text, int width) const
+QStringList FormPanel::wrap(const QString& text, int width) const
 {
 	QStringList out;
 	for (const QString& para : text.split('\n'))
@@ -242,7 +231,7 @@ QStringList FormDialog::wrap(const QString& text, int width) const
 	return out;
 }
 
-int FormDialog::fieldHeight(const FormField& f, int innerWidth) const
+int FormPanel::fieldHeight(const FormField& f, int innerWidth) const
 {
 	switch (f.type)
 	{
@@ -252,166 +241,12 @@ int FormDialog::fieldHeight(const FormField& f, int innerWidth) const
 	}
 }
 
-bool FormDialog::focusedIsText() const
+bool FormPanel::focusedIsText() const
 {
 	return m_focus >= 0 && m_focus < m_fields.size() && m_fields[m_focus].type == FormField::Text;
 }
 
-void FormDialog::draw(Canvas& c, HitMap& hits, const Rect& screen)
-{
-	beginDraw(hits, screen);
-
-	// start in the first text field: that is what is usually typed into
-	if (!m_focusInit)
-	{
-		m_focusInit = true;
-		for (int i = 0; i < m_fields.size(); i++)
-			if (m_fields[i].type == FormField::Text)
-			{
-				m_focus = i;
-				break;
-			}
-	}
-	// make sure the focus is on something focusable
-	if (m_focus < 0 || m_focus >= m_fields.size() || !m_fields[m_focus].focusable())
-	{
-		m_focus = 0;
-		while (m_focus < m_fields.size() && !m_fields[m_focus].focusable())
-			m_focus++;
-	}
-
-	const int w = qMin(m_width, screen.w);
-	const int innerW = w - 4;
-	int labelW = 0;
-	for (const FormField& f : m_fields)
-		if (!f.label.isEmpty())
-			labelW = qMax(labelW, displayWidth(f.label));
-	labelW = qMin(labelW + 1, innerW / 2);
-	const int valueW = innerW - labelW;
-
-	int h = 5;
-	for (const FormField& f : m_fields)
-		h += fieldHeight(f, innerW);
-	m_rect = place(screen, w, h);
-	drawFrame(c, m_title);
-	c.setCursor(0, 0, false);
-
-	const int x0 = m_rect.x + 2, vx = x0 + labelW;
-	int y = m_rect.y + 2;
-
-	for (int i = 0; i < m_fields.size(); i++)
-	{
-		FormField& f = m_fields[i];
-		const bool focus = i == m_focus;
-		const int fh = fieldHeight(f, innerW);
-
-		if (f.type == FormField::Label)
-		{
-			int ly = y;
-			for (const QString& line : wrap(f.text, innerW))
-				c.put(x0, ly++, fit(line, innerW), Style::Dim);
-			y += fh;
-			continue;
-		}
-		if (f.type == FormField::Spacer)
-		{
-			y += fh;
-			continue;
-		}
-
-		c.put(x0, y, fit(f.label, labelW - 1), focus ? Style::Hl : Style::Dim);
-
-		if (f.type == FormField::Text)
-		{
-			const int suffixW = f.suffix.isEmpty() ? 0 : displayWidth(f.suffix) + 1;
-			const int fw = qMax(4, valueW - suffixW);
-
-			// scroll so that the cursor stays visible
-			f.cursor = qBound(0, f.cursor, int(f.text.size()));
-			if (f.scroll > f.cursor)
-				f.scroll = f.cursor;
-			while (f.scroll < f.cursor && displayWidth(f.text.mid(f.scroll, f.cursor - f.scroll)) >= fw)
-				f.scroll++;
-
-			const int from = focus ? f.scroll : 0; // show the beginning of fields that are not being edited
-			QString shown = f.secret ? repeat(Glyphs::get().dot, f.text.size() - from) : f.text.mid(from);
-			if (f.text.isEmpty() && !focus && !f.placeholder.isEmpty())
-			{
-				c.put(vx, y, fit(f.placeholder, fw), Style::Dim);
-			}
-			else
-			{
-				c.put(vx, y, fit(shown, fw), Style::Input);
-			}
-			if (suffixW)
-				c.put(vx + fw + 1, y, f.suffix, Style::Dim);
-			if (focus)
-			{
-				const QString before = f.secret ? repeat(Glyphs::get().dot, f.cursor - f.scroll) : f.text.mid(f.scroll, f.cursor - f.scroll);
-				c.setCursor(vx + displayWidth(before), y, true);
-			}
-			addClick({ vx, y, fw, 1 }, [this, i]() { m_focus = i; }); // the cursor is placed in handle()
-		}
-		else if (f.type == FormField::Select)
-		{
-			int optW = 0;
-			for (const QString& o : f.options)
-				optW = qMax(optW, displayWidth(o));
-			optW = qMin(optW, valueW - 4);
-			const Glyphs& g = Glyphs::get();
-			const QString cur = f.options.value(f.index);
-			const Style st = focus ? Style::Selected : Style::Input;
-			c.put(vx, y, g.left + " ", st);
-			c.put(vx + 2, y, fit(cur, optW), st);
-			c.put(vx + 2 + optW, y, " " + g.right, st);
-			addClick({ vx, y, 2, 1 }, [this, i, &f]() { m_focus = i; changeSelect(f, -1); });
-			addClick({ vx + 2, y, optW, 1 }, [this, i]() { m_focus = i; });
-			addClick({ vx + 2 + optW, y, 2, 1 }, [this, i, &f]() { m_focus = i; changeSelect(f, 1); });
-		}
-		else if (f.type == FormField::Check)
-		{
-			const Glyphs& g = Glyphs::get();
-			c.put(vx, y, f.checked ? g.checkOn : g.checkOff, focus ? Style::Selected : Style::Input);
-			addClick({ vx, y, 3, 1 }, [this, i, &f]() { m_focus = i; f.checked = !f.checked; if (f.onChange) f.onChange(); });
-		}
-		else if (f.type == FormField::Radio)
-		{
-			const Glyphs& g = Glyphs::get();
-			for (int o = 0; o < f.options.size(); o++)
-			{
-				const bool on = o == f.index;
-				c.put(vx, y + o, on ? g.radioOn : g.radioOff, on && focus ? Style::Hl : Style::Normal);
-				int tx = vx + displayWidth(on ? g.radioOn : g.radioOff) + 1;
-				if (o < f.hotkeys.size())
-				{
-					c.put(tx, y + o, f.hotkeys.mid(o, 1), Style::KeyHint);
-					tx += 2;
-				}
-				c.put(tx, y + o, fit(f.options[o], vx + valueW - tx), on ? Style::Bold : Style::Normal);
-				addClick({ vx, y + o, valueW, 1 }, [this, i, o, &f]() { m_focus = i; f.index = o; if (f.onChange) f.onChange(); });
-			}
-		}
-		y += fh;
-	}
-
-	// error line and the hints
-	if (!m_error.isEmpty())
-		c.put(x0, m_rect.bottom() - 3, fit(m_error, innerW), Style::Red);
-
-	QVector<Hint> hints;
-	hints.push_back({ QString::fromUtf8("⏎"), m_submitLabel, [this]() { submit(); } });
-	int nfocus = 0;
-	for (const FormField& f : m_fields)
-		nfocus += f.focusable();
-	if (nfocus > 1)
-		hints.push_back({ "Tab", "Next", [this]() { moveFocus(1); } });
-	for (const Shortcut& s : m_shortcuts)
-		hints.push_back({ s.keyLabel, s.label, [this, &s]() { s.fn(*this); } });
-	hints.push_back({ "Esc", "Cancel", [this]() { cancel(); } });
-	drawHints(c, m_rect.x + 1, m_rect.bottom() - 2, m_rect.w - 2, hints);
-}
-
-void FormDialog::moveFocus(int dir)
+void FormPanel::moveFocus(int dir)
 {
 	if (m_fields.isEmpty())
 		return;
@@ -423,7 +258,7 @@ void FormDialog::moveFocus(int dir)
 	}
 }
 
-void FormDialog::changeSelect(FormField& f, int dir)
+void FormPanel::changeSelect(FormField& f, int dir)
 {
 	if (f.options.isEmpty())
 		return;
@@ -432,20 +267,6 @@ void FormDialog::changeSelect(FormField& f, int dir)
 		f.onChange();
 }
 
-void FormDialog::submit()
-{
-	if (!m_onSubmit || m_onSubmit(*this))
-		close();
-}
-
-void FormDialog::cancel()
-{
-	if (m_onCancel)
-		m_onCancel();
-	close();
-}
-
-// The cursor counts UTF-16 units; arrow keys and deletion must not split a surrogate pair
 static int stepBack(const QString& t, int pos)
 {
 	if (pos <= 0)
@@ -465,7 +286,7 @@ static int stepForward(const QString& t, int pos)
 	return pos + 1;
 }
 
-void FormDialog::handleText(FormField& f, const Event& e)
+void FormPanel::handleText(FormField& f, const Event& e)
 {
 	f.cursor = qBound(0, f.cursor, int(f.text.size()));
 	if (e.ctrl)
@@ -516,75 +337,253 @@ void FormDialog::handleText(FormField& f, const Event& e)
 	}
 }
 
-void FormDialog::handle(const Event& e)
+int FormPanel::focusableCount() const
 {
-	if (e.type == Event::Mouse)
+	int n = 0;
+	for (const FormField& f : m_fields)
+		n += f.focusable();
+	return n;
+}
+
+int FormPanel::contentHeight(int width) const
+{
+	int h = 0;
+	for (const FormField& f : m_fields)
+		h += fieldHeight(f, width);
+	return h;
+}
+
+void FormPanel::draw(Canvas& c, const Rect& area, bool active)
+{
+	m_clicks.clear();
+
+	// start in the first text field: that is what is usually typed into
+	if (!m_focusInit)
 	{
-		handleMouse(e);
-		// a click in a text field also places the cursor at the pressed column
-		if (e.mouse == Event::Press && e.button == 1 && focusedIsText())
+		m_focusInit = true;
+		for (int i = 0; i < m_fields.size(); i++)
+			if (m_fields[i].type == FormField::Text)
+			{
+				m_focus = i;
+				break;
+			}
+	}
+	// make sure the focus is on something focusable
+	if (m_focus < 0 || m_focus >= m_fields.size() || !m_fields[m_focus].focusable())
+	{
+		m_focus = 0;
+		while (m_focus < m_fields.size() && !m_fields[m_focus].focusable())
+			m_focus++;
+	}
+
+	const int innerW = area.w;
+	int labelW = 0;
+	for (const FormField& f : m_fields)
+		if (!f.label.isEmpty())
+			labelW = qMax(labelW, displayWidth(f.label));
+	labelW = qMin(labelW + 1, innerW / 2);
+	const int valueW = innerW - labelW;
+
+	// keep the focused field in view
+	const int total = contentHeight(innerW);
+	int focusTop = 0, focusH = 0;
+	for (int i = 0, y = 0; i < m_fields.size(); i++)
+	{
+		const int fh = fieldHeight(m_fields[i], innerW);
+		if (i == m_focus)
 		{
-			FormField& f = m_fields[m_focus];
-			// the field's left edge equals the left edge of its click rectangle
-			for (const Click& cl : m_clicks)
-				if (cl.r.contains(e.x, e.y) && cl.r.h == 1)
+			focusTop = y;
+			focusH = fh;
+		}
+		y += fh;
+	}
+	if (focusTop < m_scroll)
+		m_scroll = focusTop;
+	if (focusTop + focusH > m_scroll + area.h)
+		m_scroll = focusTop + focusH - area.h;
+	m_scroll = qBound(0, m_scroll, qMax(0, total - area.h));
+
+	const int x0 = area.x, vx = x0 + labelW;
+	int y = area.y - m_scroll;
+
+	for (int i = 0; i < m_fields.size(); i++)
+	{
+		FormField& f = m_fields[i];
+		const bool focus = active && i == m_focus;
+		const int fh = fieldHeight(f, innerW);
+		if (y < area.y || y + fh > area.bottom())
+		{
+			y += fh;
+			continue;
+		}
+
+		if (f.type == FormField::Label)
+		{
+			int ly = y;
+			for (const QString& line : wrap(f.text, innerW))
+				c.put(x0, ly++, fit(line, innerW), Style::Dim);
+			y += fh;
+			continue;
+		}
+		if (f.type == FormField::Spacer)
+		{
+			y += fh;
+			continue;
+		}
+
+		c.put(x0, y, fit(f.label, labelW - 1), focus ? Style::Hl : Style::Dim);
+
+		if (f.type == FormField::Text)
+		{
+			const int suffixW = f.suffix.isEmpty() ? 0 : displayWidth(f.suffix) + 1;
+			const int fw = qMax(4, valueW - suffixW);
+
+			// scroll so that the cursor stays visible
+			f.cursor = qBound(0, f.cursor, int(f.text.size()));
+			if (f.scroll > f.cursor)
+				f.scroll = f.cursor;
+			while (f.scroll < f.cursor && displayWidth(f.text.mid(f.scroll, f.cursor - f.scroll)) >= fw)
+				f.scroll++;
+
+			const int from = focus ? f.scroll : 0; // show the beginning of fields that are not being edited
+			QString shown = f.secret ? repeat(Glyphs::get().dot, f.text.size() - from) : f.text.mid(from);
+			if (f.text.isEmpty() && !focus && !f.placeholder.isEmpty())
+			{
+				c.put(vx, y, fit(f.placeholder, fw), Style::Dim);
+			}
+			else
+			{
+				c.put(vx, y, fit(shown, fw), Style::Input);
+			}
+			if (suffixW)
+				c.put(vx + fw + 1, y, f.suffix, Style::Dim);
+			if (focus)
+			{
+				const QString before = f.secret ? repeat(Glyphs::get().dot, f.cursor - f.scroll) : f.text.mid(f.scroll, f.cursor - f.scroll);
+				c.setCursor(vx + displayWidth(before), y, true);
+			}
+			addClick({ vx, y, fw, 1 }, [this, i]() { m_focus = i; }); // the cursor is placed in mouse()
+		}
+		else if (f.type == FormField::Select)
+		{
+			int optW = 0;
+			for (const QString& o : f.options)
+				optW = qMax(optW, displayWidth(o));
+			optW = qMin(optW, valueW - 4);
+			const Glyphs& g = Glyphs::get();
+			const QString cur = f.options.value(f.index);
+			const Style st = focus ? Style::Selected : Style::Input;
+			c.put(vx, y, g.left + " ", st);
+			c.put(vx + 2, y, fit(cur, optW), st);
+			c.put(vx + 2 + optW, y, " " + g.right, st);
+			addClick({ vx, y, 2, 1 }, [this, i, &f]() { m_focus = i; changeSelect(f, -1); });
+			addClick({ vx + 2, y, optW, 1 }, [this, i]() { m_focus = i; });
+			addClick({ vx + 2 + optW, y, 2, 1 }, [this, i, &f]() { m_focus = i; changeSelect(f, 1); });
+		}
+		else if (f.type == FormField::Check)
+		{
+			const Glyphs& g = Glyphs::get();
+			c.put(vx, y, f.checked ? g.checkOn : g.checkOff, focus ? Style::Selected : Style::Input);
+			addClick({ vx, y, 3, 1 }, [this, i, &f]() { m_focus = i; f.checked = !f.checked; if (f.onChange) f.onChange(); });
+		}
+		else if (f.type == FormField::Radio)
+		{
+			const Glyphs& g = Glyphs::get();
+			for (int o = 0; o < f.options.size(); o++)
+			{
+				const bool on = o == f.index;
+				c.put(vx, y + o, on ? g.radioOn : g.radioOff, on && focus ? Style::Hl : Style::Normal);
+				int tx = vx + displayWidth(on ? g.radioOn : g.radioOff) + 1;
+				if (o < f.hotkeys.size())
 				{
-					int col = e.x - cl.r.x, w = 0, pos = f.scroll;
-					while (pos < f.text.size())
-					{
-						int cw = displayWidth(f.text.mid(pos, 1));
-						if (w + cw > col)
-							break;
-						w += cw;
-						pos++;
-					}
-					f.cursor = pos;
-					break;
+					c.put(tx, y + o, f.hotkeys.mid(o, 1), Style::KeyHint);
+					tx += 2;
 				}
+				c.put(tx, y + o, fit(f.options[o], vx + valueW - tx), on ? Style::Bold : Style::Normal);
+				addClick({ vx, y + o, valueW, 1 }, [this, i, o, &f]() { m_focus = i; f.index = o; if (f.onChange) f.onChange(); });
+			}
 		}
-		return;
+		y += fh;
 	}
 
-	if (e.type == Event::Paste)
-	{
-		if (focusedIsText())
+	// there is more above or below
+	if (m_scroll > 0)
+		c.put(area.right() - 1, area.y, Glyphs::get().up, Style::Dim);
+	if (m_scroll + area.h < total)
+		c.put(area.right() - 1, area.bottom() - 1, Glyphs::get().down, Style::Dim);
+}
+
+bool FormPanel::mouse(const Event& e)
+{
+	if (e.type != Event::Mouse || e.mouse != Event::Press || e.button != 1)
+		return false;
+	for (int i = m_clicks.size() - 1; i >= 0; i--)
+		if (m_clicks[i].r.contains(e.x, e.y))
 		{
-			FormField& f = m_fields[m_focus];
-			QString t = e.text;
-			t.replace('\r', ' ').replace('\n', ' ');
-			f.text.insert(f.cursor, t);
-			f.cursor += t.size();
+			const Rect r = m_clicks[i].r;
+			auto fn = m_clicks[i].fn;
+			if (fn)
+				fn();
+			// a click in a text field also places the cursor at the pressed column
+			if (focusedIsText() && r.h == 1)
+			{
+				FormField& f = m_fields[m_focus];
+				const int col = e.x - r.x;
+				int w = 0, pos = f.scroll;
+				while (pos < f.text.size())
+				{
+					int cw = displayWidth(f.text.mid(pos, 1));
+					if (w + cw > col)
+						break;
+					w += cw;
+					pos++;
+				}
+				f.cursor = pos;
+			}
+			return true;
 		}
-		return;
-	}
+	return false;
+}
 
+bool FormPanel::paste(const Event& e)
+{
+	if (!focusedIsText())
+		return false;
+	FormField& f = m_fields[m_focus];
+	QString t = e.text;
+	t.replace('\r', ' ').replace('\n', ' ');
+	f.text.insert(f.cursor, t);
+	f.cursor += t.size();
+	return true;
+}
+
+bool FormPanel::key(const Event& e)
+{
 	if (e.type != Event::Key)
-		return;
-
-	if (e.is(KeyEscape))
-		return cancel();
-	if (e.is(KeyEnter))
-		return submit();
+		return false;
 	if (e.is(KeyTab))
-		return moveFocus(1);
+	{
+		moveFocus(1);
+		return true;
+	}
 	if (e.is(KeyBackTab))
-		return moveFocus(-1);
-
-	for (const Shortcut& s : m_shortcuts)
-		if (e.type == Event::Key && s.ctrl == e.ctrl && QChar(e.key).toLower().unicode() == QChar(s.key).toLower().unicode() && !e.alt)
-			return s.fn(*this);
-
+	{
+		moveFocus(-1);
+		return true;
+	}
 	if (m_focus < 0 || m_focus >= m_fields.size())
-		return;
+		return false;
 	FormField& f = m_fields[m_focus];
 
 	if (f.type == FormField::Text)
 	{
 		if (e.key == KeyUp)
-			return moveFocus(-1);
-		if (e.key == KeyDown)
-			return moveFocus(1);
-		return handleText(f, e);
+			moveFocus(-1);
+		else if (e.key == KeyDown)
+			moveFocus(1);
+		else
+			handleText(f, e);
+		return true;
 	}
 
 	// letter shortcuts of radio groups
@@ -601,7 +600,7 @@ void FormDialog::handle(const Event& e)
 				m_focus = i;
 				if (r.onChange)
 					r.onChange();
-				return;
+				return true;
 			}
 		}
 
@@ -617,24 +616,119 @@ void FormDialog::handle(const Event& e)
 			if (f.index < f.options.size() - 1) f.index++; else moveFocus(1);
 			if (f.onChange) f.onChange();
 		}
-		return;
+		return true;
 	}
 
 	if (e.key == KeyUp)
-		return moveFocus(-1);
+	{
+		moveFocus(-1);
+		return true;
+	}
 	if (e.key == KeyDown)
-		return moveFocus(1);
+	{
+		moveFocus(1);
+		return true;
+	}
 	if (f.type == FormField::Select)
 	{
 		if (e.key == KeyLeft) changeSelect(f, -1);
 		else if (e.key == KeyRight || e.key == ' ') changeSelect(f, 1);
+		else return false;
+		return true;
 	}
-	else if (f.type == FormField::Check && e.key == ' ')
+	if (f.type == FormField::Check && e.key == ' ')
 	{
 		f.checked = !f.checked;
 		if (f.onChange)
 			f.onChange();
+		return true;
 	}
+	return false;
+}
+
+void FormDialog::setSubmit(const QString& label, std::function<bool(FormDialog&)> fn)
+{
+	m_submitLabel = label;
+	m_onSubmit = std::move(fn);
+}
+
+void FormDialog::addShortcut(int key, bool ctrl, const QString& keyLabel, const QString& label, std::function<void(FormDialog&)> fn)
+{
+	m_shortcuts.push_back({ key, ctrl, keyLabel, label, std::move(fn) });
+}
+
+void FormDialog::submit()
+{
+	if (!m_onSubmit || m_onSubmit(*this))
+		close();
+}
+
+void FormDialog::cancel()
+{
+	if (m_onCancel)
+		m_onCancel();
+	close();
+}
+
+void FormDialog::draw(Canvas& c, HitMap& hits, const Rect& screen)
+{
+	beginDraw(hits, screen);
+
+	const int w = qMin(m_width, screen.w);
+	const int innerW = w - 4;
+	const int h = 5 + m_panel.contentHeight(innerW);
+	m_rect = place(screen, w, h);
+	drawFrame(c, m_title);
+	c.setCursor(0, 0, false);
+
+	m_panel.draw(c, { m_rect.x + 2, m_rect.y + 2, innerW, m_rect.h - 5 });
+
+	// error line and the hints
+	const int x0 = m_rect.x + 2;
+	if (!m_error.isEmpty())
+		c.put(x0, m_rect.bottom() - 3, fit(m_error, innerW), Style::Red);
+
+	QVector<Hint> hints;
+	hints.push_back({ QString::fromUtf8("⏎"), m_submitLabel, [this]() { submit(); } });
+	if (m_panel.focusableCount() > 1)
+		hints.push_back({ "Tab", "Next", [this]() { m_panel.moveFocus(1); } });
+	for (const Shortcut& s : m_shortcuts)
+		hints.push_back({ s.keyLabel, s.label, [this, &s]() { s.fn(*this); } });
+	hints.push_back({ "Esc", "Cancel", [this]() { cancel(); } });
+	drawHints(c, m_rect.x + 1, m_rect.bottom() - 2, m_rect.w - 2, hints);
+}
+
+void FormDialog::handle(const Event& e)
+{
+	if (e.type == Event::Mouse)
+	{
+		if (!m_rect.contains(e.x, e.y) || !m_panel.mouse(e))
+			handleMouse(e);
+		return;
+	}
+	if (e.type == Event::Paste)
+	{
+		m_panel.paste(e);
+		return;
+	}
+	if (e.type != Event::Key)
+		return;
+
+	if (e.is(KeyEscape))
+		return cancel();
+	if (e.is(KeyEnter))
+		return submit();
+
+	if (e.is(KeyTab) || e.is(KeyBackTab))
+	{
+		m_panel.key(e);
+		return;
+	}
+	for (const Shortcut& s : m_shortcuts)
+		if (s.ctrl == e.ctrl && QChar(e.key).toLower().unicode() == QChar(s.key).toLower().unicode() && !e.alt)
+			return s.fn(*this);
+
+	m_panel.key(e);
 }
 
 // ---------------------------------------------------------------- choices

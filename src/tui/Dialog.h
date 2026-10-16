@@ -66,11 +66,11 @@ namespace tui
 		bool focusable() const { return type != Label && type != Spacer; }
 	};
 
-	class FormDialog : public Dialog
+	// The fields of a form without a frame: focus, editing, drawing and the mouse. Used by FormDialog and by the settings dialog.
+	// Scrolls vertically when the area is shorter than the fields.
+	class FormPanel
 	{
 	public:
-		FormDialog(const QString& title, int width);
-
 		FormField& addText(const QString& id, const QString& label, const QString& value = QString(), const QString& suffix = QString());
 		FormField& addSelect(const QString& id, const QString& label, const QStringList& options, const QStringList& values, int index = 0);
 		FormField& addCheck(const QString& id, const QString& label, bool checked);
@@ -84,14 +84,64 @@ namespace tui
 		QString value(const QString& id) const;      // value of the selected option
 		bool checked(const QString& id) const;
 		FormField* field(const QString& id);
+		void focusField(const QString& id);
+		QString focusedId() const { return m_focus >= 0 && m_focus < m_fields.size() ? m_fields[m_focus].id : QString(); }
+		int focusableCount() const;
+		void moveFocus(int dir);
+
+		int contentHeight(int width) const;
+		// active = false draws without the focus highlight and the cursor
+		void draw(Canvas& c, const Rect& area, bool active = true);
+		// Each returns true if the event was used
+		bool key(const Event& e);
+		bool paste(const Event& e);
+		bool mouse(const Event& e);
+
+	private:
+		struct Click { Rect r; std::function<void()> fn; };
+
+		int fieldHeight(const FormField& f, int innerWidth) const;
+		bool focusedIsText() const;
+		void handleText(FormField& f, const Event& e);
+		void changeSelect(FormField& f, int dir);
+		QStringList wrap(const QString& text, int width) const;
+		void addClick(const Rect& r, std::function<void()> fn) { m_clicks.push_back({ r, std::move(fn) }); }
+
+		QVector<FormField> m_fields;
+		QVector<Click> m_clicks;
+		int m_focus = 0, m_scroll = 0;
+		bool m_focusInit = false;
+	};
+
+	class FormDialog : public Dialog
+	{
+	public:
+		FormDialog(const QString& title, int width);
+
+		FormField& addText(const QString& id, const QString& label, const QString& value = QString(), const QString& suffix = QString())
+		{ return m_panel.addText(id, label, value, suffix); }
+		FormField& addSelect(const QString& id, const QString& label, const QStringList& options, const QStringList& values, int index = 0)
+		{ return m_panel.addSelect(id, label, options, values, index); }
+		FormField& addCheck(const QString& id, const QString& label, bool checked) { return m_panel.addCheck(id, label, checked); }
+		FormField& addRadio(const QString& id, const QString& label, const QStringList& options, const QString& hotkeys = QString(), int index = 0)
+		{ return m_panel.addRadio(id, label, options, hotkeys, index); }
+		void addLabel(const QString& text) { m_panel.addLabel(text); }
+		void addSpacer() { m_panel.addSpacer(); }
+
+		QString text(const QString& id) const { return m_panel.text(id); }
+		void setText(const QString& id, const QString& value) { m_panel.setText(id, value); }
+		int index(const QString& id) const { return m_panel.index(id); }
+		QString value(const QString& id) const { return m_panel.value(id); }
+		bool checked(const QString& id) const { return m_panel.checked(id); }
+		FormField* field(const QString& id) { return m_panel.field(id); }
 
 		// Return true to close the dialog; call setError() and return false to keep it open
 		void setSubmit(const QString& label, std::function<bool(FormDialog&)> fn);
 		void setCancel(std::function<void()> fn) { m_onCancel = std::move(fn); }
 		void setError(const QString& msg) { m_error = msg; }
 		void addShortcut(int key, bool ctrl, const QString& keyLabel, const QString& label, std::function<void(FormDialog&)> fn);
-		void focusField(const QString& id);
-		QString focusedId() const { return m_focus >= 0 && m_focus < m_fields.size() ? m_fields[m_focus].id : QString(); }
+		void focusField(const QString& id) { m_panel.focusField(id); }
+		QString focusedId() const { return m_panel.focusedId(); }
 
 		void draw(Canvas& c, HitMap& hits, const Rect& screen) override;
 		void handle(const Event& e) override;
@@ -101,20 +151,12 @@ namespace tui
 	private:
 		struct Shortcut { int key; bool ctrl; QString keyLabel, label; std::function<void(FormDialog&)> fn; };
 
-		int fieldHeight(const FormField& f, int innerWidth) const;
-		bool focusedIsText() const;
-		void moveFocus(int dir);
-		void handleText(FormField& f, const Event& e);
-		void changeSelect(FormField& f, int dir);
 		void submit();
 		void cancel();
-		QStringList wrap(const QString& text, int width) const;
 
+		FormPanel m_panel;
 		QString m_title, m_submitLabel = "OK", m_error;
 		int m_width;
-		QVector<FormField> m_fields;
-		int m_focus = 0;
-		bool m_focusInit = false;
 		std::function<bool(FormDialog&)> m_onSubmit;
 		std::function<void()> m_onCancel;
 		QVector<Shortcut> m_shortcuts;
