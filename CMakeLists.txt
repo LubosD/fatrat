@@ -737,11 +737,14 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_DOCUMENTATION)
-	execute_process(COMMAND qcollectiongenerator
-	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhcp -o
-	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
+	find_program(QHELPGENERATOR_EXECUTABLE qhelpgenerator
+		PATHS ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_LIBEXECS} ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_BINS}
+		REQUIRED)
+	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/doc/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/doc)
+	execute_process(COMMAND ${QHELPGENERATOR_EXECUTABLE} fatrat.qhcp -o fatrat.qhc
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
 endif(WITH_DOCUMENTATION)
 
 install(FILES doc/fatrat.1 DESTINATION share/man/man1)
