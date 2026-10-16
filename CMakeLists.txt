@@ -562,9 +562,7 @@ if(WITH_WEBINTERFACE)
 	set(WEBUI_DIST_DIR ${WEBUI_SRC_DIR}/dist/webui/browser)
 	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
 
-	# NOTE: replaces data/remote/ with the Angular build output. While the legacy jQuery UI still
-	# lives there (pre-cutover), building discards it from the working tree (recoverable via
-	# `git checkout -- data/remote/` since it's tracked).
+	# NOTE: replaces data/remote/ with the Angular build output (untracked, listed in .gitignore).
 	#
 	# Stamp files give the build real staleness tracking, so a plain `make` after a build (and
 	# especially `make install`, which depends on `all` and typically runs as root) doesn't re-run
