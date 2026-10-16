@@ -29,7 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QObject>
 #include <QTimer>
 #include <QXmlDefaultHandler>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QNetworkAccessManager>
 
 struct RssFeed
@@ -49,10 +49,10 @@ struct RssItem
 struct RssRegexp
 {
 	QString source, target;
-	QRegExp regexp;
+	QRegularExpression regexp;
 	QString queueUUID, from, to;
 	QStringList epDone;
-	QRegExp linkRegexp;
+	QRegularExpression linkRegexp;
 	int queueIndex;
 	bool excludeManuals, includeTrailers, includeRepacks, addPaused;
 	

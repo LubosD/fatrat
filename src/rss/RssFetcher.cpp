@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QtDebug>
+#include "util/LegacyRegex.h"
 
 extern QSettings* g_settings;
 extern QList<Queue*> g_queues;
@@ -198,7 +199,7 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 {
 	for(int i=0;i<regexps.size();i++)
 	{
-		if(regexps[i].regexp.indexIn(item.title) != -1 && item.source == regexps[i].source)
+		if(regexps[i].regexp.match(item.title).hasMatch() && item.source == regexps[i].source)
 		{
 			if(regexps[i].tvs != RssRegexp::None)
 			{
@@ -218,15 +219,11 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 			
 			QStringList urls;
 
-			if(!regexps[i].linkRegexp.isEmpty())
+			if(!regexps[i].linkRegexp.pattern().isEmpty())
 			{
-				int index = 0;
-				while((index = regexps[i].linkRegexp.indexIn(item.descr, index)) != -1)
-				{
-					QString link = regexps[i].linkRegexp.cap(0);
-					urls << link;
-					index += link.size();
-				}
+				QRegularExpressionMatchIterator it = regexps[i].linkRegexp.globalMatch(item.descr);
+				while(it.hasNext())
+					urls << it.next().captured(0);
 			}
 			else
 				urls << item.url;
@@ -283,7 +280,7 @@ void RssFetcher::loadRegexps(QList<RssRegexp>& items)
 		RssRegexp item;
 		g_settings->setArrayIndex(i);
 		
-		item.regexp = QRegExp(g_settings->value("regexp").toString(), Qt::CaseInsensitive);
+		item.regexp = legacyRegex(g_settings->value("regexp").toString(), QRegularExpression::CaseInsensitiveOption);
 		item.queueUUID = g_settings->value("queueUUID").toString();
 		item.source = g_settings->value("source").toString();
 		item.target = g_settings->value("target").toString();
@@ -296,7 +293,7 @@ void RssFetcher::loadRegexps(QList<RssRegexp>& items)
 		item.excludeManuals = g_settings->value("excludeManuals").toBool();
 		item.queueIndex = -1;
 		item.addPaused = g_settings->value("addPaused").toBool();
-		item.linkRegexp = QRegExp(g_settings->value("linkRegexp").toString(), Qt::CaseInsensitive);
+		item.linkRegexp = legacyRegex(g_settings->value("linkRegexp").toString(), QRegularExpression::CaseInsensitiveOption);
 		
 		items << item;
 	}
@@ -356,7 +353,7 @@ void RssFetcher::performManualCheck(QString torrentName)
 	
 	for(int i=0;i<re.size();i++)
 	{
-		if(!re[i].excludeManuals || re[i].regexp.indexIn(torrentName) < 0)
+		if(!re[i].excludeManuals || !re[i].regexp.match(torrentName).hasMatch())
 			continue;
 		QString episode = generateEpisodeName(re[i], torrentName);
 		
@@ -380,48 +377,51 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 		return QString();
 	else if(match.tvs == RssRegexp::SeasonBased)
 	{
-		QRegExp matcher1("(\\d+)x(\\d+)"), matcher2("S(\\d+)E(\\d+)");
-		if(matcher1.indexIn(itemName) != -1)
-			rval = QString("S%1E%2").arg(matcher1.cap(1).toInt(),2,10,zero).arg(matcher1.cap(2).toInt(),2,10,zero);
-		else if(matcher2.indexIn(itemName) != -1)
-			rval = QString("S%1E%2").arg(matcher2.cap(1).toInt(),2,10,zero).arg(matcher2.cap(2).toInt(),2,10,zero);
+		QRegularExpression matcher1("(\\d+)x(\\d+)"), matcher2("S(\\d+)E(\\d+)");
+		QRegularExpressionMatch m1 = matcher1.match(itemName), m2 = matcher2.match(itemName);
+		if(m1.hasMatch())
+			rval = QString("S%1E%2").arg(m1.captured(1).toInt(),2,10,zero).arg(m1.captured(2).toInt(),2,10,zero);
+		else if(m2.hasMatch())
+			rval = QString("S%1E%2").arg(m2.captured(1).toInt(),2,10,zero).arg(m2.captured(2).toInt(),2,10,zero);
 	}
 	else if(match.tvs == RssRegexp::EpisodeBased)
 	{
-		QRegExp matcher("\\d+");
-		if(matcher.indexIn(itemName) != -1)
-			rval = QString("%1").arg( matcher.cap(1).toInt(), 4, 10, zero );
+		QRegularExpression matcher("\\d+");
+		QRegularExpressionMatch m = matcher.match(itemName);
+		if(m.hasMatch())
+			rval = QString("%1").arg( m.captured(1).toInt(), 4, 10, zero );
 	}
 	else if(match.tvs == RssRegexp::DateBased)
 	{
-		QRegExp matcher1("(\\d{4})[\\-\\. ](\\d\\d)[\\-\\. ](\\d\\d)"), matcher2("(\\d\\d)[\\-\\. ](\\d\\d)[\\-\\. ](\\d{2,4})"),
+		QRegularExpression matcher1("(\\d{4})[\\-\\. ](\\d\\d)[\\-\\. ](\\d\\d)"), matcher2("(\\d\\d)[\\-\\. ](\\d\\d)[\\-\\. ](\\d{2,4})"),
 				 matcher3("(\\d\\d?)[\\-\\. ](\\w{3,})[\\-\\. ](\\d{2,4})");
-		if(matcher1.indexIn(itemName) != -1)
+		QRegularExpressionMatch m1 = matcher1.match(itemName), m2 = matcher2.match(itemName), m3 = matcher3.match(itemName);
+		if(m1.hasMatch())
 		{
-			int month = matcher1.cap(2).toInt(), day = matcher1.cap(3).toInt();
+			int month = m1.captured(2).toInt(), day = m1.captured(3).toInt();
 			dayMonthHeuristics(day, month);
-			rval = QString("%1-%2-%3").arg(matcher1.cap(1).toInt()).arg(month,2,10,zero).arg(day,2,10,zero);
+			rval = QString("%1-%2-%3").arg(m1.captured(1).toInt()).arg(month,2,10,zero).arg(day,2,10,zero);
 		}
-		else if(matcher2.indexIn(itemName) != -1)
+		else if(m2.hasMatch())
 		{
-			int year = matcher2.cap(3).toInt();
+			int year = m2.captured(3).toInt();
 			if(year < 100)
 				year += 2000;
-			int day = matcher2.cap(1).toInt();
-			int month = matcher2.cap(2).toInt();
+			int day = m2.captured(1).toInt();
+			int month = m2.captured(2).toInt();
 			
 			dayMonthHeuristics(day, month);
 			rval = QString("%1-%2-%3").arg(year).arg(month,2,10,zero).arg(day,2,10,zero);
 		}
-		else if(matcher3.indexIn(itemName) != -1)
+		else if(m3.hasMatch())
 		{
 			const char* months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 			int month = 0;
-			int year = matcher3.cap(3).toInt();
+			int year = m3.captured(3).toInt();
 			if(year < 100)
 				year += 2000;
 			
-			QString m = matcher3.cap(2);
+			QString m = m3.captured(2);
 			for(int i=0;i<12;i++)
 			{
 				QString sshort = months[i];
@@ -436,7 +436,7 @@ QString RssFetcher::generateEpisodeName(const RssRegexp& match, QString itemName
 			
 			if(month)
 			{
-				rval = QString("%1-%2-%3").arg(year).arg(month,2,10,zero).arg(matcher3.cap(1).toInt(),2,10,zero);
+				rval = QString("%1-%2-%3").arg(year).arg(month,2,10,zero).arg(m3.captured(1).toInt(),2,10,zero);
 			}
 		}
 	}

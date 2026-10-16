@@ -28,6 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "util/LegacyRegex.h"
 
 #ifndef POSIX_LINUX
 #	define lseek64 lseek
@@ -264,9 +265,10 @@ void UrlClient::processContentDisposition(const QByteArray& con)
 	{
 		QString name = con.mid(pos+9);
 		
-		QRegExp quoted("\"([^\"]+)\".*");
-		if(quoted.exactMatch(name))
-			name = quoted.cap(1);
+		QRegularExpression quoted = legacyRegex(QRegularExpression::anchoredPattern("\"([^\"]+)\".*"));
+		QRegularExpressionMatch quotedMatch = quoted.match(name);
+		if(quotedMatch.hasMatch())
+			name = quotedMatch.captured(1);
 		
 		name.replace('/', '_');
 		qDebug() << "Automatically renaming to" << name;

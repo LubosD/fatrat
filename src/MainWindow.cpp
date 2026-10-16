@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "Settings.h"
 
+#include <QRegularExpression>
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QMenu>
@@ -1025,7 +1026,7 @@ show_dialog:
 		if(!sep)
 			uris = m_dlgNewTransfer->m_strURIs.split('\n', Qt::SkipEmptyParts);
 		else
-			uris = m_dlgNewTransfer->m_strURIs.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+			uris = m_dlgNewTransfer->m_strURIs.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 		
 		if(uris.isEmpty())
 			throw RuntimeException();
