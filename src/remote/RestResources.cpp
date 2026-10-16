@@ -231,7 +231,7 @@ namespace
 	struct TransferUpdate
 	{
 		std::optional<Transfer::State> state;
-		std::optional<QString> comment, object;
+		std::optional<QString> comment, object, queue;
 		std::optional<QPair<int,int>> userSpeedLimits;
 
 		static TransferUpdate parse(const QJsonObject& o)
@@ -262,6 +262,8 @@ namespace
 					u.comment = RestApi::asString(it.value(), key);
 				else if (key == "object")
 					u.object = RestApi::asString(it.value(), key);
+				else if (key == "queue")
+					u.queue = RestApi::asString(it.value(), key);
 				else if (key == "userSpeedLimits")
 				{
 					int down, up;
@@ -405,6 +407,112 @@ static RestResult patchQueue(const RestRequest& req)
 	return RestResult::ok(queueToJson(g.queue()));
 }
 
+static RestResult deleteQueue(const RestRequest& req)
+{
+	const QString uuid = req.pathParams["queue"];
+	const QString moveTo = req.query.value("moveTo");
+	const bool deleteTransfers = req.queryBool("deleteTransfers");
+	const bool withData = req.queryBool("withData");
+
+	if (!moveTo.isEmpty() && deleteTransfers)
+		throw RestError(422, "invalid_property", "moveTo and deleteTransfers are mutually exclusive");
+	if (!moveTo.isEmpty() && moveTo == uuid)
+		throw RestError(422, "invalid_property", "moveTo must differ from the queue being deleted");
+
+	Queue* removed = nullptr;
+	{
+		QWriteLocker l(&g_queuesLock);
+		int index = -1;
+		Queue* target = nullptr;
+
+		for (int i = 0; i < g_queues.size(); i++)
+		{
+			if (g_queues[i]->uuid() == uuid)
+				index = i;
+			if (!moveTo.isEmpty() && g_queues[i]->uuid() == moveTo)
+				target = g_queues[i];
+		}
+		if (index < 0 || (!moveTo.isEmpty() && !target))
+			throw queueNotFound();
+
+		Queue* q = g_queues[index];
+		q->lockW();
+
+		try
+		{
+			if (q->size() > 0 && moveTo.isEmpty() && !deleteTransfers)
+				throw RestError(409, "queue_not_empty", "The queue is not empty, use moveTo or deleteTransfers");
+
+			if (target)
+			{
+				while (q->size() > 0)
+					target->add(q->take(0, true));
+			}
+			else
+			{
+				while (q->size() > 0)
+				{
+					if (withData)
+						q->removeWithData(0, true);
+					else
+						q->remove(0, true);
+				}
+			}
+		}
+		catch (...)
+		{
+			q->unlock();
+			throw;
+		}
+		q->unlock();
+
+		g_queues.removeAt(index);
+		removed = q;
+	}
+
+	removed->deleteLater();
+	Queue::saveQueuesAsync();
+	return RestResult::noContent();
+}
+
+static RestResult moveQueue(const RestRequest& req)
+{
+	QJsonObject body = req.jsonObject();
+	const QString uuid = RestApi::asString(body["uuid"], "uuid");
+	const QString direction = RestApi::asString(body["direction"], "direction").toLower();
+
+	if (direction != "up" && direction != "down" && direction != "top" && direction != "bottom")
+		throw RestError(422, "invalid_direction", "direction must be one of top, up, down, bottom");
+
+	{
+		QWriteLocker l(&g_queuesLock);
+		int index = -1;
+
+		for (int i = 0; i < g_queues.size(); i++)
+		{
+			if (g_queues[i]->uuid() == uuid)
+				index = i;
+		}
+		if (index < 0)
+			throw queueNotFound();
+
+		int to = index;
+		if (direction == "top")
+			to = 0;
+		else if (direction == "bottom")
+			to = g_queues.size() - 1;
+		else if (direction == "up")
+			to = qMax(0, index - 1);
+		else
+			to = qMin(g_queues.size() - 1, index + 1);
+
+		g_queues.move(index, to);
+	}
+
+	Queue::saveQueuesAsync();
+	return RestResult::noContent();
+}
+
 static RestResult listQueueTransfers(const RestRequest& req)
 {
 	QueueGuard g(req.pathParams["queue"], QueueGuard::ReadLock);
@@ -421,10 +529,76 @@ static RestResult queueSpeedData(const RestRequest& req)
 	return RestResult::ok(speedDataToJson(g.queue()->speedData()));
 }
 
+static RestResult moveTransfersBefore(const QString& queueUuid, QStringList uuids, const QString& before, bool toEnd)
+{
+	QueueGuard g(queueUuid, QueueGuard::WriteLock);
+	Queue* q = g.queue();
+
+	if (!toEnd && uuids.contains(before))
+		throw RestError(422, "invalid_property", "\"before\" must not be among the moved transfers");
+
+	int beforePos = -1;
+	QList<Transfer*> moved;
+	QList<Transfer*> rest;
+
+	for (int i = 0; i < q->size(); i++)
+	{
+		Transfer* t = q->at(i);
+		int j = uuids.indexOf(t->uuid());
+
+		if (j >= 0)
+		{
+			moved << t;
+			uuids.removeAt(j);
+		}
+		else
+			rest << t;
+		if (!toEnd && t->uuid() == before)
+			beforePos = rest.size() - 1;
+	}
+
+	if (!uuids.isEmpty())
+		throw transferNotFound();
+	if (!toEnd && beforePos < 0)
+		throw RestError(422, "invalid_property", "\"before\" is not a transfer of this queue");
+
+	// rearrange in place, so that nothing is deleted or re-added
+	QList<Transfer*> order = rest;
+	const int insertAt = toEnd ? order.size() : beforePos;
+	for (int i = 0; i < moved.size(); i++)
+		order.insert(insertAt + i, moved[i]);
+
+	for (int i = 0; i < order.size(); i++)
+	{
+		for (int j = i; j < q->size(); j++)
+		{
+			if (q->at(j) == order[i])
+			{
+				if (j != i)
+					q->moveToPos(j, i, true);
+				break;
+			}
+		}
+	}
+	return RestResult::noContent();
+}
+
 static RestResult moveTransfers(const RestRequest& req)
 {
 	QJsonObject body = req.jsonObject();
 	QStringList uuids = RestApi::asStringList(body["uuids"], "uuids");
+
+	if (body.contains("before") == body.contains("direction"))
+		throw RestError(422, "invalid_property", "Exactly one of \"direction\" and \"before\" is required");
+
+	if (body.contains("before"))
+	{
+		QString before;
+		if (!body["before"].isNull())
+			before = RestApi::asString(body["before"], "before");
+		return moveTransfersBefore(req.pathParams["queue"], uuids, before, body["before"].isNull());
+	}
+
 	QString direction = RestApi::asString(body["direction"], "direction").toLower();
 
 	if (direction != "up" && direction != "down" && direction != "top" && direction != "bottom")
@@ -613,6 +787,46 @@ static RestResult transferSpeedData(const RestRequest& req)
 	return RestResult::ok(speedDataToJson(g.transfer()->speedData()));
 }
 
+// Moves the transfers to the end of the destination queue, in the given order. The caller must have checked
+// that all the UUIDs and the queue exist.
+static void moveTransfersToQueue(const QStringList& uuids, const QString& queueUuid)
+{
+	QReadLocker l(&g_queuesLock);
+	Queue* dest = nullptr;
+
+	for (Queue* q : g_queues)
+	{
+		if (q->uuid() == queueUuid)
+			dest = q;
+	}
+	if (!dest)
+		throw queueNotFound();
+
+	QList<Transfer*> moved;
+	for (const QString& uuid : uuids)
+	{
+		for (Queue* q : g_queues)
+		{
+			q->lockW();
+			bool found = false;
+
+			for (int i = 0; i < q->size(); i++)
+			{
+				if (q->at(i)->uuid() == uuid)
+				{
+					moved << q->take(i, true);
+					found = true;
+					break;
+				}
+			}
+			q->unlock();
+			if (found)
+				break;
+		}
+	}
+	dest->add(moved);
+}
+
 static void updateTransfers(const QStringList& uuids, const QJsonObject& properties)
 {
 	TransferUpdate update = TransferUpdate::parse(properties);
@@ -620,12 +834,17 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 	// all-or-nothing as far as bad input is concerned: check that every transfer exists before touching any
 	for (const QString& uuid : uuids)
 		TransferGuard g(uuid);
+	if (update.queue)
+		QueueGuard g(*update.queue);
 
 	for (const QString& uuid : uuids)
 	{
 		TransferGuard g(uuid);
 		update.apply(g.transfer());
 	}
+
+	if (update.queue)
+		moveTransfersToQueue(uuids, *update.queue);
 }
 
 static RestResult patchTransfer(const RestRequest& req)
@@ -788,7 +1007,9 @@ void RestResources::registerAll()
 	RestApi::registerRoute("GET", "/queues", listQueues);
 	RestApi::registerRoute("GET", "/stats", getStats);
 	RestApi::registerRoute("POST", "/queues", createQueue);
+	RestApi::registerRoute("POST", "/queues/move", moveQueue);
 	RestApi::registerRoute("PATCH", "/queues/:queue", patchQueue);
+	RestApi::registerRoute("DELETE", "/queues/:queue", deleteQueue);
 	RestApi::registerRoute("GET", "/queues/:queue/transfers", listQueueTransfers);
 	RestApi::registerRoute("POST", "/queues/:queue/transfers", addTransfers, true);
 	RestApi::registerRoute("POST", "/queues/:queue/transfers/move", moveTransfers);
