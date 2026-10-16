@@ -15,6 +15,8 @@ import { LogTab } from '../features/log/log-tab';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { CaptchaSocketService } from '../core/captcha-socket.service';
 import { CaptchaHttpService } from '../core/captcha-http.service';
+import { ViewportService } from '../core/viewport.service';
+import { signal } from '@angular/core';
 import { Queue, Transfer } from '../core/api/models';
 import { of, Subject } from 'rxjs';
 
@@ -516,5 +518,106 @@ describe('Shell', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('app-captcha-dialog')).toBeTruthy();
+  });
+});
+
+describe('Shell (mobile)', () => {
+  function configureMobile() {
+    configure([], makeActionsStub(), 5, [makeQueue({ uuid: 'q1', name: 'Movies' })], 'q1');
+    TestBed.overrideProvider(ViewportService, { useValue: { isMobile: signal(true) } });
+  }
+
+  it('renders transfer cards instead of the table or splitter, and shows the selected queue name', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('p-splitter')).toBeNull();
+    expect(el.querySelector('app-transfer-table')).toBeNull();
+    expect(el.querySelector('app-transfer-cards')).toBeTruthy();
+    expect(findByTestId(el, 'mobile-queue-name').textContent).toContain('Movies');
+  });
+
+  it('opens the queue drawer from the hamburger button and closes it when a queue is chosen', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(fixture.componentInstance['showQueueDrawer']()).toBe(false);
+
+    findByTestId(fixture.nativeElement, 'mobile-queues-button').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['showQueueDrawer']()).toBe(true);
+
+    const item = document.querySelector('[data-testid="queue-item"]') as HTMLElement;
+    expect(item).toBeTruthy();
+    item.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['showQueueDrawer']()).toBe(false);
+  });
+
+  it('renders the queue list exactly once', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    findByTestId(fixture.nativeElement, 'mobile-queues-button').click();
+    fixture.detectChanges();
+
+    expect(document.querySelectorAll('app-queue-list')).toHaveLength(1);
+  });
+
+  it('shows only the primary actions in the top bar and hides the desktop toolbar', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('p-toolbar')).toBeNull();
+    for (const id of ['action-new-transfer', 'action-resume', 'action-pause', 'action-delete']) {
+      expect(findByTestId(el, id)).toBeTruthy();
+    }
+    for (const id of ['action-move-top', 'action-settings', 'action-force-resume']) {
+      expect(findByTestId(el, id)).toBeNull();
+    }
+  });
+
+  it('puts every other action, with its disabled state, plus the refresh interval into the overflow menu', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    findByTestId(fixture.nativeElement, 'mobile-more-button').click();
+    fixture.detectChanges();
+
+    const groups = fixture.componentInstance['overflowItems']();
+    const items = groups[0].items!;
+    const labels = items.filter((i) => !i.separator).map((i) => i.label);
+    expect(labels).toEqual([
+      'Delete with Data', 'Delete Completed', 'Force Resume', 'Properties',
+      'Move to Top', 'Move Up', 'Move Down', 'Move to Bottom',
+      'New Queue', 'Queue Properties', 'Settings',
+    ]);
+    expect(groups.map((g) => g.label)).toEqual(['Actions', 'Refresh every']);
+    const byLabel = (label: string) => items.find((i) => i.label === label)!;
+    expect(byLabel('Delete with Data').disabled).toBe(true);
+    expect(byLabel('Delete Completed').disabled).toBe(false);
+    expect(byLabel('Queue Properties').disabled).toBe(false);
+  });
+
+  it('runs an overflow action and changes the refresh interval from the menu', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    findByTestId(fixture.nativeElement, 'mobile-more-button').click();
+    const [actionGroup, intervalGroup] = fixture.componentInstance['overflowItems']();
+
+    actionGroup.items!.find((i) => i.label === 'Settings')!.command!({} as never);
+    expect(fixture.componentInstance['showSettingsDialog']()).toBe(true);
+
+    const interval = intervalGroup.items!;
+    expect(interval.map((i) => i.label)).toEqual(['2 seconds', '5 seconds', '15 seconds', '30 seconds']);
+    expect(interval.find((i) => i.label === '5 seconds')!.icon).toBe('pi pi-check');
+    interval[2].command!({} as never);
+    expect(TestBed.inject(PollingService).setIntervalSeconds).toHaveBeenCalledWith(15);
   });
 });

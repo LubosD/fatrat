@@ -1,5 +1,5 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Settings" [modal]="true" [style]="{ width: '52rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false">
-  <div class="settings-layout">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Settings" [modal]="true" [style]="{ width: '52rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false" styleClass="fr-dialog">
+  <ng-template #pageList>
     <ul class="settings-page-list">
       @for (page of pages(); track page.script) {
         <li
@@ -18,6 +18,8 @@
         </li>
       }
     </ul>
+  </ng-template>
+  <ng-template #pageContent>
     <div class="settings-page-content">
       @if (selectedPage(); as page) {
         @if (pageComponent(page); as cmp) {
@@ -27,7 +29,20 @@
         }
       }
     </div>
-  </div>
+  </ng-template>
+  @if (viewport.isMobile()) {
+    @if (pageOpen() && selectedPage(); as page) {
+      <button pButton type="button" severity="secondary" [text]="true" icon="pi pi-arrow-left" class="settings-back" data-testid="settings-back" (click)="pageOpen.set(false)">{{ page.title }}</button>
+      <ng-container *ngTemplateOutlet="pageContent"></ng-container>
+    } @else {
+      <ng-container *ngTemplateOutlet="pageList"></ng-container>
+    }
+  } @else {
+    <div class="settings-layout">
+      <ng-container *ngTemplateOutlet="pageList"></ng-container>
+      <ng-container *ngTemplateOutlet="pageContent"></ng-container>
+    </div>
+  }
   <ng-template #footer>
     <button pButton type="button" severity="secondary" [text]="true" data-testid="settings-dialog-cancel" (click)="onCancel()">Cancel</button>
     <button pButton type="button" data-testid="settings-dialog-ok" (click)="onOk()">OK</button>

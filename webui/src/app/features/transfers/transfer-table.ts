@@ -4,29 +4,12 @@ import type { TableContextMenuSelectEvent } from 'primeng/table';
 import { ProgressBar } from 'primeng/progressbar';
 import { ContextMenu } from 'primeng/contextmenu';
 import type { MenuItem } from 'primeng/api';
-import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../../state/transfers.store';
+import { TransfersStore, availableTransferActions } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
-import { Transfer, TransferState } from '../../core/api/models';
+import { Transfer } from '../../core/api/models';
+import { progressPercent, stateIconPath, stateLabelText } from './transfer-presentation';
+import { createTransferMenuItems, withAvailability } from './transfer-menu';
 import { formatEta, formatSize, formatSpeed } from './format';
-
-/** Icon file stems under img/states/, ported from the legacy web UI. Ready/Testing have none. */
-const STATE_ICONS: Partial<Record<TransferState, string>> = {
-  Waiting: 'waiting',
-  Active: 'active',
-  ForcedActive: 'forcedactive',
-  Paused: 'paused',
-  Failed: 'failed',
-  Completed: 'completed',
-};
-
-const STATE_LABELS: Partial<Record<TransferState, string>> = {
-  ForcedActive: 'Forced active',
-};
-
-/** Same rule as the legacy UI: a seeding/uploading transfer gets the upload variant. */
-function isUploadIcon(transfer: Transfer): boolean {
-  return transfer.mode === 'Upload' && (transfer.primaryMode === 'Upload' || transfer.state !== 'Completed');
-}
 
 @Component({
   selector: 'app-transfer-table',
@@ -48,34 +31,18 @@ export class TransferTable {
   /** Emitted from the context menu; Shell owns the properties dialog. */
   @Output() readonly propertiesRequested = new EventEmitter<void>();
 
-  // Icons match the toolbar's; grouping and Properties follow the legacy web UI's menu. Each `id`
-  // is the AvailableTransferActions key that gates the item.
-  protected contextMenuItems: MenuItem[] = [
-    { id: 'resume', label: 'Resume', icon: 'pi pi-play', command: () => this.actions.resume() },
-    { id: 'forceResume', label: 'Force Resume', icon: 'pi pi-forward', command: () => this.actions.forceResume() },
-    { id: 'pause', label: 'Pause', icon: 'pi pi-pause', command: () => this.actions.pause() },
-    { separator: true },
-    { id: 'delete', label: 'Delete', icon: 'pi pi-trash', command: () => this.actions.deleteSelected(false) },
-    { id: 'delete', label: 'Delete with Data', icon: 'pi pi-eraser', command: () => this.actions.deleteSelected(true) },
-    { separator: true },
-    { id: 'moveUp', label: 'Move to Top', icon: 'pi pi-angle-double-up', command: () => this.actions.moveSelected('top') },
-    { id: 'moveUp', label: 'Move Up', icon: 'pi pi-angle-up', command: () => this.actions.moveSelected('up') },
-    { id: 'moveDown', label: 'Move Down', icon: 'pi pi-angle-down', command: () => this.actions.moveSelected('down') },
-    { id: 'moveDown', label: 'Move to Bottom', icon: 'pi pi-angle-double-down', command: () => this.actions.moveSelected('bottom') },
-    { separator: true },
-    { id: 'properties', label: 'Properties', icon: 'pi pi-pencil', command: () => this.propertiesRequested.emit() },
-  ];
+  protected contextMenuItems: MenuItem[] = createTransferMenuItems(this.actions, () => this.propertiesRequested.emit());
 
   protected progress(total: number, done: number): number {
-    return total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
+    return progressPercent(total, done);
   }
 
   protected stateIcon(transfer: Transfer): string {
-    return `img/states/${STATE_ICONS[transfer.state] ?? 'waiting'}${isUploadIcon(transfer) ? '_upload' : ''}.png`;
+    return stateIconPath(transfer);
   }
 
   protected stateLabel(transfer: Transfer): string {
-    return STATE_LABELS[transfer.state] ?? transfer.state;
+    return stateLabelText(transfer);
   }
 
   protected onRowClick(event: MouseEvent, uuid: string): void {
@@ -130,9 +97,9 @@ export class TransferTable {
       this.store.selectOnly(event.data.uuid);
     }
     // A fresh array, so the menu re-renders the new disabled flags.
-    const available = availableTransferActions(this.store.transfers(), this.store.selectedUuids());
-    this.contextMenuItems = this.contextMenuItems.map((item) =>
-      item.id ? { ...item, disabled: !available[item.id as keyof AvailableTransferActions] } : item,
+    this.contextMenuItems = withAvailability(
+      this.contextMenuItems,
+      availableTransferActions(this.store.transfers(), this.store.selectedUuids()),
     );
   }
 }

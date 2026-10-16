@@ -53,3 +53,23 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+@media (max-width: 768px) {
+  .picker-path {
+    flex-wrap: wrap;
+  }
+
+  .picker-path-input {
+    flex: 1 1 12rem;
+  }
+
+  .picker-list {
+    height: auto;
+    min-height: 12rem;
+    max-height: 50dvh;
+  }
+
+  .picker-entry {
+    min-height: 44px;
+  }
+}

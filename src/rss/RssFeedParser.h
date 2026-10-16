@@ -35,9 +35,10 @@ respects for all of the code used other than "OpenSSL".
 struct RssItem
 {
 	QString title, descr, url;
+	QString magnetUri; // torrent:magnetURI extension (e.g. EZTV), preferred over url
 	QString source; // RSS URL
 	QString id; // TV show episode ID
-	enum Next { None, Title, Descr, Url };
+	enum Next { None, Title, Descr, Url, Magnet };
 };
 
 // Real-world feeds contain HTML entities such as &nbsp; that XML does not define
@@ -79,6 +80,8 @@ inline bool parseRssFeed(QIODevice* device, const QString& source, QList<RssItem
 					next = RssItem::Descr;
 				else if(name == QLatin1String("link") && item.url.isEmpty())
 					next = RssItem::Url;
+				else if(name == QLatin1String("magnetURI"))
+					next = RssItem::Magnet;
 				else if(name == QLatin1String("enclosure"))
 				{
 					item.url = xml.attributes().value(QLatin1String("url")).toString();
@@ -109,6 +112,8 @@ inline bool parseRssFeed(QIODevice* device, const QString& source, QList<RssItem
 					item.title += xml.text().toString();
 				else if(next == RssItem::Url)
 					item.url += xml.text().toString();
+				else if(next == RssItem::Magnet)
+					item.magnetUri += xml.text().toString();
 			}
 			break;
 		default:

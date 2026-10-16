@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="dialogHeader" [modal]="true">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="dialogHeader" [modal]="true" styleClass="fr-dialog">
   <div class="field">
     <label for="queue-name">Name</label>
     <input pInputText id="queue-name" [(ngModel)]="name" />

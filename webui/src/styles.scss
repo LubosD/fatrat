@@ -60,3 +60,74 @@ legend {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+@media (max-width: 768px) {
+  fieldset {
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+
+  .field > label:first-child {
+    flex: 1 1 100%;
+  }
+
+  // 16px stops iOS Safari zooming the page when an input gets focus.
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .field input:not([type='checkbox']):not([type='radio']),
+  .field textarea,
+  .field .p-select,
+  .field .p-inputnumber {
+    width: 100%;
+  }
+
+  .p-button {
+    min-height: 44px;
+  }
+
+  // Dialogs (tagged styleClass="fr-dialog") fill the screen. !important beats PrimeNG's inline
+  // sizes, including the [style] widths and the Settings dialog's breakpoint rule.
+  .p-dialog.fr-dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0;
+    border-radius: 0;
+
+    .p-dialog-content {
+      flex: 1;
+      overflow: auto;
+    }
+
+    .p-dialog-footer {
+      position: sticky;
+      bottom: 0;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      background: var(--p-dialog-background);
+    }
+  }
+
+  // Wide content (file trees, long log lines) scrolls inside its own box rather than the page.
+  .transfer-details,
+  .log-tab {
+    min-width: 0;
+  }
+
+  .transfer-details .p-tree {
+    overflow-x: auto;
+  }
+
+  .log-panel {
+    max-height: 40dvh;
+    font-size: 0.75rem;
+  }
+
+  // Popup menus (toolbar overflow, card actions) need finger-sized rows.
+  .p-menu .p-menu-item-link {
+    min-height: 44px;
+  }
+}

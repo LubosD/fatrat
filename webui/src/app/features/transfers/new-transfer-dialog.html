@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="New Transfer" [modal]="true">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="New Transfer" [modal]="true" styleClass="fr-dialog">
   <div class="field">
     <label for="new-transfer-queue">Queue</label>
     <p-select inputId="new-transfer-queue" [options]="queues" optionLabel="name" optionValue="uuid" [(ngModel)]="queueUuid"></p-select>

@@ -31,37 +31,38 @@
 <!-- Self-managed, no bindings: visibility is derived internally from CaptchaSocketService events. -->
 <app-captcha-dialog></app-captcha-dialog>
 
-<header class="shell-header">
-  <img src="img/logo.png" alt="FatRat" class="shell-logo" />
-</header>
+@if (viewport.isMobile()) {
+  <header class="mobile-bar" data-testid="mobile-bar">
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="mobile-queues-button" aria-label="Queues" (click)="showQueueDrawer.set(true)"><i class="pi pi-bars" pButtonIcon></i></button>
+    <span class="mobile-queue-name" data-testid="mobile-queue-name">{{ selectedQueueName() }}</span>
+    @for (action of primaryActions; track action.id) {
+      <button pButton type="button" [text]="true" severity="secondary" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i></button>
+    }
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="mobile-more-button" aria-label="More actions" aria-haspopup="menu" (click)="openOverflowMenu($event, moreMenu)"><i class="pi pi-ellipsis-v" pButtonIcon></i></button>
+    <p-menu #moreMenu [popup]="true" [model]="overflowItems()" appendTo="body"></p-menu>
+  </header>
+  <p-drawer [visible]="showQueueDrawer()" (visibleChange)="showQueueDrawer.set($event)" position="left" header="Queues" styleClass="queue-drawer">
+    <!-- Choosing a queue bubbles up here and closes the drawer. -->
+    <div data-testid="queue-drawer-content" (click)="showQueueDrawer.set(false)">
+      <app-queue-list></app-queue-list>
+    </div>
+  </p-drawer>
+} @else {
+  <header class="shell-header">
+    <img src="img/logo.png" alt="FatRat" class="shell-logo" />
+  </header>
+}
 
+@if (!viewport.isMobile()) {
 <p-toolbar>
   <ng-template #start>
-    <span class="toolbar-group">
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-new-transfer" aria-label="New Transfer" pTooltip="New Transfer" tooltipPosition="bottom" (click)="openNewTransferDialog()"><i class="pi pi-plus" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-delete" aria-label="Delete" pTooltip="Delete" tooltipPosition="bottom" [disabled]="!available.delete" (click)="actions.deleteSelected(false)"><i class="pi pi-trash" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-delete-with-data" aria-label="Delete with Data" pTooltip="Delete with Data" tooltipPosition="bottom" [disabled]="!available.delete" (click)="actions.deleteSelected(true)"><i class="pi pi-eraser" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-delete-completed" aria-label="Delete Completed" pTooltip="Delete Completed" tooltipPosition="bottom" (click)="actions.deleteCompleted()"><i class="pi pi-check-circle" pButtonIcon></i></button>
-    </span>
-    <span class="toolbar-group">
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-resume" aria-label="Resume" pTooltip="Resume" tooltipPosition="bottom" [disabled]="!available.resume" (click)="actions.resume()"><i class="pi pi-play" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-force-resume" aria-label="Force Resume" pTooltip="Force Resume" tooltipPosition="bottom" [disabled]="!available.forceResume" (click)="actions.forceResume()"><i class="pi pi-forward" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-pause" aria-label="Pause" pTooltip="Pause" tooltipPosition="bottom" [disabled]="!available.pause" (click)="actions.pause()"><i class="pi pi-pause" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-properties" aria-label="Properties" pTooltip="Properties" tooltipPosition="bottom" [disabled]="!available.properties" (click)="openTransferPropertiesDialog()"><i class="pi pi-pencil" pButtonIcon></i></button>
-    </span>
-    <span class="toolbar-group">
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-top" aria-label="Move to Top" pTooltip="Move to Top" tooltipPosition="bottom" [disabled]="!available.moveUp" (click)="actions.moveSelected('top')"><i class="pi pi-angle-double-up" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-up" aria-label="Move Up" pTooltip="Move Up" tooltipPosition="bottom" [disabled]="!available.moveUp" (click)="actions.moveSelected('up')"><i class="pi pi-angle-up" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-down" aria-label="Move Down" pTooltip="Move Down" tooltipPosition="bottom" [disabled]="!available.moveDown" (click)="actions.moveSelected('down')"><i class="pi pi-angle-down" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-bottom" aria-label="Move to Bottom" pTooltip="Move to Bottom" tooltipPosition="bottom" [disabled]="!available.moveDown" (click)="actions.moveSelected('bottom')"><i class="pi pi-angle-double-down" pButtonIcon></i></button>
-    </span>
-    <span class="toolbar-group">
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-new-queue" aria-label="New Queue" pTooltip="New Queue" tooltipPosition="bottom" (click)="openNewQueueDialog()"><i class="pi pi-folder-plus" pButtonIcon></i></button>
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-queue-properties" aria-label="Queue Properties" pTooltip="Queue Properties" tooltipPosition="bottom" [disabled]="!hasSelectedQueue" (click)="openQueuePropertiesDialog()"><i class="pi pi-sliders-h" pButtonIcon></i></button>
-    </span>
-    <span class="toolbar-group">
-      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-settings" aria-label="Settings" pTooltip="Settings" tooltipPosition="bottom" (click)="openSettingsDialog()"><i class="pi pi-cog" pButtonIcon></i></button>
-    </span>
+    @for (group of toolbarGroups; track $index) {
+      <span class="toolbar-group">
+        @for (action of group; track action.id) {
+          <button pButton type="button" [text]="true" severity="secondary" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [pTooltip]="action.label" tooltipPosition="bottom" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i></button>
+        }
+      </span>
+    }
   </ng-template>
   <ng-template #end>
     <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
@@ -77,37 +78,54 @@
     </p-select>
   </ng-template>
 </p-toolbar>
+}
 
-<p-splitter [panelSizes]="[20, 80]" styleClass="shell-splitter">
-  <ng-template #panel>
-    <app-queue-list></app-queue-list>
-  </ng-template>
-  <ng-template #panel>
-    <p-tabs [(value)]="activeTab" class="details-tabs">
-      <p-tablist>
-        <p-tab value="0">Transfers</p-tab>
-        <p-tab value="1">Details</p-tab>
-        <p-tab value="2">Speed Graphs</p-tab>
-        <p-tab value="3">Log</p-tab>
-      </p-tablist>
-      <p-tabpanels>
-        <p-tabpanel value="0"><app-transfer-table (propertiesRequested)="openTransferPropertiesDialog()"></app-transfer-table></p-tabpanel>
-        <p-tabpanel value="1" [lazy]="true">
-          <ng-template #content>
-            <app-transfer-details></app-transfer-details>
-          </ng-template>
+<ng-template #detailsPane>
+  <p-tabs [(value)]="activeTab" class="details-tabs">
+    <p-tablist>
+      <p-tab value="0">Transfers</p-tab>
+      <p-tab value="1">Details</p-tab>
+      <p-tab value="2">Speed Graphs</p-tab>
+      <p-tab value="3">Log</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+          @if (viewport.isMobile()) {
+            <app-transfer-cards (propertiesRequested)="openTransferPropertiesDialog()"></app-transfer-cards>
+          } @else {
+            <app-transfer-table (propertiesRequested)="openTransferPropertiesDialog()"></app-transfer-table>
+          }
         </p-tabpanel>
-        <p-tabpanel value="2" [lazy]="true">
-          <ng-template #content>
-            <app-speed-graphs-tab [active]="activeTab() === '2'"></app-speed-graphs-tab>
-          </ng-template>
-        </p-tabpanel>
-        <p-tabpanel value="3" [lazy]="true">
-          <ng-template #content>
-            <app-log-tab [active]="activeTab() === '3'"></app-log-tab>
-          </ng-template>
-        </p-tabpanel>
-      </p-tabpanels>
-    </p-tabs>
-  </ng-template>
-</p-splitter>
+      <p-tabpanel value="1" [lazy]="true">
+        <ng-template #content>
+          <app-transfer-details></app-transfer-details>
+        </ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="2" [lazy]="true">
+        <ng-template #content>
+          <app-speed-graphs-tab [active]="activeTab() === '2'"></app-speed-graphs-tab>
+        </ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="3" [lazy]="true">
+        <ng-template #content>
+          <app-log-tab [active]="activeTab() === '3'"></app-log-tab>
+        </ng-template>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</ng-template>
+
+@if (viewport.isMobile()) {
+  <div class="mobile-content">
+    <ng-container *ngTemplateOutlet="detailsPane"></ng-container>
+  </div>
+} @else {
+  <p-splitter [panelSizes]="[20, 80]" styleClass="shell-splitter">
+    <ng-template #panel>
+      <app-queue-list></app-queue-list>
+    </ng-template>
+    <ng-template #panel>
+      <ng-container *ngTemplateOutlet="detailsPane"></ng-container>
+    </ng-template>
+  </p-splitter>
+}

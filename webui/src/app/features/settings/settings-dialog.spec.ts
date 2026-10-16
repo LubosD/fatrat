@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { ViewportService } from '../../core/viewport.service';
 import { of, Subject } from 'rxjs';
 import { SettingsDialog } from './settings-dialog';
 import { TransferApi } from '../../core/api/transfer-api';
@@ -151,5 +153,56 @@ describe('SettingsDialog', () => {
 
     expect(fixture.componentInstance['pages']()).toEqual([secondPage]);
     expect(fixture.componentInstance['selectedPage']()).toEqual(secondPage);
+  });
+});
+
+describe('SettingsDialog (mobile)', () => {
+  const btPage = makePage();
+  const wiPage = makePage({ title: 'Web Interface', script: '/scripts/settings/webinterface.js' });
+
+  function open() {
+    configure(vi.fn().mockReturnValue(of([btPage, wiPage])));
+    TestBed.overrideProvider(ViewportService, { useValue: { isMobile: signal(true) } });
+    const fixture = TestBed.createComponent(SettingsDialog);
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  const query = (fixture: ComponentFixture<SettingsDialog>, testId: string) =>
+    fixture.nativeElement.querySelector(`[data-testid="${testId}"]`) as HTMLElement | null;
+
+  it('starts on the page list without rendering a page', () => {
+    const fixture = open();
+
+    expect(fixture.nativeElement.querySelectorAll('[data-testid="settings-page-item"]')).toHaveLength(2);
+    expect(fixture.nativeElement.querySelector('app-bittorrent-settings')).toBeNull();
+    expect(query(fixture, 'settings-back')).toBeNull();
+  });
+
+  it('drills into a page and back to the list', () => {
+    const fixture = open();
+
+    (fixture.nativeElement.querySelectorAll('[data-testid="settings-page-item"]')[1] as HTMLElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-webinterface-settings')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="settings-page-item"]')).toBeNull();
+    expect(query(fixture, 'settings-back')!.textContent).toContain('Web Interface');
+
+    query(fixture, 'settings-back')!.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('[data-testid="settings-page-item"]')).toHaveLength(2);
+  });
+
+  it('returns to the page list each time the dialog is reopened', () => {
+    const fixture = open();
+    (fixture.nativeElement.querySelectorAll('[data-testid="settings-page-item"]')[0] as HTMLElement).click();
+    fixture.componentRef.setInput('visible', false);
+    fixture.detectChanges();
+
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['pageOpen']()).toBe(false);
   });
 });
