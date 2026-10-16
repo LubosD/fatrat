@@ -37,6 +37,7 @@ bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 	int dummy;
 	QList<CurlStat*> timedOut;
 	
+	m_curlDeadline = -1;
 	curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	
 	m_usersLock.lock();

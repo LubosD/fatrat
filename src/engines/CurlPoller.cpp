@@ -48,6 +48,8 @@ CurlPoller::CurlPoller()
 	
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETFUNCTION, socket_callback);
 	curl_multi_setopt(m_curlm, CURLMOPT_SOCKETDATA, static_cast<CurlPoller*>(this));
+	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
+	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, static_cast<CurlPoller*>(this));
 	
 	if(!m_instance)
 	{
@@ -127,6 +129,14 @@ void CurlPoller::pollingCycle(bool oneshot)
 		m_timeout = 500;
 	else
 		m_timeout = long(std::clamp<long long>(m_curlDeadline - nowMs(), 0, 500));
+
+	// The polling masters have their own libcurl timers, which this thread has to service
+	for(QMap<int, CurlPollingMaster*>::const_iterator it = m_masters.begin(); it != m_masters.end(); it++)
+	{
+		long long deadline = static_cast<CurlPoller*>(it.value())->m_curlDeadline;
+		if(deadline >= 0)
+			m_timeout = qMin<long>(m_timeout, long(std::clamp<long long>(deadline - nowMs(), 0, 500)));
+	}
 
 	while (!m_queueToDelete.isEmpty())
 	{
@@ -277,9 +287,6 @@ void CurlPoller::checkErrors(timeval tvNow)
 
 void CurlPoller::run()
 {
-	curl_multi_setopt(m_curlm, CURLMOPT_TIMERFUNCTION, timer_callback);
-	curl_multi_setopt(m_curlm, CURLMOPT_TIMERDATA, this);
-
 	while(!m_bAbort)
 		pollingCycle(false);
 }

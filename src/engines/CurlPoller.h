@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef CURL_POLLER
 #define CURL_POLLER
+#include <atomic>
 #include <QThread>
 #include <QMutex>
 #include <QMap>
@@ -70,7 +71,7 @@ protected:
 	bool m_bAbort;
 	CURLM* m_curlm;
 	Poller* m_poller;
-	long long m_curlDeadline; // monotonic ms when libcurl wants a CURL_SOCKET_TIMEOUT action, -1 if none
+	std::atomic<long long> m_curlDeadline; // monotonic ms when libcurl wants a CURL_SOCKET_TIMEOUT action, -1 if none
 	long m_timeout;
 	
 	typedef QMap<int, QPair<int,CurlStat*> > sockets_hash;
