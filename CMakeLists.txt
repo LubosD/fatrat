@@ -203,6 +203,7 @@ set(fatrat_GUI_SRCS
 	src/SpeedGraph.cpp
 	src/SpeedLimitWidget.cpp
 	src/StatsWidget.cpp
+	src/TransferGui.cpp
 	src/TransfersModel.cpp
 	src/MyFileDialog.cpp
 	src/QueueDlg.cpp

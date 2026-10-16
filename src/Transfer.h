@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef _DOWNLOAD_H
 #define _DOWNLOAD_H
+#include "config.h"
 #include <QString>
 #include <QObject>
 #include <QQueue>
@@ -113,10 +114,12 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	
+#ifdef WITH_GUI
 	// TRANSFER OPTIONS/DETAILS
 	virtual WidgetHostChild* createOptionsWidget(QWidget*) { return 0; } // options (properties) of a particular download
 	virtual QObject* createDetailsWidget(QWidget*) { return 0; } // detailed view
 	virtual void fillContextMenu(QMenu&) { }
+#endif
 	
 	// LOGGING
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
@@ -138,7 +141,9 @@ public:
 	static QString state2string(State s);
 	static Transfer* createInstance(QString className);
 	static Transfer* createInstance(Mode mode, int classID);
+#ifdef WITH_GUI
 	static bool runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects);
+#endif
 	
 	struct BestEngine
 	{

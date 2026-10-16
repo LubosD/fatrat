@@ -45,7 +45,6 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QtDebug>
 #include <QDir>
-#include <QMessageBox>
 #include <QVariant>
 #include <QProcess>
 
@@ -73,7 +72,10 @@ void initTransferClasses()
 #endif
 #ifdef WITH_CURL
 	{
-		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, { CurlDownload::createInstance }, { CurlDownload::acceptable }, CurlDownload::createMultipleOptionsWidget };
+		EngineEntry e = { "GeneralDownload", "CURL HTTP(S)/FTP(S)/SFTP download", CurlDownload::globalInit, CurlDownload::globalExit, { CurlDownload::createInstance }, { CurlDownload::acceptable }, 0 };
+#ifdef WITH_GUI
+		e.lpfnMultiOptions = CurlDownload::createMultipleOptionsWidget;
+#endif
 		g_enginesDownload << e;
 	}
 	{
@@ -190,33 +192,6 @@ Transfer* Transfer::createInstance(Mode mode, int classID)
 	const EngineEntry* entries = engines(mode);
 	
 	return entries[classID].lpfnCreate2(&entries[classID]);
-}
-
-bool Transfer::runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects)
-{
-	const EngineEntry* entries = engines(mode);
-	bool err = false;
-
-	if(!entries[classID].lpfnMultiOptions)
-	    err = true;
-	if(!err)
-	{
-		int result;
-		QDialog* dlg = entries[classID].lpfnMultiOptions(parent, objects);
-
-		if(dlg)
-		{
-		    result = dlg->exec();
-
-		    delete dlg;
-		    return result == QDialog::Accepted;
-		}
-		else
-		    err = true;
-	}
-	if(err)
-		QMessageBox::information(parent, "FatRat", tr("This transfer type has no advanced options to set."));
-	return true;
 }
 
 const EngineEntry* Transfer::engines(Mode type)
