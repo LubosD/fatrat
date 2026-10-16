@@ -15,6 +15,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 option(WITH_GUI "Build the Qt desktop UI (OFF builds a headless fatrat-nogui)" ON)
 option(WITH_DBUS "Enable the D-Bus interface and the single-instance check" ON)
 option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
+option(WITH_TUI "Build fatrat-tui, an ncurses terminal client for FatRat" OFF)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
 set(fatrat_QT_LIBS Qt6::Core Qt6::Network Qt6::Xml)
@@ -634,6 +635,38 @@ qt6_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
 locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts locale/fatrat_ru_RU.ts locale/fatrat_fr_FR.ts
 locale/fatrat_uk_UA.ts locale/fatrat_es_AR.ts locale/fatrat_es_ES.ts locale/fatrat_ca_ES.ts locale/fatrat_zh_CN.ts
 locale/fatrat_zh_TW.ts locale/fatrat_sr_RS.ts locale/fatrat_sr_BA.ts locale/fatrat_de_DE.ts)
+
+if(WITH_TUI)
+	# The wide character version of ncurses (UTF-8, box drawing); some systems keep its header in ncursesw/
+	pkg_check_modules(NCURSESW QUIET ncursesw)
+	if(NCURSESW_FOUND)
+		set(TUI_CURSES_INCLUDE_DIRS ${NCURSESW_INCLUDE_DIRS})
+		set(TUI_CURSES_LIBRARIES ${NCURSESW_LINK_LIBRARIES})
+	else()
+		set(CURSES_NEED_NCURSES TRUE)
+		set(CURSES_NEED_WIDE TRUE)
+		find_package(Curses REQUIRED)
+		set(TUI_CURSES_INCLUDE_DIRS ${CURSES_INCLUDE_DIRS})
+		set(TUI_CURSES_LIBRARIES ${CURSES_LIBRARIES})
+	endif()
+
+	# Everything except main.cpp and the ncurses backend lives in a library, so the tests can link it
+	file(GLOB TUI_SRCS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/tui/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/tui/*.h)
+	list(FILTER TUI_SRCS EXCLUDE REGEX "/(main|NcBackend)\\.cpp$")
+	add_library(fatrat_tui_core STATIC ${TUI_SRCS})
+	set_target_properties(fatrat_tui_core PROPERTIES AUTOMOC ON POSITION_INDEPENDENT_CODE ON)
+	target_include_directories(fatrat_tui_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/tui)
+	target_link_libraries(fatrat_tui_core PUBLIC Qt6::Core Qt6::Network)
+
+	add_executable(fatrat-tui src/tui/main.cpp src/tui/NcBackend.cpp)
+	target_include_directories(fatrat-tui PRIVATE ${TUI_CURSES_INCLUDE_DIRS})
+	target_link_libraries(fatrat-tui PRIVATE fatrat_tui_core ${TUI_CURSES_LIBRARIES})
+	install(TARGETS fatrat-tui RUNTIME DESTINATION bin)
+
+	if(NOT WITH_WEBINTERFACE)
+		message(WARNING "WITH_TUI without WITH_WEBINTERFACE: fatrat-tui cannot start a local server, it can only connect with --url")
+	endif()
+endif(WITH_TUI)
 
 if(WITH_TESTS)
 	enable_testing()
