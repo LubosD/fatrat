@@ -93,6 +93,11 @@ if(WITH_PYPLUGINS)
 	target_compile_definitions(tst_pyplugins PRIVATE
 		FATRAT_PYTHON_RUNTIME="${CMAKE_SOURCE_DIR}/data/python"
 		EXAMPLE_PLUGIN_DIR="${CMAKE_SOURCE_DIR}/examples/plugin-repo/dummy")
-	target_link_libraries(tst_pyplugins Qt6::Core Qt6::Gui Qt6::Network Qt6::Xml Qt6::Test pybind11::embed)
+	# Qt6::Gui only in a GUI build: that is where DelayedIcon pulls in QIcon.
+	set(tst_pyplugins_LIBS Qt6::Core Qt6::Network Qt6::Xml Qt6::Test pybind11::embed)
+	if(WITH_GUI)
+		set(tst_pyplugins_LIBS ${tst_pyplugins_LIBS} Qt6::Gui)
+	endif(WITH_GUI)
+	target_link_libraries(tst_pyplugins ${tst_pyplugins_LIBS})
 	add_test(NAME pyplugins COMMAND tst_pyplugins)
 endif(WITH_PYPLUGINS)

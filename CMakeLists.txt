@@ -8,7 +8,6 @@ INCLUDE(CheckFunctionExists)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(FindPkgConfig)
 INCLUDE(FindBoost)
-#INCLUDE(FindJNI)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -53,7 +52,7 @@ if(WITH_EVERYTHING)
 	endif(WITH_GUI)
 	set(WITH_WEBINTERFACE ON)
 	set(WITH_CURL ON)
-	set(WITH_JPLUGINS ON)
+	set(WITH_PYPLUGINS ON)
 endif(WITH_EVERYTHING)
 
 if(WITH_DOCUMENTATION AND NOT WITH_GUI)
@@ -64,14 +63,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ADD_DEFINITIONS(-DQT_DISABLE_DEPRECATED_BEFORE=0x060500)
 
-if(WITH_JPLUGINS)
-	set(WITH_CURL ON)
-
-	INCLUDE(FindJNI)
-	find_package(JNI REQUIRED)
-	
-	include_directories(${JNI_INCLUDE_DIRS})
-endif(WITH_JPLUGINS)
 
 if(WITH_PYPLUGINS)
 	set(WITH_CURL ON)
@@ -390,76 +381,6 @@ if(WITH_CURL)
 	)
 endif(WITH_CURL)
 
-if(WITH_JPLUGINS)
-	set(fatrat_SRCS
-		${fatrat_SRCS}
-		src/java/JString.cpp
-		src/java/JClass.cpp
-		src/java/JObject.cpp
-		src/java/JArray.cpp
-		src/java/JScope.cpp
-		src/java/JException.cpp
-		src/java/JValue.cpp
-		src/java/JSignature.cpp
-		src/java/JByteBuffer.cpp
-		src/java/JMap.cpp
-		src/java/JVM.cpp
-		src/java/JPlugin.cpp
-		src/java/JExtractorPlugin.cpp
-		src/java/JTransferPlugin.cpp
-		src/java/JDownloadPlugin.cpp
-		src/java/JUploadPlugin.cpp
-		src/java/JLinkCheckerPlugin.cpp
-		src/java/JNativeMethod.cpp
-		src/java/JSettings.cpp
-		src/java/JBackgroundWorker.cpp
-		src/java/JSingleCObject.cpp
-		src/java/JAccountStatusPlugin.cpp
-		src/engines/JavaPersistentVariables.cpp
-		src/engines/JavaDownload.cpp
-		src/engines/JavaExtractor.cpp
-		src/engines/JavaUpload.cpp
-		src/ExtensionMgr.cpp
-	)
-	set(fatrat_GUI_SRCS
-		${fatrat_GUI_SRCS}
-		src/engines/JavaDownloadOptsForm.cpp
-		src/engines/JavaAccountStatusWidget.cpp
-		src/engines/ExtensionDownloadDlg.cpp
-		src/engines/SettingsJavaPluginForm.cpp
-		src/java/JSearchPlugin.cpp
-		src/tools/FileSharingSearch.cpp
-	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
-		src/engines/JavaDownload.h
-		src/engines/JavaExtractor.h
-		src/engines/JavaUpload.h
-		src/java/JPlugin.h
-		src/java/JTransferPlugin.h
-		src/java/JDownloadPlugin.h
-		src/java/JAccountStatusPlugin.h
-		src/java/JLinkCheckerPlugin.h
-		src/java/JBackgroundWorker.h
-		src/ExtensionMgr.h
-	)
-	set(fatrat_GUI_MOC_HDRS
-		${fatrat_GUI_MOC_HDRS}
-		src/engines/JavaDownloadOptsForm.h
-		src/engines/JavaAccountStatusWidget.h
-		src/engines/ExtensionDownloadDlg.h
-		src/engines/SettingsJavaPluginForm.h
-		src/tools/FileSharingSearch.h
-	)
-	set(fatrat_UIS
-		${fatrat_UIS}
-		src/engines/ExtensionDownloadDlg.ui
-		src/engines/JavaDownloadOptsForm.ui
-		src/engines/SettingsJavaPluginForm.ui
-		src/engines/JavaAccountStatusWidget.ui
-		src/tools/FileSharingSearch.ui
-	)
-endif(WITH_JPLUGINS)
 
 if(WITH_PYPLUGINS)
 	set(fatrat_SRCS
@@ -814,12 +735,6 @@ if(WITH_WEBINTERFACE)
 		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif(WITH_WEBINTERFACE)
 
-if(WITH_JPLUGINS)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/findjvm.sh DESTINATION share/fatrat/data/java PERMISSIONS
-		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/extension.policy DESTINATION share/fatrat/data/java)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/java/libs DESTINATION share/fatrat/data/java)
-endif(WITH_JPLUGINS)
 
 if(WITH_PYPLUGINS)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/python DESTINATION share/fatrat/data)

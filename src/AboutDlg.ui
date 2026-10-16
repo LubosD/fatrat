@@ -209,12 +209,12 @@
         </widget>
        </item>
        <item row="5" column="0">
-        <widget class="QCheckBox" name="checkFeatureJavaExtensions">
+        <widget class="QCheckBox" name="checkFeaturePythonExtensions">
          <property name="enabled">
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Java extension support</string>
+          <string>Python extension support</string>
          </property>
         </widget>
        </item>

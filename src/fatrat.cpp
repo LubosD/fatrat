@@ -85,19 +85,6 @@ respects for all of the code used other than "OpenSSL".
 #	include "python/PyVM.h"
 #endif
 
-#ifdef WITH_JPLUGINS
-#	include "java/JVM.h"
-#	include "engines/JavaDownload.h"
-#	include "engines/JavaExtractor.h"
-#	include "engines/JavaUpload.h"
-#	ifdef WITH_GUI
-#		include "tools/FileSharingSearch.h"
-#	endif
-#	include "java/JClass.h"
-#	include "java/JString.h"
-#	include "java/JArray.h"
-#	include "java/JScope.h"
-#endif
 
 using namespace std;
 
@@ -122,7 +109,6 @@ static void loadPlugins();
 static void loadPlugins(const char* dir);
 static void showHelp();
 static void installSignalHandler();
-static void testJava();
 static void daemonize();
 #ifdef WITH_DBUS
 static void initDbus();
@@ -134,7 +120,6 @@ static void dropPrivileges();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
-static bool m_bDisableJava = false, m_bJavaForceSearch = false;
 static bool m_bDisablePython = false;
 static QString m_strSettingsPath;
 static QString m_strPidFile, m_strSetUser;
@@ -201,6 +186,9 @@ int main(int argc,char** argv)
 	initSettingsPages();
 
 #ifdef WITH_PYPLUGINS
+	// Says so even with --no-python: the jars are dead either way.
+	PluginRegistry::reportLegacyJavaPlugins();
+
 	if (!m_bDisablePython)
 	{
 		g_pyvm = new PyVM;
@@ -210,22 +198,6 @@ int main(int argc,char** argv)
 	}
 #endif
 
-#ifdef WITH_JPLUGINS
-	if (!m_bDisableJava)
-	{
-		new JVM(m_bJavaForceSearch);
-
-		if (JVM::JVMAvailable())
-		{
-			JavaDownload::globalInit();
-			JavaExtractor::globalInit();
-			JavaUpload::globalInit();
-#ifdef WITH_GUI
-			FileSharingSearch::globalInit();
-#endif
-		}
-	}
-#endif
 	
 	installSignalHandler();
 	initTransferClasses();
@@ -295,16 +267,6 @@ int main(int argc,char** argv)
 	
 	runEngines(false);
 
-#ifdef WITH_JPLUGINS
-	if (!m_bDisableJava && JVM::JVMAvailable())
-	{
-		JavaExtractor::globalExit();
-		JavaDownload::globalExit();
-#ifdef WITH_GUI
-		FileSharingSearch::globalExit();
-#endif
-	}
-#endif
 
 #ifdef WITH_PYPLUGINS
 	if (PyVM::available())
@@ -351,16 +313,6 @@ QString argsToArg(int argc,char** argv)
 		{
 			qDebug() << "Disabling Python support";
 			m_bDisablePython = true;
-		}
-		else if(!strcasecmp(argv[i], "--no-java"))
-		{
-			qDebug() << "Disabling Java support";
-			m_bDisableJava = true;
-		}
-		else if(!strcasecmp(argv[i], "--force-jre-search"))
-		{
-			qDebug() << "Forcing the search for Java Runtime Environment\n";
-			m_bJavaForceSearch = true;
 		}
 		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
 			m_strSettingsPath = argv[++i];
@@ -696,10 +648,6 @@ void showHelp()
 #ifdef WITH_PYPLUGINS
 			"--no-python      \tDisable support for Python extensions\n"
 #endif
-#ifdef WITH_JPLUGINS
-			"--no-java        \tDisable support for Java extensions\n"
-			//"--force-jre-search\tIgnore the cached JRE location\n"
-#endif
 			"-h, --help       \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
 	exit(0);
@@ -741,22 +689,6 @@ void restartApplication()
 		qDebug() << "execvp() failed: " << strerror(errno);
 }
 
-#ifdef WITH_JPLUGINS
-void __attribute__ ((unused)) testJava()
-{
-	try
-	{
-		JClass system("java/lang/System");
-		JObject obj = system.getStaticValue("out", JSignature::sig("java.io.PrintStream")).value<JObject>();
-		obj.call("println", JSignature().addString(), JArgs() << "Hello JNI world");
-	}
-	catch (const RuntimeException& e)
-	{
-		qDebug() << e.what();
-	}
-	qDebug() << "End test";
-}
-#endif
 
 void daemonize()
 {

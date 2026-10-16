@@ -32,9 +32,6 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_BITTORRENT
 #	include "tools/CreateTorrentDlg.h"
 #endif
-#ifdef WITH_JPLUGINS
-#	include "tools/FileSharingSearch.h"
-#endif
 #ifdef WITH_PYPLUGINS
 #	include "tools/PythonFileSearch.h"
 #endif
@@ -54,9 +51,6 @@ void initAppTools()
 	// tool is an empty window.
 	if (PythonFileSearch::available())
 		g_tools << AppTool(QObject::tr("File sharing server search"), PythonFileSearch::create);
-#endif
-#ifdef WITH_JPLUGINS
-	g_tools << AppTool(QObject::tr("File sharing server search"), FileSharingSearch::create);
 #endif
 }
 

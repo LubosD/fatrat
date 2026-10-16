@@ -14,7 +14,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>This is a transfer controlled by an extension (Java plugin):</string>
+      <string>This transfer is handled by a plugin:</string>
      </property>
     </widget>
    </item>

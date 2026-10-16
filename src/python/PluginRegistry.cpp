@@ -320,6 +320,21 @@ PluginRegistry::LoadedPlugin PluginRegistry::loadPlugin(const Manifest& manifest
 	return loaded;
 }
 
+void PluginRegistry::reportLegacyJavaPlugins()
+{
+	QDir dir(QDir::homePath() + QLatin1String(USER_PROFILE_PATH "/data/java"));
+	QStringList jars = dir.entryList(QStringList() << QLatin1String("*.jar"), QDir::Files);
+
+	if (jars.isEmpty())
+		return;
+
+	Logger::global()->enterLogMessage(QLatin1String("Python"),
+		QObject::tr("The Java extensions are gone, and the %1 jar files in %2 are no longer used. "
+			    "Extensions are now written in Python and installed from plugin repositories you add "
+			    "yourself (Settings -> Extensions).")
+			.arg(jars.size()).arg(dir.path()));
+}
+
 void PluginRegistry::globalInit()
 {
 	if (!PyVM::available())

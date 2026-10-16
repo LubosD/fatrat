@@ -65,10 +65,11 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 #ifdef WITH_WEBINTERFACE
 	checkFeatureWebInterface->setChecked(true);
 #endif
-#ifdef WITH_JPLUGINS
-	checkFeatureJavaExtensions->setChecked(true);
-#endif
 	
+#ifdef WITH_PYPLUGINS
+	checkFeaturePythonExtensions->setChecked(true);
+#endif
+
 	processPlugins();
 	listMenu->setCurrentRow(0);
 }

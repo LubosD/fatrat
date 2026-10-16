@@ -89,6 +89,11 @@ public:
 	// Tell the plugins that implement on_config_saved() that settings were
 	// saved. Safe to call when no interpreter is running.
 	static void notifyConfigSaved();
+
+	// One line in the log for someone upgrading from the Java extensions,
+	// whose jars are still sitting in their profile doing nothing. Needs no
+	// interpreter.
+	static void reportLegacyJavaPlugins();
 };
 
 #endif // PLUGINREGISTRY_H
