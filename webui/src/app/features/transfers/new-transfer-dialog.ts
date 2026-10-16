@@ -8,6 +8,8 @@ import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { FileUpload, FileSelectEvent } from 'primeng/fileupload';
 import { ButtonDirective } from 'primeng/button';
+import { InputGroup } from 'primeng/inputgroup';
+import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Queue, TransferClass } from '../../core/api/models';
 
 export interface NewTransferFormValue {
@@ -22,7 +24,7 @@ export interface NewTransferFormValue {
 
 @Component({
   selector: 'app-new-transfer-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, FileUpload, ButtonDirective],
+  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, FileUpload, ButtonDirective, InputGroup, DirectoryPicker],
   templateUrl: './new-transfer-dialog.html',
 })
 export class NewTransferDialog implements OnChanges {
@@ -41,6 +43,7 @@ export class NewTransferDialog implements OnChanges {
   targetClass = '';
   target = '';
   paused = false;
+  protected pickerOpen = false;
   speedDown = 0;
   speedUp = 0;
 
@@ -60,6 +63,7 @@ export class NewTransferDialog implements OnChanges {
     this.targetClass = '';
     this.target = '';
     this.paused = false;
+    this.pickerOpen = false;
     this.speedDown = 0;
     this.speedUp = 0;
     this.urlsModel?.control.enable();

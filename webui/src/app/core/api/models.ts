@@ -51,6 +51,17 @@ export interface TransferClass {
   longName: string;
 }
 
+export interface DirectoryEntry {
+  name: string;
+  path: string;
+}
+
+export interface DirectoryListing {
+  path: string;
+  parent: string;
+  entries: DirectoryEntry[];
+}
+
 export interface SettingsPage {
   title: string;
   script: string;

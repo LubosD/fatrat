@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 
 #include "RestResources.h"
+#include "DirectoryListing.h"
 #include "HttpService.h"
 #include "RuntimeException.h"
 #include "Queue.h"
@@ -732,9 +733,26 @@ static RestResult generateCertificate(const RestRequest& req)
 	return RestResult::ok(rv);
 }
 
+static RestResult listDirectories(const RestRequest& req)
+{
+	const QString queueUuid = req.query.value("queue");
+	QString fallback = QDir::homePath();
+
+	if (!queueUuid.isEmpty() && req.query.value("path").isEmpty())
+	{
+		QueueGuard g(queueUuid, QueueGuard::ReadLock);
+		const QString dir = g.queue()->defaultDirectory();
+		if (!dir.isEmpty() && QFileInfo(dir).isDir())
+			fallback = dir;
+	}
+
+	return RestResult::ok(DirectoryListing::list(req.query.value("path"), fallback, req.queryBool("showHidden")));
+}
+
 void RestResources::registerAll()
 {
 	RestApi::registerRoute("GET", "/transfer-classes", getTransferClasses);
+	RestApi::registerRoute("GET", "/filesystem/directories", listDirectories);
 
 	RestApi::registerRoute("GET", "/queues", listQueues);
 	RestApi::registerRoute("POST", "/queues", createQueue);

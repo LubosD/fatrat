@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { TransferApi } from '../../core/api/transfer-api';
 import { NewTransferDialog } from './new-transfer-dialog';
 import { Queue, TransferClass } from '../../core/api/models';
 
@@ -16,8 +18,17 @@ function makeQueue(overrides: Partial<Queue> = {}): Queue {
 }
 
 describe('NewTransferDialog', () => {
+  const browseDirectories = vi.fn((path?: string) =>
+    of({ path: path || '/home/u', parent: '/home', entries: [{ name: 'movies', path: '/home/u/movies' }] }),
+  );
+
+  beforeEach(() => browseDirectories.mockClear());
+
   function setup(queues: Queue[] = [makeQueue()], transferClasses: TransferClass[] = [], defaultQueueUuid: string | null = null) {
-    TestBed.configureTestingModule({ imports: [NewTransferDialog] });
+    TestBed.configureTestingModule({
+      imports: [NewTransferDialog],
+      providers: [{ provide: TransferApi, useValue: { browseDirectories: browseDirectories } }],
+    });
     const fixture = TestBed.createComponent(NewTransferDialog);
     fixture.componentRef.setInput('queues', queues);
     fixture.componentRef.setInput('transferClasses', transferClasses);
@@ -119,5 +130,28 @@ describe('NewTransferDialog', () => {
 
     expect(saved).toEqual([]);
     expect(visibleChanges).toEqual([false]);
+  });
+
+  it('Browse opens the directory picker seeded with the typed target and selected queue', () => {
+    const fixture = setup([makeQueue({ uuid: 'q1' })]);
+    fixture.componentInstance.target = '/mnt/x';
+    const el = fixture.nativeElement as HTMLElement;
+    (el.querySelector('[data-testid="new-transfer-browse"]') as HTMLElement).click();
+    fixture.detectChanges();
+
+    expect(browseDirectories).toHaveBeenCalledWith('/mnt/x', 'q1', false);
+    expect(el.querySelector('app-directory-picker')).not.toBeNull();
+  });
+
+  it('puts the directory chosen in the picker into the target field', () => {
+    const fixture = setup();
+    const el = fixture.nativeElement as HTMLElement;
+    (el.querySelector('[data-testid="new-transfer-browse"]') as HTMLElement).click();
+    fixture.detectChanges();
+    (el.querySelector('[data-testid="directory-picker-select"]') as HTMLElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.target).toBe('/home/u');
+    expect(el.querySelector('app-directory-picker')).toBeNull();
   });
 });

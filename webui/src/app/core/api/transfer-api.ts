@@ -4,6 +4,7 @@ import {
   Transfer,
   TransferClass,
   SettingsPage,
+  DirectoryListing,
   SpeedSample,
   SpeedLimits,
   NewTransferOptions,
@@ -17,6 +18,16 @@ import { JsonValue } from './json-value';
  */
 export abstract class TransferApi {
   abstract getTransferClasses(): Observable<TransferClass[]>;
+
+  /**
+   * Lists the sub-directories of a directory on the server. With no path the listing starts at the
+   * queue's default directory, or the server user's home directory.
+   */
+  abstract browseDirectories(
+    path?: string,
+    queueUuid?: string,
+    showHidden?: boolean,
+  ): Observable<DirectoryListing>;
 
   abstract getQueues(): Observable<Queue[]>;
   abstract createQueue(properties: Partial<Queue>): Observable<void>;

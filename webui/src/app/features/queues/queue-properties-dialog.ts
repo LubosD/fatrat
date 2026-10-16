@@ -5,6 +5,8 @@ import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
 import { Checkbox } from 'primeng/checkbox';
 import { ButtonDirective } from 'primeng/button';
+import { InputGroup } from 'primeng/inputgroup';
+import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Queue } from '../../core/api/models';
 
 export interface QueueFormValue {
@@ -18,7 +20,7 @@ export interface QueueFormValue {
 
 @Component({
   selector: 'app-queue-properties-dialog',
-  imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, ButtonDirective],
+  imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, ButtonDirective, InputGroup, DirectoryPicker],
   templateUrl: './queue-properties-dialog.html',
 })
 export class QueuePropertiesDialog implements OnChanges {
@@ -35,6 +37,7 @@ export class QueuePropertiesDialog implements OnChanges {
   transferDown = 0;
   transferUp = 0;
   upAsDown = false;
+  protected pickerTarget: 'defaultDirectory' | 'moveDirectory' | null = null;
 
   // Also reset when the dialog is (re)opened, not just when the input reference changes —
   // reopening with a reference-equal input (e.g. null again, or the same object) would
@@ -55,6 +58,11 @@ export class QueuePropertiesDialog implements OnChanges {
     this.transferDown = q?.transferLimits.down ?? 0;
     this.transferUp = q?.transferLimits.up ?? 0;
     this.upAsDown = q?.upAsDown ?? false;
+    this.pickerTarget = null;
+  }
+
+  protected onDirectoryPicked(path: string): void {
+    if (this.pickerTarget !== null) this[this.pickerTarget] = path;
   }
 
   protected get dialogHeader(): string {

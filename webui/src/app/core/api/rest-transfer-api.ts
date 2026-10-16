@@ -5,6 +5,7 @@ import { TransferApi } from './transfer-api';
 import { RestClient } from './rest-client';
 import { JsonValue } from './json-value';
 import {
+  DirectoryListing,
   NewTransferOptions,
   Queue,
   SettingsPage,
@@ -19,6 +20,14 @@ export class RestTransferApi extends TransferApi {
 
   getTransferClasses(): Observable<TransferClass[]> {
     return this.rest.get<TransferClass[]>('/transfer-classes');
+  }
+
+  browseDirectories(path?: string, queueUuid?: string, showHidden?: boolean): Observable<DirectoryListing> {
+    const query: Record<string, string | boolean> = {};
+    if (path) query['path'] = path;
+    if (queueUuid) query['queue'] = queueUuid;
+    if (showHidden) query['showHidden'] = true;
+    return this.rest.get<DirectoryListing>('/filesystem/directories', query);
   }
 
   getQueues(): Observable<Queue[]> {

@@ -24,6 +24,10 @@ check() { # description expected-status [jq-expression that must be true]
 enc() { jq -rn --arg v "$1" '$v|@uri'; }
 
 req GET /transfer-classes;                       check "transfer-classes" 200 'length > 0 and (.[0]|has("shortName"))'
+req GET "/filesystem/directories?path=$(enc /tmp)"; check "list directories" 200 '.path=="/tmp" and (.entries|type=="array") and has("parent")'
+req GET "/filesystem/directories";               check "list directories default start" 200 '.path|startswith("/")'
+req GET "/filesystem/directories?path=$(enc /nonexistent-smoke)"; check "list directories missing" 404 '.error.code=="path_not_found"'
+req GET "/filesystem/directories?path=relative"; check "list directories relative" 422 '.error.code=="invalid_path"'
 json POST /queues '{"name":"smoke-test","speedLimits":{"down":10,"up":20}}'
 check "create queue" 201 '.name == "smoke-test" and .speedLimits.up == 20'
 Q=$(echo "$body" | jq -r .uuid); QE=$(enc "$Q")
@@ -40,6 +44,7 @@ M3='magnet:?xt=urn:btih:1111111111111111111111111111111111111111&dn=smoke-three'
 json POST "/queues/$QE/transfers" "{\"urls\":[\"$M1\",\"$M2\",\"$M3\"],\"class\":\"\",\"target\":\"/tmp\",\"paused\":true,\"upload\":false,\"speedLimits\":{\"down\":0,\"up\":0}}"
 check "add transfers" 201 '.uuids|length==3'
 T1=$(echo "$body" | jq -r '.uuids[0]'); T2=$(echo "$body" | jq -r '.uuids[1]'); T3=$(echo "$body" | jq -r '.uuids[2]')
+req GET "/filesystem/directories?queue=$QE"; check "list directories of queue" 200 '.path|startswith("/")'
 req GET "/queues/$QE/transfers";                 check "list transfers" 200 'length==3 and .[0].state=="Paused" and (.[0].speeds|has("down"))'
 req GET "/transfers/$(enc "$T1")";               check "get transfer" 200 ".uuid==\"$T1\" and .mode==\"Download\""
 req GET "/transfers/$(enc "$T1")/details";       check "transfer details" 200 'type=="object"'

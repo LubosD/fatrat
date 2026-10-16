@@ -5,11 +5,17 @@
   </div>
   <div class="field">
     <label for="queue-default-directory">Target directory</label>
-    <input pInputText id="queue-default-directory" [(ngModel)]="defaultDirectory" />
+    <p-inputgroup>
+      <input pInputText id="queue-default-directory" [(ngModel)]="defaultDirectory" />
+      <button pButton type="button" severity="secondary" label="Browse…" data-testid="queue-browse-default" (click)="pickerTarget = 'defaultDirectory'"></button>
+    </p-inputgroup>
   </div>
   <div class="field">
     <label for="queue-move-directory">Move to directory after completion</label>
-    <input pInputText id="queue-move-directory" [(ngModel)]="moveDirectory" />
+    <p-inputgroup>
+      <input pInputText id="queue-move-directory" [(ngModel)]="moveDirectory" />
+      <button pButton type="button" severity="secondary" label="Browse…" data-testid="queue-browse-move" (click)="pickerTarget = 'moveDirectory'"></button>
+    </p-inputgroup>
   </div>
   <div class="field">
     <label for="queue-speed-down">Download speed limit (KB/s)</label>
@@ -39,3 +45,12 @@
     <button pButton type="button" data-testid="queue-dialog-save" (click)="onSave()">Save</button>
   </ng-template>
 </p-dialog>
+@if (pickerTarget !== null) {
+  <app-directory-picker
+    [visible]="true"
+    (visibleChange)="$event || (pickerTarget = null)"
+    [initialPath]="pickerTarget === 'defaultDirectory' ? defaultDirectory : moveDirectory"
+    [queueUuid]="queue?.uuid ?? ''"
+    (selected)="onDirectoryPicked($event)"
+  ></app-directory-picker>
+}

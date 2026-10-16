@@ -17,6 +17,22 @@ paths:
       summary: Download and upload engines
       responses:
         "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/TransferClass" } } } } }
+  /filesystem/directories:
+    get:
+      summary: List the sub-directories of a directory on the server
+      description: |
+        Used by the web UI's directory picker. Only directories are listed, never files.
+        `path` is canonicalised (symlinks and `..` resolved). If `path` is omitted the listing starts at the
+        default directory of `queue` (when given), or else the home directory of the user running FatRat.
+      parameters:
+        - { name: path, in: query, required: false, schema: { type: string }, description: Absolute path }
+        - { name: queue, in: query, required: false, schema: { type: string }, description: "Queue UUID whose default directory is the starting point when path is omitted" }
+        - { name: showHidden, in: query, required: false, schema: { type: boolean, default: false }, description: Include directories whose name starts with a dot }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/DirectoryListing" } } } }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
   /queues:
     get:
       summary: List queues
@@ -214,7 +230,7 @@ components:
           type: object
           required: [code, message]
           properties:
-            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent" }
+            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, invalid_path, path_not_found, path_not_readable, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent" }
             message: { type: string }
     SpeedPair:
       type: object
@@ -224,6 +240,19 @@ components:
       type: object
       required: [mode, shortName, longName]
       properties: { mode: { enum: [Download, Upload] }, shortName: { type: string }, longName: { type: string } }
+    DirectoryListing:
+      type: object
+      required: [path, parent, entries]
+      properties:
+        path: { type: string, description: The canonical path that was listed }
+        parent: { type: string, description: Empty at the filesystem root }
+        entries:
+          type: array
+          description: Sub-directories, sorted case-insensitively
+          items:
+            type: object
+            required: [name, path]
+            properties: { name: { type: string }, path: { type: string } }
     Queue:
       type: object
       required: [uuid, name, defaultDirectory, moveDirectory, upAsDown, transferLimits, speedLimits]

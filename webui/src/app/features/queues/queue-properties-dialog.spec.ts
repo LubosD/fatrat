@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { TransferApi } from '../../core/api/transfer-api';
 import { QueuePropertiesDialog } from './queue-properties-dialog';
 import { Queue } from '../../core/api/models';
 
@@ -136,5 +138,45 @@ describe('QueuePropertiesDialog', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.name).toBe('Movies');
+  });
+
+  describe('directory picker', () => {
+    function setupPicker() {
+      const browseDirectories = vi.fn((path?: string) => of({ path: path || '/home/u', parent: '/home', entries: [] }));
+      TestBed.configureTestingModule({
+        imports: [QueuePropertiesDialog],
+        providers: [{ provide: TransferApi, useValue: { browseDirectories } }],
+      });
+      const fixture = TestBed.createComponent(QueuePropertiesDialog);
+      fixture.componentRef.setInput('queue', makeQueue({ defaultDirectory: '/downloads', moveDirectory: '/done' }));
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      return { fixture, browseDirectories, el: fixture.nativeElement as HTMLElement };
+    }
+
+    it('browses from the default directory and fills it in', () => {
+      const { fixture, browseDirectories, el } = setupPicker();
+      (el.querySelector('[data-testid="queue-browse-default"]') as HTMLElement).click();
+      fixture.detectChanges();
+      expect(browseDirectories).toHaveBeenCalledWith('/downloads', 'q1', false);
+
+      (el.querySelector('[data-testid="directory-picker-select"]') as HTMLElement).click();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.defaultDirectory).toBe('/downloads');
+      expect(fixture.componentInstance.moveDirectory).toBe('/done');
+      expect(el.querySelector('app-directory-picker')).toBeNull();
+    });
+
+    it('browses from the move-to directory and fills only that one', () => {
+      const { fixture, browseDirectories, el } = setupPicker();
+      (el.querySelector('[data-testid="queue-browse-move"]') as HTMLElement).click();
+      fixture.detectChanges();
+      expect(browseDirectories).toHaveBeenCalledWith('/done', 'q1', false);
+
+      (el.querySelector('[data-testid="directory-picker-select"]') as HTMLElement).click();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.moveDirectory).toBe('/done');
+      expect(fixture.componentInstance.defaultDirectory).toBe('/downloads');
+    });
   });
 });

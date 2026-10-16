@@ -43,6 +43,26 @@ describe('RestTransferApi', () => {
     expect(out).toEqual(body);
   });
 
+  it('browseDirectories: GET /filesystem/directories with only the given params', () => {
+    let out: unknown;
+    api.browseDirectories('/home/u', 'q1', true).subscribe((v) => (out = v));
+    const req = httpMock.expectOne((r) => r.url === '/api/v1/filesystem/directories');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('path')).toBe('/home/u');
+    expect(req.request.params.get('queue')).toBe('q1');
+    expect(req.request.params.get('showHidden')).toBe('true');
+    const body = { path: '/home/u', parent: '/home', entries: [{ name: 'a', path: '/home/u/a' }] };
+    req.flush(body);
+    expect(out).toEqual(body);
+  });
+
+  it('browseDirectories: omits empty params', () => {
+    api.browseDirectories().subscribe();
+    const req = httpMock.expectOne((r) => r.url === '/api/v1/filesystem/directories');
+    expect(req.request.params.keys()).toEqual([]);
+    req.flush({ path: '/', parent: '', entries: [] });
+  });
+
   it('getQueues: GET /queues', () => {
     let out: unknown;
     api.getQueues().subscribe((v) => (out = v));

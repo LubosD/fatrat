@@ -519,6 +519,7 @@ if(WITH_WEBINTERFACE)
 		${fatrat_SRCS}
 		src/remote/HttpService.cpp
 		src/remote/RestApi.cpp
+		src/remote/DirectoryListing.cpp
 		src/remote/RestResources.cpp
 		src/captcha/CaptchaHttp.cpp
 	)

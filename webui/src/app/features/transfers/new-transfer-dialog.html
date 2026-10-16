@@ -19,7 +19,10 @@
   </div>
   <div class="field">
     <label for="new-transfer-target">Target directory</label>
-    <input pInputText id="new-transfer-target" [(ngModel)]="target" />
+    <p-inputgroup>
+      <input pInputText id="new-transfer-target" [(ngModel)]="target" />
+      <button pButton type="button" severity="secondary" label="Browse…" data-testid="new-transfer-browse" (click)="pickerOpen = true"></button>
+    </p-inputgroup>
   </div>
   <div class="field">
     <label for="new-transfer-class">Download as</label>
@@ -52,3 +55,12 @@
     <button pButton type="button" data-testid="new-transfer-dialog-save" (click)="onSave()">Add</button>
   </ng-template>
 </p-dialog>
+@if (pickerOpen) {
+  <app-directory-picker
+    [visible]="pickerOpen"
+    (visibleChange)="pickerOpen = $event"
+    [initialPath]="target"
+    [queueUuid]="queueUuid"
+    (selected)="target = $event"
+  ></app-directory-picker>
+}
