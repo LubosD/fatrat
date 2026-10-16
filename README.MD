@@ -12,7 +12,7 @@ Licensed under the GNU GPL version 3. Copyright © 2006-2015 Luboš Doležel. Cr
 **Transfers**
 
 - HTTP, HTTPS, FTP and FTPS downloads, with segmented downloading (several connections per file) and mirror lists.
-- BitTorrent through libtorrent-rasterbar: .torrent files and magnet links, per-file priorities, creating torrents, a torrent search.
+- BitTorrent through libtorrent-rasterbar: .torrent files and magnet links, per-file priorities, creating torrents.
 - Metalink files.
 - FTP uploads.
 - Extensions written in Java, for sites that need special handling (login, link extraction, captchas).
@@ -49,7 +49,7 @@ FatRat uses CMake (3.16 or newer), needs Qt 6.5 or newer and a C++17 compiler.
 | Desktop UI | `WITH_GUI` | QtWidgets, QtSvg |
 | D-Bus | `WITH_DBUS` | QtDBus |
 | HTTP/FTP | `WITH_CURL` | libcurl |
-| BitTorrent | `WITH_BITTORRENT` | libtorrent-rasterbar 2.0 or newer, Boost (date_time); QtWebEngine for the torrent search (optional) |
+| BitTorrent | `WITH_BITTORRENT` | libtorrent-rasterbar 2.0 or newer, Boost (date_time) |
 | Web interface | `WITH_WEBINTERFACE` | Node.js and npm at build time (the Angular front end in `webui/` is built and installed into `data/remote`) |
 | Java extensions | `WITH_JPLUGINS` | A JRE, and a JDK to build |
 | Terminal UI | `WITH_TUI` | ncurses with wide character support (`ncursesw`) |
@@ -231,5 +231,5 @@ See `doc/dbus.html` for `addTransfersNonInteractive` and the other methods.
 | `docs/api/` | OpenAPI description of the REST API |
 | `doc/` | End-user documentation and the man page |
 | `autotests/`, `tests/` | Unit tests and end-to-end scripts |
-| `data/` | Default configuration, mirror and tracker lists, torrent search definitions |
+| `data/` | Default configuration, mirror and tracker lists |
 | `locale/` | Translations |

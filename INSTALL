@@ -18,7 +18,7 @@ Should you need to make install to a different directory, the traditional DESTDI
 +-------------------------------+-----------------------+----------------------------------------------+
 | Translations                  | WITH_NLS              | ---                                          |
 | HTTP(S)/FTP(S) support        | WITH_CURL             | libcurl 7.18.2, Linux 2.6.2 or newer         |
-| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.15.0, ASIO, QtWebEngine |
+| BitTorrent support            | WITH_BITTORRENT       | Rasterbar libtorrent 0.15.0, ASIO                |
 | Jabber remote control         | WITH_JABBER           | gloox 0.9/1.0                                |
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
 | Web interface                 | WITH_WEBINTERFACE     | libpion-net                                  |
@@ -65,7 +65,6 @@ All shared data is stored in prefix/share/fatrat:
 * data/ - Other data
   * remote/ - Data for the web interface
   * java/ - Data for Java extensions
-  * btsearch/ - Parse information for the Torrent Search
   * btlinks.txt - Regular expressions that help identify .torrent links
   * mirrors.txt - Mirror lists for segmented downloads mirror search
   * defaults.conf - Default confguration options

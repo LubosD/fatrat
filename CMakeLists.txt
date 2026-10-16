@@ -102,17 +102,6 @@ if(WITH_BITTORRENT)
 	#	message(FATAL_ERROR "No Boost asio")
 	#endif(ASIO_FOUND)
 	
-	if(WITH_GUI)
-		find_package(Qt6 6.5 QUIET COMPONENTS WebEngineCore WebEngineWidgets)
-
-		if (Qt6WebEngineWidgets_FOUND)
-			set(HAVE_WEBENGINE TRUE)
-			set(QT_LIBRARIES ${QT_LIBRARIES} Qt6::WebEngineCore Qt6::WebEngineWidgets)
-		else(Qt6WebEngineWidgets_FOUND)
-			message(WARNING "Qt WebEngine not found, BitTorrent search not available")
-		endif (Qt6WebEngineWidgets_FOUND)
-
-	endif(WITH_GUI)
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
 endif(WITH_BITTORRENT)
 
@@ -499,24 +488,6 @@ if(WITH_BITTORRENT)
 		src/engines/TorrentOptsWidget.ui
 		src/engines/SettingsTorrentForm.ui
 	)
-
-	if (HAVE_WEBENGINE)
-		set(fatrat_GUI_SRCS
-			${fatrat_GUI_SRCS}
-			src/tools/TorrentSearch.cpp
-			src/tools/TorrentWebView.cpp
-		)
-		set(fatrat_GUI_MOC_HDRS
-			${fatrat_GUI_MOC_HDRS}
-			src/tools/TorrentSearch.h
-			src/tools/TorrentWebView.h
-		)
-		set(fatrat_UIS
-			${fatrat_UIS}
-			src/tools/TorrentSearch.ui
-			src/tools/TorrentWebView.ui
-		)
-	endif (HAVE_WEBENGINE)
 endif(WITH_BITTORRENT)
 
 if(WITH_WEBINTERFACE)
@@ -753,9 +724,6 @@ if(WITH_CURL)
 endif(WITH_CURL)
 
 if(WITH_BITTORRENT)
-	FILE( GLOB btsearch ${CMAKE_CURRENT_SOURCE_DIR}/data/btsearch/*.xml )
-	install(FILES ${btsearch} DESTINATION share/fatrat/data/btsearch)
-
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/btlinks.txt DESTINATION share/fatrat/data)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/bttrackers.txt DESTINATION share/fatrat/data)
 endif(WITH_BITTORRENT)
