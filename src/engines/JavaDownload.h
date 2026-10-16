@@ -36,6 +36,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QMap>
 #include <QMutex>
+#include <QRegularExpression>
 #include "java/JObject.h"
 #include "WidgetHostChild.h"
 #include "JavaPersistentVariables.h"
@@ -94,7 +95,7 @@ private:
 	struct JavaEngine
 	{
 		std::string name, shortName;
-		QRegExp regexp;
+		QRegularExpression regexp;
 		bool forceSingleTransfer, truncate;
 		JObject ownAcceptable;
 		QString configDialog;

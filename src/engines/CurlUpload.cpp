@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Auth.h"
 #include "Settings.h"
 #include <QFileInfo>
+#include "util/LegacyRegex.h"
 
 CurlUpload::CurlUpload()
 	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
@@ -72,7 +73,7 @@ void CurlUpload::init(QString source, QString target)
 		QList<Auth> auths = Auth::loadAuths();
 		foreach(Auth a,auths)
 		{
-			if(!QRegExp(a.strRegExp).exactMatch(target))
+			if(!legacyRegex(QRegularExpression::anchoredPattern(a.strRegExp)).match(target).hasMatch())
 				continue;
 			
 			m_strTarget.setUserName(a.strUser);

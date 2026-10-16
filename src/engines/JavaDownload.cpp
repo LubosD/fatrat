@@ -40,6 +40,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QtDebug>
 #include <cassert>
+#include "util/LegacyRegex.h"
 
 QMap<QString,QMutex*> JavaDownload::m_mutexes;
 QMap<QString,JavaDownload::JavaEngine> JavaDownload::m_engines;
@@ -243,7 +244,7 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 							  .arg(QString::fromStdString(en.name)).arg(e.what()));
 		}
 	}
-	else if (en.regexp.exactMatch(uri))
+	else if (en.regexp.match(uri).hasMatch())
 		return 3;
 
 	return 0;
@@ -331,7 +332,7 @@ void JavaDownload::globalInit()
 
 				JObject cfgDlg = obj.getAnnotation(annConfigDialog);
 
-				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), legacyRegex(QRegularExpression::anchoredPattern(regexp)) };
 				e.forceSingleTransfer = ann.call("forceSingleTransfer", JSignature().retBoolean()).toBool();
 				e.truncate = ann.call("truncIncomplete", JSignature().retBoolean()).toBool();
 

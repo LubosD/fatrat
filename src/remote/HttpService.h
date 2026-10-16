@@ -36,7 +36,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QQueue>
 #include <QTimer>
-#include <QRegExp>
 #include <ctime>
 #include <functional>
 #include <memory>

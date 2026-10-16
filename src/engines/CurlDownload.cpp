@@ -47,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 #include <algorithm>
 #include <errno.h>
 #include <cassert>
+#include "util/LegacyRegex.h"
 
 #ifdef WITH_BITTORRENT
 #	include "TorrentDownload.h"
@@ -93,7 +94,7 @@ void CurlDownload::init(QString uri, QString dest)
 		QList<Auth> auths = Auth::loadAuths();
 		foreach(Auth a,auths)
 		{
-			if(!QRegExp(a.strRegExp).exactMatch(uri))
+			if(!legacyRegex(QRegularExpression::anchoredPattern(a.strRegExp)).match(uri).hasMatch())
 				continue;
 			
 			obj.url.setUserName(a.strUser);

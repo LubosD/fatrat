@@ -68,6 +68,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include "util/LegacyRegex.h"
 
 #ifdef WITH_WEBINTERFACE
 #	define XMLRPCSERVICE_AVOID_SHA_CONFLICT
@@ -89,7 +90,7 @@ respects for all of the code used other than "OpenSSL".
 libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
-QList<QRegExp> TorrentDownload::m_listBTLinks;
+QList<QRegularExpression> TorrentDownload::m_listBTLinks;
 #ifdef WITH_GUI
 QLabel* TorrentDownload::m_labelDHTStats = 0;
 #endif
@@ -132,7 +133,7 @@ int TorrentDownload::acceptable(QString uri, bool)
 		
 		for(int i=0;i<m_listBTLinks.size();i++)
 		{
-			if(m_listBTLinks[i].exactMatch(uri))
+			if(m_listBTLinks[i].match(uri).hasMatch())
 			{
 				istorrent = true;
 				break;
@@ -158,11 +159,12 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 {
 	QString ua = getSettingsValue("torrent/ua").toString();
 	short s1 = 0, s2 = 0, s3 = 0, s4 = 0;
-	QRegExp reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
+	QRegularExpression reVersion("(\\d)\\.(\\d)\\.(\\d)\\.?(\\d)?");
+	QRegularExpressionMatch versionMatch = reVersion.match(ua);
 
-	if(reVersion.indexIn(ua) != -1)
+	if(versionMatch.hasMatch())
 	{
-		QStringList caps = reVersion.capturedTexts();
+		QStringList caps = versionMatch.capturedTexts();
 		s1 = caps[1].toShort();
 		s2 = caps[2].toShort();
 		s3 = caps[3].toShort();
@@ -315,7 +317,7 @@ void TorrentDownload::globalInit()
 			QByteArray line = file.readLine().trimmed();
 			if(line.isEmpty())
 				continue;
-			m_listBTLinks << QRegExp(line);
+			m_listBTLinks << legacyRegex(QRegularExpression::anchoredPattern(QString::fromUtf8(line)));
 		}
 	}
 	

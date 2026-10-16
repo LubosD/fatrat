@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QLinearGradient>
 #include <QFile>
 #include <QMessageBox>
+#include <QRegularExpression>
 
 HttpDetails::HttpDetails(QWidget* w) : m_download(0)
 {
@@ -445,19 +446,20 @@ QMap<QString,QStringList> HttpDetails::loadMirrors()
 		return rv;
 	QString nextGrp;
 	QStringList list;
-	QRegExp re("\\[([^\\]]+)\\]");
+	QRegularExpression re(QRegularExpression::anchoredPattern("\\[([^\\]]+)\\]"));
 
 	while (!file.atEnd())
 	{
 		QString line = file.readLine().trimmed();
 		if (line.isEmpty())
 			continue;
-		if (re.exactMatch(line))
+		QRegularExpressionMatch reMatch = re.match(line);
+		if (reMatch.hasMatch())
 		{
 			if (!nextGrp.isEmpty())
 				rv[nextGrp] = list;
 			list.clear();
-			nextGrp = re.cap(1);
+			nextGrp = reMatch.captured(1);
 		}
 		else
 			list << line;

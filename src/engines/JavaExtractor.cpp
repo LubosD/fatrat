@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JException.h"
 #include <cassert>
 #include <QtDebug>
+#include "util/LegacyRegex.h"
 
 QMap<QString,JavaExtractor::JavaEngine> JavaExtractor::m_engines;
 extern QList<JObject> g_configListeners;
@@ -77,7 +78,7 @@ int JavaExtractor::acceptable(QString uri, bool, const EngineEntry* e)
 							  .arg(QString::fromStdString(en.name)).arg(e.what()));
 		}
 	}
-	else if (en.regexp.exactMatch(uri))
+	else if (en.regexp.match(uri).hasMatch())
 		return 3;
 
 	return 0;
@@ -124,7 +125,7 @@ void JavaExtractor::globalInit()
 				qDebug() << "Name:" << name;
 				qDebug() << "Regexp:" << regexp;
 
-				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), legacyRegex(QRegularExpression::anchoredPattern(regexp)) };
 
 				if (instance.instanceOf("info.dolezel.fatrat.plugins.extra.URLAcceptableFilter"))
 					e.ownAcceptable = instance;

@@ -38,7 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QMutex>
 #include <QTemporaryFile>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
@@ -157,7 +157,7 @@ protected:
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;
-	static QList<QRegExp> m_listBTLinks;
+	static QList<QRegularExpression> m_listBTLinks;
 #ifdef WITH_GUI
 	static QLabel* m_labelDHTStats;
 #endif
