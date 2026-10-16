@@ -115,7 +115,7 @@ void HttpDetailsBar::mouseMoveEvent(QMouseEvent* event)
 	if (!m_download)
 		return;
 
-	int seg = getSegment(event->x());
+	int seg = getSegment(int(event->position().x()));
 
 	if (seg == -1)
 	{
@@ -171,7 +171,7 @@ int HttpDetailsBar::getSegment(int x)
 
 void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 {
-	int n = getSegment(event->x());
+	int n = getSegment(int(event->position().x()));
 
 	if (n != m_sel)
 	{
@@ -192,7 +192,7 @@ void HttpDetailsBar::mousePressEvent(QMouseEvent* event)
 		{
 			QMenu* seg = menu.addMenu(tr("New segment"));
 			
-			m_createX = event->x();
+			m_createX = int(event->position().x());
 			
 			for(int i=0;i<m_download->m_urls.size();i++)
 			{

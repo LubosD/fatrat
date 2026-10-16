@@ -86,7 +86,7 @@ void TorrentSettings::load()
 	
 	QUuid uuidProxy;
 	
-	uuidProxy = getSettingsValue("torrent/proxy").toString();
+	uuidProxy = QUuid(getSettingsValue("torrent/proxy").toString());
 
 	for(int i=0;i<m_listProxy.size();i++)
 	{

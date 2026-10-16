@@ -185,11 +185,11 @@ QVariant XmlRpc::parseResponse(const QByteArray& response)
 {
 	QDomDocument doc;
 	QDomElement root;
-	QString msg;
 	bool bFault;
 	
-	if(!doc.setContent(response, false, &msg))
-		throw RuntimeException(msg);
+	QDomDocument::ParseResult parsed = doc.setContent(response);
+	if(!parsed)
+		throw RuntimeException(parsed.errorMessage);
 	
 	root = doc.documentElement();
 	if(root.tagName() != "methodResponse")
@@ -343,11 +343,11 @@ void XmlRpc::parseCall(const QByteArray& call, QByteArray& function, QList<QVari
 {
 	QDomDocument doc;
 	QDomElement root;
-	QString msg;
 	QList<QVariant> values;
 
-	if(!doc.setContent(call, false, &msg))
-		throw RuntimeException(msg);
+	QDomDocument::ParseResult parsed = doc.setContent(call);
+	if(!parsed)
+		throw RuntimeException(parsed.errorMessage);
 
 	root = doc.documentElement();
 	if(root.tagName() != "methodCall")

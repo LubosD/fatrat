@@ -177,10 +177,10 @@ void MetalinkDownload::processMetalink(QString fileName)
 		return;
 	}
 
-	QString msg;
-	if (!doc.setContent(&file, false, &msg))
+	QDomDocument::ParseResult parsed = doc.setContent(&file);
+	if (!parsed)
 	{
-		m_strMessage = tr("Failed to read the metalink file: %1").arg(msg);
+		m_strMessage = tr("Failed to read the metalink file: %1").arg(parsed.errorMessage);
 		setState(Failed);
 		return;
 	}

@@ -1,6 +1,5 @@
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(fatrat)
-
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -17,21 +16,17 @@ option(WITH_GUI "Build the Qt desktop UI (OFF builds a headless fatrat-nogui)" O
 option(WITH_DBUS "Enable the D-Bus interface and the single-instance check" ON)
 option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5Xml REQUIRED)
-find_package(Qt5LinguistTools REQUIRED)
-set(fatrat_QT_LIBS Qt5::Core Qt5::Network Qt5::Xml)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
+set(fatrat_QT_LIBS Qt6::Core Qt6::Network Qt6::Xml)
 
 if(WITH_GUI)
-	find_package(Qt5Widgets REQUIRED)
-	find_package(Qt5Svg REQUIRED)
-	set(fatrat_QT_LIBS ${fatrat_QT_LIBS} Qt5::Widgets Qt5::Svg)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets Svg)
+	set(fatrat_QT_LIBS ${fatrat_QT_LIBS} Qt6::Widgets Qt6::Svg)
 endif(WITH_GUI)
 
 if(WITH_DBUS)
-	find_package(Qt5DBus REQUIRED)
-	set(fatrat_QT_LIBS ${fatrat_QT_LIBS} Qt5::DBus)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS DBus)
+	set(fatrat_QT_LIBS ${fatrat_QT_LIBS} Qt6::DBus)
 endif(WITH_DBUS)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -62,7 +57,9 @@ if(WITH_DOCUMENTATION AND NOT WITH_GUI)
 	message(FATAL_ERROR "WITH_DOCUMENTATION needs WITH_GUI (the help browser is part of the desktop UI)")
 endif()
 
-ADD_DEFINITIONS(-std=c++14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ADD_DEFINITIONS(-DQT_DISABLE_DEPRECATED_BEFORE=0x060500)
 
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
@@ -104,17 +101,15 @@ if(WITH_BITTORRENT)
 	#endif(ASIO_FOUND)
 	
 	if(WITH_GUI)
-		find_package(Qt5WebEngine)
-		find_package(Qt5WebEngineWidgets)
+		find_package(Qt6 6.5 QUIET COMPONENTS WebEngineCore WebEngineWidgets)
 
-		if (Qt5WebEngine_FOUND)
+		if (Qt6WebEngineWidgets_FOUND)
 			set(HAVE_WEBENGINE TRUE)
-			set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebEngine Qt5::WebEngineWidgets)
-		else(Qt5WebEngine_FOUND)
+			set(QT_LIBRARIES ${QT_LIBRARIES} Qt6::WebEngineCore Qt6::WebEngineWidgets)
+		else(Qt6WebEngineWidgets_FOUND)
 			message(WARNING "Qt WebEngine not found, BitTorrent search not available")
-		endif (Qt5WebEngine_FOUND)
+		endif (Qt6WebEngineWidgets_FOUND)
 
-		include_directories(${Qt5WebEngine_INCLUDE_DIRS})
 	endif(WITH_GUI)
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
 endif(WITH_BITTORRENT)
@@ -145,8 +140,8 @@ CHECK_FUNCTION_EXISTS(kqueue HAVE_KQUEUE)
 CONFIGURE_FILE(config.h.in config.h)
 
 if(WITH_DOCUMENTATION)
-	find_package(Qt5Help REQUIRED)
-	set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::Help)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS Help)
+	set(QT_LIBRARIES ${QT_LIBRARIES} Qt6::Help)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
 	add_definitions(-DCPPHTTPLIB_OPENSSL_SUPPORT)
@@ -621,8 +616,8 @@ endif(WITH_DOCUMENTATION)
 if(WITH_GUI)
 	set(fatrat_SRCS ${fatrat_SRCS} ${fatrat_GUI_SRCS})
 	set(fatrat_MOC_HDRS ${fatrat_MOC_HDRS} ${fatrat_GUI_MOC_HDRS})
-	qt5_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
-	qt5_add_resources(fatrat_QRC_H gfx/resources.qrc)
+	qt6_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
+	qt6_add_resources(fatrat_QRC_H gfx/resources.qrc)
 endif(WITH_GUI)
 
 if(WITH_DBUS)
@@ -630,8 +625,8 @@ if(WITH_DBUS)
 	set(fatrat_MOC_HDRS ${fatrat_MOC_HDRS} ${fatrat_DBUS_MOC_HDRS})
 endif(WITH_DBUS)
 
-qt5_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
-qt5_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
+qt6_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
+qt6_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
 locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts locale/fatrat_ru_RU.ts locale/fatrat_fr_FR.ts
 locale/fatrat_uk_UA.ts locale/fatrat_es_AR.ts locale/fatrat_es_ES.ts locale/fatrat_ca_ES.ts locale/fatrat_zh_CN.ts
 locale/fatrat_zh_TW.ts locale/fatrat_sr_RS.ts locale/fatrat_sr_BA.ts locale/fatrat_de_DE.ts)
@@ -660,7 +655,7 @@ target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 if(WITH_BITTORRENT)
 	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
 endif(WITH_BITTORRENT)
-target_link_libraries(fatrat-conf Qt5::Core)
+target_link_libraries(fatrat-conf Qt6::Core)
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h

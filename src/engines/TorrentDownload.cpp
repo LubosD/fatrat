@@ -246,7 +246,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 
 	// Proxy settings
 
-	const Proxy proxy = Proxy::getProxy(getSettingsValue("torrent/proxy").toString());
+	const Proxy proxy = Proxy::getProxy(QUuid(getSettingsValue("torrent/proxy").toString()));
 
 	if (proxy.nType != Proxy::ProxyNone)
 	{
@@ -510,7 +510,7 @@ void TorrentDownload::downloadTorrent(QString source)
 {
 	qDebug() << "downloadTorrent()";
 
-	QUuid webseed = getSettingsValue("torrent/proxy_webseed").toString();
+	QUuid webseed = QUuid(getSettingsValue("torrent/proxy_webseed").toString());
 	Proxy pr = Proxy::getProxy(webseed);
 	
 	m_pFileDownload = new QNetworkAccessManager(this);

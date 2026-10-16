@@ -95,12 +95,12 @@ void Queue::loadQueues()
 		return;
 	file.setFileName(dir.absoluteFilePath("queues.xml"));
 	
-	QString errmsg;
-	if(!file.open(QIODevice::ReadOnly) || !doc.setContent(&file, false, &errmsg))
+	QDomDocument::ParseResult parsed;
+	if(!file.open(QIODevice::ReadOnly) || !(parsed = doc.setContent(&file)))
 	{
 		qDebug() << "Failed to open " << file.fileName();
-		if(!errmsg.isEmpty())
-			qDebug() << "PARSE ERROR!" << errmsg;
+		if(!parsed.errorMessage.isEmpty())
+			qDebug() << "PARSE ERROR!" << parsed.errorMessage;
 		
 		// default queue for new users
 		Queue* q = new Queue;

@@ -82,7 +82,7 @@ void ScheduledActionDlg::save()
 	if (index == -1)
 		m_action.queue = QUuid();
 	else
-		m_action.queue = comboQueue->itemData(comboQueue->currentIndex()).toString();
+		m_action.queue = QUuid(comboQueue->itemData(comboQueue->currentIndex()).toString());
 	m_action.name = lineName->text();
 	m_action.repeated = radioRepeated->isChecked();
 	m_action.whenRepeated = timeEdit->time();

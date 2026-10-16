@@ -39,7 +39,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QSettings>
 #include <QMap>
 #include <QDir>
-#include <QTextCodec>
 
 #include <dlfcn.h>
 #include <cstdlib>
@@ -182,7 +181,8 @@ int main(int argc,char** argv)
 	{
 		QString fname = QString("fatrat_") + QLocale::system().name();
 		qDebug() << "Current locale" << QLocale::system().name();
-		translator.load(fname, getDataFileDir("/lang", fname));
+		if(!translator.load(fname, getDataFileDir("/lang", fname)))
+			qDebug() << "No translation found for" << fname;
 		QCoreApplication::installTranslator(&translator);
 	}
 #endif

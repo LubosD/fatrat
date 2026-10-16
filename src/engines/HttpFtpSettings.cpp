@@ -49,7 +49,7 @@ void HttpFtpSettings::load()
 	
 	// LOAD PROXYS
 	m_listProxy = Proxy::loadProxys();
-	m_defaultProxy = getSettingsValue("httpftp/defaultproxy").toString();
+	m_defaultProxy = QUuid(getSettingsValue("httpftp/defaultproxy").toString());
 	
 	comboDefaultProxy->clear();
 	comboDefaultProxy->addItem(tr("None", "No proxy"));

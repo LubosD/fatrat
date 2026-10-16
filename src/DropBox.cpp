@@ -76,8 +76,8 @@ void DropBox::mousePressEvent(QMouseEvent* event)
 {
 	if(event->buttons() == Qt::LeftButton)
 	{
-		m_mx = event->globalX();
-		m_my = event->globalY();
+		m_mx = int(event->globalPosition().x());
+		m_my = int(event->globalPosition().y());
 	}
 	else if(event->buttons() == Qt::MiddleButton)
 		g_wndMain->trayIconActivated(QSystemTrayIcon::MiddleClick);
@@ -87,7 +87,7 @@ void DropBox::mouseMoveEvent(QMouseEvent* event)
 {
 	if(event->buttons() == Qt::LeftButton)
 	{
-		move(x()+event->globalX()-m_mx, y()+event->globalY()-m_my);
+		move(x()+int(event->globalPosition().x())-m_mx, y()+int(event->globalPosition().y())-m_my);
 		mousePressEvent(event);
 	}
 }

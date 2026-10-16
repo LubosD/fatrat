@@ -34,7 +34,8 @@ QString MyFileDialog::getExistingDirectory(QWidget* parent, QString caption, QSt
 {
 	QFileDialog dlg(parent, caption, dir);
 	
-	dlg.setFileMode(QFileDialog::DirectoryOnly);
+	dlg.setFileMode(QFileDialog::Directory);
+	dlg.setOption(QFileDialog::ShowDirsOnly);
 	if(dlg.exec() == QDialog::Accepted)
 		return dlg.directory().absolutePath();
 	else

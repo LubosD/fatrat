@@ -95,7 +95,6 @@ void AboutDlg::loadFile(QTextEdit* edit, QString filename)
 	name += filename;
 	
 	file.setFileName(name);
-	file.open(QIODevice::ReadOnly);
-	
-	edit->setPlainText(QString::fromUtf8(file.readAll()));
+	if(file.open(QIODevice::ReadOnly))
+		edit->setPlainText(QString::fromUtf8(file.readAll()));
 }

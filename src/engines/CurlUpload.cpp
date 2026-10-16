@@ -275,7 +275,7 @@ void CurlUpload::load(const QDomNode& map)
 	m_strName = getXMLProperty(map, "name");
 	m_mode = (FtpMode) getXMLProperty(map, "ftpmode").toInt();
 	m_nDone = getXMLProperty(map, "done").toLongLong();
-	m_proxy = getXMLProperty(map, "proxy");
+	m_proxy = QUuid(getXMLProperty(map, "proxy"));
 	m_strBindAddress = getXMLProperty(map, "bindaddr");
 	
 	try

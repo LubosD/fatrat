@@ -307,7 +307,7 @@ void HttpService::registerRoutes()
 			return;
 		}
 
-		QMultiMap<QString,QString> map;
+		QMap<QString,QString> map;
 		for (const auto& kv : req.params)
 			map.insert(QString::fromStdString(kv.first), QString::fromStdString(kv.second));
 
