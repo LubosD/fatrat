@@ -43,6 +43,12 @@ export abstract class TransferApi {
     transferUuids: string[],
     direction: 'top' | 'up' | 'down' | 'bottom',
   ): Observable<void>;
+  /** Moves the transfers in front of `before`, or to the end of the queue when `before` is null. */
+  abstract moveTransfersBefore(
+    queueUuid: string,
+    transferUuids: string[],
+    before: string | null,
+  ): Observable<void>;
 
   abstract getTransferProperties(uuid: string): Observable<Transfer>;
   abstract getTransferAdvancedProperties(uuid: string): Observable<{ [key: string]: JsonValue }>;

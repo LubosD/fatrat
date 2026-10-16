@@ -79,6 +79,15 @@ export class RestTransferApi extends TransferApi {
       .pipe(map(() => undefined));
   }
 
+  moveTransfersBefore(queueUuid: string, transferUuids: string[], before: string | null): Observable<void> {
+    return this.rest
+      .post<void>(`/queues/${encodeURIComponent(queueUuid)}/transfers/move`, {
+        uuids: transferUuids,
+        before,
+      })
+      .pipe(map(() => undefined));
+  }
+
   getTransferProperties(uuid: string): Observable<Transfer> {
     return this.rest.get<Transfer>(`/transfers/${encodeURIComponent(uuid)}`);
   }

@@ -32,6 +32,7 @@ describe('TransferActionsService', () => {
   let setTransferProperties: ReturnType<typeof vi.fn>;
   let deleteTransfers: ReturnType<typeof vi.fn>;
   let moveTransfers: ReturnType<typeof vi.fn>;
+  let moveTransfersBefore: ReturnType<typeof vi.fn>;
   let addTransfers: ReturnType<typeof vi.fn>;
   let addTransferWithData: ReturnType<typeof vi.fn>;
   let confirm: ReturnType<typeof vi.fn>;
@@ -46,6 +47,7 @@ describe('TransferActionsService', () => {
     setTransferProperties = vi.fn().mockReturnValue(of(undefined));
     deleteTransfers = vi.fn().mockReturnValue(of(undefined));
     moveTransfers = vi.fn().mockReturnValue(of(undefined));
+    moveTransfersBefore = vi.fn().mockReturnValue(of(undefined));
     addTransfers = vi.fn().mockReturnValue(of(['new-uuid']));
     addTransferWithData = vi.fn().mockReturnValue(of('new-uuid'));
     confirm = vi.fn();
@@ -58,7 +60,7 @@ describe('TransferActionsService', () => {
     TestBed.configureTestingModule({
       providers: [
         TransferActionsService,
-        { provide: TransferApi, useValue: { setTransferProperties, deleteTransfers, moveTransfers, addTransfers, addTransferWithData } },
+        { provide: TransferApi, useValue: { setTransferProperties, deleteTransfers, moveTransfers, moveTransfersBefore, addTransfers, addTransferWithData } },
         {
           provide: TransfersStore,
           useValue: {
@@ -161,6 +163,18 @@ describe('TransferActionsService', () => {
     selectedUuids = [];
     service.moveSelected('down');
     expect(moveTransfers).not.toHaveBeenCalled();
+  });
+
+  it('moveBefore() moves the given transfers before another one in the selected queue, then refreshes', () => {
+    service.moveBefore(['t3'], 't1');
+    expect(moveTransfersBefore).toHaveBeenCalledWith('q1', ['t3'], 't1');
+    expect(refreshNow).toHaveBeenCalled();
+  });
+
+  it('moveBefore() does nothing when no queue is selected', () => {
+    selectedQueueUuid = null;
+    service.moveBefore(['t3'], null);
+    expect(moveTransfersBefore).not.toHaveBeenCalled();
   });
 
   it('updateProperties() sets comment and userSpeedLimits as a [down, up] array, then refreshes', () => {

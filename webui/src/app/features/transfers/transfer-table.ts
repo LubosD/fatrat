@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, inject, signal } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import type { TableContextMenuSelectEvent } from 'primeng/table';
 import { ProgressBar } from 'primeng/progressbar';
@@ -47,6 +47,64 @@ export class TransferTable {
 
   protected onRowClick(event: MouseEvent, uuid: string): void {
     this.store.select(uuid, { ctrl: event.ctrlKey || event.metaKey, shift: event.shiftKey });
+  }
+
+  /** Uuids being dragged (the whole selection when the grabbed row is part of it). */
+  private dragUuids: string[] = [];
+  protected readonly dragging = signal<ReadonlySet<string>>(new Set());
+  protected readonly dropTarget = signal<{ uuid: string; after: boolean } | null>(null);
+
+  protected isDragged(uuid: string): boolean {
+    return this.dragging().has(uuid);
+  }
+
+  protected onDragStart(event: DragEvent, uuid: string): void {
+    if (!this.store.isSelected(uuid)) {
+      this.store.selectOnly(uuid);
+    }
+    this.dragUuids = this.store.selectedUuids();
+    this.dragging.set(new Set(this.dragUuids));
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      // Firefox only starts a drag when some data is set.
+      event.dataTransfer.setData('text/plain', this.dragUuids.join('\n'));
+    }
+  }
+
+  protected onDragOver(event: DragEvent, uuid: string): void {
+    if (this.dragUuids.length === 0) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    const row = event.currentTarget as HTMLElement;
+    const rect = row.getBoundingClientRect();
+    const after = event.clientY > rect.top + rect.height / 2;
+    const current = this.dropTarget();
+    if (current?.uuid !== uuid || current.after !== after) {
+      this.dropTarget.set({ uuid, after });
+    }
+  }
+
+  protected onDrop(event: DragEvent, uuid: string): void {
+    if (this.dragUuids.length === 0) return;
+    event.preventDefault();
+    const target = this.dropTarget();
+    const after = target?.uuid === uuid ? target.after : false;
+    const uuids = this.dragUuids;
+    this.onDragEnd();
+
+    const transfers = this.store.transfers();
+    const index = transfers.findIndex((t) => t.uuid === uuid);
+    if (index < 0) return;
+    // Insertion point, then the first row at or after it that isn't itself being moved.
+    const moved = new Set(uuids);
+    const before = transfers.slice(after ? index + 1 : index).find((t) => !moved.has(t.uuid))?.uuid ?? null;
+    this.actions.moveBefore(uuids, before);
+  }
+
+  protected onDragEnd(): void {
+    this.dragUuids = [];
+    this.dragging.set(new Set());
+    this.dropTarget.set(null);
   }
 
   protected onKeydown(event: KeyboardEvent): void {

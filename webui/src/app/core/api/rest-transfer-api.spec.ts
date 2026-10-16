@@ -141,6 +141,16 @@ describe('RestTransferApi', () => {
     expect(done).toBe(true);
   });
 
+  it('moveTransfersBefore: POST /queues/{uuid}/transfers/move {uuids, before}, null = end', () => {
+    let done = false;
+    api.moveTransfersBefore('q1', ['a'], null).subscribe(() => (done = true));
+    const req = httpMock.expectOne('/api/v1/queues/q1/transfers/move');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ uuids: ['a'], before: null });
+    req.flush(null, NO_CONTENT);
+    expect(done).toBe(true);
+  });
+
   it('getTransferProperties: GET /transfers/{uuid}', () => {
     let out: unknown;
     api.getTransferProperties('t1').subscribe((v) => (out = v));

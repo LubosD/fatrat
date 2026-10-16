@@ -33,9 +33,17 @@
         [class.selected-row]="store.isSelected(transfer.uuid)"
         [class.current-row]="store.currentUuid() === transfer.uuid"
         [attr.aria-selected]="store.isSelected(transfer.uuid)"
+        [class.dragging-row]="isDragged(transfer.uuid)"
+        [class.drop-before]="dropTarget()?.uuid === transfer.uuid && !dropTarget()?.after"
+        [class.drop-after]="dropTarget()?.uuid === transfer.uuid && dropTarget()?.after"
         [attr.data-uuid]="transfer.uuid"
         data-testid="transfer-row"
+        draggable="true"
         (click)="onRowClick($event, transfer.uuid)"
+        (dragstart)="onDragStart($event, transfer.uuid)"
+        (dragover)="onDragOver($event, transfer.uuid)"
+        (drop)="onDrop($event, transfer.uuid)"
+        (dragend)="onDragEnd()"
       >
         <td class="state-cell">
           <img [src]="stateIcon(transfer)" [alt]="stateLabel(transfer)" [title]="stateLabel(transfer)" width="16" height="16" />

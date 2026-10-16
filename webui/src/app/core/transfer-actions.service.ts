@@ -76,6 +76,17 @@ export class TransferActionsService {
     });
   }
 
+  /** Drag-and-drop reorder: moves the given transfers in front of `before` (null = end of queue). */
+  moveBefore(uuids: string[], before: string | null): void {
+    const queueUuid = this.queuesStore.selectedQueueUuid();
+    if (queueUuid === null || uuids.length === 0) return;
+
+    this.transferApi.moveTransfersBefore(queueUuid, uuids, before).subscribe({
+      next: () => this.transfersStore.refreshNow(),
+      error: (err) => console.error('Failed to move transfers', err),
+    });
+  }
+
   updateProperties(comment: string, speedLimits: { down: number; up: number }, object?: string): void {
     const uuids = this.transfersStore.selectedUuids();
     if (uuids.length === 0) return;

@@ -63,6 +63,27 @@ function pressKey(fixture: ReturnType<typeof createTable>, init: KeyboardEventIn
   return event;
 }
 
+function createTableWithActions(store: ReturnType<typeof makeTransfersStoreStub>) {
+  const actions = makeActionsStub();
+  TestBed.configureTestingModule({
+    imports: [TransferTable],
+    providers: [
+      { provide: TransfersStore, useValue: store },
+      { provide: TransferActionsService, useValue: actions },
+    ],
+  });
+  const fixture = TestBed.createComponent(TransferTable);
+  fixture.detectChanges();
+  return { fixture, actions };
+}
+
+function dragEvent(type: string, clientY = 0): DragEvent {
+  const e = new Event(type, { bubbles: true, cancelable: true }) as unknown as { clientY: number; dataTransfer: unknown };
+  e.clientY = clientY;
+  e.dataTransfer = { setData: vi.fn(), effectAllowed: '', dropEffect: '' };
+  return e as unknown as DragEvent;
+}
+
 function makeActionsStub() {
   return {
     resume: vi.fn(),
@@ -71,6 +92,7 @@ function makeActionsStub() {
     deleteSelected: vi.fn(),
     deleteCompleted: vi.fn(),
     moveSelected: vi.fn(),
+    moveBefore: vi.fn(),
   };
 }
 
@@ -272,5 +294,54 @@ describe('TransferTable', () => {
     expect(propertiesRequested).toHaveBeenCalled();
     byLabel('Move to Bottom').command();
     expect(actions.moveSelected).toHaveBeenCalledWith('bottom');
+  });
+
+  describe('drag and drop reordering', () => {
+    const three = () => [makeTransfer({ uuid: 'a' }), makeTransfer({ uuid: 'b' }), makeTransfer({ uuid: 'c' })];
+
+    function drag(fixture: ReturnType<typeof createTable>, from: number, to: number, clientY: number): void {
+      const r = rows(fixture);
+      r[from].dispatchEvent(dragEvent('dragstart'));
+      // happy-dom rects are all zero: clientY < 0 is the top half, > 0 the bottom half.
+      r[to].dispatchEvent(dragEvent('dragover', clientY));
+      r[to].dispatchEvent(dragEvent('drop', clientY));
+    }
+
+    it('drops on the top half of a row: moves in front of that row', () => {
+      const { fixture, actions } = createTableWithActions(makeTransfersStoreStub(three(), ['c']));
+      drag(fixture, 2, 0, -1);
+      expect(actions.moveBefore).toHaveBeenCalledWith(['c'], 'a');
+    });
+
+    it('drops on the bottom half of a row: moves in front of the next row', () => {
+      const { fixture, actions } = createTableWithActions(makeTransfersStoreStub(three(), ['a']));
+      drag(fixture, 0, 1, 1);
+      expect(actions.moveBefore).toHaveBeenCalledWith(['a'], 'c');
+    });
+
+    it('drops on the bottom half of the last row: moves to the end', () => {
+      const { fixture, actions } = createTableWithActions(makeTransfersStoreStub(three(), ['a']));
+      drag(fixture, 0, 2, 1);
+      expect(actions.moveBefore).toHaveBeenCalledWith(['a'], null);
+    });
+
+    it('moves the whole selection when a selected row is dragged, skipping moved rows as the anchor', () => {
+      const { fixture, actions } = createTableWithActions(makeTransfersStoreStub(three(), ['a', 'b']));
+      drag(fixture, 0, 1, 1);
+      expect(actions.moveBefore).toHaveBeenCalledWith(['a', 'b'], 'c');
+    });
+
+    it('selects an unselected row before dragging it', () => {
+      const store = makeTransfersStoreStub(three(), ['a']);
+      const { fixture } = createTableWithActions(store);
+      rows(fixture)[1].dispatchEvent(dragEvent('dragstart'));
+      expect(store.selectOnly).toHaveBeenCalledWith('b');
+    });
+
+    it('ignores drops that did not start on a row', () => {
+      const { fixture, actions } = createTableWithActions(makeTransfersStoreStub(three()));
+      rows(fixture)[0].dispatchEvent(dragEvent('drop'));
+      expect(actions.moveBefore).not.toHaveBeenCalled();
+    });
   });
 });
