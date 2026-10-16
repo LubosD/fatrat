@@ -43,28 +43,6 @@ namespace py = pybind11;
 
 PyVM* PyVM::m_instance = 0;
 
-/* The native half of the plugin API.
- *
- * Everything Python can reach into FatRat with goes through this module, and
- * the shipped `fatrat` package is the only thing that imports it; plugins use
- * the Python wrapper. Keeping the native surface this narrow is what would let
- * the interpreter be moved out of process later (see the design document).
- *
- * Phase 0 exposes only what the startup check needs.
- */
-PYBIND11_EMBEDDED_MODULE(_fatrat, m)
-{
-	m.doc() = "FatRat native plugin API (internal; use the `fatrat` package)";
-
-	m.attr("__version__") = VERSION;
-	m.attr("api_version") = "1";
-
-	m.def("log", [](const std::string& message)
-	{
-		Logger::global()->enterLogMessage(QLatin1String("Python"), QString::fromStdString(message));
-	}, py::arg("message"), "Write a line to FatRat's log.");
-}
-
 QString PyVM::runtimePath()
 {
 	// An uninstalled build tree has no <prefix>/share/fatrat yet; point this at

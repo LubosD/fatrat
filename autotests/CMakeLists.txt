@@ -55,3 +55,19 @@ if(WITH_TUI)
 		add_test(NAME tui_${t} COMMAND tst_tui_${t})
 	endforeach()
 endif(WITH_TUI)
+
+if(WITH_PYPLUGINS)
+	add_executable(tst_pyplugins tst_pyplugins.cpp pystubs.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyVM.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyRef.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyPython.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyCore.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyModule.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyPlugin.cpp
+		${CMAKE_SOURCE_DIR}/src/Logger.cpp)
+	target_include_directories(tst_pyplugins PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/python)
+	target_compile_definitions(tst_pyplugins PRIVATE
+		FATRAT_PYTHON_RUNTIME="${CMAKE_SOURCE_DIR}/data/python")
+	target_link_libraries(tst_pyplugins Qt6::Core Qt6::Gui Qt6::Network Qt6::Test pybind11::embed)
+	add_test(NAME pyplugins COMMAND tst_pyplugins)
+endif(WITH_PYPLUGINS)

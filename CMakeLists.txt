@@ -459,6 +459,15 @@ if(WITH_PYPLUGINS)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		src/python/PyVM.cpp
+		src/python/PyRef.cpp
+		src/python/PyPython.cpp
+		src/python/PyCore.cpp
+		src/python/PyModule.cpp
+		src/python/PyPlugin.cpp
+	)
+	set(fatrat_MOC_HDRS
+		${fatrat_MOC_HDRS}
+		src/python/PyPlugin.h
 	)
 endif(WITH_PYPLUGINS)
 

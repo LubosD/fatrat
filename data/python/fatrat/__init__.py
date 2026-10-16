@@ -1,30 +1,73 @@
 """The FatRat plugin API.
 
-Plugins import this package, never the native ``_fatrat`` module underneath it.
-Everything here is pure Python; ``_fatrat`` is built into the FatRat binary and
-only exists while a plugin is running inside FatRat.
+Plugins import this package; the native ``_fatrat`` module underneath it is an
+implementation detail. Most of the package is pure Python and imports fine
+outside FatRat, so plugin authors can unit-test their parsing code normally --
+only calls that reach into FatRat need FatRat.
 
-Phase 0 skeleton: the decorators, plugin base classes and the fetch/settings
-services arrive in later phases.
+A plugin is a module that defines a decorated class::
+
+    import fatrat
+
+    @fatrat.download_plugin(name="Example", url_pattern=r"https?://example\\.com/f/\\w+")
+    class Example(fatrat.DownloadPlugin):
+        async def process_link(self, url):
+            page = await self.fetch(url)
+            ...
+
+Plugin code runs on FatRat's main thread and must not block it: every slow
+operation is awaited, and genuinely CPU-bound work goes through
+:func:`run_in_thread`.
 """
 
-import _fatrat
+from __future__ import annotations
 
-#: Version of the FatRat that is hosting us, e.g. "1.2.0_beta2".
-fatrat_version: str = _fatrat.__version__
+from typing import Any, Callable, Optional
 
-#: Major version of the plugin API. A plugin declares the one it was written
-#: against in its plugin.json ("api"); FatRat refuses to load a plugin whose
-#: declared version it does not implement.
-api_version: str = _fatrat.api_version
+from . import _native
+from ._async import CancelledError, Future, Task
+from ._http import Response
+from .plugin import Plugin
+from .settings import settings
 
-#: Version of this package. Tracks api_version until the API gains minor
-#: revisions worth distinguishing.
+#: Major version of the plugin API this package implements.
+api_version: str = "1"
+
+#: Version of the FatRat hosting us, or None outside FatRat.
+fatrat_version: Optional[str] = getattr(_native, "__version__", None) if _native.available() else None
+
 __version__: str = api_version
 
-__all__ = ["api_version", "fatrat_version", "log"]
+__all__ = [
+    "CancelledError",
+    "Future",
+    "Plugin",
+    "Response",
+    "Task",
+    "api_version",
+    "fatrat_version",
+    "log",
+    "run_in_thread",
+    "settings",
+]
 
 
 def log(message: object) -> None:
     """Write a line to FatRat's log, where the user can see it."""
-    _fatrat.log(str(message))
+    _native.native().log(str(message))
+
+
+def run_in_thread(fn: Callable[..., Any], *args: Any, **kwargs: Any) -> Future:
+    """Run a blocking or CPU-bound callable off the main thread; await the result.
+
+    The call happens on a worker thread with the GIL released around the wait,
+    so FatRat's UI keeps running. ``fn`` must not touch FatRat's API -- it only
+    computes and returns.
+    """
+    if kwargs:
+        bound = lambda: fn(*args, **kwargs)  # noqa: E731 - cheap closure
+    elif args:
+        bound = lambda: fn(*args)  # noqa: E731
+    else:
+        bound = fn
+    return _native.native().run_in_thread(bound)
