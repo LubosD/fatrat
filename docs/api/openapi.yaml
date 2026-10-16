@@ -6,8 +6,9 @@ info:
     JSON API used by the FatRat web UI. All paths are under /api/v1.
     Authentication: HTTP Basic (any user name, the password from the Web Interface settings),
     unchanged from the previous XML-RPC endpoint.
-    Every non-GET request must be sent with Content-Type: application/json (or multipart/form-data
-    for the transfer upload) and, if it carries an Origin header, that origin's host must equal Host.
+    Requests with a body must use Content-Type: application/json (multipart/form-data for the transfer
+    upload only), and any request carrying an Origin header must name the same host as Host. This keeps
+    cross-site pages from driving the API with the browser's cached credentials.
 servers:
   - url: /api/v1
 paths:
@@ -271,13 +272,14 @@ components:
       additionalProperties: false
       description: Any subset of the writable Transfer fields.
       properties:
-        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed, Ready, Testing] }
+        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed] }
         comment: { type: string }
         object: { type: string }
         userSpeedLimits: { $ref: "#/components/schemas/SpeedPair" }
     AddTransfers:
       type: object
-      required: [urls, upload, class, target, paused, speedLimits]
+      required: [urls]
+      description: All fields other than urls are optional (defaults - upload false, class and target empty, paused false, speedLimits 0/0).
       properties:
         urls: { type: array, items: { type: string } }
         upload: { type: boolean }

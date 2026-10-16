@@ -520,6 +520,8 @@ if(WITH_WEBINTERFACE)
 		${fatrat_SRCS}
 		src/remote/HttpService.cpp
 		src/remote/XmlRpcService.cpp
+		src/remote/RestApi.cpp
+		src/remote/RestResources.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_GUI_SRCS

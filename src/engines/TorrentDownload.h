@@ -47,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Proxy.h"
 #ifdef WITH_WEBINTERFACE
 #	include "remote/TransferHttpService.h"
+#	include "remote/RestApi.h"
 #endif
 
 class TorrentWorker;
@@ -133,6 +134,7 @@ private slots:
 #ifdef WITH_WEBINTERFACE
 private:
 	static QVariant setFilePriorities(QList<QVariant>& args);
+	static RestResult setFilePrioritiesRest(const RestRequest& req);
 #endif
 protected:
 	libtorrent::torrent_handle m_handle;

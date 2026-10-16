@@ -73,6 +73,7 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_WEBINTERFACE
 #	define XMLRPCSERVICE_AVOID_SHA_CONFLICT
 #	include "remote/XmlRpcService.h"
+#	include "remote/RestResources.h"
 #	include "Queue.h"
 
 	extern QReadWriteLock g_queuesLock;
@@ -334,6 +335,8 @@ void TorrentDownload::globalInit()
 	// register XML-RPC functions
 	XmlRpcService::registerFunction("TorrentDownload.setFilePriorities", setFilePriorities,
 					QVector<QMetaType::Type>() << QMetaType::QString << QMetaType::QVariantMap);
+
+	RestApi::registerRoute("PUT", "/transfers/:transfer/torrent/file-priorities", setFilePrioritiesRest);
 
 	si.webSettingsScript = "/scripts/settings/bittorrent.js";
 	si.webSettingsIconURL = "/img/settings/bittorrent.png";
@@ -1468,6 +1471,45 @@ QString TorrentDownload::remoteURI() const
 }
 
 #ifdef WITH_WEBINTERFACE
+RestResult TorrentDownload::setFilePrioritiesRest(const RestRequest& req)
+{
+	QJsonValue body = req.json();
+	if (!body.isArray())
+		throw RestError(422, "invalid_property", "A JSON array of {index, priority} was expected");
+
+	QList<QPair<int,int>> changes;
+	for (const QJsonValue& v : body.toArray())
+	{
+		if (!v.isObject())
+			throw RestError(422, "invalid_property", "A JSON array of {index, priority} was expected");
+
+		QJsonObject o = v.toObject();
+		int index = RestApi::asInt(o["index"], "index");
+		int priority = RestApi::asInt(o["priority"], "priority");
+		if (index < 0 || priority < 0 || priority > 7)
+			throw RestError(422, "invalid_property", "index or priority out of range");
+		changes << qMakePair(index, priority);
+	}
+
+	TransferGuard g(req.pathParams["transfer"]);
+	TorrentDownload* td = dynamic_cast<TorrentDownload*>(g.transfer());
+	if (!td)
+		throw RestError(404, "not_a_torrent", "The transfer is not a BitTorrent transfer");
+	if (!td->m_handle.is_valid())
+		throw RestError(409, "torrent_not_ready", "The torrent has no valid handle yet");
+
+	for (const QPair<int,int>& c : changes)
+	{
+		if (c.first >= int(td->m_vecPriorities.size()))
+			throw RestError(422, "invalid_property", QString("File index %1 out of range").arg(c.first));
+	}
+	for (const QPair<int,int>& c : changes)
+		td->m_vecPriorities[c.first] = libtorrent::download_priority_t(static_cast<std::uint8_t>(c.second));
+
+	td->m_handle.prioritize_files(td->m_vecPriorities);
+	return RestResult::noContent();
+}
+
 QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
 {
 	QString uuid = args[0].toString();

@@ -38,6 +38,8 @@ respects for all of the code used other than "OpenSSL".
 #include "Logger.h"
 #include "TransferFactory.h"
 #include "remote/XmlRpcService.h"
+#include "remote/RestApi.h"
+#include "remote/RestResources.h"
 
 #include <QSettings>
 #include <QtDebug>
@@ -86,6 +88,8 @@ HttpService::HttpService()
 	si.webSettingsIconURL = "/img/settings/webinterface.png";
 
 	addSettingsPage(si);
+
+	RestResources::registerAll();
 
 	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate,
 		QVector<QMetaType::Type>() << QMetaType::QString);
@@ -207,6 +211,8 @@ void HttpService::setup()
 		m_server = std::make_unique<httplib::Server>();
 	}
 
+	m_server->set_payload_max_length(32 * 1024 * 1024); // uploaded .torrent files
+
 	registerRoutes();
 
 	Logger::global()->enterLogMessage("HttpService",
@@ -248,6 +254,46 @@ void HttpService::registerRoutes()
 		}
 		return httplib::Server::HandlerResponse::Unhandled;
 	});
+
+	// /api/v1/...
+	auto restHandler = [](const httplib::Request& req, httplib::Response& res) {
+		RestRequest rr;
+		rr.method = QString::fromStdString(req.method);
+		rr.path = QString::fromStdString(req.path);
+		for (const auto& kv : req.params)
+			rr.query.insert(QString::fromStdString(kv.first), QString::fromStdString(kv.second));
+		rr.contentType = QString::fromStdString(req.get_header_value("Content-Type"));
+		rr.origin = QString::fromStdString(req.get_header_value("Origin"));
+		rr.host = QString::fromStdString(req.get_header_value("Host"));
+		rr.body = QByteArray(req.body.data(), static_cast<int>(req.body.size()));
+
+		if (req.is_multipart_form_data())
+		{
+			for (const auto& kv : req.form.fields)
+				rr.formFields.insert(QString::fromStdString(kv.first), QString::fromStdString(kv.second.content));
+			for (const auto& kv : req.form.files)
+			{
+				RestUpload up;
+				up.filename = QString::fromStdString(kv.second.filename);
+				up.contentType = QString::fromStdString(kv.second.content_type);
+				up.data = QByteArray(kv.second.content.data(), static_cast<int>(kv.second.content.size()));
+				rr.formFiles.insert(QString::fromStdString(kv.first), up);
+			}
+		}
+
+		RestResponse out = RestApi::dispatch(rr);
+		res.status = out.status;
+		for (auto it = out.headers.constBegin(); it != out.headers.constEnd(); ++it)
+			res.set_header(it.key().toStdString(), it.value().toStdString());
+		if (!out.body.isEmpty())
+			res.set_content(out.body.constData(), out.body.size(), out.contentType.toStdString());
+	};
+	const std::string restPattern = R"(/api/v1(?:/.*)?)";
+	m_server->Get(restPattern, restHandler);
+	m_server->Post(restPattern, restHandler);
+	m_server->Put(restPattern, restHandler);
+	m_server->Patch(restPattern, restHandler);
+	m_server->Delete(restPattern, restHandler);
 
 	// /xmlrpc
 	m_server->Post("/xmlrpc", [this](const httplib::Request& req, httplib::Response& res) {

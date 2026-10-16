@@ -64,7 +64,7 @@ namespace
 		for (int i = 0; i < segs.size(); i++)
 		{
 			if (r.segments[i].startsWith(':'))
-				params[r.segments[i].mid(1)] = segs[i];
+				params[r.segments[i].mid(1)] = QUrl::fromPercentEncoding(segs[i].toUtf8());
 			else if (r.segments[i] != segs[i])
 				return false;
 		}
