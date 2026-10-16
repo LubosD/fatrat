@@ -177,15 +177,15 @@ describe('TransferActionsService', () => {
     expect(moveTransfersBefore).not.toHaveBeenCalled();
   });
 
-  it('updateProperties() sets comment and userSpeedLimits as a [down, up] array, then refreshes', () => {
+  it('updateProperties() sets comment and userSpeedLimits as a {down, up} object, then refreshes', () => {
     service.updateProperties('new comment', { down: 100, up: 50 });
-    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'new comment', userSpeedLimits: [100, 50] });
+    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'new comment', userSpeedLimits: { down: 100, up: 50 } });
     expect(refreshNow).toHaveBeenCalled();
   });
 
   it('updateProperties() includes the new data directory as "object" when given', () => {
     service.updateProperties('c', { down: 0, up: 0 }, '/new/dir');
-    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'c', userSpeedLimits: [0, 0], object: '/new/dir' });
+    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'c', userSpeedLimits: { down: 0, up: 0 }, object: '/new/dir' });
   });
 
   it('updateProperties() does nothing when nothing is selected', () => {

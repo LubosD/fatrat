@@ -91,8 +91,7 @@ export class TransferActionsService {
     const uuids = this.transfersStore.selectedUuids();
     if (uuids.length === 0) return;
 
-    // Backend requires userSpeedLimits as a 2-element [down, up] array, not a {down, up} struct.
-    const properties: { [key: string]: JsonValue } = { comment, userSpeedLimits: [speedLimits.down, speedLimits.up] };
+    const properties: { [key: string]: JsonValue } = { comment, userSpeedLimits: { down: speedLimits.down, up: speedLimits.up } };
     if (object !== undefined) properties['object'] = object;
 
     this.transferApi
