@@ -1,6 +1,7 @@
 import { SETTINGS_PAGE_COMPONENTS } from './settings-page-registry';
 import { BittorrentSettings } from '../features/settings/bittorrent-settings';
 import { RssSettings } from '../features/settings/rss-settings';
+import { SchedulerSettings } from '../features/settings/scheduler-settings';
 import { WebinterfaceSettings } from '../features/settings/webinterface-settings';
 
 describe('SETTINGS_PAGE_COMPONENTS', () => {
@@ -8,6 +9,7 @@ describe('SETTINGS_PAGE_COMPONENTS', () => {
     expect(SETTINGS_PAGE_COMPONENTS['/scripts/settings/bittorrent.js']).toBe(BittorrentSettings);
     expect(SETTINGS_PAGE_COMPONENTS['/scripts/settings/webinterface.js']).toBe(WebinterfaceSettings);
     expect(SETTINGS_PAGE_COMPONENTS['/scripts/settings/rss.js']).toBe(RssSettings);
+    expect(SETTINGS_PAGE_COMPONENTS['/scripts/settings/scheduler.js']).toBe(SchedulerSettings);
   });
 
   it('has no entry for an unregistered page (e.g. the removed Jabber plugin)', () => {

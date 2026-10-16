@@ -1,0 +1,55 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '32rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false" styleClass="fr-dialog">
+  <div class="field">
+    <label for="sched-name">Name</label>
+    <input pInputText id="sched-name" [(ngModel)]="name" required />
+  </div>
+  <div class="field">
+    <label for="sched-queue">Queue</label>
+    <p-select inputId="sched-queue" [options]="queues" optionLabel="name" optionValue="uuid" [(ngModel)]="queue" appendTo="body"></p-select>
+  </div>
+  <div class="field">
+    <label for="sched-action">Action</label>
+    <p-select inputId="sched-action" [options]="actions" optionLabel="label" optionValue="value" [(ngModel)]="type" appendTo="body"></p-select>
+  </div>
+  @if (type === 'speedLimit') {
+    <div class="field">
+      <label for="sched-down">Download limit (kB/s, 0 for no limit)</label>
+      <p-inputnumber inputId="sched-down" [(ngModel)]="down" [min]="0" [useGrouping]="false"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="sched-up">Upload limit (kB/s, 0 for no limit)</label>
+      <p-inputnumber inputId="sched-up" [(ngModel)]="up" [min]="0" [useGrouping]="false"></p-inputnumber>
+    </div>
+  }
+  <div class="field radio-group" role="radiogroup" aria-label="Schedule">
+    <div><p-radiobutton name="sched-repeated" [value]="true" [(ngModel)]="repeated" inputId="sched-repeated"></p-radiobutton> <label for="sched-repeated">Repeated</label></div>
+    <div><p-radiobutton name="sched-repeated" [value]="false" [(ngModel)]="repeated" inputId="sched-one-time"></p-radiobutton> <label for="sched-one-time">One time</label></div>
+  </div>
+  @if (repeated) {
+    <div class="field">
+      <label for="sched-time">Time of day</label>
+      <input pInputText id="sched-time" type="time" [(ngModel)]="time" />
+    </div>
+    <div class="field days" role="group" aria-label="Days of the week">
+      @for (day of weekdays; track day; let i = $index) {
+        <span class="day">
+          <p-checkbox [(ngModel)]="days[i]" [binary]="true" [inputId]="'sched-day-' + i"></p-checkbox>
+          <label [for]="'sched-day-' + i">{{ day }}</label>
+        </span>
+      }
+    </div>
+  } @else {
+    <div class="field">
+      <label for="sched-at">Date and time</label>
+      <input pInputText id="sched-at" type="datetime-local" [(ngModel)]="at" />
+    </div>
+  }
+  <p class="hint">Times are in the server's time zone.</p>
+  @if (error) {
+    <p class="form-error" role="alert" data-testid="sched-error">{{ error }}</p>
+  }
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="sched-cancel" (click)="onDialogVisibleChange(false)">Cancel</button>
+    <button pButton type="button" data-testid="sched-save" [disabled]="!valid" (click)="onSave()">Save</button>
+  </ng-template>
+</p-dialog>

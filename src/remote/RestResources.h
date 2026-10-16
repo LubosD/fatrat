@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 #include "RestApi.h"
 #include <QString>
+#include <functional>
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -75,10 +76,16 @@ private:
 
 namespace RestResources
 {
+	// Runs fn on the main thread and waits for it, rethrowing what it throws. The settings arrays have
+	// per-QSettings iteration state and the objects behind them (RssFetcher, Scheduler) live on the main
+	// thread, so the HTTP threads do all of their storage access there.
+	void onMainThread(const std::function<void()>& fn);
 	// Registers the core routes with RestApi. Engine-specific routes are registered by the engines themselves.
 	void registerAll();
 	// The /rss resources. Called by registerAll().
 	void registerRss();
+	// The /scheduler resources. Called by registerAll().
+	void registerScheduler();
 }
 
 #endif

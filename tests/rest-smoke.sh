@@ -135,6 +135,23 @@ req GET /rss/regexps;                            check "regexps of a deleted fee
 req DELETE "/rss/feeds/$FE";                     check "delete feed twice" 404
 req DELETE "/rss/regexps/$RE";                   check "delete cascaded regexp" 404 '.error.code=="regexp_not_found"'
 
+# Scheduler: actions of the scheduler settings page
+req GET /settings/pages;                         check "settings pages list the scheduler" 200 'map(select(.script=="/scripts/settings/scheduler.js" and .icon=="/img/settings/scheduler.png")) | length == 1'
+json POST /scheduler/actions "{\"name\":\"smoke night\",\"queue\":\"$Q\",\"action\":\"speedLimit\",\"speedLimit\":{\"down\":51200,\"up\":0},\"time\":\"23:30\",\"days\":[true,true,true,true,true,false,false]}"
+check "create scheduled action" 201 ".queue==\"$Q\" and .action==\"speedLimit\" and .speedLimit.down==51200 and .time==\"23:30\" and .repeated==true and (.id|length>0)"
+S=$(echo "$body" | jq -r .id); SE=$(enc "$S")
+json POST /scheduler/actions "{\"name\":\"\",\"queue\":\"$Q\",\"action\":\"stop\",\"time\":\"01:00\"}"; check "action needs a name" 422 '.error.code=="invalid_property"'
+json POST /scheduler/actions '{"name":"x","queue":"nope","action":"stop","time":"01:00"}'; check "action with unknown queue" 422 '.error.code=="invalid_property"'
+json POST /scheduler/actions "{\"name\":\"x\",\"queue\":\"$Q\",\"action\":\"speedLimit\",\"time\":\"01:00\"}"; check "speed limit action needs limits" 422
+json POST /scheduler/actions "{\"name\":\"x\",\"queue\":\"$Q\",\"action\":\"stop\",\"time\":\"25:00\"}"; check "bad time of day" 422
+req GET /scheduler/actions;                      check "list scheduled actions" 200 "map(select(.id==\"$S\")) | length == 1"
+json PATCH "/scheduler/actions/$SE" '{"action":"stop"}'; check "switch to stop" 200 '.action=="stop" and (has("speedLimit")|not) and .time=="23:30"'
+json PATCH "/scheduler/actions/$SE" '{"repeated":false,"at":"2030-01-02T03:04"}'; check "make it a one-time action" 200 '.repeated==false and .at=="2030-01-02T03:04"'
+json PATCH "/scheduler/actions/nope" '{"name":"x"}'; check "patch unknown action" 404 '.error.code=="action_not_found"'
+req DELETE "/scheduler/actions/$SE";             check "delete scheduled action" 204
+req DELETE "/scheduler/actions/$SE";             check "delete action twice" 404
+req GET /scheduler/actions;                      check "action is gone" 200 "map(select(.id==\"$S\")) | length == 0"
+
 # transfer "queue" property, "before" moves, queue reordering and queue deletion
 json POST /queues '{"name":"smoke-3"}';          check "create second queue" 201
 Q2=$(echo "$body" | jq -r .uuid); Q2E=$(enc "$Q2")

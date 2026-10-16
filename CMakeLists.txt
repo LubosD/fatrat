@@ -169,6 +169,7 @@ set(fatrat_SRCS
 	src/Transfer.cpp
 	src/Logger.cpp
 	src/Scheduler.cpp
+	src/SchedulerStore.cpp
 	src/Settings.cpp
 	src/TransferFactory.cpp
 	src/engines/PlaceholderTransfer.cpp
@@ -526,6 +527,8 @@ if(WITH_WEBINTERFACE)
 		src/remote/RestResources.cpp
 		src/remote/RestRss.cpp
 		src/remote/RssJson.cpp
+		src/remote/RestScheduler.cpp
+		src/remote/SchedulerJson.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_GUI_SRCS

@@ -29,32 +29,8 @@ respects for all of the code used other than "OpenSSL".
 #include "RssJson.h"
 #include "Queue.h"
 #include "rss/RssFetcher.h"
-#include <QCoreApplication>
-#include <QThread>
-#include <exception>
-#include <functional>
 
-// The RSS settings arrays have per-QSettings iteration state and RssFetcher runs on the main thread, so all
-// storage access from the HTTP threads is done there.
-static void onMainThread(const std::function<void()>& fn)
-{
-	QCoreApplication* app = QCoreApplication::instance();
-
-	if (QThread::currentThread() == app->thread())
-	{
-		fn();
-		return;
-	}
-
-	std::exception_ptr failure;
-	QMetaObject::invokeMethod(app, [&] {
-		try { fn(); }
-		catch (...) { failure = std::current_exception(); }
-	}, Qt::BlockingQueuedConnection);
-
-	if (failure)
-		std::rethrow_exception(failure);
-}
+using RestResources::onMainThread;
 
 static bool lookupQueue(const QString& uuid, QString* defaultDirectory)
 {

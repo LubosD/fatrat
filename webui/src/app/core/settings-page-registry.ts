@@ -1,6 +1,7 @@
 import { Type } from '@angular/core';
 import { BittorrentSettings } from '../features/settings/bittorrent-settings';
 import { RssSettings } from '../features/settings/rss-settings';
+import { SchedulerSettings } from '../features/settings/scheduler-settings';
 import { WebinterfaceSettings } from '../features/settings/webinterface-settings';
 
 /**
@@ -11,5 +12,6 @@ import { WebinterfaceSettings } from '../features/settings/webinterface-settings
 export const SETTINGS_PAGE_COMPONENTS: Record<string, Type<unknown>> = {
   '/scripts/settings/bittorrent.js': BittorrentSettings,
   '/scripts/settings/rss.js': RssSettings,
+  '/scripts/settings/scheduler.js': SchedulerSettings,
   '/scripts/settings/webinterface.js': WebinterfaceSettings,
 };
