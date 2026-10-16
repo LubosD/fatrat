@@ -118,7 +118,7 @@ export class Shell {
   }
 
   protected onTransferPropertiesSave(value: TransferPropertiesFormValue): void {
-    this.actions.updateProperties(value.comment, value.speedLimits);
+    this.actions.updateProperties(value.comment, value.speedLimits, value.object);
   }
 
   protected readonly showNewTransferDialog = signal(false);

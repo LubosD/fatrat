@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Transfer Properties" [modal]="true">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Transfer Properties" [modal]="true" styleClass="fr-dialog">
   <div class="field">
     <label for="transfer-comment">Comment</label>
     <textarea pTextarea id="transfer-comment" rows="4" [(ngModel)]="comment"></textarea>
@@ -11,6 +11,15 @@
     <label for="transfer-speed-up">Max upload speed (KB/s)</label>
     <p-inputnumber inputId="transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
   </div>
+  @if (canRelocate) {
+    <div class="field">
+      <label for="transfer-object">Data directory</label>
+      <p-inputgroup>
+        <input pInputText id="transfer-object" [(ngModel)]="object" />
+        <button pButton type="button" severity="secondary" label="Browse…" data-testid="transfer-browse-object" (click)="pickerOpen = true"></button>
+      </p-inputgroup>
+    </div>
+  }
   <!-- PrimeNG's Dialog detects footer content via a ContentChild query keyed on a
        template-ref variable named "footer" — <p-footer> projection does not work here
        (and Footer from primeng/api isn't a standalone component anyway). -->
@@ -19,3 +28,11 @@
     <button pButton type="button" data-testid="transfer-dialog-save" (click)="onSave()">Save</button>
   </ng-template>
 </p-dialog>
+@if (pickerOpen) {
+  <app-directory-picker
+    [visible]="pickerOpen"
+    (visibleChange)="pickerOpen = $event"
+    [initialPath]="object"
+    (selected)="object = $event"
+  ></app-directory-picker>
+}

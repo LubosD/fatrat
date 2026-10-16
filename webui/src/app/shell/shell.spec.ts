@@ -319,7 +319,7 @@ describe('Shell', () => {
     fixture.detectChanges();
 
     fixture.componentInstance['onTransferPropertiesSave']({ comment: 'new', speedLimits: { down: 1, up: 2 } });
-    expect(actions.updateProperties).toHaveBeenCalledWith('new', { down: 1, up: 2 });
+    expect(actions.updateProperties).toHaveBeenCalledWith('new', { down: 1, up: 2 }, undefined);
   });
 
   it('"New Transfer" opens the new-transfer dialog', () => {

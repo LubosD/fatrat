@@ -169,6 +169,11 @@ describe('TransferActionsService', () => {
     expect(refreshNow).toHaveBeenCalled();
   });
 
+  it('updateProperties() includes the new data directory as "object" when given', () => {
+    service.updateProperties('c', { down: 0, up: 0 }, '/new/dir');
+    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'c', userSpeedLimits: [0, 0], object: '/new/dir' });
+  });
+
   it('updateProperties() does nothing when nothing is selected', () => {
     selectedUuids = [];
     service.updateProperties('x', { down: 0, up: 0 });

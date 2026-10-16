@@ -101,4 +101,38 @@ describe('TransferPropertiesDialog', () => {
 
     expect(fixture.componentInstance.comment).toBe('original');
   });
+
+  describe('data directory', () => {
+    function open(transfer: Transfer) {
+      TestBed.configureTestingModule({ imports: [TransferPropertiesDialog] });
+      const fixture = TestBed.createComponent(TransferPropertiesDialog);
+      fixture.componentRef.setInput('transfer', transfer);
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      const saved: { object?: string }[] = [];
+      fixture.componentInstance.save.subscribe((v) => saved.push(v));
+      return { component: fixture.componentInstance, saved };
+    }
+
+    it('prefills from the transfer and omits object from save() when unchanged', () => {
+      const { component, saved } = open(makeTransfer({ object: '/downloads' }));
+      expect(component.object).toBe('/downloads');
+      component['onSave']();
+      expect(saved[0].object).toBeUndefined();
+    });
+
+    it('emits the new directory when it was changed', () => {
+      const { component, saved } = open(makeTransfer({ object: '/downloads' }));
+      component.object = ' /elsewhere ';
+      component['onSave']();
+      expect(saved[0].object).toBe('/elsewhere');
+    });
+
+    it('never emits a directory for upload transfers', () => {
+      const { component, saved } = open(makeTransfer({ primaryMode: 'Upload', object: '/src' }));
+      component.object = '/elsewhere';
+      component['onSave']();
+      expect(saved[0].object).toBeUndefined();
+    });
+  });
 });

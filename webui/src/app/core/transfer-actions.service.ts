@@ -3,6 +3,7 @@ import { ConfirmationService } from 'primeng/api';
 import { TransferApi } from './api/transfer-api';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
+import { JsonValue } from './api/json-value';
 import { TransferState, NewTransferOptions } from './api/models';
 
 @Injectable({ providedIn: 'root' })
@@ -75,13 +76,16 @@ export class TransferActionsService {
     });
   }
 
-  updateProperties(comment: string, speedLimits: { down: number; up: number }): void {
+  updateProperties(comment: string, speedLimits: { down: number; up: number }, object?: string): void {
     const uuids = this.transfersStore.selectedUuids();
     if (uuids.length === 0) return;
 
     // Backend requires userSpeedLimits as a 2-element [down, up] array, not a {down, up} struct.
+    const properties: { [key: string]: JsonValue } = { comment, userSpeedLimits: [speedLimits.down, speedLimits.up] };
+    if (object !== undefined) properties['object'] = object;
+
     this.transferApi
-      .setTransferProperties(uuids, { comment, userSpeedLimits: [speedLimits.down, speedLimits.up] })
+      .setTransferProperties(uuids, properties)
       .subscribe({
         next: () => this.transfersStore.refreshNow(),
         error: (err) => console.error('Failed to update transfer properties', err),

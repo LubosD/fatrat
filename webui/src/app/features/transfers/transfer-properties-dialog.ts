@@ -4,16 +4,21 @@ import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
 import { InputNumber } from 'primeng/inputnumber';
 import { ButtonDirective } from 'primeng/button';
+import { InputText } from 'primeng/inputtext';
+import { InputGroup } from 'primeng/inputgroup';
+import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Transfer } from '../../core/api/models';
 
 export interface TransferPropertiesFormValue {
   comment: string;
   speedLimits: { down: number; up: number };
+  /** New data directory; only set when the user changed it. */
+  object?: string;
 }
 
 @Component({
   selector: 'app-transfer-properties-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputNumber, ButtonDirective],
+  imports: [FormsModule, Dialog, Textarea, InputNumber, ButtonDirective, InputText, InputGroup, DirectoryPicker],
   templateUrl: './transfer-properties-dialog.html',
 })
 export class TransferPropertiesDialog implements OnChanges {
@@ -25,6 +30,13 @@ export class TransferPropertiesDialog implements OnChanges {
   comment = '';
   speedDown = 0;
   speedUp = 0;
+  object = '';
+  protected pickerOpen = false;
+
+  /** Only downloads keep their data in a directory that can be relocated. */
+  protected get canRelocate(): boolean {
+    return this.transfer?.primaryMode === 'Download';
+  }
 
   // Also reset when the dialog is (re)opened, not just when the input reference changes —
   // reopening with a reference-equal input (e.g. null again, or the same object) would
@@ -40,10 +52,20 @@ export class TransferPropertiesDialog implements OnChanges {
     this.comment = t?.comment ?? '';
     this.speedDown = t?.userSpeedLimits.down ?? 0;
     this.speedUp = t?.userSpeedLimits.up ?? 0;
+    this.object = t?.object ?? '';
+    this.pickerOpen = false;
   }
 
   protected onSave(): void {
-    this.save.emit({ comment: this.comment, speedLimits: { down: this.speedDown, up: this.speedUp } });
+    const value: TransferPropertiesFormValue = {
+      comment: this.comment,
+      speedLimits: { down: this.speedDown, up: this.speedUp },
+    };
+    const object = this.object.trim();
+    if (this.canRelocate && object !== '' && object !== (this.transfer?.object ?? '')) {
+      value.object = object;
+    }
+    this.save.emit(value);
     this.closeDialog();
   }
 
