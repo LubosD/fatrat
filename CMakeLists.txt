@@ -18,6 +18,7 @@ option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
 option(WITH_TUI "Build fatrat-tui, an ncurses terminal client for FatRat" OFF)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
+find_package(OpenSSL REQUIRED)
 set(fatrat_QT_LIBS Qt6::Core Qt6::Network Qt6::Xml)
 
 if(WITH_GUI)
@@ -689,7 +690,7 @@ endif (POSIX_LINUX)
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	${fatrat_QT_LIBS}
 	${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	ssl crypto ${XATTR_LIBRARIES})
+	OpenSSL::SSL OpenSSL::Crypto ${XATTR_LIBRARIES})
 set_target_properties(fatrat PROPERTIES ENABLE_EXPORTS ON)
 if(WITH_BITTORRENT)
 	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
