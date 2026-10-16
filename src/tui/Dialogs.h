@@ -9,6 +9,7 @@ namespace tui
 		void newTransfer(App& app);
 		void editTransfer(App& app, const TransferInfo& t);
 		void limitTransfers(App& app, const QStringList& uuids, const SpeedPair& initial);
+		void globalLimits(App& app);
 		void queueEditor(App& app, const QueueInfo* existing);
 		void deleteQueue(App& app, const QueueInfo& q);
 		void deleteTransfers(App& app, const QStringList& uuids, const QStringList& names);

@@ -146,6 +146,7 @@ private slots:
 			{ "torrent/mapping_upnp", true }, { "torrent/mapping_natpmp", false }, { "torrent/mapping_lsd", "true" },
 			{ "rss/enable", true }, { "rss/interval", 15 },
 			{ "remote/enable", true }, { "remote/port", 8080 }, { "remote/password", "secret" }, { "remote/ssl", false }, { "remote/ssl_pem", "" },
+			{ "network/speed_down", 524288 }, { "network/speed_up", 0 },
 		};
 		Glyphs::setAscii(false);
 		m_http = new HttpClient;
@@ -400,6 +401,50 @@ private slots:
 		key(KeyEnter);
 		QTRY_VERIFY_WITH_TIMEOUT(!m_server->of("PATCH").isEmpty(), 5000);
 		QCOMPARE(QJsonDocument::fromJson(m_server->of("PATCH").first().body).object()["remote/ssl_pem"].toString(), QString("/tmp/fatrat-webui.pem"));
+	}
+
+	void statusLineShowsTheGlobalLimits()
+	{
+		QVERIFY(!render().contains("512.0 KB/s"));
+		m_app->refreshLimits();
+		QTRY_VERIFY_WITH_TIMEOUT(render().contains("512.0 KB/s"), 5000);
+		QVERIFY(render().contains(Glyphs::get().inf));
+	}
+
+	void globalLimitsCanBeChanged()
+	{
+		m_app->refreshLimits();
+		QTRY_VERIFY_WITH_TIMEOUT(m_app->limitsKnown(), 5000);
+		key(KeyF3);
+		QVERIFY(render().contains("Global speed limit"));
+		QVERIFY(render().contains("512"));
+		key('u', true);
+		type("100");
+		key(KeyTab);
+		type("50");
+		key(KeyEnter);
+		QTRY_VERIFY_WITH_TIMEOUT(!m_server->of("PATCH").isEmpty(), 5000);
+		const auto patch = QJsonDocument::fromJson(m_server->of("PATCH").first().body).object();
+		QCOMPARE(patch["network/speed_down"].toInt(), 100 * 1024);
+		QCOMPARE(patch["network/speed_up"].toInt(), 50 * 1024);
+		QTRY_COMPARE(m_app->globalLimits().down, qint64(100 * 1024));
+		QTRY_VERIFY_WITH_TIMEOUT(!m_server->of("POST").isEmpty(), 5000);
+	}
+
+	void clickingTheLimitOpensTheEditor()
+	{
+		m_app->refreshLimits();
+		QTRY_VERIFY_WITH_TIMEOUT(render().contains("512.0 KB/s"), 5000);
+		int x = -1, y = -1;
+		for (const Hit& h : m_app->hits().hits())
+			if (h.action == Action::GlobalLimit)
+			{
+				x = h.rect.x + 1;
+				y = h.rect.y;
+			}
+		QVERIFY(x >= 0);
+		m_app->handle(Event::mouseEvent(Event::Press, x, y));
+		QVERIFY(render().contains("Applies to all transfers together"));
 	}
 
 	void aServerErrorIsShown()

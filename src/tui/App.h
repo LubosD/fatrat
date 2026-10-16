@@ -70,6 +70,12 @@ namespace tui
 		void closeDetails();
 		void showHelp();
 		void showSettings();
+		// The global speed limits (bytes per second, 0 = none); unknown until the server has answered
+		bool limitsKnown() const { return m_limitsKnown; }
+		SpeedPair globalLimits() const { return m_limits; }
+		void setGlobalLimits(const SpeedPair& l) { m_limits = l; m_limitsKnown = true; }
+		void refreshLimits();
+		void askGlobalLimits();
 		void askFilter();
 		void askPassword(const QString& message = QString());
 		void askCertificate(const QString& subject, const QString& fingerprint, const QStringList& problems);
@@ -119,6 +125,8 @@ namespace tui
 		int m_ticks = 0, m_failures = 0;
 		bool m_queuesDirty = true, m_inFlight = false, m_askingPassword = false, m_paused = false;
 		ServerManager* m_server = nullptr;
+		SpeedPair m_limits;
+		bool m_limitsKnown = false;
 		Rect m_screen;
 	};
 }

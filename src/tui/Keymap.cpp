@@ -73,6 +73,7 @@ const QVector<Binding>& Keymap::bindings()
 		{ X::Global, C('2'), false, A::TabRss, nullptr, nullptr },
 		{ X::Global, C('3'), false, A::TabLog, nullptr, nullptr },
 		{ X::Global, KeyF2, false, A::Settings, nullptr, nullptr },
+		{ X::Global, KeyF3, false, A::GlobalLimit, nullptr, nullptr },
 		{ X::Global, KeyTab, false, A::FocusNext, nullptr, nullptr },
 		{ X::Global, KeyBackTab, false, A::FocusPrev, nullptr, nullptr },
 		{ X::Global, KeyUp, false, A::Up, nullptr, nullptr },
