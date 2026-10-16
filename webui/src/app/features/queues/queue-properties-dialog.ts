@@ -53,8 +53,8 @@ export class QueuePropertiesDialog implements OnChanges {
     this.name = q?.name ?? '';
     this.defaultDirectory = q?.defaultDirectory ?? '';
     this.moveDirectory = q?.moveDirectory ?? '';
-    this.speedDown = q?.speedLimits.down ?? 0;
-    this.speedUp = q?.speedLimits.up ?? 0;
+    this.speedDown = Math.round((q?.speedLimits.down ?? 0) / 1024);
+    this.speedUp = Math.round((q?.speedLimits.up ?? 0) / 1024);
     this.transferDown = q?.transferLimits.down ?? 0;
     this.transferUp = q?.transferLimits.up ?? 0;
     this.upAsDown = q?.upAsDown ?? false;
@@ -74,7 +74,7 @@ export class QueuePropertiesDialog implements OnChanges {
       name: this.name,
       defaultDirectory: this.defaultDirectory,
       moveDirectory: this.moveDirectory,
-      speedLimits: { down: this.speedDown, up: this.speedUp },
+      speedLimits: { down: (this.speedDown ?? 0) * 1024, up: (this.speedUp ?? 0) * 1024 },
       transferLimits: { down: this.transferDown, up: this.transferUp },
       upAsDown: this.upAsDown,
     });

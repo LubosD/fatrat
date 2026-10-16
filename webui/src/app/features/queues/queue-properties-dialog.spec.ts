@@ -33,7 +33,7 @@ describe('QueuePropertiesDialog', () => {
   it('shows "Queue Properties" and prefills fields when a queue is given', () => {
     TestBed.configureTestingModule({ imports: [QueuePropertiesDialog] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);
-    fixture.componentRef.setInput('queue', makeQueue({ name: 'Movies', speedLimits: { down: 100, up: 50 } }));
+    fixture.componentRef.setInput('queue', makeQueue({ name: 'Movies', speedLimits: { down: 102400, up: 51200 } }));
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
 
@@ -77,7 +77,7 @@ describe('QueuePropertiesDialog', () => {
         name: 'New Queue Name',
         defaultDirectory: '',
         moveDirectory: '',
-        speedLimits: { down: 200, up: 0 },
+        speedLimits: { down: 204800, up: 0 },
         transferLimits: { down: 0, up: 0 },
         upAsDown: false,
       },

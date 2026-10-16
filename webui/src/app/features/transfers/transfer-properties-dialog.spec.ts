@@ -19,7 +19,7 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
     object: '',
     timeRunning: 10,
     speeds: { down: 0, up: 0 },
-    userSpeedLimits: { down: 10, up: 5 },
+    userSpeedLimits: { down: 10240, up: 5120 },
     ...overrides,
   };
 }
@@ -63,7 +63,7 @@ describe('TransferPropertiesDialog', () => {
     fixture.componentInstance.comment = 'updated comment';
     fixture.componentInstance['onSave']();
 
-    expect(saved).toEqual([{ comment: 'updated comment', speedLimits: { down: 10, up: 5 } }]);
+    expect(saved).toEqual([{ comment: 'updated comment', speedLimits: { down: 10240, up: 5120 } }]);
     expect(visibleChanges).toEqual([false]);
   });
 

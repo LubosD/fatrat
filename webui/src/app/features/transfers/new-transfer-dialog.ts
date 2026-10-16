@@ -99,7 +99,7 @@ export class NewTransferDialog implements OnChanges {
       targetClass: this.targetClass,
       target: this.target,
       paused: this.paused,
-      speedLimits: { down: this.speedDown, up: this.speedUp },
+      speedLimits: { down: (this.speedDown ?? 0) * 1024, up: (this.speedUp ?? 0) * 1024 },
     });
     this.closeDialog();
   }

@@ -50,8 +50,8 @@ export class TransferPropertiesDialog implements OnChanges {
   private resetForm(): void {
     const t = this.transfer;
     this.comment = t?.comment ?? '';
-    this.speedDown = t?.userSpeedLimits.down ?? 0;
-    this.speedUp = t?.userSpeedLimits.up ?? 0;
+    this.speedDown = Math.round((t?.userSpeedLimits.down ?? 0) / 1024);
+    this.speedUp = Math.round((t?.userSpeedLimits.up ?? 0) / 1024);
     this.object = t?.object ?? '';
     this.pickerOpen = false;
   }
@@ -59,7 +59,7 @@ export class TransferPropertiesDialog implements OnChanges {
   protected onSave(): void {
     const value: TransferPropertiesFormValue = {
       comment: this.comment,
-      speedLimits: { down: this.speedDown, up: this.speedUp },
+      speedLimits: { down: (this.speedDown ?? 0) * 1024, up: (this.speedUp ?? 0) * 1024 },
     };
     const object = this.object.trim();
     if (this.canRelocate && object !== '' && object !== (this.transfer?.object ?? '')) {
