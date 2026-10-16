@@ -69,6 +69,7 @@ namespace tui
 		void openDetails(const QString& transferUuid);
 		void closeDetails();
 		void showHelp();
+		void showSettings();
 		void askFilter();
 		void askPassword(const QString& message = QString());
 		void askCertificate(const QString& subject, const QString& fingerprint, const QStringList& problems);

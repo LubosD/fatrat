@@ -337,6 +337,14 @@ void FormPanel::handleText(FormField& f, const Event& e)
 	}
 }
 
+bool FormPanel::focusAtEdge(int dir) const
+{
+	for (int i = m_focus + dir; i >= 0 && i < m_fields.size(); i += dir)
+		if (m_fields[i].focusable())
+			return false;
+	return true;
+}
+
 int FormPanel::focusableCount() const
 {
 	int n = 0;
@@ -508,9 +516,9 @@ void FormPanel::draw(Canvas& c, const Rect& area, bool active)
 
 	// there is more above or below
 	if (m_scroll > 0)
-		c.put(area.right() - 1, area.y, Glyphs::get().up, Style::Dim);
+		c.put(area.x - 1, area.y, Glyphs::get().up, Style::Dim);
 	if (m_scroll + area.h < total)
-		c.put(area.right() - 1, area.bottom() - 1, Glyphs::get().down, Style::Dim);
+		c.put(area.x - 1, area.bottom() - 1, Glyphs::get().down, Style::Dim);
 }
 
 bool FormPanel::mouse(const Event& e)

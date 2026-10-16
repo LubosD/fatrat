@@ -11,7 +11,7 @@ namespace tui
 	{
 		None,
 		// global
-		TabTransfers, TabRss, TabLog, FocusNext, FocusPrev, Help, Quit, Redraw, Filter, Back, Confirm,
+		TabTransfers, TabRss, TabLog, Settings, FocusNext, FocusPrev, Help, Quit, Redraw, Filter, Back, Confirm,
 		// navigation
 		Up, Down, PageUp, PageDown, Home, End, Left, Right,
 		// transfers

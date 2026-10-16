@@ -233,6 +233,24 @@ void ApiClient::transferLog(const QString& t, Callback cb)
 	m_http->request("GET", "/log/" + encode(t), [cb](const HttpResponse& r) { if (cb) cb(toResult(r)); });
 }
 
+void ApiClient::settingsPages(Callback cb) { get("/settings/pages", std::move(cb)); }
+
+void ApiClient::settingsValues(const QStringList& keys, Callback cb)
+{
+	QStringList qs;
+	for (const QString& k : keys)
+		qs << "key=" + encode(k);
+	get("/settings?" + qs.join('&'), std::move(cb));
+}
+
+void ApiClient::patchSettings(const QJsonObject& values, Callback cb) { call("PATCH", "/settings", values, std::move(cb)); }
+void ApiClient::applySettings(Callback cb) { call("POST", "/settings/apply", QJsonObject(), std::move(cb)); }
+
+void ApiClient::generateCertificate(const QString& hostname, Callback cb)
+{
+	call("POST", "/settings/web-interface/certificate", QJsonObject{ { "hostname", hostname } }, std::move(cb));
+}
+
 void ApiClient::rssFeeds(Callback cb) { get("/rss/feeds", std::move(cb)); }
 void ApiClient::rssRegexps(Callback cb) { get("/rss/regexps", std::move(cb)); }
 void ApiClient::rssTest(const QJsonObject& body, Callback cb) { call("POST", "/rss/test", body, std::move(cb)); }

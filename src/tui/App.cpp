@@ -4,6 +4,7 @@
 #include "Format.h"
 #include "LogView.h"
 #include "RssView.h"
+#include "SettingsDialog.h"
 #include "ServerManager.h"
 #include "TransfersView.h"
 #include <QDateTime>
@@ -243,6 +244,8 @@ void App::onMouse(const Event& e)
 	{
 		if (hit->tag == TagTab)
 		{
+			if (hit->action == Action::Settings)
+				return showSettings();
 			showTab(hit->action == Action::TabRss ? Tab::Rss : hit->action == Action::TabLog ? Tab::Log : Tab::Transfers);
 			return;
 		}
@@ -264,6 +267,7 @@ void App::perform(Action a)
 		case Action::TabTransfers: return showTab(Tab::Transfers);
 		case Action::TabRss: return showTab(Tab::Rss);
 		case Action::TabLog: return showTab(Tab::Log);
+		case Action::Settings: return showSettings();
 		case Action::Help: return showHelp();
 		case Action::Quit: return requestQuit();
 		case Action::Redraw: return;
@@ -279,6 +283,16 @@ void App::perform(Action a)
 }
 
 // ---------------------------------------------------------------- dialogs
+
+void App::showSettings()
+{
+	if (m_conn != Conn::Connected)
+	{
+		toast(tr("Not connected"), true);
+		return;
+	}
+	push(std::make_unique<SettingsDialog>(*this));
+}
 
 void App::askFilter()
 {
@@ -368,13 +382,14 @@ void App::showHelp()
 			case KeyEscape: return QString("Esc");
 			case KeyEnter: return QString::fromUtf8("⏎");
 			case KeyF1: return QString("F1");
+			case KeyF2: return QString("F2");
 			default: break;
 		}
 		QString k = QString(QChar(b.key)).toUpper();
 		return b.ctrl ? "Ctrl-" + k : k;
 	};
 	static const QMap<Action, const char*> names = {
-		{ Action::TabTransfers, "Transfers tab" }, { Action::TabRss, "RSS tab" }, { Action::TabLog, "Log tab" },
+		{ Action::TabTransfers, "Transfers tab" }, { Action::TabRss, "RSS tab" }, { Action::TabLog, "Log tab" }, { Action::Settings, "Settings" },
 		{ Action::FocusNext, "Next pane" }, { Action::FocusPrev, "Previous pane" }, { Action::Up, "Up" }, { Action::Down, "Down" },
 		{ Action::Left, "Left (queues pane)" }, { Action::Right, "Right (transfers pane)" }, { Action::PageUp, "Page up" }, { Action::PageDown, "Page down" },
 		{ Action::Home, "First" }, { Action::End, "Last" }, { Action::Filter, "Filter by name" }, { Action::Help, "This help" },
@@ -496,6 +511,16 @@ void App::drawChrome(Canvas& c, const Rect& area)
 		x += displayWidth(label) + 2;
 	}
 
+	{
+		const QString label = " " + tr("O Settings") + " ";
+		const int sx = W - displayWidth(label) - 1;
+		if (sx > x)
+		{
+			c.put(sx, 1, label, Style::Dim);
+			m_hits.add({ sx, 1, displayWidth(label), 1 }, Action::Settings, TagTab);
+		}
+	}
+
 	View* v = currentView();
 	v->draw(c, m_hits, { 0, 2, W, H - 4 });
 
@@ -537,6 +562,7 @@ void App::drawChrome(Canvas& c, const Rect& area)
 
 void App::draw(Canvas& c)
 {
+	pruneDialogs(); // a dialog may have been closed by a reply from the server
 	const int W = c.width(), H = c.height();
 	m_hits.clear();
 	m_screen = { 0, 0, W, H };

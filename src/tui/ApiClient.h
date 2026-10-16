@@ -77,6 +77,13 @@ namespace tui
 		void globalLog(Callback cb);
 		void transferLog(const QString& transfer, Callback cb);
 
+		// Settings
+		void settingsPages(Callback cb);
+		void settingsValues(const QStringList& keys, Callback cb);       // json: object key -> value
+		void patchSettings(const QJsonObject& values, Callback cb);
+		void applySettings(Callback cb);
+		void generateCertificate(const QString& hostname, Callback cb);  // json: {"path"}
+
 		// RSS
 		void rssFeeds(Callback cb);
 		void rssRegexps(Callback cb);

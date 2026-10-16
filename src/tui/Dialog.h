@@ -88,6 +88,8 @@ namespace tui
 		QString focusedId() const { return m_focus >= 0 && m_focus < m_fields.size() ? m_fields[m_focus].id : QString(); }
 		int focusableCount() const;
 		void moveFocus(int dir);
+		// True if moving the focus in that direction would wrap around
+		bool focusAtEdge(int dir) const;
 
 		int contentHeight(int width) const;
 		// active = false draws without the focus highlight and the cursor
