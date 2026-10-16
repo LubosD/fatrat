@@ -34,7 +34,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QBuffer>
 #include <QUrl>
 #include <QDir>
-#include <QXmlSimpleReader>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QtDebug>
@@ -47,7 +46,6 @@ extern QReadWriteLock g_queuesLock;
 RssFetcher* RssFetcher::m_instance = 0;
 
 RssFetcher::RssFetcher()
-	: m_bInItem(false), m_itemNextType(RssItem::None)
 {
 	m_instance = this;
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
@@ -139,19 +137,11 @@ void RssFetcher::requestFinished(QNetworkReply* reply)
 		
 		device->seek(0);
 		
-		QXmlSimpleReader reader;
-		QXmlInputSource source(device);
+		QString error;
 		
-		reader.setErrorHandler(this);
-		reader.setContentHandler(this);
-		
-		m_bInItem = false;
-		m_strCurrentSource = feed->url;
-		m_itemNext = RssItem();
-		
-		if(!reader.parse(&source))
+		if(!parseRssFeed(device, feed->url, m_items, &error))
 		{
-			qDebug() << "Parse error:" << static_cast<QXmlErrorHandler*>(this)->errorString();
+			qDebug() << "Parse error:" << error;
 			Logger::global()->enterLogMessage("RSS", tr("Failed to parse the feed \"%1\"").arg(feed->name));
 
 			m_bAllOK = false;
@@ -484,60 +474,3 @@ void RssFetcher::dayMonthHeuristics(int& day, int& month)
 			std::swap(month, day);
 	}
 }
-
-bool RssFetcher::startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts)
-{
-	if(localName == "item")
-	{
-		m_bInItem = true;
-		m_itemNext.source = m_strCurrentSource;
-	}
-	else if(m_bInItem)
-	{
-		if(localName == "title")
-			m_itemNextType = RssItem::Title;
-		else if(localName == "description")
-			m_itemNextType = RssItem::Descr;
-		else if(localName == "link" && m_itemNext.url.isEmpty())
-			m_itemNextType = RssItem::Url;
-		else if(localName == "enclosure")
-		{
-			m_itemNext.url = atts.value("url");
-			m_itemNextType = RssItem::None;
-		}
-		else
-			m_itemNextType = RssItem::None;
-	}
-	else
-		m_itemNextType = RssItem::None;
-	return true;
-}
-
-bool RssFetcher::endElement(const QString& namespaceURI, const QString& localName, const QString& qName)
-{
-	if(localName == "item")
-	{
-		m_items << m_itemNext;
-		m_itemNext = RssItem();
-		m_bInItem = false;
-	}
-	
-	m_itemNextType = RssItem::None;
-	return true;
-}
-
-bool RssFetcher::characters(const QString& ch)
-{
-	if(m_bInItem)
-	{
-		if(m_itemNextType == RssItem::Descr)
-			m_itemNext.descr += ch;
-		else if(m_itemNextType == RssItem::Title)
-			m_itemNext.title += ch;
-		else if(m_itemNextType == RssItem::Url)
-			m_itemNext.url += ch;
-	}
-	
-	return true;
-}
-

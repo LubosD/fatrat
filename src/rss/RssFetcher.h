@@ -28,22 +28,14 @@ respects for all of the code used other than "OpenSSL".
 #define RSSFETCHER_H
 #include <QObject>
 #include <QTimer>
-#include <QXmlDefaultHandler>
 #include <QRegularExpression>
 #include <QNetworkAccessManager>
+#include "RssFeedParser.h"
 
 struct RssFeed
 {
 	QString name, url;
 	QNetworkReply* reply;
-};
-
-struct RssItem
-{
-	QString title, descr, url;
-	QString source; // RSS URL
-	QString id; // TV show episode ID
-	enum Next { None, Title, Descr, Url };
 };
 
 struct RssRegexp
@@ -59,7 +51,7 @@ struct RssRegexp
 	enum TVSType { None = 0, SeasonBased, EpisodeBased, DateBased } tvs;
 };
 
-class RssFetcher : public QObject, public QXmlDefaultHandler
+class RssFetcher : public QObject
 {
 Q_OBJECT
 public:
@@ -67,9 +59,6 @@ public:
 	~RssFetcher();
 	static RssFetcher* instance() { return m_instance; }
 	
-	bool startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts);
-	bool endElement(const QString& namespaceURI, const QString& localName, const QString& qName);
-	bool characters(const QString& ch);
 	void processItems();
 	
 	void applySettings();
@@ -99,11 +88,6 @@ private:
 	QList<RssItem> m_items;
 	bool m_bAllOK;
 	
-	// XML parsing
-	bool m_bInItem;
-	RssItem m_itemNext;
-	RssItem::Next m_itemNextType;
-	QString m_strCurrentSource;
 	QNetworkAccessManager m_network;
 };
 
