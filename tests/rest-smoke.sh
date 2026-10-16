@@ -92,6 +92,39 @@ req POST /settings/apply -H 'Origin: https://evil.example';           check "for
 req POST /queues -H 'Content-Type: application/json' --data '{bad';  check "malformed json" 400 '.error.code=="invalid_json"'
 req GET /nothing;                                                     check "unknown route" 404 '.error.code=="unknown_route"'
 req DELETE /queues;                                                   check "wrong method" 405
+# RSS: feeds, regexps, the test endpoint, the downloaded-episode list and the cascade on feed deletion
+req GET /settings/pages;                         check "settings pages list RSS" 200 'map(select(.script=="/scripts/settings/rss.js" and .icon=="/img/settings/rss.png")) | length == 1'
+json POST /rss/feeds '{"name":"smoke feed","url":"http://127.0.0.1:9/smoke.rss"}'
+check "create feed" 201 '.name=="smoke feed" and (.id|length>0)'
+F=$(echo "$body" | jq -r .id); FE=$(enc "$F")
+json POST /rss/feeds '{"name":"dup","url":"http://127.0.0.1:9/smoke.rss"}'; check "duplicate feed url" 409 '.error.code=="duplicate_feed"'
+json POST /rss/feeds '{"name":"","url":"x"}';    check "feed needs a name" 422 '.error.code=="invalid_property"'
+req GET /rss/feeds;                              check "list feeds" 200 "map(select(.id==\"$F\")) | length == 1"
+json PATCH "/rss/feeds/$FE" '{"name":"smoke feed 2"}'; check "rename feed" 200 '.name=="smoke feed 2"'
+json PATCH "/rss/feeds/nope" '{"name":"x"}';     check "patch unknown feed" 404 '.error.code=="feed_not_found"'
+json POST /rss/regexps "{\"feedId\":\"$F\",\"queue\":\"$Q\",\"expression\":\"smoke\",\"tvs\":\"season\"}"
+check "create regexp" 201 ".feedId==\"$F\" and .queue==\"$Q\" and .tvs==\"season\" and .from==\"S00E00\" and (.target|length>0)"
+R=$(echo "$body" | jq -r .id); RE=$(enc "$R")
+json POST /rss/regexps "{\"feedId\":\"$F\",\"queue\":\"$Q\",\"expression\":\"(\"}"; check "invalid regexp" 422 '.error.code=="invalid_property"'
+json POST /rss/regexps "{\"feedId\":\"nope\",\"queue\":\"$Q\"}"; check "regexp with unknown feed" 422
+json POST /rss/regexps "{\"feedId\":\"$F\",\"queue\":\"nope\"}"; check "regexp with unknown queue" 422
+json PATCH "/rss/regexps/$RE" '{"addPaused":true,"to":"S09E99"}'; check "patch regexp" 200 '.addPaused==true and .to=="S09E99" and .expression=="smoke"'
+json PATCH "/rss/regexps/$RE" '{"to":"0001"}';   check "bad range for mode" 422
+req GET /rss/regexps;                            check "list regexps" 200 "map(select(.id==\"$R\")) | length == 1"
+json PUT "/rss/regexps/$RE/downloaded" '["S01E01","S01E02"]'; check "set downloaded" 204
+req GET "/rss/regexps/$RE/downloaded";           check "get downloaded" 200 '. == ["S01E01","S01E02"]'
+json PUT "/rss/regexps/$RE/downloaded" '["2026-10-16"]'; check "downloaded entry of another mode" 422
+json POST /rss/test '{"expression":"smoke.*720p","text":"Smoke Show S01E02 720p","tvs":"season"}'
+check "test regexp" 200 '.matches==true and .episode=="S01E02"'
+json POST /rss/test '{"expression":"(","text":"x"}'; check "test with invalid regexp" 422
+json PATCH "/rss/feeds/$FE" '{"url":"http://127.0.0.1:9/moved.rss"}'; check "change feed url" 200
+req GET /rss/regexps;                            check "regexp follows feed url" 200 "map(select(.id==\"$R\" and .feedId==\"$F\")) | length == 1"
+req POST /rss/refresh;                           check "refresh" 202
+req DELETE "/rss/feeds/$FE";                     check "delete feed" 204
+req GET /rss/regexps;                            check "regexps of a deleted feed are gone" 200 "map(select(.id==\"$R\")) | length == 0"
+req DELETE "/rss/feeds/$FE";                     check "delete feed twice" 404
+req DELETE "/rss/regexps/$RE";                   check "delete cascaded regexp" 404 '.error.code=="regexp_not_found"'
+
 if [ -n "$PASS" ]; then
 	status=$(curl -s -o /dev/null -w '%{http_code}' "$API/queues"); [ "$status" = 401 ] && echo "ok   unauthenticated 401" || { echo "FAIL unauthenticated: $status"; fail=1; }
 fi

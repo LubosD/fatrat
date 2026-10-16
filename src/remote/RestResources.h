@@ -77,6 +77,8 @@ namespace RestResources
 {
 	// Registers the core routes with RestApi. Engine-specific routes are registered by the engines themselves.
 	void registerAll();
+	// The /rss resources. Called by registerAll().
+	void registerRss();
 }
 
 #endif

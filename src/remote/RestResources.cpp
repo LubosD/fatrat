@@ -775,4 +775,6 @@ void RestResources::registerAll()
 	RestApi::registerRoute("POST", "/settings/apply", applySettings);
 	RestApi::registerRoute("GET", "/settings/pages", getSettingsPages);
 	RestApi::registerRoute("POST", "/settings/web-interface/certificate", generateCertificate);
+
+	registerRss();
 }

@@ -174,6 +174,8 @@ set(fatrat_SRCS
 	src/poller/Poller.cpp
 	src/captcha/Captcha.cpp
 	src/rss/RssFetcher.cpp
+	src/rss/RssEpisode.cpp
+	src/rss/RssStore.cpp
 	src/util/BmpWriter.cpp
 	src/util/ExtendedAttributes.cpp
 )
@@ -521,6 +523,8 @@ if(WITH_WEBINTERFACE)
 		src/remote/RestApi.cpp
 		src/remote/DirectoryListing.cpp
 		src/remote/RestResources.cpp
+		src/remote/RestRss.cpp
+		src/remote/RssJson.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_GUI_SRCS

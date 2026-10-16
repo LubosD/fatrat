@@ -30,3 +30,12 @@ add_executable(tst_directorylisting tst_directorylisting.cpp
 target_include_directories(tst_directorylisting PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
 target_link_libraries(tst_directorylisting Qt6::Core Qt6::Test)
 add_test(NAME directorylisting COMMAND tst_directorylisting)
+
+add_executable(tst_rssresources tst_rssresources.cpp
+	${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
+	${CMAKE_SOURCE_DIR}/src/remote/RssJson.cpp
+	${CMAKE_SOURCE_DIR}/src/rss/RssEpisode.cpp
+	${CMAKE_SOURCE_DIR}/src/rss/RssStore.cpp)
+target_include_directories(tst_rssresources PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/rss ${CMAKE_SOURCE_DIR}/src/remote)
+target_link_libraries(tst_rssresources Qt6::Core Qt6::Network Qt6::Test)
+add_test(NAME rssresources COMMAND tst_rssresources)

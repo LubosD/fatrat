@@ -212,6 +212,125 @@ paths:
       responses:
         "200": { description: OK, content: { application/json: { schema: { type: object, required: [path], properties: { path: { type: string } } } } } }
         "500": { $ref: "#/components/responses/Error" }
+  /rss/feeds:
+    get:
+      summary: List the RSS feeds
+      description: |
+        The RSS fetcher runs in the server whether or not any user interface is attached. `rss/enable` and
+        `rss/interval` (minutes) are ordinary settings (see /settings). Feeds and regexps are changed
+        immediately, there is no staged commit, because the server also rewrites the regexps in the background
+        (the list of downloaded episodes).
+      tags: [rss]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/RssFeed" } } } } }
+    post:
+      summary: Add an RSS feed
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeedProperties" } } } }
+      responses:
+        "201": { description: Created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeed" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/feeds/{feed}:
+    parameters:
+      - { name: feed, in: path, required: true, schema: { type: string }, description: Feed id }
+    patch:
+      summary: Change a feed. Changing the URL re-points the regexps that use it.
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeedProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeed" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a feed and every regexp that uses it
+      tags: [rss]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /rss/regexps:
+    get:
+      summary: List the download rules
+      tags: [rss]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/RssRegexp" } } } } }
+    post:
+      summary: Add a download rule
+      description: "`feedId` and `queue` are required. `target` defaults to the queue's default directory."
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexpProperties" } } } }
+      responses:
+        "201": { description: Created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexp" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/regexps/{regexp}:
+    parameters:
+      - { name: regexp, in: path, required: true, schema: { type: string }, description: Regexp id }
+    patch:
+      summary: Change a download rule
+      description: |
+        Changing `tvs` without `from` and `to` resets the range to the widest one of the new mode. In `tvs`
+        mode `none` the range is cleared.
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexpProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexp" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a download rule
+      tags: [rss]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /rss/regexps/{regexp}/downloaded:
+    parameters:
+      - { name: regexp, in: path, required: true, schema: { type: string }, description: Regexp id }
+    get:
+      summary: Episodes the rule considers already downloaded
+      tags: [rss]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { type: string } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      summary: Replace the list of downloaded episodes
+      description: |
+        Entries must match the rule's numbering: `S01E02` (season), `0123` (episode) or `2026-10-16` (date),
+        optionally followed by `|trailer`, `|repack` or `|proper`. 409 if the rule does not track episodes.
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { type: array, items: { type: string } } } } }
+      responses:
+        "204": { description: Stored }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/test:
+    post:
+      summary: Try a regular expression on a title, the way the fetcher would
+      description: Uses the same regular expression flavour and the same episode numbering as the fetcher.
+      tags: [rss]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expression, text]
+              properties:
+                expression: { type: string }
+                text: { type: string }
+                tvs: { $ref: "#/components/schemas/RssTvsMode" }
+                includeRepacks: { type: boolean }
+                includeTrailers: { type: boolean }
+      responses:
+        "200": { description: "`episode` is only present when `tvs` is not `none` and the title yields an episode", content: { application/json: { schema: { type: object, required: [matches], properties: { matches: { type: boolean }, episode: { type: string } } } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/refresh:
+    post:
+      summary: Fetch all feeds now (runs asynchronously on the main thread)
+      tags: [rss]
+      responses:
+        "202": { description: Accepted }
 components:
   parameters:
     queue: { name: queue, in: path, required: true, schema: { type: string }, description: Queue UUID }
@@ -230,7 +349,7 @@ components:
           type: object
           required: [code, message]
           properties:
-            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, invalid_path, path_not_found, path_not_readable, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent" }
+            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, invalid_path, path_not_found, path_not_readable, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent, feed_not_found, regexp_not_found, duplicate_feed, no_episode_tracking" }
             message: { type: string }
     SpeedPair:
       type: object
@@ -253,6 +372,50 @@ components:
             type: object
             required: [name, path]
             properties: { name: { type: string }, path: { type: string } }
+    RssTvsMode: { enum: [none, season, episode, date], description: "How episodes are numbered for duplicate detection: S01E02, 0123 or 2026-10-16" }
+    RssFeed:
+      type: object
+      required: [id, name, url]
+      properties: { id: { type: string }, name: { type: string }, url: { type: string } }
+    RssFeedProperties:
+      type: object
+      additionalProperties: false
+      description: "`name` and `url` are required when creating."
+      properties: { name: { type: string, minLength: 1 }, url: { type: string, minLength: 1 } }
+    RssRegexp:
+      type: object
+      required: [id, feedId, expression, queue, target, addPaused, tvs, from, to, includeRepacks, includeTrailers, excludeManuals, linkRegexp]
+      properties:
+        id: { type: string }
+        feedId: { type: string, description: Empty if the stored rule refers to a feed that no longer exists }
+        expression: { type: string, description: Case-insensitive; empty matches every item of the feed }
+        queue: { type: string, description: Queue UUID }
+        target: { type: string, description: Directory the transfers are saved to }
+        addPaused: { type: boolean }
+        tvs: { $ref: "#/components/schemas/RssTvsMode" }
+        from: { type: string, description: Lowest episode to download }
+        to: { type: string, description: Highest episode to download }
+        includeRepacks: { type: boolean, description: Also download repacks and propers of an episode }
+        includeTrailers: { type: boolean, description: Also download trailers and teasers }
+        excludeManuals: { type: boolean, description: Episodes of torrents added manually count as downloaded }
+        linkRegexp: { type: string, description: "If not empty, the links are taken from the item's description by this expression instead of using the item's own link" }
+    RssRegexpProperties:
+      type: object
+      additionalProperties: false
+      description: Any subset of the writable RssRegexp fields. `feedId` and `queue` are required when creating.
+      properties:
+        feedId: { type: string }
+        expression: { type: string }
+        queue: { type: string }
+        target: { type: string }
+        addPaused: { type: boolean }
+        tvs: { $ref: "#/components/schemas/RssTvsMode" }
+        from: { type: string }
+        to: { type: string }
+        includeRepacks: { type: boolean }
+        includeTrailers: { type: boolean }
+        excludeManuals: { type: boolean }
+        linkRegexp: { type: string }
     Queue:
       type: object
       required: [uuid, name, defaultDirectory, moveDirectory, upAsDown, transferLimits, speedLimits]

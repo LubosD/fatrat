@@ -34,21 +34,21 @@ respects for all of the code used other than "OpenSSL".
 
 struct RssFeed
 {
-	QString name, url;
-	QNetworkReply* reply;
+	QString id, name, url;
+	QNetworkReply* reply = 0;
 };
 
 struct RssRegexp
 {
-	QString source, target;
+	QString id, source, target;
 	QRegularExpression regexp;
 	QString queueUUID, from, to;
 	QStringList epDone;
 	QRegularExpression linkRegexp;
-	int queueIndex;
-	bool excludeManuals, includeTrailers, includeRepacks, addPaused;
+	int queueIndex = -1;
+	bool excludeManuals = true, includeTrailers = false, includeRepacks = false, addPaused = false;
 	
-	enum TVSType { None = 0, SeasonBased, EpisodeBased, DateBased } tvs;
+	enum TVSType { None = 0, SeasonBased, EpisodeBased, DateBased } tvs = None;
 };
 
 class RssFetcher : public QObject
@@ -70,6 +70,8 @@ public:
 	
 	static void updateRegexpQueues(QList<RssRegexp>& items); // g_queuesLock ought to be locked
 	static void loadRegexps(QList<RssRegexp>& items);
+	// the same, but keeps the regexps whose queue no longer exists (queueIndex stays -1)
+	static void loadRegexpsUnfiltered(QList<RssRegexp>& items);
 	static void loadFeeds(QList<RssFeed>& items);
 	
 	static void saveRegexps(const QList<RssRegexp>& items);
@@ -77,6 +79,9 @@ public:
 	
 	static QString generateEpisodeName(const RssRegexp& match, QString itemName);
 	static void dayMonthHeuristics(int& day, int& month);
+	// whether id is a well-formed entry of RssRegexp::epDone for the given tracking mode
+	static bool isValidEpisodeId(RssRegexp::TVSType tvs, const QString& id);
+	static QString newId();
 public slots:
 	void refresh();
 	void requestFinished(QNetworkReply*);

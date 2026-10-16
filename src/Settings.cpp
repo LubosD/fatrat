@@ -89,8 +89,13 @@ void initSettingsPages()
 	si.lpfnCreate = SettingsRssForm::create;
 #endif
 	si.pfnApply = [] { RssFetcher::instance()->applySettings(); };
+	si.webSettingsScript = "/scripts/settings/rss.js";
+	si.webSettingsIconURL = "/img/settings/rss.png";
 	
 	g_settingsPages << si;
+	
+	si.webSettingsScript = 0;
+	si.webSettingsIconURL = 0;
 	
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
