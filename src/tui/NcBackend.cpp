@@ -89,8 +89,9 @@ bool NcBackend::init(bool mouse)
 	m_mouse = mouse;
 	if (mouse)
 	{
-		mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION | BUTTON_SHIFT | BUTTON_CTRL | BUTTON_ALT, nullptr);
-		mouseinterval(0);
+		// We decode the xterm SGR mouse protocol ourselves: ncurses merges and reorders button events
+		keyok(KEY_MOUSE, FALSE);
+		fputs("\033[?1002h\033[?1006h", stdout);
 	}
 	// bracketed paste, so that pasted text does not act as key presses
 	fputs("\033[?2004h", stdout);
@@ -105,6 +106,8 @@ void NcBackend::shutdown()
 		return;
 	m_active = false;
 	fputs("\033[?2004l", stdout);
+	if (m_mouse)
+		fputs("\033[?1006l\033[?1002l", stdout);
 	fflush(stdout);
 	curs_set(1);
 	endwin();
@@ -215,41 +218,161 @@ static Event keyFromCode(int code, bool isKeyCode)
 	return e;
 }
 
+// Parses "ESC [ < b ; x ; y M|m"; returns the number of codes used, 0 if there is no such sequence,
+// or -1 if the sequence is incomplete
+static int parseSgrMouse(const std::vector<wint_t>& v, const std::vector<bool>& special, size_t i, int& b, int& x, int& y, bool& release)
+{
+	auto at = [&](size_t k) -> int { return k < v.size() && !special[k] ? int(v[k]) : -2; };
+	if (at(i) != 27)
+		return 0;
+	if (i + 1 >= v.size())
+		return -1;
+	if (at(i + 1) != '[')
+		return 0;
+	if (i + 2 >= v.size())
+		return -1;
+	if (at(i + 2) != '<')
+		return 0;
+	size_t k = i + 3;
+	int nums[3] = { 0, 0, 0 }, n = 0;
+	bool any = false;
+	for (; k < v.size(); k++)
+	{
+		const int c = at(k);
+		if (c >= '0' && c <= '9')
+		{
+			nums[n] = nums[n] * 10 + (c - '0');
+			any = true;
+		}
+		else if (c == ';' && any && n < 2)
+		{
+			n++;
+			any = false;
+		}
+		else if ((c == 'M' || c == 'm') && any && n == 2)
+		{
+			b = nums[0];
+			x = nums[1] - 1;
+			y = nums[2] - 1;
+			release = c == 'm';
+			return int(k - i + 1);
+		}
+		else
+			return 0;
+	}
+	return -1;
+}
+
 void NcBackend::readEvents(std::vector<Event>& out)
 {
-	struct Raw { wint_t code; bool special; };
-	std::vector<Raw> raw;
+	// everything that is pending, including what an earlier call left over
+	std::vector<wint_t> codes = m_leftCodes;
+	const bool carried = !codes.empty();
+	std::vector<bool> special;
+	for (size_t i = 0; i < codes.size(); i++)
+		special.push_back(false);
+	m_leftCodes.clear();
 	for (;;)
 	{
 		wint_t ch;
 		const int r = get_wch(&ch);
 		if (r == ERR)
 			break;
-		raw.push_back({ ch, r == KEY_CODE_YES });
+		codes.push_back(ch);
+		special.push_back(r == KEY_CODE_YES);
 	}
 
-	for (size_t i = 0; i < raw.size(); i++)
+	for (size_t i = 0; i < codes.size(); i++)
 	{
-		const Raw& r = raw[i];
+		const bool sp = special[i];
+		const wint_t code = codes[i];
+
+		if (!sp && code == 27 && m_mouse)
+		{
+			int b, x, y;
+			bool release;
+			const int used = parseSgrMouse(codes, special, i, b, x, y, release);
+			if (used > 0)
+			{
+				const qint64 now = QDateTime::currentMSecsSinceEpoch();
+				Event e;
+				e.type = Event::Mouse;
+				e.x = x;
+				e.y = y;
+				e.shift = b & 4;
+				e.alt = b & 8;
+				e.ctrl = b & 16;
+				const int low = b & 3;
+				if (b & 64)
+				{
+					e.mouse = low == 1 ? Event::WheelDown : Event::WheelUp;
+					if (!release)
+						out.push_back(e);
+				}
+				else if (b & 32)
+				{
+					e.mouse = Event::Drag;
+					e.button = low + 1;
+					if (m_buttonDown)
+						out.push_back(e);
+				}
+				else if (release)
+				{
+					e.mouse = Event::Release;
+					e.button = low + 1;
+					m_buttonDown = false;
+					out.push_back(e);
+				}
+				else
+				{
+					e.mouse = Event::Press;
+					e.button = low + 1;
+					e.doubleClick = e.button == 1 && x == m_lastPressX && y == m_lastPressY && now - m_lastPressMs < 400;
+					if (e.button == 1)
+					{
+						m_lastPressMs = e.doubleClick ? 0 : now;
+						m_lastPressX = x;
+						m_lastPressY = y;
+					}
+					m_buttonDown = true;
+					out.push_back(e);
+				}
+				i += used - 1;
+				continue;
+			}
+			if (used < 0 && i + 1 < codes.size() && !carried)
+			{
+				// an incomplete sequence at the end of this burst: finish it with the next one
+				for (size_t k = i; k < codes.size(); k++)
+					m_leftCodes.push_back(codes[k]);
+				return;
+			}
+		}
 
 		// bracketed paste: ESC [ 2 0 0 ~ ... ESC [ 2 0 1 ~
-		if (!r.special && r.code == 27 && i + 5 < raw.size() + 0 && raw[i + 1].code == '[' && raw[i + 2].code == '2' && raw[i + 3].code == '0' && raw[i + 4].code == '0' && raw[i + 5].code == '~')
+		auto seq = [&](size_t at, const char* text) {
+			for (size_t k = 0; text[k]; k++)
+				if (at + k >= codes.size() || special[at + k] || codes[at + k] != wint_t(text[k]))
+					return false;
+			return true;
+		};
+		if (!sp && code == 27 && seq(i + 1, "[200~"))
 		{
 			QString text;
 			size_t j = i + 6;
-			for (; j < raw.size(); j++)
+			for (; j < codes.size(); j++)
 			{
-				if (raw[j].code == 27 && j + 5 < raw.size() + 0 && raw[j + 1].code == '[' && raw[j + 2].code == '2' && raw[j + 3].code == '0' && raw[j + 4].code == '1' && raw[j + 5].code == '~')
+				if (codes[j] == 27 && seq(j + 1, "[201~"))
 					break;
-				if (!raw[j].special)
-					text += QString::fromUcs4(reinterpret_cast<const char32_t*>(&raw[j].code), 1);
+				if (!special[j])
+					text += QString::fromUcs4(reinterpret_cast<const char32_t*>(&codes[j]), 1);
 			}
 			out.push_back(Event::pasteEvent(text));
 			i = j + 5;
 			continue;
 		}
 
-		if (r.special && r.code == KEY_RESIZE)
+		if (sp && code == KEY_RESIZE)
 		{
 			Event e;
 			e.type = Event::Resize;
@@ -257,57 +380,7 @@ void NcBackend::readEvents(std::vector<Event>& out)
 			continue;
 		}
 
-		if (r.special && r.code == KEY_MOUSE)
-		{
-			MEVENT m;
-			if (getmouse(&m) != OK)
-				continue;
-			const mmask_t b = m.bstate;
-			Event e;
-			e.type = Event::Mouse;
-			e.x = m.x;
-			e.y = m.y;
-			e.ctrl = b & BUTTON_CTRL;
-			e.shift = b & BUTTON_SHIFT;
-			e.alt = b & BUTTON_ALT;
-			const qint64 now = QDateTime::currentMSecsSinceEpoch();
-
-			auto press = [&](int button) {
-				e.mouse = Event::Press;
-				e.button = button;
-				e.doubleClick = button == 1 && m.x == m_lastPressX && m.y == m_lastPressY && now - m_lastPressMs < 400;
-				if (button == 1)
-				{
-					m_lastPressMs = e.doubleClick ? 0 : now;
-					m_lastPressX = m.x;
-					m_lastPressY = m.y;
-				}
-				m_buttonDown = true;
-				out.push_back(e);
-			};
-			if (b & BUTTON1_PRESSED) press(1);
-			else if (b & BUTTON2_PRESSED) press(2);
-			else if (b & BUTTON3_PRESSED) press(3);
-			else if (b & BUTTON4_PRESSED) { e.mouse = Event::WheelUp; out.push_back(e); }
-#ifdef BUTTON5_PRESSED
-			else if (b & BUTTON5_PRESSED) { e.mouse = Event::WheelDown; out.push_back(e); }
-#endif
-			else if (b & (BUTTON1_RELEASED | BUTTON2_RELEASED | BUTTON3_RELEASED))
-			{
-				e.mouse = Event::Release;
-				e.button = (b & BUTTON1_RELEASED) ? 1 : (b & BUTTON2_RELEASED) ? 2 : 3;
-				m_buttonDown = false;
-				out.push_back(e);
-			}
-			else if ((b & REPORT_MOUSE_POSITION) && m_buttonDown)
-			{
-				e.mouse = Event::Drag;
-				out.push_back(e);
-			}
-			continue;
-		}
-
-		Event e = keyFromCode(int(r.code), r.special);
+		Event e = keyFromCode(int(code), sp);
 		if (e.type == Event::Key)
 			out.push_back(e);
 	}

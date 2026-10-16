@@ -1,6 +1,7 @@
 #pragma once
 #include "Canvas.h"
 #include "Event.h"
+#include <cwchar>
 #include <vector>
 
 namespace tui
@@ -29,6 +30,7 @@ namespace tui
 		bool m_active = false, m_mouse = false, m_cursorVisible = false;
 		int m_cx = 0, m_cy = 0;
 		bool m_buttonDown = false;
+		std::vector<wint_t> m_leftCodes;
 		qint64 m_lastPressMs = 0;
 		int m_lastPressX = -1, m_lastPressY = -1;
 	};
