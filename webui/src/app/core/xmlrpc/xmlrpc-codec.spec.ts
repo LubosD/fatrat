@@ -50,9 +50,9 @@ describe('encodeMethodCall', () => {
   });
 
   it('wraps multiple params correctly', () => {
-    const xml = encodeMethodCall('Queue_getTransfers', ['uuid-1']);
+    const xml = encodeMethodCall('Queue.getTransfers', ['uuid-1']);
     expect(xml).toBe(
-      '<?xml version="1.0"?><methodCall><methodName>Queue_getTransfers</methodName>' +
+      '<?xml version="1.0"?><methodCall><methodName>Queue.getTransfers</methodName>' +
         '<params><param><value><string>uuid-1</string></value></param></params></methodCall>',
     );
   });

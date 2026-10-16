@@ -53,7 +53,7 @@ describe('XmlRpcTransferApi', () => {
     });
   });
 
-  it('getQueueTransfers() calls Queue_getTransfers with the queue uuid', () => {
+  it('getQueueTransfers() calls Queue.getTransfers with the queue uuid', () => {
     return new Promise<void>((done) => {
       api.getQueueTransfers('q1').subscribe((transfers) => {
         expect(transfers).toEqual([]);
@@ -61,7 +61,7 @@ describe('XmlRpcTransferApi', () => {
       });
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Queue_getTransfers</methodName>');
+      expect(req.request.body).toContain('<methodName>Queue.getTransfers</methodName>');
       expect(req.request.body).toContain('<value><string>q1</string></value>');
       req.flush(
         '<?xml version="1.0"?><methodResponse><params><param><value><array><data></data></array></value></param></params></methodResponse>',
@@ -69,12 +69,12 @@ describe('XmlRpcTransferApi', () => {
     });
   });
 
-  it('deleteTransfers() calls Transfer_delete with uuids and withData', () => {
+  it('deleteTransfers() calls Transfer.delete with uuids and withData', () => {
     return new Promise<void>((done) => {
       api.deleteTransfers(['t1', 't2'], true).subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Transfer_delete</methodName>');
+      expect(req.request.body).toContain('<methodName>Transfer.delete</methodName>');
       expect(req.request.body).toContain('<value><string>t1</string></value>');
       expect(req.request.body).toContain('<value><string>t2</string></value>');
       expect(req.request.body).toContain('<value><boolean>1</boolean></value>');
@@ -82,12 +82,12 @@ describe('XmlRpcTransferApi', () => {
     });
   });
 
-  it('moveTransfers() calls Queue_moveTransfers with the direction string', () => {
+  it('moveTransfers() calls Queue.moveTransfers with the direction string', () => {
     return new Promise<void>((done) => {
       api.moveTransfers('q1', ['t1'], 'top').subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Queue_moveTransfers</methodName>');
+      expect(req.request.body).toContain('<methodName>Queue.moveTransfers</methodName>');
       expect(req.request.body).toContain('<string>top</string>');
       req.flush('<?xml version="1.0"?><methodResponse><params></params></methodResponse>');
     });
@@ -104,7 +104,7 @@ describe('XmlRpcTransferApi', () => {
       });
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Transfer_getSpeedGraph</methodName>');
+      expect(req.request.body).toContain('<methodName>Transfer.getSpeedData</methodName>');
       req.flush(
         '<?xml version="1.0"?><methodResponse><params><param><value><string>12,3;15,4;</string></value></param></params></methodResponse>',
       );
@@ -125,7 +125,7 @@ describe('XmlRpcTransferApi', () => {
     });
   });
 
-  it('addTransfers() calls Queue_addTransfers with positional args in the exact backend order', () => {
+  it('addTransfers() calls Queue.addTransfers with positional args in the exact backend order', () => {
     return new Promise<void>((done) => {
       api
         .addTransfers(['http://example.com/a'], {
@@ -142,10 +142,10 @@ describe('XmlRpcTransferApi', () => {
         });
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Queue_addTransfers</methodName>');
+      expect(req.request.body).toContain('<methodName>Queue.addTransfers</methodName>');
       // bool upload, QString uuid, QStringList urls, QString class, QString target, bool paused, int down, int up
       expect(req.request.body).toBe(
-        '<?xml version="1.0"?><methodCall><methodName>Queue_addTransfers</methodName><params>' +
+        '<?xml version="1.0"?><methodCall><methodName>Queue.addTransfers</methodName><params>' +
           '<param><value><boolean>0</boolean></value></param>' +
           '<param><value><string>q1</string></value></param>' +
           '<param><value><array><data><value><string>http://example.com/a</string></value></data></array></value></param>' +
@@ -170,7 +170,7 @@ describe('XmlRpcTransferApi', () => {
       });
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Settings_getPages</methodName>');
+      expect(req.request.body).toContain('<methodName>Settings.getPages</methodName>');
       req.flush(
         '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><struct>' +
           '<member><name>title</name><value><string>BitTorrent</string></value></member>' +
@@ -230,7 +230,7 @@ describe('XmlRpcTransferApi', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     const req = httpMock.expectOne('/xmlrpc');
-    expect(req.request.body).toContain('<methodName>Queue_addTransferWithData</methodName>');
+    expect(req.request.body).toContain('<methodName>Queue.addTransferWithData</methodName>');
     req.flush(
       '<?xml version="1.0"?><methodResponse><params><param><value><string>t1</string></value></param></params></methodResponse>',
     );
@@ -243,7 +243,7 @@ describe('XmlRpcTransferApi', () => {
       api.createQueue({ name: 'Movies', speedLimits: { down: 100, up: 50 } }).subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Queue_create</methodName>');
+      expect(req.request.body).toContain('<methodName>Queue.create</methodName>');
       expect(req.request.body).toContain(
         '<member><name>speedLimits</name><value><array><data><value><int>100</int></value><value><int>50</int></value></data></array></value></member>',
       );
@@ -258,7 +258,7 @@ describe('XmlRpcTransferApi', () => {
         .subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Queue_setProperties</methodName>');
+      expect(req.request.body).toContain('<methodName>Queue.setProperties</methodName>');
       expect(req.request.body).toContain(
         '<member><name>transferLimits</name><value><array><data><value><int>5</int></value><value><int>3</int></value></data></array></value></member>',
       );
@@ -271,7 +271,7 @@ describe('XmlRpcTransferApi', () => {
       api.createQueue({ name: 'X' }).subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
-      expect(req.request.body).toContain('<methodName>Queue_create</methodName>');
+      expect(req.request.body).toContain('<methodName>Queue.create</methodName>');
       expect(req.request.body).toContain(
         '<param><value><struct><member><name>name</name><value><string>X</string></value></member></struct></value></param>',
       );

@@ -117,24 +117,24 @@ export class XmlRpcTransferApi extends TransferApi {
 
   createQueue(properties: Partial<Queue>): Observable<void> {
     return this.client
-      .call('Queue_create', toQueuePropertiesPayload(properties))
+      .call('Queue.create', toQueuePropertiesPayload(properties))
       .pipe(map(() => undefined));
   }
 
   setQueueProperties(uuid: string, properties: Partial<Queue>): Observable<void> {
     return this.client
-      .call('Queue_setProperties', uuid, toQueuePropertiesPayload(properties))
+      .call('Queue.setProperties', uuid, toQueuePropertiesPayload(properties))
       .pipe(map(() => undefined));
   }
 
   getQueueTransfers(queueUuid: string): Observable<Transfer[]> {
     return this.client
-      .call('Queue_getTransfers', queueUuid)
+      .call('Queue.getTransfers', queueUuid)
       .pipe(map((raw) => (raw as { [key: string]: XmlRpcValue }[]).map(toTransfer)));
   }
 
   getQueueSpeedGraph(queueUuid: string): Observable<SpeedSample[]> {
-    return this.client.call('Queue_getSpeedGraph', queueUuid).pipe(map(parseSpeedGraph));
+    return this.client.call('Queue.getSpeedData', queueUuid).pipe(map(parseSpeedGraph));
   }
 
   moveTransfers(
@@ -143,19 +143,19 @@ export class XmlRpcTransferApi extends TransferApi {
     direction: 'top' | 'up' | 'down' | 'bottom',
   ): Observable<void> {
     return this.client
-      .call('Queue_moveTransfers', queueUuid, transferUuids, direction)
+      .call('Queue.moveTransfers', queueUuid, transferUuids, direction)
       .pipe(map(() => undefined));
   }
 
   getTransferProperties(uuid: string): Observable<Transfer> {
     return this.client
-      .call('Transfer_getProperties', uuid)
+      .call('Transfer.getProperties', uuid)
       .pipe(map((raw) => toTransfer(raw as { [key: string]: XmlRpcValue })));
   }
 
   getTransferAdvancedProperties(uuid: string): Observable<{ [key: string]: XmlRpcValue }> {
     return this.client
-      .call('Transfer_getAdvancedProperties', uuid)
+      .call('Transfer.getAdvancedProperties', uuid)
       .pipe(map((raw) => raw as { [key: string]: XmlRpcValue }));
   }
 
@@ -163,21 +163,21 @@ export class XmlRpcTransferApi extends TransferApi {
     uuids: string[],
     properties: { [key: string]: XmlRpcValue },
   ): Observable<void> {
-    return this.client.call('Transfer_setProperties', uuids, properties).pipe(map(() => undefined));
+    return this.client.call('Transfer.setProperties', uuids, properties).pipe(map(() => undefined));
   }
 
   deleteTransfers(uuids: string[], withData: boolean): Observable<void> {
-    return this.client.call('Transfer_delete', uuids, withData).pipe(map(() => undefined));
+    return this.client.call('Transfer.delete', uuids, withData).pipe(map(() => undefined));
   }
 
   getTransferSpeedGraph(uuid: string): Observable<SpeedSample[]> {
-    return this.client.call('Transfer_getSpeedGraph', uuid).pipe(map(parseSpeedGraph));
+    return this.client.call('Transfer.getSpeedData', uuid).pipe(map(parseSpeedGraph));
   }
 
   addTransfers(urls: string[], options: NewTransferOptions): Observable<string[]> {
     return this.client
       .call(
-        'Queue_addTransfers',
+        'Queue.addTransfers',
         options.upload,
         options.queueUuid,
         urls,
@@ -199,7 +199,7 @@ export class XmlRpcTransferApi extends TransferApi {
           if (cancelled) return;
           sub = this.client
             .call(
-              'Queue_addTransferWithData',
+              'Queue.addTransferWithData',
               options.upload,
               options.queueUuid,
               file.name,
@@ -223,20 +223,20 @@ export class XmlRpcTransferApi extends TransferApi {
   }
 
   getSettingsValues(keys: string[]): Observable<XmlRpcValue[]> {
-    return this.client.call('Settings_getValue', keys).pipe(map((raw) => raw as XmlRpcValue[]));
+    return this.client.call('Settings.getValue', keys).pipe(map((raw) => raw as XmlRpcValue[]));
   }
 
   setSettingsValues(keys: string[], values: XmlRpcValue[]): Observable<void> {
-    return this.client.call('Settings_setValue', keys, values).pipe(map(() => undefined));
+    return this.client.call('Settings.setValue', keys, values).pipe(map(() => undefined));
   }
 
   applySettings(): Observable<void> {
-    return this.client.call('Settings_apply').pipe(map(() => undefined));
+    return this.client.call('Settings.apply').pipe(map(() => undefined));
   }
 
   getSettingsPages(): Observable<SettingsPage[]> {
     return this.client
-      .call('Settings_getPages')
+      .call('Settings.getPages')
       .pipe(map((raw) => (raw as { [key: string]: XmlRpcValue }[]).map(toSettingsPage)));
   }
 

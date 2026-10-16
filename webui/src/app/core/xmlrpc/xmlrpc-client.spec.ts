@@ -40,7 +40,7 @@ describe('XmlRpcClient', () => {
 
   it('passes params through the encoder', () => {
     return new Promise<void>((done) => {
-      client.call('Queue_getTransfers', 'uuid-1').subscribe(() => done());
+      client.call('Queue.getTransfers', 'uuid-1').subscribe(() => done());
 
       const req = httpMock.expectOne('/xmlrpc');
       expect(req.request.body).toContain('<value><string>uuid-1</string></value>');
@@ -52,7 +52,7 @@ describe('XmlRpcClient', () => {
 
   it('propagates XmlRpcFault from a fault response', () => {
     return new Promise<void>((done) => {
-      client.call('Queue_getTransfers', 'bad-uuid').subscribe({
+      client.call('Queue.getTransfers', 'bad-uuid').subscribe({
         error: (err) => {
           expect(err).toBeInstanceOf(XmlRpcFault);
           expect((err as XmlRpcFault).faultCode).toBe(101);
