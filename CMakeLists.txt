@@ -464,6 +464,7 @@ if(WITH_BITTORRENT)
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}
+		src/engines/TorrentDownloadGui.cpp
 		src/engines/TorrentDetails.cpp
 		src/engines/TorrentFilesModel.cpp
 		src/engines/TorrentOptsWidget.cpp

@@ -69,7 +69,6 @@ public:
 	virtual ~TorrentDownload();
 	
 	static Transfer* createInstance() { return new TorrentDownload; }
-	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon& i);
 	static int acceptable(QString url, bool);
 	
 	static void globalInit();
@@ -99,9 +98,11 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
+#ifdef WITH_GUI
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QObject* createDetailsWidget(QWidget* widget);
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+#endif
 	virtual QString remoteURI() const;
 
 	virtual QString dataPath(bool bDirect = true) const;
@@ -157,7 +158,9 @@ protected:
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;
 	static QList<QRegExp> m_listBTLinks;
+#ifdef WITH_GUI
 	static QLabel* m_labelDHTStats;
+#endif
 	static QMutex m_mutexAlerts;
 	
 	friend class TorrentWorker;
@@ -179,7 +182,9 @@ public:
 	void addObject(TorrentDownload* d);
 	void removeObject(TorrentDownload* d);
 	// To reduce QTimer usage
+#ifdef WITH_GUI
 	void setDetailsObject(TorrentDetails* d);
+#endif
 	TorrentDownload* getByHandle(libtorrent::torrent_handle handle) const;
 	void processAlert(libtorrent::alert* aaa);
 public slots:

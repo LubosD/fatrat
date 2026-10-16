@@ -33,8 +33,6 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_GUI
 #	include "TorrentSettings.h"
 #endif
-#include "TorrentDetails.h"
-#include "TorrentOptsWidget.h"
 #include "RuntimeException.h"
 #include "rss/RssFetcher.h"
 #include "TorrentPieceMap.h"
@@ -58,14 +56,14 @@ respects for all of the code used other than "OpenSSL".
 #include <memory>
 #include <iostream>
 
-#include <QIcon>
-#include <QMenu>
 #include <QLibrary>
 #include <QDir>
 #include <QUrl>
 #include <QFile>
 #include <QVector>
-#include <QLabel>
+#ifdef WITH_GUI
+#	include <QLabel>
+#endif
 #include <QBuffer>
 #include <QtDebug>
 #include <QNetworkAccessManager>
@@ -92,7 +90,9 @@ libtorrent::session* TorrentDownload::m_session = 0;
 TorrentWorker* TorrentDownload::m_worker = 0;
 bool TorrentDownload::m_bDHT = false;
 QList<QRegExp> TorrentDownload::m_listBTLinks;
+#ifdef WITH_GUI
 QLabel* TorrentDownload::m_labelDHTStats = 0;
+#endif
 QMutex TorrentDownload::m_mutexAlerts;
 
 const char* TORRENT_FILE_STORAGE = ".local/share/fatrat/torrents";
@@ -188,6 +188,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 	const bool dht = getSettingsValue("torrent/dht").toBool();
 	settings.set_bool(libtorrent::settings_pack::enable_dht, dht);
 
+#ifdef WITH_GUI
 	if (programHasGUI())
 	{
 		if (dht)
@@ -195,6 +196,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 		else
 			removeStatusWidget(m_labelDHTStats);
 	}
+#endif
 
 	settings.set_int(libtorrent::settings_pack::alert_mask, libtorrent::alert_category::status | libtorrent::alert_category::storage | libtorrent::alert_category::tracker | libtorrent::alert_category::error);
 
@@ -275,8 +277,10 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 
 void TorrentDownload::globalInit()
 {
+#ifdef WITH_GUI
 	if (programHasGUI())
 		m_labelDHTStats = new QLabel;
+#endif
 
 	libtorrent::session_params params;
 
@@ -1292,11 +1296,16 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 			if (dht_torrents_idx != -1)
 				dht_torrents = alert->counters()[dht_torrents_idx];
 
+#ifdef WITH_GUI
 			if(TorrentDownload::m_bDHT && TorrentDownload::m_labelDHTStats && (dht_nodes != -1 || dht_torrents != -1))
 			{
 				QString text = tr("<b>DHT:</b> %1 nodes, %2 torrents tracked").arg(dht_nodes).arg(dht_torrents);
 				TorrentDownload::m_labelDHTStats->setText(text);
 			}
+#else
+			Q_UNUSED(dht_nodes);
+			Q_UNUSED(dht_torrents);
+#endif
 		}
 	}
 	else
@@ -1437,27 +1446,6 @@ void TorrentDownload::forceRecheck()
 	m_handle.force_recheck();
 }
 
-void TorrentDownload::fillContextMenu(QMenu& menu)
-{
-	QAction* a;
-	
-	a = menu.addAction(tr("Force announce"));
-	connect(a, SIGNAL(triggered()), this, SLOT(forceReannounce()));
-	a = menu.addAction(QIcon(":/menu/reload.png"), tr("Recheck files"));
-	a->setDisabled(isActive());
-	connect(a, SIGNAL(triggered()), this, SLOT(forceRecheck()));
-}
-
-QObject* TorrentDownload::createDetailsWidget(QWidget* widget)
-{
-	return new TorrentDetails(widget, this);
-}
-
-WidgetHostChild* TorrentDownload::createOptionsWidget(QWidget* w)
-{
-	return new TorrentOptsWidget(w, this);
-}
-
 QString TorrentDownload::remoteURI() const
 {
 	if (!m_handle.is_valid())
@@ -1514,8 +1502,3 @@ QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
 	return QVariant();
 }
 #endif
-
-void TorrentWorker::setDetailsObject(TorrentDetails* d)
-{
-	connect(&m_timer, SIGNAL(timeout()), d, SLOT(refresh()));
-}
