@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
@@ -24,6 +24,7 @@ const KEYS = [
 export class BittorrentSettings {
   private readonly transferApi = inject(TransferApi);
   private readonly draft = inject(SettingsDraftService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly allocationOptions = [
     { label: 'Full', value: 0 },
@@ -63,7 +64,11 @@ export class BittorrentSettings {
 
   constructor() {
     this.transferApi.getSettingsValues([...KEYS]).subscribe({
-      next: (values) => this.applyLoadedValues(values),
+      next: (values) => {
+        this.applyLoadedValues(values);
+        // The app is zoneless and these fields are plain properties, so tell Angular to re-render.
+        this.cdr.markForCheck();
+      },
       error: (err) => console.error('Failed to load BitTorrent settings', err),
     });
   }

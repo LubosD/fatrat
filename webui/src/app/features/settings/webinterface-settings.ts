@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
@@ -20,6 +20,7 @@ const KEYS = ['remote/enable', 'remote/port', 'remote/password', 'remote/ssl', '
 export class WebinterfaceSettings {
   private readonly transferApi = inject(TransferApi);
   private readonly draft = inject(SettingsDraftService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly certApi = inject(WebinterfaceSettingsApiService);
 
   protected enable = false;
@@ -33,7 +34,11 @@ export class WebinterfaceSettings {
 
   constructor() {
     this.transferApi.getSettingsValues([...KEYS]).subscribe({
-      next: (values) => this.applyLoadedValues(values),
+      next: (values) => {
+        this.applyLoadedValues(values);
+        // The app is zoneless and these fields are plain properties, so tell Angular to re-render.
+        this.cdr.markForCheck();
+      },
       error: (err) => console.error('Failed to load web interface settings', err),
     });
   }
