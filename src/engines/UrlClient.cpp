@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 UrlClient::UrlClient()
-	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_postData(0), m_bTerminating(false)
+	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_postData(0), m_bTerminating(false), m_bRangeRequested(false), m_bRangeChecked(false)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -74,8 +74,6 @@ qlonglong UrlClient::progress() const
 	return m_progress;
 }
 
-int anti_crash_fun();
-
 void UrlClient::start()
 {
 	QByteArray ba, auth;
@@ -90,6 +88,13 @@ void UrlClient::start()
 	qDebug() << "Position in file:" << lseek64(m_target, 0, SEEK_CUR);
 	
 	m_curl = curl_easy_init();
+	if(!m_curl)
+	{
+		emit failure(tr("Failed to initialize libcurl"));
+		return;
+	}
+	m_bRangeRequested = m_rangeFrom > 0;
+	m_bRangeChecked = false;
 	
 	if(!url.userInfo().isEmpty())
 	{
@@ -118,7 +123,7 @@ void UrlClient::start()
 
 	if (!m_source->strPostData.isEmpty())
 	{
-		curl_easy_setopt(m_curl, CURLOPT_POST, true);
+		curl_easy_setopt(m_curl, CURLOPT_POST, 1L);
 		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, m_source->strPostData.constData());
 		curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, qint64(m_source->strPostData.size()));
 	}
@@ -126,13 +131,14 @@ void UrlClient::start()
 	Proxy proxy = Proxy::getProxy(m_source->proxy);
 	if(proxy.nType != Proxy::ProxyNone)
 	{
-		QByteArray p;
-		
-		if(proxy.strUser.isEmpty())
-			p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
-		else
-			p = QString("%1:%2@%3:%4").arg(proxy.strUser).arg(proxy.strPassword).arg(proxy.strIP).arg(proxy.nPort).toLatin1();
+		QByteArray p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
 		curl_easy_setopt(m_curl, CURLOPT_PROXY, p.constData());
+		if(!proxy.strUser.isEmpty())
+		{
+			QByteArray user = proxy.strUser.toUtf8(), pass = proxy.strPassword.toUtf8();
+			curl_easy_setopt(m_curl, CURLOPT_PROXYUSERNAME, user.constData());
+			curl_easy_setopt(m_curl, CURLOPT_PROXYPASSWORD, pass.constData());
+		}
 		
 		int type;
 		if(proxy.nType == Proxy::ProxySocks5)
@@ -141,7 +147,7 @@ void UrlClient::start()
 			type = CURLPROXY_HTTP;
 		else
 			type = 0;
-		curl_easy_setopt(m_curl, CURLOPT_PROXYTYPE, type);
+		curl_easy_setopt(m_curl, CURLOPT_PROXYTYPE, long(type));
 	}
 	else
 		curl_easy_setopt(m_curl, CURLOPT_PROXY, "");
@@ -151,11 +157,11 @@ void UrlClient::start()
 		curl_easy_setopt(m_curl, CURLOPT_INTERFACE, ba.constData());
 	
 	if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
-		curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, long(CURL_IPRESOLVE_V4));
 	
-	curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, true);
-	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, true);
-	curl_easy_setopt(m_curl, CURLOPT_UNRESTRICTED_AUTH, true);
+	curl_easy_setopt(m_curl, CURLOPT_AUTOREFERER, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_UNRESTRICTED_AUTH, 1L);
 
 	if (m_source->strUserAgent.isEmpty())
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
@@ -164,8 +170,7 @@ void UrlClient::start()
 		QByteArray ba = m_source->strUserAgent.toUtf8();
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, ba.constData());
 	}
-	curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
-	curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
+	curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, long(CURLFTPMETHOD_SINGLECWD));
 
 	if(m_rangeFrom || m_rangeTo != -1)
 	{
@@ -193,25 +198,23 @@ void UrlClient::start()
 	}
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
-	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
+	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
-	curl_easy_setopt(m_curl, CURLOPT_FAILONERROR, true);
-	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
-	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
-	curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD);
-	curl_easy_setopt(m_curl, CURLOPT_USE_SSL, false);
+	curl_easy_setopt(m_curl, CURLOPT_FAILONERROR, 1L);
+	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	curl_easy_setopt(m_curl, CURLOPT_SSH_AUTH_TYPES, long(CURLSSH_AUTH_PASSWORD | CURLSSH_AUTH_KEYBOARD));
+	curl_easy_setopt(m_curl, CURLOPT_USE_SSL, 0L);
 	
 	int timeout = getSettingsValue("httpftp/timeout").toInt();
-	curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, timeout);
-	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, timeout);
-	curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, true);
+	curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, long(timeout));
+	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, long(timeout));
+	curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, 1L);
 	
 	//curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 	//curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
 	
-	// BUG (CRASH) WORKAROUND
-	curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, true); // this doesn't help
-	curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
+	curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
 }
 
 void UrlClient::stop()
@@ -228,7 +231,9 @@ size_t UrlClient::process_header(const char* ptr, size_t size, size_t nmemb, Url
 	QByteArray line = QByteArray(ptr, size*nmemb).trimmed();
 	int pos = line.indexOf(": ");
 	
-	if(pos != -1)
+	if(line.startsWith("HTTP/"))
+		This->m_headers.clear();
+	else if(pos != -1)
 		This->m_headers[line.left(pos).toLower()] = line.mid(pos+2);
 	if(line.isEmpty())
 		This->processHeaders();
@@ -251,6 +256,12 @@ void UrlClient::processHeaders()
 		QByteArray newurl = m_headers["location"];
 		//if(m_bAutoName)
 		//	setTargetName(QFileInfo(newurl).fileName());
+		int cut = newurl.indexOf('?');
+		int hash = newurl.indexOf('#');
+		if(cut == -1 || (hash != -1 && hash < cut))
+			cut = hash;
+		if(cut != -1)
+			newurl.truncate(cut);
 		emit renameTo(QFileInfo(newurl).fileName());
 	}
 	
@@ -269,6 +280,13 @@ void UrlClient::processContentDisposition(const QByteArray& con)
 		QRegularExpressionMatch quotedMatch = quoted.match(name);
 		if(quotedMatch.hasMatch())
 			name = quotedMatch.captured(1);
+		else
+		{
+			int semi = name.indexOf(';');
+			if(semi != -1)
+				name.truncate(semi);
+			name = name.trimmed();
+		}
 		
 		name.replace('/', '_');
 		qDebug() << "Automatically renaming to" << name;
@@ -326,6 +344,21 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	if(m_bTerminating)
 		return true;
 	
+	if(m_bRangeRequested && !m_bRangeChecked)
+	{
+		long code = 0;
+		m_bRangeChecked = true;
+		curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &code);
+		if(code == 200)
+		{
+			// The server ignored our Range header and is sending the whole file
+			qDebug() << "Server ignored the Range header";
+			m_bTerminating = true;
+			emit rangesUnsupported();
+			return false;
+		}
+	}
+	
 	if(m_rangeTo == -1)
 	{
 		double len;
@@ -344,8 +377,8 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	}
 	if(!m_progress)
 	{
-		char url[1024];
-		if (curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, url) == CURLE_OK)
+		char* url = 0;
+		if (curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, &url) == CURLE_OK && url)
 		{
 			QString surl = m_source->url.toString();
 			QString enc = m_source->url.toEncoded();
@@ -365,11 +398,20 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	
 	if (towrite > 0)
 	{
-		if (write(m_target, buffer, towrite) != towrite && !m_bTerminating)
+		int written = 0;
+		while (written < towrite)
 		{
-			emit failure(tr("Write failed (%1)").arg(strerror(errno)));
-			m_bTerminating = true;
-			return false;
+			ssize_t r = write(m_target, buffer + written, towrite - written);
+			if (r < 0 && errno == EINTR)
+				continue;
+			if (r <= 0)
+			{
+				if (!m_bTerminating)
+					emit failure(tr("Write failed (%1)").arg(r < 0 ? strerror(errno) : "short write"));
+				m_bTerminating = true;
+				return false;
+			}
+			written += int(r);
 		}
 	}
 

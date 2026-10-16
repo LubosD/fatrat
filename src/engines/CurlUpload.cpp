@@ -115,8 +115,6 @@ int CurlUpload::seek_function(QFile* file, curl_off_t offset, int origin)
 	return 0;
 }
 
-int anti_crash_fun();
-
 void CurlUpload::changeActive(bool nowActive)
 {
 	if(nowActive)
@@ -132,18 +130,23 @@ void CurlUpload::changeActive(bool nowActive)
 		m_nTotal = m_file.size();
 		
 		m_curl = curl_easy_init();
-		curl_easy_setopt(m_curl, CURLOPT_UPLOAD, true);
+		if(!m_curl)
+		{
+			enterLogMessage(m_strMessage = tr("Failed to initialize libcurl"));
+			m_file.close();
+			setState(Failed);
+			return;
+		}
+		curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1L);
 		curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, total());
 		curl_easy_setopt(m_curl, CURLOPT_RESUME_FROM_LARGE, -1LL);
 		curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, m_nTotal);
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
-		curl_easy_setopt(m_curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
-		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
-		curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
+		curl_easy_setopt(m_curl, CURLOPT_FTP_FILEMETHOD, long(CURLFTPMETHOD_SINGLECWD));
 		
 		curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
-		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, 0L);
 		
 		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_function);
 		curl_easy_setopt(m_curl, CURLOPT_READDATA, static_cast<CurlUser*>(this));
@@ -152,11 +155,11 @@ void CurlUpload::changeActive(bool nowActive)
 		curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, &m_file);
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
 		curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
-		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
+		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, 1L);
 		
 		int timeout = getSettingsValue("httpftp/timeout").toInt();
-		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, timeout);
-		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, timeout);
+		curl_easy_setopt(m_curl, CURLOPT_FTP_RESPONSE_TIMEOUT, long(timeout));
+		curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, long(timeout));
 		
 		{
 			QByteArray ba;
@@ -183,13 +186,14 @@ void CurlUpload::changeActive(bool nowActive)
 		Proxy proxy = Proxy::getProxy(m_proxy);
 		if(proxy.nType != Proxy::ProxyNone)
 		{
-			QByteArray p;
-			
-			if(proxy.strUser.isEmpty())
-				p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
-			else
-				p = QString("%1:%2@%3:%4").arg(proxy.strUser).arg(proxy.strPassword).arg(proxy.strIP).arg(proxy.nPort).toLatin1();
+			QByteArray p = QString("%1:%2").arg(proxy.strIP).arg(proxy.nPort).toLatin1();
 			curl_easy_setopt(m_curl, CURLOPT_PROXY, p.constData());
+			if(!proxy.strUser.isEmpty())
+			{
+				QByteArray user = proxy.strUser.toUtf8(), pass = proxy.strPassword.toUtf8();
+				curl_easy_setopt(m_curl, CURLOPT_PROXYUSERNAME, user.constData());
+				curl_easy_setopt(m_curl, CURLOPT_PROXYPASSWORD, pass.constData());
+			}
 			
 			int type;
 			if(proxy.nType == Proxy::ProxySocks5)
@@ -198,7 +202,7 @@ void CurlUpload::changeActive(bool nowActive)
 				type = CURLPROXY_HTTP;
 			else
 				type = 0;
-			curl_easy_setopt(m_curl, CURLOPT_PROXYTYPE, type);
+			curl_easy_setopt(m_curl, CURLOPT_PROXYTYPE, long(type));
 		}
 		else
 			curl_easy_setopt(m_curl, CURLOPT_PROXY, "");

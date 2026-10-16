@@ -251,13 +251,13 @@ void JavaUpload::curlInit()
 	m_curl = curl_easy_init();
 	//curl_easy_setopt(m_curl, CURLOPT_POST, true);
 	if(getSettingsValue("httpftp/forbidipv6").toInt() != 0)
-		curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		curl_easy_setopt(m_curl, CURLOPT_IPRESOLVE, long(CURL_IPRESOLVE_V4));
 	curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "FatRat/" VERSION);
 	curl_easy_setopt(m_curl, CURLOPT_ERRORBUFFER, m_errorBuffer);
 	//curl_easy_setopt(m_curl, CURLOPT_SEEKFUNCTION, seek_function);
 	curl_easy_setopt(m_curl, CURLOPT_SEEKDATA, this);
 	curl_easy_setopt(m_curl, CURLOPT_DEBUGDATA, this);
-	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, true);
+	curl_easy_setopt(m_curl, CURLOPT_VERBOSE, 1L);
 	//curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, anti_crash_fun);
 	curl_easy_setopt(m_curl, CURLOPT_CONNECTTIMEOUT, 10);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, CurlUser::write_function);
