@@ -1,4 +1,9 @@
 <footer class="status-bar" data-testid="status-bar">
+  @if (health.refreshFailing()) {
+    <span class="connection-error" role="alert" data-testid="connection-error" title="Refreshing from the server is failing; the data shown may be out of date">
+      <i class="pi pi-exclamation-triangle"></i> Connection lost
+    </span>
+  }
   <span class="rates">
     <span data-testid="total-rate" title="Total rate of all queues">
       <i class="pi pi-arrow-down"></i> {{ formatSpeed(stats.total().down) }}

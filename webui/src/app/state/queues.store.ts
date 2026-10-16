@@ -1,3 +1,4 @@
+import { ConnectionHealth } from '../core/connection-health.service';
 import { Injectable, inject, signal } from '@angular/core';
 import { startWith } from 'rxjs/operators';
 import { TransferApi } from '../core/api/transfer-api';
@@ -8,6 +9,7 @@ import { Queue } from '../core/api/models';
 export class QueuesStore {
   private readonly transferApi = inject(TransferApi);
   private readonly polling = inject(PollingService);
+  private readonly health = inject(ConnectionHealth);
 
   readonly queues = signal<Queue[]>([]);
   readonly selectedQueueUuid = signal<string | null>(null);
@@ -26,14 +28,17 @@ export class QueuesStore {
   }
 
   private refresh(): void {
-    this.transferApi.getQueues().subscribe((queues) => {
-      this.queues.set(queues);
+    this.health.track('queues', this.transferApi.getQueues()).subscribe({
+      next: (queues) => {
+        this.queues.set(queues);
 
-      const current = this.selectedQueueUuid();
-      const stillExists = current !== null && queues.some((q) => q.uuid === current);
-      if (!stillExists) {
-        this.selectedQueueUuid.set(queues.length > 0 ? queues[0].uuid : null);
-      }
+        const current = this.selectedQueueUuid();
+        const stillExists = current !== null && queues.some((q) => q.uuid === current);
+        if (!stillExists) {
+          this.selectedQueueUuid.set(queues.length > 0 ? queues[0].uuid : null);
+        }
+      },
+      error: () => {}, // reported through ConnectionHealth; keep showing the last known queues
     });
   }
 }

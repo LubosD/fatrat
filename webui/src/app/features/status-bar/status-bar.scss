@@ -21,6 +21,14 @@
   gap: 0.75rem;
 }
 
+.connection-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--p-red-500);
+}
+
 .limits-label {
   margin-right: -0.25rem;
 }

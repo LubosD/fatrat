@@ -1,6 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Subject, merge, of } from 'rxjs';
+import { EMPTY, Subject, merge, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ConnectionHealth } from '../core/connection-health.service';
 import { activeGatedPoll } from '../core/active-gated-poll';
 import { TransferApi } from '../core/api/transfer-api';
 import { PollingService } from '../core/polling.service';
@@ -58,6 +60,7 @@ export class TransfersStore {
   private readonly transferApi = inject(TransferApi);
   private readonly polling = inject(PollingService);
   private readonly queuesStore = inject(QueuesStore);
+  private readonly health = inject(ConnectionHealth);
 
   readonly transfers = signal<Transfer[]>([]);
   readonly selectedUuids = signal<string[]>([]);
@@ -77,7 +80,11 @@ export class TransfersStore {
       of(true),
       toObservable(this.queuesStore.selectedQueueUuid),
       merge(this.polling.ticks$, this.refreshRequests$),
-      (queueUuid) => (queueUuid === null ? of(null) : this.transferApi.getQueueTransfers(queueUuid)),
+      // A failed fetch keeps the last known transfers and must not terminate the poll stream.
+      (queueUuid) =>
+        queueUuid === null
+          ? of(null)
+          : this.health.track('transfers', this.transferApi.getQueueTransfers(queueUuid)).pipe(catchError(() => EMPTY)),
     ).subscribe(({ value }) => this.apply(value));
   }
 
