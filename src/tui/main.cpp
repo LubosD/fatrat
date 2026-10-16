@@ -96,11 +96,6 @@ int main(int argc, char** argv)
 	}
 
 	const bool scripted = p.isSet("script");
-	if (!scripted && (!isatty(0) || !isatty(1)))
-	{
-		fprintf(stderr, "fatrat-tui needs a terminal.\n");
-		return 1;
-	}
 
 	// ---- connection settings
 	QSettings conf(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/fatrat/tui.conf", QSettings::IniFormat);
@@ -163,6 +158,11 @@ int main(int argc, char** argv)
 		ep.authorization = authFor(password);
 
 	// ---- terminal
+	if (!scripted && (!isatty(0) || !isatty(1)))
+	{
+		fprintf(stderr, "fatrat-tui needs a terminal.\n");
+		return 1;
+	}
 	setlocale(LC_ALL, "");
 	Glyphs::setAscii(p.isSet("ascii") || !QString(setlocale(LC_CTYPE, nullptr)).contains("UTF", Qt::CaseInsensitive));
 	NcBackend nc;

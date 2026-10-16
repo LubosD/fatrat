@@ -21,6 +21,8 @@ namespace tui
 		static const Glyphs& get();
 		static void setAscii(bool ascii);
 		static bool isAscii();
+		// Replaces every non-ASCII character by a single-cell lookalike (only used in ASCII mode)
+		static QString fold(const QString& s);
 	};
 
 	class Canvas

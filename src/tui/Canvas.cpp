@@ -1,5 +1,6 @@
 #include "Canvas.h"
 #include "Format.h"
+#include <QHash>
 
 namespace tui
 {
@@ -40,6 +41,34 @@ const Glyphs& Glyphs::get()
 }
 
 void Glyphs::setAscii(bool ascii) { g_ascii = ascii; }
+
+QString Glyphs::fold(const QString& s)
+{
+	bool plain = true;
+	for (const QChar c : s)
+		plain &= c.unicode() < 0x80;
+	if (plain)
+		return s;
+
+	static const QHash<char32_t, char> map = {
+		{ U'·', '-' }, { U'…', '~' }, { U'—', '-' }, { U'–', '-' }, { U'✓', '*' }, { U'⏎', '>' }, { U'␣', '_' }, { U'⌫', '<' },
+		{ U'↑', '^' }, { U'↓', 'v' }, { U'←', '<' }, { U'→', '>' }, { U'●', '*' }, { U'○', 'o' }, { U'◂', '<' }, { U'▸', '>' },
+		{ U'│', '|' }, { U'─', '-' }, { U'┌', '+' }, { U'┐', '+' }, { U'└', '+' }, { U'┘', '+' }, { U'├', '+' }, { U'┤', '+' },
+		{ U'█', '#' }, { U'░', '.' }, { U'∞', '-' }, { U'▁', '_' }, { U'▂', '.' }, { U'▃', '-' }, { U'▄', '~' }, { U'▅', '=' },
+		{ U'▆', '+' }, { U'▇', '#' },
+	};
+	QString out;
+	for (char32_t c : s.toUcs4())
+	{
+		if (c < 0x80)
+			out += QChar(char16_t(c));
+		else if (map.contains(c))
+			out += QChar(map[c]);
+		else
+			out += QString(displayWidth(QString::fromUcs4(&c, 1)) == 2 ? "??" : "?");
+	}
+	return out;
+}
 bool Glyphs::isAscii() { return g_ascii; }
 
 void Canvas::fill(const Rect& r, Style style, const QString& ch)
@@ -121,7 +150,7 @@ void TextCanvas::put(int x, int y, const QString& text, Style style)
 {
 	if (y < 0 || y >= m_h)
 		return;
-	for (char32_t c : text.toUcs4())
+	for (char32_t c : (Glyphs::isAscii() ? Glyphs::fold(text) : text).toUcs4())
 	{
 		const QString s = QString::fromUcs4(&c, 1);
 		int cw = displayWidth(s);

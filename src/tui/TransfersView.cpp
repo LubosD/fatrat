@@ -172,7 +172,8 @@ void TransfersView::drawTransfers(Canvas& c, HitMap& hits, const Rect& box)
 
 	if (vis.isEmpty())
 	{
-		const QString msg = st.queues().isEmpty() ? m_app.tr("No queues yet. Switch to the queue list and press N.")
+		const QString msg = m_app.connection() != App::Conn::Connected ? m_app.tr("Not connected.")
+			: st.queues().isEmpty() ? m_app.tr("No queues yet. Switch to the queue list and press N.")
 			: st.filter().isEmpty() ? m_app.tr("No transfers in this queue. Press N to add one.") : m_app.tr("Nothing matches the filter.");
 		c.put(in.x + 2, in.y + 2, fit(msg, in.w - 4), Style::Dim);
 	}
@@ -686,6 +687,8 @@ void TransfersView::mouse(const Event& e, const Hit* hit)
 				m_focusQueues = false;
 				m_follow = true;
 				const int row = hit->index;
+				if (row < 0 || row >= st.visible().size())
+					return;
 				if (e.button == 3)
 				{
 					if (!st.marks().isEmpty() && st.marks().contains(st.transfers()[st.visible()[row]].uuid))

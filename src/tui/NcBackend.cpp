@@ -117,7 +117,7 @@ void NcBackend::put(int x, int y, const QString& text, Style style)
 {
 	if (y < 0 || y >= LINES || x >= COLS)
 		return;
-	QString t = text;
+	QString t = Glyphs::isAscii() ? Glyphs::fold(text) : text;
 	if (x < 0)
 	{
 		// skip the cells that are off the left edge
