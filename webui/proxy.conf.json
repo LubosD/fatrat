@@ -1,5 +1,5 @@
 {
-  "/xmlrpc": { "target": "http://localhost:9091", "secure": false },
+  "/api": { "target": "http://localhost:9091", "secure": false },
   "/log": { "target": "http://localhost:9091", "secure": false },
   "/subclass": { "target": "http://localhost:9091", "secure": false },
   "/browse": { "target": "http://localhost:9091", "secure": false },

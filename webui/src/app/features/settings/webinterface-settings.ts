@@ -8,7 +8,7 @@ import { ButtonDirective } from 'primeng/button';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { WebinterfaceSettingsApiService } from '../../core/webinterface-settings-api.service';
-import { XmlRpcValue } from '../../core/xmlrpc/xmlrpc-value';
+import { JsonValue } from '../../core/api/json-value';
 
 const KEYS = ['remote/enable', 'remote/port', 'remote/password', 'remote/ssl', 'remote/ssl_pem'] as const;
 
@@ -38,7 +38,7 @@ export class WebinterfaceSettings {
     });
   }
 
-  protected stage(key: string, value: XmlRpcValue): void {
+  protected stage(key: string, value: JsonValue): void {
     this.draft.stage(key, value);
   }
 
@@ -58,9 +58,9 @@ export class WebinterfaceSettings {
     });
   }
 
-  private applyLoadedValues(values: XmlRpcValue[]): void {
-    const raw = new Map<string, XmlRpcValue>(KEYS.map((key, i) => [key, values[i]]));
-    const get = (key: string): XmlRpcValue | undefined => this.draft.get(key) ?? raw.get(key);
+  private applyLoadedValues(values: JsonValue[]): void {
+    const raw = new Map<string, JsonValue>(KEYS.map((key, i) => [key, values[i]]));
+    const get = (key: string): JsonValue | undefined => this.draft.get(key) ?? raw.get(key);
 
     this.enable = Boolean(get('remote/enable') ?? false);
     this.port = Number(get('remote/port') ?? 0);

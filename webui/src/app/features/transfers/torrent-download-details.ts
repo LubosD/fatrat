@@ -8,7 +8,7 @@ import { TransferApi } from '../../core/api/transfer-api';
 import { TorrentDownloadApiService } from '../../core/torrent-download-api.service';
 import { PollingService } from '../../core/polling.service';
 import { Transfer } from '../../core/api/models';
-import { XmlRpcValue } from '../../core/xmlrpc/xmlrpc-value';
+import { JsonValue } from '../../core/api/json-value';
 import { formatSize, formatSpeed } from './format';
 
 interface TorrentDownloadFile {
@@ -27,7 +27,7 @@ interface TorrentDownloadProperties {
   files: TorrentDownloadFile[];
 }
 
-function toTorrentDownloadProperties(raw: { [key: string]: XmlRpcValue }): TorrentDownloadProperties {
+function toTorrentDownloadProperties(raw: { [key: string]: JsonValue }): TorrentDownloadProperties {
   const rawFiles = Array.isArray(raw['files']) ? raw['files'] : [];
   return {
     totalDownload: typeof raw['totalDownload'] === 'string' ? raw['totalDownload'] : '',
@@ -36,7 +36,7 @@ function toTorrentDownloadProperties(raw: { [key: string]: XmlRpcValue }): Torre
     magnetLink: typeof raw['magnetLink'] === 'string' ? raw['magnetLink'] : '',
     ratio: typeof raw['ratio'] === 'string' ? raw['ratio'] : '',
     files: rawFiles.map((f) => {
-      const file = f as { [key: string]: XmlRpcValue };
+      const file = f as { [key: string]: JsonValue };
       return {
         name: typeof file['name'] === 'string' ? file['name'] : '',
         size: typeof file['size'] === 'number' ? file['size'] : 0,

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { TransferApi } from './transfer-api';
 import { XmlRpcClient } from '../xmlrpc/xmlrpc-client';
 import { XmlRpcBinary, XmlRpcValue } from '../xmlrpc/xmlrpc-value';
 import {
@@ -98,10 +97,9 @@ function parseSpeedGraph(raw: XmlRpcValue): SpeedSample[] {
 }
 
 @Injectable({ providedIn: 'root' })
-export class XmlRpcTransferApi extends TransferApi {
-  constructor(private readonly client: XmlRpcClient) {
-    super();
-  }
+/** Legacy, no longer a TransferApi (RestTransferApi replaced it); removed with the XML-RPC files. */
+export class XmlRpcTransferApi {
+  constructor(private readonly client: XmlRpcClient) {}
 
   getTransferClasses(): Observable<TransferClass[]> {
     return this.client

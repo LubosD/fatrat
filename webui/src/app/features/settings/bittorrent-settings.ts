@@ -6,7 +6,7 @@ import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
-import { XmlRpcValue } from '../../core/xmlrpc/xmlrpc-value';
+import { JsonValue } from '../../core/api/json-value';
 
 const KEYS = [
   'torrent/listen_start', 'torrent/listen_end', 'torrent/maxratio', 'torrent/maxconnections',
@@ -68,13 +68,13 @@ export class BittorrentSettings {
     });
   }
 
-  protected stage(key: string, value: XmlRpcValue): void {
+  protected stage(key: string, value: JsonValue): void {
     this.draft.stage(key, value);
   }
 
-  private applyLoadedValues(values: XmlRpcValue[]): void {
-    const raw = new Map<string, XmlRpcValue>(KEYS.map((key, i) => [key, values[i]]));
-    const get = (key: string): XmlRpcValue | undefined => this.draft.get(key) ?? raw.get(key);
+  private applyLoadedValues(values: JsonValue[]): void {
+    const raw = new Map<string, JsonValue>(KEYS.map((key, i) => [key, values[i]]));
+    const get = (key: string): JsonValue | undefined => this.draft.get(key) ?? raw.get(key);
     const num = (key: string): number => Number(get(key) ?? 0);
     const bool = (key: string): boolean => Boolean(get(key) ?? false);
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { XmlRpcValue } from './xmlrpc/xmlrpc-value';
+import { JsonValue } from './api/json-value';
 
 /**
  * Dialog-scoped (provided on SettingsDialog, not providedIn: 'root') staging area for settings
@@ -11,13 +11,13 @@ import { XmlRpcValue } from './xmlrpc/xmlrpc-value';
  */
 @Injectable()
 export class SettingsDraftService {
-  private readonly staged = new Map<string, XmlRpcValue>();
+  private readonly staged = new Map<string, JsonValue>();
 
-  stage(key: string, value: XmlRpcValue): void {
+  stage(key: string, value: JsonValue): void {
     this.staged.set(key, value);
   }
 
-  get(key: string): XmlRpcValue | undefined {
+  get(key: string): JsonValue | undefined {
     return this.staged.get(key);
   }
 
@@ -25,7 +25,7 @@ export class SettingsDraftService {
     return [...this.staged.keys()];
   }
 
-  getValues(): XmlRpcValue[] {
+  getValues(): JsonValue[] {
     return [...this.staged.values()];
   }
 
