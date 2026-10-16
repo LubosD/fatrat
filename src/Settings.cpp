@@ -89,8 +89,10 @@ void initSettingsPages()
 	si.lpfnCreate = SettingsRssForm::create;
 #endif
 	si.pfnApply = [] { RssFetcher::instance()->applySettings(); };
+#ifdef WITH_WEBINTERFACE
 	si.webSettingsScript = "/scripts/settings/rss.js";
 	si.webSettingsIconURL = "/img/settings/rss.png";
+#endif
 	
 	g_settingsPages << si;
 	
@@ -100,12 +102,16 @@ void initSettingsPages()
 	si.lpfnCreate = SettingsSchedulerForm::create;
 #endif
 	si.pfnApply = [] { Scheduler::instance()->reload(); };
+#ifdef WITH_WEBINTERFACE
 	si.webSettingsScript = "/scripts/settings/scheduler.js";
 	si.webSettingsIconURL = "/img/settings/scheduler.png";
+#endif
 	g_settingsPages << si;
 
+#ifdef WITH_WEBINTERFACE
 	si.webSettingsScript = 0;
 	si.webSettingsIconURL = 0;
+#endif
 
 #ifdef WITH_GUI
 	si.icon = DelayedIcon(":/fatrat/clipboard.png");
