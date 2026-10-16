@@ -12,7 +12,7 @@
 #include <QBitmap>
 #include <QPainter>
 #include <QPainterPath>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QApplication>
 
 BalloonTip::BalloonTip(QWidget* parent, QIcon si, const QString& title, const QString& message)
@@ -46,7 +46,7 @@ BalloonTip::BalloonTip(QWidget* parent, QIcon si, const QString& title, const QS
     msgLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     // smart size for the message label
-    int limit = QApplication::desktop()->availableGeometry(msgLabel).size().width() / 3;
+    int limit = msgLabel->screen()->availableGeometry().size().width() / 3;
 
     if (msgLabel->sizeHint().width() > limit) {
 	msgLabel->setWordWrap(true);
@@ -79,7 +79,7 @@ BalloonTip::BalloonTip(QWidget* parent, QIcon si, const QString& title, const QS
     layout->addWidget(closeButton, 0, 2);
     layout->addWidget(msgLabel, 1, 0, 1, 3);
     layout->setSizeConstraint(QLayout::SetFixedSize);
-    layout->setMargin(3);
+    layout->setContentsMargins(3, 3, 3, 3);
     setLayout(layout);
 
     QPalette pal = palette();
@@ -113,7 +113,10 @@ void BalloonTip::resizeEvent(QResizeEvent *ev)
 
 void BalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
 {
-    QRect scr = QApplication::desktop()->screenGeometry(pos);
+    QScreen* screen = QGuiApplication::screenAt(pos);
+    if (!screen)
+        screen = QGuiApplication::primaryScreen();
+    QRect scr = screen->geometry();
     QSize sh = sizeHint();
     const int border = 1;
     const int ah = 18, ao = 18, aw = 18, rc = 7;

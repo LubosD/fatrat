@@ -61,7 +61,7 @@ private:
 	// TODO: Implement decoder priorities?
 	static QList<Captcha*> m_decoders;
 	static int m_next;
-	static QMutex m_mutex;
+	static QRecursiveMutex m_mutex;
 };
 
 #endif

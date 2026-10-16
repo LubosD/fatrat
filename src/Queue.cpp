@@ -309,7 +309,7 @@ int Queue::moveDown(int n, bool nolock)
 	{
 		if (!nolock)
 			m_lock.lockForWrite();
-		m_transfers.swap(n,n+1);
+		m_transfers.swapItemsAt(n,n+1);
 		if (!nolock)
 			m_lock.unlock();
 		
@@ -325,7 +325,7 @@ int Queue::moveUp(int n, bool nolock)
 	{
 		if (!nolock)
 			m_lock.lockForWrite();
-		m_transfers.swap(n-1,n);
+		m_transfers.swapItemsAt(n-1,n);
 		if (!nolock)
 			m_lock.unlock();
 		return n-1;
