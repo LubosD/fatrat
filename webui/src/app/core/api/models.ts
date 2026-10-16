@@ -119,3 +119,24 @@ export interface RssTestResult {
   matches: boolean;
   episode?: string;
 }
+
+export type ScheduledActionType = 'resume' | 'stop' | 'speedLimit';
+
+/** Times are local to the server. */
+export interface ScheduledAction {
+  id: string;
+  name: string;
+  queue: string;
+  action: ScheduledActionType;
+  /** Bytes/s. Only present for the speedLimit action. */
+  speedLimit?: SpeedLimits;
+  repeated: boolean;
+  /** HH:mm. Applies if repeated; may be empty for a stored action that never had one. */
+  time: string;
+  /** Monday first. Applies if repeated. */
+  days: boolean[];
+  /** yyyy-MM-ddTHH:mm. Applies if not repeated; may be empty. */
+  at: string;
+}
+
+export type ScheduledActionProperties = Partial<Omit<ScheduledAction, 'id'>>;
