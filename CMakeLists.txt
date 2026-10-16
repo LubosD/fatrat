@@ -16,6 +16,7 @@ option(WITH_GUI "Build the Qt desktop UI (OFF builds a headless fatrat-nogui)" O
 option(WITH_DBUS "Enable the D-Bus interface and the single-instance check" ON)
 option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
 option(WITH_TUI "Build fatrat-tui, an ncurses terminal client for FatRat" OFF)
+option(WITH_PYPLUGINS "Build the Python extension system (requires Python 3.11+ and pybind11)" OFF)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
 find_package(OpenSSL REQUIRED)
@@ -71,6 +72,15 @@ if(WITH_JPLUGINS)
 	
 	include_directories(${JNI_INCLUDE_DIRS})
 endif(WITH_JPLUGINS)
+
+if(WITH_PYPLUGINS)
+	set(WITH_CURL ON)
+
+	find_package(Python3 3.11 REQUIRED COMPONENTS Development.Embed)
+	find_package(pybind11 2.10 REQUIRED)
+
+	message(STATUS "Python ${Python3_VERSION} found OK, pybind11 ${pybind11_VERSION}")
+endif(WITH_PYPLUGINS)
 
 if(WITH_BITTORRENT)
 	find_package(LibtorrentRasterbar 2.0.0 REQUIRED)
@@ -445,6 +455,13 @@ if(WITH_JPLUGINS)
 	)
 endif(WITH_JPLUGINS)
 
+if(WITH_PYPLUGINS)
+	set(fatrat_SRCS
+		${fatrat_SRCS}
+		src/python/PyVM.cpp
+	)
+endif(WITH_PYPLUGINS)
+
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
@@ -666,6 +683,9 @@ set_target_properties(fatrat PROPERTIES ENABLE_EXPORTS ON)
 if(WITH_BITTORRENT)
 	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
 endif(WITH_BITTORRENT)
+if(WITH_PYPLUGINS)
+	target_link_libraries(fatrat pybind11::embed)
+endif(WITH_PYPLUGINS)
 target_link_libraries(fatrat-conf Qt6::Core)
 
 set(fatrat_DEV_HEADERS
@@ -742,6 +762,10 @@ if(WITH_JPLUGINS)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/extension.policy DESTINATION share/fatrat/data/java)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/java/libs DESTINATION share/fatrat/data/java)
 endif(WITH_JPLUGINS)
+
+if(WITH_PYPLUGINS)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/python DESTINATION share/fatrat/data)
+endif(WITH_PYPLUGINS)
 
 if(WITH_DOCUMENTATION)
 	find_program(QHELPGENERATOR_EXECUTABLE qhelpgenerator

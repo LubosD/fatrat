@@ -80,6 +80,10 @@ respects for all of the code used other than "OpenSSL".
 #	include "remote/HttpService.h"
 #endif
 
+#ifdef WITH_PYPLUGINS
+#	include "python/PyVM.h"
+#endif
+
 #ifdef WITH_JPLUGINS
 #	include "java/JVM.h"
 #	include "engines/JavaDownload.h"
@@ -100,6 +104,9 @@ using namespace std;
 MainWindow* g_wndMain = 0;
 #endif
 QMap<QString,PluginInfo> g_plugins;
+#ifdef WITH_PYPLUGINS
+static PyVM* g_pyvm = 0;
+#endif
 
 extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
@@ -127,6 +134,7 @@ static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
 static bool m_bDisableJava = false, m_bJavaForceSearch = false;
+static bool m_bDisablePython = false;
 static QString m_strSettingsPath;
 static QString m_strPidFile, m_strSetUser;
 
@@ -190,6 +198,11 @@ int main(int argc,char** argv)
 	initSettingsDefaults(m_strSettingsPath);
 	
 	initSettingsPages();
+
+#ifdef WITH_PYPLUGINS
+	if (!m_bDisablePython)
+		g_pyvm = new PyVM;
+#endif
 
 #ifdef WITH_JPLUGINS
 	if (!m_bDisableJava)
@@ -286,6 +299,11 @@ int main(int argc,char** argv)
 #endif
 	}
 #endif
+
+#ifdef WITH_PYPLUGINS
+	delete g_pyvm;
+	g_pyvm = 0;
+#endif
 	
 	delete g_qmgr;
 	exitSettings();
@@ -320,6 +338,11 @@ QString argsToArg(int argc,char** argv)
 			m_strPidFile = argv[++i];
 		else if (!strcasecmp(argv[i], "--user") || !strcasecmp(argv[i], "-u"))
 			m_strSetUser = argv[++i];
+		else if(!strcasecmp(argv[i], "--no-python"))
+		{
+			qDebug() << "Disabling Python support";
+			m_bDisablePython = true;
+		}
 		else if(!strcasecmp(argv[i], "--no-java"))
 		{
 			qDebug() << "Disabling Java support";
@@ -661,6 +684,9 @@ void showHelp()
 			"--syslog         \tPrint global log contents to syslog\n"
 			"-p, --pidfile file\tSave PID to file\n"
 			"-u, --user user[:grp]\tSetuid to user, setgid to grp\n"
+#ifdef WITH_PYPLUGINS
+			"--no-python      \tDisable support for Python extensions\n"
+#endif
 #ifdef WITH_JPLUGINS
 			"--no-java        \tDisable support for Java extensions\n"
 			//"--force-jre-search\tIgnore the cached JRE location\n"

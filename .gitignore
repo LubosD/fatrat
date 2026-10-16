@@ -16,8 +16,8 @@ install_manifest.txt
 *.qhc
 gfx/resources.qrc.depends
 fatrat.creator.user
-fatrat
-fatrat-conf
+/fatrat
+/fatrat-conf
 moc_*
 
 webui/node_modules/
