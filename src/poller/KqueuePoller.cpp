@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/event.h>
 #include <sys/time.h>
 #include <cstdlib>
+#include <cerrno>
 #ifdef __APPLE__
 #include <unistd.h> // close
 #endif
@@ -55,28 +56,36 @@ int KqueuePoller::handle()
 
 int KqueuePoller::addSocket(int socket, int flags)
 {
-	struct kevent ev;
+	// kqueue filters are distinct values, not bit flags, so each one needs its own kevent.
+	// Filters that aren't requested are deleted, as this may be a modification of an existing registration.
+	struct kevent ev[2];
 	int eflags = EV_ADD | EV_ENABLE;
-	int efilters = 0;
 	
-	if(flags & PollerIn)
-		efilters |= EVFILT_READ;
-	if(flags & PollerOut)
-		efilters |= EVFILT_WRITE;
 	if(flags & PollerOneShot)
 		eflags |= EV_ONESHOT;
-	if(flags & PollerHup)
-		eflags |= EV_EOF;
 	
-	EV_SET(&ev, socket, efilters, eflags, 0, 0, 0);
-	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	EV_SET(&ev[0], socket, EVFILT_READ, (flags & PollerIn) ? eflags : EV_DELETE, 0, 0, 0);
+	EV_SET(&ev[1], socket, EVFILT_WRITE, (flags & PollerOut) ? eflags : EV_DELETE, 0, 0, 0);
+	
+	for(int i=0;i<2;i++)
+	{
+		bool wanted = (i == 0) ? (flags & PollerIn) : (flags & PollerOut);
+		if(kevent(m_kqueue, &ev[i], 1, 0, 0, 0) == -1 && (wanted || errno != ENOENT))
+			return -1;
+	}
+	return 0;
 }
 
 int KqueuePoller::removeSocket(int socket)
 {
+	// Oneshot or closed sockets may already be gone, so ENOENT/EBADF are not errors
 	struct kevent ev;
-	EV_SET(&ev, socket, 0, EV_DELETE | EV_DISABLE, 0, 0, 0);
-	return kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	
+	EV_SET(&ev, socket, EVFILT_READ, EV_DELETE, 0, 0, 0);
+	kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	EV_SET(&ev, socket, EVFILT_WRITE, EV_DELETE, 0, 0, 0);
+	kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	return 0;
 }
 
 int KqueuePoller::wait(int msec, Event* ev, int max)
@@ -93,9 +102,9 @@ int KqueuePoller::wait(int msec, Event* ev, int max)
 			event.flags |= PollerError;
 		if(evlist[i].flags & EV_EOF)
 			event.flags |= PollerHup;
-		if(evlist[i].filter & EVFILT_READ)
+		if(evlist[i].filter == EVFILT_READ)
 			event.flags |= PollerIn;
-		if(evlist[i].filter & EVFILT_WRITE)
+		if(evlist[i].filter == EVFILT_WRITE)
 			event.flags |= PollerOut;
 		
 		ev[i] = event;
