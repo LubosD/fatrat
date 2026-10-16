@@ -24,8 +24,11 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "config.h"
 #include "MetalinkDownload.h"
-#include "MetalinkSettings.h"
+#ifdef WITH_GUI
+#	include "MetalinkSettings.h"
+#endif
 #include "Settings.h"
 #include "config.h"
 #include <QUrl>
@@ -71,7 +74,9 @@ void MetalinkDownload::globalInit()
 
 	si.icon = DelayedIcon(":/fatrat/metalink.png");
 	si.title = tr("Metalink");
+#ifdef WITH_GUI
 	si.lpfnCreate = MetalinkSettings::create;
+#endif
 
 	addSettingsPage(si);
 }
@@ -172,10 +177,10 @@ void MetalinkDownload::processMetalink(QString fileName)
 		return;
 	}
 
-	QString msg;
-	if (!doc.setContent(&file, false, &msg))
+	QDomDocument::ParseResult parsed = doc.setContent(&file);
+	if (!parsed)
 	{
-		m_strMessage = tr("Failed to read the metalink file: %1").arg(msg);
+		m_strMessage = tr("Failed to read the metalink file: %1").arg(parsed.errorMessage);
 		setState(Failed);
 		return;
 	}
@@ -277,7 +282,7 @@ void MetalinkDownload::processMetalink(QString fileName)
 		MetaFile& m = files[i];
 		int mode = getSettingsValue("metalink/mode").toInt();
 
-		qSort(m.urls);
+		std::sort(m.urls.begin(), m.urls.end());
 
 		if (mode == 0 && !m.hasHTTP)
 			mode = 1;

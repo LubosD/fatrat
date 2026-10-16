@@ -30,25 +30,24 @@ respects for all of the code used other than "OpenSSL".
 #include "CurlDownload.h"
 #include "Settings.h"
 #include "RuntimeException.h"
-#include "GeneralDownloadForms.h"
-#include "HttpFtpSettings.h"
-#include "tools/HashDlg.h"
+#ifdef WITH_GUI
+#	include "HttpFtpSettings.h"
+#endif
 #include "util/ExtendedAttributes.h"
 #include "CurlPoller.h"
 #include "Auth.h"
-#include "HttpDetails.h"
 #include <errno.h>
 #include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <QMessageBox>
-#include <QMenu>
-#include <QColor>
+#include <QRandomGenerator>
 #include <QtDebug>
 #include <iostream>
+#include <algorithm>
 #include <errno.h>
 #include <cassert>
+#include "util/LegacyRegex.h"
 
 #ifdef WITH_BITTORRENT
 #	include "TorrentDownload.h"
@@ -57,8 +56,8 @@ respects for all of the code used other than "OpenSSL".
 #	define O_LARGEFILE 0
 #endif
 
-static const QColor g_colors[] = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::magenta, Qt::yellow, Qt::darkRed,
-	Qt::darkGreen, Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow };
+static const quint32 g_colors[] = { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xff00ffff, 0xffff00ff, 0xffffff00, 0xff800000,
+	0xff008000, 0xff000080, 0xff008080, 0xff800080, 0xff808000 };
 
 CurlDownload::CurlDownload()
 	: m_nTotal(0), m_nStart(0), m_bAutoName(false), m_segmentsLock(QReadWriteLock::Recursive), m_master(0), m_nameChanger(0)
@@ -95,7 +94,7 @@ void CurlDownload::init(QString uri, QString dest)
 		QList<Auth> auths = Auth::loadAuths();
 		foreach(Auth a,auths)
 		{
-			if(!QRegExp(a.strRegExp).exactMatch(uri))
+			if(!legacyRegex(QRegularExpression::anchoredPattern(a.strRegExp)).match(uri).hasMatch())
 				continue;
 			
 			obj.url.setUserName(a.strUser);
@@ -107,10 +106,10 @@ void CurlDownload::init(QString uri, QString dest)
 		}
 	}
 	
-	obj.proxy = getSettingsValue("httpftp/defaultproxy").toString();
+	obj.proxy = QUuid(getSettingsValue("httpftp/defaultproxy").toString());
 	obj.ftpMode = UrlClient::FtpPassive;
 	
-	m_dir = dest;
+	m_dir.setPath(dest);
 	m_dir.mkpath(".");
 	
 	QString scheme = obj.url.scheme();
@@ -163,7 +162,9 @@ void CurlDownload::globalInit()
 	SettingsItem si;
 	si.icon = DelayedIcon(":/fatrat/httpftp.png");
 	si.title = tr("HTTP/FTP");
+#ifdef WITH_GUI
 	si.lpfnCreate = HttpFtpSettings::create;
+#endif
 	
 	addSettingsPage(si);
 }
@@ -203,7 +204,6 @@ QString CurlDownload::name() const
 	return !m_strFile.isEmpty() ? m_strFile : "default.html";
 }
 
-int anti_crash_fun() { return 0; }
 
 void CurlDownload::changeActive(bool bActive)
 {
@@ -250,92 +250,6 @@ void CurlDownload::changeActive(bool bActive)
 		else
 			startSegment(m_listActiveSegments[0]);
 
-		/*
-		// 1) find free spots
-		QList<FreeSegment> freeSegs;
-		qlonglong lastEnd = 0;
-		for(int i=0;i<m_segments.size();i++)
-		{
-			if (m_segments[i].offset > lastEnd)
-				freeSegs << FreeSegment(lastEnd, m_segments[i].offset-lastEnd);
-			lastEnd = m_segments[i].offset + m_segments[i].bytes;
-		}
-		if (lastEnd < m_nTotal)
-			freeSegs << FreeSegment(lastEnd, m_nTotal - lastEnd);
-		if ((!m_nTotal || m_segments.isEmpty()) && freeSegs.isEmpty())
-			freeSegs << FreeSegment(lastEnd, -1);
-		// 2) sort them
-		qSort(freeSegs.begin(), freeSegs.end());
-
-		// 3) make enough free spots
-		qDebug() << "Found" << freeSegs.size() << "free spots";
-		while(freeSegs.size() < m_listActiveSegments.size() && m_nTotal)
-		{
-			int pos = freeSegs.size()-1;
-
-			// 4) split the largest segment into halves
-			int odd = freeSegs[pos].bytes % 2;
-			qlonglong half = freeSegs[pos].bytes / 2;
-			if (half <= getSettingsValue("httpftp/minsegsize").toInt())
-				break;
-
-			freeSegs[pos].bytes = half + odd;
-			freeSegs << FreeSegment(freeSegs[pos].offset + freeSegs[pos].bytes, freeSegs[pos].bytes - odd);
-
-			qSort(freeSegs.begin(), freeSegs.end());
-		}
-		qDebug() << freeSegs.size() << "free spots after splitting work";
-
-		// 5) now allot the free spots to active segments
-
-		if (freeSegs.size() < m_listActiveSegments.size() && m_nTotal)
-		{
-			// the free spots were too small, remove some active segments
-			QSet<int> set = m_listActiveSegments.toSet();
-			QList<int> superficial;
-			// first select segments that download from the same URL more than once altogether
-			while (set.size() < m_listActiveSegments.size() && m_listActiveSegments.size() > freeSegs.size())
-			{
-				superficial = m_listActiveSegments;
-				foreach (int u, set)
-					superficial.removeOne(u);
-				// making the superficials unique to do the removal evenly
-				QSet<int> xset = superficial.toSet();
-				for (QSet<int>::iterator it=xset.begin(); it != xset.end() && m_listActiveSegments.size() > freeSegs.size(); it++)
-				{
-					m_listActiveSegments.removeOne(*it);
-				}
-				set = m_listActiveSegments.toSet();
-			}
-
-			while (m_listActiveSegments.size() > freeSegs.size())
-			{
-				// the last chance is to pick randomly any segments
-				// mathematically wrong - uneven distribution, but who cares
-				int r = qrand() % m_listActiveSegments.size();
-				m_listActiveSegments.removeAt(r);
-			}
-		}
-
-		for(int i=0, j=freeSegs.size()-1;i<m_listActiveSegments.size();i++,j--)
-		{
-			// 6) create a written segment for every active segment
-			Segment seg;
-			seg.offset = freeSegs[j].offset;
-			seg.bytes = 0;
-			seg.color = allocateSegmentColor();
-			seg.urlIndex = m_listActiveSegments[i];
-
-			// 7) now let's start a download thread for that segment
-			startSegment(seg, freeSegs[j].bytes);
-
-			m_segments << seg;
-
-			// allow only one segment if we don't know the file size yet
-			if(!m_nTotal)
-				break;
-		}*/
-
 		// 8) update the segment progress every 500 miliseconds
 		m_timer.start(500);
 	}
@@ -352,7 +266,7 @@ void CurlDownload::changeActive(bool bActive)
 			m_segments[i].client->stop();
 			//delete m_segments[i].client;
 			m_segments[i].client = 0;
-			m_segments[i].color = Qt::black;
+			m_segments[i].color = 0xff000000;
 		}
 		qDebug() << "Before final simplify segments:" << m_segments;
 		simplifySegments(m_segments);
@@ -451,7 +365,7 @@ qulonglong CurlDownload::done() const
 
 void CurlDownload::load(const QDomNode& map)
 {
-	m_dir = getXMLProperty(map, "dir");
+	m_dir.setPath(getXMLProperty(map, "dir"));
 	m_nTotal = getXMLProperty(map, "knowntotal").toULongLong();
 	m_strFile = getXMLProperty(map, "filename");
 	m_bAutoName = getXMLProperty(map, "autoname").toInt() != 0;
@@ -468,7 +382,7 @@ void CurlDownload::load(const QDomNode& map)
 		
 		obj.url = getXMLProperty(url, "address");
 		obj.strReferrer = getXMLProperty(url, "referrer");
-		obj.proxy = getXMLProperty(url, "proxy");
+		obj.proxy = QUuid(getXMLProperty(url, "proxy"));
 		obj.ftpMode = (UrlClient::FtpMode) getXMLProperty(url, "ftpmode").toInt();
 		obj.strBindAddress = getXMLProperty(url, "bindip");
 		obj.effective = getXMLProperty(url, "effective");
@@ -583,7 +497,7 @@ void CurlDownload::autoCreateSegment()
 	else
 	{
 		// check for segments beyond the EOF (truncated file)
-		qSort(m_segments);
+		std::sort(m_segments.begin(), m_segments.end());
 		for (int i=0;i<m_segments.size();i++)
 		{
 			Segment& s = m_segments[i];
@@ -607,56 +521,6 @@ void CurlDownload::updateSegmentProgress()
 	m_segmentsLock.unlock();
 }
 
-void CurlDownload::fillContextMenu(QMenu& menu)
-{
-	QAction* a;
-	
-	//a = menu.addAction(tr("Switch mirror"));
-	//connect(a, SIGNAL(triggered()), this, SLOT(switchMirror()));
-	
-	a = menu.addAction(tr("Compute hash..."));
-	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
-}
-
-/*
-void CurlDownload::switchMirror()
-{
-	int prev,cur;
-	prev = cur = m_nUrl;
-	
-	cur++;
-	if(cur >= m_urls.size())
-		cur = 0;
-	
-	if(cur == prev)
-		enterLogMessage(tr("No mirror to switch to!"));
-	else
-	{
-		enterLogMessage(tr("Switching mirror: %1 -> %2").arg(m_urls[prev].url.toString()).arg(m_urls[cur].url.toString()));
-		m_nUrl = cur;
-		
-		if(isActive())
-		{
-			changeActive(false);
-			changeActive(true);
-		}
-	}
-}
-*/
-
-void CurlDownload::computeHash()
-{
-	if(state() != Completed)
-	{
-		if(QMessageBox::warning(getMainWindow(), "FatRat", tr("You're about to compute hash from an incomplete download."),
-		   QMessageBox::Ok | QMessageBox::Cancel) != QMessageBox::Ok)
-			return;
-	}
-	
-	HashDlg dlg(getMainWindow(), filePath());
-	dlg.exec();
-}
-
 QString CurlDownload::filePath() const
 {
 	return m_dir.filePath(name());
@@ -668,18 +532,6 @@ void CurlDownload::setSpeedLimits(int down, int)
 		m_master->setMaxDown(down);
 }
 
-
-QDialog* CurlDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)
-{
-	HttpUrlOptsDlg* obj = new HttpUrlOptsDlg(parent, &transfers);
-	obj->init();
-	return obj;
-}
-
-WidgetHostChild* CurlDownload::createOptionsWidget(QWidget* w)
-{
-	return new HttpOptsWidget(w, this);
-}
 
 QString CurlDownload::remoteURI() const
 {
@@ -693,7 +545,7 @@ QString CurlDownload::remoteURI() const
 
 void CurlDownload::simplifySegments(QList<CurlDownload::Segment>& retval)
 {
-	qSort(retval);
+	std::sort(retval.begin(), retval.end());
 
 	for(int i=1;i<retval.size();i++)
 	{
@@ -782,7 +634,7 @@ void CurlDownload::clientRangesUnsupported()
 			m_segments[i].client = 0;
 			urlIndex = m_segments[i].urlIndex;
 			m_segments[i].urlIndex = -1;
-			m_segments[i].color = Qt::black;
+			m_segments[i].color = 0xff000000;
 		}
 	}
 
@@ -850,7 +702,7 @@ void CurlDownload::clientDone(QString error)
 			m_segments[i].client = 0;
 			urlIndex = m_segments[i].urlIndex;
 			m_segments[i].urlIndex = -1;
-			m_segments[i].color = Qt::black;
+			m_segments[i].color = 0xff000000;
 		}
 	}
 
@@ -965,8 +817,8 @@ void CurlDownload::startSegment(int urlIndex)
 		}
 
 		// 2) sort them
-		qSort(freeSegs.begin(), freeSegs.end());
-		qSort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
+		std::sort(freeSegs.begin(), freeSegs.end());
+		std::sort(freeSegsUnallocated.begin(), freeSegsUnallocated.end());
 
 		if (!freeSegsUnallocated.isEmpty())
 		{
@@ -1035,7 +887,7 @@ void CurlDownload::startSegment(int urlIndex)
 		if (freeSegs.isEmpty())
 			return; // This should never happen
 
-		qSort(freeSegs.begin(), freeSegs.end(), FreeSegment::compareByOffset);
+		std::sort(freeSegs.begin(), freeSegs.end(), FreeSegment::compareByOffset);
 
 		// Take the first one
 		// If it's an allocated space, take it only if bytes >= seglim*5
@@ -1124,8 +976,9 @@ void CurlDownload::stopSegment(int index, bool restarting)
 		setState(Paused);
 }
 
-QColor CurlDownload::allocateSegmentColor()
+quint32 CurlDownload::allocateSegmentColor()
 {
+	QRandomGenerator rng;
 	for(size_t i=0;i<sizeof(g_colors)/sizeof(g_colors[0]);i++)
 	{
 		bool bFound = false;
@@ -1142,14 +995,7 @@ QColor CurlDownload::allocateSegmentColor()
 			return g_colors[i];
 	}
 
-	return QColor(qrand()%256, qrand()%256, qrand()%256);
-}
-
-QObject* CurlDownload::createDetailsWidget(QWidget* w)
-{
-	HttpDetails* d = new HttpDetails(w);
-	d->setDownload(this);
-	return d;
+	return 0xff000000 | (rng() & 0xffffff);
 }
 
 void CurlDownload::checkFileContents()

@@ -31,8 +31,8 @@ respects for all of the code used other than "OpenSSL".
 TorrentPiecesModel::TorrentPiecesModel(QObject* parent, TorrentDownload* d)
 : QAbstractListModel(parent), m_download(d), m_nLastRowCount(0)
 {
-	m_columns << tr("Piece ID") << tr("State") << tr("Block count");
-	m_columns << tr("Completed blocks") << tr("Requested blocks") << tr("Block view");
+	m_columns << tr("Piece ID") << tr("Block count");
+	m_columns << tr("Completed blocks") << tr("Requested blocks") << tr("Blocks being written") << tr("Block view");
 }
 
 QModelIndex TorrentPiecesModel::index(int row, int column, const QModelIndex &parent) const
@@ -73,25 +73,15 @@ QVariant TorrentPiecesModel::data(const QModelIndex &index, int role) const
 		switch(index.column())
 		{
 		case 0:
-			return info.piece_index;
+			return int(info.piece_index);
 		case 1:
-			switch(info.piece_state)
-			{
-				case libtorrent::partial_piece_info::none:
-					return tr("None");
-				case libtorrent::partial_piece_info::slow:
-					return tr("Slow");
-				case libtorrent::partial_piece_info::medium:
-					return tr("Medium fast");
-				case libtorrent::partial_piece_info::fast:
-					return tr("Fast");
-			}
-		case 2:
 			return info.blocks_in_piece;
-		case 3:
+		case 2:
 			return (int) info.finished;
-		case 4:
+		case 3:
 			return (int) info.requested;
+		case 4:
+			return (int) info.writing;
 		}
 	}
 	else if(role == Qt::SizeHintRole)

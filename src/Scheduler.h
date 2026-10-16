@@ -33,8 +33,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QTime>
 #include <QTimer>
 #include <QVariant>
+#include "ScheduledAction.h"
 
-struct ScheduledAction;
 
 class Scheduler : public QObject
 {
@@ -45,8 +45,6 @@ public:
 	
 	void reload();
 
-	static void loadActions(QList<ScheduledAction>& list);
-	static void saveActions(const QList<ScheduledAction>& list);
 	static Scheduler* instance() { return m_instance; }
 protected:
 	void executeAction(const ScheduledAction& action);
@@ -56,32 +54,6 @@ private:
 	QTimer m_timer;
 	static Scheduler* m_instance;
 	QList<ScheduledAction> m_actions;
-};
-
-struct ScheduledAction
-{
-	ScheduledAction()
-	{
-		memset(daysRepeated, 1, sizeof(daysRepeated));
-		repeated = true;
-		action = ActionResumeAll;
-		whenRepeated = QTime::currentTime();
-		whenOneTime = QDateTime::currentDateTime();
-	}
-	
-	enum ActionType
-	{
-		ActionResumeAll, ActionStopAll, ActionSetSpeedLimit
-	};
-	
-	QString name;
-	QUuid queue;
-	ActionType action;
-	QVariant actionArgument;
-	QDateTime whenOneTime;
-	QTime whenRepeated;
-	bool daysRepeated[7];
-	bool repeated;
 };
 
 #endif

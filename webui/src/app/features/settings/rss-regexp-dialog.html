@@ -1,0 +1,122 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '40rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false" styleClass="fr-dialog">
+  <p-tabs [(value)]="activeTab" [scrollable]="true">
+    <p-tablist>
+      <p-tab value="0">Main</p-tab>
+      <p-tab value="1">TV show/podcast</p-tab>
+      <p-tab value="2">Link parsing</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <div class="field">
+          <label for="rss-re-feed">Feed</label>
+          <p-select inputId="rss-re-feed" [options]="feeds" optionLabel="name" optionValue="id" [(ngModel)]="feedId" appendTo="body"></p-select>
+        </div>
+        <div class="field">
+          <label for="rss-re-expression">Regular expression (case-insensitive; empty matches every item)</label>
+          <input pInputText id="rss-re-expression" [(ngModel)]="expression" (ngModelChange)="scheduleTest()" />
+        </div>
+        <div class="field">
+          <label for="rss-re-queue">Queue</label>
+          <p-select inputId="rss-re-queue" [options]="queues" optionLabel="name" optionValue="uuid" [(ngModel)]="queue" (ngModelChange)="onQueueChange()" appendTo="body"></p-select>
+        </div>
+        <div class="field">
+          <label for="rss-re-target">Target directory</label>
+          <p-inputgroup>
+            <input pInputText id="rss-re-target" [(ngModel)]="target" />
+            <button pButton type="button" severity="secondary" label="Browse…" data-testid="rss-re-browse" (click)="pickerOpen = true"></button>
+          </p-inputgroup>
+        </div>
+        <div class="field">
+          <p-checkbox [(ngModel)]="addPaused" [binary]="true" inputId="rss-re-paused"></p-checkbox>
+          <label for="rss-re-paused">Add the transfers paused</label>
+        </div>
+        <div class="field">
+          <label for="rss-re-test">Try it on a title</label>
+          <div class="inline-row">
+            <input pInputText id="rss-re-test" [(ngModel)]="testText" (ngModelChange)="scheduleTest()" />
+            @switch (testState().kind) {
+              @case ('result') {
+                @if (testResult()?.matches) {
+                  <span class="test-ok" data-testid="rss-re-match" aria-label="Matches">✓ matches</span>
+                } @else {
+                  <span class="test-no" data-testid="rss-re-nomatch" aria-label="Does not match">✗ no match</span>
+                }
+              }
+              @case ('invalid') {
+                <span class="test-no" data-testid="rss-re-invalid">invalid expression</span>
+              }
+            }
+          </div>
+          @if (testResult()?.episode; as episode) {
+            <p class="hint" data-testid="rss-re-episode">Episode: {{ episode }}</p>
+          }
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="1">
+        <div class="field radio-group" role="radiogroup" aria-label="Episode numbering">
+          <div><p-radiobutton name="rss-tvs" value="none" [(ngModel)]="tvs" (ngModelChange)="onTvsChange()" inputId="rss-tvs-none"></p-radiobutton> <label for="rss-tvs-none">Not a TV show or podcast</label></div>
+          <div><p-radiobutton name="rss-tvs" value="season" [(ngModel)]="tvs" (ngModelChange)="onTvsChange()" inputId="rss-tvs-season"></p-radiobutton> <label for="rss-tvs-season">Season-based (S01E02)</label></div>
+          <div><p-radiobutton name="rss-tvs" value="episode" [(ngModel)]="tvs" (ngModelChange)="onTvsChange()" inputId="rss-tvs-episode"></p-radiobutton> <label for="rss-tvs-episode">Episode-based (0123)</label></div>
+          <div><p-radiobutton name="rss-tvs" value="date" [(ngModel)]="tvs" (ngModelChange)="onTvsChange()" inputId="rss-tvs-date"></p-radiobutton> <label for="rss-tvs-date">Date-based (2026-10-16)</label></div>
+        </div>
+        <div class="field">
+          <label for="rss-re-from">Download from episode</label>
+          <input pInputText id="rss-re-from" [(ngModel)]="from" [disabled]="tvs === 'none'" [placeholder]="example" [attr.aria-invalid]="episodeMode && !rangeValid" />
+        </div>
+        <div class="field">
+          <label for="rss-re-to">to episode</label>
+          <input pInputText id="rss-re-to" [(ngModel)]="to" [disabled]="tvs === 'none'" [placeholder]="example" [attr.aria-invalid]="episodeMode && !rangeValid" />
+        </div>
+        @if (episodeMode && !rangeValid) {
+          <p class="form-error" role="alert" data-testid="rss-re-range-error">Both episodes must look like {{ example }}.</p>
+        }
+        <div class="field">
+          <p-checkbox [(ngModel)]="includeRepacks" [binary]="true" inputId="rss-re-repacks" (ngModelChange)="scheduleTest()"></p-checkbox>
+          <label for="rss-re-repacks">Download repacks and propers</label>
+        </div>
+        <div class="field">
+          <p-checkbox [(ngModel)]="includeTrailers" [binary]="true" inputId="rss-re-trailers" (ngModelChange)="scheduleTest()"></p-checkbox>
+          <label for="rss-re-trailers">Download trailers and teasers</label>
+        </div>
+        <div class="field">
+          <p-checkbox [(ngModel)]="excludeManuals" [binary]="true" inputId="rss-re-manuals"></p-checkbox>
+          <label for="rss-re-manuals">Exclude episodes downloaded manually</label>
+        </div>
+        <div class="field">
+          <button pButton type="button" severity="secondary" label="Manage the list of downloaded episodes…" data-testid="rss-re-manage-downloaded" [disabled]="!canManageDownloaded" (click)="onManageDownloaded()"></button>
+          @if (!canManageDownloaded) {
+            <p class="hint">Available for a saved rule that tracks episodes. Save the rule first after changing the numbering.</p>
+          }
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="2">
+        <div class="field radio-group" role="radiogroup" aria-label="Link parsing">
+          <div><p-radiobutton name="rss-links" [value]="false" [(ngModel)]="extractLinks" inputId="rss-links-main"></p-radiobutton> <label for="rss-links-main">Use the item's main link</label></div>
+          <div><p-radiobutton name="rss-links" [value]="true" [(ngModel)]="extractLinks" inputId="rss-links-extract"></p-radiobutton> <label for="rss-links-extract">Extract links from the item's description</label></div>
+        </div>
+        <div class="field">
+          <label for="rss-re-links">Regular expression matching the links</label>
+          <input pInputText id="rss-re-links" [(ngModel)]="linkRegexp" [disabled]="!extractLinks" />
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+  @if (error) {
+    <p class="form-error" role="alert" data-testid="rss-re-error">{{ error }}</p>
+  }
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="rss-re-cancel" (click)="onDialogVisibleChange(false)">Cancel</button>
+    <button pButton type="button" data-testid="rss-re-save" [disabled]="!valid" (click)="onSave()">Save</button>
+  </ng-template>
+</p-dialog>
+@if (pickerOpen) {
+  <app-directory-picker
+    [visible]="true"
+    (visibleChange)="$event || (pickerOpen = false)"
+    [initialPath]="target"
+    [queueUuid]="queue"
+    (selected)="target = $event"
+  ></app-directory-picker>
+}

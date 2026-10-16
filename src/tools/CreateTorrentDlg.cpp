@@ -35,9 +35,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QPushButton>
 #include <QFileInfo>
 #include <libtorrent/bencode.hpp>
-#include <libtorrent/storage.hpp>
 #include <libtorrent/hasher.hpp>
-#include <libtorrent/file_pool.hpp>
 #include <stdexcept>
 
 CreateTorrentDlg::CreateTorrentDlg(QWidget* parent)

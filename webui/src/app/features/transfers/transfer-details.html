@@ -1,0 +1,26 @@
+@if (selectedTransfer(); as transfer) {
+  <div class="transfer-details">
+    <fieldset>
+      <legend>Download transfer data</legend>
+      @if (!transfer.dataPathIsDir) {
+        <a data-testid="download-link" [href]="downloadUrl(transfer.uuid)">Download the file ({{ transfer.name }})</a>
+      } @else {
+        <p-tree
+          [value]="treeNodes()"
+          [lazy]="true"
+          selectionMode="single"
+          (onNodeExpand)="onNodeExpand($event)"
+          (onNodeSelect)="onNodeSelect($event)"
+        ></p-tree>
+      }
+    </fieldset>
+    @if (detailComponent(); as cmp) {
+      <fieldset>
+        <legend>Transfer details</legend>
+        <ng-container *ngComponentOutlet="cmp; inputs: { transfer: transfer }"></ng-container>
+      </fieldset>
+    }
+  </div>
+} @else {
+  <p>Select a single transfer to view details.</p>
+}

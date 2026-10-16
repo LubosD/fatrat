@@ -46,7 +46,7 @@ QList<Proxy> Proxy::loadProxys()
 		p.strUser = g_settings->value("user").toString();
 		p.strPassword = g_settings->value("password").toString();
 		p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
-		p.uuid = g_settings->value("uuid").toString();
+		p.uuid = QUuid(g_settings->value("uuid").toString());
 		
 		r << p;
 	}
@@ -66,7 +66,7 @@ Proxy Proxy::getProxy(QUuid uuid)
 		Proxy p;
 		g_settings->setArrayIndex(i);
 		
-		p.uuid = g_settings->value("uuid").toString();
+		p.uuid = QUuid(g_settings->value("uuid").toString());
 		if(p.uuid != uuid)
 			continue;
 		

@@ -63,7 +63,7 @@ JVM::JVM(bool forceJreSearch) : m_jvm(0)
 
 		qDebug() << "Locating the Java VM for Java-based plugins...";
 
-		prc.start(DATA_LOCATION "/data/java/findjvm.sh", QIODevice::ReadOnly);
+		prc.start(DATA_LOCATION "/data/java/findjvm.sh", QStringList(), QIODevice::ReadOnly);
 		prc.waitForFinished();
 
 		int code = prc.exitCode();
@@ -197,7 +197,7 @@ QString JVM::getClassPath()
 	}
 
 	// Now enumerate extra Java classpath libs
-	dir = (DATA_LOCATION "/data/java/libs");
+	dir.setPath(DATA_LOCATION "/data/java/libs");
 	list = dir.entryList(QStringList() << "*.jar", QDir::Files);
 	foreach (QString f, list)
 	{

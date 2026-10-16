@@ -1,0 +1,8 @@
+<fieldset>
+  <legend>{{ title }}</legend>
+  @if (hasData) {
+    <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+  } @else {
+    <p>No data yet.</p>
+  }
+</fieldset>

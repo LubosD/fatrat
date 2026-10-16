@@ -40,14 +40,14 @@ public Q_SLOTS: // METHODS
     inline QDBusPendingReply<> closeNotification(int id)
     {
         QList<QVariant> argumentList;
-        argumentList << qVariantFromValue(id);
+		argumentList << QVariant::fromValue(id);
         return asyncCallWithArgumentList(QLatin1String("closeNotification"), argumentList);
     }
 
     inline QDBusPendingReply<int> event(const QString &event, const QString &fromApp, const QVariantList &contexts, const QString &title, const QString &text, const QByteArray &pixmap, const QStringList &actions, int timeout, qlonglong winId)
     {
         QList<QVariant> argumentList;
-        argumentList << qVariantFromValue(event) << qVariantFromValue(fromApp) << qVariantFromValue(contexts) << qVariantFromValue(title) << qVariantFromValue(text) << qVariantFromValue(pixmap) << qVariantFromValue(actions) << qVariantFromValue(timeout) << qVariantFromValue(winId);
+		argumentList << QVariant::fromValue(event) << QVariant::fromValue(fromApp) << QVariant::fromValue(contexts) << QVariant::fromValue(title) << QVariant::fromValue(text) << QVariant::fromValue(pixmap) << QVariant::fromValue(actions) << QVariant::fromValue(timeout) << QVariant::fromValue(winId);
         return asyncCallWithArgumentList(QLatin1String("event"), argumentList);
     }
 
@@ -60,14 +60,14 @@ public Q_SLOTS: // METHODS
     inline QDBusPendingReply<> reemit(int id, const QVariantList &contexts)
     {
         QList<QVariant> argumentList;
-        argumentList << qVariantFromValue(id) << qVariantFromValue(contexts);
+		argumentList << QVariant::fromValue(id) << QVariant::fromValue(contexts);
         return asyncCallWithArgumentList(QLatin1String("reemit"), argumentList);
     }
 
     inline QDBusPendingReply<> update(int id, const QString &title, const QString &text, const QByteArray &pixmap, const QStringList &actions)
     {
         QList<QVariant> argumentList;
-        argumentList << qVariantFromValue(id) << qVariantFromValue(title) << qVariantFromValue(text) << qVariantFromValue(pixmap) << qVariantFromValue(actions);
+		argumentList << QVariant::fromValue(id) << QVariant::fromValue(title) << QVariant::fromValue(text) << QVariant::fromValue(pixmap) << QVariant::fromValue(actions);
         return asyncCallWithArgumentList(QLatin1String("update"), argumentList);
     }
 

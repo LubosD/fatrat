@@ -1,0 +1,101 @@
+.selection-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--p-highlight-background);
+  color: var(--p-highlight-color);
+}
+
+.selection-count {
+  flex: 1;
+  font-weight: 600;
+}
+
+.transfer-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.transfer-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.5rem 0.625rem 0.75rem;
+  background: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-content-border-radius);
+  // A long press must not start a text selection or the browser's callout menu.
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: pan-y;
+
+  &.selected {
+    background: var(--p-highlight-background);
+    border-color: var(--p-primary-color);
+  }
+}
+
+.card-check {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  pointer-events: none;
+}
+
+.card-state {
+  flex: none;
+  margin-top: 0.1875rem;
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-name {
+  margin-bottom: 0.375rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.125rem 0.75rem;
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text-muted-color);
+}
+
+.card-message {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--p-text-muted-color);
+  word-break: break-word;
+}
+
+.card-menu-button {
+  flex: none;
+}
+
+.empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--p-text-muted-color);
+}
+
+:host ::ng-deep .p-progressbar {
+  height: 1rem;
+  font-size: 0.6875rem;
+}

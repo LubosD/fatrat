@@ -196,18 +196,18 @@ JValue JClass::variantToValue(QVariant& v)
 {
 	//JScope s;
 
-	switch (v.type())
+	switch (v.userType())
 	{
-	case QVariant::Int:
-	case QVariant::UInt:
+	case QMetaType::Int:
+	case QMetaType::UInt:
 		return JValue(v.toInt());
-	case QVariant::Double:
+	case QMetaType::Double:
 		return JValue(v.toDouble());
-	case QVariant::LongLong:
+	case QMetaType::LongLong:
 		return JValue(v.toLongLong());
-	case QVariant::Bool:
+	case QMetaType::Bool:
 		return JValue(v.toBool());
-	case QVariant::String:
+	case QMetaType::QString:
 		{
 			JString str = JString(v.toString());
 			return JValue(str);
@@ -311,7 +311,7 @@ void JClass::setStaticValue(const char* name, const char* sig, QVariant value)
 	case '[':
 	case 'L':
 		{
-			if (value.type() == QVariant::String)
+			if (value.userType() == QMetaType::QString)
 			{
 				JString js(value.toString());
 				env->SetStaticObjectField(m_class, fid, js);

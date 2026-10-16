@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef CURLDOWNLOAD_H
 #define CURLDOWNLOAD_H
+#include "config.h"
 #include <Transfer.h>
 #include <fatrat.h>
 #include "engines/CurlUser.h"
@@ -60,20 +61,26 @@ public:
 	virtual void setSpeedLimits(int down, int up);
 	
 	static int acceptable(QString uri, bool);
+#ifdef WITH_GUI
 	static QDialog* createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers);
+#endif
 	static Transfer* createInstance() { return new CurlDownload; }
 	static void globalInit();
 	static void globalExit();
 	
+#ifdef WITH_GUI
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
 	virtual void fillContextMenu(QMenu& menu);
-	virtual QString remoteURI() const;
 	virtual QObject* createDetailsWidget(QWidget* w);
+#endif
+	virtual QString remoteURI() const;
 protected:
 	QString filePath() const;
-private slots:
-	//void switchMirror();
+#ifdef WITH_GUI
+private:
 	void computeHash();
+#endif
+private slots:
 	void clientRenameTo(QString name);
 	void clientLogMessage(QString msg);
 	void clientDone(QString error);
@@ -102,8 +109,8 @@ protected:
 		// the last url object used for this segment
 		int urlIndex;
 		// pointer to a UrlClient instance, if the segment is active
-		UrlClient* client;
-		QColor color;
+		UrlClient* client = nullptr;
+		quint32 color; // QRgb (0xAARRGGBB)
 
 		bool operator<(const Segment& s2) const;
 		operator QString() const
@@ -127,7 +134,7 @@ protected:
 	void autoCreateSegment();
 	static void simplifySegments(QList<Segment>& in);
 	void fixActiveSegmentsList();
-	QColor allocateSegmentColor();
+	quint32 allocateSegmentColor();
 	void startSegment(Segment& seg, qlonglong bytes);
 	void startSegment(int urlIndex);
 	void stopSegment(int index, bool restarting = false);

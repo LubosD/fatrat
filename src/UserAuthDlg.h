@@ -27,7 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #ifndef _USERAUTHDLG_H
 #define _USERAUTHDLG_H
 #include <QDialog>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QMessageBox>
 #include "Auth.h"
 #include "ui_UserAuthDlg.h"
@@ -65,7 +65,7 @@ public slots:
 	{
 		if(m_bRegExpMode)
 		{
-			QRegExp re (lineRegExp->text());
+			QRegularExpression re (lineRegExp->text());
 			if(!re.isValid())
 			{
 				QMessageBox::warning(this, "FatRat", tr("The regular expression you've entered is invalid."));

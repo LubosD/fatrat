@@ -32,7 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JObject.h"
 #include "StaticTransferMessage.h"
 #include <string>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QMap>
 #include "JavaPersistentVariables.h"
 
@@ -77,7 +77,7 @@ private:
     struct JavaEngine
     {
 	    std::string name, shortName;
-	    QRegExp regexp;
+	    QRegularExpression regexp;
 	    JObject ownAcceptable;
 	    QString targetClass;
     };

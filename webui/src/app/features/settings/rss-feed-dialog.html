@@ -1,0 +1,17 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '30rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false" styleClass="fr-dialog">
+  <div class="field">
+    <label for="rss-feed-name">Name</label>
+    <input pInputText id="rss-feed-name" [(ngModel)]="name" required />
+  </div>
+  <div class="field">
+    <label for="rss-feed-url">URL</label>
+    <input pInputText id="rss-feed-url" type="url" [(ngModel)]="url" required (keydown.enter)="onSave()" />
+  </div>
+  @if (error) {
+    <p class="form-error" role="alert" data-testid="rss-feed-error">{{ error }}</p>
+  }
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="rss-feed-cancel" (click)="onDialogVisibleChange(false)">Cancel</button>
+    <button pButton type="button" data-testid="rss-feed-save" [disabled]="!valid" (click)="onSave()">Save</button>
+  </ng-template>
+</p-dialog>

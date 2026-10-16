@@ -36,9 +36,9 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QMap>
 #include <QMutex>
+#include <QRegularExpression>
 #include "java/JObject.h"
 #include "WidgetHostChild.h"
-#include "ui_JavaDownloadOptsForm.h"
 #include "JavaPersistentVariables.h"
 
 class JDownloadPlugin;
@@ -61,10 +61,11 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void changeActive(bool bActive);
+#ifdef WITH_GUI
 	virtual QObject* createDetailsWidget(QWidget* w) { return 0; }
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
-
 	virtual void fillContextMenu(QMenu& menu) {}
+#endif
 
 	virtual QString object() const { return m_strTarget; }
 	virtual void setObject(QString newdir);
@@ -94,7 +95,7 @@ private:
 	struct JavaEngine
 	{
 		std::string name, shortName;
-		QRegExp regexp;
+		QRegularExpression regexp;
 		bool forceSingleTransfer, truncate;
 		JObject ownAcceptable;
 		QString configDialog;
@@ -106,18 +107,6 @@ private:
 	friend class JTransferPlugin;
 	friend class JDownloadPlugin;
 	friend class JavaDownloadOptsForm;
-};
-
-class JavaDownloadOptsForm : public QObject, public WidgetHostChild, Ui_JavaDownloadOptsForm
-{
-Q_OBJECT
-public:
-	JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj);
-	virtual void load();
-	virtual void accepted();
-	virtual bool accept();
-private:
-	JavaDownload* m_download;
 };
 
 #endif // JAVADOWNLOAD_H

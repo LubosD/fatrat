@@ -1,0 +1,32 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  header="Captcha"
+  [modal]="true"
+  styleClass="fr-dialog"
+  [style]="{ width: '350px' }"
+>
+  @if (current(); as event) {
+    <p>
+      Please re-type the following captcha. This dialog will be automatically dismissed in
+      <strong data-testid="captcha-seconds-remaining">{{ secondsRemaining() }}</strong> seconds.
+    </p>
+    <div class="field">
+      <img [src]="event.url" alt="Captcha image" data-testid="captcha-image" />
+    </div>
+    <div class="field">
+      <label for="captcha-solution">Solution</label>
+      <input
+        pInputText
+        id="captcha-solution"
+        data-testid="captcha-solution-input"
+        [(ngModel)]="solution"
+        (keydown.enter)="submit()"
+      />
+    </div>
+  }
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="captcha-dialog-cancel" (click)="cancel()">Cancel</button>
+    <button pButton type="button" data-testid="captcha-dialog-submit" (click)="submit()">Submit</button>
+  </ng-template>
+</p-dialog>

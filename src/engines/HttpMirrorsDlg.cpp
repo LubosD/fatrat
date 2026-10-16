@@ -27,7 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpMirrorsDlg.h"
 #include <QUrl>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QtDebug>
 #include <climits>
 
@@ -108,8 +108,8 @@ HttpMirrorsDlg::ProbeThread::~ProbeThread()
 
 void HttpMirrorsDlg::ProbeThread::run()
 {
-	QRegExp reTime("time=([0-9\\.]+) ms");
-	QRegExp reTtl("ttl=(\\d+)");
+	QRegularExpression reTime("time=([0-9\\.]+) ms");
+	QRegularExpression reTtl("ttl=(\\d+)");
 
 	for (QMap<QString,QTreeWidgetItem*>::iterator it = m_servers.begin(); it != m_servers.end(); it++)
 	{
@@ -127,10 +127,12 @@ void HttpMirrorsDlg::ProbeThread::run()
 		{
 			QString line = prc.readLine();
 			//qDebug() << line;
-			if (reTime.indexIn(line) != -1)
-				ms = reTime.cap(1).toDouble();
-			if (reTtl.indexIn(line) != -1)
-				ttl = reTtl.cap(1).toInt();
+			QRegularExpressionMatch m = reTime.match(line);
+			if (m.hasMatch())
+				ms = m.captured(1).toDouble();
+			m = reTtl.match(line);
+			if (m.hasMatch())
+				ttl = m.captured(1).toInt();
 		}
 
 		QTreeWidgetItem* item = it.value();

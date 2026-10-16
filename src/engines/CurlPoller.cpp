@@ -35,10 +35,12 @@ CurlPoller* CurlPoller::m_instance = 0;
 int CurlPoller::m_nTransferTimeout = 20;
 
 CurlPoller::CurlPoller()
-	: m_bAbort(false), m_timeout(0), m_usersLock(QMutex::Recursive)
+	: m_bAbort(false), m_timeout(0)
 {
 	m_curlTimeout = 0;
-	curl_global_init(CURL_GLOBAL_SSL);
+	// Not thread-safe, so only the main instance (not polling masters) does this
+	if(!m_instance)
+		curl_global_init(CURL_GLOBAL_SSL);
 	m_curlm = curl_multi_init();
 	m_poller = Poller::createInstance(this);
 	
@@ -59,10 +61,12 @@ CurlPoller::~CurlPoller()
 	if(isRunning())
 		wait();
 	
-	if (this == m_instance)
+	bool wasMain = (this == m_instance);
+	if (wasMain)
 		m_instance = 0;
 	curl_multi_cleanup(m_curlm);
-	curl_global_cleanup();
+	if(wasMain)
+		curl_global_cleanup();
 }
 
 bool operator<(const timeval& t1, const timeval& t2)
@@ -152,6 +156,9 @@ void CurlPoller::pollingCycle(bool oneshot)
 		int msec = -1;
 		CurlStat* user = it.value().second;
 
+		if(!user)
+			continue;
+
 		if(!user->idleCycle(tvNow))
 			timedOut << user;
 
@@ -208,7 +215,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 		if(msg->msg != CURLMSG_DONE)
 			continue;
 
-		CurlUser* user = m_users[msg->easy_handle];
+		CurlUser* user = m_users.value(msg->easy_handle, 0);
 
 		if(user)
 			user->transferDone(msg->data.result);
@@ -239,7 +246,7 @@ void CurlPoller::checkErrors(timeval tvNow)
 	{
 		CurlStat* user = it.value().second;
 
-		if(!user->idleCycle(tvNow))
+		if(user && !user->idleCycle(tvNow))
 			timedOut << user;
 	}
 
@@ -249,7 +256,7 @@ void CurlPoller::checkErrors(timeval tvNow)
 		if(msg->msg != CURLMSG_DONE)
 			continue;
 
-		CurlUser* user = m_users[msg->easy_handle];
+		CurlUser* user = m_users.value(msg->easy_handle, 0);
 
 		if(user)
 			user->transferDone(msg->data.result);
@@ -302,7 +309,12 @@ int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPol
 	{
 		qDebug() << "CurlPoller::socket_callback - add/mod" << s << flags;
 		
-		This->m_socketsToAdd[s] = QPair<int,CurlStat*>(flags, static_cast<CurlStat*>(This->m_users[easy]));
+		// The handle may already have been removed and be waiting for deletion
+		CurlUser* user = This->m_users.value(easy, 0);
+		if(!user)
+			return 0;
+		
+		This->m_socketsToAdd[s] = QPair<int,CurlStat*>(flags, static_cast<CurlStat*>(user));
 		
 		return This->m_poller->addSocket(s, flags);
 	}

@@ -59,9 +59,6 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 #ifdef WITH_BITTORRENT
 	checkFeatureBitTorrent->setChecked(true);
 #endif
-#ifdef WITH_JABBER
-	checkFeatureJabber->setChecked(true);
-#endif
 #ifdef WITH_DOCUMENTATION
 	checkFeatureDocumentation->setChecked(true);
 #endif
@@ -98,7 +95,6 @@ void AboutDlg::loadFile(QTextEdit* edit, QString filename)
 	name += filename;
 	
 	file.setFileName(name);
-	file.open(QIODevice::ReadOnly);
-	
-	edit->setPlainText(QString::fromUtf8(file.readAll()));
+	if(file.open(QIODevice::ReadOnly))
+		edit->setPlainText(QString::fromUtf8(file.readAll()));
 }

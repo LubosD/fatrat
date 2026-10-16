@@ -60,10 +60,8 @@ public:
 	QVariant data(const QModelIndex &index, int role) const;
 	bool hasChildren(const QModelIndex& parent) const;
 	
-	void fill();
 	void refresh(const libtorrent::bitfield* pieces);
 protected:
-	QList<libtorrent::file_entry> m_files;
 	std::vector<int64_t> m_progresses;
 	const libtorrent::bitfield* m_pieces;
 private:

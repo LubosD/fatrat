@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.125rem 1rem;
+  border-top: 1px solid var(--p-content-border-color);
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color);
+}
+
+.rates,
+.limits {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.limits-label {
+  margin-right: -0.25rem;
+}
+
+.limit-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 14rem;
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+@media (max-width: 600px) {
+  .queue-rate,
+  .limits-label {
+    display: none;
+  }
+}

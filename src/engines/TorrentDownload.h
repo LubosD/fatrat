@@ -38,7 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QTimer>
 #include <QMutex>
 #include <QTemporaryFile>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <vector>
 #include <libtorrent/session.hpp>
 #include <libtorrent/torrent_handle.hpp>
@@ -47,6 +47,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Proxy.h"
 #ifdef WITH_WEBINTERFACE
 #	include "remote/TransferHttpService.h"
+#	include "remote/RestApi.h"
 #endif
 
 class TorrentWorker;
@@ -69,7 +70,6 @@ public:
 	virtual ~TorrentDownload();
 	
 	static Transfer* createInstance() { return new TorrentDownload; }
-	static WidgetHostChild* createSettingsWidget(QWidget* w,QIcon& i);
 	static int acceptable(QString url, bool);
 	
 	static void globalInit();
@@ -78,9 +78,7 @@ public:
 	
 	static QByteArray bencode_simple(libtorrent::entry& e);
 	static QString bencode(libtorrent::entry& e);
-	static libtorrent::entry bdecode_simple(QByteArray d);
-	static void lazy_bdecode_simple(libtorrent::lazy_entry& e, QByteArray array);
-	static libtorrent::entry bdecode(QString d);
+	static libtorrent::session_params readSessionParams(const QByteArray& data, libtorrent::save_state_flags_t flags);
 	
 	static libtorrent::proxy_settings proxyToLibtorrent(Proxy p);
 	
@@ -100,9 +98,11 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
+#ifdef WITH_GUI
 	virtual void fillContextMenu(QMenu& menu);
 	virtual QObject* createDetailsWidget(QWidget* widget);
 	virtual WidgetHostChild* createOptionsWidget(QWidget* w);
+#endif
 	virtual QString remoteURI() const;
 
 	virtual QString dataPath(bool bDirect = true) const;
@@ -125,6 +125,7 @@ private:
 	bool storeTorrent(QString orig);
 	bool storeTorrent();
 	QString storedTorrentName() const;
+	static void fillSettings(libtorrent::settings_pack& settings);
 private slots:
 	void torrentFileDone(QNetworkReply* reply);
 	void torrentFileReadyRead();
@@ -132,16 +133,16 @@ private slots:
 	void forceRecheck();
 #ifdef WITH_WEBINTERFACE
 private:
-	static QVariant setFilePriorities(QList<QVariant>& args);
+	static RestResult setFilePrioritiesRest(const RestRequest& req);
 #endif
 protected:
 	libtorrent::torrent_handle m_handle;
-	boost::shared_ptr<libtorrent::torrent_info const> m_info;
+	std::shared_ptr<const libtorrent::torrent_info> m_info;
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;
 	//qint64 m_nPrevDownload, m_nPrevUpload;
-	std::vector<int> m_vecPriorities;
+	std::vector<libtorrent::download_priority_t> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
 	QList<QString> m_urlSeeds;
 	
@@ -156,8 +157,10 @@ protected:
 	static libtorrent::session* m_session;
 	static TorrentWorker* m_worker;
 	static bool m_bDHT;
-	static QList<QRegExp> m_listBTLinks;
+	static QList<QRegularExpression> m_listBTLinks;
+#ifdef WITH_GUI
 	static QLabel* m_labelDHTStats;
+#endif
 	static QMutex m_mutexAlerts;
 	
 	friend class TorrentWorker;
@@ -179,13 +182,15 @@ public:
 	void addObject(TorrentDownload* d);
 	void removeObject(TorrentDownload* d);
 	// To reduce QTimer usage
+#ifdef WITH_GUI
 	void setDetailsObject(TorrentDetails* d);
+#endif
 	TorrentDownload* getByHandle(libtorrent::torrent_handle handle) const;
 	void processAlert(libtorrent::alert* aaa);
 public slots:
 	void doWork();
 private:
-	QTimer m_timer;
+	QTimer m_timer, m_timerStats;
 	QMutex m_mutex;
 	QList<TorrentDownload*> m_objects;
 };

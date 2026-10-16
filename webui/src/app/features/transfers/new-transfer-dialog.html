@@ -1,0 +1,66 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="New Transfer" [modal]="true" styleClass="fr-dialog">
+  <div class="field">
+    <label for="new-transfer-queue">Queue</label>
+    <p-select inputId="new-transfer-queue" [options]="queues" optionLabel="name" optionValue="uuid" [(ngModel)]="queueUuid"></p-select>
+  </div>
+  <div class="field">
+    <label for="new-transfer-urls">URLs (one per line)</label>
+    <textarea pTextarea id="new-transfer-urls" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel"></textarea>
+    @if (file !== null) {
+      <p class="hint">A local file is selected — typed URLs will be ignored.</p>
+    }
+  </div>
+  <div class="field">
+    <label>Local file (e.g. a .torrent)</label>
+    <p-fileupload mode="basic" [auto]="false" (onSelect)="onFileSelect($event)"></p-fileupload>
+    @if (file !== null) {
+      <button pButton type="button" data-testid="new-transfer-clear-file" (click)="onClearFile()">Clear file</button>
+    }
+  </div>
+  <div class="field">
+    <label for="new-transfer-target">Target directory</label>
+    <p-inputgroup>
+      <input pInputText id="new-transfer-target" [(ngModel)]="target" />
+      <button pButton type="button" severity="secondary" label="Browse…" data-testid="new-transfer-browse" (click)="pickerOpen = true"></button>
+    </p-inputgroup>
+  </div>
+  <div class="field">
+    <label for="new-transfer-class">Download as</label>
+    <p-select
+      inputId="new-transfer-class"
+      [options]="transferClasses"
+      optionLabel="longName"
+      optionValue="shortName"
+      [(ngModel)]="targetClass"
+      placeholder="Automatically detect"
+    ></p-select>
+  </div>
+  <div class="field">
+    <label for="new-transfer-speed-down">Max download speed (KB/s)</label>
+    <p-inputnumber inputId="new-transfer-speed-down" [(ngModel)]="speedDown"></p-inputnumber>
+  </div>
+  <div class="field">
+    <label for="new-transfer-speed-up">Max upload speed (KB/s)</label>
+    <p-inputnumber inputId="new-transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
+  </div>
+  <div class="field">
+    <p-checkbox [(ngModel)]="paused" [binary]="true" inputId="new-transfer-paused"></p-checkbox>
+    <label for="new-transfer-paused">Add paused</label>
+  </div>
+  <!-- PrimeNG's Dialog detects footer content via a ContentChild query keyed on a
+       template-ref variable named "footer" — <p-footer> projection does not work here
+       (and Footer from primeng/api isn't a standalone component anyway). -->
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="new-transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
+    <button pButton type="button" data-testid="new-transfer-dialog-save" (click)="onSave()">Add</button>
+  </ng-template>
+</p-dialog>
+@if (pickerOpen) {
+  <app-directory-picker
+    [visible]="pickerOpen"
+    (visibleChange)="pickerOpen = $event"
+    [initialPath]="target"
+    [queueUuid]="queueUuid"
+    (selected)="target = $event"
+  ></app-directory-picker>
+}

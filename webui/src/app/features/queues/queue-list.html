@@ -1,0 +1,21 @@
+<div class="queue-list-title" id="queue-list-title">Queues</div>
+<ul class="queue-list" aria-labelledby="queue-list-title">
+  @for (queue of store.queues(); track queue.uuid) {
+    <li
+      data-testid="queue-item"
+      class="queue-item"
+      [class.selected]="queue.uuid === store.selectedQueueUuid()"
+      [attr.aria-current]="queue.uuid === store.selectedQueueUuid() ? 'true' : null"
+      role="button"
+      tabindex="0"
+      (contextmenu)="onContextMenu($event, queue.uuid, cm)"
+      (click)="store.selectQueue(queue.uuid)"
+      (keydown.enter)="store.selectQueue(queue.uuid)"
+      (keydown.space)="store.selectQueue(queue.uuid); $event.preventDefault()"
+    >
+      <i class="pi pi-list" aria-hidden="true"></i>
+      <span>{{ queue.name }}</span>
+    </li>
+  }
+</ul>
+<p-contextMenu #cm [model]="contextMenuItems" appendTo="body"></p-contextMenu>

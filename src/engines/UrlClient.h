@@ -85,6 +85,7 @@ private:
 	QHash<QByteArray, QByteArray> m_headers;
 	//CurlPollingMaster* m_master;
 	bool m_bTerminating;
+	bool m_bRangeRequested, m_bRangeChecked;
 };
 
 #endif

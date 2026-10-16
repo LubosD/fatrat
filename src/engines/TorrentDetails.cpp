@@ -109,8 +109,8 @@ TorrentDetails::~TorrentDetails()
 
 void TorrentDetails::setPriority(int p)
 {
-	foreach(int i, m_selFiles)
-		m_download->m_vecPriorities[i] = p;
+	for (int i : m_selFiles)
+		m_download->m_vecPriorities[i] = libtorrent::download_priority_t(p);
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
 }
 
@@ -121,17 +121,14 @@ void TorrentDetails::openFile()
 	
 	int i = m_selFiles[0];
 	
-	QString relative = QString::fromUtf8(m_download->m_info->file_at(i).path.c_str());
+	QString relative = QString::fromStdString(m_download->m_info->files().file_path(i));
 	QString path = m_download->dataPath(false);
 	
 	if(!path.endsWith('/'))
 		path += '/';
 	path += relative;
-	
-	QString command = QString("%1 \"%2\"")
-			.arg(getSettingsValue("fileexec").toString())
-			.arg(path);
-	QProcess::startDetached(command);
+
+	QProcess::startDetached(getSettingsValue("fileexec").toString(), QStringList() << path);
 }
 
 void TorrentDetails::peerInfo()
@@ -140,7 +137,9 @@ void TorrentDetails::peerInfo()
 	if(row != -1)
 	{
 		const libtorrent::peer_info& info = m_pPeersModel->m_peers[row];
-		QMessageBox::information(treePeers, "FatRat", QString("Reciprocion rate: %1").arg(info.estimated_reciprocation_rate));
+		QMessageBox::information(treePeers, "FatRat", QString("Peak download rate: %1\nPeak upload rate: %2")
+								.arg(formatSize(info.download_rate_peak, true)
+								.arg(formatSize(info.upload_rate_peak, true))));
 	}
 }
 
@@ -199,8 +198,6 @@ void TorrentDetails::fill()
 		
 		QString magnet = QString::fromStdString(libtorrent::make_magnet_uri(m_download->m_handle));
 		lineMagnet->setText(magnet);
-		
-		m_pFilesModel->fill();
 	}
 }
 
@@ -213,7 +210,6 @@ void TorrentDetails::refresh()
 		
 		// GENERAL
 		int next = std::chrono::duration_cast<std::chrono::seconds>(m_download->m_status.next_announce).count();
-		int intv = std::chrono::duration_cast<std::chrono::seconds>(m_download->m_status.announce_interval).count();
 		
 		// availability
 		QPalette palette = QApplication::palette(lineAvailability);
@@ -227,10 +223,9 @@ void TorrentDetails::refresh()
 			lineAvailability->setText("-");
 		lineAvailability->setPalette(palette);
 		
-		lineTracker->setText(tr("%1 (refresh in %2:%3:%4, every %5:%6:%7)")
+		lineTracker->setText(tr("%1 (refresh in %2:%3:%4)")
 				.arg(m_download->m_status.current_tracker.c_str())
-				.arg(next / 3600).arg(next / 60,2,10,QChar('0')).arg(next % 60,2,10,QChar('0'))
-				.arg(intv / 3600).arg(intv / 60,2,10,QChar('0')).arg(intv % 60,2,10,QChar('0')));
+				.arg(next / 3600).arg(next / 60,2,10,QChar('0')).arg(next % 60,2,10,QChar('0')));
 		
 		libtorrent::bitfield pieces = m_download->m_status.pieces;
 		
@@ -281,8 +276,8 @@ bool TorrentDetails::bitfieldsEqual(const libtorrent::bitfield& b1, const libtor
 {
 	const char* pb1, *pb2;
 	
-	pb1 = b1.bytes();
-	pb2 = b2.bytes();
+	pb1 = b1.data();
+	pb2 = b2.data();
 	
 	if(!pb1 && !pb2)
 		return true;

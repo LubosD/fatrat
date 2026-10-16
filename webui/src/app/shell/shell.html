@@ -1,0 +1,130 @@
+<p-confirmDialog></p-confirmDialog>
+
+<app-queue-properties-dialog
+  [queue]="queueDialogTarget()"
+  [visible]="showQueueDialog()"
+  (visibleChange)="showQueueDialog.set($event)"
+  (save)="onQueueDialogSave($event)"
+></app-queue-properties-dialog>
+
+<app-transfer-properties-dialog
+  [transfer]="transferPropertiesTarget()"
+  [visible]="showTransferPropertiesDialog()"
+  (visibleChange)="showTransferPropertiesDialog.set($event)"
+  (save)="onTransferPropertiesSave($event)"
+></app-transfer-properties-dialog>
+
+<app-new-transfer-dialog
+  [queues]="queuesStore.queues()"
+  [transferClasses]="transferClasses()"
+  [defaultQueueUuid]="queuesStore.selectedQueueUuid()"
+  [visible]="showNewTransferDialog()"
+  (visibleChange)="showNewTransferDialog.set($event)"
+  (save)="onNewTransferSave($event)"
+></app-new-transfer-dialog>
+
+<app-settings-dialog
+  [visible]="showSettingsDialog()"
+  (visibleChange)="showSettingsDialog.set($event)"
+></app-settings-dialog>
+
+<!-- Self-managed, no bindings: visibility is derived internally from CaptchaSocketService events. -->
+<app-captcha-dialog></app-captcha-dialog>
+
+@if (viewport.isMobile()) {
+  <header class="mobile-bar" data-testid="mobile-bar">
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="mobile-queues-button" aria-label="Queues" (click)="showQueueDrawer.set(true)"><i class="pi pi-bars" pButtonIcon></i></button>
+    <span class="mobile-queue-name" data-testid="mobile-queue-name">{{ selectedQueueName() }}</span>
+    @for (action of primaryActions; track action.id) {
+      <button pButton type="button" [text]="true" severity="secondary" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i></button>
+    }
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="mobile-more-button" aria-label="More actions" aria-haspopup="menu" (click)="openOverflowMenu($event, moreMenu)"><i class="pi pi-ellipsis-v" pButtonIcon></i></button>
+    <p-menu #moreMenu [popup]="true" [model]="overflowItems()" appendTo="body"></p-menu>
+  </header>
+  <p-drawer [visible]="showQueueDrawer()" (visibleChange)="showQueueDrawer.set($event)" position="left" header="Queues" styleClass="queue-drawer">
+    <!-- Choosing a queue bubbles up here and closes the drawer. -->
+    <div data-testid="queue-drawer-content" (click)="showQueueDrawer.set(false)">
+      <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
+    </div>
+  </p-drawer>
+}
+
+@if (!viewport.isMobile()) {
+<p-toolbar>
+  <ng-template #start>
+    <img src="img/logo.svg" alt="FatRat" class="shell-logo" />
+    @for (group of toolbarGroups; track $index) {
+      <span class="toolbar-group">
+        @for (action of group; track action.id) {
+          <button pButton type="button" [text]="true" severity="secondary" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [pTooltip]="action.label" tooltipPosition="bottom" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i></button>
+        }
+      </span>
+    }
+  </ng-template>
+  <ng-template #end>
+    <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
+    <p-select
+      inputId="refresh-interval"
+      [ariaLabelledBy]="'refresh-interval-label'"
+      [options]="allowedIntervals"
+      [ngModel]="polling.intervalSeconds()"
+      (ngModelChange)="polling.setIntervalSeconds($event)"
+    >
+      <ng-template let-seconds #selectedItem>{{ seconds }} seconds</ng-template>
+      <ng-template let-seconds #item>{{ seconds }} seconds</ng-template>
+    </p-select>
+  </ng-template>
+</p-toolbar>
+}
+
+<ng-template #detailsPane>
+  <p-tabs [(value)]="activeTab" class="details-tabs">
+    <p-tablist>
+      <p-tab value="0">Transfers</p-tab>
+      <p-tab value="1">Details</p-tab>
+      <p-tab value="2">Speed Graphs</p-tab>
+      <p-tab value="3">Log</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+          @if (viewport.isMobile()) {
+            <app-transfer-cards (propertiesRequested)="openTransferPropertiesDialog()"></app-transfer-cards>
+          } @else {
+            <app-transfer-table (propertiesRequested)="openTransferPropertiesDialog()"></app-transfer-table>
+          }
+        </p-tabpanel>
+      <p-tabpanel value="1" [lazy]="true">
+        <ng-template #content>
+          <app-transfer-details></app-transfer-details>
+        </ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="2" [lazy]="true">
+        <ng-template #content>
+          <app-speed-graphs-tab [active]="activeTab() === '2'"></app-speed-graphs-tab>
+        </ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="3" [lazy]="true">
+        <ng-template #content>
+          <app-log-tab [active]="activeTab() === '3'"></app-log-tab>
+        </ng-template>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</ng-template>
+
+@if (viewport.isMobile()) {
+  <div class="mobile-content">
+    <ng-container *ngTemplateOutlet="detailsPane"></ng-container>
+  </div>
+} @else {
+  <p-splitter [panelSizes]="[20, 80]" styleClass="shell-splitter">
+    <ng-template #panel>
+      <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
+    </ng-template>
+    <ng-template #panel>
+      <ng-container *ngTemplateOutlet="detailsPane"></ng-container>
+    </ng-template>
+  </p-splitter>
+}
+
+<app-status-bar></app-status-bar>

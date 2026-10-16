@@ -1,0 +1,57 @@
+<div
+  class="transfer-table"
+  tabindex="0"
+  aria-label="Transfers"
+  data-testid="transfer-table"
+  (keydown)="onKeydown($event)"
+>
+  <p-table
+    [value]="store.transfers()"
+    dataKey="uuid"
+    [rowTrackBy]="trackByUuid"
+    [rowHover]="true"
+    size="small"
+    [contextMenu]="cm"
+    (onContextMenuSelect)="onContextMenuSelect($event)"
+  >
+    <ng-template #header>
+      <tr>
+        <th class="state-cell"><span class="visually-hidden">State</span></th>
+        <th>Name</th>
+        <th class="progress-cell">Progress</th>
+        <th>Size</th>
+        <th>Down</th>
+        <th>Up</th>
+        <th>ETA</th>
+        <th>Message</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-transfer>
+      <tr
+        [pContextMenuRow]="transfer"
+        class="transfer-row"
+        [class.selected-row]="store.isSelected(transfer.uuid)"
+        [class.current-row]="store.currentUuid() === transfer.uuid"
+        [attr.aria-selected]="store.isSelected(transfer.uuid)"
+        [attr.data-uuid]="transfer.uuid"
+        data-testid="transfer-row"
+        (click)="onRowClick($event, transfer.uuid)"
+      >
+        <td class="state-cell">
+          <img [src]="stateIcon(transfer)" [alt]="stateLabel(transfer)" [title]="stateLabel(transfer)" width="16" height="16" />
+        </td>
+        <td class="name-cell">{{ transfer.name }}</td>
+        <td class="progress-cell">
+          <p-progressbar [value]="progress(transfer.total, transfer.done)"></p-progressbar>
+        </td>
+        <td class="num-cell">{{ formatSize(transfer.total) }}</td>
+        <td class="num-cell">{{ formatSpeed(transfer.speeds.down) }}</td>
+        <td class="num-cell">{{ formatSpeed(transfer.speeds.up) }}</td>
+        <td class="num-cell">{{ formatEta(transfer.total, transfer.done, transfer.speeds.down) }}</td>
+        <td class="message-cell">{{ transfer.message }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>

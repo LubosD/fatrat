@@ -26,12 +26,15 @@ respects for all of the code used other than "OpenSSL".
 
 #include "DbusImpl.h"
 #include "Queue.h"
-#include "MainWindow.h"
+#include "config.h"
+#ifdef WITH_GUI
+#	include "MainWindow.h"
+#endif
 #include "fatrat.h"
 #include "RuntimeException.h"
 #include "Settings.h"
 #include "TransferFactory.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QReadWriteLock>
 #include <QtDBus/QtDBus>
 #include <QtDebug>
@@ -50,9 +53,14 @@ DbusImpl::DbusImpl()
 
 void DbusImpl::addTransfers(QString uris)
 {
+#ifdef WITH_GUI
 	MainWindow* wnd = (MainWindow*) getMainWindow();
 	if (wnd)
 		wnd->addTransfer(uris);
+#else
+	Q_UNUSED(uris);
+	qDebug() << "addTransfers() needs the GUI; use addTransfersNonInteractive()";
+#endif
 }
 
 QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, int queueID)
@@ -67,9 +75,9 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 			throw RuntimeException("No URIs were passed");
 		
 		if(!getSettingsValue("link_separator").toInt())
-			listUris = uris.split('\n', QString::SkipEmptyParts);
+			listUris = uris.split('\n', Qt::SkipEmptyParts);
 		else
-			listUris = uris.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+			listUris = uris.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 		for(int i = 0; i < listUris.size(); i++)
 			listUris[i] = listUris[i].trimmed();
 		

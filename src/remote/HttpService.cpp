@@ -29,68 +29,69 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpService.h"
 #include "Settings.h"
 #include "RuntimeException.h"
-#include "SettingsWebForm.h"
-#include "SpeedGraph.h"
+#ifdef WITH_GUI
+#	include "SettingsWebForm.h"
+#endif
 #include "Transfer.h"
 #include "Queue.h"
 #include "fatrat.h"
 #include "Logger.h"
 #include "TransferFactory.h"
-#include "dbus/DbusImpl.h"
-#include "remote/XmlRpcService.h"
+#include "remote/RestApi.h"
+#include "remote/RestResources.h"
 
 #include <QSettings>
 #include <QtDebug>
 #include <QStringList>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QDir>
 #include <QBuffer>
-#include <QImage>
-#include <QPainter>
 #include <QMultiMap>
 #include <QProcess>
 #include <QFile>
-#include <pion/http/basic_auth.hpp>
-#include <pion/http/response_writer.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include "pion/FileService.hpp"
+#include <QFileInfo>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QMimeDatabase>
 #include <cstdlib>
 #include <sstream>
+#include <iostream>
+#include <thread>
 #include <locale.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/un.h>
 #include <string.h>
 #include <algorithm>
-
-using namespace pion::http;
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 extern QSettings* g_settings;
 extern QVector<EngineEntry> g_enginesDownload;
 
-HttpService* HttpService::m_instance = 0;
-
-#define HTTP_HEADERS "Server: FatRat/" VERSION "\r\n"
-
-struct AuthenticationFailure {};
+HttpService* HttpService::m_instance = nullptr;
 
 HttpService::HttpService()
-	: m_server(0), m_port(0)
+	: m_port(0)
 {
 	m_instance = this;
 	applySettings();
-	
+
 	SettingsItem si;
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsWebForm::create;
+#endif
 	si.title = tr("Web Interface");
 	si.icon = DelayedIcon(":/fatrat/webinterface.png");
-	si.pfnApply = SettingsWebForm::applySettings;
+	si.pfnApply = [] { HttpService::instance()->applySettings(); };
 	si.webSettingsScript = "/scripts/settings/webinterface.js";
 	si.webSettingsIconURL = "/img/settings/webinterface.png";
-	
+
 	addSettingsPage(si);
 
-	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate, QVector<QVariant::Type>() << QVariant::String);
+	RestResources::registerAll();
+	setupUnixSocket();
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
 	m_timer.start(15 * 1000);
@@ -100,12 +101,88 @@ HttpService::~HttpService()
 {
 	killCaptchaClients();
 
-	m_instance = 0;
-	if(m_server)
-	{
+	m_instance = nullptr;
+	if (m_server) {
 		m_server->stop();
-		delete m_server;
-		m_server = 0;
+		if (m_serverThread.joinable())
+			m_serverThread.join();
+	}
+	stopUnixSocket();
+}
+
+QString HttpService::m_restSocketPath;
+
+void HttpService::setRestSocketPath(const QString& path)
+{
+	m_restSocketPath = QFileInfo(path).absoluteFilePath();
+}
+
+void HttpService::setupUnixSocket()
+{
+	if (m_restSocketPath.isEmpty())
+		return;
+
+	const QFileInfo info(m_restSocketPath);
+	const QByteArray path = QFile::encodeName(info.absoluteFilePath());
+
+	if (path.size() >= int(sizeof(sockaddr_un::sun_path)))
+	{
+		Logger::global()->enterLogMessage("HttpService", tr("The REST socket path is too long: %1").arg(m_restSocketPath));
+		return;
+	}
+
+	QDir parent = info.absoluteDir();
+	if (!parent.exists())
+	{
+		if (!parent.mkpath(".") || !QFile::setPermissions(parent.absolutePath(),
+			QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner))
+		{
+			Logger::global()->enterLogMessage("HttpService", tr("Cannot create the directory of the REST socket %1").arg(m_restSocketPath));
+			return;
+		}
+	}
+
+	// a stale socket from a previous run
+	::unlink(path.constData());
+
+	m_unixServer = std::make_unique<httplib::Server>();
+	m_unixServer->set_address_family(AF_UNIX);
+	m_unixServer->set_payload_max_length(32 * 1024 * 1024);
+	registerRoutes(*m_unixServer, false);
+
+	const mode_t oldMask = umask(0177);
+	const bool bound = m_unixServer->bind_to_port(path.constData(), 80);
+	umask(oldMask);
+
+	if (!bound)
+	{
+		Logger::global()->enterLogMessage("HttpService", tr("Cannot listen on the REST socket %1").arg(m_restSocketPath));
+		m_unixServer.reset();
+		return;
+	}
+	::chmod(path.constData(), 0600);
+
+	Logger::global()->enterLogMessage("HttpService", tr("Listening on the unix socket %1").arg(m_restSocketPath));
+	m_unixSocketFile = QFile::decodeName(path);
+
+	m_unixThread = std::thread([this]() {
+		m_unixServer->listen_after_bind();
+	});
+}
+
+void HttpService::stopUnixSocket()
+{
+	if (m_unixServer)
+	{
+		m_unixServer->stop();
+		if (m_unixThread.joinable())
+			m_unixThread.join();
+		m_unixServer.reset();
+	}
+	if (!m_unixSocketFile.isEmpty())
+	{
+		::unlink(QFile::encodeName(m_unixSocketFile).constData());
+		m_unixSocketFile.clear();
 	}
 }
 
@@ -113,10 +190,9 @@ void HttpService::killCaptchaClients()
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	for (WebSocketService* s : m_registeredCaptchaClients)
 	{
-		cl->terminate();
-		delete cl;
+		s->terminate();
 	}
 	m_registeredCaptchaClients.clear();
 }
@@ -127,7 +203,7 @@ void HttpService::applySettings()
 	{
 		qDebug() << "HttpService::applySettings()";
 		bool enable = getSettingsValue("remote/enable").toBool();
-		if(enable)
+		if (enable)
 		{
 			if (!m_server)
 			{
@@ -139,404 +215,442 @@ void HttpService::applySettings()
 				QString pemFile = getSettingsValue("remote/ssl_pem").toString();
 				bool useSSL = getSettingsValue("remote/ssl").toBool();
 
-				if (port != m_port || m_strSSLPem != pemFile || m_bUseSSL != useSSL || (useSSL && m_strSSLPem.isEmpty()))
+				if (port != m_port || m_strSSLPem != pemFile || m_bUseSSL != useSSL)
 				{
-					Logger::global()->enterLogMessage("HttpService", tr("Restarting the service due to a port or SSL config change"));
+					Logger::global()->enterLogMessage("HttpService",
+						tr("Restarting the service due to a port or SSL config change"));
 
 					killCaptchaClients();
-
 					m_server->stop();
-					delete m_server;
+					if (m_serverThread.joinable())
+						m_serverThread.join();
+					m_server.reset();
 					setup();
 				}
 				else
-					setupAuth();
+				{
+					std::lock_guard<std::mutex> lk(m_passwordMutex);
+					m_strPassword = getSettingsValue("remote/password").toString();
+				}
 			}
 		}
-		else if(!enable && m_server)
+		else if (!enable && m_server)
 		{
 			killCaptchaClients();
 			m_server->stop();
-			delete m_server;
-			m_server = 0;
+			if (m_serverThread.joinable())
+				m_serverThread.join();
+			m_server.reset();
 		}
 	}
-	catch(const RuntimeException& e)
+	catch (const RuntimeException& e)
 	{
 		qDebug() << e.what();
 		Logger::global()->enterLogMessage("HttpService", e.what());
 	}
 }
 
-void HttpService::setupAuth()
-{
-	pion::user_manager_ptr userManager(new pion::user_manager);
-	QString password = getSettingsValue("remote/password").toString();
-
-	m_auth_ptr = pion::http::auth_ptr( new pion::http::basic_auth(userManager, "FatRat Web Interface") );
-	m_server->set_authentication(m_auth_ptr);
-	m_auth_ptr->add_restrict("/");
-
-	m_auth_ptr->add_user("fatrat", password.toStdString());
-	m_auth_ptr->add_user("admin", password.toStdString());
-	m_auth_ptr->add_user("user", password.toStdString());
-}
-
 void HttpService::setup()
 {
 	m_port = getSettingsValue("remote/port").toUInt();
-	
-	try
 	{
-		m_server = new pion::http::plugin_server(m_port);
-
-		setupAuth();
-		setupSSL();
-
-		m_server->add_service("/xmlrpc", new XmlRpcService);
-		m_server->add_service("/subclass", new SubclassService);
-		m_server->add_service("/log", new LogService);
-		m_server->add_service("/browse", new TransferTreeBrowserService);
-		m_server->add_service("/", new pion::plugins::FileService);
-		m_server->set_service_option("/", "directory", DATA_LOCATION "/data/remote");
-		m_server->set_service_option("/", "file", DATA_LOCATION "/data/remote/index.html");
-		m_server->add_service("/copyrights", new pion::plugins::FileService);
-		m_server->set_service_option("/copyrights", "file", DATA_LOCATION "/README");
-		m_server->add_service("/download", new TransferDownloadService);
-		m_server->add_service("/captcha", new CaptchaService);
-
-		m_server->start();
-		Logger::global()->enterLogMessage("HttpService", tr("Listening on port %1").arg(m_port));
-		std::cout << "Listening on port " << m_port << std::endl;
+		std::lock_guard<std::mutex> lk(m_passwordMutex);
+		m_strPassword = getSettingsValue("remote/password").toString();
 	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		Logger::global()->enterLogMessage("HttpService", tr("Failed to start: %1").arg(e.what()));
-	}
-}
-
-void HttpService::setupSSL()
-{
 	m_bUseSSL = getSettingsValue("remote/ssl").toBool();
+
 	if (m_bUseSSL)
 	{
 		QString file = getSettingsValue("remote/ssl_pem").toString();
 		if (file.isEmpty() || !QFile::exists(file))
 		{
-			Logger::global()->enterLogMessage("HttpService", tr("SSL key file not found, disabling HTTPS"));
-			m_server->set_ssl_flag(false);
+			Logger::global()->enterLogMessage("HttpService",
+				tr("SSL key file not found, disabling HTTPS"));
+			m_server = std::make_unique<httplib::Server>();
 			m_strSSLPem.clear();
 		}
 		else
 		{
-			Logger::global()->enterLogMessage("HttpService", tr("Loading a SSL key from %1").arg(file));
+			Logger::global()->enterLogMessage("HttpService",
+				tr("Loading a SSL key from %1").arg(file));
 			m_strSSLPem = file;
-			m_server->set_ssl_key_file(file.toStdString());
-			m_server->set_ssl_flag(true);
+			auto s = std::make_unique<httplib::SSLServer>(
+				file.toStdString().c_str(),
+				file.toStdString().c_str()
+			);
+			m_server = std::move(s);
 		}
 	}
 	else
 	{
 		Logger::global()->enterLogMessage("HttpService", tr("Running in plain HTTP mode"));
-		m_server->set_ssl_flag(false);
-		m_strSSLPem.clear();
+		m_server = std::make_unique<httplib::Server>();
 	}
+
+	m_server->set_payload_max_length(32 * 1024 * 1024); // uploaded .torrent files
+
+	registerRoutes(*m_server, true);
+
+	Logger::global()->enterLogMessage("HttpService",
+		tr("Listening on port %1").arg(m_port));
+
+	m_serverThread = std::thread([this]() {
+		m_server->listen("0.0.0.0", static_cast<int>(m_port));
+	});
 }
 
-void HttpService::LogService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
+void HttpService::registerRoutes(httplib::Server& server, bool authenticated)
 {
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	QString uuidTransfer = QString::fromStdString(get_relative_resource(request->get_resource()));
-	QString data;
-
-	if (uuidTransfer.isEmpty())
-		data = Logger::global()->logContents();
-	else
+	// Auth pre-routing hook. The unix socket is protected by file permissions instead.
+	if (authenticated)
 	{
-		Queue* q = 0;
-		Transfer* t = 0;
-		findTransfer(uuidTransfer, &q, &t);
+		server.set_pre_routing_handler([this](const httplib::Request& req, httplib::Response& res) {
+			QString password;
+			{
+				std::lock_guard<std::mutex> lk(m_passwordMutex);
+				password = m_strPassword;
+			}
+			if (password.isEmpty())
+				return httplib::Server::HandlerResponse::Unhandled;
 
-		if (!q || !t)
+			std::string authHeader = req.get_header_value("Authorization");
+			bool ok = false;
+			if (authHeader.size() > 6 && authHeader.substr(0, 6) == "Basic ") {
+				QByteArray decoded = QByteArray::fromBase64(
+					QByteArray(authHeader.c_str() + 6, static_cast<int>(authHeader.size() - 6)));
+				int colon = decoded.indexOf(':');
+				QString pw = (colon >= 0)
+					? QString::fromUtf8(decoded.mid(colon + 1))
+					: QString::fromUtf8(decoded);
+				ok = (pw == password);
+			}
+			if (!ok) {
+				res.status = 401;
+				res.set_header("WWW-Authenticate", "Basic realm=\"FatRat\"");
+				res.set_content("Unauthorized", "text/plain");
+				return httplib::Server::HandlerResponse::Handled;
+			}
+			return httplib::Server::HandlerResponse::Unhandled;
+		});
+	}
+
+	// /api/v1/...
+	auto restHandler = [](const httplib::Request& req, httplib::Response& res) {
+		RestRequest rr;
+		rr.method = QString::fromStdString(req.method);
+		rr.path = QString::fromStdString(req.path);
+		for (const auto& kv : req.params)
+			rr.query.insert(QString::fromStdString(kv.first), QString::fromStdString(kv.second));
+		rr.contentType = QString::fromStdString(req.get_header_value("Content-Type"));
+		rr.origin = QString::fromStdString(req.get_header_value("Origin"));
+		rr.host = QString::fromStdString(req.get_header_value("Host"));
+		rr.body = QByteArray(req.body.data(), static_cast<int>(req.body.size()));
+
+		if (req.is_multipart_form_data())
 		{
-			writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-			writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-			writer->send();
-			return;
+			for (const auto& kv : req.form.fields)
+				rr.formFields.insert(QString::fromStdString(kv.first), QString::fromStdString(kv.second.content));
+			for (const auto& kv : req.form.files)
+			{
+				RestUpload up;
+				up.filename = QString::fromStdString(kv.second.filename);
+				up.contentType = QString::fromStdString(kv.second.content_type);
+				up.data = QByteArray(kv.second.content.data(), static_cast<int>(kv.second.content.size()));
+				rr.formFiles.insert(QString::fromStdString(kv.first), up);
+			}
 		}
 
-		data = t->logContents();
+		RestResponse out = RestApi::dispatch(rr);
+		res.status = out.status;
+		for (auto it = out.headers.constBegin(); it != out.headers.constEnd(); ++it)
+			res.set_header(it.key().toStdString(), it.value().toStdString());
+		if (!out.body.isEmpty())
+			res.set_content(out.body.constData(), out.body.size(), out.contentType.toStdString());
+	};
+	const std::string restPattern = R"(/api/v1(?:/.*)?)";
+	server.Get(restPattern, restHandler);
+	server.Post(restPattern, restHandler);
+	server.Put(restPattern, restHandler);
+	server.Patch(restPattern, restHandler);
+	server.Delete(restPattern, restHandler);
 
-		q->unlock();
-		g_queuesLock.unlock();
-	}
+	// /log and /log/<transfer-uuid>
+	server.Get(R"(/log(.*))", [](const httplib::Request& req, httplib::Response& res) {
+		QString uuidTransfer;
+		if (req.matches.size() > 1) {
+			std::string suffix = req.matches[1].str();
+			if (!suffix.empty() && suffix[0] == '/')
+				suffix = suffix.substr(1);
+			uuidTransfer = QUrl::fromPercentEncoding(
+				QByteArray::fromStdString(suffix));
+		}
 
-	writer->get_response().add_header("Content-Type", "text/plain");
-	writer->write(data.toStdString());
-	writer->send();
-}
-
-void HttpService::TransferTreeBrowserService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
-{
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	QString uuidTransfer = QString::fromStdString(get_relative_resource(request->get_resource()));
-	QString path = QString::fromStdString(request->get_query("path"));
-
-	path = path.replace("+", " ");
-	path = QUrl::fromPercentEncoding(path.toUtf8());
-
-	if (uuidTransfer.startsWith("/"))
-		uuidTransfer = uuidTransfer.mid(1);
-
-	Queue* q = 0;
-	Transfer* t = 0;
-
-	if (path.contains("/..") || path.contains("../"))
-	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_FORBIDDEN);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_FORBIDDEN);
-		writer->send();
-		return;
-	}
-
-	findTransfer(uuidTransfer, &q, &t);
-
-	if (!q || !t)
-	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
-		return;
-	}
-
-	QDomDocument doc;
-	QDomElement root, item;
-	QFileInfoList infoList;
-	QDir dir(t->dataPath());
-
-	if (path.startsWith("/"))
-		path = path.mid(1);
-
-	if (!dir.cd(path))
-	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
-		return;
-	}
-
-	root = doc.createElement("root");
-	doc.appendChild(root);
-
-	infoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-	foreach (QFileInfo info, infoList)
-	{
-		item = doc.createElement("item");
-		item.setAttribute("id", path+"/"+info.fileName());
-		item.setAttribute("state", "closed");
-		item.setAttribute("type", "folder");
-
-		QDomElement content, name;
-		content = doc.createElement("content");
-		name = doc.createElement("name");
-
-		name.appendChild(doc.createTextNode(info.fileName()));
-		content.appendChild(name);
-		item.appendChild(content);
-		root.appendChild(item);
-	}
-
-	infoList = dir.entryInfoList(QDir::Files);
-	foreach (QFileInfo info, infoList)
-	{
-		item = doc.createElement("item");
-		item.setAttribute("id", path+"/"+info.fileName());
-		item.setAttribute("type", "default");
-
-		QDomElement content, name;
-		content = doc.createElement("content");
-		name = doc.createElement("name");
-
-		name.appendChild(doc.createTextNode(info.fileName()));
-		content.appendChild(name);
-		item.appendChild(content);
-		root.appendChild(item);
-	}
-
-	q->unlock();
-	g_queuesLock.unlock();
-
-	writer->write(doc.toString(0).toStdString());
-	writer->send();
-}
-
-void HttpService::TransferDownloadService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
-{
-	pion::http::response_writer_ptr writer(pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn)));
-	QString transfer = QString::fromStdString(request->get_query("transfer"));
-	QString path = QString::fromStdString(request->get_query("path"));
-
-	path = path.replace("+", " ");
-	path = QUrl::fromPercentEncoding(path.toUtf8());
-
-	transfer = QUrl::fromPercentEncoding(transfer.toUtf8());
-
-	Queue* q = 0;
-	Transfer* t = 0;
-
-	if (path.contains("/..") || path.contains("../"))
-	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_FORBIDDEN);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_FORBIDDEN);
-		writer->send();
-		return;
-	}
-
-	findTransfer(transfer, &q, &t);
-
-	if (!q || !t)
-	{
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
-		return;
-	}
-
-	if (!path.startsWith("/"))
-		path.prepend("/");
-	if (path.endsWith("/"))
-		path = path.left(path.size()-1);
-	path.prepend(t->dataPath(true));
-
-	q->unlock();
-	g_queuesLock.unlock();
-
-	QString disposition;
-	int last = path.lastIndexOf('/');
-	if(last > 0)
-	{
-		disposition = path.mid(last+1);
-		if(disposition.size() > 100)
-			disposition.resize(100);
-	}
-
-	disposition = QString("attachment; filename=\"%1\"").arg(disposition);
-
-	pion::plugins::DiskFile response_file;
-	response_file.setFilePath(path.toStdString());
-	response_file.update();
-
-	pion::plugins::DiskFileSenderPtr sender_ptr(pion::plugins::DiskFileSender::create(response_file, request, tcp_conn, 8192));
-	sender_ptr->get_writer()->get_response().add_header("Content-Disposition", disposition.toStdString());
-
-	if (unsigned long long fileSize = response_file.getFileSize())
-	{
-		std::stringstream fileSizeStream;
-		fileSizeStream << fileSize;
-		sender_ptr->get_writer()->get_response().add_header("Content-Length", fileSizeStream.str());
-	}
-
-	sender_ptr->send();
-}
-
-void HttpService::SubclassService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
-{
-	pion::http::response_writer_ptr writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
-	HttpService::WriteBackImpl wb = HttpService::WriteBackImpl(writer);
-	QString transfer = QString::fromStdString(request->get_query("transfer"));
-	QString method = QString::fromStdString(get_relative_resource(request->get_resource()));
-
-	Queue* q = 0;
-	Transfer* t = 0;
-
-	findTransfer(transfer, &q, &t);
-
-	if (!q || !t || !dynamic_cast<TransferHttpService*>(t))
-	{
-		if (t)
-		{
+		QString data;
+		if (uuidTransfer.isEmpty()) {
+			data = Logger::global()->logContents();
+		} else {
+			Queue* q = nullptr; Transfer* t = nullptr;
+			findTransfer(uuidTransfer, &q, &t);
+			if (!q || !t) {
+				res.status = 404;
+				res.set_content("Queue/Transfer not found", "text/plain");
+				return;
+			}
+			data = t->logContents();
 			q->unlock();
 			g_queuesLock.unlock();
 		}
 
-		writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-		writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
-		writer->send();
-		return;
-	}
+		QByteArray ba = data.toUtf8();
+		res.set_content(ba.constData(), ba.size(), "text/plain");
+	});
 
-	QMultiMap<QString,QString> map;
-	pion::ihash_multimap params = request->get_queries();
-	for (pion::ihash_multimap::iterator it = params.begin(); it != params.end(); it++)
-	{
-		map.insert(QString::fromStdString(it->first), QString::fromStdString(it->second));
-	}
+	// /subclass/<method>?transfer=<uuid>
+	server.Get(R"(/subclass/(.+))", [this](const httplib::Request& req, httplib::Response& res) {
+		QString method = QString::fromStdString(req.matches[1].str());
+		QString transfer = QString::fromStdString(req.get_param_value("transfer"));
 
-	TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
-	s->process(method, map, &wb);
-	//writer->send();
+		Queue* q = nullptr; Transfer* t = nullptr;
+		findTransfer(transfer, &q, &t);
 
-	q->unlock();
-	g_queuesLock.unlock();
-}
+		if (!q || !t) {
+			res.status = 404;
+			res.set_content("Transfer UUID not found", "text/plain");
+			return;
+		}
 
-HttpService::WriteBackImpl::WriteBackImpl(pion::http::response_writer_ptr& writer)
-	: m_writer(writer)
-{
+		TransferHttpService* s = dynamic_cast<TransferHttpService*>(t);
+		if (!s) {
+			q->unlock(); g_queuesLock.unlock();
+			res.status = 404;
+			res.set_content("Transfer does not support HTTP service", "text/plain");
+			return;
+		}
 
-}
+		QMap<QString,QString> map;
+		for (const auto& kv : req.params)
+			map.insert(QString::fromStdString(kv.first), QString::fromStdString(kv.second));
 
-void HttpService::WriteBackImpl::writeNoCopy(void* data, size_t bytes)
-{
-	m_writer->write_no_copy(data, bytes);
-}
+		WriteBackImpl wb(res);
+		s->process(method, map, &wb);
 
-void HttpService::WriteBackImpl::send()
-{
-	m_writer->send();
-}
+		q->unlock();
+		g_queuesLock.unlock();
+		wb.send();
+	});
 
-void HttpService::WriteBackImpl::write(const char* data, size_t bytes)
-{
-	m_writer->write(data, bytes);
-}
+	// /browse[/<transfer-uuid>]?path=<path>
+	server.Get(R"(/browse(?:/(.*))?)", [](const httplib::Request& req, httplib::Response& res) {
+		QString uuidTransfer;
+		if (req.matches.size() > 1 && req.matches[1].matched)
+			uuidTransfer = QUrl::fromPercentEncoding(
+				QByteArray::fromStdString(req.matches[1].str()));
 
-void HttpService::WriteBackImpl::setContentType(const char* type)
-{
-	m_writer->get_response().add_header("Content-Type", type);
-}
+		if (uuidTransfer.startsWith("/"))
+			uuidTransfer = uuidTransfer.mid(1);
 
-void HttpService::WriteBackImpl::writeFail(QString error)
-{
-	m_writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
-	m_writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_NOT_FOUND);
+		QString path = QString::fromStdString(req.get_param_value("path"));
+		if (path.contains("/..") || path.contains("../")) {
+			res.status = 403; res.set_content(".. in path", "text/plain"); return;
+		}
+
+		Queue* q = nullptr; Transfer* t = nullptr;
+		findTransfer(uuidTransfer, &q, &t);
+		if (!q || !t) {
+			res.status = 404; res.set_content("Transfer UUID not found", "text/plain"); return;
+		}
+
+		QDomDocument doc;
+		QDomElement root;
+		QDir dir(t->dataPath());
+
+		if (path.startsWith("/")) path = path.mid(1);
+		if (!dir.cd(path)) {
+			q->unlock(); g_queuesLock.unlock();
+			res.status = 404; res.set_content("Not found", "text/plain"); return;
+		}
+
+		root = doc.createElement("root");
+		doc.appendChild(root);
+
+		for (const QFileInfo& info : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+			QDomElement item = doc.createElement("item");
+			item.setAttribute("id", path+"/"+info.fileName());
+			item.setAttribute("state", "closed");
+			item.setAttribute("type", "folder");
+			QDomElement content = doc.createElement("content");
+			QDomElement name = doc.createElement("name");
+			name.appendChild(doc.createTextNode(info.fileName()));
+			content.appendChild(name);
+			item.appendChild(content);
+			root.appendChild(item);
+		}
+		for (const QFileInfo& info : dir.entryInfoList(QDir::Files)) {
+			QDomElement item = doc.createElement("item");
+			item.setAttribute("id", path+"/"+info.fileName());
+			item.setAttribute("type", "default");
+			QDomElement content = doc.createElement("content");
+			QDomElement name = doc.createElement("name");
+			name.appendChild(doc.createTextNode(info.fileName()));
+			content.appendChild(name);
+			item.appendChild(content);
+			root.appendChild(item);
+		}
+
+		q->unlock(); g_queuesLock.unlock();
+
+		QByteArray ba = doc.toString(0).toUtf8();
+		res.set_content(ba.constData(), ba.size(), "text/xml");
+	});
+
+	// /download?transfer=<uuid>&path=<path>
+	server.Get("/download", [](const httplib::Request& req, httplib::Response& res) {
+		QString transfer = QString::fromStdString(req.get_param_value("transfer"));
+		QString path     = QString::fromStdString(req.get_param_value("path"));
+
+		if (path.contains("/..") || path.contains("../")) {
+			res.status = 403; res.set_content(".. in path", "text/plain"); return;
+		}
+
+		Queue* q = nullptr; Transfer* t = nullptr;
+		findTransfer(transfer, &q, &t);
+		if (!q || !t) {
+			res.status = 404; res.set_content("Transfer UUID not found", "text/plain"); return;
+		}
+
+		if (!path.startsWith("/")) path.prepend("/");
+		if (path.endsWith("/")) path.chop(1);
+		path.prepend(t->dataPath(true));
+
+		q->unlock(); g_queuesLock.unlock();
+
+		QString disposition;
+		int last = path.lastIndexOf('/');
+		if (last >= 0)
+			disposition = path.mid(last + 1).left(100);
+
+		res.set_header("Content-Disposition",
+			QString("attachment; filename=\"%1\"").arg(disposition).toStdString());
+
+		auto filePtr = std::make_shared<QFile>(path);
+		if (!filePtr->open(QIODevice::ReadOnly)) {
+			res.status = 404;
+			res.set_content("File not found", "text/plain");
+			return;
+		}
+		qint64 fileSize = filePtr->size();
+
+		res.set_content_provider(
+			static_cast<size_t>(fileSize),
+			"application/octet-stream",
+			[filePtr](size_t offset, size_t length, httplib::DataSink& sink) {
+				if (!filePtr->seek(static_cast<qint64>(offset)))
+					return false;
+				QByteArray chunk = filePtr->read(static_cast<qint64>(length));
+				return sink.write(chunk.constData(), static_cast<size_t>(chunk.size()));
+			}
+		);
+	});
+
+	// /copyrights
+	server.Get("/copyrights", [](const httplib::Request&, httplib::Response& res) {
+		QFile f(DATA_LOCATION "/README");
+		if (!f.open(QIODevice::ReadOnly)) {
+			res.status = 404; res.set_content("Not Found", "text/plain"); return;
+		}
+		QByteArray data = f.readAll();
+		res.set_content(data.constData(), data.size(), "text/plain");
+	});
+
+	// /captcha (POST)
+	server.Post("/captcha", [this](const httplib::Request& req, httplib::Response& res) {
+		std::string id_str  = req.get_param_value("id");
+		std::string sol_str = req.get_param_value("solution");
+		if (id_str.empty() || sol_str.empty()) {
+			res.status = 400; res.set_content("id or solution missing", "text/plain"); return;
+		}
+		int id = std::stoi(id_str);
+		m_captchaHttp.captchaEntered(id, QString::fromStdString(sol_str));
+		res.status = 204;
+	});
+
+	// /websocket
+	server.WebSocket("/websocket",
+		[this](const httplib::Request&, httplib::ws::WebSocket& ws) {
+			auto svc = std::make_shared<WebSocketService>();
+			addCaptchaClient(svc.get());
+
+			// Drive the read loop in a background thread so that incoming
+			// control frames (close, ping) are processed and the connection
+			// is detected as closed promptly.
+			std::thread reader([&ws, &svc]() {
+				std::string msg;
+				while (ws.read(msg) != httplib::ws::ReadResult::Fail) {
+					// We don't expect inbound text messages from the browser
+					// client, so just discard them.
+				}
+				// read() returned Fail — connection closed by the client.
+				svc->terminate();
+			});
+
+			bool running = true;
+			while (running && !svc->shouldTerminate()) {
+				QQueue<WebSocketService::Captcha> queue = svc->waitAndDrain(500);
+
+				if (svc->shouldTerminate()) break;
+
+				if (svc->takePing()) {
+					if (!ws.send("{\"type\": \"ping\"}")) break;
+				}
+
+				while (!queue.isEmpty()) {
+					if (svc->shouldTerminate()) { running = false; break; }
+					QJsonObject notif;
+					auto cap = queue.dequeue();
+					notif.insert("type", "captcha");
+					notif.insert("id", cap.first);
+					notif.insert("url", cap.second);
+					QByteArray ba = QJsonDocument(notif).toJson(QJsonDocument::Compact);
+					if (!ws.send(ba.toStdString())) { running = false; break; }
+				}
+			}
+
+			// Close the WebSocket so the reader thread's ws.read() unblocks.
+			ws.close();
+			reader.join();
+
+			removeCaptchaClient(svc.get());
+		}
+	);
+
+	// Static files (must be last)
+	server.set_mount_point("/", DATA_LOCATION "/data/remote/");
 }
 
 int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)
 {
 	*q = 0;
 	*t = 0;
-	
+
 	g_queuesLock.lockForRead();
-	for(int i=0;i<g_queues.size();i++)
+	for (int i = 0; i < g_queues.size(); i++)
 	{
 		Queue* c = g_queues[i];
 		if (lockForWrite)
 			c->lockW();
 		else
 			c->lock();
-		
-		for(int j=0;j<c->size();j++)
+
+		for (int j = 0; j < c->size(); j++)
 		{
-			if(c->at(j)->uuid() == transferUUID)
+			if (c->at(j)->uuid() == transferUUID)
 			{
 				*q = c;
 				*t = c->at(j);
 				return j;
 			}
 		}
-		
+
 		c->unlock();
 	}
 
@@ -549,7 +663,7 @@ void HttpService::findQueue(QString queueUUID, Queue** q)
 	*q = 0;
 
 	QReadLocker r(&g_queuesLock);
-	for(int i=0;i<g_queues.size();i++)
+	for (int i = 0; i < g_queues.size(); i++)
 	{
 		Queue* c = g_queues[i];
 
@@ -561,228 +675,23 @@ void HttpService::findQueue(QString queueUUID, Queue** q)
 	}
 }
 
-QVariant HttpService::generateCertificate(QList<QVariant>& args)
-{
-	QString hostname = args[0].toString();
-	const char* script = DATA_LOCATION "/data/genssl.sh";
-	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
-
-	QProcess prc;
-
-	qDebug() << "Starting: " << script << " " << config;
-	prc.start(script, QStringList() << config << hostname);
-	prc.waitForFinished();
-
-	if (prc.exitCode() != 0)
-		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-
-	QByteArray data = file.readAll();
-	QDir::home().mkpath(USER_PROFILE_PATH "/data");
-
-	QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/fatrat-webui.pem";
-	QFile out(path);
-
-	if (!out.open(QIODevice::WriteOnly))
-		throw XmlRpcService::XmlRpcError(502, tr("Failed to open %1 for writing.").arg(path));
-
-	out.write(data);
-
-	out.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
-	out.close();
-	file.remove();
-
-	return path;
-}
-
-
-/*
-void HttpService::CaptchaService::operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn)
-{
-	m_cap.writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
-
-	std::string upgrade, connection;
-	upgrade = request->getHeader("Upgrade");
-	connection = request->getHeader("Connection");
-	m_cap.key1 = request->getHeader("Sec-WebSocket-Key1");
-	m_cap.key2 = request->getHeader("Sec-WebSocket-Key2");
-
-	std::transform(connection.begin(), connection.end(), connection.begin(), ::tolower);
-	std::transform(upgrade.begin(), upgrade.end(), upgrade.begin(), ::tolower);
-
-	if (connection != "upgrade" || upgrade != "websocket" || m_cap.key1.empty() || m_cap.key2.empty())
-	{
-		m_cap.writer->get_response().set_status_code(pion::http::types::RESPONSE_CODE_BAD_REQUEST);
-		m_cap.writer->get_response().set_status_message(pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST);
-		m_cap.writer->send();
-	}
-
-	// We need to get the eight bytes from the buffer asynchronously.
-	// This gets a bit tricky since there is some pion buffering involed.
-	const char *read_ptr;
-	const char *read_end_ptr;
-
-	m_cap.tcp_conn = tcp_conn;
-
-	tcp_conn->loadReadPosition(read_ptr, read_end_ptr);
-	m_cap.inbuf = read_end_ptr - read_ptr;
-
-	memcpy(m_cap.sig, read_ptr, std::max(8, m_cap.inbuf));
-
-	if (m_cap.inbuf < 8)
-		tcp_conn->async_read(boost::asio::transfer_at_least(8-m_cap.inbuf), m_cap);
-	else
-		m_cap.readDone();
-}
-
-void HttpService::CaptchaService::CapServCap::operator()(const boost::system::error_code& error, std::size_t bytes_transferred)
-{
-	if (error)
-		return;
-	memcpy(sig+inbuf, tcp_conn->getReadBuffer().data(), std::min<size_t>(bytes_transferred, 8-inbuf));
-	readDone();
-}
-
-void HttpService::CaptchaService::CapServCap::readDone()
-{
-	int num1 = 0, num2 = 0, spc1 = 0, spc2 = 0;
-	for (size_t i = 0; i < key1.size(); i++)
-	{
-		if (isdigit(key1[i]))
-			num1 = num1 * 10 + (key1[i] - '0');
-		else if (key1[i] == ' ')
-			spc1++;
-	}
-	for (size_t i = 0; i < key2.size(); i++)
-	{
-		if (isdigit(key2[i]))
-			num2 = num2 * 10 + (key2[i] - '0');
-		else if (key2[i] == ' ')
-			spc2++;
-	}
-}
-
-*/
-
-void HttpService::CaptchaHttpResponseWriter::handle_write(const boost::system::error_code &write_error, std::size_t bytes_written)
-{
-	if (!bytes_written)
-	{
-		// TODO: handle errors
-		HttpService::instance()->removeCaptchaClient(client);
-		send_final_chunk();
-		delete client;
-	}
-
-	pion::http::response_writer::handle_write(write_error, bytes_written);
-}
-
-void HttpService::CaptchaService::operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn)
-{
-	if (request->has_query("id"))
-	{
-		QString id = QString::fromStdString(request->get_query("id"));
-		QString solution = QString::fromStdString(request->get_query("solution"));
-
-		int iid = id.toInt();
-		HttpService::instance()->m_captchaHttp.captchaEntered(iid, solution);
-
-		pion::http::response_writer_ptr writer = pion::http::response_writer::create(tcp_conn, *request, boost::bind(&pion::tcp::connection::finish, tcp_conn));
-		writer->send();
-	}
-	else
-	{
-		// PROCEDURE
-		// Add an active connection
-
-		// ON EVENT:
-		// add event to queue
-		// lock the mutex - exit if locked
-		// send outstanding events
-		// unlock the mutex in the finished handler
-		// remove connection if handleWrite receives an error
-
-		RegisteredClient* client = new RegisteredClient;
-
-		client->writer = CaptchaHttpResponseWriter::create(client, tcp_conn, *request,
-								   boost::bind(&pion::tcp::connection::finish, tcp_conn));
-		HttpService::instance()->addCaptchaClient(client);
-
-		client->writer->get_response().add_header("Content-Type", "text/event-stream");
-		client->writer->get_response().add_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-		client->writer->get_response().add_header("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
-		client->writer->get_response().add_header("Pragma", "no-cache");
-	}
-}
-
-void HttpService::RegisteredClient::finished()
-{
-	writeInProgressLock.unlock();
-	pushMore();
-}
-
-void HttpService::RegisteredClient::pushMore()
-{
-	if (!writeInProgressLock.tryLock())
-		return;
-
-	captchaQueueLock.lock();
-
-	QByteArray buf;
-	while(!captchaQueue.isEmpty())
-	{
-		Captcha cap = captchaQueue.dequeue();
-		buf.append("data: ").append(QString::number(cap.first)).append(",").append(cap.second)
-				.append("\r\nid: ").append(QString::number(cap.first)).append("\r\n\r\n");
-	}
-
-	captchaQueueLock.unlock();
-
-	if (!buf.isEmpty())
-	{
-		writer->clear();
-
-		writer->write(buf.data(), buf.length());
-		writer->send_chunk(boost::bind(&HttpService::RegisteredClient::finished, this));
-	}
-	else
-		writeInProgressLock.unlock();
-}
-
-void HttpService::RegisteredClient::keepalive()
-{
-	if (!writeInProgressLock.tryLock())
-		return;
-
-	writer->clear();
-	writer->write(": keepalive\r\n\r\n");
-	writer->send_chunk(boost::bind(&HttpService::RegisteredClient::finished, this));
-}
-
 void HttpService::addCaptchaEvent(int id, QString url)
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	for (WebSocketService* ws : m_registeredCaptchaClients)
 	{
-		cl->captchaQueueLock.lock();
-		cl->captchaQueue << RegisteredClient::Captcha(id, url);
-		cl->captchaQueueLock.unlock();
-		cl->pushMore();
+		ws->pushCaptcha(WebSocketService::Captcha(id, url));
 	}
 }
 
-void HttpService::addCaptchaClient(RegisteredClient* client)
+void HttpService::addCaptchaClient(WebSocketService* client)
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 	m_registeredCaptchaClients << client;
 }
 
-void HttpService::removeCaptchaClient(RegisteredClient* client)
+void HttpService::removeCaptchaClient(WebSocketService* client)
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 	m_registeredCaptchaClients.removeAll(client);
@@ -797,11 +706,6 @@ void HttpService::keepalive()
 {
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
-	foreach(RegisteredClient* cl, m_registeredCaptchaClients)
+	for (WebSocketService* cl : m_registeredCaptchaClients)
 		cl->keepalive();
-}
-
-void HttpService::RegisteredClient::terminate()
-{
-	writer->get_connection()->finish();
 }

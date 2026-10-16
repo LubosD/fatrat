@@ -46,62 +46,6 @@ Scheduler::~Scheduler()
 	m_instance = 0;
 }
 
-void Scheduler::loadActions(QList<ScheduledAction>& list)
-{
-	int num = g_settings->beginReadArray("scheduler/actions");
-	
-	list.clear();
-	
-	for(int i=0;i<num;i++)
-	{
-		ScheduledAction a;
-		g_settings->setArrayIndex(i);
-		a.name = g_settings->value("name").toString();
-		a.queue = g_settings->value("queueUUID").toString();
-		a.action = (ScheduledAction::ActionType) g_settings->value("action").toInt();
-		a.whenOneTime = QDateTime::fromString(g_settings->value("whenOneTime").toString(), Qt::ISODate);
-		a.whenRepeated = QTime::fromString(g_settings->value("whenRepeated").toString(), Qt::ISODate);
-		a.repeated = g_settings->value("repeated").toBool();
-		a.actionArgument = g_settings->value("actionArgument");
-		
-		QString days = g_settings->value("daysRepeated").toString();
-		for(int i=0;i<7;i++)
-			a.daysRepeated[i] = days[i] == '1';
-		list << a;
-	}
-	
-	g_settings->endArray();
-}
-
-void Scheduler::saveActions(const QList<ScheduledAction>& items)
-{
-	g_settings->remove("scheduler/actions");
-	g_settings->beginWriteArray("scheduler/actions", items.size());
-	
-	for(int i=0;i<items.size();i++)
-	{
-		const ScheduledAction& a = items[i];
-		
-		g_settings->setArrayIndex(i);
-		g_settings->setValue("name", a.name);
-		g_settings->setValue("queueUUID", a.queue.toString());
-		g_settings->setValue("action", int(a.action));
-		g_settings->setValue("whenOneTime", a.whenOneTime.toString(Qt::ISODate));
-		g_settings->setValue("whenRepeated", a.whenRepeated.toString(Qt::ISODate));
-		g_settings->setValue("repeated", a.repeated);
-		g_settings->setValue("actionArgument", a.actionArgument);
-		
-		char days[8];
-		for(int i=0;i<7;i++)
-			days[i] = a.daysRepeated[i] ? '1' : '0';
-		days[7] = 0;
-		
-		g_settings->setValue("daysRepeated", days);
-	}
-	
-	g_settings->endArray();
-}
-
 void Scheduler::doWork()
 {
 	QDateTime time = QDateTime::currentDateTime();
@@ -167,6 +111,6 @@ void Scheduler::executeAction(const ScheduledAction& action)
 
 void Scheduler::reload()
 {
-	loadActions(m_actions);
+	ScheduledAction::loadAll(m_actions);
 }
 

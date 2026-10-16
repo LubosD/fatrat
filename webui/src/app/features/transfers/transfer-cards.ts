@@ -1,0 +1,116 @@
+import { Component, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import { ProgressBar } from 'primeng/progressbar';
+import { Menu } from 'primeng/menu';
+import { ButtonDirective, ButtonIcon } from 'primeng/button';
+import type { MenuItem } from 'primeng/api';
+import { TransfersStore, availableTransferActions } from '../../state/transfers.store';
+import { TransferActionsService } from '../../core/transfer-actions.service';
+import { Transfer } from '../../core/api/models';
+import { formatEta, formatSize, formatSpeed } from './format';
+import { progressPercent, stateIconPath, stateLabelText } from './transfer-presentation';
+import { createTransferMenuItems, withAvailability } from './transfer-menu';
+
+export const LONG_PRESS_MS = 500;
+/** A finger that drifts further than this is scrolling, not pressing. */
+const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
+
+/**
+ * Touch-friendly alternative to TransferTable: one card per transfer. Tap selects a card; a long
+ * press enters selection mode, where taps toggle cards. Selection lives in TransfersStore, so the
+ * top bar's actions work on it exactly as they do for the table.
+ */
+@Component({
+  selector: 'app-transfer-cards',
+  imports: [ProgressBar, Menu, ButtonDirective, ButtonIcon],
+  templateUrl: './transfer-cards.html',
+  styleUrl: './transfer-cards.scss',
+})
+export class TransferCards {
+  protected readonly store = inject(TransfersStore);
+  private readonly actions = inject(TransferActionsService);
+
+  /** Emitted from the card menu; Shell owns the properties dialog. */
+  @Output() readonly propertiesRequested = new EventEmitter<void>();
+
+  protected readonly selectionMode = signal(false);
+  protected readonly selectedCount = computed(() => this.store.selectedUuids().length);
+  protected readonly menuItems = signal<MenuItem[]>([]);
+
+  protected readonly formatSize = formatSize;
+  protected readonly formatSpeed = formatSpeed;
+  protected readonly formatEta = formatEta;
+  protected readonly progress = progressPercent;
+  protected readonly stateIcon = stateIconPath;
+  protected readonly stateLabel = stateLabelText;
+  protected readonly trackByUuid = (_: number, transfer: Transfer): string => transfer.uuid;
+
+  private readonly baseMenuItems = createTransferMenuItems(this.actions, () => this.propertiesRequested.emit());
+
+  private pressTimer: ReturnType<typeof setTimeout> | null = null;
+  private pressOrigin: { x: number; y: number } | null = null;
+  /** Set when a long press fired, so the click that follows the finger lifting is ignored. */
+  private suppressNextClick = false;
+
+  protected onPointerDown(event: PointerEvent, uuid: string): void {
+    this.cancelPress();
+    // A long press whose lift produced no click must not swallow this new gesture's tap.
+    this.suppressNextClick = false;
+    this.pressOrigin = { x: event.clientX, y: event.clientY };
+    this.pressTimer = setTimeout(() => {
+      this.pressTimer = null;
+      this.suppressNextClick = true;
+      this.selectionMode.set(true);
+      this.store.toggleSelection(uuid);
+    }, LONG_PRESS_MS);
+  }
+
+  protected onPointerMove(event: PointerEvent): void {
+    if (this.pressTimer === null || this.pressOrigin === null) return;
+    if (Math.hypot(event.clientX - this.pressOrigin.x, event.clientY - this.pressOrigin.y) > LONG_PRESS_MOVE_TOLERANCE_PX) {
+      this.cancelPress();
+    }
+  }
+
+  protected cancelPress(): void {
+    if (this.pressTimer !== null) {
+      clearTimeout(this.pressTimer);
+      this.pressTimer = null;
+    }
+    this.pressOrigin = null;
+  }
+
+  protected onCardClick(uuid: string): void {
+    if (this.suppressNextClick) {
+      this.suppressNextClick = false;
+      return;
+    }
+    if (!this.selectionMode()) {
+      this.store.selectOnly(uuid);
+      return;
+    }
+    this.store.toggleSelection(uuid);
+    if (this.store.selectedUuids().length === 0) {
+      this.selectionMode.set(false);
+    }
+  }
+
+  protected exitSelectionMode(): void {
+    this.selectionMode.set(false);
+    this.store.clearSelection();
+  }
+
+  protected selectAll(): void {
+    this.store.selectAll();
+  }
+
+  protected openMenu(event: Event, uuid: string, menu: Menu): void {
+    event.stopPropagation();
+    if (!this.store.isSelected(uuid)) {
+      this.store.selectOnly(uuid);
+    }
+    this.menuItems.set(
+      withAvailability(this.baseMenuItems, availableTransferActions(this.store.transfers(), this.store.selectedUuids())),
+    );
+    menu.toggle(event);
+  }
+}

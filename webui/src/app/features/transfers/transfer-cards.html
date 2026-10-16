@@ -1,0 +1,49 @@
+@if (selectionMode()) {
+  <div class="selection-bar" data-testid="selection-bar">
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="selection-close" aria-label="Exit selection mode" (click)="exitSelectionMode()"><i class="pi pi-times" pButtonIcon></i></button>
+    <span class="selection-count" data-testid="selection-count">{{ selectedCount() }} selected</span>
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="selection-all" (click)="selectAll()">Select all</button>
+  </div>
+}
+
+<ul class="transfer-cards" aria-label="Transfers" data-testid="transfer-cards">
+  @for (transfer of store.transfers(); track transfer.uuid) {
+    <li
+      class="transfer-card"
+      [class.selected]="store.isSelected(transfer.uuid)"
+      [attr.aria-selected]="store.isSelected(transfer.uuid)"
+      [attr.data-uuid]="transfer.uuid"
+      data-testid="transfer-card"
+      (click)="onCardClick(transfer.uuid)"
+      (pointerdown)="onPointerDown($event, transfer.uuid)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="cancelPress()"
+      (pointercancel)="cancelPress()"
+      (pointerleave)="cancelPress()"
+      (contextmenu)="$event.preventDefault()"
+    >
+      @if (selectionMode()) {
+        <input type="checkbox" class="card-check" tabindex="-1" aria-hidden="true" [checked]="store.isSelected(transfer.uuid)" />
+      }
+      <img class="card-state" [src]="stateIcon(transfer)" [alt]="stateLabel(transfer)" width="16" height="16" />
+      <div class="card-body">
+        <div class="card-name">{{ transfer.name }}</div>
+        <p-progressbar [value]="progress(transfer.total, transfer.done)"></p-progressbar>
+        <div class="card-stats">
+          <span>{{ formatSize(transfer.total) }}</span>
+          <span><i class="pi pi-arrow-down" aria-label="Down"></i> {{ formatSpeed(transfer.speeds.down) }}</span>
+          <span><i class="pi pi-arrow-up" aria-label="Up"></i> {{ formatSpeed(transfer.speeds.up) }}</span>
+          <span>{{ formatEta(transfer.total, transfer.done, transfer.speeds.down) }}</span>
+        </div>
+        @if (transfer.message) {
+          <div class="card-message">{{ transfer.message }}</div>
+        }
+      </div>
+      <button pButton type="button" [text]="true" severity="secondary" class="card-menu-button" data-testid="card-menu-button" aria-label="Transfer actions" aria-haspopup="menu" (click)="openMenu($event, transfer.uuid, cardMenu)" (pointerdown)="$event.stopPropagation()"><i class="pi pi-ellipsis-v" pButtonIcon></i></button>
+    </li>
+  } @empty {
+    <li class="empty">No transfers</li>
+  }
+</ul>
+
+<p-menu #cardMenu [popup]="true" [model]="menuItems()" appendTo="body"></p-menu>

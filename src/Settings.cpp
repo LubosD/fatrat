@@ -28,22 +28,23 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 
 #include "Settings.h"
+#include <QCoreApplication>
 #include <QSettings>
 #include <QVector>
 #include <QDir>
-#include <QMessageBox>
 #include <iostream>
 
-#include "SettingsGeneralForm.h"
-#include "SettingsDropBoxForm.h"
-#include "SettingsNetworkForm.h"
-#include "SettingsQueueForm.h"
-#include "SettingsSchedulerForm.h"
-#include "SettingsClipboardMonitorForm.h"
-#include "rss/SettingsRssForm.h"
-
-#ifdef WITH_JABBER
-#	include "remote/SettingsJabberForm.h"
+#include "Scheduler.h"
+#include "rss/RssFetcher.h"
+#ifdef WITH_GUI
+#	include <QMessageBox>
+#	include "SettingsGeneralForm.h"
+#	include "SettingsDropBoxForm.h"
+#	include "SettingsNetworkForm.h"
+#	include "SettingsQueueForm.h"
+#	include "SettingsSchedulerForm.h"
+#	include "SettingsClipboardMonitorForm.h"
+#	include "rss/SettingsRssForm.h"
 #endif
 
 QVector<SettingsItem> g_settingsPages;
@@ -55,6 +56,7 @@ void initSettingsPages()
 {
 	SettingsItem si;
 	
+#ifdef WITH_GUI
 	si.icon = DelayedIcon(":/fatrat/fatrat.png");
 	si.title = QObject::tr("Main");
 	si.lpfnCreate = SettingsGeneralForm::create;
@@ -79,43 +81,40 @@ void initSettingsPages()
 	si.lpfnCreate = SettingsNetworkForm::create;
 	
 	g_settingsPages << si;
+#endif
 	
 	si.icon = DelayedIcon(":/fatrat/rss.png");
 	si.title = QObject::tr("RSS");
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsRssForm::create;
-	si.pfnApply = SettingsRssForm::applySettings;
+#endif
+	si.pfnApply = [] { RssFetcher::instance()->applySettings(); };
+	si.webSettingsScript = "/scripts/settings/rss.js";
+	si.webSettingsIconURL = "/img/settings/rss.png";
 	
 	g_settingsPages << si;
-	
-#ifdef WITH_JABBER
-	si.icon = DelayedIcon(":/fatrat/jabber.png");
-	si.title = QObject::tr("Jabber");
-	si.lpfnCreate = SettingsJabberForm::create;
-	si.pfnApply = SettingsJabberForm::applySettings;
-#ifdef WITH_WEBINTERFACE
-	si.webSettingsScript = "/scripts/settings/jabber.js";
-	si.webSettingsIconURL = "/img/settings/jabber.png";
-	g_settingsPages << si;
-	si.webSettingsScript = si.webSettingsIconURL = 0;
-#else
-	g_settingsPages << si;
-#endif // WITH_WEBINTERFACE
-	
-
-#endif // WITH_JABBER
 	
 	si.icon = DelayedIcon(":/fatrat/scheduler.png");
 	si.title = QObject::tr("Scheduler");
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsSchedulerForm::create;
-	si.pfnApply = SettingsSchedulerForm::applySettings;
+#endif
+	si.pfnApply = [] { Scheduler::instance()->reload(); };
+	si.webSettingsScript = "/scripts/settings/scheduler.js";
+	si.webSettingsIconURL = "/img/settings/scheduler.png";
 	g_settingsPages << si;
 
+	si.webSettingsScript = 0;
+	si.webSettingsIconURL = 0;
+
+#ifdef WITH_GUI
 	si.icon = DelayedIcon(":/fatrat/clipboard.png");
 	si.title = QObject::tr("Clipboard monitor");
 	si.lpfnCreate = SettingsClipboardMonitorForm::create;
 	//si.pfnApply = SettingsClipboardMonitorForm::applySettings;
 	
 	g_settingsPages << si;
+#endif
 }
 
 void addSettingsPage(const SettingsItem& i)
@@ -187,8 +186,10 @@ void initSettingsDefaults(QString manualPath)
 		const char* error = "Your installation is incomplete.\nIf you compiled FatRat from source, please learn how to install programs first!\n";
 		std::cerr << error;
 
-		if (getenv("DISPLAY"))
+#ifdef WITH_GUI
+		if (programHasGUI() && getenv("DISPLAY"))
 			QMessageBox::critical(0, "FatRat", error);
+#endif
 		exit(1);
 	}
 

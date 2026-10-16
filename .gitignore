@@ -18,4 +18,13 @@ gfx/resources.qrc.depends
 fatrat.creator.user
 fatrat
 fatrat-conf
+moc_*
 
+webui/node_modules/
+webui/dist/
+webui/.angular/
+
+.worktrees
+
+# Angular build output (installed by the webui CMake target)
+data/remote/

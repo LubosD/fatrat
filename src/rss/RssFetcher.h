@@ -28,38 +28,30 @@ respects for all of the code used other than "OpenSSL".
 #define RSSFETCHER_H
 #include <QObject>
 #include <QTimer>
-#include <QXmlDefaultHandler>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QNetworkAccessManager>
+#include "RssFeedParser.h"
 
 struct RssFeed
 {
-	QString name, url;
-	QNetworkReply* reply;
-};
-
-struct RssItem
-{
-	QString title, descr, url;
-	QString source; // RSS URL
-	QString id; // TV show episode ID
-	enum Next { None, Title, Descr, Url };
+	QString id, name, url;
+	QNetworkReply* reply = 0;
 };
 
 struct RssRegexp
 {
-	QString source, target;
-	QRegExp regexp;
+	QString id, source, target;
+	QRegularExpression regexp;
 	QString queueUUID, from, to;
 	QStringList epDone;
-	QRegExp linkRegexp;
-	int queueIndex;
-	bool excludeManuals, includeTrailers, includeRepacks, addPaused;
+	QRegularExpression linkRegexp;
+	int queueIndex = -1;
+	bool excludeManuals = true, includeTrailers = false, includeRepacks = false, addPaused = false;
 	
-	enum TVSType { None = 0, SeasonBased, EpisodeBased, DateBased } tvs;
+	enum TVSType { None = 0, SeasonBased, EpisodeBased, DateBased } tvs = None;
 };
 
-class RssFetcher : public QObject, public QXmlDefaultHandler
+class RssFetcher : public QObject
 {
 Q_OBJECT
 public:
@@ -67,9 +59,6 @@ public:
 	~RssFetcher();
 	static RssFetcher* instance() { return m_instance; }
 	
-	bool startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts);
-	bool endElement(const QString& namespaceURI, const QString& localName, const QString& qName);
-	bool characters(const QString& ch);
 	void processItems();
 	
 	void applySettings();
@@ -81,6 +70,8 @@ public:
 	
 	static void updateRegexpQueues(QList<RssRegexp>& items); // g_queuesLock ought to be locked
 	static void loadRegexps(QList<RssRegexp>& items);
+	// the same, but keeps the regexps whose queue no longer exists (queueIndex stays -1)
+	static void loadRegexpsUnfiltered(QList<RssRegexp>& items);
 	static void loadFeeds(QList<RssFeed>& items);
 	
 	static void saveRegexps(const QList<RssRegexp>& items);
@@ -88,6 +79,9 @@ public:
 	
 	static QString generateEpisodeName(const RssRegexp& match, QString itemName);
 	static void dayMonthHeuristics(int& day, int& month);
+	// whether id is a well-formed entry of RssRegexp::epDone for the given tracking mode
+	static bool isValidEpisodeId(RssRegexp::TVSType tvs, const QString& id);
+	static QString newId();
 public slots:
 	void refresh();
 	void requestFinished(QNetworkReply*);
@@ -99,11 +93,6 @@ private:
 	QList<RssItem> m_items;
 	bool m_bAllOK;
 	
-	// XML parsing
-	bool m_bInItem;
-	RssItem m_itemNext;
-	RssItem::Next m_itemNextType;
-	QString m_strCurrentSource;
 	QNetworkAccessManager m_network;
 };
 

@@ -77,7 +77,7 @@ protected:
 	QMap<CURL*, CurlUser*> m_users;
 	QMap<int, CurlPollingMaster*> m_masters;
 	sockets_hash m_sockets;
-	QMutex m_usersLock;
+	QRecursiveMutex m_usersLock;
 	QQueue<CurlUser*> m_queueToDelete;
 	
 	QList<int> m_socketsToRemove;

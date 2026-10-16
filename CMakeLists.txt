@@ -1,6 +1,5 @@
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(fatrat)
-
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -13,21 +12,27 @@ INCLUDE(FindBoost)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Svg REQUIRED)
-find_package(Qt5DBus REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5Xml REQUIRED)
-find_package(Qt5LinguistTools REQUIRED)
+option(WITH_GUI "Build the Qt desktop UI (OFF builds a headless fatrat-nogui)" ON)
+option(WITH_DBUS "Enable the D-Bus interface and the single-instance check" ON)
+option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
+option(WITH_TUI "Build fatrat-tui, an ncurses terminal client for FatRat" OFF)
 
-message(STATUS "XML: ${Qt5Xml_INCLUDE_DIRS}")
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS}
-	${Qt5Network_INCLUDE_DIRS} ${Qt5Svg_INCLUDE_DIRS})
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
+set(fatrat_QT_LIBS Qt6::Core Qt6::Network Qt6::Xml)
+
+if(WITH_GUI)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets Svg)
+	set(fatrat_QT_LIBS ${fatrat_QT_LIBS} Qt6::Widgets Qt6::Svg)
+endif(WITH_GUI)
+
+if(WITH_DBUS)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS DBus)
+	set(fatrat_QT_LIBS ${fatrat_QT_LIBS} Qt6::DBus)
+endif(WITH_DBUS)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NARROW_ONLY)
-
 
 ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
@@ -37,19 +42,25 @@ IF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 	SET(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 
-#set(WITH_CXX0X ON)
-
 if(WITH_EVERYTHING)
 	set(WITH_BITTORRENT ON)
 	set(WITH_JABBER ON)
 	set(WITH_NLS ON)
-	set(WITH_DOCUMENTATION ON)
+	if(WITH_GUI)
+		set(WITH_DOCUMENTATION ON)
+	endif(WITH_GUI)
 	set(WITH_WEBINTERFACE ON)
 	set(WITH_CURL ON)
 	set(WITH_JPLUGINS ON)
 endif(WITH_EVERYTHING)
 
-ADD_DEFINITIONS(-std=c++11)
+if(WITH_DOCUMENTATION AND NOT WITH_GUI)
+	message(FATAL_ERROR "WITH_DOCUMENTATION needs WITH_GUI (the help browser is part of the desktop UI)")
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ADD_DEFINITIONS(-DQT_DISABLE_DEPRECATED_BEFORE=0x060500)
 
 if(WITH_JPLUGINS)
 	set(WITH_CURL ON)
@@ -61,19 +72,13 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_BITTORRENT)
-	pkg_check_modules(libtorrent REQUIRED "libtorrent-rasterbar >= 1.1.0")
+	find_package(LibtorrentRasterbar 2.0.0 REQUIRED)
 	
-	if(libtorrent_FOUND)
+	if(LibtorrentRasterbar_FOUND)
 		message(STATUS "libtorrent ${libtorrent_VERSION} found OK")
-		include_directories(${libtorrent_INCLUDE_DIRS})
-		
-		set(LIBTORRENT_0_15 TRUE)
-		#if(libtorrent_VERSION GREATER 1.0.99)
-		#	set(LIBTORRENT_1_1 TRUE)
-		#endif(libtorrent_VERSION GREATER 0.14.99)
-	else(libtorrent_FOUND)
+	else(LibtorrentRasterbar_FOUND)
 		message(FATAL_ERROR "No Rasterbar libtorrent found")
-	endif(libtorrent_FOUND)
+	endif(LibtorrentRasterbar_FOUND)
 	
 	SET(Boost_USE_MULTITHREAD ON)
 	SET(Boost_USE_STATIC_LIBS OFF)
@@ -96,36 +101,19 @@ if(WITH_BITTORRENT)
 	#	message(FATAL_ERROR "No Boost asio")
 	#endif(ASIO_FOUND)
 	
-	find_package(Qt5WebEngine)
-	find_package(Qt5WebEngineWidgets)
+	if(WITH_GUI)
+		find_package(Qt6 6.5 QUIET COMPONENTS WebEngineCore WebEngineWidgets)
 
-	if (Qt5WebEngine_FOUND)
-		set(HAVE_WEBENGINE TRUE)
-		set(QT_LIBRARIES ${QT_LIBRAIRES} Qt5::WebEngine Qt5::WebEngineWidgets)
-	else(Qt5WebEngine_FOUND)
-		message(WARNING "Qt WebEngine not found, BitTorrent search not available")
-	endif (Qt5WebEngine_FOUND)
+		if (Qt6WebEngineWidgets_FOUND)
+			set(HAVE_WEBENGINE TRUE)
+			set(QT_LIBRARIES ${QT_LIBRARIES} Qt6::WebEngineCore Qt6::WebEngineWidgets)
+		else(Qt6WebEngineWidgets_FOUND)
+			message(WARNING "Qt WebEngine not found, BitTorrent search not available")
+		endif (Qt6WebEngineWidgets_FOUND)
 
-	include_directories(${Qt5WebEngine_INCLUDE_DIRS})
+	endif(WITH_GUI)
 	ADD_DEFINITIONS(-DTORRENT_USE_OPENSSL)
 endif(WITH_BITTORRENT)
-
-if(WITH_JABBER)
-	pkg_check_modules(gloox REQUIRED "gloox >= 0.9.0.0")
-	
-	if(gloox_FOUND)
-		message(STATUS "gloox ${gloox_VERSION} found OK")
-		include_directories(${gloox_INCLUDE_DIRS})
-		
-		if(gloox_VERSION LESS 1.0)
-			set(GLOOX_0_9 TRUE)
-		else(gloox_VERSION LESS 1.0)
-			set(GLOOX_1_0 TRUE)
-		endif(gloox_VERSION LESS 1.0)
-	else(gloox_FOUND)
-		message(FATAL_ERROR "No libgloox found")
-	endif(gloox_FOUND)
-endif(WITH_JABBER)
 
 if(WITH_CURL)
 	pkg_check_modules(curl REQUIRED "libcurl >= 7.18.2")
@@ -153,23 +141,11 @@ CHECK_FUNCTION_EXISTS(kqueue HAVE_KQUEUE)
 CONFIGURE_FILE(config.h.in config.h)
 
 if(WITH_DOCUMENTATION)
-	find_package(Qt5Help REQUIRED)
-	set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::Help)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS Help)
+	set(QT_LIBRARIES ${QT_LIBRARIES} Qt6::Help)
 endif(WITH_DOCUMENTATION)
 if(WITH_WEBINTERFACE)
-	pkg_check_modules(pion REQUIRED "pion >= 5.0.0")
-	
-	if(pion_FOUND)
-		include_directories(${pion_INCLUDE_DIRS})
-		#message(STATUS "Pion libdir: ${pion-net_LIBDIR}")
-		
-		#FILE(GLOB pion_FileService "${pion-net_LIBDIR}/pion/plugins/FileService.*")
-		#if(pion_FileService MATCHES "^$")
-		#	message(FATAL_ERROR "Pion-net FileService plugin not found (libpion-net-plugins?) - ${pion_FileService}")
-		#endif(pion_FileService MATCHES "^$")
-	else(pion_FOUND)
-		message(FATAL_ERROR "No pion library found")
-	endif(pion_FOUND)
+	add_definitions(-DCPPHTTPLIB_OPENSSL_SUPPORT)
 endif(WITH_WEBINTERFACE)
 
 #set(CMAKE_REQUIRED_INCLUDES "sys/types.h")
@@ -182,21 +158,39 @@ endif (HAVE_XATTR_H)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 set(fatrat_SRCS
-	src/MyApplication.cpp
 	src/Auth.cpp
-	src/AboutDlg.cpp
-	src/AppTools.cpp
 	src/DelayedIcon.cpp
-	src/DropBox.cpp
 	src/fatrat.cpp
 	src/Proxy.cpp
+	src/NetIface.cpp
+	src/Queue.cpp
+	src/QueueMgr.cpp
+	src/SimpleEmail.cpp
+	src/Transfer.cpp
+	src/Logger.cpp
+	src/Scheduler.cpp
+	src/SchedulerStore.cpp
+	src/Settings.cpp
+	src/TransferFactory.cpp
+	src/engines/PlaceholderTransfer.cpp
+	src/poller/Poller.cpp
+	src/captcha/Captcha.cpp
+	src/rss/RssFetcher.cpp
+	src/rss/RssEpisode.cpp
+	src/rss/RssStore.cpp
+	src/util/BmpWriter.cpp
+	src/util/ExtendedAttributes.cpp
+)
+
+set(fatrat_GUI_SRCS
+	src/MyApplication.cpp
+	src/AboutDlg.cpp
+	src/AppTools.cpp
+	src/DropBox.cpp
 	src/InfoBar.cpp
 	src/MainTab.cpp
 	src/MainWindow.cpp
-	src/NetIface.cpp
 	src/NewTransferDlg.cpp
-	src/Queue.cpp
-	src/QueueMgr.cpp
 	src/QueueView.cpp
 	src/SettingsDlg.cpp
 	src/SettingsGeneralForm.cpp
@@ -204,47 +198,35 @@ set(fatrat_SRCS
 	src/SettingsQueueForm.cpp
 	src/SettingsSchedulerForm.cpp
 	src/ScheduledActionDlg.cpp
-	src/SimpleEmail.cpp
 	src/SpeedGraph.cpp
 	src/SpeedLimitWidget.cpp
 	src/StatsWidget.cpp
-	src/Transfer.cpp
+	src/TransferGui.cpp
 	src/TransfersModel.cpp
-	src/Logger.cpp
-	src/XmlRpc.cpp
-	src/Scheduler.cpp
 	src/MyFileDialog.cpp
-	src/Settings.cpp
 	src/QueueDlg.cpp
 	src/ClipboardMonitor.cpp
 	src/SettingsClipboardMonitorForm.cpp
-	src/TransferFactory.cpp
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
-	#src/notify/Notification.cpp
-	src/dbus/NotificationsProxy.cpp
-	src/dbus/KNotify.cpp
 	src/engines/MetalinkSettings.cpp
-	src/engines/PlaceholderTransfer.cpp
-	src/poller/Poller.cpp
-	src/captcha/Captcha.cpp
 	src/captcha/CaptchaQt.cpp
 	src/captcha/CaptchaQtDlg.cpp
-	
-	src/rss/RssFetcher.cpp
 	src/rss/SettingsRssForm.cpp
 	src/rss/RssRegexpDlg.cpp
 	src/rss/RssDownloadedDlg.cpp
-
 	src/tooltips/BaseToolTip.cpp
 	src/tooltips/QueueToolTip.cpp
 	src/tooltips/TrayToolTip.cpp
+	src/tools/HashDlg.cpp
+	src/util/BalloonTip.cpp
+)
 
+set(fatrat_DBUS_SRCS
+	src/dbus/NotificationsProxy.cpp
+	src/dbus/KNotify.cpp
 	src/dbus/DbusAdaptor.cpp
 	src/dbus/DbusImpl.cpp
-	src/tools/HashDlg.cpp
-	src/util/ExtendedAttributes.cpp
-	src/util/BalloonTip.cpp
 )
 
 if(HAVE_SYS_EPOLL_H)
@@ -256,12 +238,19 @@ elseif(HAVE_KQUEUE)
 endif(HAVE_SYS_EPOLL_H)
 
 set(fatrat_MOC_HDRS
-	src/dbus/DbusAdaptor.h
-	src/dbus/DbusImpl.h
-	
+	src/QueueMgr.h
+	src/Transfer.h
+	src/Scheduler.h
+	src/SimpleEmail.h
+	src/Queue.h
+	src/Logger.h
+	src/TransferFactory.h
+	src/rss/RssFetcher.h
+)
+
+set(fatrat_GUI_MOC_HDRS
 	src/TransfersModel.h
 	src/QueueDlg.h
-	src/QueueMgr.h
 	src/SpeedGraph.h
 	src/SettingsDropBoxForm.h
 	src/SettingsNetworkForm.h
@@ -273,15 +262,11 @@ set(fatrat_MOC_HDRS
 	src/SpeedLimitWidget.h
 	src/LogManager.h
 	src/SettingsGeneralForm.h
-	src/Transfer.h
-	src/Scheduler.h
-	src/SimpleEmail.h
 	src/QueueView.h
 	src/MainWindow.h
 	src/AboutDlg.h
 	src/SettingsDlg.h
 	src/TransfersView.h
-	src/Queue.h
 	src/MainTab.h
 	src/DropBox.h
 	src/InfoBar.h
@@ -289,34 +274,31 @@ set(fatrat_MOC_HDRS
 	src/WidgetHostDlg.h
 	src/UserAuthDlg.h
 	src/NewTransferDlg.h
-	src/Logger.h
 	src/MyApplication.h
 	src/ClipboardMonitor.h
 	src/SettingsClipboardMonitorForm.h
-	src/TransferFactory.h
 	src/filterlineedit.h
 	src/fancylineedit.h
 	src/ClickableLabel.h
-	#src/notify/Notification.h
-	src/dbus/NotificationsProxy.h
-	src/dbus/KNotify.h
 	src/engines/MetalinkSettings.h
 	src/captcha/CaptchaQt.h
 	src/captcha/CaptchaQtDlg.h
-	
 	src/tools/HashDlg.h
-	
-	src/rss/RssFetcher.h
 	src/rss/SettingsRssForm.h
 	src/rss/RssFeedDlg.h
 	src/rss/RssRegexpDlg.h
 	src/rss/RssDownloadedDlg.h
-	
 	src/tooltips/QueueToolTip.h
 	src/tooltips/TrayToolTip.h
 	src/tooltips/BaseToolTip.h
-
 	src/util/BalloonTip.h
+)
+
+set(fatrat_DBUS_MOC_HDRS
+	src/dbus/DbusAdaptor.h
+	src/dbus/DbusImpl.h
+	src/dbus/NotificationsProxy.h
+	src/dbus/KNotify.h
 )
 
 set(fatrat_UIS
@@ -366,24 +348,34 @@ if(WITH_CURL)
 		src/engines/CurlStat.cpp
 		src/engines/CurlPollingMaster.cpp
 		src/engines/UrlClient.cpp
+		src/engines/MetalinkDownload.cpp
+	)
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
+		src/engines/CurlDownloadGui.cpp
+		src/engines/CurlUploadGui.cpp
+		src/engines/FtpUploadOptsForm.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/HttpDetails.cpp
 		src/engines/HttpDetailsBar.cpp
 		src/engines/HttpMirrorsDlg.cpp
-		src/engines/MetalinkDownload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/engines/CurlDownload.h
 		src/engines/CurlUpload.h
 		src/engines/UrlClient.h
+		src/engines/MetalinkDownload.h
+	)
+	set(fatrat_GUI_MOC_HDRS
+		${fatrat_GUI_MOC_HDRS}
+		src/engines/FtpUploadOptsForm.h
 		src/engines/HttpFtpSettings.h
 		src/engines/HttpDetails.h
 		src/engines/HttpDetailsBar.h
 		src/engines/HttpMirrorsDlg.h
 		src/engines/GeneralDownloadForms.h
-		src/engines/MetalinkDownload.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
@@ -417,14 +409,18 @@ if(WITH_JPLUGINS)
 		src/java/JBackgroundWorker.cpp
 		src/java/JSingleCObject.cpp
 		src/java/JAccountStatusPlugin.cpp
-		src/engines/JavaAccountStatusWidget.cpp
-		src/engines/ExtensionDownloadDlg.cpp
 		src/engines/JavaPersistentVariables.cpp
 		src/engines/JavaDownload.cpp
 		src/engines/JavaExtractor.cpp
 		src/engines/JavaUpload.cpp
-		src/engines/SettingsJavaPluginForm.cpp
 		src/ExtensionMgr.cpp
+	)
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
+		src/engines/JavaDownloadOptsForm.cpp
+		src/engines/JavaAccountStatusWidget.cpp
+		src/engines/ExtensionDownloadDlg.cpp
+		src/engines/SettingsJavaPluginForm.cpp
 		src/java/JSearchPlugin.cpp
 		src/tools/FileSharingSearch.cpp
 	)
@@ -438,11 +434,15 @@ if(WITH_JPLUGINS)
 		src/java/JDownloadPlugin.h
 		src/java/JAccountStatusPlugin.h
 		src/java/JLinkCheckerPlugin.h
+		src/java/JBackgroundWorker.h
+		src/ExtensionMgr.h
+	)
+	set(fatrat_GUI_MOC_HDRS
+		${fatrat_GUI_MOC_HDRS}
+		src/engines/JavaDownloadOptsForm.h
 		src/engines/JavaAccountStatusWidget.h
 		src/engines/ExtensionDownloadDlg.h
 		src/engines/SettingsJavaPluginForm.h
-		src/java/JBackgroundWorker.h
-		src/ExtensionMgr.h
 		src/tools/FileSharingSearch.h
 	)
 	set(fatrat_UIS
@@ -458,11 +458,16 @@ endif(WITH_JPLUGINS)
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		src/engines/TorrentDetails.cpp
 		src/engines/TorrentDownload.cpp
+		src/engines/TorrentIPFilter.cpp
+		src/engines/TorrentPieceMap.cpp
+	)
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
+		src/engines/TorrentDownloadGui.cpp
+		src/engines/TorrentDetails.cpp
 		src/engines/TorrentFilesModel.cpp
 		src/engines/TorrentOptsWidget.cpp
-		src/engines/TorrentIPFilter.cpp
 		src/engines/TorrentPeersModel.cpp
 		src/engines/TorrentPiecesModel.cpp
 		src/engines/TorrentProgressWidget.cpp
@@ -470,14 +475,16 @@ if(WITH_BITTORRENT)
 		src/tools/CreateTorrentDlg.cpp
 		src/tools/ContextListWidget.cpp
 	)
-
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
+		src/engines/TorrentDownload.h
+	)
+	set(fatrat_GUI_MOC_HDRS
+		${fatrat_GUI_MOC_HDRS}
 		src/tools/CreateTorrentDlg.h
 		src/tools/ContextListWidget.h
 		src/engines/TorrentDetails.h
 		src/engines/TorrentPeersModel.h
-		src/engines/TorrentDownload.h
 		src/engines/TorrentOptsWidget.h
 		src/engines/TorrentProgressWidget.h
 		src/engines/TorrentPiecesModel.h
@@ -493,13 +500,13 @@ if(WITH_BITTORRENT)
 	)
 
 	if (HAVE_WEBENGINE)
-		set(fatrat_SRCS
-			${fatrat_SRCS}
+		set(fatrat_GUI_SRCS
+			${fatrat_GUI_SRCS}
 			src/tools/TorrentSearch.cpp
 			src/tools/TorrentWebView.cpp
 		)
-		set(fatrat_MOC_HDRS
-			${fatrat_MOC_HDRS}
+		set(fatrat_GUI_MOC_HDRS
+			${fatrat_GUI_MOC_HDRS}
 			src/tools/TorrentSearch.h
 			src/tools/TorrentWebView.h
 		)
@@ -511,56 +518,99 @@ if(WITH_BITTORRENT)
 	endif (HAVE_WEBENGINE)
 endif(WITH_BITTORRENT)
 
-if(WITH_JABBER)
-	set(fatrat_SRCS
-		${fatrat_SRCS}
-		src/remote/JabberService.cpp
-		src/remote/SettingsJabberForm.cpp
-	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
-		src/remote/JabberService.h
-		src/remote/SettingsJabberForm.h
-	)
-	set(fatrat_UIS
-		${fatrat_UIS}
-		src/remote/SettingsJabberForm.ui
-	)
-endif(WITH_JABBER)
-
 if(WITH_WEBINTERFACE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		src/remote/HttpService.cpp
-		src/remote/SettingsWebForm.cpp
-		src/remote/XmlRpcService.cpp
-		src/remote/pion/FileService.cpp
-		src/remote/CertGenDlg.cpp
+		src/remote/RestApi.cpp
+		src/remote/DirectoryListing.cpp
+		src/remote/RestResources.cpp
+		src/remote/RestRss.cpp
+		src/remote/RssJson.cpp
+		src/remote/RestScheduler.cpp
+		src/remote/SchedulerJson.cpp
 		src/captcha/CaptchaHttp.cpp
+	)
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
+		src/remote/SettingsWebForm.cpp
+		src/remote/CertGenDlg.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		src/remote/XmlRpcService.h
-		src/remote/SettingsWebForm.h
-		src/remote/CertGenDlg.h
 		src/remote/HttpService.h
 		src/captcha/CaptchaHttp.h
+	)
+	set(fatrat_GUI_MOC_HDRS
+		${fatrat_GUI_MOC_HDRS}
+		src/remote/SettingsWebForm.h
+		src/remote/CertGenDlg.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/remote/SettingsWebForm.ui
 		src/remote/CertGenDlg.ui
 	)
+
+	# The web interface's frontend is the Angular app in webui/ (requires Node.js/npm)
+	find_program(NPM_EXECUTABLE npm)
+	if(NOT NPM_EXECUTABLE)
+		message(FATAL_ERROR "WITH_WEBINTERFACE is ON but npm was not found in PATH")
+	endif()
+
+	set(WEBUI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/webui)
+	set(WEBUI_DIST_DIR ${WEBUI_SRC_DIR}/dist/webui/browser)
+	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
+
+	# NOTE: replaces data/remote/ with the Angular build output (untracked, listed in .gitignore).
+	#
+	# Stamp files give the build real staleness tracking, so a plain `make` after a build (and
+	# especially `make install`, which depends on `all` and typically runs as root) doesn't re-run
+	# npm and leave root-owned files in the source tree. CONFIGURE_DEPENDS makes the build re-glob
+	# webui/ so newly added source files are picked up without manually re-running cmake.
+	set(WEBUI_NPM_STAMP ${CMAKE_CURRENT_BINARY_DIR}/webui-npm-ci.stamp)
+	set(WEBUI_BUILD_STAMP ${CMAKE_CURRENT_BINARY_DIR}/webui-build.stamp)
+
+	add_custom_command(OUTPUT ${WEBUI_NPM_STAMP}
+		COMMAND ${NPM_EXECUTABLE} ci
+		COMMAND ${CMAKE_COMMAND} -E touch ${WEBUI_NPM_STAMP}
+		DEPENDS ${WEBUI_SRC_DIR}/package.json ${WEBUI_SRC_DIR}/package-lock.json
+		WORKING_DIRECTORY ${WEBUI_SRC_DIR}
+		COMMENT "Installing the Angular web UI's npm dependencies"
+		VERBATIM
+	)
+
+	file(GLOB_RECURSE WEBUI_SOURCES CONFIGURE_DEPENDS
+		${WEBUI_SRC_DIR}/src/*
+		${WEBUI_SRC_DIR}/public/*
+	)
+	file(GLOB WEBUI_CONFIGS CONFIGURE_DEPENDS
+		${WEBUI_SRC_DIR}/angular.json
+		${WEBUI_SRC_DIR}/tsconfig*.json
+	)
+
+	add_custom_command(OUTPUT ${WEBUI_BUILD_STAMP}
+		COMMAND ${NPM_EXECUTABLE} run build -- --configuration production
+		COMMAND ${CMAKE_COMMAND} -E rm -rf ${WEBUI_TARGET_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${WEBUI_DIST_DIR} ${WEBUI_TARGET_DIR}
+		COMMAND ${CMAKE_COMMAND} -E touch ${WEBUI_BUILD_STAMP}
+		DEPENDS ${WEBUI_NPM_STAMP} ${WEBUI_SOURCES} ${WEBUI_CONFIGS}
+		WORKING_DIRECTORY ${WEBUI_SRC_DIR}
+		COMMENT "Building the Angular web UI and installing it into data/remote"
+		VERBATIM
+	)
+
+	add_custom_target(webui ALL DEPENDS ${WEBUI_BUILD_STAMP})
 endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
-	set(fatrat_SRCS
-		${fatrat_SRCS}
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
 		src/tools/HelpBrowser.cpp
 		src/tools/HelpTextBrowser.cpp
 	)
-	set(fatrat_MOC_HDRS
-		${fatrat_MOC_HDRS}
+	set(fatrat_GUI_MOC_HDRS
+		${fatrat_GUI_MOC_HDRS}
 		src/tools/HelpBrowser.h
 	)
 	set(fatrat_UIS
@@ -569,38 +619,81 @@ if(WITH_DOCUMENTATION)
 	)
 endif(WITH_DOCUMENTATION)
 
-qt5_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
+if(WITH_GUI)
+	set(fatrat_SRCS ${fatrat_SRCS} ${fatrat_GUI_SRCS})
+	set(fatrat_MOC_HDRS ${fatrat_MOC_HDRS} ${fatrat_GUI_MOC_HDRS})
+	qt6_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
+	qt6_add_resources(fatrat_QRC_H gfx/resources.qrc)
+endif(WITH_GUI)
 
-set(fatrat_RCS
-	gfx/resources.qrc
-)
+if(WITH_DBUS)
+	set(fatrat_SRCS ${fatrat_SRCS} ${fatrat_DBUS_SRCS})
+	set(fatrat_MOC_HDRS ${fatrat_MOC_HDRS} ${fatrat_DBUS_MOC_HDRS})
+endif(WITH_DBUS)
 
-qt5_wrap_ui(fatrat_UIS_H ${fatrat_UIS})
-qt5_add_resources(fatrat_QRC_H gfx/resources.qrc)
-qt5_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
+qt6_wrap_cpp(fatrat_MOC_SRCS ${fatrat_MOC_HDRS})
+qt6_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
 locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts locale/fatrat_ru_RU.ts locale/fatrat_fr_FR.ts
 locale/fatrat_uk_UA.ts locale/fatrat_es_AR.ts locale/fatrat_es_ES.ts locale/fatrat_ca_ES.ts locale/fatrat_zh_CN.ts
 locale/fatrat_zh_TW.ts locale/fatrat_sr_RS.ts locale/fatrat_sr_BA.ts locale/fatrat_de_DE.ts)
+
+if(WITH_TUI)
+	# The wide character version of ncurses (UTF-8, box drawing); some systems keep its header in ncursesw/
+	pkg_check_modules(NCURSESW QUIET ncursesw)
+	if(NCURSESW_FOUND)
+		set(TUI_CURSES_INCLUDE_DIRS ${NCURSESW_INCLUDE_DIRS})
+		set(TUI_CURSES_LIBRARIES ${NCURSESW_LINK_LIBRARIES})
+	else()
+		set(CURSES_NEED_NCURSES TRUE)
+		set(CURSES_NEED_WIDE TRUE)
+		find_package(Curses REQUIRED)
+		set(TUI_CURSES_INCLUDE_DIRS ${CURSES_INCLUDE_DIRS})
+		set(TUI_CURSES_LIBRARIES ${CURSES_LIBRARIES})
+	endif()
+
+	# Everything except main.cpp and the ncurses backend lives in a library, so the tests can link it
+	file(GLOB TUI_SRCS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/tui/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/tui/*.h)
+	list(FILTER TUI_SRCS EXCLUDE REGEX "/(main|NcBackend)\\.cpp$")
+	add_library(fatrat_tui_core STATIC ${TUI_SRCS})
+	set_target_properties(fatrat_tui_core PROPERTIES AUTOMOC ON POSITION_INDEPENDENT_CODE ON)
+	target_include_directories(fatrat_tui_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/tui)
+	target_link_libraries(fatrat_tui_core PUBLIC Qt6::Core Qt6::Network)
+
+	add_executable(fatrat-tui src/tui/main.cpp src/tui/NcBackend.cpp)
+	target_include_directories(fatrat-tui PRIVATE ${TUI_CURSES_INCLUDE_DIRS})
+	target_link_libraries(fatrat-tui PRIVATE fatrat_tui_core ${TUI_CURSES_LIBRARIES})
+	install(TARGETS fatrat-tui RUNTIME DESTINATION bin)
+
+	if(NOT WITH_WEBINTERFACE)
+		message(WARNING "WITH_TUI without WITH_WEBINTERFACE: fatrat-tui cannot start a local server, it can only connect with --url")
+	endif()
+endif(WITH_TUI)
+
+if(WITH_TESTS)
+	enable_testing()
+	add_subdirectory(autotests)
+endif(WITH_TESTS)
 
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 add_executable(fatrat-conf src/fatrat-conf.cpp)
 
-# This used to be a workaround until it started causing the exact opposite... oh dear!
-#STRING(REPLACE "-mt" "" pion-net_LIBRARIES "${pion-net_LIBRARIES}")
-#message(STATUS ${pion-net_LIBRARIES})
+if(NOT WITH_GUI)
+	set_target_properties(fatrat PROPERTIES OUTPUT_NAME fatrat-nogui)
+endif(NOT WITH_GUI)
 
 if (POSIX_LINUX)
 	set (DL_LDFLAGS "-ldl")
 endif (POSIX_LINUX)
 
-message(STATUS "Pion: ${pion_LIBRARIES}")
-
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
-	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
-	${libtorrent_LDFLAGS} ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
-	${pion_LIBRARIES} ${XATTR_LIBRARIES} crypto -export-dynamic)
-target_link_libraries(fatrat-conf Qt5::Core)
+	${fatrat_QT_LIBS}
+	${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
+	ssl crypto ${XATTR_LIBRARIES} -export-dynamic)
+if(WITH_BITTORRENT)
+	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
+endif(WITH_BITTORRENT)
+target_link_libraries(fatrat-conf Qt6::Core)
 
 set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/fatrat.h
@@ -616,7 +709,6 @@ set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Settings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Auth.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Proxy.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/XmlRpc.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlDownload.h
@@ -640,9 +732,11 @@ install(FILES
 	DESTINATION share/fatrat/data
 	)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/css/queueview.css ${CMAKE_CURRENT_SOURCE_DIR}/data/css/label-headers.css DESTINATION share/fatrat/data/css)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gfx/fatrat.png DESTINATION share/pixmaps)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fatrat.desktop DESTINATION share/applications)
+if(WITH_GUI)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/css/queueview.css ${CMAKE_CURRENT_SOURCE_DIR}/data/css/label-headers.css DESTINATION share/fatrat/data/css)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gfx/fatrat.png DESTINATION share/pixmaps)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fatrat.desktop DESTINATION share/applications)
+endif(WITH_GUI)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
 install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
@@ -680,11 +774,14 @@ if(WITH_JPLUGINS)
 endif(WITH_JPLUGINS)
 
 if(WITH_DOCUMENTATION)
-	execute_process(COMMAND qcollectiongenerator
-	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhcp -o
-	${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
+	find_program(QHELPGENERATOR_EXECUTABLE qhelpgenerator
+		PATHS ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_LIBEXECS} ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_BINS}
+		REQUIRED)
+	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/doc/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/doc)
+	execute_process(COMMAND ${QHELPGENERATOR_EXECUTABLE} fatrat.qhcp -o fatrat.qhc
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/doc/fatrat.qhc DESTINATION share/fatrat/doc)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/doc/fatrat.qch DESTINATION share/fatrat/doc)
 endif(WITH_DOCUMENTATION)
 
 install(FILES doc/fatrat.1 DESTINATION share/man/man1)

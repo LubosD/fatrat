@@ -27,11 +27,12 @@ respects for all of the code used other than "OpenSSL".
 #ifndef SETTINGS_H
 #define SETTINGS_H
 #include <QString>
-#include <QIcon>
 #include <QSettings>
 #include "config.h"
 #include "WidgetHostChild.h"
 #include "DelayedIcon.h"
+
+class QWidget;
 
 struct SettingsItem;
 extern QVector<SettingsItem> g_settingsPages;

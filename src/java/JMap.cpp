@@ -53,23 +53,23 @@ void JMap::put(JObject key, JObject value)
 
 JObject JMap::nativeToBoxed(QVariant var)
 {
-	switch (var.type())
+	switch (var.userType())
 	{
-	case QVariant::Bool:
+	case QMetaType::Bool:
 		return nativeToBoxed(var.toBool());
-	case QVariant::Double:
+	case QMetaType::Double:
 		return nativeToBoxed(var.toDouble());
-	case QVariant::UInt:
-	case QVariant::Int:
+	case QMetaType::UInt:
+	case QMetaType::Int:
 		return nativeToBoxed(var.toInt());
-	case QVariant::ULongLong:
-	case QVariant::LongLong:
+	case QMetaType::ULongLong:
+	case QMetaType::LongLong:
 		return nativeToBoxed(var.toLongLong());
-	case QVariant::Map:
+	case QMetaType::QVariantMap:
 		break;
-	case QVariant::String:
+	case QMetaType::QString:
 		return nativeToBoxed(var.toString());
-	case QVariant::StringList:
+	case QMetaType::QStringList:
 		break;
 	default:
 		break;

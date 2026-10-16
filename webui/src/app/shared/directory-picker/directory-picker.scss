@@ -1,0 +1,75 @@
+.picker-path {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.picker-path-input {
+  flex: 1;
+}
+
+.picker-error {
+  margin: 0 0 0.5rem;
+  color: var(--p-red-500, #c00);
+}
+
+.picker-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  height: 16rem;
+  overflow: auto;
+  border: 1px solid var(--p-content-border-color, #ccc);
+
+  &.loading {
+    opacity: 0.5;
+  }
+}
+
+.picker-entry {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--p-content-hover-background, #eee);
+  }
+}
+
+.picker-empty {
+  padding: 0.5rem 0.75rem;
+  color: var(--p-text-muted-color);
+}
+
+.picker-hidden {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .picker-path {
+    flex-wrap: wrap;
+  }
+
+  .picker-path-input {
+    flex: 1 1 12rem;
+  }
+
+  .picker-list {
+    height: auto;
+    min-height: 12rem;
+    max-height: 50dvh;
+  }
+
+  .picker-entry {
+    min-height: 44px;
+  }
+}

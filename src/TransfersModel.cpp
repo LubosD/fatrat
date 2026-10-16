@@ -378,7 +378,7 @@ void ProgressDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 	if(index.column() == 1)
 	{
 		TransfersModel* model = (TransfersModel*) index.internalPointer();
-		QStyleOptionProgressBarV2 opts;
+		QStyleOptionProgressBar opts;
 		const int row = index.row();
 		
 		if(row < model->m_lastData.size())

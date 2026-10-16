@@ -41,7 +41,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkAccessManager>
 #include <QUrl>
 #include <QMap>
-#include <QRegExp>
+#include <QRegularExpression>
+#include "util/LegacyRegex.h"
 #include <QTextDocument>
 #include <QDesktopServices>
 #include <QHeaderView>
@@ -197,7 +198,7 @@ void TorrentSearch::loadEngines(QString path)
 		
 		n = n.nextSiblingElement("engine");
 	}
-	qSort(m_engines.begin(), m_engines.end());
+	std::sort(m_engines.begin(), m_engines.end());
 }
 
 void TorrentSearch::search()
@@ -318,17 +319,19 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data)
 			
 			for(QMap<QString,RegExpParam>::iterator it = e->regexps.begin(); it != e->regexps.end(); it++)
 			{
-				QRegExp re(it.value().regexp);
+				QRegularExpression re = legacyRegex(it.value().regexp);
+				QRegularExpressionMatch match;
+				const QString arText = QString::fromUtf8(ar);
 				int pos = 0;
 				
 				for(int k=0;k<it.value().match+1;k++)
 				{
-					pos = re.indexIn(ar, pos);
+					match = re.match(arText, pos);
 					
-					if(pos < 0)
+					if(!match.hasMatch())
 						throw RuntimeException(QString("Failed to match \"%1\" in \"%2\"").arg(it.key()).arg(QString(ar)));
 					else
-						pos++; // FIXME
+						pos = match.capturedStart() + 1; // FIXME
 				}
 
 				QString text;
@@ -336,11 +339,11 @@ void TorrentSearch::parseResults(Engine* e, const QByteArray& data)
 				{
 					text = e->formats[it.key()];
 					for(int i = 0; i < re.captureCount(); i++)
-						text = text.arg(re.cap(i+1));
+						text = text.arg(match.captured(i+1));
 				}
 				else
 				{
-					text = re.cap(it.value().field+1);
+					text = match.captured(it.value().field+1);
 				}
 				
 				QTextDocument doc; // FIXME: ineffective?

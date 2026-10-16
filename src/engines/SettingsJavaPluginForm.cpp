@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QGroupBox>
 #include <QListWidget>
 #include <QCheckBox>
+#include <QLineEdit>
 
 static const QLatin1String UPDATE_URL = QLatin1String("http://fatrat.dolezel.info/update/plugins/");
 

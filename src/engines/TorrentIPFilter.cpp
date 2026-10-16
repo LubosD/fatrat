@@ -25,6 +25,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "TorrentIPFilter.h"
+#include <boost/asio/ip/address.hpp>
 #include <QFile>
 
 bool loadIPFilter(QString textFile, libtorrent::ip_filter* filter)
@@ -52,8 +53,8 @@ bool loadIPFilter(QString textFile, libtorrent::ip_filter* filter)
 		from = line.mid(colon, dash-colon);
 		to = line.mid(dash+1);
 		
-		filter->add_rule(libtorrent::address::from_string(from.data()),
-				 libtorrent::address::from_string(to.data()), libtorrent::ip_filter::blocked);
+		filter->add_rule(boost::asio::ip::make_address(from.data()),
+				 boost::asio::ip::make_address(to.data()), libtorrent::ip_filter::blocked);
 	}
 	
 	return true;

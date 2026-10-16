@@ -34,12 +34,13 @@ respects for all of the code used other than "OpenSSL".
 #include "java/JException.h"
 #include "fatrat.h"
 #include "Settings.h"
-#include "SettingsJavaPluginForm.h"
+#ifdef WITH_GUI
+#	include "SettingsJavaPluginForm.h"
+#endif
 
-#include <QApplication>
-#include <QMessageBox>
 #include <QtDebug>
 #include <cassert>
+#include "util/LegacyRegex.h"
 
 QMap<QString,QMutex*> JavaDownload::m_mutexes;
 QMap<QString,JavaDownload::JavaEngine> JavaDownload::m_engines;
@@ -243,7 +244,7 @@ int JavaDownload::acceptable(QString uri, bool, const EngineEntry* e)
 							  .arg(QString::fromStdString(en.name)).arg(e.what()));
 		}
 	}
-	else if (en.regexp.exactMatch(uri))
+	else if (en.regexp.match(uri).hasMatch())
 		return 3;
 
 	return 0;
@@ -331,7 +332,7 @@ void JavaDownload::globalInit()
 
 				JObject cfgDlg = obj.getAnnotation(annConfigDialog);
 
-				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), QRegExp(regexp) };
+				JavaEngine e = { "EXT - " + name.toStdString(), clsName.toStdString(), legacyRegex(QRegularExpression::anchoredPattern(regexp)) };
 				e.forceSingleTransfer = ann.call("forceSingleTransfer", JSignature().retBoolean()).toBool();
 				e.truncate = ann.call("truncIncomplete", JSignature().retBoolean()).toBool();
 
@@ -371,7 +372,9 @@ void JavaDownload::globalInit()
 	SettingsItem si;
 	si.title = tr("Extensions");
 	si.icon = DelayedIcon(":/menu/java_plugin.png");
+#ifdef WITH_GUI
 	si.lpfnCreate = SettingsJavaPluginForm::create;
+#endif
 	addSettingsPage(si);
 }
 
@@ -393,48 +396,4 @@ QStringList JavaDownload::getConfigDialogs()
 	}
 
 	return rv;
-}
-
-WidgetHostChild* JavaDownload::createOptionsWidget(QWidget* w)
-{
-	return new JavaDownloadOptsForm(w, this);
-}
-
-JavaDownloadOptsForm::JavaDownloadOptsForm(QWidget* me, JavaDownload* myobj)
-	: m_download(myobj)
-{
-	setupUi(me);
-}
-
-void JavaDownloadOptsForm::load()
-{
-	labelClass->setText(m_download->m_strClass);
-	lineURL->setText(m_download->m_strOriginal);
-}
-
-void JavaDownloadOptsForm::accepted()
-{
-	QString newUrl = lineURL->text();
-
-	if (newUrl != m_download->m_strOriginal)
-	{
-		m_download->m_strOriginal = newUrl;
-		if (m_download->isActive())
-			m_download->setState(Transfer::Waiting); // restart
-	}
-}
-
-bool JavaDownloadOptsForm::accept()
-{
-	QString newUrl = lineURL->text();
-
-	if (newUrl != m_download->m_strOriginal)
-	{
-		if (!JavaDownload::m_engines[m_download->m_strClass].regexp.exactMatch(newUrl))
-		{
-			QMessageBox::warning(getMainWindow(), "FatRat", tr("Invalid URL."));
-			return false;
-		}
-	}
-	return true;
 }

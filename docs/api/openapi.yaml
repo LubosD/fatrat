@@ -1,0 +1,610 @@
+openapi: 3.1.0
+info:
+  title: FatRat remote API
+  version: "1"
+  description: |
+    JSON API used by the FatRat web UI. All paths are under /api/v1.
+    Authentication: HTTP Basic (any user name, the password from the Web Interface settings),
+    unchanged from the previous XML-RPC endpoint.
+    Requests with a body must use Content-Type: application/json (multipart/form-data for the transfer
+    upload only), and any request carrying an Origin header must name the same host as Host. This keeps
+    cross-site pages from driving the API with the browser's cached credentials.
+
+    When the daemon is started with `--rest-socket PATH`, the same API (and the other routes of the web
+    server) is also served on a unix socket at PATH, whether or not the web interface is enabled. The socket
+    is created with mode 0600 and requests on it are not authenticated; access is governed by file permissions.
+servers:
+  - url: /api/v1
+paths:
+  /transfer-classes:
+    get:
+      summary: Download and upload engines
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/TransferClass" } } } } }
+  /filesystem/directories:
+    get:
+      summary: List the sub-directories of a directory on the server
+      description: |
+        Used by the web UI's directory picker. Only directories are listed, never files.
+        `path` is canonicalised (symlinks and `..` resolved). If `path` is omitted the listing starts at the
+        default directory of `queue` (when given), or else the home directory of the user running FatRat.
+      parameters:
+        - { name: path, in: query, required: false, schema: { type: string }, description: Absolute path }
+        - { name: queue, in: query, required: false, schema: { type: string }, description: "Queue UUID whose default directory is the starting point when path is omitted" }
+        - { name: showHidden, in: query, required: false, schema: { type: boolean, default: false }, description: Include directories whose name starts with a dot }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/DirectoryListing" } } } }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /stats:
+    get:
+      summary: Current transfer rates, in total and per queue (bytes/s)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [total, queues]
+                properties:
+                  total: { $ref: "#/components/schemas/SpeedPair" }
+                  queues: { type: object, additionalProperties: { $ref: "#/components/schemas/SpeedPair" } }
+  /queues:
+    get:
+      summary: List queues
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Queue" } } } } }
+    post:
+      summary: Create a queue
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/QueueProperties" } } } }
+      responses:
+        "201": { description: Created (Location header points at the queue), content: { application/json: { schema: { $ref: "#/components/schemas/Queue" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/move:
+    post:
+      summary: Reorder the queue list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uuid, direction]
+              properties:
+                uuid: { type: string, description: Queue UUID }
+                direction: { enum: [top, up, down, bottom] }
+      responses:
+        "204": { description: Moved }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}:
+    delete:
+      summary: Delete a queue
+      description: |
+        An empty queue is deleted as is. A non-empty queue needs exactly one of `moveTo` and `deleteTransfers`,
+        otherwise the response is 409 `queue_not_empty`. With `moveTo` the transfers are appended to the end of
+        the other queue in their current order; with `deleteTransfers` they are deleted (active ones are paused
+        first, as when deleting a transfer). Giving both, or the queue's own UUID as `moveTo`, is
+        422 `invalid_property`. An unknown queue or `moveTo` queue is 404 `queue_not_found`.
+      parameters:
+        - { $ref: "#/components/parameters/queue" }
+        - { name: moveTo, in: query, required: false, schema: { type: string }, description: UUID of the queue to move the transfers to }
+        - { name: deleteTransfers, in: query, required: false, schema: { type: boolean, default: false }, description: Delete the transfers of the queue }
+        - { $ref: "#/components/parameters/withData" }
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    patch:
+      summary: Partially update a queue
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/QueueProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Queue" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}/transfers:
+    get:
+      summary: Transfers of a queue, in queue order
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Transfer" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      summary: Add transfers
+      description: |
+        application/json adds one transfer per entry of `urls`.
+        multipart/form-data adds one transfer from the uploaded `file` part (a .torrent, metalink, ...);
+        the `options` part is a JSON string with the same fields as the JSON body, minus `urls`.
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: "#/components/schemas/AddTransfers" } }
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, options]
+              properties:
+                file: { type: string, format: binary }
+                options: { type: string, description: "JSON-encoded AddTransfers without urls" }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { type: object, required: [uuids], properties: { uuids: { type: array, items: { type: string } } } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}/transfers/move:
+    post:
+      summary: Reorder transfers within a queue
+      description: |
+        Give exactly one of `direction` and `before`, otherwise 422 `invalid_property`. With `before`, the
+        transfers (keeping their current relative order) are placed immediately before that transfer of the
+        same queue, or at the end of the queue if it is null. `before` must belong to the queue and must not be
+        among `uuids`, otherwise 422 `invalid_property`.
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uuids]
+              properties:
+                uuids: { type: array, items: { type: string } }
+                direction: { enum: [top, up, down, bottom] }
+                before: { type: [string, "null"], description: Transfer UUID to insert before; null for the end of the queue }
+      responses:
+        "204": { description: Moved }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/{queue}/speed-data:
+    get:
+      summary: Recent aggregate speed samples of the queue (oldest first)
+      parameters: [ { $ref: "#/components/parameters/queue" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SpeedPair" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers:
+    patch:
+      summary: Update several transfers (all-or-nothing)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uuids, properties]
+              properties:
+                uuids: { type: array, items: { type: string } }
+                properties: { $ref: "#/components/schemas/TransferProperties" }
+      responses:
+        "204": { description: Updated }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete several transfers
+      parameters:
+        - { name: uuid, in: query, required: true, schema: { type: array, items: { type: string } }, style: form, explode: true }
+        - { $ref: "#/components/parameters/withData" }
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}:
+    get:
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Transfer" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/TransferProperties" } } } }
+      responses:
+        "204": { description: Updated }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      parameters: [ { $ref: "#/components/parameters/transfer" }, { $ref: "#/components/parameters/withData" } ]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/details:
+    get:
+      summary: Engine-specific properties (an empty object if the engine has none)
+      description: For BitTorrent - totalDownload, totalUpload (strings), comment (HTML string), magnetLink, ratio (string), files [{name, size, done, priority?}].
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/speed-data:
+    get:
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SpeedPair" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/torrent/file-priorities:
+    put:
+      summary: Set per-file priorities of a BitTorrent transfer
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required: [index, priority]
+                properties:
+                  index: { type: integer, minimum: 0 }
+                  priority: { type: integer, description: "0 = do not download, 1 = normal, 4 = increased, 7 = maximum" }
+      responses:
+        "204": { description: Applied }
+        "404": { description: Unknown transfer, or not a BitTorrent transfer, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "409": { description: Torrent not ready (no valid handle yet), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  /settings:
+    get:
+      summary: Read settings values
+      parameters:
+        - { name: key, in: query, required: true, schema: { type: array, items: { type: string } }, style: form, explode: true }
+      responses:
+        "200": { description: Object keyed by the requested keys; unset values are null, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+    patch:
+      summary: Write settings values
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses:
+        "204": { description: Stored }
+  /settings/apply:
+    post:
+      summary: Apply stored settings (runs asynchronously on the main thread)
+      responses:
+        "202": { description: Accepted }
+  /settings/pages:
+    get:
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/SettingsPage" } } } } }
+  /settings/web-interface/certificate:
+    post:
+      summary: Generate a self-signed certificate for the web interface
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [hostname], properties: { hostname: { type: string } } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, required: [path], properties: { path: { type: string } } } } } }
+        "500": { $ref: "#/components/responses/Error" }
+  /rss/feeds:
+    get:
+      summary: List the RSS feeds
+      description: |
+        The RSS fetcher runs in the server whether or not any user interface is attached. `rss/enable` and
+        `rss/interval` (minutes) are ordinary settings (see /settings). Feeds and regexps are changed
+        immediately, there is no staged commit, because the server also rewrites the regexps in the background
+        (the list of downloaded episodes).
+      tags: [rss]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/RssFeed" } } } } }
+    post:
+      summary: Add an RSS feed
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeedProperties" } } } }
+      responses:
+        "201": { description: Created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeed" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/feeds/{feed}:
+    parameters:
+      - { name: feed, in: path, required: true, schema: { type: string }, description: Feed id }
+    patch:
+      summary: Change a feed. Changing the URL re-points the regexps that use it.
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeedProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/RssFeed" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a feed and every regexp that uses it
+      tags: [rss]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /rss/regexps:
+    get:
+      summary: List the download rules
+      tags: [rss]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/RssRegexp" } } } } }
+    post:
+      summary: Add a download rule
+      description: "`feedId` and `queue` are required. `target` defaults to the queue's default directory."
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexpProperties" } } } }
+      responses:
+        "201": { description: Created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexp" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/regexps/{regexp}:
+    parameters:
+      - { name: regexp, in: path, required: true, schema: { type: string }, description: Regexp id }
+    patch:
+      summary: Change a download rule
+      description: |
+        Changing `tvs` without `from` and `to` resets the range to the widest one of the new mode. In `tvs`
+        mode `none` the range is cleared.
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexpProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/RssRegexp" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a download rule
+      tags: [rss]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+  /rss/regexps/{regexp}/downloaded:
+    parameters:
+      - { name: regexp, in: path, required: true, schema: { type: string }, description: Regexp id }
+    get:
+      summary: Episodes the rule considers already downloaded
+      tags: [rss]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { type: string } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      summary: Replace the list of downloaded episodes
+      description: |
+        Entries must match the rule's numbering: `S01E02` (season), `0123` (episode) or `2026-10-16` (date),
+        optionally followed by `|trailer`, `|repack` or `|proper`. 409 if the rule does not track episodes.
+      tags: [rss]
+      requestBody: { required: true, content: { application/json: { schema: { type: array, items: { type: string } } } } }
+      responses:
+        "204": { description: Stored }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/test:
+    post:
+      summary: Try a regular expression on a title, the way the fetcher would
+      description: Uses the same regular expression flavour and the same episode numbering as the fetcher.
+      tags: [rss]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expression, text]
+              properties:
+                expression: { type: string }
+                text: { type: string }
+                tvs: { $ref: "#/components/schemas/RssTvsMode" }
+                includeRepacks: { type: boolean }
+                includeTrailers: { type: boolean }
+      responses:
+        "200": { description: "`episode` is only present when `tvs` is not `none` and the title yields an episode", content: { application/json: { schema: { type: object, required: [matches], properties: { matches: { type: boolean }, episode: { type: string } } } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /rss/refresh:
+    post:
+      summary: Fetch all feeds now (runs asynchronously on the main thread)
+      tags: [rss]
+      responses:
+        "202": { description: Accepted }
+  /scheduler/actions:
+    get:
+      summary: List the scheduled actions
+      description: |
+        The scheduler runs in the server whether or not any user interface is attached. It checks once a
+        minute, in the server's local time zone, so `time` and `at` are local times of the server.
+      tags: [scheduler]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ScheduledAction" } } } } }
+    post:
+      summary: Add a scheduled action
+      tags: [scheduler]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledActionProperties" } } } }
+      responses:
+        "201": { description: Created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledAction" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /scheduler/actions/{action}:
+    parameters:
+      - { name: action, in: path, required: true, schema: { type: string }, description: Scheduled action id }
+    patch:
+      summary: Change a scheduled action
+      tags: [scheduler]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledActionProperties" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ScheduledAction" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a scheduled action
+      tags: [scheduler]
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+components:
+  parameters:
+    queue: { name: queue, in: path, required: true, schema: { type: string }, description: Queue UUID }
+    transfer: { name: transfer, in: path, required: true, schema: { type: string }, description: Transfer UUID }
+    withData: { name: withData, in: query, required: false, schema: { type: boolean, default: false }, description: Also delete the downloaded data }
+  responses:
+    Error:
+      description: Error
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, invalid_path, path_not_found, path_not_readable, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent, feed_not_found, regexp_not_found, duplicate_feed, no_episode_tracking, queue_not_empty" }
+            message: { type: string }
+    SpeedPair:
+      type: object
+      required: [down, up]
+      properties: { down: { type: integer }, up: { type: integer } }
+    TransferClass:
+      type: object
+      required: [mode, shortName, longName]
+      properties: { mode: { enum: [Download, Upload] }, shortName: { type: string }, longName: { type: string } }
+    DirectoryListing:
+      type: object
+      required: [path, parent, entries]
+      properties:
+        path: { type: string, description: The canonical path that was listed }
+        parent: { type: string, description: Empty at the filesystem root }
+        entries:
+          type: array
+          description: Sub-directories, sorted case-insensitively
+          items:
+            type: object
+            required: [name, path]
+            properties: { name: { type: string }, path: { type: string } }
+    RssTvsMode: { enum: [none, season, episode, date], description: "How episodes are numbered for duplicate detection: S01E02, 0123 or 2026-10-16" }
+    RssFeed:
+      type: object
+      required: [id, name, url]
+      properties: { id: { type: string }, name: { type: string }, url: { type: string } }
+    RssFeedProperties:
+      type: object
+      additionalProperties: false
+      description: "`name` and `url` are required when creating."
+      properties: { name: { type: string, minLength: 1 }, url: { type: string, minLength: 1 } }
+    RssRegexp:
+      type: object
+      required: [id, feedId, expression, queue, target, addPaused, tvs, from, to, includeRepacks, includeTrailers, excludeManuals, linkRegexp]
+      properties:
+        id: { type: string }
+        feedId: { type: string, description: Empty if the stored rule refers to a feed that no longer exists }
+        expression: { type: string, description: Case-insensitive; empty matches every item of the feed }
+        queue: { type: string, description: Queue UUID }
+        target: { type: string, description: Directory the transfers are saved to }
+        addPaused: { type: boolean }
+        tvs: { $ref: "#/components/schemas/RssTvsMode" }
+        from: { type: string, description: Lowest episode to download }
+        to: { type: string, description: Highest episode to download }
+        includeRepacks: { type: boolean, description: Also download repacks and propers of an episode }
+        includeTrailers: { type: boolean, description: Also download trailers and teasers }
+        excludeManuals: { type: boolean, description: Episodes of torrents added manually count as downloaded }
+        linkRegexp: { type: string, description: "If not empty, the links are taken from the item's description by this expression instead of using the item's own link" }
+    RssRegexpProperties:
+      type: object
+      additionalProperties: false
+      description: Any subset of the writable RssRegexp fields. `feedId` and `queue` are required when creating.
+      properties:
+        feedId: { type: string }
+        expression: { type: string }
+        queue: { type: string }
+        target: { type: string }
+        addPaused: { type: boolean }
+        tvs: { $ref: "#/components/schemas/RssTvsMode" }
+        from: { type: string }
+        to: { type: string }
+        includeRepacks: { type: boolean }
+        includeTrailers: { type: boolean }
+        excludeManuals: { type: boolean }
+        linkRegexp: { type: string }
+    Queue:
+      type: object
+      required: [uuid, name, defaultDirectory, moveDirectory, upAsDown, transferLimits, speedLimits]
+      properties:
+        uuid: { type: string }
+        name: { type: string }
+        defaultDirectory: { type: string }
+        moveDirectory: { type: string }
+        upAsDown: { type: boolean }
+        transferLimits: { $ref: "#/components/schemas/SpeedPair" }
+        speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    QueueProperties:
+      type: object
+      additionalProperties: false
+      description: Any subset of the writable Queue fields.
+      properties:
+        name: { type: string }
+        defaultDirectory: { type: string }
+        moveDirectory: { type: string }
+        upAsDown: { type: boolean }
+        transferLimits: { $ref: "#/components/schemas/SpeedPair" }
+        speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    Transfer:
+      type: object
+      required: [uuid, name, state, class, message, mode, primaryMode, dataPath, dataPathIsDir, total, done, comment, object, timeRunning, speeds, userSpeedLimits]
+      properties:
+        uuid: { type: string }
+        name: { type: string }
+        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed, Ready, Testing] }
+        class: { type: string }
+        message: { type: string }
+        mode: { enum: [Download, Upload] }
+        primaryMode: { enum: [Download, Upload] }
+        dataPath: { type: string }
+        dataPathIsDir: { type: boolean }
+        total: { type: integer, format: int64 }
+        done: { type: integer, format: int64 }
+        comment: { type: string }
+        object: { type: string }
+        timeRunning: { type: number }
+        speeds: { $ref: "#/components/schemas/SpeedPair" }
+        userSpeedLimits: { $ref: "#/components/schemas/SpeedPair" }
+        detailsScript: { type: string, description: "Only for engines with an engine-specific details view" }
+    TransferProperties:
+      type: object
+      additionalProperties: false
+      description: Any subset of the writable Transfer fields. Applied to all transfers or to none.
+      properties:
+        queue: { type: string, description: "UUID of a queue; moves the transfers to the end of it (404 queue_not_found if unknown)" }
+        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed] }
+        comment: { type: string }
+        object: { type: string }
+        userSpeedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    AddTransfers:
+      type: object
+      required: [urls]
+      description: All fields other than urls are optional (defaults - upload false, class and target empty, paused false, speedLimits 0/0).
+      properties:
+        urls: { type: array, items: { type: string } }
+        upload: { type: boolean }
+        class: { type: string, description: "Engine short name, or empty to autodetect" }
+        target: { type: string }
+        paused: { type: boolean }
+        speedLimits: { $ref: "#/components/schemas/SpeedPair" }
+    ScheduledAction:
+      type: object
+      required: [id, name, queue, action, repeated, time, days, at]
+      description: |
+        `speedLimit` is only present when `action` is `speedLimit`. `time` and `days` apply when `repeated` is
+        true, `at` when it is false. A value that does not apply may be empty.
+      properties:
+        id: { type: string }
+        name: { type: string }
+        queue: { type: string, description: UUID of the queue the action is applied to }
+        action: { type: string, enum: [resume, stop, speedLimit], description: "resume or stop every transfer of the queue, or set its speed limits" }
+        speedLimit: { $ref: "#/components/schemas/SpeedPair" }
+        repeated: { type: boolean }
+        time: { type: string, pattern: '^\d\d:\d\d$', description: "Local time of day, HH:mm" }
+        days: { type: array, minItems: 7, maxItems: 7, items: { type: boolean }, description: "Whether the action runs on Monday, Tuesday, ... Sunday" }
+        at: { type: string, description: "Local date and time of a one-time action, yyyy-MM-ddTHH:mm" }
+    ScheduledActionProperties:
+      type: object
+      additionalProperties: false
+      description: |
+        `name`, `queue` and `action` are required when creating, and so are `time` (repeated, the default) or
+        `at` (when `repeated` is false). `speedLimit` is required for the `speedLimit` action. A repeated action
+        needs at least one day; `days` defaults to every day.
+      properties:
+        name: { type: string, minLength: 1 }
+        queue: { type: string }
+        action: { type: string, enum: [resume, stop, speedLimit] }
+        speedLimit: { $ref: "#/components/schemas/SpeedPair" }
+        repeated: { type: boolean }
+        time: { type: string, pattern: '^\d\d:\d\d$' }
+        days: { type: array, minItems: 7, maxItems: 7, items: { type: boolean } }
+        at: { type: string }
+    SettingsPage:
+      type: object
+      required: [title, script, icon]
+      properties: { title: { type: string }, script: { type: string }, icon: { type: string } }

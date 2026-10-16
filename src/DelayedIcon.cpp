@@ -31,9 +31,11 @@ DelayedIcon::DelayedIcon(QString iconPath)
 {
 }
 
+#ifdef WITH_GUI
 DelayedIcon::operator QIcon() const
 {
 	return QIcon(m_iconPath);
 }
+#endif
 
 

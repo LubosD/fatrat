@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QFileDialog>
 #include <QSettings>
 #include <QtDebug>
+#include "util/LegacyRegex.h"
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -181,7 +182,7 @@ int RssRegexpDlg::exec()
 	checkTVSNoManuals->setChecked(m_regexp.excludeManuals);
 	checkAddPaused->setChecked(m_regexp.addPaused);
 
-	if(!m_regexp.linkRegexp.isEmpty())
+	if(!m_regexp.linkRegexp.pattern().isEmpty())
 	{
 		radioParsingExtract->setChecked(true);
 		lineParsingRegexp->setText(m_regexp.linkRegexp.pattern());
@@ -194,7 +195,7 @@ int RssRegexpDlg::exec()
 	
 	if((r = QDialog::exec()) == QDialog::Accepted)
 	{
-		m_regexp.regexp = QRegExp(lineExpression->text(), Qt::CaseInsensitive);
+		m_regexp.regexp = legacyRegex(lineExpression->text(), QRegularExpression::CaseInsensitiveOption);
 		m_regexp.target = lineTarget->text();
 		
 		m_regexp.queueUUID = comboQueue->itemData(comboQueue->currentIndex()).toString();
@@ -217,7 +218,7 @@ int RssRegexpDlg::exec()
 		m_regexp.includeTrailers = checkTVSTrailers->isChecked();
 		m_regexp.excludeManuals = checkTVSNoManuals->isChecked();
 		m_regexp.addPaused = checkAddPaused->isChecked();
-		m_regexp.linkRegexp = QRegExp(lineParsingRegexp->text(), Qt::CaseInsensitive);
+		m_regexp.linkRegexp = legacyRegex(lineParsingRegexp->text(), QRegularExpression::CaseInsensitiveOption);
 	}
 	
 	return r;
@@ -243,6 +244,6 @@ void RssRegexpDlg::browse()
 
 void RssRegexpDlg::test()
 {
-	QRegExp r(lineExpression->text(), Qt::CaseInsensitive);
-	labelMatch->setPixmap( (r.indexIn(lineText->text()) != -1) ? QPixmap(":/states/completed.png") : QPixmap(":/menu/delete.png") );
+	QRegularExpression r = legacyRegex(lineExpression->text(), QRegularExpression::CaseInsensitiveOption);
+	labelMatch->setPixmap( r.match(lineText->text()).hasMatch() ? QPixmap(":/states/completed.png") : QPixmap(":/menu/delete.png") );
 }

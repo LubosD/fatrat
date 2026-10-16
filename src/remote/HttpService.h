@@ -37,19 +37,22 @@ respects for all of the code used other than "OpenSSL".
 #include <QQueue>
 #include <QTimer>
 #include <ctime>
-#include <openssl/ssl.h>
-#include <boost/system/system_error.hpp>
-#include <pion/http/plugin_server.hpp>
-#include <pion/http/response_writer.hpp>
+#include <functional>
+#include <memory>
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#endif
+#include "httplib.h"
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
 #endif
-
-#include <pion/http/server.hpp>
-#include <pion/http/plugin_service.hpp>
 
 class Queue;
 class Transfer;
@@ -58,16 +61,16 @@ class HttpService : public QObject
 {
 Q_OBJECT
 private:
-	struct RegisteredClient;
+	class WebSocketService;
 public:
 	HttpService();
 	~HttpService();
 	static HttpService* instance() { return m_instance; }
 	void applySettings();
-	
+
 	void setup();
-	void setupAuth();
-	void setupSSL();
+	// Additionally serve the REST API on a unix socket, independently of the remote/enable setting
+	static void setRestSocketPath(const QString& path);
 
 	void addCaptchaEvent(int id, QString url);
 	bool hasCaptchaHandlers();
@@ -75,119 +78,110 @@ public:
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 
-	static QVariant generateCertificate(QList<QVariant>&);
 private slots:
 	void keepalive(); // QTimer TODO
 private:
-	void addCaptchaClient(RegisteredClient* client);
-	void removeCaptchaClient(RegisteredClient* client);
+	void addCaptchaClient(WebSocketService* client);
+	void removeCaptchaClient(WebSocketService* client);
 	void killCaptchaClients();
+
+	void registerRoutes(httplib::Server& server, bool authenticated);
+	void setupUnixSocket();
+	void stopUnixSocket();
 private:
 	static HttpService* m_instance;
-	pion::http::plugin_server* m_server;
-	pion::http::auth_ptr m_auth_ptr;
 	CaptchaHttp m_captchaHttp;
-	quint16 m_port;
-	QString m_strSSLPem;
-	bool m_bUseSSL;
 
 	QTimer m_timer;
-	QList<RegisteredClient*> m_registeredCaptchaClients;
+	QList<WebSocketService*> m_registeredCaptchaClients;
 	QMutex m_registeredCaptchaClientsMutex;
 
-	class LogService : public pion::http::plugin_service
-	{
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
-	};
-	class TransferTreeBrowserService : public pion::http::plugin_service
-	{
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
-	};
-	class TransferDownloadService : public pion::http::plugin_service
-	{
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
-	};
-	class SubclassService : public pion::http::plugin_service
-	{
-	public:
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn) override;
-	};
-	/*class CaptchaService : public pion::http::plugin_service
-	{
-	public:
-		void operator()(pion::http::request_ptr &request, pion::tcp::connection_ptr &tcp_conn);
-	private:
-		class CapServCap
-		{
-		public:
-			void operator()(const boost::system::error_code& error, std::size_t bytes_transferred);
-			void readDone();
+	std::unique_ptr<httplib::Server> m_server;
+	std::thread m_serverThread;
+	std::unique_ptr<httplib::Server> m_unixServer;
+	std::thread m_unixThread;
+	QString m_unixSocketFile;
+	static QString m_restSocketPath;
+	mutable std::mutex m_passwordMutex;
+	QString m_strPassword;
+	QString m_strSSLPem;
+	bool m_bUseSSL = false;
+	quint16 m_port = 0;
 
-			pion::net::HTTPResponseWriterPtr writer;
-			std::string key1, key2;
-			char sig[8];
-			int inbuf;
-			pion::tcp::connection_ptr tcp_conn;
-		} m_cap;
-	};*/
-
-	class CaptchaHttpResponseWriter;
-	class CaptchaService : public pion::http::plugin_service
+	class WebSocketService
 	{
 	public:
-		void operator()(const pion::http::request_ptr &request, const pion::tcp::connection_ptr &tcp_conn);
-	};
-	struct RegisteredClient
-	{
 		typedef QPair<int,QString> Captcha;
 
-		boost::shared_ptr<CaptchaHttpResponseWriter> writer;
-		QMutex writeInProgressLock;
-		QQueue<Captcha> captchaQueue;
-		QMutex captchaQueueLock;
-
-		void keepalive();
-		void pushMore();
-		void finished();
-		void terminate();
-	};
-
-	class CaptchaHttpResponseWriter : public pion::http::response_writer
-	{
-	public:
-		CaptchaHttpResponseWriter(HttpService::RegisteredClient* cl, const pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
-					      : pion::http::response_writer(tcp_conn, request, handler), client(cl)
-		{
-
+		void pushCaptcha(const Captcha& cap) {
+			{
+				std::lock_guard<std::mutex> lk(m_mutex);
+				m_queue.enqueue(cap);
+			}
+			m_cv.notify_one();
 		}
 
-		static inline boost::shared_ptr<CaptchaHttpResponseWriter> create(HttpService::RegisteredClient* cl, const pion::tcp::connection_ptr &tcp_conn, const pion::http::request& request, finished_handler_t handler = finished_handler_t())
-		{
-			return boost::shared_ptr<CaptchaHttpResponseWriter>(new CaptchaHttpResponseWriter(cl, tcp_conn, request, handler));
+		void terminate() {
+			m_terminate.store(true);
+			m_cv.notify_one();
 		}
-		/*virtual void prepareBuffersForSend(HTTPMessage::WriteBuffers& write_buffers) {
-			m_content_length = 0;
-			//if (getContentLength() > 0)
-			//	m_http_response->setContentLength(getContentLength());
-			m_http_response->prepareBuffersForSend(write_buffers, getTCPConnection()->getKeepAlive(),
-							       sendingChunkedMessage());
-		}*/
-		virtual void handle_write(const boost::system::error_code &write_error, std::size_t bytes_written);
 
-		HttpService::RegisteredClient* client;
+		void keepalive() {
+			m_sendPing.store(true);
+			m_cv.notify_one();
+		}
+
+		// Blocks up to timeout_ms if queue is empty. Returns drained queue.
+		QQueue<Captcha> waitAndDrain(int timeout_ms) {
+			std::unique_lock<std::mutex> lk(m_mutex);
+			m_cv.wait_for(lk, std::chrono::milliseconds(timeout_ms),
+				[this]{ return !m_queue.isEmpty() || m_terminate.load() || m_sendPing.load(); });
+			return std::move(m_queue);
+		}
+
+		bool shouldTerminate() const { return m_terminate.load(); }
+		bool takePing() { return m_sendPing.exchange(false); }
+
+	private:
+		std::mutex m_mutex;
+		std::condition_variable m_cv;
+		QQueue<Captcha> m_queue;
+		std::atomic<bool> m_terminate{false};
+		std::atomic<bool> m_sendPing{false};
 	};
 
 	class WriteBackImpl : public TransferHttpService::WriteBack
 	{
 	public:
-		WriteBackImpl(pion::http::response_writer_ptr& writer);
-		void write(const char* data, size_t bytes);
-		void writeFail(QString error);
-		void writeNoCopy(void* data, size_t bytes);
-		void send();
-		void setContentType(const char* type);
+		explicit WriteBackImpl(httplib::Response& res) : m_res(res) {}
+
+		void write(const char* data, size_t bytes) override {
+			m_buffer.append(data, static_cast<int>(bytes));
+		}
+		void writeFail(QString error) override {
+			m_failed = true;
+			m_failMsg = error;
+		}
+		void writeNoCopy(void* data, size_t bytes) override {
+			m_buffer.append(static_cast<const char*>(data), static_cast<int>(bytes));
+		}
+		void send() override {
+			if (m_failed) {
+				m_res.status = 500;
+				m_res.set_content(m_failMsg.toUtf8().constData(), "text/plain");
+			} else {
+				m_res.set_content(m_buffer.constData(), m_buffer.size(),
+					m_contentType.empty() ? "application/octet-stream" : m_contentType.c_str());
+			}
+		}
+		void setContentType(const char* type) override { m_contentType = type; }
+
 	private:
-		pion::http::response_writer_ptr m_writer;
+		httplib::Response& m_res;
+		QByteArray m_buffer;
+		std::string m_contentType;
+		bool m_failed = false;
+		QString m_failMsg;
 	};
 };
 

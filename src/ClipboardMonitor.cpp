@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "MainWindow.h"
 #include <QApplication>
+#include "util/LegacyRegex.h"
 
 ClipboardMonitor* ClipboardMonitor::m_instance = 0;
 
@@ -50,11 +51,11 @@ void ClipboardMonitor::reloadSettings()
 	m_bEnabledGlobal = getSettingsValue("clipboard/monitorglobal").toBool();
 	m_bEnabledSelection = getSettingsValue("clipboard/monitorselection").toBool();
 	QStringList r = getSettingsValue("clipboard/regexps").toStringList();
-	QList<QRegExp> nr;
+	QList<QRegularExpression> nr;
 
 	foreach (const QString& s, r)
 	{
-		nr << QRegExp(s);
+		nr << legacyRegex(s);
 	}
 	m_regexps = nr;
 }
@@ -71,15 +72,13 @@ void ClipboardMonitor::dataChanged(QClipboard::Mode mode)
 
 	QStringList links;
 
-	foreach (const QRegExp& re, m_regexps)
+	foreach (const QRegularExpression& re, m_regexps)
 	{
-		int pos = 0, start = links.size();
+		int start = links.size();
 
-		while ( (pos = re.indexIn(text, pos)) != -1)
-		{
-			links << re.cap(0);
-			pos += re.cap(0).length();
-		}
+		QRegularExpressionMatchIterator it = re.globalMatch(text);
+		while (it.hasNext())
+			links << it.next().captured(0);
 
 		for (int i=start;i<links.size();i++)
 			text.remove(links[i]);
