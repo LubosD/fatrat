@@ -67,26 +67,23 @@ QList<PluginRegistry::LoadedPlugin> PluginRegistry::loaded()
 	return s_loaded;
 }
 
-QStringList PluginRegistry::disabledPlugins()
+/* One ordinary settings key per plugin, rather than a list of disabled ones:
+ * that way every interface -- the desktop dialog, the web UI, the TUI, even
+ * fatrat-conf -- can read and write it like any other setting.
+ */
+QString PluginRegistry::enabledKey(const QString& name)
 {
-	return getSettingsValue(QLatin1String("python/disabled_plugins")).toStringList();
+	return QLatin1String("python/plugins/") + name + QLatin1String("/enabled");
 }
 
 bool PluginRegistry::isPluginEnabled(const QString& name)
 {
-	return !disabledPlugins().contains(name);
+	return getSettingsValue(enabledKey(name), true).toBool();
 }
 
 void PluginRegistry::setPluginEnabled(const QString& name, bool enabled)
 {
-	QStringList disabled = disabledPlugins();
-
-	if (enabled)
-		disabled.removeAll(name);
-	else if (!disabled.contains(name))
-		disabled << name;
-
-	setSettingsValue(QLatin1String("python/disabled_plugins"), disabled);
+	setSettingsValue(enabledKey(name), enabled);
 }
 
 /* Turn one decorated class into a FatRat engine.
@@ -364,6 +361,11 @@ void PluginRegistry::globalInit()
 	page.icon = DelayedIcon(QLatin1String(":/menu/newtool.png"));
 #ifdef WITH_GUI
 	page.lpfnCreate = SettingsPythonPluginForm::create;
+#endif
+#ifdef WITH_WEBINTERFACE
+	// The same page in the web interface, rendered from the same manifests.
+	page.webSettingsScript = "/scripts/settings/extensions.js";
+	page.webSettingsIconURL = "/img/settings/extensions.png";
 #endif
 
 	addSettingsPage(page);

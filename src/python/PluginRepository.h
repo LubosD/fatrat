@@ -47,7 +47,10 @@ respects for all of the code used other than "OpenSSL".
  * A local directory is used in place (the plugin is symlinked), which is also
  * how you develop a plugin: edit, restart, done.
  *
- * Nothing here runs plugin code or needs the interpreter.
+ * Nothing here runs plugin code or needs the interpreter. Every entry point
+ * takes a lock: the desktop UI calls these from the main thread, the REST API
+ * from its HTTP threads, and a git fetch is slow enough that both will
+ * genuinely overlap.
  */
 class PluginRepository
 {

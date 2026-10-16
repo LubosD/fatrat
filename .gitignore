@@ -28,3 +28,7 @@ webui/.angular/
 
 # Angular build output (installed by the webui CMake target)
 data/remote/
+
+# Python bytecode from plugins run in place
+__pycache__/
+*.pyc

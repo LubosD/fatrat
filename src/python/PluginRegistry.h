@@ -76,8 +76,9 @@ public:
 	// What globalInit() made of them.
 	static QList<LoadedPlugin> loaded();
 
-	// Plugins the user has switched off, by name.
-	static QStringList disabledPlugins();
+	// Whether a plugin is loaded at the next start. Stored as an ordinary
+	// settings key, so every interface can read and write it.
+	static QString enabledKey(const QString& name);
 	static void setPluginEnabled(const QString& name, bool enabled);
 	static bool isPluginEnabled(const QString& name);
 

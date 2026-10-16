@@ -468,6 +468,7 @@ if(WITH_PYPLUGINS)
 		src/python/PluginManifest.cpp
 		src/python/PluginRepository.cpp
 		src/python/PluginUpdateChecker.cpp
+		src/remote/RestPlugins.cpp
 		src/python/PluginRegistry.cpp
 		src/python/PluginServices.cpp
 		src/engines/PythonPersistentVariables.cpp

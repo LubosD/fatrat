@@ -33,6 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
+#include <QMutex>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
@@ -42,6 +43,9 @@ respects for all of the code used other than "OpenSSL".
 // pulled from PluginRegistry so that this unit needs no interpreter.
 static const QLatin1String API_VERSION("1");
 
+// Recursive: the public functions call one another (install() loads, refresh()
+// saves), and all of them lock.
+static QRecursiveMutex s_mutex;
 static QString s_root;
 static bool s_loaded = false;
 static QList<PluginRepository::Repository> s_repositories;
@@ -57,6 +61,8 @@ QString PluginRepository::root()
 
 void PluginRepository::setRoot(const QString& path)
 {
+	QMutexLocker locker(&s_mutex);
+
 	s_root = path;
 	s_loaded = false;
 	s_repositories.clear();
@@ -181,12 +187,16 @@ void PluginRepository::save()
 
 QList<PluginRepository::Repository> PluginRepository::repositories()
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 	return s_repositories;
 }
 
 QList<PluginRepository::Installed> PluginRepository::installed()
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 	return s_installed;
 }
@@ -332,6 +342,8 @@ bool PluginRepository::copyDirectory(const QString& from, const QString& to, QSt
 
 bool PluginRepository::addRepository(const QString& source, QString* error)
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 
 	QString cleaned = source.trimmed();
@@ -426,6 +438,8 @@ bool PluginRepository::addRepository(const QString& source, QString* error)
 
 bool PluginRepository::removeRepository(const QString& id, QString* error)
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 
 	for (int i = 0; i < s_repositories.size(); i++)
@@ -450,6 +464,8 @@ bool PluginRepository::removeRepository(const QString& id, QString* error)
 
 bool PluginRepository::refresh(const QString& id, QString* error)
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 
 	bool any = false;
@@ -502,6 +518,8 @@ bool PluginRepository::refresh(const QString& id, QString* error)
 
 QList<PluginRepository::Available> PluginRepository::available()
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 
 	QList<Available> rv;
@@ -550,6 +568,8 @@ QList<PluginRepository::Available> PluginRepository::available()
 
 bool PluginRepository::install(const QString& repositoryId, const QString& plugin, QString* error)
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 
 	const Repository* repository = 0;
@@ -686,6 +706,8 @@ bool PluginRepository::install(const QString& repositoryId, const QString& plugi
 
 bool PluginRepository::uninstall(const QString& plugin, QString* error)
 {
+	QMutexLocker locker(&s_mutex);
+
 	load();
 
 	QString target = QDir(installedPath()).filePath(plugin);
@@ -716,6 +738,8 @@ bool PluginRepository::uninstall(const QString& plugin, QString* error)
 
 QList<PluginRepository::Available> PluginRepository::updates()
 {
+	QMutexLocker locker(&s_mutex);
+
 	QList<Available> rv;
 
 	foreach (const Available& entry, available())

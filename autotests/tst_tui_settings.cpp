@@ -1,6 +1,7 @@
 #include "App.h"
 #include "Format.h"
 #include "SettingsDialog.h"
+#include "SettingsPages.h"
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLocalServer>
@@ -183,6 +184,101 @@ private slots:
 			QVERIFY2(changes.isEmpty(), script);
 		}
 		QVERIFY(!settingsPageSpec("/scripts/settings/mystery.js"));
+	}
+
+	// ---- the Extensions page, which the server's plugin list decides
+
+	void theExtensionsPageIsBuiltFromTheInstalledPlugins()
+	{
+		QJsonArray plugins = {
+			QJsonObject{
+				{ "name", "dummy" }, { "valid", true }, { "version", "1.0.0" },
+				{ "description", "a worked example" },
+				{ "enabled", true }, { "enabledKey", "python/plugins/dummy/enabled" },
+				{ "config", QJsonArray{
+					QJsonObject{ { "type", "group" }, { "title", "Account" }, { "items", QJsonArray{
+						QJsonObject{ { "type", "text" }, { "key", "dummy/user" }, { "title", "Username" } },
+						QJsonObject{ { "type", "password" }, { "key", "dummy/password" }, { "title", "Password" } },
+					} } },
+					QJsonObject{ { "type", "checkbox" }, { "key", "dummy/skip_wait" }, { "title", "Skip the wait" } },
+					QJsonObject{ { "type", "combo" }, { "key", "dummy/quality" }, { "title", "Quality" } },
+				} },
+			},
+		};
+
+		SettingsPageSpec spec = buildExtensionsSpec(plugins);
+
+		// The toggle and the editable fields; the combo is not one of them.
+		QCOMPARE(spec.keys(), QStringList({ "python/plugins/dummy/enabled", "dummy/user",
+						    "dummy/password", "dummy/skip_wait" }));
+
+		QJsonObject values = {
+			{ "python/plugins/dummy/enabled", true },
+			{ "dummy/user", "someone" },
+			{ "dummy/password", "hunter2" },
+			{ "dummy/skip_wait", false },
+		};
+
+		FormPanel panel;
+		buildSettingsPanel(spec, values, panel);
+
+		QVERIFY(panel.checked("python/plugins/dummy/enabled"));
+		QCOMPARE(panel.text("dummy/user"), QString("someone"));
+
+		QJsonObject changes;
+		QVERIFY(collectSettings(spec, panel, values, changes, nullptr, nullptr));
+		QVERIFY(changes.isEmpty());
+	}
+
+	void anUneditableConfigItemIsExplainedRatherThanDropped()
+	{
+		QJsonArray plugins = {
+			QJsonObject{
+				{ "name", "dummy" }, { "valid", true }, { "enabledKey", "python/plugins/dummy/enabled" },
+				{ "config", QJsonArray{
+					QJsonObject{ { "type", "order" }, { "key", "dummy/mirrors" }, { "title", "Mirrors" } },
+				} },
+			},
+		};
+
+		SettingsPageSpec spec = buildExtensionsSpec(plugins);
+		bool explained = false;
+
+		for (const SettingsPageSpec::Item& item : spec.items)
+			if (item.type == SettingsPageSpec::Item::Note && item.text.contains("Mirrors"))
+				explained = true;
+
+		QVERIFY(explained);
+		QVERIFY(!spec.keys().contains("dummy/mirrors"));
+	}
+
+	void aBrokenPluginIsShownWithItsError()
+	{
+		QJsonArray plugins = {
+			QJsonObject{ { "name", "broken" }, { "valid", false }, { "error", "plugin.json has no name" } },
+		};
+
+		SettingsPageSpec spec = buildExtensionsSpec(plugins);
+		bool shown = false;
+
+		for (const SettingsPageSpec::Item& item : spec.items)
+			if (item.type == SettingsPageSpec::Item::Note && item.text.contains("no name"))
+				shown = true;
+
+		QVERIFY(shown);
+		QVERIFY(spec.keys().isEmpty());
+	}
+
+	void withNoPluginsThePageSaysHowToGetSome()
+	{
+		SettingsPageSpec spec = buildExtensionsSpec(QJsonArray());
+		QString text;
+
+		for (const SettingsPageSpec::Item& item : spec.items)
+			text += item.text;
+
+		QVERIFY(text.contains("No plugins are installed."));
+		QVERIFY(text.contains("fatrat-conf plugins add"));
 	}
 
 	void valuesThatCameBackAsTextAreUnderstood()

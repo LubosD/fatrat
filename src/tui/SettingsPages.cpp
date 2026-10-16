@@ -8,6 +8,112 @@ namespace tui
 const char* const SettingSpeedDown = "network/speed_down";
 const char* const SettingSpeedUp = "network/speed_up";
 
+namespace
+{
+	using Item = SettingsPageSpec::Item;
+	using B = SettingBinding;
+
+	Item makeItem(B::Kind kind, const QString& key, const QString& label, const QStringList& options = QStringList())
+	{
+		Item i;
+		i.binding.kind = kind;
+		i.binding.key = key;
+		i.binding.label = label;
+		i.binding.options = options;
+		return i;
+	}
+	Item makeHeading(const QString& t) { Item i; i.type = Item::Heading; i.text = t; return i; }
+	Item makeNote(const QString& t) { Item i; i.type = Item::Note; i.text = t; return i; }
+	Item makeSpacer() { Item i; i.type = Item::Spacer; return i; }
+
+	// A plugin's config items, flattened. `group` is prefixed to the labels
+	// so a field says which plugin it belongs to.
+	void appendConfig(const QJsonArray& config, const QString& group, QVector<Item>& into)
+	{
+		for (const QJsonValue& v : config)
+		{
+			const QJsonObject item = v.toObject();
+			const QString type = item["type"].toString();
+			const QString label = item["title"].toString();
+			const QString key = item["key"].toString();
+
+			if (type == "group")
+			{
+				appendConfig(item["items"].toArray(), group, into);
+				continue;
+			}
+
+			if (key.isEmpty())
+				continue;
+
+			if (type == "text")
+				into << makeItem(B::Text, key, label);
+			else if (type == "password")
+				into << makeItem(B::Secret, key, label);
+			else if (type == "checkbox")
+				into << makeItem(B::Bool, key, label);
+			else
+			{
+				// Choice stores an index here but a value in the
+				// settings, and `order` has no field type at all:
+				// say so instead of corrupting the value.
+				into << makeNote(QObject::tr("%1: edit in the desktop or web interface").arg(label.isEmpty() ? key : label));
+			}
+		}
+	}
+}
+
+SettingsPageSpec buildExtensionsSpec(const QJsonArray& plugins)
+{
+	SettingsPageSpec spec;
+
+	spec.script = ExtensionsScript;
+
+	if (plugins.isEmpty())
+	{
+		spec.items << makeNote(QObject::tr("No plugins are installed."));
+		spec.items << makeNote(QObject::tr("Add a repository with: fatrat-conf plugins add <url>"));
+		return spec;
+	}
+
+	for (const QJsonValue& v : plugins)
+	{
+		const QJsonObject plugin = v.toObject();
+		const QString name = plugin["name"].toString();
+
+		if (!plugin["valid"].toBool())
+		{
+			spec.items << makeHeading(name);
+			spec.items << makeNote(plugin["error"].toString());
+			spec.items << makeSpacer();
+			continue;
+		}
+
+		QString title = name;
+
+		if (!plugin["version"].toString().isEmpty())
+			title += " " + plugin["version"].toString();
+
+		spec.items << makeHeading(title);
+
+		if (!plugin["description"].toString().isEmpty())
+			spec.items << makeNote(plugin["description"].toString());
+
+		const QString enabledKey = plugin["enabledKey"].toString();
+
+		if (!enabledKey.isEmpty())
+		{
+			// Takes effect at the next start, like everywhere else.
+			spec.items << makeItem(B::Bool, enabledKey, QObject::tr("Enabled (after restart)"));
+		}
+
+		appendConfig(plugin["config"].toArray(), name, spec.items);
+		spec.items << makeSpacer();
+	}
+
+	return spec;
+}
+
 QStringList SettingsPageSpec::keys() const
 {
 	QStringList k;

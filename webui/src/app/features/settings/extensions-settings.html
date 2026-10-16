@@ -1,0 +1,123 @@
+<div class="settings-form">
+  @if (message()) {
+    <p class="form-error" role="alert" data-testid="ext-message">{{ message() }}</p>
+  }
+
+  <fieldset>
+    <legend>Repositories</legend>
+    <p class="hint">
+      FatRat has no plugin index: add the repositories you want, by git URL or by a directory on
+      the server. Plugins from them run with the privileges of the user running FatRat.
+    </p>
+
+    <ul class="ext-items" data-testid="ext-repositories">
+      @for (repository of repositories(); track repository.id) {
+        <li>
+          <div class="ext-item-text">
+            <strong>{{ repository.name || repository.id }}</strong>
+            <span class="hint">{{ repository.source }}</span>
+            <span class="hint">{{ shortRevision(repository) }}</span>
+          </div>
+          <button pButton type="button" severity="danger" [text]="true" label="Forget"
+                  [attr.aria-label]="'Forget ' + repository.id" data-testid="ext-forget-repo"
+                  [disabled]="busy()" (click)="removeRepository(repository)"></button>
+        </li>
+      } @empty {
+        <li class="hint">No repositories added yet.</li>
+      }
+    </ul>
+
+    <div class="field">
+      <label for="ext-new-repo">Repository</label>
+      <input pInputText id="ext-new-repo" [(ngModel)]="newRepository" [disabled]="busy()"
+             placeholder="https://example.com/someone/fatrat-plugins.git" data-testid="ext-new-repo" />
+      <button pButton type="button" label="Add" data-testid="ext-add-repo"
+              [disabled]="busy()" (click)="addRepository()"></button>
+      <button pButton type="button" severity="secondary" label="Refresh" data-testid="ext-refresh"
+              [disabled]="busy()" (click)="refresh()"></button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Available</legend>
+    <ul class="ext-items" data-testid="ext-available">
+      @for (entry of available(); track entry.repository + '/' + entry.name) {
+        <li>
+          <div class="ext-item-text">
+            <strong>{{ entry.name }} {{ entry.version }}</strong>
+            <span class="hint">{{ entry.description }}</span>
+            <span class="hint">
+              {{ entry.repository }}@if (entry.installedVersion) { · installed: {{ entry.installedVersion }} }
+            </span>
+          </div>
+          <button pButton type="button" [text]="true" data-testid="ext-install"
+                  [label]="isUpdate(entry) ? 'Update' : (entry.installedVersion ? 'Reinstall' : 'Install')"
+                  [attr.aria-label]="'Install ' + entry.name"
+                  [disabled]="busy()" (click)="install(entry)"></button>
+        </li>
+      } @empty {
+        <li class="hint">Nothing available — add a repository first.</li>
+      }
+    </ul>
+  </fieldset>
+
+  <fieldset>
+    <legend>Installed</legend>
+    <ul class="ext-items" data-testid="ext-installed">
+      @for (plugin of plugins(); track plugin.name) {
+        <li>
+          <div class="ext-item-text">
+            <strong>{{ plugin.name }} {{ plugin.version }}</strong>
+            @if (plugin.valid) {
+              <span class="hint">{{ plugin.description }}</span>
+            } @else {
+              <span class="form-error">{{ plugin.error }}</span>
+            }
+          </div>
+          <div class="ext-item-actions">
+            @if (plugin.valid) {
+              <p-checkbox [binary]="true" [ngModel]="plugin.enabled" [disabled]="busy()"
+                          [inputId]="'ext-enabled-' + plugin.name" data-testid="ext-enabled"
+                          (ngModelChange)="setEnabled(plugin, $event)"></p-checkbox>
+              <label [for]="'ext-enabled-' + plugin.name">Enabled</label>
+            }
+            <button pButton type="button" severity="danger" [text]="true" label="Remove"
+                    [attr.aria-label]="'Remove ' + plugin.name" data-testid="ext-remove"
+                    [disabled]="busy()" (click)="uninstall(plugin)"></button>
+          </div>
+        </li>
+      } @empty {
+        <li class="hint">No plugins installed.</li>
+      }
+    </ul>
+  </fieldset>
+
+  @if (fields().length) {
+    <fieldset>
+      <legend>Plugin settings</legend>
+      @for (field of fields(); track field.item.key) {
+        <div class="field" data-testid="ext-field">
+          @switch (field.item.type) {
+            @case ('checkbox') {
+              <p-checkbox [binary]="true" [inputId]="'ext-' + field.item.key" [(ngModel)]="field.value"
+                          (ngModelChange)="stage(field.item.key, $event)"></p-checkbox>
+              <label [for]="'ext-' + field.item.key">{{ field.item.title }}</label>
+            }
+            @case ('combo') {
+              <label [for]="'ext-' + field.item.key">{{ field.group }} — {{ field.item.title }}</label>
+              <p-select [inputId]="'ext-' + field.item.key" [options]="optionsOf(field.item)"
+                        optionLabel="label" optionValue="value" [(ngModel)]="field.value"
+                        (ngModelChange)="stage(field.item.key, $event)"></p-select>
+            }
+            @default {
+              <label [for]="'ext-' + field.item.key">{{ field.group }} — {{ field.item.title }}</label>
+              <input pInputText [id]="'ext-' + field.item.key" [(ngModel)]="field.value"
+                     [type]="field.item.type === 'password' ? 'password' : 'text'"
+                     (ngModelChange)="stage(field.item.key, $event)" />
+            }
+          }
+        </div>
+      }
+    </fieldset>
+  }
+</div>

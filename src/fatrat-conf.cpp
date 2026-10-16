@@ -60,7 +60,9 @@ int main(int argc, char** argv)
 	{
 		for (int i = 2; i < argc; i++)
 		{
-			QString arg(argv[2]);
+			// argv[i], not argv[2]: every pair on the command line, not
+			// the first one over and over.
+			QString arg(argv[i]);
 			int pos = arg.indexOf('=');
 			if (pos == -1)
 			{
