@@ -3,7 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
 import { Select } from 'primeng/select';
 import { Splitter } from 'primeng/splitter';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonDirective, ButtonIcon } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { QueueList } from '../features/queues/queue-list';
@@ -20,7 +21,7 @@ import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
-import { TransfersStore } from '../state/transfers.store';
+import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
 import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
 
@@ -32,6 +33,8 @@ import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/
     Select,
     Splitter,
     ButtonDirective,
+    ButtonIcon,
+    Tooltip,
     ConfirmDialog,
     Tabs,
     TabList,
@@ -71,8 +74,8 @@ export class Shell {
     });
   }
 
-  protected get hasSelection(): boolean {
-    return this.transfersStore.selectedUuids().length > 0;
+  protected get available(): AvailableTransferActions {
+    return availableTransferActions(this.transfersStore.transfers(), this.transfersStore.selectedUuids());
   }
 
   protected get hasSelectedQueue(): boolean {

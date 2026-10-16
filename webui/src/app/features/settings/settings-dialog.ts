@@ -12,6 +12,7 @@ import { SettingsPage } from '../../core/api/models';
   imports: [Dialog, ButtonDirective, NgComponentOutlet],
   providers: [SettingsDraftService],
   templateUrl: './settings-dialog.html',
+  styleUrl: './settings-dialog.scss',
 })
 export class SettingsDialog implements OnChanges {
   @Input() visible = false;

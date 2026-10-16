@@ -32,7 +32,7 @@
     <input pInputText id="wi-cert-hostname" [(ngModel)]="certHostname" />
   </div>
   <ng-template #footer>
-    <button pButton type="button" data-testid="webinterface-cert-cancel" (click)="showCertDialog.set(false)">Cancel</button>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="webinterface-cert-cancel" (click)="showCertDialog.set(false)">Cancel</button>
     <button pButton type="button" data-testid="webinterface-cert-ok" (click)="generateCertificate()">OK</button>
   </ng-template>
 </p-dialog>

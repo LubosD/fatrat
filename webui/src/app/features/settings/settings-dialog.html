@@ -1,10 +1,11 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Settings" [modal]="true" [style]="{ width: '700px', height: '500px' }">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Settings" [modal]="true" [style]="{ width: '52rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false">
   <div class="settings-layout">
     <ul class="settings-page-list">
       @for (page of pages(); track page.script) {
         <li
           data-testid="settings-page-item"
           [class.selected]="page === selectedPage()"
+          [attr.aria-current]="page === selectedPage() ? 'page' : null"
           role="button"
           tabindex="0"
           [attr.aria-label]="page.title"
@@ -28,7 +29,7 @@
     </div>
   </div>
   <ng-template #footer>
-    <button pButton type="button" data-testid="settings-dialog-cancel" (click)="onCancel()">Cancel</button>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="settings-dialog-cancel" (click)="onCancel()">Cancel</button>
     <button pButton type="button" data-testid="settings-dialog-ok" (click)="onOk()">OK</button>
   </ng-template>
 </p-dialog>

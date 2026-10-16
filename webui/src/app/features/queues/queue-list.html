@@ -1,4 +1,5 @@
-<ul class="queue-list">
+<div class="queue-list-title" id="queue-list-title">Queues</div>
+<ul class="queue-list" aria-labelledby="queue-list-title">
   @for (queue of store.queues(); track queue.uuid) {
     <li
       data-testid="queue-item"
@@ -11,7 +12,8 @@
       (keydown.enter)="store.selectQueue(queue.uuid)"
       (keydown.space)="store.selectQueue(queue.uuid); $event.preventDefault()"
     >
-      {{ queue.name }}
+      <i class="pi pi-list" aria-hidden="true"></i>
+      <span>{{ queue.name }}</span>
     </li>
   }
 </ul>

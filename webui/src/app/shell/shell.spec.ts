@@ -91,6 +91,7 @@ function configure(
           transfers: () => transfers,
           selectedUuids: () => selectedUuids,
           isSelected: () => false,
+          currentUuid: () => null,
           toggleSelection: vi.fn(),
           selectOnly: vi.fn(),
         },
@@ -158,6 +159,23 @@ describe('Shell', () => {
     }
   });
 
+  it('gates Resume/Pause on the selected transfers\' states and Move on their position, like the legacy UI', () => {
+    const transfers = [makeTransfer({ uuid: 't1', state: 'Active' }), makeTransfer({ uuid: 't2', state: 'Paused' })];
+    configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), transfers);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    const disabled = (testId: string) => findByTestId(fixture.nativeElement, testId).disabled;
+
+    // t1 is Active and first in the queue.
+    expect(disabled('action-resume')).toBe(true);
+    expect(disabled('action-pause')).toBe(false);
+    expect(disabled('action-force-resume')).toBe(false);
+    expect(disabled('action-move-top')).toBe(true);
+    expect(disabled('action-move-up')).toBe(true);
+    expect(disabled('action-move-down')).toBe(false);
+    expect(disabled('action-move-bottom')).toBe(false);
+  });
+
   it('"Delete Completed" stays enabled regardless of selection', () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);
@@ -167,7 +185,7 @@ describe('Shell', () => {
   });
 
   it('enables selection-dependent action buttons once something is selected', () => {
-    configure(['t1']);
+    configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [makeTransfer({ uuid: 't1', state: 'Paused' })]);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
 
@@ -175,7 +193,9 @@ describe('Shell', () => {
   });
 
   it('clicking each toolbar button calls the corresponding TransferActionsService method', () => {
-    const { actions } = configure(['t1']);
+    // A Failed transfer in the middle of the queue: every state- and position-gated action applies.
+    const transfers = [makeTransfer({ uuid: 't0' }), makeTransfer({ uuid: 't1', state: 'Failed' }), makeTransfer({ uuid: 't2' })];
+    const { actions } = configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), transfers);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
@@ -321,7 +341,7 @@ describe('Shell', () => {
         { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() } },
         {
           provide: TransfersStore,
-          useValue: { transfers: () => [], selectedUuids: () => [], isSelected: () => false, toggleSelection: vi.fn(), selectOnly: vi.fn() },
+          useValue: { transfers: () => [], selectedUuids: () => [], isSelected: () => false, currentUuid: () => null, toggleSelection: vi.fn(), selectOnly: vi.fn() },
         },
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() } },
         { provide: TransferActionsService, useValue: makeActionsStub() },

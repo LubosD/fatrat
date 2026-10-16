@@ -21,6 +21,7 @@ describe('App', () => {
             transfers: () => [],
             selectedUuids: () => [],
             isSelected: () => false,
+            currentUuid: () => null,
             toggleSelection: () => {},
             selectOnly: () => {},
           },

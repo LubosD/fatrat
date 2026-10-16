@@ -25,7 +25,7 @@
     </div>
   }
   <ng-template #footer>
-    <button pButton type="button" data-testid="captcha-dialog-cancel" (click)="cancel()">Cancel</button>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="captcha-dialog-cancel" (click)="cancel()">Cancel</button>
     <button pButton type="button" data-testid="captcha-dialog-submit" (click)="submit()">Submit</button>
   </ng-template>
 </p-dialog>

@@ -29,10 +29,38 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
 function makeTransfersStoreStub(transfers: Transfer[], selected: string[] = []) {
   return {
     transfers: () => transfers,
+    selectedUuids: () => selected,
     isSelected: (uuid: string) => selected.includes(uuid),
+    currentUuid: () => null as string | null,
     toggleSelection: vi.fn(),
     selectOnly: vi.fn(),
+    select: vi.fn(),
+    selectAll: vi.fn(),
+    moveCurrent: vi.fn(),
   };
+}
+
+function createTable(store: ReturnType<typeof makeTransfersStoreStub>) {
+  TestBed.configureTestingModule({
+    imports: [TransferTable],
+    providers: [
+      { provide: TransfersStore, useValue: store },
+      { provide: TransferActionsService, useValue: makeActionsStub() },
+    ],
+  });
+  const fixture = TestBed.createComponent(TransferTable);
+  fixture.detectChanges();
+  return fixture;
+}
+
+function rows(fixture: ReturnType<typeof createTable>): HTMLElement[] {
+  return Array.from(fixture.nativeElement.querySelectorAll('[data-testid="transfer-row"]'));
+}
+
+function pressKey(fixture: ReturnType<typeof createTable>, init: KeyboardEventInit): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init });
+  fixture.nativeElement.querySelector('[data-testid="transfer-table"]').dispatchEvent(event);
+  return event;
 }
 
 function makeActionsStub() {
@@ -93,42 +121,71 @@ describe('TransferTable', () => {
     expect(fixture.componentInstance['trackByUuid'](0, transfer)).toBe('t1');
   });
 
-  it('renders a checkbox per row reflecting the selection state from the store', () => {
-    const store = makeTransfersStoreStub(
-      [makeTransfer({ uuid: 't1' }), makeTransfer({ uuid: 't2', name: 'other.zip' })],
-      ['t2'],
+  it('renders no checkboxes; selection is shown via aria-selected on the row', () => {
+    const fixture = createTable(
+      makeTransfersStoreStub([makeTransfer({ uuid: 't1' }), makeTransfer({ uuid: 't2', name: 'other.zip' })], ['t2']),
     );
-    TestBed.configureTestingModule({
-      imports: [TransferTable],
-      providers: [
-        { provide: TransfersStore, useValue: store },
-        { provide: TransferActionsService, useValue: makeActionsStub() },
-      ],
-    });
-    const fixture = TestBed.createComponent(TransferTable);
-    fixture.detectChanges();
 
-    const checkboxes = fixture.nativeElement.querySelectorAll('input[type="checkbox"]');
-    expect(checkboxes.length).toBe(2);
-    expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
-    expect((checkboxes[1] as HTMLInputElement).checked).toBe(true);
+    expect(fixture.nativeElement.querySelectorAll('input[type="checkbox"]').length).toBe(0);
+    const [r1, r2] = rows(fixture);
+    expect(r1.getAttribute('aria-selected')).toBe('false');
+    expect(r2.getAttribute('aria-selected')).toBe('true');
+    expect(r2.classList).toContain('selected-row');
   });
 
-  it('toggling a checkbox calls TransfersStore.toggleSelection() with the transfer uuid', () => {
+  it('clicking a row calls TransfersStore.select() with the held modifiers', () => {
     const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })]);
-    TestBed.configureTestingModule({
-      imports: [TransferTable],
-      providers: [
-        { provide: TransfersStore, useValue: store },
-        { provide: TransferActionsService, useValue: makeActionsStub() },
-      ],
-    });
-    const fixture = TestBed.createComponent(TransferTable);
-    fixture.detectChanges();
+    const fixture = createTable(store);
+    const [row] = rows(fixture);
 
-    const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
-    checkbox.dispatchEvent(new Event('change'));
-    expect(store.toggleSelection).toHaveBeenCalledWith('t1');
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(store.select).toHaveBeenLastCalledWith('t1', { ctrl: false, shift: false });
+
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true, ctrlKey: true }));
+    expect(store.select).toHaveBeenLastCalledWith('t1', { ctrl: true, shift: false });
+
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true, metaKey: true, shiftKey: true }));
+    expect(store.select).toHaveBeenLastCalledWith('t1', { ctrl: true, shift: true });
+  });
+
+  it('arrow keys move the current row, extending the selection with Shift', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })]);
+    const fixture = createTable(store);
+
+    expect(pressKey(fixture, { key: 'ArrowDown' }).defaultPrevented).toBe(true);
+    expect(store.moveCurrent).toHaveBeenLastCalledWith(1, { shift: false });
+    pressKey(fixture, { key: 'ArrowUp', shiftKey: true });
+    expect(store.moveCurrent).toHaveBeenLastCalledWith(-1, { shift: true });
+    pressKey(fixture, { key: 'End' });
+    expect(store.moveCurrent).toHaveBeenLastCalledWith(Infinity, { shift: false });
+  });
+
+  it('Ctrl+A selects all transfers, a bare "a" does nothing', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })]);
+    const fixture = createTable(store);
+
+    expect(pressKey(fixture, { key: 'a' }).defaultPrevented).toBe(false);
+    expect(store.selectAll).not.toHaveBeenCalled();
+    pressKey(fixture, { key: 'a', ctrlKey: true });
+    expect(store.selectAll).toHaveBeenCalled();
+  });
+
+  it('renders a state icon per row, using the upload variant for uploads', () => {
+    const fixture = createTable(
+      makeTransfersStoreStub([
+        makeTransfer({ uuid: 't1', state: 'Paused' }),
+        makeTransfer({ uuid: 't2', state: 'ForcedActive', mode: 'Upload', primaryMode: 'Download' }),
+        makeTransfer({ uuid: 't3', state: 'Completed', mode: 'Upload', primaryMode: 'Download' }),
+      ]),
+    );
+
+    const icons = rows(fixture).map((r) => r.querySelector('.state-cell img') as HTMLImageElement);
+    expect(icons[0].getAttribute('src')).toBe('img/states/paused.png');
+    expect(icons[0].getAttribute('alt')).toBe('Paused');
+    expect(icons[1].getAttribute('src')).toBe('img/states/forcedactive_upload.png');
+    expect(icons[1].getAttribute('alt')).toBe('Forced active');
+    // A download that finished and is now seeding still shows as a completed download.
+    expect(icons[2].getAttribute('src')).toBe('img/states/completed.png');
   });
 
   it('right-clicking an unselected row replaces the selection with just that row', () => {
@@ -161,6 +218,22 @@ describe('TransferTable', () => {
     expect(store.selectOnly).not.toHaveBeenCalled();
   });
 
+  it('opening the context menu disables the items that do not apply to the selection', () => {
+    const store = makeTransfersStoreStub(
+      [makeTransfer({ uuid: 't1', state: 'Paused' }), makeTransfer({ uuid: 't2' })],
+      ['t1', 't2'],
+    );
+    const table = createTable(store);
+    table.componentInstance['onContextMenuSelect']({ data: makeTransfer({ uuid: 't1' }), originalEvent: new Event('contextmenu'), index: 0 });
+
+    const items = table.componentInstance['contextMenuItems'] as { label?: string; disabled?: boolean }[];
+    const disabled = (label: string) => items.find((i) => i.label === label)!.disabled;
+    expect(disabled('Resume')).toBe(false); // t1 is Paused
+    expect(disabled('Pause')).toBe(false); // t2 is Active
+    expect(disabled('Move Up')).toBe(false); // t2 is not first
+    expect(disabled('Properties')).toBe(true); // two selected
+  });
+
   it('the context menu items call the corresponding TransferActionsService methods', () => {
     const actions = makeActionsStub();
     const table = TestBed.configureTestingModule({
@@ -172,7 +245,11 @@ describe('TransferTable', () => {
     }).createComponent(TransferTable);
     table.detectChanges();
 
-    const items = table.componentInstance['contextMenuItems'] as { label: string; command: () => void }[];
+    const items = table.componentInstance['contextMenuItems'] as { label?: string; icon?: string; separator?: boolean; command: () => void }[];
+    // Every non-separator item carries an icon, like the legacy menu.
+    expect(items.filter((i) => !i.separator).every((i) => i.icon?.startsWith('pi pi-'))).toBe(true);
+    const propertiesRequested = vi.fn();
+    table.componentInstance.propertiesRequested.subscribe(propertiesRequested);
     const byLabel = (label: string) => items.find((i) => i.label === label)!;
 
     byLabel('Resume').command();
@@ -191,6 +268,8 @@ describe('TransferTable', () => {
     expect(actions.moveSelected).toHaveBeenCalledWith('up');
     byLabel('Move Down').command();
     expect(actions.moveSelected).toHaveBeenCalledWith('down');
+    byLabel('Properties').command();
+    expect(propertiesRequested).toHaveBeenCalled();
     byLabel('Move to Bottom').command();
     expect(actions.moveSelected).toHaveBeenCalledWith('bottom');
   });

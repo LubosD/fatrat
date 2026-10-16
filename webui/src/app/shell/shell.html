@@ -31,23 +31,37 @@
 <!-- Self-managed, no bindings: visibility is derived internally from CaptchaSocketService events. -->
 <app-captcha-dialog></app-captcha-dialog>
 
+<header class="shell-header">
+  <img src="img/logo.png" alt="FatRat" class="shell-logo" />
+</header>
+
 <p-toolbar>
   <ng-template #start>
-    <button pButton type="button" data-testid="action-new-transfer" (click)="openNewTransferDialog()">New Transfer</button>
-    <button pButton type="button" data-testid="action-new-queue" (click)="openNewQueueDialog()">New Queue</button>
-    <button pButton type="button" data-testid="action-queue-properties" [disabled]="!hasSelectedQueue" (click)="openQueuePropertiesDialog()">Queue Properties</button>
-    <button pButton type="button" data-testid="action-resume" [disabled]="!hasSelection" (click)="actions.resume()">Resume</button>
-    <button pButton type="button" data-testid="action-force-resume" [disabled]="!hasSelection" (click)="actions.forceResume()">Force Resume</button>
-    <button pButton type="button" data-testid="action-pause" [disabled]="!hasSelection" (click)="actions.pause()">Pause</button>
-    <button pButton type="button" data-testid="action-delete" [disabled]="!hasSelection" (click)="actions.deleteSelected(false)">Delete</button>
-    <button pButton type="button" data-testid="action-delete-with-data" [disabled]="!hasSelection" (click)="actions.deleteSelected(true)">Delete with Data</button>
-    <button pButton type="button" data-testid="action-properties" [disabled]="!hasSelection" (click)="openTransferPropertiesDialog()">Properties</button>
-    <button pButton type="button" data-testid="action-delete-completed" (click)="actions.deleteCompleted()">Delete Completed</button>
-    <button pButton type="button" data-testid="action-move-top" [disabled]="!hasSelection" (click)="actions.moveSelected('top')">Move to Top</button>
-    <button pButton type="button" data-testid="action-move-up" [disabled]="!hasSelection" (click)="actions.moveSelected('up')">Move Up</button>
-    <button pButton type="button" data-testid="action-move-down" [disabled]="!hasSelection" (click)="actions.moveSelected('down')">Move Down</button>
-    <button pButton type="button" data-testid="action-move-bottom" [disabled]="!hasSelection" (click)="actions.moveSelected('bottom')">Move to Bottom</button>
-    <button pButton type="button" data-testid="action-settings" (click)="openSettingsDialog()">Settings</button>
+    <span class="toolbar-group">
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-new-transfer" aria-label="New Transfer" pTooltip="New Transfer" tooltipPosition="bottom" (click)="openNewTransferDialog()"><i class="pi pi-plus" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-delete" aria-label="Delete" pTooltip="Delete" tooltipPosition="bottom" [disabled]="!available.delete" (click)="actions.deleteSelected(false)"><i class="pi pi-trash" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-delete-with-data" aria-label="Delete with Data" pTooltip="Delete with Data" tooltipPosition="bottom" [disabled]="!available.delete" (click)="actions.deleteSelected(true)"><i class="pi pi-eraser" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-delete-completed" aria-label="Delete Completed" pTooltip="Delete Completed" tooltipPosition="bottom" (click)="actions.deleteCompleted()"><i class="pi pi-check-circle" pButtonIcon></i></button>
+    </span>
+    <span class="toolbar-group">
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-resume" aria-label="Resume" pTooltip="Resume" tooltipPosition="bottom" [disabled]="!available.resume" (click)="actions.resume()"><i class="pi pi-play" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-force-resume" aria-label="Force Resume" pTooltip="Force Resume" tooltipPosition="bottom" [disabled]="!available.forceResume" (click)="actions.forceResume()"><i class="pi pi-forward" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-pause" aria-label="Pause" pTooltip="Pause" tooltipPosition="bottom" [disabled]="!available.pause" (click)="actions.pause()"><i class="pi pi-pause" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-properties" aria-label="Properties" pTooltip="Properties" tooltipPosition="bottom" [disabled]="!available.properties" (click)="openTransferPropertiesDialog()"><i class="pi pi-pencil" pButtonIcon></i></button>
+    </span>
+    <span class="toolbar-group">
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-top" aria-label="Move to Top" pTooltip="Move to Top" tooltipPosition="bottom" [disabled]="!available.moveUp" (click)="actions.moveSelected('top')"><i class="pi pi-angle-double-up" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-up" aria-label="Move Up" pTooltip="Move Up" tooltipPosition="bottom" [disabled]="!available.moveUp" (click)="actions.moveSelected('up')"><i class="pi pi-angle-up" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-down" aria-label="Move Down" pTooltip="Move Down" tooltipPosition="bottom" [disabled]="!available.moveDown" (click)="actions.moveSelected('down')"><i class="pi pi-angle-down" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-move-bottom" aria-label="Move to Bottom" pTooltip="Move to Bottom" tooltipPosition="bottom" [disabled]="!available.moveDown" (click)="actions.moveSelected('bottom')"><i class="pi pi-angle-double-down" pButtonIcon></i></button>
+    </span>
+    <span class="toolbar-group">
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-new-queue" aria-label="New Queue" pTooltip="New Queue" tooltipPosition="bottom" (click)="openNewQueueDialog()"><i class="pi pi-folder-plus" pButtonIcon></i></button>
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-queue-properties" aria-label="Queue Properties" pTooltip="Queue Properties" tooltipPosition="bottom" [disabled]="!hasSelectedQueue" (click)="openQueuePropertiesDialog()"><i class="pi pi-sliders-h" pButtonIcon></i></button>
+    </span>
+    <span class="toolbar-group">
+      <button pButton type="button" [text]="true" severity="secondary" data-testid="action-settings" aria-label="Settings" pTooltip="Settings" tooltipPosition="bottom" (click)="openSettingsDialog()"><i class="pi pi-cog" pButtonIcon></i></button>
+    </span>
   </ng-template>
   <ng-template #end>
     <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
@@ -77,7 +91,7 @@
         <p-tab value="3">Log</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel value="0"><app-transfer-table></app-transfer-table></p-tabpanel>
+        <p-tabpanel value="0"><app-transfer-table (propertiesRequested)="openTransferPropertiesDialog()"></app-transfer-table></p-tabpanel>
         <p-tabpanel value="1" [lazy]="true">
           <ng-template #content>
             <app-transfer-details></app-transfer-details>
