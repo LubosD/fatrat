@@ -51,8 +51,12 @@ export class NewTransferDialog implements OnChanges {
   // reopening with a reference-equal input (e.g. null again, or the same object) would
   // otherwise leave stale, previously-edited-but-cancelled form values in place.
   ngOnChanges(changes: SimpleChanges): void {
-    if ('defaultQueueUuid' in changes || 'queues' in changes || changes['visible']?.currentValue === true) {
+    if (changes['visible']?.currentValue === true || (!this.visible && ('defaultQueueUuid' in changes || 'queues' in changes))) {
       this.resetForm();
+    } else if (this.visible && !this.queueUuid) {
+      // Background polling hands us a fresh `queues` array every refresh; while the dialog is open
+      // that must not reset the form or close the directory picker — only fill in a missing queue.
+      this.queueUuid = this.defaultQueueUuid ?? this.queues[0]?.uuid ?? '';
     }
   }
 
