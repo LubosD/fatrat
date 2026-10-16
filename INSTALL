@@ -23,7 +23,14 @@ Should you need to make install to a different directory, the traditional DESTDI
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
 | Web interface                 | WITH_WEBINTERFACE     | libpion-net                                  |
 | Java extensions               | WITH_JPLUGINS         | JRE 1.6, (JDK for compilation)               |
+| Desktop UI (OFF = fatrat-nogui) | WITH_GUI (default ON) | QtWidgets, QtSvg                             |
+| D-Bus interface               | WITH_DBUS (default ON)| QtDBus                                       |
 | All of above                  | WITH_EVERYTHING       |                                              |
+
+WITH_GUI and WITH_DBUS default to ON. A headless server build typically uses
+  cmake . -DWITH_GUI=OFF -DWITH_DBUS=OFF -DWITH_WEBINTERFACE=ON ...
+which installs bin/fatrat-nogui and needs only QtCore, QtNetwork and QtXml.
+WITH_DOCUMENTATION requires WITH_GUI. WITH_EVERYTHING leaves it off when WITH_GUI is OFF.
 +-------------------------------+-----------------------+----------------------------------------------+
 
 CMake may have issues finding your JDK installation. Should that happen, try exporting variables such as
