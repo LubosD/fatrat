@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 
 #include "Settings.h"
+#include <QCoreApplication>
 #include <QSettings>
 #include <QVector>
 #include <QDir>

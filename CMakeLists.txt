@@ -645,6 +645,10 @@ add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
 add_executable(fatrat-conf src/fatrat-conf.cpp)
 
+if(NOT WITH_GUI)
+	set_target_properties(fatrat PROPERTIES OUTPUT_NAME fatrat-nogui)
+endif(NOT WITH_GUI)
+
 if (POSIX_LINUX)
 	set (DL_LDFLAGS "-ldl")
 endif (POSIX_LINUX)

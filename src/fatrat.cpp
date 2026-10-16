@@ -27,8 +27,11 @@ respects for all of the code used other than "OpenSSL".
 #include "config.h"
 #include "fatrat.h"
 
-#include <QApplication>
-#include <QMessageBox>
+#include <QCoreApplication>
+#ifdef WITH_GUI
+#	include <QApplication>
+#	include <QMessageBox>
+#endif
 #include <QTranslator>
 #include <QLocale>
 #include <QtDebug>
@@ -52,20 +55,25 @@ respects for all of the code used other than "OpenSSL".
 #include <openssl/ssl.h>
 #include <openssl/opensslv.h>
 
-#include "MainWindow.h"
 #include "QueueMgr.h"
 #include "Queue.h"
 #include "Transfer.h"
-#include "AppTools.h"
 #include "Settings.h"
 #include "config.h"
 #include "RuntimeException.h"
-#include "dbus/DbusAdaptor.h"
-#include "dbus/DbusImpl.h"
-#include "dbus/NotificationsProxy.h"
-#include "dbus/KNotify.h"
+#ifdef WITH_GUI
+#	include "MainWindow.h"
+#	include "AppTools.h"
+#	include "MyApplication.h"
+#endif
+#ifdef WITH_DBUS
+#	include <QtDBus/QtDBus>
+#	include "dbus/DbusAdaptor.h"
+#	include "dbus/DbusImpl.h"
+#	include "dbus/NotificationsProxy.h"
+#	include "dbus/KNotify.h"
+#endif
 #include "rss/RssFetcher.h"
-#include "MyApplication.h"
 #include "Scheduler.h"
 #include "TransferFactory.h"
 
@@ -79,7 +87,9 @@ respects for all of the code used other than "OpenSSL".
 #	include "engines/JavaDownload.h"
 #	include "engines/JavaExtractor.h"
 #	include "engines/JavaUpload.h"
-#	include "tools/FileSharingSearch.h"
+#	ifdef WITH_GUI
+#		include "tools/FileSharingSearch.h"
+#	endif
 #	include "java/JClass.h"
 #	include "java/JString.h"
 #	include "java/JArray.h"
@@ -88,7 +98,9 @@ respects for all of the code used other than "OpenSSL".
 
 using namespace std;
 
+#ifdef WITH_GUI
 MainWindow* g_wndMain = 0;
+#endif
 QMap<QString,PluginInfo> g_plugins;
 
 extern QVector<EngineEntry> g_enginesDownload;
@@ -97,15 +109,19 @@ extern QSettings* g_settings;
 
 static void runEngines(bool init = true);
 static QString argsToArg(int argc,char** argv);
+#ifdef WITH_DBUS
 static void processSession(QString arg);
+#endif
 static void loadPlugins();
 static void loadPlugins(const char* dir);
 static void showHelp();
 static void installSignalHandler();
 static void testJava();
 static void daemonize();
+#ifdef WITH_DBUS
 static void initDbus();
 static void testNotif();
+#endif
 static void writePidFile();
 static void dropPrivileges();
 
@@ -139,16 +155,20 @@ int main(int argc,char** argv)
 	if (!m_strSetUser.isEmpty())
 		dropPrivileges();
 	
+#ifdef WITH_GUI
 	if (m_bStartGUI)
 		app = new MyApplication(argc, argv);
 	else
+#endif
 		app = new QCoreApplication(argc, argv);
 
 	g_argc = argc;
 	g_argv = argv;
 
+#ifdef WITH_DBUS
 	if(!m_bForceNewInstance)
 		processSession(arg);
+#endif
     
     
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -182,7 +202,9 @@ int main(int argc,char** argv)
 			JavaDownload::globalInit();
 			JavaExtractor::globalInit();
 			JavaUpload::globalInit();
+#ifdef WITH_GUI
 			FileSharingSearch::globalInit();
+#endif
 		}
 	}
 #endif
@@ -198,7 +220,9 @@ int main(int argc,char** argv)
 	qRegisterMetaType<Transfer::TransferList>("Transfer::TransferList");
 
 	Queue::loadQueues();
+#ifdef WITH_GUI
 	initAppTools();
+#endif
 
 	// force singleton creation
 	TransferFactory::instance();
@@ -210,24 +234,32 @@ int main(int argc,char** argv)
 	new HttpService;
 #endif
 	
+#ifdef WITH_GUI
 	if(m_bStartGUI)
 		g_wndMain = new MainWindow(m_bStartHidden);
 	else
+#endif
 		qDebug() << "FatRat is up and running now";
 	
 	new RssFetcher;
 	
+#ifdef WITH_DBUS
 	initDbus();
+#endif
 
 	//testNotif();
 	
+#ifdef WITH_GUI
 	if(!arg.isEmpty() && m_bStartGUI)
 		g_wndMain->addTransfer(arg);
+#endif
 	
 	new Scheduler;
 	
+#ifdef WITH_GUI
 	if(m_bStartGUI)
 		QApplication::setQuitOnLastWindowClosed(false);
+#endif
 	rval = app->exec();
 	
 #ifdef WITH_WEBINTERFACE
@@ -235,7 +267,9 @@ int main(int argc,char** argv)
 #endif
 	delete RssFetcher::instance();
 	delete Scheduler::instance();
+#ifdef WITH_GUI
 	delete g_wndMain;
+#endif
 	
 	g_qmgr->exit();
 	Queue::stopQueues();
@@ -249,7 +283,9 @@ int main(int argc,char** argv)
 	{
 		JavaExtractor::globalExit();
 		JavaDownload::globalExit();
+#ifdef WITH_GUI
 		FileSharingSearch::globalExit();
+#endif
 	}
 #endif
 	
@@ -315,6 +351,7 @@ QString argsToArg(int argc,char** argv)
 	return arg;
 }
 
+#ifdef WITH_DBUS
 void processSession(QString arg)
 {
 	QDBusConnection conn = QDBusConnection::sessionBus();
@@ -333,13 +370,20 @@ void processSession(QString arg)
 		}
 		else
 		{
-			QMessageBox::critical(0, "FatRat", QObject::tr("There is already a running instance.\n"
-					"If you want to start FatRat anyway, pass --force among arguments."));
+			const QString msg = QObject::tr("There is already a running instance.\n"
+					"If you want to start FatRat anyway, pass --force among arguments.");
+#ifdef WITH_GUI
+			if (programHasGUI())
+				QMessageBox::critical(0, "FatRat", msg);
+			else
+#endif
+				std::cerr << msg.toStdString() << std::endl;
 		}
 		
 		exit(0);
 	}
 }
+#endif
 
 static void runEngines(bool init)
 {
@@ -372,10 +416,12 @@ static void runEngines(bool init)
 	}
 }
 
+#ifdef WITH_GUI
 QWidget* getMainWindow()
 {
 	return g_wndMain;
 }
+#endif
 
 QString formatSize(qulonglong size, bool persec)
 {
@@ -578,7 +624,11 @@ void loadPlugins(const char* p)
 
 bool programHasGUI()
 {
+#ifdef WITH_GUI
 	return m_bStartGUI;
+#else
+	return false;
+#endif
 }
 
 void showHelp()
@@ -587,8 +637,10 @@ void showHelp()
 			"Copyright (C) 2006-2011 Lubos Dolezel\n"
 			"Licensed under the terms of the GNU GPL version 3 as published by the Free Software Foundation\n\n"
 			"-f, --force      \tRun the program even if an instance already exists\n"
+#ifdef WITH_GUI
 			"-i, --hidden     \tHide the GUI at startup (only if the tray icon exists)\n"
 			"-n, --nogui      \tStart with no GUI at all\n"
+#endif
 			"-d, --daemon     \tDaemonize the application (assumes --nogui)\n"
 			"-c, --config file\tUse file as settings storage\n"
 			"--syslog         \tPrint global log contents to syslog\n"
@@ -661,6 +713,7 @@ void daemonize()
 	daemon(true, false);
 }
 
+#ifdef WITH_DBUS
 void testNotif()
 {
 	OrgFreedesktopNotificationsInterface* iface = new OrgFreedesktopNotificationsInterface(OrgFreedesktopNotificationsInterface::staticInterfaceName(), "/org/freedesktop/Notifications", QDBusConnection::sessionBus());
@@ -686,6 +739,7 @@ void initDbus()
 	QDBusConnection::sessionBus().registerObject("/", impl);
 	QDBusConnection::sessionBus().registerService("info.dolezel.fatrat");
 }
+#endif
 
 void writePidFile()
 {

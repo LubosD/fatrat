@@ -26,7 +26,10 @@ respects for all of the code used other than "OpenSSL".
 
 #include "DbusImpl.h"
 #include "Queue.h"
-#include "MainWindow.h"
+#include "config.h"
+#ifdef WITH_GUI
+#	include "MainWindow.h"
+#endif
 #include "fatrat.h"
 #include "RuntimeException.h"
 #include "Settings.h"
@@ -50,9 +53,14 @@ DbusImpl::DbusImpl()
 
 void DbusImpl::addTransfers(QString uris)
 {
+#ifdef WITH_GUI
 	MainWindow* wnd = (MainWindow*) getMainWindow();
 	if (wnd)
 		wnd->addTransfer(uris);
+#else
+	Q_UNUSED(uris);
+	qDebug() << "addTransfers() needs the GUI; use addTransfersNonInteractive()";
+#endif
 }
 
 QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QString className, int queueID)

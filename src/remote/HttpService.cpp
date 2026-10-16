@@ -32,13 +32,11 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_GUI
 #	include "SettingsWebForm.h"
 #endif
-#include "SpeedGraph.h"
 #include "Transfer.h"
 #include "Queue.h"
 #include "fatrat.h"
 #include "Logger.h"
 #include "TransferFactory.h"
-#include "dbus/DbusImpl.h"
 #include "remote/XmlRpcService.h"
 
 #include <QSettings>
@@ -48,8 +46,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QUrlQuery>
 #include <QDir>
 #include <QBuffer>
-#include <QImage>
-#include <QPainter>
 #include <QMultiMap>
 #include <QProcess>
 #include <QFile>
