@@ -81,3 +81,36 @@ export interface NewTransferOptions {
   paused: boolean;
   speedLimits: SpeedLimits;
 }
+
+export interface RssFeed {
+  id: string;
+  name: string;
+  url: string;
+}
+
+/** How episodes are numbered for duplicate detection: S01E02, 0123 or 2026-10-16. */
+export type RssTvsMode = 'none' | 'season' | 'episode' | 'date';
+
+export interface RssRegexp {
+  id: string;
+  /** Empty if the stored rule refers to a feed that no longer exists. */
+  feedId: string;
+  expression: string;
+  queue: string;
+  target: string;
+  addPaused: boolean;
+  tvs: RssTvsMode;
+  from: string;
+  to: string;
+  includeRepacks: boolean;
+  includeTrailers: boolean;
+  excludeManuals: boolean;
+  linkRegexp: string;
+}
+
+export type RssRegexpProperties = Partial<Omit<RssRegexp, 'id'>>;
+
+export interface RssTestResult {
+  matches: boolean;
+  episode?: string;
+}

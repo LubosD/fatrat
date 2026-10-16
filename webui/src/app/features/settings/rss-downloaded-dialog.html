@@ -1,0 +1,28 @@
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Downloaded episodes" [modal]="true" [style]="{ width: '26rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false">
+  <p>Episodes in this list are not downloaded again.</p>
+  <div class="field">
+    <label for="rss-downloaded-new">Add an episode (for example {{ example }})</label>
+    <div class="inline-row">
+      <input pInputText id="rss-downloaded-new" [(ngModel)]="newEpisode" [placeholder]="example" (keydown.enter)="add()" />
+      <button pButton type="button" severity="secondary" label="Add" data-testid="rss-downloaded-add" [disabled]="!canAdd" (click)="add()"></button>
+    </div>
+  </div>
+  @if (loading()) {
+    <p>Loading…</p>
+  }
+  <ul class="episode-list" data-testid="rss-downloaded-list">
+    @for (episode of episodes(); track episode) {
+      <li>
+        <span>{{ episode }}</span>
+        <button pButton type="button" severity="secondary" [text]="true" size="small" label="Remove" [attr.aria-label]="'Remove ' + episode" data-testid="rss-downloaded-remove" (click)="remove(episode)"></button>
+      </li>
+    }
+  </ul>
+  @if (error()) {
+    <p class="form-error" role="alert" data-testid="rss-downloaded-error">{{ error() }}</p>
+  }
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="rss-downloaded-cancel" (click)="onDialogVisibleChange(false)">Cancel</button>
+    <button pButton type="button" data-testid="rss-downloaded-save" [disabled]="loading()" (click)="onSave()">Save</button>
+  </ng-template>
+</p-dialog>
