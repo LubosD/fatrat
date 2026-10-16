@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 
 #include "CurlPoller.h"
+#include <algorithm>
 #include <chrono>
 #include "CurlPollingMaster.h"
 #include <QtDebug>
@@ -125,7 +126,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 	if(m_curlDeadline < 0)
 		m_timeout = 500;
 	else
-		m_timeout = qBound<long long>(0, m_curlDeadline - nowMs(), 500);
+		m_timeout = long(std::clamp<long long>(m_curlDeadline - nowMs(), 0, 500));
 
 	while (!m_queueToDelete.isEmpty())
 	{
