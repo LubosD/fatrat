@@ -69,6 +69,8 @@ public:
 	void applySettings();
 
 	void setup();
+	// Additionally serve the REST API on a unix socket, independently of the remote/enable setting
+	static void setRestSocketPath(const QString& path);
 
 	void addCaptchaEvent(int id, QString url);
 	bool hasCaptchaHandlers();
@@ -83,7 +85,9 @@ private:
 	void removeCaptchaClient(WebSocketService* client);
 	void killCaptchaClients();
 
-	void registerRoutes();
+	void registerRoutes(httplib::Server& server, bool authenticated);
+	void setupUnixSocket();
+	void stopUnixSocket();
 private:
 	static HttpService* m_instance;
 	CaptchaHttp m_captchaHttp;
@@ -94,6 +98,10 @@ private:
 
 	std::unique_ptr<httplib::Server> m_server;
 	std::thread m_serverThread;
+	std::unique_ptr<httplib::Server> m_unixServer;
+	std::thread m_unixThread;
+	QString m_unixSocketFile;
+	static QString m_restSocketPath;
 	mutable std::mutex m_passwordMutex;
 	QString m_strPassword;
 	QString m_strSSLPem;
