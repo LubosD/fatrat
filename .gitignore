@@ -24,3 +24,4 @@ webui/node_modules/
 webui/dist/
 webui/.angular/
 
+.worktrees

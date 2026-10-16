@@ -1,6 +1,6 @@
 project(fatrat)
 
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -495,40 +495,59 @@ if(WITH_WEBINTERFACE)
 		src/remote/SettingsWebForm.ui
 		src/remote/CertGenDlg.ui
 	)
-endif(WITH_WEBINTERFACE)
 
-option(WITH_WEBUI "Build the Angular web UI (requires Node.js/npm) and install it into data/remote" OFF)
-
-if(WITH_WEBUI)
+	# The web interface's frontend is the Angular app in webui/ (requires Node.js/npm)
 	find_program(NPM_EXECUTABLE npm)
 	if(NOT NPM_EXECUTABLE)
-		message(FATAL_ERROR "WITH_WEBUI is ON but npm was not found in PATH")
+		message(FATAL_ERROR "WITH_WEBINTERFACE is ON but npm was not found in PATH")
 	endif()
 
 	set(WEBUI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/webui)
 	set(WEBUI_DIST_DIR ${WEBUI_SRC_DIR}/dist/webui/browser)
 	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
 
-	# NOTE: unconditionally replaces data/remote/ with the Angular build output. While the legacy
-	# jQuery UI still lives there (pre-cutover), enabling WITH_WEBUI discards it from the working
-	# tree on every build (recoverable via `git checkout -- data/remote/` since it's tracked).
+	# NOTE: replaces data/remote/ with the Angular build output. While the legacy jQuery UI still
+	# lives there (pre-cutover), building discards it from the working tree (recoverable via
+	# `git checkout -- data/remote/` since it's tracked).
 	#
-	# NOTE: this target has no staleness tracking (add_custom_target, not add_custom_command with
-	# OUTPUT/DEPENDS), so it re-runs `npm ci` + a full production `ng build` on every invocation of
-	# `cmake --build .`, not just when webui/ actually changed. Deliberate: real incremental
-	# tracking would need a glob over webui/src (which doesn't auto-detect new files without
-	# re-running cmake) and to second-guess npm's own staleness check for node_modules, both more
-	# likely to ship a silently-stale UI than to save a rebuild.
-	add_custom_target(webui ALL
+	# Stamp files give the build real staleness tracking, so a plain `make` after a build (and
+	# especially `make install`, which depends on `all` and typically runs as root) doesn't re-run
+	# npm and leave root-owned files in the source tree. CONFIGURE_DEPENDS makes the build re-glob
+	# webui/ so newly added source files are picked up without manually re-running cmake.
+	set(WEBUI_NPM_STAMP ${CMAKE_CURRENT_BINARY_DIR}/webui-npm-ci.stamp)
+	set(WEBUI_BUILD_STAMP ${CMAKE_CURRENT_BINARY_DIR}/webui-build.stamp)
+
+	add_custom_command(OUTPUT ${WEBUI_NPM_STAMP}
 		COMMAND ${NPM_EXECUTABLE} ci
+		COMMAND ${CMAKE_COMMAND} -E touch ${WEBUI_NPM_STAMP}
+		DEPENDS ${WEBUI_SRC_DIR}/package.json ${WEBUI_SRC_DIR}/package-lock.json
+		WORKING_DIRECTORY ${WEBUI_SRC_DIR}
+		COMMENT "Installing the Angular web UI's npm dependencies"
+		VERBATIM
+	)
+
+	file(GLOB_RECURSE WEBUI_SOURCES CONFIGURE_DEPENDS
+		${WEBUI_SRC_DIR}/src/*
+		${WEBUI_SRC_DIR}/public/*
+	)
+	file(GLOB WEBUI_CONFIGS CONFIGURE_DEPENDS
+		${WEBUI_SRC_DIR}/angular.json
+		${WEBUI_SRC_DIR}/tsconfig*.json
+	)
+
+	add_custom_command(OUTPUT ${WEBUI_BUILD_STAMP}
 		COMMAND ${NPM_EXECUTABLE} run build -- --configuration production
 		COMMAND ${CMAKE_COMMAND} -E rm -rf ${WEBUI_TARGET_DIR}
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${WEBUI_DIST_DIR} ${WEBUI_TARGET_DIR}
+		COMMAND ${CMAKE_COMMAND} -E touch ${WEBUI_BUILD_STAMP}
+		DEPENDS ${WEBUI_NPM_STAMP} ${WEBUI_SOURCES} ${WEBUI_CONFIGS}
 		WORKING_DIRECTORY ${WEBUI_SRC_DIR}
 		COMMENT "Building the Angular web UI and installing it into data/remote"
 		VERBATIM
 	)
-endif(WITH_WEBUI)
+
+	add_custom_target(webui ALL DEPENDS ${WEBUI_BUILD_STAMP})
+endif(WITH_WEBINTERFACE)
 
 if(WITH_DOCUMENTATION)
 	set(fatrat_SRCS
@@ -569,8 +588,11 @@ endif (POSIX_LINUX)
 
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	Qt5::Widgets Qt5::Svg Qt5::Network Qt5::DBus Qt5::Xml
-	LibtorrentRasterbar::torrent-rasterbar ${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
+	${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
 	ssl crypto ${XATTR_LIBRARIES} -export-dynamic)
+if(WITH_BITTORRENT)
+	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
+endif(WITH_BITTORRENT)
 target_link_libraries(fatrat-conf Qt5::Core)
 
 set(fatrat_DEV_HEADERS
