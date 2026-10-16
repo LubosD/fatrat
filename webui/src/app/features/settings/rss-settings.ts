@@ -10,6 +10,7 @@ import { RssApi } from '../../core/rss-api.service';
 import { ApiError } from '../../core/api/rest-client';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { QueuesStore } from '../../state/queues.store';
+import { ViewportService } from '../../core/viewport.service';
 import { JsonValue } from '../../core/api/json-value';
 import { RssFeed, RssRegexp, RssTvsMode } from '../../core/api/models';
 import { RssFeedDialog, RssFeedFormValue } from './rss-feed-dialog';
@@ -44,6 +45,7 @@ export class RssSettings {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly confirmation = inject(ConfirmationService);
   private readonly queuesStore = inject(QueuesStore);
+  protected readonly viewport = inject(ViewportService);
 
   protected enable = false;
   protected interval = 15;

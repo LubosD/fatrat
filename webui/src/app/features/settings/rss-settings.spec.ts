@@ -8,6 +8,7 @@ import { RssApi } from '../../core/rss-api.service';
 import { ApiError } from '../../core/api/rest-client';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { QueuesStore } from '../../state/queues.store';
+import { ViewportService } from '../../core/viewport.service';
 import { Queue, RssFeed, RssRegexp } from '../../core/api/models';
 
 const feed: RssFeed = { id: 'f1', name: 'Feed', url: 'http://f' };
@@ -16,7 +17,7 @@ const regexp = {
 } as RssRegexp;
 const queue = { uuid: 'q1', name: 'Main', defaultDirectory: '/d' } as Queue;
 
-function configure(opts: { feeds?: RssFeed[]; regexps?: RssRegexp[]; queues?: Queue[]; api?: Partial<RssApi>; draft?: Record<string, unknown> } = {}) {
+function configure(opts: { mobile?: boolean; feeds?: RssFeed[]; regexps?: RssRegexp[]; queues?: Queue[]; api?: Partial<RssApi>; draft?: Record<string, unknown> } = {}) {
   const stage = vi.fn();
   const confirm = vi.fn();
   const api = {
@@ -32,6 +33,7 @@ function configure(opts: { feeds?: RssFeed[]; regexps?: RssRegexp[]; queues?: Qu
       { provide: SettingsDraftService, useValue: { get: (k: string) => opts.draft?.[k], stage } },
       { provide: QueuesStore, useValue: { queues: signal(opts.queues ?? [queue]) } },
       { provide: ConfirmationService, useValue: { confirm } },
+      { provide: ViewportService, useValue: { isMobile: signal(opts.mobile ?? false) } },
     ],
   });
   const fixture = TestBed.createComponent(RssSettings);
@@ -149,5 +151,35 @@ describe('RssSettings', () => {
     c['manageDownloaded'](regexp);
     expect(c['downloadedRegexp']()).toBe(regexp);
     expect(c['downloadedDialogOpen']()).toBe(true);
+  });
+
+  it('lists feeds and rules in a table on desktop', () => {
+    const { fixture } = configure();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-testid="rss-feeds-table"]')).not.toBeNull();
+    expect(el.querySelector('[data-testid="rss-regexps-table"]')).not.toBeNull();
+    expect(el.querySelector('[data-testid="rss-feeds-list"]')).toBeNull();
+  });
+
+  it('lists feeds and rules as stacked rows on a phone, with the same actions', () => {
+    const { fixture, c, confirm } = configure({ mobile: true });
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('[data-testid="rss-feeds-table"]')).toBeNull();
+    expect(el.querySelector('[data-testid="rss-feeds-list"]')?.textContent).toContain('http://f');
+    expect(el.querySelector('[data-testid="rss-regexps-list"]')?.textContent).toContain('show @ Feed');
+    expect(el.querySelector('[data-testid="rss-regexps-list"]')?.textContent).toContain('Main');
+
+    (el.querySelector('[data-testid="rss-feed-edit"]') as HTMLButtonElement).click();
+    expect(c['feedDialogOpen']()).toBe(true);
+    (el.querySelector('[data-testid="rss-regexp-delete"]') as HTMLButtonElement).click();
+    expect(confirm).toHaveBeenCalled();
+  });
+
+  it('says so when there is nothing to list on a phone', () => {
+    const { fixture } = configure({ mobile: true, feeds: [], regexps: [] });
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    expect(text).toContain('No feeds yet.');
+    expect(text).toContain('No rules yet.');
   });
 });

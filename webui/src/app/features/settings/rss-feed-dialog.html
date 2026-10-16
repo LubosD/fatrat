@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '30rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '30rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false" styleClass="fr-dialog">
   <div class="field">
     <label for="rss-feed-name">Name</label>
     <input pInputText id="rss-feed-name" [(ngModel)]="name" required />

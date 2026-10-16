@@ -1,5 +1,5 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '40rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false">
-  <p-tabs [(value)]="activeTab">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" [header]="header" [modal]="true" [style]="{ width: '40rem' }" [breakpoints]="{ '960px': '95vw' }" [draggable]="false" styleClass="fr-dialog">
+  <p-tabs [(value)]="activeTab" [scrollable]="true">
     <p-tablist>
       <p-tab value="0">Main</p-tab>
       <p-tab value="1">TV show/podcast</p-tab>

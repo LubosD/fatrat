@@ -16,48 +16,86 @@
   </div>
 
   <h4>Feeds</h4>
-  <p-table [value]="feeds()" dataKey="id" [scrollable]="true" data-testid="rss-feeds-table">
-    <ng-template #header>
-      <tr><th>Name</th><th>URL</th><th></th></tr>
-    </ng-template>
-    <ng-template #body let-feed>
-      <tr>
-        <td>{{ feed.name }}</td>
-        <td>{{ feed.url }}</td>
-        <td>
-          <button pButton type="button" severity="secondary" [text]="true" size="small" label="Edit" [attr.aria-label]="'Edit ' + feed.name" data-testid="rss-feed-edit" (click)="editFeed(feed)"></button>
-          <button pButton type="button" severity="danger" [text]="true" size="small" label="Delete" [attr.aria-label]="'Delete ' + feed.name" data-testid="rss-feed-delete" (click)="deleteFeed(feed)"></button>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr><td colspan="3">No feeds yet.</td></tr>
-    </ng-template>
-  </p-table>
+  @if (viewport.isMobile()) {
+    <ul class="rss-items" data-testid="rss-feeds-list">
+      @for (feed of feeds(); track feed.id) {
+        <li>
+          <div class="rss-item-text">
+            <strong>{{ feed.name }}</strong>
+            <span class="hint">{{ feed.url }}</span>
+          </div>
+          <div class="rss-item-actions">
+            <button pButton type="button" severity="secondary" [text]="true" label="Edit" [attr.aria-label]="'Edit ' + feed.name" data-testid="rss-feed-edit" (click)="editFeed(feed)"></button>
+            <button pButton type="button" severity="danger" [text]="true" label="Delete" [attr.aria-label]="'Delete ' + feed.name" data-testid="rss-feed-delete" (click)="deleteFeed(feed)"></button>
+          </div>
+        </li>
+      } @empty {
+        <li class="hint">No feeds yet.</li>
+      }
+    </ul>
+  } @else {
+    <p-table [value]="feeds()" dataKey="id" [scrollable]="true" data-testid="rss-feeds-table">
+      <ng-template #header>
+        <tr><th>Name</th><th>URL</th><th></th></tr>
+      </ng-template>
+      <ng-template #body let-feed>
+        <tr>
+          <td>{{ feed.name }}</td>
+          <td>{{ feed.url }}</td>
+          <td>
+            <button pButton type="button" severity="secondary" [text]="true" size="small" label="Edit" [attr.aria-label]="'Edit ' + feed.name" data-testid="rss-feed-edit" (click)="editFeed(feed)"></button>
+            <button pButton type="button" severity="danger" [text]="true" size="small" label="Delete" [attr.aria-label]="'Delete ' + feed.name" data-testid="rss-feed-delete" (click)="deleteFeed(feed)"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr><td colspan="3">No feeds yet.</td></tr>
+      </ng-template>
+    </p-table>
+  }
   <div class="field">
     <button pButton type="button" label="Add feed…" data-testid="rss-feed-add" (click)="addFeed()"></button>
   </div>
 
   <h4>Rules</h4>
-  <p-table [value]="regexps()" dataKey="id" [scrollable]="true" data-testid="rss-regexps-table">
-    <ng-template #header>
-      <tr><th>Rule</th><th>Queue</th><th>Episodes</th><th></th></tr>
-    </ng-template>
-    <ng-template #body let-regexp>
-      <tr>
-        <td>{{ regexpLabel(regexp) }}</td>
-        <td>{{ queueName(regexp.queue) }}</td>
-        <td>{{ tvsLabel(regexp.tvs) }}</td>
-        <td>
-          <button pButton type="button" severity="secondary" [text]="true" size="small" label="Edit" [attr.aria-label]="'Edit rule ' + regexpLabel(regexp)" data-testid="rss-regexp-edit" (click)="editRegexp(regexp)"></button>
-          <button pButton type="button" severity="danger" [text]="true" size="small" label="Delete" [attr.aria-label]="'Delete rule ' + regexpLabel(regexp)" data-testid="rss-regexp-delete" (click)="deleteRegexp(regexp)"></button>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr><td colspan="4">No rules yet.</td></tr>
-    </ng-template>
-  </p-table>
+  @if (viewport.isMobile()) {
+    <ul class="rss-items" data-testid="rss-regexps-list">
+      @for (regexp of regexps(); track regexp.id) {
+        <li>
+          <div class="rss-item-text">
+            <strong>{{ regexpLabel(regexp) }}</strong>
+            <span class="hint">{{ queueName(regexp.queue) }}@if (tvsLabel(regexp.tvs)) { · {{ tvsLabel(regexp.tvs) }} }</span>
+          </div>
+          <div class="rss-item-actions">
+            <button pButton type="button" severity="secondary" [text]="true" label="Edit" [attr.aria-label]="'Edit rule ' + regexpLabel(regexp)" data-testid="rss-regexp-edit" (click)="editRegexp(regexp)"></button>
+            <button pButton type="button" severity="danger" [text]="true" label="Delete" [attr.aria-label]="'Delete rule ' + regexpLabel(regexp)" data-testid="rss-regexp-delete" (click)="deleteRegexp(regexp)"></button>
+          </div>
+        </li>
+      } @empty {
+        <li class="hint">No rules yet.</li>
+      }
+    </ul>
+  } @else {
+    <p-table [value]="regexps()" dataKey="id" [scrollable]="true" data-testid="rss-regexps-table">
+      <ng-template #header>
+        <tr><th>Rule</th><th>Queue</th><th>Episodes</th><th></th></tr>
+      </ng-template>
+      <ng-template #body let-regexp>
+        <tr>
+          <td>{{ regexpLabel(regexp) }}</td>
+          <td>{{ queueName(regexp.queue) }}</td>
+          <td>{{ tvsLabel(regexp.tvs) }}</td>
+          <td>
+            <button pButton type="button" severity="secondary" [text]="true" size="small" label="Edit" [attr.aria-label]="'Edit rule ' + regexpLabel(regexp)" data-testid="rss-regexp-edit" (click)="editRegexp(regexp)"></button>
+            <button pButton type="button" severity="danger" [text]="true" size="small" label="Delete" [attr.aria-label]="'Delete rule ' + regexpLabel(regexp)" data-testid="rss-regexp-delete" (click)="deleteRegexp(regexp)"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr><td colspan="4">No rules yet.</td></tr>
+      </ng-template>
+    </p-table>
+  }
   <div class="field">
     <button pButton type="button" label="Add rule…" data-testid="rss-regexp-add" [disabled]="!canAddRegexp()" (click)="addRegexp()"></button>
     @if (!canAddRegexp()) {
