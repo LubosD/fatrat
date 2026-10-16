@@ -466,6 +466,8 @@ if(WITH_PYPLUGINS)
 		src/python/PyPlugin.cpp
 		src/python/PyTransferBindings.cpp
 		src/python/PluginManifest.cpp
+		src/python/PluginRepository.cpp
+		src/python/PluginUpdateChecker.cpp
 		src/python/PluginRegistry.cpp
 		src/python/PluginServices.cpp
 		src/engines/PythonPersistentVariables.cpp
@@ -476,6 +478,7 @@ if(WITH_PYPLUGINS)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/python/PyPlugin.h
+		src/python/PluginUpdateChecker.h
 		src/engines/PythonDownload.h
 		src/engines/PythonExtractor.h
 		src/engines/PythonUpload.h
@@ -706,7 +709,14 @@ endif(WITH_TESTS)
 
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
-add_executable(fatrat-conf src/fatrat-conf.cpp)
+set(fatrat_conf_SRCS src/fatrat-conf.cpp)
+if(WITH_PYPLUGINS)
+	# Plugin management from the command line, for headless installs.
+	set(fatrat_conf_SRCS ${fatrat_conf_SRCS}
+		src/python/PluginRepository.cpp
+		src/python/PluginManifest.cpp)
+endif(WITH_PYPLUGINS)
+add_executable(fatrat-conf ${fatrat_conf_SRCS})
 
 if(NOT WITH_GUI)
 	set_target_properties(fatrat PROPERTIES OUTPUT_NAME fatrat-nogui)

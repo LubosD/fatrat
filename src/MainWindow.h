@@ -43,6 +43,9 @@ class NewTransferDlg;
 class ClipboardMonitor;
 class ExtensionMgr;
 class ClickableLabel;
+#ifdef WITH_PYPLUGINS
+class PluginUpdateChecker;
+#endif
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -124,6 +127,9 @@ public slots:
 	void showPremiumStatus();
 	void premiumStatusClosed();
 #endif
+#ifdef WITH_PYPLUGINS
+	void pluginUpdatesAvailable(int count);
+#endif
 #ifdef WITH_JPLUGINS
 	void updatesChecked();
 	void updateBubbleManuallyClosed();
@@ -168,6 +174,10 @@ private:
 	CaptchaQt m_captcha;
 #if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
 	ClickableLabel* m_premiumAccounts;
+#endif
+#ifdef WITH_PYPLUGINS
+	ClickableLabel* m_pluginUpdates;
+	PluginUpdateChecker* m_pluginUpdateChecker;
 #endif
 #ifdef WITH_JPLUGINS
 	ClickableLabel* m_updates;

@@ -63,7 +63,15 @@ public:
 	virtual void accepted();
 private slots:
 	void removeSelected();
+	void addRepository();
+	void addRepositoryDirectory();
+	void removeRepository();
+	void refreshRepositories();
+	void installSelected();
 private:
+	void addRepositorySource(const QString& source);
+	void loadRepositories();
+	void loadAvailable();
 	void loadInstalled();
 	void buildSettingsPages();
 	QWidget* buildPage(const QJsonArray& items);

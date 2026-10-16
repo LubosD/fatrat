@@ -66,6 +66,134 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabAvailable">
+      <attribute name="title">
+       <string>Available</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="layoutAvailable">
+       <item>
+        <widget class="QTreeWidget" name="treeAvailable">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Plugin</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Version</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Installed</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Repository</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Description</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutAvailableButtons">
+         <item>
+          <widget class="QLabel" name="labelAvailableHint">
+           <property name="text">
+            <string>A plugin runs with your full user privileges.</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushRefresh">
+           <property name="text">
+            <string>Refresh</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushInstall">
+           <property name="text">
+            <string>Install / update</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabRepositories">
+      <attribute name="title">
+       <string>Repositories</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="layoutRepositories">
+       <item>
+        <widget class="QTreeWidget" name="treeRepositories">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Source</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Revision</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutRepositoryButtons">
+         <item>
+          <widget class="QLineEdit" name="lineRepository">
+           <property name="placeholderText">
+            <string>git URL of a plugin repository</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushAddRepository">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushAddDirectory">
+           <property name="text">
+            <string>Add directory...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushRemoveRepository">
+           <property name="text">
+            <string>Remove</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabSettings">
       <attribute name="title">
        <string>Plugin settings</string>

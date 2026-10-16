@@ -65,6 +65,13 @@ if(WITH_PYPLUGINS)
 	target_link_libraries(tst_pluginmanifest Qt6::Core Qt6::Test)
 	add_test(NAME pluginmanifest COMMAND tst_pluginmanifest)
 
+	add_executable(tst_pluginrepository tst_pluginrepository.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginRepository.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginManifest.cpp)
+	target_include_directories(tst_pluginrepository PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_pluginrepository Qt6::Core Qt6::Test)
+	add_test(NAME pluginrepository COMMAND tst_pluginrepository)
+
 	add_executable(tst_pyplugins tst_pyplugins.cpp pystubs.cpp
 		${CMAKE_SOURCE_DIR}/src/python/PyVM.cpp
 		${CMAKE_SOURCE_DIR}/src/python/PyRef.cpp

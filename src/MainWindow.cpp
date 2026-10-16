@@ -69,6 +69,8 @@ respects for all of the code used other than "OpenSSL".
 
 #ifdef WITH_PYPLUGINS
 #	include "engines/PythonAccountStatusWidget.h"
+#	include "python/PluginUpdateChecker.h"
+#	include "util/BalloonTip.h"
 #endif
 
 #ifdef WITH_JPLUGINS
@@ -173,6 +175,9 @@ void MainWindow::setupUi()
 		loadCSS();
 
 #if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
+	// Null unless something below gives it a label: connectActions() tests it.
+	m_premiumAccounts = 0;
+
 	bool hasAccountStatus = false;
 #	ifdef WITH_PYPLUGINS
 	hasAccountStatus = PythonAccountStatusWidget::available();
@@ -223,10 +228,31 @@ void MainWindow::setupUi()
 
 		connect(m_updates, SIGNAL(clicked()), this, SLOT(showSettings()));
 	}
-	else
-		m_premiumAccounts = nullptr;
 #endif
 	
+#ifdef WITH_PYPLUGINS
+	m_pluginUpdates = new ClickableLabel(this);
+	m_pluginUpdateChecker = new PluginUpdateChecker(this);
+
+	m_pluginUpdates->setScaledContents(true);
+	m_pluginUpdates->setToolTip(tr("Extension updates: %1").arg(0));
+	m_pluginUpdates->setPixmap(grayscalePixmap(QPixmap(":/fatrat/updates.png")));
+	m_pluginUpdates->setMaximumSize(16, 16);
+	m_pluginUpdates->setCursor(Qt::PointingHandCursor);
+	statusbar->insertPermanentWidget(1, m_pluginUpdates);
+	m_pluginUpdates->show();
+
+	connect(m_pluginUpdates, SIGNAL(clicked()), this, SLOT(showSettings()));
+	connect(m_pluginUpdateChecker, SIGNAL(updatesAvailable(int)), this, SLOT(pluginUpdatesAvailable(int)));
+
+	m_pluginUpdateChecker->applySettings();
+
+	// Not at startup: the user did not ask for network traffic in the first
+	// seconds of a launch.
+	if (getSettingsValue("python/check_updates").toBool())
+		QTimer::singleShot(30*1000, m_pluginUpdateChecker, SLOT(checkNow()));
+#endif
+
 	connectActions();
 	setupTrayIconMenu();
 	
@@ -1903,6 +1929,30 @@ void MainWindow::showPremiumStatus()
 void MainWindow::premiumStatusClosed()
 {
 	m_premiumAccounts->setEnabled(true);
+}
+#endif
+
+#ifdef WITH_PYPLUGINS
+void MainWindow::pluginUpdatesAvailable(int count)
+{
+	if (!count)
+	{
+		m_pluginUpdates->setToolTip(tr("Extension updates: %1").arg(0));
+		m_pluginUpdates->setPixmap(grayscalePixmap(QPixmap(":/fatrat/updates.png")));
+		return;
+	}
+
+	m_pluginUpdates->setToolTip(tr("Extension updates: %1").arg(count));
+	m_pluginUpdates->setPixmap(QPixmap(":/fatrat/updates.png"));
+
+	if (!isVisible())
+		return;
+
+	BalloonTip* tip = new BalloonTip(this, QIcon(), tr("Extension updates"),
+					 tr("There are %1 updates available.").arg(count));
+
+	tip->balloon(m_pluginUpdates->mapToGlobal(QPoint(8, 8)), 0);
+	connect(tip, SIGNAL(messageClicked()), this, SLOT(showSettings()));
 }
 #endif
 

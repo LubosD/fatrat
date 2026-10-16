@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
+#include <QFileDialog>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHeaderView>
@@ -36,12 +37,14 @@ respects for all of the code used other than "OpenSSL".
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QApplication>
 #include <QMessageBox>
 #include <QtDebug>
 
 #include "Settings.h"
 #include "fatrat.h"
 #include "python/PluginRegistry.h"
+#include "python/PluginRepository.h"
 
 SettingsPythonPluginForm::SettingsPythonPluginForm(QWidget* me, QObject* parent)
 	: QObject(parent)
@@ -49,12 +52,186 @@ SettingsPythonPluginForm::SettingsPythonPluginForm(QWidget* me, QObject* parent)
 	setupUi(me);
 
 	connect(pushRemove, SIGNAL(clicked()), this, SLOT(removeSelected()));
+	connect(pushAddRepository, SIGNAL(clicked()), this, SLOT(addRepository()));
+	connect(pushAddDirectory, SIGNAL(clicked()), this, SLOT(addRepositoryDirectory()));
+	connect(pushRemoveRepository, SIGNAL(clicked()), this, SLOT(removeRepository()));
+	connect(pushRefresh, SIGNAL(clicked()), this, SLOT(refreshRepositories()));
+	connect(pushInstall, SIGNAL(clicked()), this, SLOT(installSelected()));
+	connect(lineRepository, SIGNAL(returnPressed()), this, SLOT(addRepository()));
 }
 
 void SettingsPythonPluginForm::load()
 {
+	loadRepositories();
+	loadAvailable();
 	loadInstalled();
 	buildSettingsPages();
+}
+
+void SettingsPythonPluginForm::loadRepositories()
+{
+	treeRepositories->clear();
+	treeRepositories->header()->resizeSection(0, 160);
+	treeRepositories->header()->resizeSection(1, 260);
+
+	foreach (const PluginRepository::Repository& repository, PluginRepository::repositories())
+	{
+		QTreeWidgetItem* item = new QTreeWidgetItem(treeRepositories);
+
+		item->setText(0, repository.name.isEmpty() ? repository.id : repository.name);
+		item->setText(1, repository.source);
+		item->setText(2, repository.local ? tr("local directory") : repository.revision.left(10));
+		item->setData(0, Qt::UserRole, repository.id);
+
+		treeRepositories->addTopLevelItem(item);
+	}
+}
+
+void SettingsPythonPluginForm::loadAvailable()
+{
+	treeAvailable->clear();
+	treeAvailable->header()->resizeSection(0, 140);
+
+	foreach (const PluginRepository::Available& entry, PluginRepository::available())
+	{
+		QTreeWidgetItem* item = new QTreeWidgetItem(treeAvailable);
+
+		item->setText(0, entry.plugin.name);
+		item->setText(1, entry.plugin.version);
+		item->setText(2, entry.installedVersion);
+		item->setText(3, entry.repository);
+		item->setText(4, entry.plugin.description);
+		item->setData(0, Qt::UserRole, entry.plugin.name);
+		item->setData(1, Qt::UserRole, entry.repository);
+
+		// An update available is the one thing worth pointing at.
+		if (!entry.installedVersion.isEmpty() && entry.installedVersion != entry.plugin.version)
+		{
+			QFont font = item->font(0);
+
+			font.setBold(true);
+			item->setFont(0, font);
+			item->setFont(1, font);
+		}
+
+		treeAvailable->addTopLevelItem(item);
+	}
+
+	tabWidget->setTabText(1, tr("Available (%1)").arg(treeAvailable->topLevelItemCount()));
+}
+
+void SettingsPythonPluginForm::addRepository()
+{
+	addRepositorySource(lineRepository->text().trimmed());
+}
+
+void SettingsPythonPluginForm::addRepositoryDirectory()
+{
+	QString directory = QFileDialog::getExistingDirectory(getMainWindow(),
+		tr("Choose a plugin repository directory"));
+
+	if (!directory.isEmpty())
+		addRepositorySource(directory);
+}
+
+/* The moment of trust: everything this repository offers will run as the
+ * user. Say so before fetching anything, and show exactly what is being
+ * added.
+ */
+void SettingsPythonPluginForm::addRepositorySource(const QString& source)
+{
+	if (source.isEmpty())
+		return;
+
+	if (QMessageBox::warning(getMainWindow(), "FatRat",
+		tr("Add this plugin repository?\n\n%1\n\n"
+		   "Plugins you install from it run with your full user privileges, "
+		   "like anything else you install from a git repository. Only add "
+		   "repositories you trust.").arg(source),
+		QMessageBox::Yes | QMessageBox::Cancel) != QMessageBox::Yes)
+		return;
+
+	QString error;
+
+	if (!PluginRepository::addRepository(source, &error))
+	{
+		QMessageBox::critical(getMainWindow(), "FatRat",
+			tr("Could not add the repository: %1").arg(error));
+		return;
+	}
+
+	lineRepository->clear();
+	loadRepositories();
+	loadAvailable();
+}
+
+void SettingsPythonPluginForm::removeRepository()
+{
+	QTreeWidgetItem* item = treeRepositories->currentItem();
+
+	if (!item)
+		return;
+
+	QString id = item->data(0, Qt::UserRole).toString();
+	QString error;
+
+	if (QMessageBox::question(getMainWindow(), "FatRat",
+		tr("Forget the repository \"%1\"? Plugins already installed from it stay installed.")
+			.arg(item->text(0)),
+		QMessageBox::Yes | QMessageBox::Cancel) != QMessageBox::Yes)
+		return;
+
+	if (!PluginRepository::removeRepository(id, &error))
+	{
+		QMessageBox::critical(getMainWindow(), "FatRat", error);
+		return;
+	}
+
+	loadRepositories();
+	loadAvailable();
+}
+
+void SettingsPythonPluginForm::refreshRepositories()
+{
+	QString error;
+
+	// Fetching can take a moment over a slow link; the dialog is modal
+	// anyway, so just say that something is happening.
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	bool ok = PluginRepository::refresh(QString(), &error);
+	QApplication::restoreOverrideCursor();
+
+	if (!ok)
+		QMessageBox::critical(getMainWindow(), "FatRat",
+			tr("Could not refresh the repositories: %1").arg(error));
+
+	loadRepositories();
+	loadAvailable();
+}
+
+void SettingsPythonPluginForm::installSelected()
+{
+	QTreeWidgetItem* item = treeAvailable->currentItem();
+
+	if (!item)
+		return;
+
+	QString plugin = item->data(0, Qt::UserRole).toString();
+	QString repository = item->data(1, Qt::UserRole).toString();
+	QString error;
+
+	if (!PluginRepository::install(repository, plugin, &error))
+	{
+		QMessageBox::critical(getMainWindow(), "FatRat",
+			tr("Could not install %1: %2").arg(plugin).arg(error));
+		return;
+	}
+
+	loadAvailable();
+	loadInstalled();
+
+	QMessageBox::information(getMainWindow(), "FatRat",
+		tr("%1 is installed. Restart FatRat to load it.").arg(plugin));
 }
 
 void SettingsPythonPluginForm::loadInstalled()
@@ -346,15 +523,16 @@ void SettingsPythonPluginForm::removeSelected()
 				 QMessageBox::Yes | QMessageBox::Cancel) != QMessageBox::Yes)
 		return;
 
-	QDir dir(directory);
+	QString error;
 
-	if (!dir.exists() || !dir.removeRecursively())
+	if (!PluginRepository::uninstall(name.isEmpty() ? item->text(0) : name, &error))
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat",
-				      tr("Failed to remove \"%1\", check the file permissions.").arg(directory));
+				      tr("Failed to remove \"%1\": %2").arg(directory).arg(error));
 		return;
 	}
 
+	loadAvailable();
 	loadInstalled();
 	buildSettingsPages();
 }
