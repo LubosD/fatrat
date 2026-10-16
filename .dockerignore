@@ -1,0 +1,13 @@
+.git
+.worktrees
+build
+docker/*.md
+**/node_modules
+webui/dist
+webui/.angular
+data/remote
+*.log
+*.qm
+ui_*.h
+CMakeCache.txt
+CMakeFiles
