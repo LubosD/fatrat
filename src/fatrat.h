@@ -33,7 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include <QList>
 #include <QVariant>
 #include <QFile>
-#include <QIcon>
+#include "config.h"
+#ifdef WITH_GUI
+#	include <QIcon>
+#endif
 #include <QNetworkProxy>
 #include "DelayedIcon.h"
 
@@ -42,15 +45,19 @@ respects for all of the code used other than "OpenSSL".
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
 QString getDataFileDir(QString dir, QString fileName = QString());
+#ifdef WITH_GUI
 QWidget* getMainWindow();
+#endif
 void recursiveRemove(QString what);
 bool openDataFile(QFile* file, QString filePath);
 QStringList listDataDir(QString path);
 bool programHasGUI();
 void restartApplication();
 
+#ifdef WITH_GUI
 void addStatusWidget(QWidget* widget, bool bRight);
 void removeStatusWidget(QWidget* widget);
+#endif
 
 class Sleeper : public QThread
 {
@@ -69,6 +76,7 @@ struct PluginInfo
 class Transfer;
 class Queue;
 
+#ifdef WITH_GUI
 struct MenuAction
 {
 	DelayedIcon icon;
@@ -77,6 +85,7 @@ struct MenuAction
 };
 
 void addMenuAction(const MenuAction& action);
+#endif
 
 enum FtpMode { FtpActive = 0, FtpPassive };
 

@@ -26,14 +26,19 @@ respects for all of the code used other than "OpenSSL".
 
 #ifndef _DELAYEDICON_H
 #define _DELAYEDICON_H
-#include <QIcon>
+#include "config.h"
 #include <QString>
+#ifdef WITH_GUI
+#	include <QIcon>
+#endif
 
 class DelayedIcon
 {
 public:
 	DelayedIcon(QString iconPath = QString());
+#ifdef WITH_GUI
 	operator QIcon() const;
+#endif
 private:
 	QString m_iconPath;
 };
