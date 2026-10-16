@@ -88,7 +88,7 @@ HttpService::HttpService()
 	addSettingsPage(si);
 
 	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate,
-		QVector<QVariant::Type>() << QVariant::String);
+		QVector<QMetaType::Type>() << QMetaType::QString);
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
 	m_timer.start(15 * 1000);

@@ -331,7 +331,7 @@ void TorrentDownload::globalInit()
 #ifdef WITH_WEBINTERFACE
 	// register XML-RPC functions
 	XmlRpcService::registerFunction("TorrentDownload.setFilePriorities", setFilePriorities,
-					QVector<QVariant::Type>() << QVariant::String << QVariant::Map);
+					QVector<QMetaType::Type>() << QMetaType::QString << QMetaType::QVariantMap);
 
 	si.webSettingsScript = "/scripts/settings/bittorrent.js";
 	si.webSettingsIconURL = "/img/settings/bittorrent.png";

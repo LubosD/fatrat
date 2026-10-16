@@ -75,7 +75,7 @@ QByteArray createCallOrResponse(const QList<QVariant>& args, QByteArray* functio
 
 void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 {
-	switch(what.type())
+	switch(what.userType())
 	{
 	case QMetaType::Bool:
 		insertValue(doc, where, "boolean", what.toBool() ? "1" : "0");
@@ -161,7 +161,7 @@ void insertArgument(QDomDocument& doc, QDomElement& where, const QVariant& what)
 		}
 		break;
 	default:
-		qDebug() << "XmlRpc::insertArgument(): Unsupported QVariant type:" << what.type();
+		qDebug() << "XmlRpc::insertArgument(): Unsupported QVariant type:" << what.userType();
 	}
 }
 
@@ -267,16 +267,17 @@ QVariant parseValue(const QDomElement& where)
 			QVariant parsed = parseValue(v);
 			variantList << parsed;
 
-			allstring &= parsed.type() == QVariant::String;
+			allstring &= parsed.userType() == QMetaType::QString;
 
 			v = v.nextSiblingElement("value");
 		}
 
 		if (allstring && !variantList.empty())
 		{
-			QVariant var(variantList);
-			var.convert(QVariant::StringList);
-			return var;
+			QStringList strings;
+			for (const QVariant& item : variantList)
+				strings << item.toString();
+			return strings;
 		}
 		
 		return variantList;

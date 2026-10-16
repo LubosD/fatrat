@@ -78,7 +78,7 @@ jobject JSettings::getValue(JNIEnv* env, jclass, jstring jname, jobject defValue
 	JString name(jname);
 	QVariant v = getSettingsValue(name.str(), def);
 
-	if (v.type() == QVariant::String && v.toString() == def)
+	if (v.userType() == QMetaType::QString && v.toString() == def)
 		return defValue;
 
 	JObject obj = JMap::nativeToBoxed(v);

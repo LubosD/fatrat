@@ -451,7 +451,7 @@ void JObject::setValue(const char* name, const char* sig, QVariant value)
 	case '[':
 	case 'L':
 		{
-			if (value.type() == QVariant::String)
+			if (value.userType() == QMetaType::QString)
 			{
 				JString js(value.toString());
 				env->SetObjectField(m_object, fid, js);

@@ -52,94 +52,103 @@ XmlRpcService::XmlRpcService()
 	m_instance = this;
 }
 
-static void checkArguments(const QList<QVariant>& args, const QVariant::Type* types, int ntypes)
+static bool canConvertTo(const QVariant& var, QMetaType::Type type)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	return var.canConvert(QMetaType(type));
+#else
+	return var.canConvert(int(type));
+#endif
+}
+
+static void checkArguments(const QList<QVariant>& args, const QMetaType::Type* types, int ntypes)
 {
 	if(args.size() != ntypes)
 		throw XmlRpcService::XmlRpcError(2, QString("Invalid argument count - received %1, expected %2").arg(args.size()).arg(ntypes));
 	for(int i=0;i<ntypes;i++)
 	{
-		if(args[i].type() != types[i] && !args[i].canConvert(types[i]))
-			throw XmlRpcService::XmlRpcError(3, QString("Invalid argument type - #%1, received %2, expected %3").arg(i).arg(args[i].type()).arg(types[i]));
+		if(args[i].userType() != types[i] && !canConvertTo(args[i], types[i]))
+			throw XmlRpcService::XmlRpcError(3, QString("Invalid argument type - #%1, received %2, expected %3").arg(i).arg(args[i].userType()).arg(types[i]));
 	}
 }
 
-static void checkType(QVariant var, QVariant::Type type)
+static void checkType(QVariant var, QMetaType::Type type)
 {
-	if(var.type() != type)
+	if(var.userType() != type)
 	{
 		throw XmlRpcService::XmlRpcError(4, QString("Invalid subargument type - %1 instead of %2")
-						 .arg(var.type()).arg(type));
+						 .arg(var.userType()).arg(type));
 	}
 }
 
 void XmlRpcService::globalInit()
 {
-	registerFunction("getQueues", XmlRpcService::getQueues, QVector<QVariant::Type>());
+	registerFunction("getQueues", XmlRpcService::getQueues, QVector<QMetaType::Type>());
 
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::String << QVariant::Map;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QString << QMetaType::QVariantMap;
 		registerFunction("Queue.setProperties", Queue_setProperties, aa);
 	}
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::String;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QString;
 		registerFunction("Transfer.getProperties", Transfer_getProperties, aa);
 	}
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::Map;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QVariantMap;
 		registerFunction("Queue.create", Queue_create, aa);
 	}
-	registerFunction("getTransferClasses", getTransferClasses, QVector<QVariant::Type>());
+	registerFunction("getTransferClasses", getTransferClasses, QVector<QMetaType::Type>());
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::String;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QString;
 		registerFunction("Transfer.getAdvancedProperties", Transfer_getAdvancedProperties, aa);
 	}
 
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::Bool;
-		aa << QVariant::String;
-		aa << QVariant::StringList;
-		aa << QVariant::String;
-		aa << QVariant::String;
-		aa << QVariant::Bool;
-		aa << QVariant::Int;
-		aa << QVariant::Int;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::Bool;
+		aa << QMetaType::QString;
+		aa << QMetaType::QStringList;
+		aa << QMetaType::QString;
+		aa << QMetaType::QString;
+		aa << QMetaType::Bool;
+		aa << QMetaType::Int;
+		aa << QMetaType::Int;
 		registerFunction("Queue.addTransfers", Queue_addTransfers, aa);
 	}
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::Bool;
-		aa << QVariant::String;
-		aa << QVariant::String;
-		aa << QVariant::ByteArray;
-		aa << QVariant::String;
-		aa << QVariant::String;
-		aa << QVariant::Bool;
-		aa << QVariant::Int;
-		aa << QVariant::Int;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::Bool;
+		aa << QMetaType::QString;
+		aa << QMetaType::QString;
+		aa << QMetaType::QByteArray;
+		aa << QMetaType::QString;
+		aa << QMetaType::QString;
+		aa << QMetaType::Bool;
+		aa << QMetaType::Int;
+		aa << QMetaType::Int;
 		registerFunction("Queue.addTransferWithData", Queue_addTransferWithData, aa);
 	}
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::StringList;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QStringList;
 		registerFunction("Settings.getValue", Settings_getValue, aa);
 	}
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::StringList;
-		aa << QVariant::List;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QStringList;
+		aa << QMetaType::QVariantList;
 		registerFunction("Settings.setValue", Settings_setValue, aa);
 	}
-	registerFunction("Settings.apply", Settings_apply, QVector<QVariant::Type>());
-	registerFunction("Settings.getPages", Settings_getPages, QVector<QVariant::Type>());
+	registerFunction("Settings.apply", Settings_apply, QVector<QMetaType::Type>());
+	registerFunction("Settings.getPages", Settings_getPages, QVector<QMetaType::Type>());
 
 	{
-		QVector<QVariant::Type> aa;
-		aa << QVariant::String;
+		QVector<QMetaType::Type> aa;
+		aa << QMetaType::QString;
 
 		registerFunction("Queue.getSpeedData", Queue_getSpeedGraph, aa);
 		registerFunction("Transfer.getSpeedData", Transfer_getSpeedGraph, aa);
@@ -172,28 +181,28 @@ void XmlRpcService::handleRequest(const httplib::Request& req, httplib::Response
 
 		if(function == "Queue.getTransfers")
 		{
-			QVariant::Type aa[] = { QVariant::String };
+			QMetaType::Type aa[] = { QMetaType::QString };
 			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
 
 			returnValue = Queue_getTransfers(args[0].toString());
 		}
 		else if(function == "Queue.moveTransfers")
 		{
-			QVariant::Type aa[] = { QVariant::String, QVariant::StringList, QVariant::String };
+			QMetaType::Type aa[] = { QMetaType::QString, QMetaType::QStringList, QMetaType::QString };
 			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
 
 			returnValue = Queue_moveTransfers(args[0].toString(), args[1].toStringList(), args[2].toString());
 		}
 		else if(function == "Transfer.setProperties")
 		{
-			QVariant::Type aa[] = { QVariant::StringList, QVariant::Map };
+			QMetaType::Type aa[] = { QMetaType::QStringList, QMetaType::QVariantMap };
 			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
 
 			returnValue = Transfer_setProperties(args[0].toStringList(), args[1].toMap());
 		}
 		else if(function == "Transfer.delete")
 		{
-			QVariant::Type aa[] = { QVariant::StringList, QVariant::Bool };
+			QMetaType::Type aa[] = { QMetaType::QStringList, QMetaType::Bool };
 			checkArguments(args, aa, sizeof(aa)/sizeof(aa[0]));
 
 			returnValue = Transfer_delete(args[0].toStringList(), args[1].toBool());
@@ -419,48 +428,48 @@ QVariant XmlRpcService::Queue_create(QList<QVariant>& args)
 		QString prop = it.key();
 		if(prop == "name")
 		{
-			checkType(it.value(), QVariant::String);
+			checkType(it.value(), QMetaType::QString);
 			q->setName(it.value().toString());
 		}
 		else if(prop == "defaultDirectory")
 		{
-			checkType(it.value(), QVariant::String);
+			checkType(it.value(), QMetaType::QString);
 			q->setDefaultDirectory(it.value().toString());
 		}
 		else if(prop == "moveDirectory")
 		{
-			checkType(it.value(), QVariant::String);
+			checkType(it.value(), QMetaType::QString);
 			q->setMoveDirectory(it.value().toString());
 		}
 		else if(prop == "speedLimits")
 		{
-			checkType(it.value(), QVariant::List);
+			checkType(it.value(), QMetaType::QVariantList);
 			QVariantList list = it.value().toList();
 
 			if(list.size() != 2)
 				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
 
-			checkType(list.at(0), QVariant::Int);
-			checkType(list.at(1), QVariant::Int);
+			checkType(list.at(0), QMetaType::Int);
+			checkType(list.at(1), QMetaType::Int);
 
 			q->setSpeedLimits(list.at(0).toInt(), list.at(1).toInt());
 		}
 		else if(prop == "transferLimits")
 		{
-			checkType(it.value(), QVariant::List);
+			checkType(it.value(), QMetaType::QVariantList);
 			QVariantList list = it.value().toList();
 
 			if(list.size() != 2)
 				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
 
-			checkType(list.at(0), QVariant::Int);
-			checkType(list.at(1), QVariant::Int);
+			checkType(list.at(0), QMetaType::Int);
+			checkType(list.at(1), QMetaType::Int);
 
 			q->setTransferLimits(list.at(0).toInt(), list.at(1).toInt());
 		}
 		else if(prop == "upAsDown")
 		{
-			checkType(it.value(), QVariant::Bool);
+			checkType(it.value(), QMetaType::Bool);
 			q->setUpAsDown(it.value().toBool());
 		}
 		else
@@ -490,48 +499,48 @@ QVariant XmlRpcService::Queue_setProperties(QList<QVariant>& args)
 		QString prop = it.key();
 		if(prop == "name")
 		{
-			checkType(it.value(), QVariant::String);
+			checkType(it.value(), QMetaType::QString);
 			q->setName(it.value().toString());
 		}
 		else if(prop == "defaultDirectory")
 		{
-			checkType(it.value(), QVariant::String);
+			checkType(it.value(), QMetaType::QString);
 			q->setDefaultDirectory(it.value().toString());
 		}
 		else if(prop == "moveDirectory")
 		{
-			checkType(it.value(), QVariant::String);
+			checkType(it.value(), QMetaType::QString);
 			q->setMoveDirectory(it.value().toString());
 		}
 		else if(prop == "speedLimits")
 		{
-			checkType(it.value(), QVariant::List);
+			checkType(it.value(), QMetaType::QVariantList);
 			QVariantList list = it.value().toList();
 
 			if(list.size() != 2)
 				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
 
-			checkType(list.at(0), QVariant::Int);
-			checkType(list.at(1), QVariant::Int);
+			checkType(list.at(0), QMetaType::Int);
+			checkType(list.at(1), QMetaType::Int);
 
 			q->setSpeedLimits(list.at(0).toInt(), list.at(1).toInt());
 		}
 		else if(prop == "transferLimits")
 		{
-			checkType(it.value(), QVariant::List);
+			checkType(it.value(), QMetaType::QVariantList);
 			QVariantList list = it.value().toList();
 
 			if(list.size() != 2)
 				throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
 
-			checkType(list.at(0), QVariant::Int);
-			checkType(list.at(1), QVariant::Int);
+			checkType(list.at(0), QMetaType::Int);
+			checkType(list.at(1), QMetaType::Int);
 
 			q->setTransferLimits(list.at(0).toInt(), list.at(1).toInt());
 		}
 		else if(prop == "upAsDown")
 		{
-			checkType(it.value(), QVariant::Bool);
+			checkType(it.value(), QMetaType::Bool);
 			q->setUpAsDown(it.value().toBool());
 		}
 		else
@@ -558,29 +567,29 @@ QVariant XmlRpcService::Transfer_setProperties(QStringList luuid, QVariantMap pr
 			QString prop = it.key();
 			if(prop == "state")
 			{
-				checkType(it.value(), QVariant::String);
+				checkType(it.value(), QMetaType::QString);
 				TransferFactory::instance()->setState(t, Transfer::string2state(it.value().toString()));
 			}
 			else if(prop == "comment")
 			{
-				checkType(it.value(), QVariant::String);
+				checkType(it.value(), QMetaType::QString);
 				t->setComment(it.value().toString());
 			}
 			else if(prop == "object")
 			{
-				checkType(it.value(), QVariant::String);
+				checkType(it.value(), QMetaType::QString);
 				t->setObject(it.value().toString());
 			}
 			else if(prop == "userSpeedLimits")
 			{
-				checkType(it.value(), QVariant::List);
+				checkType(it.value(), QMetaType::QVariantList);
 				QVariantList list = it.value().toList();
 
 				if(list.size() != 2)
 					throw XmlRpcError(104, QString("Invalid list length: %1").arg(list.size()));
 
-				checkType(list.at(0), QVariant::Int);
-				checkType(list.at(1), QVariant::Int);
+				checkType(list.at(0), QMetaType::Int);
+				checkType(list.at(1), QMetaType::Int);
 
 				t->setUserSpeedLimits(list.at(0).toInt(), list.at(1).toInt());
 			}
@@ -687,7 +696,7 @@ QVariant XmlRpcService::Queue_moveTransfers(QString uuidQueue, QStringList uuidT
 	return QVariant();
 }
 
-void XmlRpcService::registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments)
+void XmlRpcService::registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QMetaType::Type> arguments)
 {
 	FunctionInfo fi;
 	fi.arguments = arguments;

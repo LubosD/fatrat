@@ -51,7 +51,7 @@ Q_OBJECT
 public:
 	XmlRpcService();
 	static void globalInit();
-	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QVariant::Type> arguments);
+	static void registerFunction(QString name, QVariant (*func)(QList<QVariant>&), QVector<QMetaType::Type> arguments);
 	static void deregisterFunction(QString name);
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
@@ -96,7 +96,7 @@ private:
 	struct FunctionInfo
 	{
 		QVariant (*function)(QList<QVariant>&);
-		QVector<QVariant::Type> arguments;
+		QVector<QMetaType::Type> arguments;
 	};
 
 	static QMap<QString,FunctionInfo> m_mapFunctions;
