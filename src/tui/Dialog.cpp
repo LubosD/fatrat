@@ -216,6 +216,7 @@ void FormDialog::addShortcut(int key, bool ctrl, const QString& keyLabel, const 
 
 void FormDialog::focusField(const QString& id)
 {
+	m_focusInit = true; // an explicit choice wins over the default of the first text field
 	for (int i = 0; i < m_fields.size(); i++)
 		if (m_fields[i].id == id)
 			m_focus = i;

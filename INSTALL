@@ -25,12 +25,28 @@ Should you need to make install to a different directory, the traditional DESTDI
 | Java extensions               | WITH_JPLUGINS         | JRE 1.6, (JDK for compilation)               |
 | Desktop UI (OFF = fatrat-nogui) | WITH_GUI (default ON) | QtWidgets, QtSvg                             |
 | D-Bus interface               | WITH_DBUS (default ON)| QtDBus                                       |
+| Terminal UI (fatrat-tui)      | WITH_TUI (default OFF)| ncurses with wide characters (ncursesw)      |
 | All of above                  | WITH_EVERYTHING       |                                              |
 
 WITH_GUI and WITH_DBUS default to ON. A headless server build typically uses
   cmake . -DWITH_GUI=OFF -DWITH_DBUS=OFF -DWITH_WEBINTERFACE=ON ...
 which installs bin/fatrat-nogui and needs only QtCore, QtNetwork and QtXml.
 WITH_DOCUMENTATION requires WITH_GUI. WITH_EVERYTHING leaves it off when WITH_GUI is OFF.
+
+*** TERMINAL UI ***
+
+WITH_TUI builds bin/fatrat-tui, a keyboard and mouse driven terminal client. It only needs QtCore, QtNetwork and
+ncurses, and talks to FatRat through the same REST API as the web interface.
+
+  fatrat-tui                       start (or reuse) a private FatRat server on a unix socket and connect to it
+  fatrat-tui --url http://host:port    connect to the web interface of a running FatRat (asks for the password;
+                                   see --password-file and FATRAT_PASSWORD)
+  fatrat-tui --stop                stop a server that fatrat-tui started and left running
+
+The first form needs a FatRat built with WITH_WEBINTERFACE (it starts "fatrat-nogui --rest-socket PATH"), and it
+cannot work while the desktop application is already running, as only one FatRat can run per session.
+Press ? in the program for the list of keys; every action is also shown in the bar at the bottom.
+tests/tui-smoke.sh runs the program against a real headless FatRat on a virtual screen (see --script).
 +-------------------------------+-----------------------+----------------------------------------------+
 
 CMake may have issues finding your JDK installation. Should that happen, try exporting variables such as
