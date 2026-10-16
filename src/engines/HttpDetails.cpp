@@ -243,12 +243,12 @@ void HttpDetails::refresh()
 
 			if (!gradient)
 			{
-				gradient = new GradientWidget(s.color);
+				gradient = new GradientWidget(QColor::fromRgb(s.color));
 				treeActiveSegments->setItemWidget(item, 1, gradient);
 			}
-			else if (gradient->color() != s.color)
+			else if (gradient->color() != QColor::fromRgb(s.color))
 			{
-				gradient->setColor(s.color);
+				gradient->setColor(QColor::fromRgb(s.color));
 			}
 
 			QString size;

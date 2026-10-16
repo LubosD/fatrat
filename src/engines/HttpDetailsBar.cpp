@@ -84,9 +84,10 @@ void HttpDetailsBar::paintEvent(QPaintEvent* event)
 		
 		if(sg.client != 0)
 		{
-			gradient.setColorAt(0, sg.color.lighter(200));
-			gradient.setColorAt(0.5, sg.color);
-			gradient.setColorAt(1, sg.color);
+			const QColor color = QColor::fromRgb(sg.color);
+			gradient.setColorAt(0, color.lighter(200));
+			gradient.setColorAt(0.5, color);
+			gradient.setColorAt(1, color);
 		}
 		else
 		{

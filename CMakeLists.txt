@@ -354,6 +354,7 @@ if(WITH_CURL)
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}
+		src/engines/CurlDownloadGui.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/HttpDetails.cpp
