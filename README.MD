@@ -1,7 +1,9 @@
 # FatRat
 
-FatRat is an open source download and upload manager for Linux, written in C++ and built on Qt 6.
+FatRat is an open source download and upload manager, written in C++ and built on Qt 6.
 It downloads over HTTP(S) and FTP(S), speaks BitTorrent, organises transfers in queues, and can be controlled from a desktop window, a web browser, a terminal or scripts, all at the same time.
+
+**Supported platforms:** Linux, BSD and macOS.
 
 Licensed under the GNU GPL version 3. Copyright © 2006-2015 Luboš Doležel. Credits for third-party graphics, libraries and web interface components are in the original `README` file.
 
