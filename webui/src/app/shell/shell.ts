@@ -1,3 +1,4 @@
+import { StatusBar } from '../features/status-bar/status-bar';
 import { Component, computed, inject, signal } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -72,6 +73,7 @@ interface ToolbarAction {
     NewTransferDialog,
     SettingsDialog,
     CaptchaDialog,
+    StatusBar,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',

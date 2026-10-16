@@ -63,6 +63,15 @@ describe('RestTransferApi', () => {
     req.flush({ path: '/', parent: '', entries: [] });
   });
 
+  it('getStats: GET /stats', () => {
+    let out: unknown;
+    api.getStats().subscribe((v) => (out = v));
+    const req = httpMock.expectOne('/api/v1/stats');
+    expect(req.request.method).toBe('GET');
+    req.flush({ total: { down: 5, up: 1 }, queues: {} });
+    expect(out).toEqual({ total: { down: 5, up: 1 }, queues: {} });
+  });
+
   it('getQueues: GET /queues', () => {
     let out: unknown;
     api.getQueues().subscribe((v) => (out = v));

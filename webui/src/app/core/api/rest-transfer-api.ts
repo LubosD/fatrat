@@ -10,6 +10,7 @@ import {
   Queue,
   SettingsPage,
   SpeedSample,
+  Stats,
   Transfer,
   TransferClass,
 } from './models';
@@ -28,6 +29,10 @@ export class RestTransferApi extends TransferApi {
     if (queueUuid) query['queue'] = queueUuid;
     if (showHidden) query['showHidden'] = true;
     return this.rest.get<DirectoryListing>('/filesystem/directories', query);
+  }
+
+  getStats(): Observable<Stats> {
+    return this.rest.get<Stats>('/stats');
   }
 
   getQueues(): Observable<Queue[]> {

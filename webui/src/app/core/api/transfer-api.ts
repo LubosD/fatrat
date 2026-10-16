@@ -7,6 +7,7 @@ import {
   DirectoryListing,
   SpeedSample,
   SpeedLimits,
+  Stats,
   NewTransferOptions,
 } from './models';
 import { JsonValue } from './json-value';
@@ -29,6 +30,7 @@ export abstract class TransferApi {
     showHidden?: boolean,
   ): Observable<DirectoryListing>;
 
+  abstract getStats(): Observable<Stats>;
   abstract getQueues(): Observable<Queue[]>;
   abstract createQueue(properties: Partial<Queue>): Observable<void>;
   abstract setQueueProperties(uuid: string, properties: Partial<Queue>): Observable<void>;

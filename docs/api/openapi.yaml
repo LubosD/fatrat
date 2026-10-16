@@ -33,6 +33,20 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
+  /stats:
+    get:
+      summary: Current transfer rates, in total and per queue (bytes/s)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [total, queues]
+                properties:
+                  total: { $ref: "#/components/schemas/SpeedPair" }
+                  queues: { type: object, additionalProperties: { $ref: "#/components/schemas/SpeedPair" } }
   /queues:
     get:
       summary: List queues

@@ -31,6 +31,7 @@ req GET "/filesystem/directories?path=relative"; check "list directories relativ
 json POST /queues '{"name":"smoke-test","speedLimits":{"down":10,"up":20}}'
 check "create queue" 201 '.name == "smoke-test" and .speedLimits.up == 20'
 Q=$(echo "$body" | jq -r .uuid); QE=$(enc "$Q")
+req GET /stats;                                  check "stats" 200 '.total.down >= 0 and (.queues|has("'$Q'"))'
 req GET /queues;                                 check "list queues" 200 "map(select(.uuid==\"$Q\")) | length == 1"
 json PATCH "/queues/$QE" '{"name":"smoke-2","upAsDown":true,"transferLimits":{"down":3,"up":4}}'
 check "patch queue" 200 '.name=="smoke-2" and .upAsDown==true and .transferLimits.down==3'

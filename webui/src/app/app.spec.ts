@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ConfirmationService } from 'primeng/api';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { App } from './app';
 import { QueuesStore } from './state/queues.store';
 import { TransfersStore } from './state/transfers.store';
@@ -26,7 +26,7 @@ describe('App', () => {
             selectOnly: () => {},
           },
         },
-        { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: () => {} } },
+        { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: () => {}, ticks$: new Subject<number>() } },
         {
           provide: TransferActionsService,
           useValue: {
@@ -39,7 +39,7 @@ describe('App', () => {
           },
         },
         { provide: QueueActionsService, useValue: { createQueue: vi.fn(), updateQueueProperties: vi.fn() } },
-        { provide: TransferApi, useValue: { getTransferClasses: () => of([]) } },
+        { provide: TransferApi, useValue: { getTransferClasses: () => of([]), getStats: () => of({ total: { down: 0, up: 0 }, queues: {} }), getSettingsValues: () => of([]) } },
         ConfirmationService,
       ],
     });

@@ -3,6 +3,11 @@ export interface SpeedLimits {
   up: number;
 }
 
+export interface Stats {
+  total: SpeedLimits;
+  queues: { [queueUuid: string]: SpeedLimits };
+}
+
 export interface Queue {
   uuid: string;
   name: string;

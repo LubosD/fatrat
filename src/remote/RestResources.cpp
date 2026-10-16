@@ -350,6 +350,37 @@ static RestResult listQueues(const RestRequest&)
 	return RestResult::ok(rv);
 }
 
+static RestResult getStats(const RestRequest&)
+{
+	QReadLocker l(&g_queuesLock);
+	QJsonObject perQueue;
+	qint64 totalDown = 0, totalUp = 0;
+
+	for (Queue* q : g_queues)
+	{
+		qint64 qDown = 0, qUp = 0;
+
+		q->lock();
+		for (int i = 0; i < q->size(); i++)
+		{
+			int down, up;
+			q->at(i)->speeds(down, up);
+			qDown += down;
+			qUp += up;
+		}
+		q->unlock();
+
+		perQueue[q->uuid()] = RestApi::speedPairToJson(int(qDown), int(qUp));
+		totalDown += qDown;
+		totalUp += qUp;
+	}
+
+	QJsonObject rv;
+	rv["total"] = RestApi::speedPairToJson(int(totalDown), int(totalUp));
+	rv["queues"] = perQueue;
+	return RestResult::ok(rv);
+}
+
 static RestResult createQueue(const RestRequest& req)
 {
 	QueueUpdate update = QueueUpdate::parse(req.jsonObject());
@@ -755,6 +786,7 @@ void RestResources::registerAll()
 	RestApi::registerRoute("GET", "/filesystem/directories", listDirectories);
 
 	RestApi::registerRoute("GET", "/queues", listQueues);
+	RestApi::registerRoute("GET", "/stats", getStats);
 	RestApi::registerRoute("POST", "/queues", createQueue);
 	RestApi::registerRoute("PATCH", "/queues/:queue", patchQueue);
 	RestApi::registerRoute("GET", "/queues/:queue/transfers", listQueueTransfers);
