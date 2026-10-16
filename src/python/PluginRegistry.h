@@ -36,6 +36,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QString>
 #include <QStringList>
 
+#include "PluginManifest.h"
+
 /* What is installed, and what of it is loaded.
  *
  * A plugin is a directory with a plugin.json manifest. Discovery reads the
@@ -49,16 +51,9 @@ respects for all of the code used other than "OpenSSL".
 class PluginRegistry
 {
 public:
-	struct Manifest
-	{
-		Manifest() : valid(false) {}
-
-		bool valid;
-		QString directory;
-		QString name, version, description, entry, license, homepage, apiVersion, minFatRat;
-		QStringList permissions;
-		QString error; // why it was rejected, when valid is false
-	};
+	// The manifest type lives in PluginManifest.h: parsing JSON has
+	// nothing to do with the interpreter, and is tested without one.
+	typedef PluginManifest Manifest;
 
 	struct LoadedPlugin
 	{
@@ -72,9 +67,8 @@ public:
 	static void globalInit();
 	static void globalExit();
 
-	// Read one plugin.json. Never throws: an unreadable or unsupported
-	// manifest comes back with valid == false and an explanation.
-	static Manifest readManifest(const QString& directory);
+	// The plugin API version this FatRat implements.
+	static QString apiVersion();
 
 	// Manifests of everything in the installed-plugins directory.
 	static QList<Manifest> installed();
@@ -90,6 +84,10 @@ public:
 	// Import one plugin directory and register its engines. Used by
 	// globalInit() and, later, right after an install.
 	static LoadedPlugin loadPlugin(const Manifest& manifest);
+
+	// Tell the plugins that implement on_config_saved() that settings were
+	// saved. Safe to call when no interpreter is running.
+	static void notifyConfigSaved();
 };
 
 #endif // PLUGINREGISTRY_H

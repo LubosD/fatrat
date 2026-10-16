@@ -8,6 +8,11 @@
       "name": "dummy",
       "source": "./dummy",
       "description": "A worked example: resolves a link in two steps, with a countdown and a captcha."
+    },
+    {
+      "name": "extras",
+      "source": "./extras",
+      "description": "Extractor, upload, search and account-status examples."
     }
   ]
 }

@@ -57,6 +57,14 @@ if(WITH_TUI)
 endif(WITH_TUI)
 
 if(WITH_PYPLUGINS)
+	add_executable(tst_pluginmanifest tst_pluginmanifest.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginManifest.cpp)
+	target_include_directories(tst_pluginmanifest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_compile_definitions(tst_pluginmanifest PRIVATE
+		EXAMPLE_REPO_DIR="${CMAKE_SOURCE_DIR}/examples/plugin-repo")
+	target_link_libraries(tst_pluginmanifest Qt6::Core Qt6::Test)
+	add_test(NAME pluginmanifest COMMAND tst_pluginmanifest)
+
 	add_executable(tst_pyplugins tst_pyplugins.cpp pystubs.cpp
 		${CMAKE_SOURCE_DIR}/src/python/PyVM.cpp
 		${CMAKE_SOURCE_DIR}/src/python/PyRef.cpp

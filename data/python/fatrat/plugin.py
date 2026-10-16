@@ -10,11 +10,11 @@ plugin did.
 from __future__ import annotations
 
 from collections.abc import MutableMapping
-from typing import Any, Iterator, Mapping, Optional, Union
+from typing import Any, Iterator, List, Mapping, Optional, Union
 
 from . import _native
 from ._async import Future
-from ._transfer import DownloadUrl, State
+from ._transfer import AccountStatus, DownloadUrl, SearchResult, State
 
 if _native.available():
     _Base: Any = _native.native().PluginBase
@@ -45,6 +45,13 @@ class Plugin(_Base):
         Write to this transfer's log (the global log when there is no
         transfer, such as during a search).
     """
+
+    def on_config_saved(self) -> None:
+        """Called after the user saves settings, if you need to react.
+
+        Most plugins do not: a fresh instance is created per transfer and
+        reads ``fatrat.settings`` as it goes.
+        """
 
     def fetch(self, url: str, *, data: Union[None, Mapping[str, Any], str, bytes] = None,
               headers: Optional[Mapping[str, str]] = None,
@@ -165,4 +172,73 @@ class DownloadPlugin(TransferPlugin):
         raise NotImplementedError
 
 
-__all__ = ["DownloadPlugin", "DownloadUrl", "Plugin", "State", "TransferPlugin"]
+class ExtractorPlugin(TransferPlugin):
+    """Turns one link into the links inside it.
+
+    A folder listing, a "download all" page, a container file: override
+    :meth:`extract`, fetch whatever you need, and return the links. FatRat
+    replaces this transfer with one transfer per link, each handed to
+    whichever engine handles it.
+    """
+
+    async def extract(self, url: str) -> List[str]:
+        """Return the links found at *url*. Must be overridden."""
+        raise NotImplementedError(
+            "%s must implement extract()" % type(self).__name__)
+
+    def acceptable(self, url: str) -> int:
+        """See :meth:`DownloadPlugin.acceptable`."""
+        raise NotImplementedError
+
+
+class UploadPlugin(TransferPlugin):
+    """Uploads a local file somewhere and reports the link.
+
+    Override :meth:`process_file`, POST the form the host expects, and finish
+    with :meth:`put_download_link`. FatRat streams the file through its own
+    curl machinery, so the upload obeys speed limits and shows real progress.
+
+    Native services, beyond those of :class:`TransferPlugin`:
+
+    ``await self.upload(url, parts, offset=0, length=-1)``
+        POST one multipart form and await the server's
+        :class:`fatrat.Response`. ``parts`` is a list of
+        :class:`fatrat.MimeValue` and at most one :class:`fatrat.MimeFile`;
+        ``offset``/``length`` upload only a slice of the file, for hosts that
+        want it in chunks.
+
+    ``put_download_link(url, kill_link="")``
+        the upload is done and this is where the file now lives. The transfer
+        completes.
+    """
+
+    async def process_file(self, path: str) -> None:
+        """Upload the file at *path*. Must be overridden."""
+        raise NotImplementedError(
+            "%s must implement process_file()" % type(self).__name__)
+
+
+class SearchPlugin(Plugin):
+    """Searches a site and returns what it found.
+
+    Search plugins have no transfer: they are asked a question and answer it.
+    The user picks results and FatRat turns them into transfers.
+    """
+
+    async def search(self, query: str) -> List[SearchResult]:
+        """Return what *query* found. Must be overridden."""
+        raise NotImplementedError(
+            "%s must implement search()" % type(self).__name__)
+
+
+class AccountStatusPlugin(Plugin):
+    """Reports how much is left of a premium account."""
+
+    async def account_status(self) -> AccountStatus:
+        """Return the account's state and balance. Must be overridden."""
+        raise NotImplementedError(
+            "%s must implement account_status()" % type(self).__name__)
+
+
+__all__ = ["AccountStatusPlugin", "DownloadPlugin", "DownloadUrl", "ExtractorPlugin",
+           "Plugin", "SearchPlugin", "State", "TransferPlugin", "UploadPlugin"]

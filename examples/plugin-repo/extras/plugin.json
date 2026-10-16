@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "name": "extras",
+  "version": "1.0.0",
+  "api": "1",
+  "description": "Worked examples of the other plugin kinds: extractor, upload, search and account status.",
+  "license": "GPL-3.0-only",
+  "entry": "extras.py",
+  "permissions": ["network"],
+  "config": [
+    {"type": "text", "key": "extras/api_key", "title": "API key"},
+    {
+      "type": "order",
+      "key": "extras/mirrors",
+      "title": "Mirror preference (drag to reorder)",
+      "options": [
+        {"value": "eu", "title": "Europe"},
+        {"value": "us", "title": "North America"},
+        {"value": "asia", "title": "Asia"}
+      ]
+    }
+  ]
+}

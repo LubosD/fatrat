@@ -30,16 +30,19 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QDir>
 #include <QFile>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QObject>
 #include <QtDebug>
 
 #include "Logger.h"
+#include "PluginServices.h"
 #include "PyVM.h"
 #include "Settings.h"
+#ifdef WITH_GUI
+#	include "engines/SettingsPythonPluginForm.h"
+#endif
 #include "engines/PythonDownload.h"
+#include "engines/PythonExtractor.h"
+#include "engines/PythonUpload.h"
 #include "util/LegacyRegex.h"
 
 namespace py = pybind11;
@@ -49,79 +52,14 @@ static const QLatin1String API_VERSION("1");
 
 static QList<PluginRegistry::LoadedPlugin> s_loaded;
 
-PluginRegistry::Manifest PluginRegistry::readManifest(const QString& directory)
+QString PluginRegistry::apiVersion()
 {
-	Manifest manifest;
-	QFile file(QDir(directory).filePath(QLatin1String("plugin.json")));
-
-	manifest.directory = directory;
-
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		manifest.error = QObject::tr("no plugin.json in %1").arg(directory);
-		return manifest;
-	}
-
-	QJsonParseError parseError;
-	QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
-
-	if (doc.isNull() || !doc.isObject())
-	{
-		manifest.error = QObject::tr("plugin.json is not valid JSON: %1").arg(parseError.errorString());
-		return manifest;
-	}
-
-	QJsonObject root = doc.object();
-
-	manifest.name = root.value(QLatin1String("name")).toString();
-	manifest.version = root.value(QLatin1String("version")).toString();
-	manifest.description = root.value(QLatin1String("description")).toString();
-	manifest.entry = root.value(QLatin1String("entry")).toString();
-	manifest.license = root.value(QLatin1String("license")).toString();
-	manifest.homepage = root.value(QLatin1String("homepage")).toString();
-	manifest.apiVersion = root.value(QLatin1String("api")).toString();
-	manifest.minFatRat = root.value(QLatin1String("min_fatrat")).toString();
-
-	QJsonArray permissions = root.value(QLatin1String("permissions")).toArray();
-	for (QJsonArray::const_iterator it = permissions.begin(); it != permissions.end(); it++)
-		manifest.permissions << (*it).toString();
-
-	if (manifest.name.isEmpty())
-	{
-		manifest.error = QObject::tr("plugin.json has no name");
-		return manifest;
-	}
-
-	if (manifest.entry.isEmpty())
-		manifest.entry = manifest.name + QLatin1String(".py");
-
-	// A plugin written against a different major API is not loaded at all:
-	// half-working plugins are worse than absent ones.
-	if (manifest.apiVersion.isEmpty())
-		manifest.apiVersion = API_VERSION;
-	if (manifest.apiVersion != API_VERSION)
-	{
-		manifest.error = QObject::tr("%1 needs plugin API %2, this FatRat has %3")
-			.arg(manifest.name).arg(manifest.apiVersion).arg(API_VERSION);
-		return manifest;
-	}
-
-	manifest.valid = true;
-	return manifest;
+	return API_VERSION;
 }
 
 QList<PluginRegistry::Manifest> PluginRegistry::installed()
 {
-	QList<Manifest> rv;
-	QDir dir(PyVM::installedPluginsPath());
-
-	if (!dir.exists())
-		return rv;
-
-	foreach (const QString& name, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
-		rv << readManifest(dir.filePath(name));
-
-	return rv;
+	return PluginManifest::readAll(PyVM::installedPluginsPath(), API_VERSION);
 }
 
 QList<PluginRegistry::LoadedPlugin> PluginRegistry::loaded()
@@ -157,44 +95,84 @@ void PluginRegistry::setPluginEnabled(const QString& name, bool enabled)
  * to stay stable across restarts; the strings behind EngineEntry's char
  * pointers live in the engine map, which is never cleared while FatRat runs.
  */
-static QString registerDownloadEngine(py::handle descriptor)
+namespace {
+
+// The parts of registration that do not depend on the plugin kind.
+struct CommonEngine
 {
-	QString identifier = QString::fromStdString(py::str(descriptor.attr("identifier")).cast<std::string>());
-	QString name = QString::fromStdString(py::str(descriptor.attr("name")).cast<std::string>());
-	QString pattern = QString::fromStdString(py::str(descriptor.attr("url_pattern")).cast<std::string>());
-	py::dict options = py::reinterpret_borrow<py::dict>(descriptor.attr("options"));
+	QString identifier, name, pattern;
+	py::dict options;
+	PyRef cls, probe;
+	QRegularExpression regexp;
+	bool ownAcceptable;
+};
 
-	PythonDownload::PyEngine engine;
+CommonEngine readDescriptor(py::handle descriptor)
+{
+	CommonEngine common;
 
-	engine.name = (QObject::tr("EXT - ") + name).toStdString();
-	engine.identifier = identifier.toStdString();
-	engine.cls = pyToRef(descriptor.attr("cls"));
-	engine.singleTransfer = options.contains("single_transfer") && options["single_transfer"].cast<bool>();
-	engine.truncate = options.contains("truncate_incomplete") && options["truncate_incomplete"].cast<bool>();
-	engine.ownAcceptable = options.contains("has_acceptable") && options["has_acceptable"].cast<bool>();
+	common.identifier = QString::fromStdString(py::str(descriptor.attr("identifier")).cast<std::string>());
+	common.name = QString::fromStdString(py::str(descriptor.attr("name")).cast<std::string>());
+	common.pattern = QString::fromStdString(py::str(descriptor.attr("url_pattern")).cast<std::string>());
+	common.options = py::reinterpret_borrow<py::dict>(descriptor.attr("options"));
+	common.cls = pyToRef(descriptor.attr("cls"));
+	common.ownAcceptable = common.options.contains("has_acceptable")
+		&& common.options["has_acceptable"].cast<bool>();
 
-	if (!pattern.isEmpty())
-		engine.regexp = legacyRegex(QRegularExpression::anchoredPattern(pattern));
+	if (!common.pattern.isEmpty())
+		common.regexp = legacyRegex(QRegularExpression::anchoredPattern(common.pattern));
 
-	if (engine.ownAcceptable)
+	if (common.ownAcceptable)
 	{
 		// acceptable() is asked about URLs long before any transfer exists,
 		// so keep one instance around to ask.
 		try
 		{
-			engine.probe = pyToRef(pyFromRef(engine.cls)());
+			common.probe = pyToRef(pyFromRef(common.cls)());
 		}
 		catch (const py::error_already_set& e)
 		{
 			Logger::global()->enterLogMessage(QLatin1String("Python"),
-				QObject::tr("%1 could not be instantiated: %2").arg(name).arg(pyErrorText(e)));
-			engine.ownAcceptable = false;
+				QObject::tr("%1 could not be instantiated: %2").arg(common.name).arg(pyErrorText(e)));
+			common.ownAcceptable = false;
 		}
 	}
 
-	PythonDownload::engines()[identifier] = engine;
+	return common;
+}
 
-	const PythonDownload::PyEngine& stored = PythonDownload::engines()[identifier];
+QString optionString(const py::dict& options, const char* key)
+{
+	if (!options.contains(key))
+		return QString();
+
+	return QString::fromStdString(py::str(options[key]).cast<std::string>());
+}
+
+bool optionBool(const py::dict& options, const char* key)
+{
+	return options.contains(key) && options[key].cast<bool>();
+}
+
+} // namespace
+
+static QString registerDownloadEngine(py::handle descriptor)
+{
+	CommonEngine common = readDescriptor(descriptor);
+	PythonDownload::PyEngine engine;
+
+	engine.name = (QObject::tr("EXT - ") + common.name).toStdString();
+	engine.identifier = common.identifier.toStdString();
+	engine.cls = common.cls;
+	engine.probe = common.probe;
+	engine.regexp = common.regexp;
+	engine.ownAcceptable = common.ownAcceptable;
+	engine.singleTransfer = optionBool(common.options, "single_transfer");
+	engine.truncate = optionBool(common.options, "truncate_incomplete");
+
+	PythonDownload::engines()[common.identifier] = engine;
+
+	const PythonDownload::PyEngine& stored = PythonDownload::engines()[common.identifier];
 	EngineEntry entry;
 
 	entry.shortName = stored.identifier.c_str();
@@ -207,9 +185,89 @@ static QString registerDownloadEngine(py::handle descriptor)
 
 	addTransferClass(entry, Transfer::Download);
 
-	qDebug() << "Python plugin engine registered:" << identifier << name;
+	qDebug() << "Python plugin engine registered:" << common.identifier << common.name;
 
-	return identifier;
+	return common.identifier;
+}
+
+// Search and account-status plugins register no engine: they are asked a
+// question when the user opens the search tool or the account list.
+static QString registerServicePlugin(py::handle descriptor, QList<PluginServices::Entry>& into)
+{
+	CommonEngine common = readDescriptor(descriptor);
+	PluginServices::Entry entry;
+
+	entry.identifier = common.identifier;
+	entry.name = common.name;
+	entry.cls = common.cls;
+
+	into << entry;
+
+	qDebug() << "Python service plugin registered:" << common.identifier << common.name;
+
+	return common.identifier;
+}
+
+static QString registerUploadEngine(py::handle descriptor)
+{
+	CommonEngine common = readDescriptor(descriptor);
+	PythonUpload::PyEngine engine;
+
+	engine.name = (QObject::tr("EXT - ") + common.name).toStdString();
+	engine.identifier = common.identifier.toStdString();
+	engine.cls = common.cls;
+
+	PythonUpload::engines()[common.identifier] = engine;
+
+	const PythonUpload::PyEngine& stored = PythonUpload::engines()[common.identifier];
+	EngineEntry entry;
+
+	entry.shortName = stored.identifier.c_str();
+	entry.longName = stored.name.c_str();
+	entry.lpfnInit = 0;
+	entry.lpfnExit = 0;
+	entry.lpfnCreate2 = PythonUpload::createInstance;
+	entry.lpfnAcceptable2 = PythonUpload::acceptable;
+	entry.lpfnMultiOptions = 0;
+
+	addTransferClass(entry, Transfer::Upload);
+
+	qDebug() << "Python upload engine registered:" << common.identifier << common.name;
+
+	return common.identifier;
+}
+
+static QString registerExtractorEngine(py::handle descriptor)
+{
+	CommonEngine common = readDescriptor(descriptor);
+	PythonExtractor::PyEngine engine;
+
+	engine.name = (QObject::tr("EXT - ") + common.name).toStdString();
+	engine.identifier = common.identifier.toStdString();
+	engine.cls = common.cls;
+	engine.probe = common.probe;
+	engine.regexp = common.regexp;
+	engine.ownAcceptable = common.ownAcceptable;
+	engine.targetClass = optionString(common.options, "transfer_class");
+
+	PythonExtractor::engines()[common.identifier] = engine;
+
+	const PythonExtractor::PyEngine& stored = PythonExtractor::engines()[common.identifier];
+	EngineEntry entry;
+
+	entry.shortName = stored.identifier.c_str();
+	entry.longName = stored.name.c_str();
+	entry.lpfnInit = 0;
+	entry.lpfnExit = 0;
+	entry.lpfnCreate2 = PythonExtractor::createInstance;
+	entry.lpfnAcceptable2 = PythonExtractor::acceptable;
+	entry.lpfnMultiOptions = 0;
+
+	addTransferClass(entry, Transfer::Download);
+
+	qDebug() << "Python extractor engine registered:" << common.identifier << common.name;
+
+	return common.identifier;
 }
 
 PluginRegistry::LoadedPlugin PluginRegistry::loadPlugin(const Manifest& manifest)
@@ -239,6 +297,14 @@ PluginRegistry::LoadedPlugin PluginRegistry::loadPlugin(const Manifest& manifest
 
 			if (kind == QLatin1String("download"))
 				loaded.engines << registerDownloadEngine(descriptor);
+			else if (kind == QLatin1String("extractor"))
+				loaded.engines << registerExtractorEngine(descriptor);
+			else if (kind == QLatin1String("upload"))
+				loaded.engines << registerUploadEngine(descriptor);
+			else if (kind == QLatin1String("search"))
+				loaded.engines << registerServicePlugin(descriptor, PluginServices::searchPlugins());
+			else if (kind == QLatin1String("account_status"))
+				loaded.engines << registerServicePlugin(descriptor, PluginServices::accountStatusPlugins());
 			else
 			{
 				// Other kinds arrive in a later phase; say so rather than
@@ -289,6 +355,36 @@ void PluginRegistry::globalInit()
 
 		s_loaded << loaded;
 	}
+
+	// Settings -> Extensions exists whether or not anything is installed:
+	// it is where a user goes to install the first plugin.
+	SettingsItem page;
+
+	page.title = QObject::tr("Extensions");
+	page.icon = DelayedIcon(QLatin1String(":/menu/newtool.png"));
+#ifdef WITH_GUI
+	page.lpfnCreate = SettingsPythonPluginForm::create;
+#endif
+
+	addSettingsPage(page);
+}
+
+void PluginRegistry::notifyConfigSaved()
+{
+	if (!PyVM::available())
+		return;
+
+	py::gil_scoped_acquire gil;
+
+	try
+	{
+		py::module_::import("fatrat.registry").attr("notify_config_saved")();
+	}
+	catch (const py::error_already_set& e)
+	{
+		Logger::global()->enterLogMessage(QLatin1String("Python"),
+			QObject::tr("A plugin failed in on_config_saved(): %1").arg(pyErrorText(e)));
+	}
 }
 
 void PluginRegistry::globalExit()
@@ -297,5 +393,9 @@ void PluginRegistry::globalExit()
 
 	// Drops the references to the plugin classes and probe instances.
 	PythonDownload::engines().clear();
+	PythonExtractor::engines().clear();
+	PythonUpload::engines().clear();
+	PluginServices::searchPlugins().clear();
+	PluginServices::accountStatusPlugins().clear();
 	s_loaded.clear();
 }

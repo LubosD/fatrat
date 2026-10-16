@@ -42,6 +42,10 @@ respects for all of the code used other than "OpenSSL".
 class PythonPersistentVariables
 {
 public:
+	// Polymorphic so that the bindings can reach these through whatever
+	// kind of transfer the plugin happens to be driving.
+	virtual ~PythonPersistentVariables() {}
+
 	void setPersistentVariable(QString key, QVariant value);
 	QVariant getPersistentVariable(QString key) const;
 	QStringList persistentVariableNames() const { return m_persistent.keys(); }

@@ -465,26 +465,41 @@ if(WITH_PYPLUGINS)
 		src/python/PyModule.cpp
 		src/python/PyPlugin.cpp
 		src/python/PyTransferBindings.cpp
+		src/python/PluginManifest.cpp
 		src/python/PluginRegistry.cpp
+		src/python/PluginServices.cpp
 		src/engines/PythonPersistentVariables.cpp
 		src/engines/PythonDownload.cpp
+		src/engines/PythonExtractor.cpp
+		src/engines/PythonUpload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/python/PyPlugin.h
 		src/engines/PythonDownload.h
+		src/engines/PythonExtractor.h
+		src/engines/PythonUpload.h
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}
 		src/engines/PythonDownloadOptsForm.cpp
+		src/engines/PythonAccountStatusWidget.cpp
+		src/engines/SettingsPythonPluginForm.cpp
+		src/tools/PythonFileSearch.cpp
 	)
 	set(fatrat_GUI_MOC_HDRS
 		${fatrat_GUI_MOC_HDRS}
 		src/engines/PythonDownloadOptsForm.h
+		src/engines/PythonAccountStatusWidget.h
+		src/engines/SettingsPythonPluginForm.h
+		src/tools/PythonFileSearch.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
 		src/engines/PythonDownloadOptsForm.ui
+		src/engines/PythonAccountStatusWidget.ui
+		src/engines/SettingsPythonPluginForm.ui
+		src/tools/PythonFileSearch.ui
 	)
 endif(WITH_PYPLUGINS)
 

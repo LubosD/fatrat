@@ -30,6 +30,8 @@ respects for all of the code used other than "OpenSSL".
 
 #include "Transfer.h"
 #include "engines/PythonDownload.h"
+#include "engines/PythonUpload.h"
+#include "engines/PythonPersistentVariables.h"
 #include "engines/StaticTransferMessage.h"
 
 namespace py = pybind11;
@@ -42,6 +44,26 @@ static StaticTransferMessage<Transfer>* transferOf(PyPlugin& plugin, const char*
 		throw std::runtime_error(std::string(what) + "() needs a transfer; this plugin has none");
 
 	return transfer;
+}
+
+static PythonPersistentVariables* varsOf(PyPlugin& plugin)
+{
+	PythonPersistentVariables* vars = dynamic_cast<PythonPersistentVariables*>(plugin.transfer());
+
+	if (!vars)
+		throw std::runtime_error("vars are only available to a plugin driving a transfer");
+
+	return vars;
+}
+
+static PythonUpload* uploadOf(PyPlugin& plugin, const char* what)
+{
+	PythonUpload* upload = dynamic_cast<PythonUpload*>(plugin.transfer());
+
+	if (!upload)
+		throw std::runtime_error(std::string(what) + "() is only available to an upload plugin");
+
+	return upload;
 }
 
 static PythonDownload* downloadOf(PyPlugin& plugin, const char* what)
@@ -80,21 +102,21 @@ void registerTransferBindings(PyPluginClass& cls)
 	// self.vars[...] -- values that survive a restart with the transfer.
 	cls.def("_var_get", [](PyPlugin& self, const std::string& key) -> py::object
 	{
-		QVariant value = downloadOf(self, "vars")->getPersistentVariable(QString::fromStdString(key));
+		QVariant value = varsOf(self)->getPersistentVariable(QString::fromStdString(key));
 
 		return value.isValid() ? pyFromVariant(value) : py::none();
 	}, py::arg("key"));
 
 	cls.def("_var_set", [](PyPlugin& self, const std::string& key, py::handle value)
 	{
-		downloadOf(self, "vars")->setPersistentVariable(QString::fromStdString(key), pyToVariant(value));
+		varsOf(self)->setPersistentVariable(QString::fromStdString(key), pyToVariant(value));
 	}, py::arg("key"), py::arg("value"));
 
 	cls.def("_var_names", [](PyPlugin& self)
 	{
 		py::list names;
 
-		foreach (QString name, downloadOf(self, "vars")->persistentVariableNames())
+		foreach (QString name, varsOf(self)->persistentVariableNames())
 			names.append(py::str(name.toStdString()));
 
 		return names;
@@ -105,6 +127,37 @@ void registerTransferBindings(PyPluginClass& cls)
 		downloadOf(self, "report_file_name")->setName(
 			QString::fromStdString(py::str(name).cast<std::string>()));
 	}, py::arg("name"), "Name the transfer before its download starts.");
+
+	cls.def("upload", [](PyPlugin& self, const std::string& url, py::object parts,
+			      qint64 offset, qint64 length)
+	{
+		QList<PythonUpload::MimePart> mimeParts;
+
+		for (py::handle item : parts)
+		{
+			PythonUpload::MimePart part;
+
+			part.name = QString::fromStdString(py::str(item.attr("name")).cast<std::string>());
+			// A MimeFile has no value; that is what makes it the file part.
+			part.filePart = !py::hasattr(item, "value");
+
+			if (!part.filePart)
+				part.value = QString::fromStdString(py::str(item.attr("value")).cast<std::string>());
+
+			mimeParts << part;
+		}
+
+		return pyFromRef(uploadOf(self, "upload")->startUpload(
+			QString::fromStdString(url), mimeParts, offset, length));
+	}, py::arg("url"), py::arg("parts"), py::arg("offset") = 0, py::arg("length") = -1,
+	   "POST one multipart form and await the server's response.");
+
+	cls.def("put_download_link", [](PyPlugin& self, const std::string& url, const std::string& killLink)
+	{
+		uploadOf(self, "put_download_link")->putDownloadLink(
+			QString::fromStdString(url), QString::fromStdString(killLink));
+	}, py::arg("url"), py::arg("kill_link") = "",
+	   "The upload is done and the file lives here. Completes the transfer.");
 
 	cls.def("start_download", [](PyPlugin& self, py::object target)
 	{

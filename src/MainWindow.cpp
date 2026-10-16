@@ -67,6 +67,10 @@ respects for all of the code used other than "OpenSSL".
 #include "ClickableLabel.h"
 #include "util/BalloonTip.h"
 
+#ifdef WITH_PYPLUGINS
+#	include "engines/PythonAccountStatusWidget.h"
+#endif
+
 #ifdef WITH_JPLUGINS
 #	include "engines/JavaAccountStatusWidget.h"
 #	include "engines/SettingsJavaPluginForm.h"
@@ -168,8 +172,16 @@ void MainWindow::setupUi()
 	if(getSettingsValue("css").toBool())
 		loadCSS();
 
-#ifdef WITH_JPLUGINS
-	if (JVM::JVMAvailable())
+#if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
+	bool hasAccountStatus = false;
+#	ifdef WITH_PYPLUGINS
+	hasAccountStatus = PythonAccountStatusWidget::available();
+#	endif
+#	ifdef WITH_JPLUGINS
+	hasAccountStatus = hasAccountStatus || JVM::JVMAvailable();
+#	endif
+
+	if (hasAccountStatus)
 	{
 		m_premiumAccounts = new ClickableLabel(this);
 
@@ -180,6 +192,12 @@ void MainWindow::setupUi()
 		m_premiumAccounts->setCursor(Qt::PointingHandCursor);
 		statusbar->insertPermanentWidget(1, m_premiumAccounts);
 		m_premiumAccounts->show();
+	}
+#endif
+
+#ifdef WITH_JPLUGINS
+	if (JVM::JVMAvailable())
+	{
 
 		m_updates = new ClickableLabel(this);
 		m_updates->setScaledContents(true);
@@ -369,7 +387,7 @@ void MainWindow::connectActions()
 
 	connect(actionPauseAll, SIGNAL(triggered()), this, SLOT(pauseAllTransfers()));
 
-#ifdef WITH_JPLUGINS
+#if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
 	if (m_premiumAccounts)
 	{
 		connect(m_premiumAccounts, SIGNAL(clicked()), this, SLOT(showPremiumStatus()));
@@ -1854,10 +1872,23 @@ void MainWindow::pauseAllTransfers()
 		QueueMgr::instance()->unpauseAllTransfers();
 }
 
-#ifdef WITH_JPLUGINS
+#if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
 void MainWindow::showPremiumStatus()
 {
-	JavaAccountStatusWidget* w = new JavaAccountStatusWidget(this);
+	QWidget* w;
+
+#	ifdef WITH_PYPLUGINS
+	// Python plugins first: the Java ones are on their way out.
+	if (PythonAccountStatusWidget::available())
+		w = new PythonAccountStatusWidget(this);
+	else
+#	endif
+#	ifdef WITH_JPLUGINS
+		w = new JavaAccountStatusWidget(this);
+#	else
+		return;
+#	endif
+
 	QPoint pos = mapFromGlobal(QCursor::pos());
 
 	pos -= QPoint(290, 210);
@@ -1873,7 +1904,9 @@ void MainWindow::premiumStatusClosed()
 {
 	m_premiumAccounts->setEnabled(true);
 }
+#endif
 
+#ifdef WITH_JPLUGINS
 void MainWindow::updatesChecked()
 {
 	QList<ExtensionMgr::PackageInfo> pkgs = m_extensionMgr->getPackages();

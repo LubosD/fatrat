@@ -35,6 +35,9 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_JPLUGINS
 #	include "tools/FileSharingSearch.h"
 #endif
+#ifdef WITH_PYPLUGINS
+#	include "tools/PythonFileSearch.h"
+#endif
 
 #include "tools/HashDlg.h"
 
@@ -46,6 +49,12 @@ void initAppTools()
 	g_tools << AppTool(QObject::tr("Create a torrent"), CreateTorrentDlg::create);
 #endif
 	g_tools << AppTool(QObject::tr("File hasher"), HashDlg::create);
+#ifdef WITH_PYPLUGINS
+	// Only worth offering once a search plugin is installed; with none, the
+	// tool is an empty window.
+	if (PythonFileSearch::available())
+		g_tools << AppTool(QObject::tr("File sharing server search"), PythonFileSearch::create);
+#endif
 #ifdef WITH_JPLUGINS
 	g_tools << AppTool(QObject::tr("File sharing server search"), FileSharingSearch::create);
 #endif

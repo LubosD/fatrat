@@ -120,9 +120,11 @@ public slots:
 	void showHelp();
 	void reportBug();
 	void filterTextChanged(const QString& text);
-#ifdef WITH_JPLUGINS
+#if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
 	void showPremiumStatus();
 	void premiumStatusClosed();
+#endif
+#ifdef WITH_JPLUGINS
 	void updatesChecked();
 	void updateBubbleManuallyClosed();
 #endif
@@ -164,8 +166,10 @@ private:
 	NewTransferDlg* m_dlgNewTransfer;
 	QLineEdit* filterLineEdit;
 	CaptchaQt m_captcha;
-#ifdef WITH_JPLUGINS
+#if defined(WITH_JPLUGINS) || defined(WITH_PYPLUGINS)
 	ClickableLabel* m_premiumAccounts;
+#endif
+#ifdef WITH_JPLUGINS
 	ClickableLabel* m_updates;
 	ExtensionMgr* m_extensionMgr;
 	QTimer m_extensionCheckTimer;

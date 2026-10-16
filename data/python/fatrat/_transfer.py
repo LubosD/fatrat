@@ -32,3 +32,52 @@ class DownloadUrl:
     post_data: str = ""
     #: Overrides the name FatRat would derive from the URL.
     file_name: Optional[str] = None
+
+
+@dataclass
+class MimeValue:
+    """A plain form field in an upload."""
+
+    name: str
+    value: str
+
+
+@dataclass
+class MimeFile:
+    """The file being uploaded, as one form field.
+
+    FatRat streams the file itself, so a plugin never reads it: this only
+    says which field it goes in.
+    """
+
+    name: str
+
+
+@dataclass
+class SearchResult:
+    """One hit from a search plugin."""
+
+    name: str
+    url: str
+    #: Size in bytes, 0 when the site does not say.
+    size: int = 0
+    #: Anything else worth showing in the results list.
+    extra: str = ""
+
+
+class AccountState(IntEnum):
+    """How happy a premium account is."""
+
+    GOOD = 0
+    WARNING = 1
+    BAD = 2
+    ERROR = 3
+
+
+@dataclass
+class AccountStatus:
+    """What an account-status plugin reports for one account."""
+
+    #: Free text shown next to the account: days left, traffic left, ...
+    balance: str
+    state: AccountState = AccountState.GOOD
