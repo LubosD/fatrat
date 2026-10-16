@@ -168,12 +168,15 @@ Other options: `--no-mouse`, `--ascii` (plain ASCII drawing), `--socket PATH`, `
 
 | Where | Keys |
 | --- | --- |
-| Everywhere | `1` `2` `3` tabs (Transfers, RSS, Log), `Tab` switch pane, arrows or `j` `k`, `/` filter, `?` help, `q` quit |
+| Everywhere | `1` `2` `3` tabs (Transfers, RSS, Log), `Tab` switch pane, arrows or `j` `k`, `/` filter, `O` or `F2` settings, `F3` global speed limit, `?` help, `q` quit |
 | Transfers | `R` resume, `F` force, `P` pause, `N` new, `D` delete, `E` edit, `M` move then `T` `U` `D` `B`, `[` `]` move up and down, `S` send to another queue, `L` speed limit, `Space` mark, `A` mark all, `Enter` details |
 | Queues | `N` new, `E` edit, `D` delete (moving or deleting its transfers), `[` `]` reorder, `Enter` open |
 | Torrent files | `+` `-` priority, `S` skip, `A` all, `Enter` apply |
 | RSS | `N` `E` `D` feeds and rules, `T` test a regular expression, `W` downloaded episodes, `R` refresh now |
 | Log | `F` follow, `/` search, `n` next match, `T` log of the selected transfer |
+| Settings | `↑` `↓` pick a page, `Enter` edit it, `Tab` next field (past the last one: back to the pages), `PgUp` `PgDn` other page, `Enter` save, `S` save from the page list, `Esc` back or cancel, `Ctrl-G` generate a certificate (web interface page) |
+
+**Settings** (`O`, `F2`, or click "Settings" at the top right) has the same pages as the web interface: BitTorrent, RSS (switch and interval; feeds and rules are on the RSS tab) and the web interface. Edits on all pages are kept until you save, then sent in one request. The global speed limit is shown at the right end of the status line; click it or press `F3` to change it.
 
 **Mouse**: click to select, double-click to open details, right-click for a context menu, Ctrl-click to mark, Shift-click to mark a range, wheel to scroll, and drag a transfer to another row to reorder it or onto a queue to send it there. Every key hint in the bottom bar is clickable. Hold Shift to select text with the terminal's own selection.
 

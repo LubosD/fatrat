@@ -167,6 +167,38 @@ key Enter
 waitfor The expression matches
 " "${local_args[@]}"
 
+# settings: edited in the dialog, saved with one request, and read back by a fresh dialog; global limits in the status line
+fresh_profile
+run settings "
+waitfor connected
+waitfor Main queue
+key o
+waitfor Check every
+expect BitTorrent
+expect RSS
+expect Web Interface
+key Enter
+key ctrl-u
+type 30
+key Enter
+waitfor Settings saved
+reject Check every
+key o
+waitfor Check every
+expect 30
+key Down
+waitfor Listen port (from)
+expect 6881
+key Escape
+key Escape
+key F3
+waitfor Global speed limit
+key ctrl-u
+type 100
+key Enter
+waitfor 100.0 KB/s
+" "${local_args[@]}"
+
 # ------------------------------------------------------------------------------------------------
 # the password prompt, against a server on a TCP port
 mkdir -p "$WORK/home2"
