@@ -87,7 +87,7 @@ int KqueuePoller::wait(int msec, Event* ev, int max)
 	int nev = kevent(m_kqueue, 0, 0, evlist, max, &tspec);
 	for(int i=0;i<nev;i++)
 	{
-		Event event = { evlist[i].ident, 0 };
+		Event event = { static_cast<int>(evlist[i].ident), 0 };
 		
 		if(evlist[i].flags & EV_ERROR)
 			event.flags |= PollerError;
