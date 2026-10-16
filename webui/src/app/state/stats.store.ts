@@ -1,3 +1,4 @@
+import { ConnectionHealth } from '../core/connection-health.service';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { startWith } from 'rxjs/operators';
 import { TransferApi } from '../core/api/transfer-api';
@@ -11,6 +12,7 @@ const ZERO: SpeedLimits = { down: 0, up: 0 };
 export class StatsStore {
   private readonly transferApi = inject(TransferApi);
   private readonly polling = inject(PollingService);
+  private readonly health = inject(ConnectionHealth);
   private readonly queuesStore = inject(QueuesStore);
 
   /** Combined rate of every queue, in bytes/s. */
@@ -28,9 +30,12 @@ export class StatsStore {
   }
 
   private refresh(): void {
-    this.transferApi.getStats().subscribe((stats) => {
-      this.total.set(stats.total);
-      this.perQueue.set(stats.queues);
+    this.health.track('stats', this.transferApi.getStats()).subscribe({
+      next: (stats) => {
+        this.total.set(stats.total);
+        this.perQueue.set(stats.queues);
+      },
+      error: () => {}, // reported through ConnectionHealth; keep showing the last known rates
     });
   }
 }

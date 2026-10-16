@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonDirective } from 'primeng/button';
 import { InputNumber } from 'primeng/inputnumber';
 import { Popover } from 'primeng/popover';
+import { ConnectionHealth } from '../../core/connection-health.service';
 import { TransferApi } from '../../core/api/transfer-api';
 import { StatsStore } from '../../state/stats.store';
 import { formatSpeed } from '../transfers/format';
@@ -21,6 +22,7 @@ const PRESETS_KB = [50, 100, 250, 500, 1000, 2500];
 export class StatusBar {
   private readonly api = inject(TransferApi);
   protected readonly stats = inject(StatsStore);
+  protected readonly health = inject(ConnectionHealth);
 
   protected readonly formatSpeed = formatSpeed;
   protected readonly presets = PRESETS_KB;
