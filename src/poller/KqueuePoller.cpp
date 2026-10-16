@@ -70,6 +70,15 @@ int KqueuePoller::addSocket(int socket, int flags)
 	for(int i=0;i<2;i++)
 	{
 		bool wanted = (i == 0) ? (flags & PollerIn) : (flags & PollerOut);
+		
+		// EV_ADD on an existing filter doesn't clear a previous EV_ONESHOT, so a switch
+		// from oneshot to persistent would leave the filter to be deleted after one event
+		if(wanted && !(flags & PollerOneShot))
+		{
+			struct kevent del;
+			EV_SET(&del, socket, i == 0 ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, 0);
+			kevent(m_kqueue, &del, 1, 0, 0, 0);
+		}
 		if(kevent(m_kqueue, &ev[i], 1, 0, 0, 0) == -1 && (wanted || errno != ENOENT))
 			return -1;
 	}
