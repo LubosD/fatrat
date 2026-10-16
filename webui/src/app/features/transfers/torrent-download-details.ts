@@ -51,6 +51,7 @@ function toTorrentDownloadProperties(raw: { [key: string]: JsonValue }): Torrent
   selector: 'app-torrent-download-details',
   templateUrl: './torrent-download-details.html',
   imports: [TableModule, ProgressBar, Select, FormsModule],
+  styleUrl: './torrent-download-details.scss',
 })
 export class TorrentDownloadDetails implements OnChanges, OnDestroy {
   @Input({ required: true }) transfer!: Transfer;
