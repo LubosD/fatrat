@@ -67,7 +67,8 @@ if(WITH_PYPLUGINS)
 		${CMAKE_SOURCE_DIR}/src/Logger.cpp)
 	target_include_directories(tst_pyplugins PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/python)
 	target_compile_definitions(tst_pyplugins PRIVATE
-		FATRAT_PYTHON_RUNTIME="${CMAKE_SOURCE_DIR}/data/python")
-	target_link_libraries(tst_pyplugins Qt6::Core Qt6::Gui Qt6::Network Qt6::Test pybind11::embed)
+		FATRAT_PYTHON_RUNTIME="${CMAKE_SOURCE_DIR}/data/python"
+		EXAMPLE_PLUGIN_DIR="${CMAKE_SOURCE_DIR}/examples/plugin-repo/dummy")
+	target_link_libraries(tst_pyplugins Qt6::Core Qt6::Gui Qt6::Network Qt6::Xml Qt6::Test pybind11::embed)
 	add_test(NAME pyplugins COMMAND tst_pyplugins)
 endif(WITH_PYPLUGINS)

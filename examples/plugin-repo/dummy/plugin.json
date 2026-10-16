@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "name": "dummy",
+  "version": "1.0.0",
+  "api": "1",
+  "description": "A worked example of a FatRat download plugin.",
+  "license": "GPL-3.0-only",
+  "entry": "dummy.py",
+  "permissions": ["network"],
+  "config": [
+    {
+      "type": "group",
+      "title": "Example account",
+      "items": [
+        {"type": "text", "key": "dummy/user", "title": "Username"},
+        {"type": "password", "key": "dummy/password", "title": "Password"}
+      ]
+    },
+    {"type": "checkbox", "key": "dummy/skip_wait", "title": "Skip the countdown (premium accounts have none)"},
+    {
+      "type": "combo",
+      "key": "dummy/quality",
+      "title": "Preferred quality",
+      "options": [
+        {"value": "hd", "title": "HD"},
+        {"value": "sd", "title": "SD"}
+      ]
+    }
+  ]
+}

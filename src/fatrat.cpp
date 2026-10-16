@@ -81,6 +81,7 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #ifdef WITH_PYPLUGINS
+#	include "python/PluginRegistry.h"
 #	include "python/PyVM.h"
 #endif
 
@@ -201,7 +202,12 @@ int main(int argc,char** argv)
 
 #ifdef WITH_PYPLUGINS
 	if (!m_bDisablePython)
+	{
 		g_pyvm = new PyVM;
+
+		if (PyVM::available())
+			PluginRegistry::globalInit();
+	}
 #endif
 
 #ifdef WITH_JPLUGINS
@@ -301,6 +307,9 @@ int main(int argc,char** argv)
 #endif
 
 #ifdef WITH_PYPLUGINS
+	if (PyVM::available())
+		PluginRegistry::globalExit();
+
 	delete g_pyvm;
 	g_pyvm = 0;
 #endif

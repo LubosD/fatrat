@@ -19,6 +19,7 @@
 					<section title="Tools" ref="rs.com/tools.html" />
 				</section>
 				<section title="RSS Integration" ref="rss/index.html" />
+				<section title="Writing a FatRat plugin" ref="plugins.html" />
 				<section title="Command Line Interface" ref="cmdline.html" />
 				<section title="D-Bus Interface" ref="dbus.html" />
 				<section title="Configuration Files" ref="config.html" />
@@ -27,6 +28,7 @@
 		<files>
 			<file>index.html</file>
 			<file>logo.png</file>
+			<file>plugins.html</file>
 			<file>cmdline.html</file>
 			<file>dbus.html</file>
 			<file>config.html</file>

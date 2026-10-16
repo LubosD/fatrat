@@ -4,6 +4,7 @@
 #include <pybind11/eval.h>
 
 #include <QCoreApplication>
+#include <QElapsedTimer>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTest>
@@ -84,6 +85,10 @@ private slots:
 	void taskCancellationRaisesInPlugin();
 	void settingsRoundTrip();
 	void runInThreadResolves();
+	void waitResolvesAfterCountdown();
+	void captchaResolvesWithSolution();
+	void unsolvedCaptchaRaises();
+	void pluginLoaderImportsADirectory();
 private:
 	// Runs `source` (which must define `main(plugin, server_url)` as a
 	// coroutine function), waits for it, and reports what came back.
@@ -286,6 +291,66 @@ void tst_pyplugins::runInThreadResolves()
 	QTRY_VERIFY_WITH_TIMEOUT(done, 5000);
 	QVERIFY2(errorText.isEmpty(), qPrintable(errorText));
 	QCOMPARE(resultText, QString("499500"));
+}
+
+void tst_pyplugins::waitResolvesAfterCountdown()
+{
+	QString result, error;
+	QElapsedTimer elapsed;
+
+	elapsed.start();
+	runPlugin(
+		"async def main(plugin, url):\n"
+		"    await plugin.wait(1)\n"
+		"    return 'waited'\n",
+		"/hello", &result, &error);
+
+	QVERIFY2(error.isEmpty(), qPrintable(error));
+	QCOMPARE(result, QString("waited"));
+	QVERIFY2(elapsed.elapsed() >= 900, "the countdown returned too early");
+}
+
+void tst_pyplugins::captchaResolvesWithSolution()
+{
+	QString result, error;
+	runPlugin(
+		"async def main(plugin, url):\n"
+		"    return await plugin.solve_captcha('http://example.com/captcha.png')\n",
+		"/hello", &result, &error);
+
+	QVERIFY2(error.isEmpty(), qPrintable(error));
+	QCOMPARE(result, QString("XYZZY"));
+}
+
+void tst_pyplugins::unsolvedCaptchaRaises()
+{
+	QString result, error;
+	runPlugin(
+		"async def main(plugin, url):\n"
+		"    return await plugin.solve_captcha('http://example.com/unsolvable.png')\n",
+		"/hello", &result, &error);
+
+	QVERIFY2(error.contains("captcha"), qPrintable(error));
+}
+
+/* The loader is what turns an installed directory into registered plugin
+ * classes; everything after it is the engine's job.
+ */
+void tst_pyplugins::pluginLoaderImportsADirectory()
+{
+	py::gil_scoped_acquire gil;
+
+	py::object descriptors = py::module_::import("fatrat._loader").attr("load")(
+		"dummy", EXAMPLE_PLUGIN_DIR, "dummy.py");
+
+	QCOMPARE(int(py::len(descriptors)), 1);
+
+	py::handle descriptor = descriptors[py::int_(0)];
+
+	QCOMPARE(QString::fromStdString(py::str(descriptor.attr("kind")).cast<std::string>()), QString("download"));
+	QCOMPARE(QString::fromStdString(py::str(descriptor.attr("identifier")).cast<std::string>()),
+		 QString("fatrat_plugins.dummy.Dummy"));
+	QVERIFY(descriptor.attr("options")["single_transfer"].cast<bool>() == false);
 }
 
 QTEST_GUILESS_MAIN(tst_pyplugins)

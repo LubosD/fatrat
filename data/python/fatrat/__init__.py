@@ -27,7 +27,10 @@ from typing import Any, Callable, Optional
 from . import _native
 from ._async import CancelledError, Future, Task
 from ._http import Response
-from .plugin import Plugin
+from ._transfer import DownloadUrl, State
+from .errors import CaptchaError, NetworkError, PluginError
+from .plugin import DownloadPlugin, Plugin, TransferPlugin
+from .registry import download_plugin
 from .settings import settings
 
 #: Major version of the plugin API this package implements.
@@ -40,11 +43,19 @@ __version__: str = api_version
 
 __all__ = [
     "CancelledError",
+    "CaptchaError",
+    "DownloadPlugin",
+    "DownloadUrl",
     "Future",
+    "NetworkError",
     "Plugin",
+    "PluginError",
     "Response",
+    "State",
     "Task",
+    "TransferPlugin",
     "api_version",
+    "download_plugin",
     "fatrat_version",
     "log",
     "run_in_thread",

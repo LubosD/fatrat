@@ -464,10 +464,27 @@ if(WITH_PYPLUGINS)
 		src/python/PyCore.cpp
 		src/python/PyModule.cpp
 		src/python/PyPlugin.cpp
+		src/python/PyTransferBindings.cpp
+		src/python/PluginRegistry.cpp
+		src/engines/PythonPersistentVariables.cpp
+		src/engines/PythonDownload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
 		src/python/PyPlugin.h
+		src/engines/PythonDownload.h
+	)
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
+		src/engines/PythonDownloadOptsForm.cpp
+	)
+	set(fatrat_GUI_MOC_HDRS
+		${fatrat_GUI_MOC_HDRS}
+		src/engines/PythonDownloadOptsForm.h
+	)
+	set(fatrat_UIS
+		${fatrat_UIS}
+		src/engines/PythonDownloadOptsForm.ui
 	)
 endif(WITH_PYPLUGINS)
 

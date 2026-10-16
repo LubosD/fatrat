@@ -32,14 +32,21 @@ respects for all of the code used other than "OpenSSL".
 #	error This file is not supposed to be included!
 #endif
 
+#include <QList>
 #include <QMap>
+#include <QNetworkCookie>
 #include <QObject>
+#include <QPair>
 #include <QString>
+#include <QTimer>
 
 #include "PyRef.h"
 
 class QNetworkAccessManager;
+class QUrl;
 class QNetworkReply;
+class Transfer;
+template <typename T> class StaticTransferMessage;
 
 /* The native base class of every Python plugin (`_fatrat.PluginBase`).
  *
@@ -66,11 +73,30 @@ public:
 	// `data` non-null makes it a POST; `headers` is an optional dict.
 	PyRef fetch(const QString& url, const PyRef& data, const PyRef& headers, const QString& method);
 
+	// A countdown the user can see. Resolves with None when it runs out.
+	PyRef startWait(int seconds);
+
+	// Resolves with the solution, or fails with fatrat.errors.CaptchaError
+	// when no front-end could solve it.
+	PyRef solveCaptcha(const QString& url);
+
+	// Cookies this plugin picked up while scraping, so that the download
+	// FatRat starts afterwards is the same session the plugin had.
+	QList<QNetworkCookie> cookiesForUrl(const QUrl& url) const;
+	// Forget them, once they have been handed over.
+	void resetCookieJar();
+
+	// The transfer this plugin works for, null for search and account-status
+	// plugins. Owned by FatRat, outlives the plugin.
+	void setTransfer(StaticTransferMessage<Transfer>* transfer) { m_transfer = transfer; }
+	StaticTransferMessage<Transfer>* transfer() const { return m_transfer; }
+
 	// Drop everything in flight. Called when a transfer is stopped.
 	virtual void abort();
 
-	// True while a fetch is outstanding, i.e. the plugin is still working.
-	virtual bool hasPendingWork() const { return !m_fetches.isEmpty(); }
+	// True while the plugin is waiting on FatRat for something, which is how
+	// the transfer knows it is still alive and not simply stuck.
+	virtual bool hasPendingWork() const;
 
 	// Where a plugin's log() lands. The base writes to the global log;
 	// transfer plugins override to write into the transfer's own log.
@@ -78,12 +104,26 @@ public:
 
 	QString pluginName() const { return m_strPluginName; }
 	void setPluginName(const QString& name) { m_strPluginName = name; }
+	// Called by the captcha subsystem, from whatever thread solved it.
+	static void captchaSolved(QString url, QString solution);
 private slots:
 	void fetchFinished(QNetworkReply* reply);
-private:
+	void secondElapsed();
+	void captchaSolvedSlot(QString url, QString solution);
+protected:
+	StaticTransferMessage<Transfer>* m_transfer;
 	QNetworkAccessManager* m_network;
+private:
 	QMap<QNetworkReply*, PyRef> m_fetches; // reply -> Future
 	QString m_strPluginName;
+
+	QTimer m_waitTimer;
+	PyRef m_waitFuture;
+	int m_nSecondsLeft;
+
+	// url -> (plugin, Future). Static because the captcha subsystem calls
+	// back through a plain function pointer, as it does for the Java code.
+	static QMap<QString, QPair<PyPlugin*, PyRef> > m_captchas;
 };
 
 #endif // PYPLUGIN_H

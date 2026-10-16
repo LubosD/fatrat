@@ -24,9 +24,7 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#include "PyPython.h"
-
-#include "PyPlugin.h"
+#include "PyBindings.h"
 
 #include <QCoreApplication>
 #include <QNetworkAccessManager>
@@ -38,6 +36,9 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 
 #include "Logger.h"
+#include "Transfer.h"
+#include "captcha/Captcha.h"
+#include "engines/StaticTransferMessage.h"
 #include "fatrat.h"
 
 namespace py = pybind11;
@@ -53,12 +54,28 @@ static py::dict asDict(py::handle mapping)
 		py::module_::import("builtins").attr("dict")(mapping).release());
 }
 
-PyPlugin::PyPlugin()
+/* Resuming a plugin coroutine can drop the last reference to the plugin --
+ * the coroutine finishes, its frame goes away, and with it the Python object
+ * that *is* this C++ object. Destroying a QObject from inside a signal that
+ * its own child (the network manager) is still emitting crashes Qt, so hold
+ * one extra reference and let the event loop drop it a turn later.
+ */
+static void keepAliveUntilEventLoopTurns(PyPlugin* plugin)
+{
+	PyRef self = pyToRef(py::cast(plugin));
+
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [self]() {}, Qt::QueuedConnection);
+}
+
+QMap<QString, QPair<PyPlugin*, PyRef> > PyPlugin::m_captchas;
+
+PyPlugin::PyPlugin() : m_transfer(0), m_nSecondsLeft(0)
 {
 	m_network = new QNetworkAccessManager(this);
 	m_network->setCookieJar(new QNetworkCookieJar(m_network));
 
 	connect(m_network, SIGNAL(finished(QNetworkReply*)), this, SLOT(fetchFinished(QNetworkReply*)));
+	connect(&m_waitTimer, SIGNAL(timeout()), this, SLOT(secondElapsed()));
 }
 
 PyPlugin::~PyPlugin()
@@ -66,10 +83,44 @@ PyPlugin::~PyPlugin()
 	// Futures still pending here will never be resolved; the Task holding
 	// them is going away with the plugin.
 	m_fetches.clear();
+	m_waitFuture.reset();
+
+	for (QMap<QString, QPair<PyPlugin*, PyRef> >::iterator it = m_captchas.begin(); it != m_captchas.end();)
+	{
+		if (it.value().first == this)
+		{
+			Captcha::abortCaptcha(it.key());
+			it = m_captchas.erase(it);
+		}
+		else
+			it++;
+	}
+}
+
+bool PyPlugin::hasPendingWork() const
+{
+	if (!m_fetches.isEmpty() || !m_waitFuture.isNull())
+		return true;
+
+	for (QMap<QString, QPair<PyPlugin*, PyRef> >::const_iterator it = m_captchas.begin(); it != m_captchas.end(); it++)
+	{
+		if (it.value().first == this)
+			return true;
+	}
+
+	return false;
 }
 
 void PyPlugin::logMessage(const QString& message)
 {
+	// A transfer plugin's log belongs to its transfer: that is where a user
+	// looks when a download fails.
+	if (m_transfer)
+	{
+		m_transfer->enterLogMessage(message);
+		return;
+	}
+
 	QString sender = m_strPluginName.isEmpty() ? QLatin1String("Python") : m_strPluginName;
 	Logger::global()->enterLogMessage(sender, message);
 }
@@ -82,6 +133,137 @@ void PyPlugin::abort()
 
 	foreach (QNetworkReply* reply, replies)
 		reply->abort();
+
+	m_waitTimer.stop();
+	m_waitFuture.reset();
+	m_nSecondsLeft = 0;
+
+	for (QMap<QString, QPair<PyPlugin*, PyRef> >::iterator it = m_captchas.begin(); it != m_captchas.end();)
+	{
+		if (it.value().first == this)
+		{
+			qDebug() << "PyPlugin::abort(): aborting captcha for" << it.key();
+			Captcha::abortCaptcha(it.key());
+			it = m_captchas.erase(it);
+		}
+		else
+			it++;
+	}
+}
+
+QList<QNetworkCookie> PyPlugin::cookiesForUrl(const QUrl& url) const
+{
+	return m_network->cookieJar()->cookiesForUrl(url);
+}
+
+void PyPlugin::resetCookieJar()
+{
+	m_network->setCookieJar(new QNetworkCookieJar(m_network));
+}
+
+PyRef PyPlugin::startWait(int seconds)
+{
+	py::object future = pyMakeFuture();
+
+	if (seconds <= 0)
+	{
+		future.attr("set_result")(py::none());
+		return pyToRef(future);
+	}
+
+	m_nSecondsLeft = seconds;
+	m_waitFuture = pyToRef(future);
+	m_waitTimer.start(1000);
+
+	if (m_transfer)
+		m_transfer->setMessage(QObject::tr("Waiting %1 s").arg(seconds));
+	logMessage(QString("waiting %1 s").arg(seconds));
+
+	return pyToRef(future);
+}
+
+void PyPlugin::secondElapsed()
+{
+	m_nSecondsLeft--;
+
+	if (m_transfer && m_nSecondsLeft > 0)
+		m_transfer->setMessage(QObject::tr("Waiting %1 s").arg(m_nSecondsLeft));
+
+	if (m_nSecondsLeft > 0)
+		return;
+
+	m_waitTimer.stop();
+
+	PyRef future = m_waitFuture;
+	m_waitFuture.reset();
+
+	if (future.isNull())
+		return;
+
+	py::gil_scoped_acquire gil;
+
+	keepAliveUntilEventLoopTurns(this);
+
+	try
+	{
+		// Resumes the plugin coroutine.
+		pyResolveFuture(pyFromRef(future), py::none());
+	}
+	catch (const py::error_already_set& e)
+	{
+		logMessage(pyErrorText(e));
+	}
+}
+
+PyRef PyPlugin::solveCaptcha(const QString& url)
+{
+	py::object future = pyMakeFuture();
+
+	logMessage(QString("captcha: %1").arg(url));
+
+	m_captchas[url] = QPair<PyPlugin*, PyRef>(this, pyToRef(future));
+
+	Captcha::processCaptcha(url, captchaSolved);
+
+	return pyToRef(future);
+}
+
+void PyPlugin::captchaSolved(QString url, QString solution)
+{
+	QMap<QString, QPair<PyPlugin*, PyRef> >::iterator it = m_captchas.find(url);
+	if (it == m_captchas.end())
+		return;
+
+	// Whoever solved it may be on another thread; the coroutine may only be
+	// resumed on the main one.
+	QMetaObject::invokeMethod(it.value().first, "captchaSolvedSlot", Qt::QueuedConnection,
+				  Q_ARG(QString, url), Q_ARG(QString, solution));
+}
+
+void PyPlugin::captchaSolvedSlot(QString url, QString solution)
+{
+	QMap<QString, QPair<PyPlugin*, PyRef> >::iterator it = m_captchas.find(url);
+	if (it == m_captchas.end())
+		return;
+
+	PyRef future = it.value().second;
+	m_captchas.erase(it);
+
+	py::gil_scoped_acquire gil;
+
+	keepAliveUntilEventLoopTurns(this);
+
+	try
+	{
+		if (solution.isEmpty())
+			pyFailFuture(pyFromRef(future), "CaptchaError", QObject::tr("The captcha was not solved"));
+		else
+			pyResolveFuture(pyFromRef(future), py::str(solution.toStdString()));
+	}
+	catch (const py::error_already_set& e)
+	{
+		logMessage(pyErrorText(e));
+	}
 }
 
 static QByteArray encodeFormData(py::handle data, bool* isForm)
@@ -171,19 +353,6 @@ PyRef PyPlugin::fetch(const QString& url, const PyRef& data, const PyRef& header
 	return pyToRef(future);
 }
 
-/* Resuming a plugin coroutine can drop the last reference to the plugin --
- * the coroutine finishes, its frame goes away, and with it the Python object
- * that *is* this C++ object. Destroying a QObject from inside a signal that
- * its own child (the network manager) is still emitting crashes Qt, so hold
- * one extra reference and let the event loop drop it a turn later.
- */
-static void keepAliveUntilEventLoopTurns(PyPlugin* plugin)
-{
-	PyRef self = pyToRef(py::cast(plugin));
-
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [self]() {}, Qt::QueuedConnection);
-}
-
 void PyPlugin::fetchFinished(QNetworkReply* reply)
 {
 	reply->deleteLater();
@@ -238,7 +407,9 @@ void PyPlugin::fetchFinished(QNetworkReply* reply)
 
 void registerPluginBindings(py::module_& m)
 {
-	py::class_<PyPlugin>(m, "PluginBase")
+	PyPluginClass cls(m, "PluginBase");
+
+	cls
 		.def(py::init<>())
 		.def("fetch", [](PyPlugin& self, const std::string& url, py::object data,
 				 py::object headers, py::object method)
@@ -259,4 +430,16 @@ void registerPluginBindings(py::module_& m)
 		{
 			return self.pluginName().toStdString();
 		});
+
+	cls.def("wait", [](PyPlugin& self, int seconds)
+	{
+		return pyFromRef(self.startWait(seconds));
+	}, py::arg("seconds"), "Await a countdown the user can see.");
+
+	cls.def("solve_captcha", [](PyPlugin& self, const std::string& url)
+	{
+		return pyFromRef(self.solveCaptcha(QString::fromStdString(url)));
+	}, py::arg("url"), "Await a captcha solution from whichever front-end is configured.");
+
+	registerTransferBindings(cls);
 }

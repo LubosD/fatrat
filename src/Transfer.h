@@ -206,6 +206,9 @@ protected:
 #ifdef WITH_JPLUGINS
 	friend class JPlugin;
 #endif
+#ifdef WITH_PYPLUGINS
+	friend class PyPlugin;
+#endif
 };
 
 class TransferNotifier : public QObject
