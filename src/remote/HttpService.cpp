@@ -60,6 +60,8 @@ respects for all of the code used other than "OpenSSL".
 #include <thread>
 #include <locale.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/un.h>
 #include <string.h>
 #include <algorithm>
 
@@ -89,6 +91,7 @@ HttpService::HttpService()
 	addSettingsPage(si);
 
 	RestResources::registerAll();
+	setupUnixSocket();
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
 	m_timer.start(15 * 1000);
@@ -103,6 +106,83 @@ HttpService::~HttpService()
 		m_server->stop();
 		if (m_serverThread.joinable())
 			m_serverThread.join();
+	}
+	stopUnixSocket();
+}
+
+QString HttpService::m_restSocketPath;
+
+void HttpService::setRestSocketPath(const QString& path)
+{
+	m_restSocketPath = QFileInfo(path).absoluteFilePath();
+}
+
+void HttpService::setupUnixSocket()
+{
+	if (m_restSocketPath.isEmpty())
+		return;
+
+	const QFileInfo info(m_restSocketPath);
+	const QByteArray path = QFile::encodeName(info.absoluteFilePath());
+
+	if (path.size() >= int(sizeof(sockaddr_un::sun_path)))
+	{
+		Logger::global()->enterLogMessage("HttpService", tr("The REST socket path is too long: %1").arg(m_restSocketPath));
+		return;
+	}
+
+	QDir parent = info.absoluteDir();
+	if (!parent.exists())
+	{
+		if (!parent.mkpath(".") || !QFile::setPermissions(parent.absolutePath(),
+			QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner))
+		{
+			Logger::global()->enterLogMessage("HttpService", tr("Cannot create the directory of the REST socket %1").arg(m_restSocketPath));
+			return;
+		}
+	}
+
+	// a stale socket from a previous run
+	::unlink(path.constData());
+
+	m_unixServer = std::make_unique<httplib::Server>();
+	m_unixServer->set_address_family(AF_UNIX);
+	m_unixServer->set_payload_max_length(32 * 1024 * 1024);
+	registerRoutes(*m_unixServer, false);
+
+	const mode_t oldMask = umask(0177);
+	const bool bound = m_unixServer->bind_to_port(path.constData(), 80);
+	umask(oldMask);
+
+	if (!bound)
+	{
+		Logger::global()->enterLogMessage("HttpService", tr("Cannot listen on the REST socket %1").arg(m_restSocketPath));
+		m_unixServer.reset();
+		return;
+	}
+	::chmod(path.constData(), 0600);
+
+	Logger::global()->enterLogMessage("HttpService", tr("Listening on the unix socket %1").arg(m_restSocketPath));
+	m_unixSocketFile = QFile::decodeName(path);
+
+	m_unixThread = std::thread([this]() {
+		m_unixServer->listen_after_bind();
+	});
+}
+
+void HttpService::stopUnixSocket()
+{
+	if (m_unixServer)
+	{
+		m_unixServer->stop();
+		if (m_unixThread.joinable())
+			m_unixThread.join();
+		m_unixServer.reset();
+	}
+	if (!m_unixSocketFile.isEmpty())
+	{
+		::unlink(QFile::encodeName(m_unixSocketFile).constData());
+		m_unixSocketFile.clear();
 	}
 }
 
@@ -209,7 +289,7 @@ void HttpService::setup()
 
 	m_server->set_payload_max_length(32 * 1024 * 1024); // uploaded .torrent files
 
-	registerRoutes();
+	registerRoutes(*m_server, true);
 
 	Logger::global()->enterLogMessage("HttpService",
 		tr("Listening on port %1").arg(m_port));
@@ -219,37 +299,40 @@ void HttpService::setup()
 	});
 }
 
-void HttpService::registerRoutes()
+void HttpService::registerRoutes(httplib::Server& server, bool authenticated)
 {
-	// Auth pre-routing hook
-	m_server->set_pre_routing_handler([this](const httplib::Request& req, httplib::Response& res) {
-		QString password;
-		{
-			std::lock_guard<std::mutex> lk(m_passwordMutex);
-			password = m_strPassword;
-		}
-		if (password.isEmpty())
-			return httplib::Server::HandlerResponse::Unhandled;
+	// Auth pre-routing hook. The unix socket is protected by file permissions instead.
+	if (authenticated)
+	{
+		server.set_pre_routing_handler([this](const httplib::Request& req, httplib::Response& res) {
+			QString password;
+			{
+				std::lock_guard<std::mutex> lk(m_passwordMutex);
+				password = m_strPassword;
+			}
+			if (password.isEmpty())
+				return httplib::Server::HandlerResponse::Unhandled;
 
-		std::string authHeader = req.get_header_value("Authorization");
-		bool ok = false;
-		if (authHeader.size() > 6 && authHeader.substr(0, 6) == "Basic ") {
-			QByteArray decoded = QByteArray::fromBase64(
-				QByteArray(authHeader.c_str() + 6, static_cast<int>(authHeader.size() - 6)));
-			int colon = decoded.indexOf(':');
-			QString pw = (colon >= 0)
-				? QString::fromUtf8(decoded.mid(colon + 1))
-				: QString::fromUtf8(decoded);
-			ok = (pw == password);
-		}
-		if (!ok) {
-			res.status = 401;
-			res.set_header("WWW-Authenticate", "Basic realm=\"FatRat\"");
-			res.set_content("Unauthorized", "text/plain");
-			return httplib::Server::HandlerResponse::Handled;
-		}
-		return httplib::Server::HandlerResponse::Unhandled;
-	});
+			std::string authHeader = req.get_header_value("Authorization");
+			bool ok = false;
+			if (authHeader.size() > 6 && authHeader.substr(0, 6) == "Basic ") {
+				QByteArray decoded = QByteArray::fromBase64(
+					QByteArray(authHeader.c_str() + 6, static_cast<int>(authHeader.size() - 6)));
+				int colon = decoded.indexOf(':');
+				QString pw = (colon >= 0)
+					? QString::fromUtf8(decoded.mid(colon + 1))
+					: QString::fromUtf8(decoded);
+				ok = (pw == password);
+			}
+			if (!ok) {
+				res.status = 401;
+				res.set_header("WWW-Authenticate", "Basic realm=\"FatRat\"");
+				res.set_content("Unauthorized", "text/plain");
+				return httplib::Server::HandlerResponse::Handled;
+			}
+			return httplib::Server::HandlerResponse::Unhandled;
+		});
+	}
 
 	// /api/v1/...
 	auto restHandler = [](const httplib::Request& req, httplib::Response& res) {
@@ -285,14 +368,14 @@ void HttpService::registerRoutes()
 			res.set_content(out.body.constData(), out.body.size(), out.contentType.toStdString());
 	};
 	const std::string restPattern = R"(/api/v1(?:/.*)?)";
-	m_server->Get(restPattern, restHandler);
-	m_server->Post(restPattern, restHandler);
-	m_server->Put(restPattern, restHandler);
-	m_server->Patch(restPattern, restHandler);
-	m_server->Delete(restPattern, restHandler);
+	server.Get(restPattern, restHandler);
+	server.Post(restPattern, restHandler);
+	server.Put(restPattern, restHandler);
+	server.Patch(restPattern, restHandler);
+	server.Delete(restPattern, restHandler);
 
 	// /log and /log/<transfer-uuid>
-	m_server->Get(R"(/log(.*))", [](const httplib::Request& req, httplib::Response& res) {
+	server.Get(R"(/log(.*))", [](const httplib::Request& req, httplib::Response& res) {
 		QString uuidTransfer;
 		if (req.matches.size() > 1) {
 			std::string suffix = req.matches[1].str();
@@ -323,7 +406,7 @@ void HttpService::registerRoutes()
 	});
 
 	// /subclass/<method>?transfer=<uuid>
-	m_server->Get(R"(/subclass/(.+))", [this](const httplib::Request& req, httplib::Response& res) {
+	server.Get(R"(/subclass/(.+))", [this](const httplib::Request& req, httplib::Response& res) {
 		QString method = QString::fromStdString(req.matches[1].str());
 		QString transfer = QString::fromStdString(req.get_param_value("transfer"));
 
@@ -357,7 +440,7 @@ void HttpService::registerRoutes()
 	});
 
 	// /browse[/<transfer-uuid>]?path=<path>
-	m_server->Get(R"(/browse(?:/(.*))?)", [](const httplib::Request& req, httplib::Response& res) {
+	server.Get(R"(/browse(?:/(.*))?)", [](const httplib::Request& req, httplib::Response& res) {
 		QString uuidTransfer;
 		if (req.matches.size() > 1 && req.matches[1].matched)
 			uuidTransfer = QUrl::fromPercentEncoding(
@@ -421,7 +504,7 @@ void HttpService::registerRoutes()
 	});
 
 	// /download?transfer=<uuid>&path=<path>
-	m_server->Get("/download", [](const httplib::Request& req, httplib::Response& res) {
+	server.Get("/download", [](const httplib::Request& req, httplib::Response& res) {
 		QString transfer = QString::fromStdString(req.get_param_value("transfer"));
 		QString path     = QString::fromStdString(req.get_param_value("path"));
 
@@ -470,7 +553,7 @@ void HttpService::registerRoutes()
 	});
 
 	// /copyrights
-	m_server->Get("/copyrights", [](const httplib::Request&, httplib::Response& res) {
+	server.Get("/copyrights", [](const httplib::Request&, httplib::Response& res) {
 		QFile f(DATA_LOCATION "/README");
 		if (!f.open(QIODevice::ReadOnly)) {
 			res.status = 404; res.set_content("Not Found", "text/plain"); return;
@@ -480,7 +563,7 @@ void HttpService::registerRoutes()
 	});
 
 	// /captcha (POST)
-	m_server->Post("/captcha", [this](const httplib::Request& req, httplib::Response& res) {
+	server.Post("/captcha", [this](const httplib::Request& req, httplib::Response& res) {
 		std::string id_str  = req.get_param_value("id");
 		std::string sol_str = req.get_param_value("solution");
 		if (id_str.empty() || sol_str.empty()) {
@@ -492,7 +575,7 @@ void HttpService::registerRoutes()
 	});
 
 	// /websocket
-	m_server->WebSocket("/websocket",
+	server.WebSocket("/websocket",
 		[this](const httplib::Request&, httplib::ws::WebSocket& ws) {
 			auto svc = std::make_shared<WebSocketService>();
 			addCaptchaClient(svc.get());
@@ -541,7 +624,7 @@ void HttpService::registerRoutes()
 	);
 
 	// Static files (must be last)
-	m_server->set_mount_point("/", DATA_LOCATION "/data/remote/");
+	server.set_mount_point("/", DATA_LOCATION "/data/remote/");
 }
 
 int HttpService::findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite)

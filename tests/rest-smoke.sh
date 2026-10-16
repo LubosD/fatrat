@@ -1,17 +1,25 @@
 #!/bin/bash
 # Exercises every /api/v1 endpoint of a running FatRat against the contract in docs/api/openapi.yaml.
 # Usage: BASE=http://localhost:9091 PASS=secret tests/rest-smoke.sh
-# Needs curl and jq. Leaves one queue named "smoke-2" behind (there is no queue deletion in the API).
-# Adds paused magnet transfers to it and deletes them again.
-BASE=${BASE:-http://localhost:9091}
-PASS=${PASS:-}
+#        SOCK=/path/to/fatrat.sock tests/rest-smoke.sh     (daemon started with --rest-socket, no authentication)
+# Needs curl and jq. Creates throwaway queues and paused magnet transfers and deletes them again.
+# Queues named "smoke-keep" and "smoke-3" are left behind only if a check fails.
+if [ -n "$SOCK" ]; then
+	BASE=http://localhost
+	PASS=
+	CURL_AUTH=(--unix-socket "$SOCK")
+else
+	BASE=${BASE:-http://localhost:9091}
+	PASS=${PASS:-}
+	CURL_AUTH=(-u "x:$PASS")
+fi
 API=$BASE/api/v1
 fail=0
 
 req() { # method path [curl args...]; sets $status and $body
 	local method=$1 path=$2; shift 2
 	local out
-	out=$(curl -s -w '\n%{http_code}' -u "x:$PASS" -X "$method" "$API$path" "$@")
+	out=$(curl -s -w '\n%{http_code}' "${CURL_AUTH[@]}" -X "$method" "$API$path" "$@")
 	status=${out##*$'\n'}
 	body=${out%$'\n'*}
 }
@@ -93,6 +101,7 @@ req POST /settings/apply -H 'Origin: https://evil.example';           check "for
 req POST /queues -H 'Content-Type: application/json' --data '{bad';  check "malformed json" 400 '.error.code=="invalid_json"'
 req GET /nothing;                                                     check "unknown route" 404 '.error.code=="unknown_route"'
 req DELETE /queues;                                                   check "wrong method" 405
+req GET /queues/move;                                                 check "queues/move is not a queue" 405
 # RSS: feeds, regexps, the test endpoint, the downloaded-episode list and the cascade on feed deletion
 req GET /settings/pages;                         check "settings pages list RSS" 200 'map(select(.script=="/scripts/settings/rss.js" and .icon=="/img/settings/rss.png")) | length == 1'
 json POST /rss/feeds '{"name":"smoke feed","url":"http://127.0.0.1:9/smoke.rss"}'
@@ -125,6 +134,66 @@ req DELETE "/rss/feeds/$FE";                     check "delete feed" 204
 req GET /rss/regexps;                            check "regexps of a deleted feed are gone" 200 "map(select(.id==\"$R\")) | length == 0"
 req DELETE "/rss/feeds/$FE";                     check "delete feed twice" 404
 req DELETE "/rss/regexps/$RE";                   check "delete cascaded regexp" 404 '.error.code=="regexp_not_found"'
+
+# transfer "queue" property, "before" moves, queue reordering and queue deletion
+json POST /queues '{"name":"smoke-3"}';          check "create second queue" 201
+Q2=$(echo "$body" | jq -r .uuid); Q2E=$(enc "$Q2")
+json POST /queues '{"name":"smoke-4"}';          check "create third queue" 201
+Q3=$(echo "$body" | jq -r .uuid); Q3E=$(enc "$Q3")
+json POST "/queues/$QE/transfers" "{\"urls\":[\"$M1\",\"$M2\",\"$M3\"],\"class\":\"\",\"target\":\"/tmp\",\"paused\":true,\"upload\":false,\"speedLimits\":{\"down\":0,\"up\":0}}"
+check "add transfers again" 201 '.uuids|length==3'
+T1=$(echo "$body" | jq -r '.uuids[0]'); T2=$(echo "$body" | jq -r '.uuids[1]'); T3=$(echo "$body" | jq -r '.uuids[2]')
+order() { req GET "/queues/$1/transfers"; echo "$body" | jq -r '[.[].uuid] | @csv' | tr -d '"'; }
+qorder() { req GET /queues; echo "$body" | jq -r '[.[].uuid] | @csv' | tr -d '"'; }
+
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T3\"],\"before\":\"$T1\"}"; check "move before first" 204
+[ "$(order $QE)" = "$T3,$T1,$T2" ] && echo "ok   order after before-first" || { echo "FAIL order after before-first: $(order $QE)"; fail=1; }
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T2\",\"$T3\"],\"before\":\"$T1\"}"; check "move several before" 204
+[ "$(order $QE)" = "$T3,$T2,$T1" ] && echo "ok   order after before-several" || { echo "FAIL order after before-several: $(order $QE)"; fail=1; }
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T3\"],\"before\":null}"; check "move before null" 204
+[ "$(order $QE)" = "$T2,$T1,$T3" ] && echo "ok   order after before-null" || { echo "FAIL order after before-null: $(order $QE)"; fail=1; }
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T1\"],\"before\":\"$T1\"}"; check "before among uuids" 422 '.error.code=="invalid_property"'
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T1\"],\"before\":\"missing\"}"; check "before unknown" 422 '.error.code=="invalid_property"'
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T1\"],\"before\":\"$T2\",\"direction\":\"up\"}"; check "before and direction" 422 '.error.code=="invalid_property"'
+json POST "/queues/$QE/transfers/move" "{\"uuids\":[\"$T1\"]}"; check "neither before nor direction" 422 '.error.code=="invalid_property"'
+[ "$(order $QE)" = "$T2,$T1,$T3" ] && echo "ok   rejected moves changed nothing" || { echo "FAIL order after rejected moves: $(order $QE)"; fail=1; }
+
+json PATCH "/transfers/$(enc "$T1")" "{\"queue\":\"$Q2\"}"; check "move transfer to queue" 204
+[ "$(order $QE)" = "$T2,$T3" ] && [ "$(order $Q2E)" = "$T1" ] && echo "ok   transfer moved to other queue" || { echo "FAIL queue move: $(order $QE) / $(order $Q2E)"; fail=1; }
+json PATCH /transfers "{\"uuids\":[\"$T3\",\"$T1\",\"$T2\"],\"properties\":{\"queue\":\"$Q3\"}}"; check "batch move to queue from several queues" 204
+[ "$(order $QE)" = "" ] && [ "$(order $Q2E)" = "" ] && [ "$(order $Q3E)" = "$T3,$T1,$T2" ] && echo "ok   batch queue move order" || { echo "FAIL batch queue move: $(order $QE) / $(order $Q2E) / $(order $Q3E)"; fail=1; }
+json PATCH /transfers "{\"uuids\":[\"$T1\"],\"properties\":{\"queue\":\"nope\",\"comment\":\"never\"}}"; check "batch move to unknown queue" 404 '.error.code=="queue_not_found"'
+json PATCH "/transfers/$(enc "$T1")" '{"queue":5}'; check "queue must be a string" 422 '.error.code=="invalid_property"'
+req GET "/transfers/$(enc "$T1")"; check "failed queue move changed nothing" 200 '.comment!="never"'
+
+req DELETE "/queues/$Q3E";                       check "delete non-empty queue" 409 '.error.code=="queue_not_empty"'
+req DELETE "/queues/$Q3E?moveTo=$Q3E";           check "delete with moveTo itself" 422 '.error.code=="invalid_property"'
+req DELETE "/queues/$Q3E?moveTo=$Q2E&deleteTransfers=true"; check "delete with moveTo and deleteTransfers" 422 '.error.code=="invalid_property"'
+req DELETE "/queues/$Q3E?moveTo=nope";           check "delete with unknown moveTo" 404 '.error.code=="queue_not_found"'
+req DELETE "/queues/nope";                       check "delete unknown queue" 404 '.error.code=="queue_not_found"'
+req DELETE "/queues/$Q3E?moveTo=$Q2E";           check "delete queue moving transfers" 204
+[ "$(order $Q2E)" = "$T3,$T1,$T2" ] && echo "ok   transfers moved with the deleted queue" || { echo "FAIL moveTo: $(order $Q2E)"; fail=1; }
+req GET "/queues/$Q3E/transfers";                check "deleted queue is gone" 404 '.error.code=="queue_not_found"'
+
+json POST /queues '{"name":"smoke-5"}';          check "create fourth queue" 201
+Q4=$(echo "$body" | jq -r .uuid); Q4E=$(enc "$Q4")
+req DELETE "/queues/$Q4E";                       check "delete empty queue" 204
+
+json POST /queues/move "{\"uuid\":\"$Q2\",\"direction\":\"top\"}"; check "move queue top" 204
+[ "$(qorder | cut -d, -f1)" = "$Q2" ] && echo "ok   queue is first" || { echo "FAIL queue top: $(qorder)"; fail=1; }
+json POST /queues/move "{\"uuid\":\"$Q2\",\"direction\":\"down\"}"; check "move queue down" 204
+[ "$(qorder | cut -d, -f2)" = "$Q2" ] && echo "ok   queue is second" || { echo "FAIL queue down: $(qorder)"; fail=1; }
+json POST /queues/move "{\"uuid\":\"$Q2\",\"direction\":\"up\"}"; check "move queue up" 204
+[ "$(qorder | cut -d, -f1)" = "$Q2" ] && echo "ok   queue is first again" || { echo "FAIL queue up: $(qorder)"; fail=1; }
+json POST /queues/move "{\"uuid\":\"$Q2\",\"direction\":\"bottom\"}"; check "move queue bottom" 204
+[ "$(qorder | awk -F, '{print $NF}')" = "$Q2" ] && echo "ok   queue is last" || { echo "FAIL queue bottom: $(qorder)"; fail=1; }
+json POST /queues/move "{\"uuid\":\"$Q2\",\"direction\":\"sideways\"}"; check "move queue bad direction" 422 '.error.code=="invalid_direction"'
+json POST /queues/move '{"uuid":"nope","direction":"top"}'; check "move unknown queue" 404 '.error.code=="queue_not_found"'
+
+req DELETE "/queues/$Q2E?deleteTransfers=true&withData=true"; check "delete queue with its transfers" 204
+req GET "/transfers/$(enc "$T1")";               check "transfer deleted with its queue" 404 '.error.code=="transfer_not_found"'
+req DELETE "/queues/$QE";                        check "delete the smoke queue" 204
+req GET /queues;                                 check "smoke queues are gone" 200 "map(select(.uuid==\"$Q\" or .uuid==\"$Q2\" or .uuid==\"$Q3\" or .uuid==\"$Q4\")) | length == 0"
 
 if [ -n "$PASS" ]; then
 	status=$(curl -s -o /dev/null -w '%{http_code}' "$API/queues"); [ "$status" = 401 ] && echo "ok   unauthenticated 401" || { echo "FAIL unauthenticated: $status"; fail=1; }

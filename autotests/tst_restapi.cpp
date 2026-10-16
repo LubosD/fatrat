@@ -8,6 +8,7 @@ class TestRestApi : public QObject
 private slots:
 	void init();
 	void pathParametersAreCaptured();
+	void literalRouteIsNotCapturedByParameter();
 	void unknownPathIs404();
 	void wrongMethodIs405WithAllow();
 	void malformedJsonIs400();
@@ -62,6 +63,17 @@ void TestRestApi::init()
 	RestApi::registerRoute("DELETE", "/queues/:queue/transfers", [](const RestRequest&) {
 		return RestResult::noContent();
 	});
+	RestApi::registerRoute("POST", "/queues/move", [](const RestRequest&) {
+		return RestResult::noContent();
+	});
+	RestApi::registerRoute("PATCH", "/queues/:queue", [](const RestRequest&) {
+		return RestResult::ok(QJsonObject());
+	});
+	RestApi::registerRoute("DELETE", "/queues/:queue", [](const RestRequest& r) {
+		QJsonObject o;
+		o["queue"] = r.pathParams["queue"];
+		return RestResult::ok(o);
+	});
 	RestApi::registerRoute("POST", "/apply", [](const RestRequest&) {
 		return RestResult::accepted();
 	});
@@ -83,6 +95,23 @@ void TestRestApi::pathParametersAreCaptured()
 	QCOMPARE(res.status, 200);
 	QCOMPARE(res.contentType, QString("application/json"));
 	QCOMPARE(QJsonDocument::fromJson(res.body).object()["queue"].toString(), QString("abc-123"));
+}
+
+void TestRestApi::literalRouteIsNotCapturedByParameter()
+{
+	RestRequest r = request("POST", "/api/v1/queues/move", "{}", "application/json");
+	QCOMPARE(RestApi::dispatch(r).status, 204);
+	QVERIFY(r.pathParams.isEmpty());
+
+	RestRequest d = request("DELETE", "/api/v1/queues/move");
+	RestResponse res = RestApi::dispatch(d);
+	QCOMPARE(res.status, 200);
+	QCOMPARE(QJsonDocument::fromJson(res.body).object()["queue"].toString(), QString("move"));
+
+	RestRequest g = request("GET", "/api/v1/queues/move");
+	res = RestApi::dispatch(g);
+	QCOMPARE(res.status, 405);
+	QVERIFY(res.headers["Allow"].contains("POST"));
 }
 
 void TestRestApi::unknownPathIs404()

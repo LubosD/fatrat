@@ -332,6 +332,20 @@ QString argsToArg(int argc,char** argv)
 		}
 		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
 			m_strSettingsPath = argv[++i];
+		else if (!strcasecmp(argv[i], "--rest-socket"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << "--rest-socket requires a path\n";
+				exit(1);
+			}
+#ifdef WITH_WEBINTERFACE
+			HttpService::setRestSocketPath(argv[++i]);
+#else
+			std::cerr << "--rest-socket is not available, FatRat was built without the web interface\n";
+			exit(1);
+#endif
+		}
 		else if (!strcasecmp(argv[i], "--syslog"))
 			Logger::global()->toggleSysLog(true);
 		else if(argv[i][0] == '-')
@@ -641,6 +655,9 @@ void showHelp()
 #endif
 			"-d, --daemon     \tDaemonize the application (assumes --nogui)\n"
 			"-c, --config file\tUse file as settings storage\n"
+#ifdef WITH_WEBINTERFACE
+			"--rest-socket path\tAlso serve the REST API on a unix socket (no authentication, mode 0600)\n"
+#endif
 			"--syslog         \tPrint global log contents to syslog\n"
 			"-p, --pidfile file\tSave PID to file\n"
 			"-u, --user user[:grp]\tSetuid to user, setgid to grp\n"
