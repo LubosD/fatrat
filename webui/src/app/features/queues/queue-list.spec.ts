@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { QueueList } from './queue-list';
 import { QueuesStore } from '../../state/queues.store';
+import { QueueActionsService } from '../../core/queue-actions.service';
 import { Queue } from '../../core/api/models';
 
 function makeQueue(uuid: string, name: string): Queue {
@@ -24,7 +25,10 @@ describe('QueueList', () => {
     };
     TestBed.configureTestingModule({
       imports: [QueueList],
-      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll: vi.fn(), stopAll: vi.fn() } },
+      ],
     });
     const fixture = TestBed.createComponent(QueueList);
     fixture.detectChanges();
@@ -46,7 +50,10 @@ describe('QueueList', () => {
     };
     TestBed.configureTestingModule({
       imports: [QueueList],
-      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll: vi.fn(), stopAll: vi.fn() } },
+      ],
     });
     const fixture = TestBed.createComponent(QueueList);
     fixture.detectChanges();
@@ -59,7 +66,10 @@ describe('QueueList', () => {
     const queuesStoreStub = { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() };
     TestBed.configureTestingModule({
       imports: [QueueList],
-      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll: vi.fn(), stopAll: vi.fn() } },
+      ],
     });
     const fixture = TestBed.createComponent(QueueList);
     fixture.detectChanges();
@@ -76,7 +86,10 @@ describe('QueueList', () => {
     };
     TestBed.configureTestingModule({
       imports: [QueueList],
-      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll: vi.fn(), stopAll: vi.fn() } },
+      ],
     });
     const fixture = TestBed.createComponent(QueueList);
     fixture.detectChanges();
@@ -94,7 +107,10 @@ describe('QueueList', () => {
     };
     TestBed.configureTestingModule({
       imports: [QueueList],
-      providers: [{ provide: QueuesStore, useValue: queuesStoreStub }],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll: vi.fn(), stopAll: vi.fn() } },
+      ],
     });
     const fixture = TestBed.createComponent(QueueList);
     fixture.detectChanges();
@@ -102,5 +118,40 @@ describe('QueueList', () => {
     const items = fixture.nativeElement.querySelectorAll('[data-testid="queue-item"]');
     expect(items[0].getAttribute('aria-current')).toBeNull();
     expect(items[1].getAttribute('aria-current')).toBe('true');
+  });
+
+  it('selects the queue on right-click and offers Resume All, Stop All and Properties', () => {
+    const selectQueue = vi.fn();
+    const resumeAll = vi.fn();
+    const stopAll = vi.fn();
+    const queuesStoreStub = {
+      queues: () => [makeQueue('q1', 'Default'), makeQueue('q2', 'Second')],
+      selectedQueueUuid: () => 'q2',
+      selectQueue,
+    };
+    TestBed.configureTestingModule({
+      imports: [QueueList],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll, stopAll } },
+      ],
+    });
+    const fixture = TestBed.createComponent(QueueList);
+    fixture.detectChanges();
+
+    const item = fixture.nativeElement.querySelectorAll('[data-testid="queue-item"]')[1];
+    item.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    expect(selectQueue).toHaveBeenCalledWith('q2');
+
+    const items = fixture.componentInstance['contextMenuItems'] as { label?: string; command?: () => void }[];
+    expect(items.map((i) => i.label)).toEqual(['Resume All', 'Stop All', undefined, 'Properties']);
+    const onProperties = vi.fn();
+    fixture.componentInstance.propertiesRequested.subscribe(onProperties);
+    items[0].command!();
+    items[1].command!();
+    items[3].command!();
+    expect(resumeAll).toHaveBeenCalledWith('q2');
+    expect(stopAll).toHaveBeenCalledWith('q2');
+    expect(onProperties).toHaveBeenCalled();
   });
 });

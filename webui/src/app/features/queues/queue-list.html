@@ -8,6 +8,7 @@
       [attr.aria-current]="queue.uuid === store.selectedQueueUuid() ? 'true' : null"
       role="button"
       tabindex="0"
+      (contextmenu)="onContextMenu($event, queue.uuid, cm)"
       (click)="store.selectQueue(queue.uuid)"
       (keydown.enter)="store.selectQueue(queue.uuid)"
       (keydown.space)="store.selectQueue(queue.uuid); $event.preventDefault()"
@@ -17,3 +18,4 @@
     </li>
   }
 </ul>
+<p-contextMenu #cm [model]="contextMenuItems" appendTo="body"></p-contextMenu>

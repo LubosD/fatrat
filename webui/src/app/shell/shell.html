@@ -44,7 +44,7 @@
   <p-drawer [visible]="showQueueDrawer()" (visibleChange)="showQueueDrawer.set($event)" position="left" header="Queues" styleClass="queue-drawer">
     <!-- Choosing a queue bubbles up here and closes the drawer. -->
     <div data-testid="queue-drawer-content" (click)="showQueueDrawer.set(false)">
-      <app-queue-list></app-queue-list>
+      <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
     </div>
   </p-drawer>
 } @else {
@@ -122,7 +122,7 @@
 } @else {
   <p-splitter [panelSizes]="[20, 80]" styleClass="shell-splitter">
     <ng-template #panel>
-      <app-queue-list></app-queue-list>
+      <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
     </ng-template>
     <ng-template #panel>
       <ng-container *ngTemplateOutlet="detailsPane"></ng-container>
