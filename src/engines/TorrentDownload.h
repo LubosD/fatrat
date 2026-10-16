@@ -77,8 +77,7 @@ public:
 	
 	static QByteArray bencode_simple(libtorrent::entry& e);
 	static QString bencode(libtorrent::entry& e);
-	static libtorrent::bdecode_node bdecode_simple(QByteArray d);
-	static libtorrent::bdecode_node bdecode(QString d);
+	static libtorrent::session_params readSessionParams(const QByteArray& data, libtorrent::save_state_flags_t flags);
 	
 	static libtorrent::proxy_settings proxyToLibtorrent(Proxy p);
 	

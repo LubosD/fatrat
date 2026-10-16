@@ -287,7 +287,7 @@ void TorrentDownload::globalInit()
 	libtorrent::session_params params;
 
 	QByteArray dhtState = getSettingsValue("torrent/dht_state").toByteArray();
-	params = libtorrent::read_session_params(bdecode_simple(dhtState), libtorrent::session_handle::save_dht_state);
+	params = readSessionParams(dhtState, libtorrent::session_handle::save_dht_state);
 
 	fillSettings(params.settings);
 
@@ -764,24 +764,20 @@ QString TorrentDownload::bencode(libtorrent::entry& e)
 	return bencode_simple(e).toBase64();
 }
 
-libtorrent::bdecode_node TorrentDownload::bdecode_simple(QByteArray array)
+libtorrent::session_params TorrentDownload::readSessionParams(const QByteArray& data, libtorrent::save_state_flags_t flags)
 {
-	if(array.isEmpty())
-		return libtorrent::bdecode_node();
-	else
-		return libtorrent::bdecode(array);
-}
+	// bdecode_node only points into the buffer, so it must not outlive 'data'
+	if(data.isEmpty())
+		return libtorrent::session_params();
 
-libtorrent::bdecode_node TorrentDownload::bdecode(QString d)
-{
-	if(d.isEmpty())
-		return libtorrent::bdecode_node();
-	else
+	libtorrent::error_code ec;
+	libtorrent::bdecode_node node = libtorrent::bdecode(libtorrent::span<const char>(data.constData(), data.size()), ec);
+	if(ec || node.type() != libtorrent::bdecode_node::dict_t)
 	{
-		QByteArray array;
-		array = QByteArray::fromBase64(d.toUtf8());
-		return libtorrent::bdecode(array);
+		std::cout << "Ignoring invalid saved session state: " << ec.message() << std::endl;
+		return libtorrent::session_params();
 	}
+	return libtorrent::read_session_params(node, flags);
 }
 
 void TorrentDownload::load(const QDomNode& map)
@@ -826,10 +822,18 @@ void TorrentDownload::load(const QDomNode& map)
 		std::cout << "Loaded " << getXMLProperty(map, "torrent_resume").size() << " bytes of resume data\n";
 		
 		libtorrent::add_torrent_params params;
-		std::vector<char> torrent_resume2 = std::vector<char>(torrent_resume.data(), torrent_resume.data()+torrent_resume.size());
 
-		if(!torrent_resume2.empty())
-			params = libtorrent::read_resume_data(torrent_resume);
+		if(!torrent_resume.isEmpty())
+		{
+			// Resume data is only a hint: a corrupt blob must not fail the transfer
+			libtorrent::error_code ec;
+			params = libtorrent::read_resume_data(libtorrent::span<const char>(torrent_resume.constData(), torrent_resume.size()), ec);
+			if(ec)
+			{
+				std::cout << "Ignoring invalid resume data: " << ec.message() << std::endl;
+				params = libtorrent::add_torrent_params();
+			}
+		}
 		
 		//params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
 		params.storage_mode = libtorrent::storage_mode_sparse; // don't force full allocation upon load
@@ -837,7 +841,7 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		QByteArray path = str.toUtf8();
 		params.save_path = path.constData();
-		params.flags = libtorrent::torrent_flags::paused;
+		params.flags |= libtorrent::torrent_flags::paused;
 		
 		m_handle = m_session->add_torrent(params);
 		
@@ -943,33 +947,40 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 			m_mutexAlerts.lock();
 			m_handle.save_resume_data();
 			
-			bool saved = false;
-			for(int i = 0; i < 3 && !saved; i++)
+			bool saved = false, failed = false;
+			const int maxWaitMs = 5000;
+
+			for(int waited = 0; !saved && !failed && waited < maxWaitMs; )
 			{
 				std::vector<libtorrent::alert*> alerts;
 				TorrentDownload::m_session->pop_alerts(&alerts);
-	
+
 				if (alerts.empty())
 				{
-					Sleeper::msleep(250);
-					i++;
+					Sleeper::msleep(100);
+					waited += 100;
 					continue;
 				}
-				
+
 				for (libtorrent::alert* aaa : alerts)
 				{
-					if(libtorrent::save_resume_data_alert* alert = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(aaa))
+					libtorrent::save_resume_data_alert* alert = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(aaa);
+					libtorrent::save_resume_data_failed_alert* falert = libtorrent::alert_cast<libtorrent::save_resume_data_failed_alert>(aaa);
+
+					if(alert && alert->handle == m_handle)
 					{
 						auto entry = libtorrent::write_resume_data_buf(alert->params);
 						setXMLProperty(doc, map, "torrent_resume", QByteArray(entry.data(), entry.size()).toBase64());
 						saved = true;
 					}
-					else if(libtorrent::alert_cast<libtorrent::save_resume_data_failed_alert>(aaa))
+					else if(falert && falert->handle == m_handle)
 					{
 						std::cout << "Save data failed\n";
+						failed = true;
 					}
 					else
 					{
+						// other torrents' alerts, dispatched by handle
 						m_worker->processAlert(aaa);
 					}
 				}
