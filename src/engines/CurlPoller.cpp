@@ -25,6 +25,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 
+#include "DebugLog.h"
 #include "CurlPoller.h"
 #include <algorithm>
 #include <chrono>
@@ -91,6 +92,8 @@ void CurlPoller::pollingCycle(bool oneshot)
 	timeval tvNow;
 	QList<CurlStat*> timedOut;
 
+	FRDBG("cycle %p begin oneshot=%d m_timeout=%ld deadlineIn=%lld masters=%d sockets=%d", (void*) this, (int) oneshot, m_timeout,
+		m_curlDeadline < 0 ? -1LL : (long long) m_curlDeadline - nowMs(), (int) m_masters.size(), (int) m_sockets.size());
 	int numEvents = m_poller->wait(!oneshot ? m_timeout : 0, events, sizeof(events) / sizeof(events[0]));
 
 	m_usersLock.lock();
@@ -100,6 +103,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 	{
 		// libcurl will set a new timer through timer_callback if it needs one
 		m_curlDeadline = -1;
+		FRDBG("cycle %p socket_action TIMEOUT (numEvents=%d)", (void*) this, numEvents);
 		curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	}
 
@@ -117,10 +121,14 @@ void CurlPoller::pollingCycle(bool oneshot)
 			if(events[i].flags & (Poller::PollerError | Poller::PollerHup))
 				mask |= CURL_CSELECT_ERR;
 
+			FRDBG("cycle %p socket_action fd=%d mask=%d", (void*) this, socket, mask);
 			curl_multi_socket_action(m_curlm, socket, mask, &dummy);
 		}
 		else
+		{
+			FRDBG("cycle %p master event fd=%d", (void*) this, socket);
 			m_masters[socket]->pollingCycle(true);
+		}
 	}
 
 	gettimeofday(&tvNow, 0);
@@ -198,7 +206,10 @@ void CurlPoller::pollingCycle(bool oneshot)
 		}
 
 		if(mask)
+		{
+			FRDBG("cycle %p limiter socket_action fd=%d mask=%d", (void*) this, it.key(), mask);
 			curl_multi_socket_action(m_curlm, it.key(), mask, &dummy);
+		}
 
 		int& flags = it.value().first;
 		if(msec > 0)
@@ -221,6 +232,7 @@ void CurlPoller::pollingCycle(bool oneshot)
 				flags ^= Poller::PollerOneShot;
 			else
 				continue;
+			FRDBG("cycle %p re-arm fd=%d flags=0x%x", (void*) this, it.key(), flags);
 			m_poller->addSocket(it.key(), flags);
 		}
 	}
@@ -233,12 +245,14 @@ void CurlPoller::pollingCycle(bool oneshot)
 
 		CurlUser* user = m_users.value(msg->easy_handle, 0);
 
+		FRDBG("cycle %p CURLMSG_DONE result=%d (%s) user=%p", (void*) this, (int) msg->data.result, curl_easy_strerror(msg->data.result), (void*) user);
 		if(user)
 			user->transferDone(msg->data.result);
 	}
 
 	foreach(CurlStat* stat, timedOut)
 	{
+		FRDBG("cycle %p transfer idle-timed out", (void*) this);
 		if(CurlUser* user = dynamic_cast<CurlUser*>(stat))
 			user->transferDone(CURLE_OPERATION_TIMEDOUT);
 	}
@@ -304,6 +318,7 @@ long long CurlPoller::nowMs()
 int CurlPoller::timer_callback(CURLM* multi, long newtimeout, CurlPoller* This)
 {
 	// 0 means "call me right away", -1 means no timer
+	FRDBG("timer_callback poller=%p timeout=%ld", (void*) This, newtimeout);
 	This->m_curlDeadline = (newtimeout < 0) ? -1 : nowMs() + newtimeout;
 	return 0;
 }
@@ -311,6 +326,7 @@ int CurlPoller::timer_callback(CURLM* multi, long newtimeout, CurlPoller* This)
 int CurlPoller::socket_callback(CURL* easy, curl_socket_t s, int action, CurlPoller* This, void* socketp)
 {
 	int flags = Poller::PollerOneShot | Poller::PollerError | Poller::PollerHup;
+	FRDBG("socket_callback poller=%p fd=%d action=%d easy=%p known=%d", (void*) This, (int) s, action, (void*) easy, (int) This->m_users.contains(easy));
 	
 	if(action == CURL_POLL_IN || action == CURL_POLL_INOUT)
 		flags |= Poller::PollerIn;
@@ -348,6 +364,7 @@ void CurlPoller::addTransfer(CurlUser* obj)
 	
 	obj->resetStatistics();
 	m_users[handle] = obj;
+	FRDBG("addTransfer poller=%p handle=%p", (void*) this, (void*) handle);
 	curl_multi_add_handle(m_curlm, handle);
 }
 

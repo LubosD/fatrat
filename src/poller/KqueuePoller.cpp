@@ -24,6 +24,7 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "DebugLog.h"
 #include "KqueuePoller.h"
 #include "RuntimeException.h"
 #include <sys/types.h>
@@ -70,7 +71,10 @@ int KqueuePoller::addSocket(int socket, int flags)
 	for(int i=0;i<2;i++)
 	{
 		bool wanted = (i == 0) ? (flags & PollerIn) : (flags & PollerOut);
-		if(kevent(m_kqueue, &ev[i], 1, 0, 0, 0) == -1 && (wanted || errno != ENOENT))
+		int r = kevent(m_kqueue, &ev[i], 1, 0, 0, 0);
+		int err = errno;
+		FRDBG("kq addSocket fd=%d filter=%s %s flags=0x%x -> %d errno=%d", socket, i ? "WRITE" : "READ", wanted ? "ADD" : "DEL", flags, r, r == -1 ? err : 0);
+		if(r == -1 && (wanted || err != ENOENT))
 			return -1;
 	}
 	return 0;
@@ -82,9 +86,10 @@ int KqueuePoller::removeSocket(int socket)
 	struct kevent ev;
 	
 	EV_SET(&ev, socket, EVFILT_READ, EV_DELETE, 0, 0, 0);
-	kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	int r1 = kevent(m_kqueue, &ev, 1, 0, 0, 0);
 	EV_SET(&ev, socket, EVFILT_WRITE, EV_DELETE, 0, 0, 0);
-	kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	int r2 = kevent(m_kqueue, &ev, 1, 0, 0, 0);
+	FRDBG("kq removeSocket fd=%d read=%d write=%d", socket, r1, r2);
 	return 0;
 }
 
@@ -93,7 +98,11 @@ int KqueuePoller::wait(int msec, Event* ev, int max)
 	struct kevent* evlist = (struct kevent*) alloca(sizeof(struct kevent) * max);
 	struct timespec tspec = { msec/1000, (msec%1000)*1000000L };
 	
+	long long t0 = frDbgMs();
 	int nev = kevent(m_kqueue, 0, 0, evlist, max, &tspec);
+	FRDBG("kq wait(%d ms) -> %d events after %lld ms (kq=%d)", msec, nev, frDbgMs() - t0, m_kqueue);
+	for(int i=0;i<nev;i++)
+		FRDBG("  kq event ident=%d filter=%d flags=0x%x fflags=0x%x data=%lld", (int) evlist[i].ident, (int) evlist[i].filter, (unsigned) evlist[i].flags, (unsigned) evlist[i].fflags, (long long) evlist[i].data);
 	for(int i=0;i<nev;i++)
 	{
 		Event event = { static_cast<int>(evlist[i].ident), 0 };

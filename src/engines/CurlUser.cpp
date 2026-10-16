@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "DebugLog.h"
 #include "CurlUser.h"
 #include "CurlPoller.h"
 #include <QtDebug>
@@ -47,6 +48,7 @@ size_t CurlUser::read_function(char *ptr, size_t size, size_t nmemb, CurlUser* T
 size_t CurlUser::write_function(const char* ptr, size_t size, size_t nmemb, CurlUser* This)
 {
 	bool ok = true;
+	FRDBG("write_function %zu bytes", size*nmemb);
 	if (ptr)
 		ok = This->writeData(ptr, size*nmemb);
 

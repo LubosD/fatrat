@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "DebugLog.h"
 #include "config.h"
 #include "UrlClient.h"
 #include "Proxy.h"
@@ -331,6 +332,7 @@ int UrlClient::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t
 	{
 		QByteArray line = QByteArray(text, bytes).trimmed();
 		qDebug() << "CURL debug:" << line;
+		FRDBG("curl info type=%d: %s", (int) type, line.constData());
 		if(!line.isEmpty())
 			emit This->logMessage(line);
 	}

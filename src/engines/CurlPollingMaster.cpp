@@ -24,6 +24,7 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#include "DebugLog.h"
 #include "CurlPollingMaster.h"
 #include <QtDebug>
 
@@ -38,6 +39,7 @@ bool CurlPollingMaster::idleCycle(const timeval& tvNow)
 	QList<CurlStat*> timedOut;
 	
 	m_curlDeadline = -1;
+	FRDBG("master %p idleCycle socket_action TIMEOUT", (void*) this);
 	curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	
 	m_usersLock.lock();
