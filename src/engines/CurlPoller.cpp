@@ -92,6 +92,8 @@ void CurlPoller::pollingCycle(bool oneshot)
 	m_usersLock.lock();
 	if(!numEvents)
 	{
+		// The timer has fired, libcurl will set a new one through timer_callback if it needs one
+		m_curlTimeout = -1;
 		curl_multi_socket_action(m_curlm, CURL_SOCKET_TIMEOUT, 0, &dummy);
 	}
 
@@ -117,7 +119,8 @@ void CurlPoller::pollingCycle(bool oneshot)
 
 	gettimeofday(&tvNow, 0);
 
-	if(m_curlTimeout <= 0 || m_curlTimeout > 500)
+	// 0 means "call me right away" (e.g. data pending inside the TLS layer), -1 means no timer
+	if(m_curlTimeout < 0 || m_curlTimeout > 500)
 		m_timeout = 500;
 	else
 		m_timeout = m_curlTimeout;
