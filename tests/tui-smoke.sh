@@ -191,5 +191,25 @@ waitfor Main queue
 expect connected
 " --url "http://127.0.0.1:$PORT"
 
+# a running FatRat is found through its settings, password included, without any prompt
+run local-instance "
+waitfor Main queue
+expect running FatRat
+expect connected
+reject Password required
+" --mode local --config "$WORK/home2/fatrat.conf" --socket "$SOCK"
+
+# auto mode finds it too, and --which explains the decision
+if "$TUI" --which --config "$WORK/home2/fatrat.conf" --socket "$SOCK" | grep -q "using the running FatRat"; then
+	echo "ok    which-auto"
+else
+	echo "FAIL  which-auto"; fail=1
+fi
+if "$TUI" --which --mode socket --no-start --config "$WORK/home2/fatrat.conf" --socket "$SOCK" > /dev/null; then
+	echo "FAIL  which-no-start (should fail: nothing listens on the socket)"; fail=1
+else
+	echo "ok    which-no-start"
+fi
+
 [ $fail -eq 0 ] && echo "ALL OK"
 exit $fail

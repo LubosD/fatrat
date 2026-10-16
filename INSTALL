@@ -38,13 +38,17 @@ WITH_DOCUMENTATION requires WITH_GUI. WITH_EVERYTHING leaves it off when WITH_GU
 WITH_TUI builds bin/fatrat-tui, a keyboard and mouse driven terminal client. It only needs QtCore, QtNetwork and
 ncurses, and talks to FatRat through the same REST API as the web interface.
 
-  fatrat-tui                       start (or reuse) a private FatRat server on a unix socket and connect to it
-  fatrat-tui --url http://host:port    connect to the web interface of a running FatRat (asks for the password;
+  fatrat-tui                       automatic: a server on the unix socket, else a running FatRat whose settings
+                                   enable the web interface (found through the settings file), else a private
+                                   server that it starts on the unix socket
+  fatrat-tui --mode local|socket   pin the choice (local never starts anything); --no-start forbids starting
+  fatrat-tui --url http://host:port    connect to the web interface of a FatRat anywhere (asks for the password;
                                    see --password-file and FATRAT_PASSWORD)
+  fatrat-tui --which               print what it would connect to and why, then exit
   fatrat-tui --stop                stop a server that fatrat-tui started and left running
 
-The first form needs a FatRat built with WITH_WEBINTERFACE (it starts "fatrat-nogui --rest-socket PATH"), and it
-cannot work while the desktop application is already running, as only one FatRat can run per session.
+Starting a private server needs a FatRat built with WITH_WEBINTERFACE ("fatrat-nogui --rest-socket PATH"), and cannot
+work while another FatRat is running, as only one can run per session; use the running one instead.
 Press ? in the program for the list of keys; every action is also shown in the bar at the bottom.
 tests/tui-smoke.sh runs the program against a real headless FatRat on a virtual screen (see --script).
 +-------------------------------+-----------------------+----------------------------------------------+

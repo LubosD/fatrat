@@ -41,7 +41,7 @@ target_link_libraries(tst_rssresources Qt6::Core Qt6::Network Qt6::Test)
 add_test(NAME rssresources COMMAND tst_rssresources)
 
 if(WITH_TUI)
-	foreach(t format httpclient store keymap render)
+	foreach(t format httpclient store keymap render connection)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)
 		target_link_libraries(tst_tui_${t} fatrat_tui_core Qt6::Test)
 		add_test(NAME tui_${t} COMMAND tst_tui_${t})

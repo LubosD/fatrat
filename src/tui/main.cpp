@@ -1,4 +1,5 @@
 #include "App.h"
+#include "Connection.h"
 #include "NcBackend.h"
 #include "Script.h"
 #include "ServerManager.h"
@@ -31,15 +32,18 @@ namespace
 	class Splash : public Dialog
 	{
 	public:
-		Splash(ServerManager* sm, std::function<void()> cancel) : m_sm(sm), m_cancel(std::move(cancel)) {}
+		Splash(ServerManager* sm, const QStringList& notes, std::function<void()> cancel) : m_sm(sm), m_notes(notes), m_cancel(std::move(cancel)) {}
 
 		void draw(Canvas& c, HitMap& hits, const Rect& screen) override
 		{
 			beginDraw(hits, screen);
-			m_rect = place(screen, 70, 9 + m_sm->steps().size());
+			m_rect = place(screen, qMin(screen.w, 96), 12 + m_sm->steps().size() + m_notes.size());
 			drawFrame(c, "fatrat-tui");
-			c.put(m_rect.x + 3, m_rect.y + 2, QObject::tr("Starting a local FatRat server…"), Style::Bold);
-			int y = m_rect.y + 4;
+			c.put(m_rect.x + 3, m_rect.y + 2, QObject::tr("Starting a private FatRat server on a unix socket…"), Style::Bold);
+			int y = m_rect.y + 3;
+			for (const QString& n : m_notes)
+				c.put(m_rect.x + 3, y++, fit(n, m_rect.w - 6), Style::Dim);
+			y++;
 			for (const QString& s : m_sm->steps())
 				c.put(m_rect.x + 3, y++, fit(Glyphs::isAscii() ? "* " + s : QString::fromUtf8("✓ ") + s, m_rect.w - 6), Style::Normal);
 			c.put(m_rect.x + 3, y, QObject::tr("… waiting for the API"), Style::Yellow);
@@ -59,6 +63,7 @@ namespace
 	private:
 		static QString fit(const QString& s, int w) { return s.left(w); }
 		ServerManager* m_sm;
+		QStringList m_notes;
 		std::function<void()> m_cancel;
 	};
 }
@@ -69,15 +74,21 @@ int main(int argc, char** argv)
 	QCoreApplication::setApplicationName("fatrat-tui");
 
 	QCommandLineParser p;
-	p.setApplicationDescription("Terminal client for FatRat. Without --url it starts (or reuses) a local FatRat server on a unix socket.");
+	p.setApplicationDescription("Terminal client for FatRat.\n\n"
+		"By default (--mode auto) it uses, in this order: a server that is already running on the unix socket, a running FatRat on this machine whose settings turn on the web interface, "
+		"or a private server that it starts itself on the unix socket. --which shows what it would do.");
 	p.addHelpOption();
-	p.addOption({ "url", "Connect to a FatRat web interface: http://host:port, https://host:port or unix:/path/to.sock", "URL" });
+	p.addOption({ "mode", "How to reach FatRat: auto (default), local (the running FatRat found through its settings), "
+		"socket (a server on the unix socket, started if needed) or url (needs --url)", "MODE" });
+	p.addOption({ "url", "Connect to a FatRat web interface: http://host:port, https://host:port or unix:/path/to.sock (implies --mode url)", "URL" });
+	p.addOption({ "no-start", "In auto mode, do not start a server; fail if none is running" });
+	p.addOption({ "which", "Print how fatrat-tui would connect, and why, then exit" });
 	p.addOption({ "password-file", "Read the web interface password from the first line of FILE", "FILE" });
-	p.addOption({ "password-prompt", "Ask for the password even if FATRAT_PASSWORD or --password-file is set" });
+	p.addOption({ "password-prompt", "Ask for the password even if FATRAT_PASSWORD, --password-file or the settings of a local FatRat provide one" });
 	p.addOption({ "insecure", "Do not verify the server certificate" });
 	p.addOption({ "socket", "Unix socket of the local server (default: $XDG_RUNTIME_DIR/fatrat/rest.sock)", "PATH" });
 	p.addOption({ "server-bin", "The FatRat program to start (default: fatrat-nogui or fatrat next to this program, or in PATH)", "PATH" });
-	p.addOption({ "config", "Settings file for the local server", "FILE" });
+	p.addOption({ "config", "FatRat settings file: read to find a running FatRat, and used by a server that fatrat-tui starts (default: the normal FatRat settings)", "FILE" });
 	p.addOption({ "stop", "Stop a local server that was started by fatrat-tui, then exit" });
 	p.addOption({ "no-mouse", "Do not use the mouse" });
 	p.addOption({ "ascii", "Draw with plain ASCII characters" });
@@ -97,45 +108,61 @@ int main(int argc, char** argv)
 
 	const bool scripted = p.isSet("script");
 
-	// ---- connection settings
+	// ---- how to reach FatRat
 	QSettings conf(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/fatrat/tui.conf", QSettings::IniFormat);
-	Endpoint ep;
-	QString urlText = p.value("url");
-	if (urlText.isEmpty() && qEnvironmentVariableIsSet("FATRAT_URL"))
-		urlText = qEnvironmentVariable("FATRAT_URL");
-	const bool urlMode = !urlText.isEmpty();
-	QString desc;
 
-	if (urlMode)
+	PlanOptions po;
+	if (p.isSet("mode") && !parseMode(p.value("mode"), &po.mode))
 	{
-		QString err;
-		if (!Endpoint::parse(urlText, ep, &err))
+		fprintf(stderr, "Unknown mode \"%s\": use auto, local, socket or url.\n", qPrintable(p.value("mode")));
+		return 2;
+	}
+	po.url = p.value("url");
+	if (po.url.isEmpty() && qEnvironmentVariableIsSet("FATRAT_URL"))
+		po.url = qEnvironmentVariable("FATRAT_URL");
+	po.socketPath = socketPath;
+	po.settingsFile = p.value("config");
+	po.noStart = p.isSet("no-start");
+	if (!po.url.isEmpty() && p.isSet("mode") && po.mode != PlanOptions::Url)
+	{
+		fprintf(stderr, "--url cannot be combined with --mode %s.\n", qPrintable(modeName(po.mode)));
+		return 2;
+	}
+
+	const Plan plan = planConnection(po);
+	if (p.isSet("which"))
+	{
+		for (const QString& l : plan.explanation)
+			printf("%s\n", qPrintable(l));
+		if (plan.kind == Plan::Failure)
 		{
-			fprintf(stderr, "%s\n", qPrintable(err));
-			return 2;
+			printf("%s\n", qPrintable(plan.error));
+			return 1;
 		}
-		if (QUrl(urlText).userInfo().size())
-			fprintf(stderr, "Ignoring the user name and password in the URL; use --password-file or FATRAT_PASSWORD.\n");
-		ep.insecure = p.isSet("insecure");
-		{
-			QUrl shown(urlText);
-			shown.setUserInfo(QString()); // never display a password that was put in the URL
-			desc = shown.toString();
-		}
+		return 0;
+	}
+	if (plan.kind == Plan::Failure)
+	{
+		fprintf(stderr, "%s\n", qPrintable(plan.error));
+		return 2;
+	}
+
+	Endpoint ep = plan.endpoint;
+	const bool startPrivate = plan.kind == Plan::StartPrivate;
+	const QString desc = plan.description;
+	const bool networked = ep.kind != Endpoint::Unix;   // TCP or TLS: needs the web interface password
+
+	if (!po.url.isEmpty() && QUrl(po.url).userInfo().size())
+		fprintf(stderr, "Ignoring the user name and password in the URL; use --password-file or FATRAT_PASSWORD.\n");
+	ep.insecure = p.isSet("insecure");
+	if (networked)
 		for (const QString& fp : conf.value("fingerprints/" + ep.host + ":" + QString::number(ep.port)).toStringList())
 			ep.trustedFingerprints.insert(fp);
-	}
-	else
-	{
-		ep.kind = Endpoint::Unix;
-		ep.socketPath = socketPath;
-		desc = QObject::tr("local server");
-	}
 
-	// ---- password (URL mode over TCP)
+	// ---- password: --password-file, then FATRAT_PASSWORD, then the settings of a local FatRat, else a prompt
 	QString password;
 	bool havePassword = false;
-	if (urlMode && ep.kind != Endpoint::Unix && !p.isSet("password-prompt"))
+	if (networked && !p.isSet("password-prompt"))
 	{
 		if (p.isSet("password-file"))
 		{
@@ -154,6 +181,11 @@ int main(int argc, char** argv)
 		else if (qEnvironmentVariableIsSet("FATRAT_PASSWORD"))
 		{
 			password = qEnvironmentVariable("FATRAT_PASSWORD");
+			havePassword = true;
+		}
+		else if (plan.kind == Plan::LocalInstance && plan.passwordFromSettings)
+		{
+			password = plan.password;
 			havePassword = true;
 		}
 	}
@@ -218,10 +250,10 @@ int main(int argc, char** argv)
 
 	// ---- local server
 	ServerManager* sm = nullptr;
-	if (!urlMode)
+	if (startPrivate)
 	{
 		ServerManager::Options o;
-		o.socketPath = socketPath;
+		o.socketPath = ep.socketPath;
 		o.serverBinary = p.value("server-bin");
 		o.configFile = p.value("config");
 		sm = new ServerManager(o, &app);
@@ -231,7 +263,7 @@ int main(int argc, char** argv)
 		auto startServer = std::make_shared<std::function<void()>>();
 		auto splash = std::make_shared<Splash*>(nullptr);
 		*startServer = [&, startServer, splash]() {
-			auto s = std::make_unique<Splash>(sm, [&]() { sm->stop(); app.requestQuit(); });
+			auto s = std::make_unique<Splash>(sm, plan.explanation, [&]() { sm->stop(); app.requestQuit(); });
 			*splash = s.get();
 			app.push(std::move(s));
 			QTimer::singleShot(0, sm, &ServerManager::start);
@@ -256,7 +288,7 @@ int main(int argc, char** argv)
 		});
 		(*startServer)();
 	}
-	else if (!havePassword && ep.kind != Endpoint::Unix)
+	else if (!havePassword && networked)
 	{
 		app.setPaused(true);
 		app.askPassword();
