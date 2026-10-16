@@ -37,7 +37,6 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "Logger.h"
 #include "TransferFactory.h"
-#include "remote/XmlRpcService.h"
 #include "remote/RestApi.h"
 #include "remote/RestResources.h"
 
@@ -90,9 +89,6 @@ HttpService::HttpService()
 	addSettingsPage(si);
 
 	RestResources::registerAll();
-
-	XmlRpcService::registerFunction("HttpService.generateCertificate", generateCertificate,
-		QVector<QMetaType::Type>() << QMetaType::QString);
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
 	m_timer.start(15 * 1000);
@@ -294,11 +290,6 @@ void HttpService::registerRoutes()
 	m_server->Put(restPattern, restHandler);
 	m_server->Patch(restPattern, restHandler);
 	m_server->Delete(restPattern, restHandler);
-
-	// /xmlrpc
-	m_server->Post("/xmlrpc", [this](const httplib::Request& req, httplib::Response& res) {
-		m_xmlRpc.handleRequest(req, res);
-	});
 
 	// /log and /log/<transfer-uuid>
 	m_server->Get(R"(/log(.*))", [](const httplib::Request& req, httplib::Response& res) {
@@ -599,44 +590,6 @@ void HttpService::findQueue(QString queueUUID, Queue** q)
 			return;
 		}
 	}
-}
-
-QVariant HttpService::generateCertificate(QList<QVariant>& args)
-{
-	QString hostname = args[0].toString();
-	const char* script = DATA_LOCATION "/data/genssl.sh";
-	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
-
-	QProcess prc;
-
-	qDebug() << "Starting: " << script << " " << config;
-	prc.start(script, QStringList() << config << hostname);
-	prc.waitForFinished();
-
-	if (prc.exitCode() != 0)
-		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-		throw XmlRpcService::XmlRpcError(501, tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-
-	QByteArray data = file.readAll();
-	QDir::home().mkpath(USER_PROFILE_PATH "/data");
-
-	QString path = QDir::homePath() + QLatin1String(USER_PROFILE_PATH) + "/data/fatrat-webui.pem";
-	QFile out(path);
-
-	if (!out.open(QIODevice::WriteOnly))
-		throw XmlRpcService::XmlRpcError(502, tr("Failed to open %1 for writing.").arg(path));
-
-	out.write(data);
-
-	out.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
-	out.close();
-	file.remove();
-
-	return path;
 }
 
 void HttpService::addCaptchaEvent(int id, QString url)

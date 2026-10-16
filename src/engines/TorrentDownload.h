@@ -133,7 +133,6 @@ private slots:
 	void forceRecheck();
 #ifdef WITH_WEBINTERFACE
 private:
-	static QVariant setFilePriorities(QList<QVariant>& args);
 	static RestResult setFilePrioritiesRest(const RestRequest& req);
 #endif
 protected:

@@ -49,7 +49,7 @@ public:
 	// location of the script contolling the HTTP details view
 	virtual const char* detailsScript() const = 0;
 
-	// properties the script can access via XML-RPC
+	// properties the script can access via the REST API (GET /api/v1/transfers/{uuid}/details)
 	virtual QVariantMap properties() const = 0;
 };
 

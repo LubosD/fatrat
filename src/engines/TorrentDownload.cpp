@@ -71,8 +71,6 @@ respects for all of the code used other than "OpenSSL".
 #include "util/LegacyRegex.h"
 
 #ifdef WITH_WEBINTERFACE
-#	define XMLRPCSERVICE_AVOID_SHA_CONFLICT
-#	include "remote/XmlRpcService.h"
 #	include "remote/RestResources.h"
 #	include "Queue.h"
 
@@ -332,10 +330,6 @@ void TorrentDownload::globalInit()
 	si.pfnApply = TorrentDownload::applySettings;
 
 #ifdef WITH_WEBINTERFACE
-	// register XML-RPC functions
-	XmlRpcService::registerFunction("TorrentDownload.setFilePriorities", setFilePriorities,
-					QVector<QMetaType::Type>() << QMetaType::QString << QMetaType::QVariantMap);
-
 	RestApi::registerRoute("PUT", "/transfers/:transfer/torrent/file-priorities", setFilePrioritiesRest);
 
 	si.webSettingsScript = "/scripts/settings/bittorrent.js";
@@ -1510,50 +1504,4 @@ RestResult TorrentDownload::setFilePrioritiesRest(const RestRequest& req)
 	return RestResult::noContent();
 }
 
-QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
-{
-	QString uuid = args[0].toString();
-	Queue* q = 0;
-	Transfer* t = 0;
-	TorrentDownload* td = 0;
-	QVariantMap vmap;
-
-	XmlRpcService::findTransfer(uuid, &q, &t);
-	if (!t)
-		throw XmlRpcService::XmlRpcError(102, "Invalid transfer UUID");
-
-	if (! (td = dynamic_cast<TorrentDownload*>(t)) || !td->m_handle.is_valid())
-	{
-		q->unlock();
-		g_queuesLock.unlock();
-		return QVariant();
-	}
-
-	try
-	{
-		QVariantMap map = args[1].toMap();
-
-		for (QVariantMap::iterator it = map.begin(); it != map.end(); it++)
-		{
-			quint32 i = it.key().toUInt();
-			if (i >= 0 && i < td->m_vecPriorities.size())
-				td->m_vecPriorities[i] = it.value().toInt();
-			else
-				; // TODO throw exception
-		}
-
-		td->m_handle.prioritize_files(td->m_vecPriorities);
-	}
-	catch (...)
-	{
-		q->unlock();
-		g_queuesLock.unlock();
-		throw;
-	}
-
-	q->unlock();
-	g_queuesLock.unlock();
-
-	return QVariant();
-}
 #endif

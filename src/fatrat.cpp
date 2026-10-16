@@ -78,7 +78,6 @@ respects for all of the code used other than "OpenSSL".
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
-#	include "remote/XmlRpcService.h"
 #endif
 
 #ifdef WITH_JPLUGINS
@@ -230,7 +229,6 @@ int main(int argc,char** argv)
 	g_qmgr = new QueueMgr;
 
 #ifdef WITH_WEBINTERFACE
-	XmlRpcService::globalInit();
 	new HttpService;
 #endif
 	

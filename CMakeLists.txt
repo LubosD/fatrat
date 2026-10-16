@@ -167,7 +167,6 @@ set(fatrat_SRCS
 	src/SimpleEmail.cpp
 	src/Transfer.cpp
 	src/Logger.cpp
-	src/XmlRpc.cpp
 	src/Scheduler.cpp
 	src/Settings.cpp
 	src/TransferFactory.cpp
@@ -519,7 +518,6 @@ if(WITH_WEBINTERFACE)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
 		src/remote/HttpService.cpp
-		src/remote/XmlRpcService.cpp
 		src/remote/RestApi.cpp
 		src/remote/RestResources.cpp
 		src/captcha/CaptchaHttp.cpp
@@ -531,7 +529,6 @@ if(WITH_WEBINTERFACE)
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		src/remote/XmlRpcService.h
 		src/remote/HttpService.h
 		src/captcha/CaptchaHttp.h
 	)
@@ -673,7 +670,6 @@ set(fatrat_DEV_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Settings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Auth.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Proxy.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/XmlRpc.h
 	)
 set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlDownload.h

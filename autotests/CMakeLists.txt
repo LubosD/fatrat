@@ -19,10 +19,6 @@ add_executable(tst_rssfeedparser tst_rssfeedparser.cpp)
 target_link_libraries(tst_rssfeedparser Qt6::Core Qt6::Test)
 add_test(NAME rssfeedparser COMMAND tst_rssfeedparser)
 
-add_executable(tst_xmlrpc tst_xmlrpc.cpp ${CMAKE_SOURCE_DIR}/src/XmlRpc.cpp)
-target_link_libraries(tst_xmlrpc Qt6::Core Qt6::Xml Qt6::Test)
-add_test(NAME xmlrpc COMMAND tst_xmlrpc)
-
 add_executable(tst_restapi tst_restapi.cpp ${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp)
 target_include_directories(tst_restapi PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_restapi Qt6::Core Qt6::Test)

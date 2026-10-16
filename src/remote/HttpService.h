@@ -49,7 +49,6 @@ respects for all of the code used other than "OpenSSL".
 #include <atomic>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
-#include "XmlRpcService.h"
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -77,8 +76,6 @@ public:
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
 
-	static QVariant generateCertificate(QList<QVariant>&);
-
 private slots:
 	void keepalive(); // QTimer TODO
 private:
@@ -102,8 +99,6 @@ private:
 	QString m_strSSLPem;
 	bool m_bUseSSL = false;
 	quint16 m_port = 0;
-
-	XmlRpcService m_xmlRpc;
 
 	class WebSocketService
 	{
