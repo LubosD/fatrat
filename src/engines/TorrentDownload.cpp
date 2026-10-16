@@ -1072,6 +1072,9 @@ QString TorrentDownload::message() const
 		case libtorrent::torrent_status::checking_resume_data:
 			state = tr("Checking resume data: %1%").arg(m_status.progress*100.f);
 			break;
+		default:
+			// queued_for_checking, allocating (deprecated in newer libtorrent)
+			break;
 		}
 	}
 	else
