@@ -1,6 +1,6 @@
 FatRat is an open source download manager for Linux written in C++ and built on top of the Qt 6 library.
 
-Copyright © 2006-2015 Luboš Doležel <lubos at dolezel.info>
+Copyright © 2006-2026 Luboš Doležel <lubos at dolezel.info>
 
 === GRAPHICS ===
 
@@ -35,61 +35,41 @@ Copyright © 2006-2015 Luboš Doležel <lubos at dolezel.info>
 === SOFTWARE ===
 
 * Rasterbar libtorrent library
-  Copyright © 2003-2008 Arvid Norberg <arvidn at sourceforge.net>
+  Copyright © 2003-2026 Arvid Norberg <arvid at libtorrent.org>
   BSD license.
 
-* Gloox XMPP library
-  Copyright © 2005-2008 Jakob Schröter <js at camaya.net>
-  GNU GPL version 2.
-
-* Trolltech Qt 4
-  Copyright © 2009 Nokia Corporation and/or its subsidiary(-ies). <http://www.qtsoftware.com>
-  GNU GPL version 2 or 3.
+* Qt 6
+  Copyright © The Qt Company Ltd. <https://www.qt.io>
+  GNU LGPL version 3 or GNU GPL version 2 or 3.
 
 * cURL
-  Copyright © 1996-2008 Daniel Stenberg <daniel at haxx.se>
-  MIT/X derivate license
+  Copyright © 1996-2026 Daniel Stenberg <daniel at haxx.se>
+  curl license (MIT/X derivate license)
 
-* Pion Network Library
-  Copyright © 2007-2009 Atomic Labs, Inc. <http://www.pion.org>
+* Boost C++ Libraries
   Boost Software License
 
 === WEB INTERFACE ===
 
-Web interface utilizes the following 3rd party JavaScript libraries:
+Web interface is built with Angular and utilizes the following 3rd party
+JavaScript libraries:
 
-* jQuery JavaScript Library
-  Copyright © 2010 John Resig <http://jquery.org>
-  Dual licensed under the MIT or GPL Version 2 licenses.
+* Angular
+  Copyright © Google LLC <https://angular.dev>
+  MIT license.
 
-* jquery.layout
-  Copyright © 2008 Fabrizio Balliano <http://www.fabrizioballiano.net>, Kevin Dalman <http://allpro.net>
-  Dual licensed under the GPL Version 2 and MIT licenses.
+* PrimeNG and PrimeIcons
+  Copyright © PrimeTek Informatics <https://primeng.org>
+  MIT license.
 
-* jQuery UI
-  Copyright © 2010 Authors of jQuery UI <http://jqueryui.com/about>
-  Dual licensed under the GPL Version 2 and MIT licenses.
+* Chart.js
+  Copyright © 2014-2026 Chart.js Contributors <https://www.chartjs.org>
+  MIT license.
 
-* jsxmlrpc
-  Copyright © 2006 Tim Becker <tim at kuriositaet.de>
-  BSD license
+* RxJS
+  Copyright © Google, Inc., Netflix, Inc., Microsoft Corp. and contributors <https://rxjs.dev>
+  Apache License 2.0.
 
-* jsTree
-  Copyright © 2010 Ivan Bozhanov <vakata.com>
-  Dual licensed under the GPL and MIT licenses.
-
-* BASE64 functions
-  Copyright © 2004 - 2006 Derek Buitenhuis <daemon404 at gmail.com>
-  GNU GPL version 2+.
-
-* jquery.BlockUI
-  Copyright © 2007-2010 M. Alsup <http://malsup.com/jquery/block/>
-  Dual licensed under the MIT and GPL licenses
-
-* jQuery Context Menu plugin <http://abeautifulsite.net/2008/09/jquery-context-menu-plugin/>
-  Copyright © A Beautiful Site, LLC.
-  Dual licensed under the MIT and GPL licenses
-
-* firefox-event-source
-  Copyright © 2010-2011 Bocoup, LLC
-  Dual licensed under the MIT and GPL licenses
+* tslib
+  Copyright © Microsoft Corp. <https://github.com/Microsoft/tslib>
+  BSD Zero Clause License.
