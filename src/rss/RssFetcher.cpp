@@ -159,7 +159,7 @@ void RssFetcher::requestFinished(QNetworkReply* reply)
 	if(bLast)
 		processItems();
 	
-	sender()->deleteLater();
+	reply->deleteLater();
 }
 
 void RssFetcher::processItems()
