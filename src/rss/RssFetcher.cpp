@@ -215,6 +215,8 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 				while(it.hasNext())
 					urls << it.next().captured(0);
 			}
+			else if(!item.magnetUri.trimmed().isEmpty())
+				urls << item.magnetUri.trimmed();
 			else
 				urls << item.url;
 
@@ -228,7 +230,7 @@ void RssFetcher::processItem(QList<RssRegexp>& regexps, const RssItem& item)
 					Logger::global()->enterLogMessage("RSS", tr("The transfer wasn't accepted by any class: %1 - %2").arg(item.title).arg(url));
 				else
 				{
-					Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1 - %2").arg(item.title).arg(item.url));
+					Logger::global()->enterLogMessage("RSS", tr("Automatically adding a new transfer: %1 - %2").arg(item.title).arg(url));
 					Transfer* t = eng.engine->lpfnCreate();
 
 					QDir().mkpath(regexps[i].target);
