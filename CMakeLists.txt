@@ -355,6 +355,8 @@ if(WITH_CURL)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}
 		src/engines/CurlDownloadGui.cpp
+		src/engines/CurlUploadGui.cpp
+		src/engines/FtpUploadOptsForm.cpp
 		src/engines/GeneralDownloadForms.cpp
 		src/engines/HttpFtpSettings.cpp
 		src/engines/HttpDetails.cpp
@@ -370,6 +372,7 @@ if(WITH_CURL)
 	)
 	set(fatrat_GUI_MOC_HDRS
 		${fatrat_GUI_MOC_HDRS}
+		src/engines/FtpUploadOptsForm.h
 		src/engines/HttpFtpSettings.h
 		src/engines/HttpDetails.h
 		src/engines/HttpDetailsBar.h

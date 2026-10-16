@@ -27,12 +27,10 @@ respects for all of the code used other than "OpenSSL".
 #include "CurlUpload.h"
 #include "CurlPoller.h"
 #include "RuntimeException.h"
-#include "tools/HashDlg.h"
 #include "Proxy.h"
 #include "Auth.h"
 #include "Settings.h"
 #include <QFileInfo>
-#include <QMenu>
 
 CurlUpload::CurlUpload()
 	: m_curl(0), m_nDone(0), m_nTotal(0), m_mode(FtpPassive)
@@ -333,96 +331,9 @@ void CurlUpload::transferDone(CURLcode result)
 	}
 }
 
-WidgetHostChild* CurlUpload::createOptionsWidget(QWidget* w)
-{
-	return new FtpUploadOptsForm(w, this);
-}
-
-void CurlUpload::fillContextMenu(QMenu& menu)
-{
-	QAction* a;
-	
-	a = menu.addAction(tr("Compute hash..."));
-	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
-}
-
-void CurlUpload::computeHash()
-{
-	HashDlg dlg(getMainWindow(), m_strSource);
-	dlg.exec();
-}
-
 QString CurlUpload::remoteURI() const
 {
 	QUrl url = m_strTarget;
 	url.setUserInfo(QString());
 	return url.toString();
 }
-
-///////////////////////////////////////////
-
-FtpUploadOptsForm::FtpUploadOptsForm(QWidget* me, CurlUpload* myobj)
-	: m_upload(myobj)
-{
-	setupUi(me);
-	
-	if(myobj->m_strTarget.scheme() != "ftp")
-	{
-		//comboFtpMode->setDisabled(true);
-		comboProxy->setDisabled(true);
-	}
-}
-
-void FtpUploadOptsForm::load()
-{
-	QList<Proxy> listProxy = Proxy::loadProxys();
-	QUrl temp, url;
-	
-	temp = url = m_upload->m_strTarget;
-	temp.setUserInfo(QString());
-	lineTarget->setText(temp.toString());
-	lineUsername->setText(url.userName());
-	linePassword->setText(url.password());
-	
-	comboFtpMode->addItems(QStringList(tr("Active mode")) << tr("Passive mode"));
-	comboFtpMode->setCurrentIndex(int(m_upload->m_mode));
-	
-	comboProxy->addItem(tr("(none)", "No proxy"));
-	comboProxy->setCurrentIndex(0);
-	
-	for(int i=0;i<listProxy.size();i++)
-	{
-		comboProxy->addItem(listProxy[i].strName);
-		if(listProxy[i].uuid == m_upload->m_proxy)
-			comboProxy->setCurrentIndex(i+1);
-	}
-	
-	lineAddrBind->setText(m_upload->m_strBindAddress);
-}
-
-void FtpUploadOptsForm::accepted()
-{
-	QList<Proxy> listProxy = Proxy::loadProxys();
-	QUrl url = lineTarget->text();
-	
-	url.setUserName(lineUsername->text());
-	url.setPassword(linePassword->text());
-	
-	m_upload->m_strTarget = url.toString();
-	int ix = comboProxy->currentIndex();
-	m_upload->m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
-	
-	m_upload->m_mode = FtpMode( comboFtpMode->currentIndex() );
-	m_upload->m_strBindAddress = lineAddrBind->text();
-}
-
-bool FtpUploadOptsForm::accept()
-{
-	bool acc = false;
-	
-	acc |= lineTarget->text().startsWith("ftp://");
-	acc |= lineTarget->text().startsWith("sftp://");
-	
-	return acc;
-}
-

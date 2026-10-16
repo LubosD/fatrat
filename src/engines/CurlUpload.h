@@ -29,7 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Transfer.h"
 #include "CurlUser.h"
 #include "fatrat.h"
-#include "ui_FtpUploadOptsForm.h"
+#include "config.h"
 #include "WidgetHostChild.h"
 
 #include <QUuid>
@@ -64,13 +64,15 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
+#ifdef WITH_GUI
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
-	
 	virtual void fillContextMenu(QMenu& menu);
+#endif
 	virtual QString remoteURI() const;
-protected slots:
-	void computeHash();
 protected:
+#ifdef WITH_GUI
+	void computeHash();
+#endif
 	virtual CURL* curlHandle();
 	virtual void transferDone(CURLcode result);
 	virtual size_t readData(char* buffer, size_t maxData);
@@ -88,18 +90,6 @@ protected:
 	char m_errorBuffer[CURL_ERROR_SIZE];
 	
 	friend class FtpUploadOptsForm;
-};
-
-class FtpUploadOptsForm : public QObject, public WidgetHostChild, Ui_FtpUploadOptsForm
-{
-Q_OBJECT
-public:
-	FtpUploadOptsForm(QWidget* me,CurlUpload* myobj);
-	virtual void load();
-	virtual void accepted();
-	virtual bool accept();
-private:
-	CurlUpload* m_upload;
 };
 
 #endif
