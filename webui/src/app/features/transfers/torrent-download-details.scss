@@ -6,3 +6,31 @@
   border: 1px solid var(--p-content-border-color);
   image-rendering: pixelated;
 }
+
+.torrent-files {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  // Four-column label/value pairs don't fit a phone; stack every cell.
+  .torrent-info {
+    display: block;
+
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+
+    td:nth-child(odd) {
+      margin-top: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--p-text-muted-color);
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  }
+}

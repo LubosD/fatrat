@@ -26,7 +26,7 @@
   </fieldset>
 </div>
 
-<p-dialog [visible]="showCertDialog()" (visibleChange)="showCertDialog.set($event)" header="Generate a self-signed certificate" [modal]="true">
+<p-dialog [visible]="showCertDialog()" (visibleChange)="showCertDialog.set($event)" header="Generate a self-signed certificate" [modal]="true" styleClass="fr-dialog">
   <div class="field">
     <label for="wi-cert-hostname">Hostname for the generated self-signed certificate</label>
     <input pInputText id="wi-cert-hostname" [(ngModel)]="certHostname" />

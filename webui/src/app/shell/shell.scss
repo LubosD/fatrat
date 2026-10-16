@@ -61,3 +61,32 @@
     padding: 1rem;
   }
 }
+
+.mobile-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--p-content-background);
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.mobile-queue-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.mobile-content {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  :host ::ng-deep .details-tabs .p-tabpanels {
+    padding: 0.5rem;
+  }
+}

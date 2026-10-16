@@ -6,7 +6,7 @@
   <legend>Availability</legend>
   <img class="piece-map" [src]="availabilityImageUrl()" alt="" />
 </fieldset>
-<table>
+<table class="torrent-info">
   <tr>
     <td>Speed:</td>
     <td>{{ formatSpeed(transfer.speeds.down) }} down, {{ formatSpeed(transfer.speeds.up) }} up</td>
@@ -34,6 +34,7 @@
     </td>
   </tr>
 </table>
+<div class="torrent-files">
 <p-table [value]="properties()?.files ?? []" dataKey="name" [rowTrackBy]="trackByFileName">
   <ng-template #header>
     <tr>
@@ -60,3 +61,4 @@
     </tr>
   </ng-template>
 </p-table>
+</div>

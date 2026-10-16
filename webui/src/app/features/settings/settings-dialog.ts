@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, Type, inject, signal } from '@angular/core';
-import { NgComponentOutlet } from '@angular/common';
+import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { Dialog } from 'primeng/dialog';
 import { ButtonDirective } from 'primeng/button';
+import { ViewportService } from '../../core/viewport.service';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { SETTINGS_PAGE_COMPONENTS } from '../../core/settings-page-registry';
@@ -9,7 +10,7 @@ import { SettingsPage } from '../../core/api/models';
 
 @Component({
   selector: 'app-settings-dialog',
-  imports: [Dialog, ButtonDirective, NgComponentOutlet],
+  imports: [Dialog, ButtonDirective, NgComponentOutlet, NgTemplateOutlet],
   providers: [SettingsDraftService],
   templateUrl: './settings-dialog.html',
   styleUrl: './settings-dialog.scss',
@@ -18,11 +19,14 @@ export class SettingsDialog implements OnChanges {
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
 
+  protected readonly viewport = inject(ViewportService);
   private readonly transferApi = inject(TransferApi);
   private readonly draft = inject(SettingsDraftService);
 
   protected readonly pages = signal<SettingsPage[]>([]);
   protected readonly selectedPage = signal<SettingsPage | null>(null);
+  /** Mobile only: the page list and a page's content take turns filling the dialog. */
+  protected readonly pageOpen = signal(false);
 
   /**
    * Bumped on every open so a response from a prior, already-closed dialog session can be
@@ -33,6 +37,7 @@ export class SettingsDialog implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']?.currentValue === true) {
       this.draft.clear();
+      this.pageOpen.set(false);
       const sessionId = ++this.openSessionId;
       this.transferApi.getSettingsPages().subscribe({
         next: (pages) => {
@@ -49,6 +54,7 @@ export class SettingsDialog implements OnChanges {
 
   protected selectPage(page: SettingsPage): void {
     this.selectedPage.set(page);
+    this.pageOpen.set(true);
   }
 
   protected pageComponent(page: SettingsPage): Type<unknown> | null {

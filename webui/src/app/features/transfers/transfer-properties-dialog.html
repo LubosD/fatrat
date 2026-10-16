@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Transfer Properties" [modal]="true">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Transfer Properties" [modal]="true" styleClass="fr-dialog">
   <div class="field">
     <label for="transfer-comment">Comment</label>
     <textarea pTextarea id="transfer-comment" rows="4" [(ngModel)]="comment"></textarea>

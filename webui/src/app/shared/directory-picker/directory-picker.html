@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Select directory" [modal]="true" [style]="{ width: '34rem' }">
+<p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Select directory" [modal]="true" [style]="{ width: '34rem' }" styleClass="fr-dialog">
   <div class="picker-path">
     <button pButton type="button" severity="secondary" icon="pi pi-arrow-up" aria-label="Parent directory" data-testid="directory-picker-up" [disabled]="parent() === ''" (click)="navigate(parent())"></button>
     <input pInputText class="picker-path-input" aria-label="Directory path" data-testid="directory-picker-path" [(ngModel)]="pathInput" (keydown.enter)="onGo()" />
