@@ -180,6 +180,7 @@ set(fatrat_SRCS
 	src/poller/Poller.cpp
 	src/captcha/Captcha.cpp
 	src/rss/RssFetcher.cpp
+	src/util/BmpWriter.cpp
 	src/util/ExtendedAttributes.cpp
 )
 
@@ -625,6 +626,11 @@ qt5_add_translation(lrelease_outputs locale/fatrat_cs_CZ.ts
 locale/fatrat_pl_PL.ts locale/fatrat_tr_TR.ts locale/fatrat_sk_SK.ts locale/fatrat_ru_RU.ts locale/fatrat_fr_FR.ts
 locale/fatrat_uk_UA.ts locale/fatrat_es_AR.ts locale/fatrat_es_ES.ts locale/fatrat_ca_ES.ts locale/fatrat_zh_CN.ts
 locale/fatrat_zh_TW.ts locale/fatrat_sr_RS.ts locale/fatrat_sr_BA.ts locale/fatrat_de_DE.ts)
+
+if(WITH_TESTS)
+	enable_testing()
+	add_subdirectory(autotests)
+endif(WITH_TESTS)
 
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
