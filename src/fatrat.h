@@ -40,7 +40,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkProxy>
 #include "DelayedIcon.h"
 
-#define VERSION "1.3.0"
+#define VERSION "1.3.1"
 
 QString formatSize(qulonglong size, bool persec = false);
 QString formatTime(qulonglong secs);
