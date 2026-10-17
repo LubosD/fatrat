@@ -45,7 +45,7 @@ respects for all of the code used other than "OpenSSL".
  * is something the user asks for rather than something that happens to them.
  *
  * A local directory is used in place (the plugin is symlinked), which is also
- * how you develop a plugin: edit, restart, done.
+ * how you develop a plugin: edit, reload, done.
  *
  * Nothing here runs plugin code or needs the interpreter. Every entry point
  * takes a lock: the desktop UI calls these from the main thread, the REST API

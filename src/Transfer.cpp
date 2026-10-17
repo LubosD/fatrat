@@ -56,8 +56,14 @@ QVector<EngineEntry> g_enginesUpload;
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
+// Never reallocate: callers keep EngineEntry pointers.
+static const int MAX_ENGINES = 512;
+
 void initTransferClasses()
 {
+	g_enginesDownload.reserve(MAX_ENGINES);
+	g_enginesUpload.reserve(MAX_ENGINES);
+
 #ifdef ENABLE_FAKEDOWNLOAD
 	{ // couldn't look more lazy and lame
 		EngineEntry e = { "FakeDownload", "Fake engine", 0, 0, { FakeDownload::createInstance }, { FakeDownload::acceptable }, 0, 0 };
@@ -89,12 +95,63 @@ void initTransferClasses()
 #endif
 }
 
-void addTransferClass(const EngineEntry& e, Transfer::Mode m)
+static QVector<EngineEntry>* engineTable(Transfer::Mode m)
 {
 	if(m == Transfer::Download)
-		g_enginesDownload << e;
-	else if(m == Transfer::Upload)
-		g_enginesUpload << e;
+		return &g_enginesDownload;
+	if(m == Transfer::Upload)
+		return &g_enginesUpload;
+	return 0;
+}
+
+void addTransferClass(const EngineEntry& e, Transfer::Mode m)
+{
+	QVector<EngineEntry>* table = engineTable(m);
+
+	if(!table)
+		return;
+
+	for(int i=0;i<table->size();i++)
+	{
+		EngineEntry& slot = (*table)[i];
+
+		if(slot.removed && !strcmp(slot.shortName, e.shortName))
+		{
+			slot = e;
+			slot.removed = false;
+			return;
+		}
+	}
+
+	if(table->size() >= table->capacity() || table->size() >= MAX_ENGINES)
+	{
+		qWarning() << "Too many transfer engines, ignoring" << e.shortName;
+		return;
+	}
+
+	*table << e;
+	table->last().removed = false;
+}
+
+void removeTransferClass(const char* shortName, Transfer::Mode m)
+{
+	QVector<EngineEntry>* table = engineTable(m);
+
+	if(!table)
+		return;
+
+	for(int i=0;i<table->size();i++)
+	{
+		EngineEntry& slot = (*table)[i];
+
+		if(!slot.removed && !strcmp(slot.shortName, shortName))
+		{
+			slot.removed = true;
+			slot.lpfnCreate2 = 0;
+			slot.lpfnAcceptable2 = 0;
+			slot.lpfnMultiOptions = 0;
+		}
+	}
 }
 
 Transfer::Transfer(bool local)
@@ -147,12 +204,12 @@ Transfer* Transfer::createInstance(QString className)
 	qDebug() << "Transfer::createInstance():" << className;
 	for(int i=0;i<g_enginesDownload.size();i++)
 	{
-		if(className == g_enginesDownload[i].shortName)
+		if(!g_enginesDownload[i].removed && className == g_enginesDownload[i].shortName)
 			return g_enginesDownload[i].lpfnCreate2(&g_enginesDownload[i]);
 	}
 	for(int i=0;i<g_enginesUpload.size();i++)
 	{
-		if(className == g_enginesUpload[i].shortName)
+		if(!g_enginesUpload[i].removed && className == g_enginesUpload[i].shortName)
 			return g_enginesUpload[i].lpfnCreate2(&g_enginesUpload[i]);
 	}
 	
@@ -165,7 +222,7 @@ int Transfer::getEngineID(QString className, Mode type)
 	{
 		for(int i=0;i<g_enginesDownload.size();i++)
 		{
-			if(className == g_enginesDownload[i].shortName)
+			if(!g_enginesDownload[i].removed && className == g_enginesDownload[i].shortName)
 				return i;
 		}
 	}
@@ -173,7 +230,7 @@ int Transfer::getEngineID(QString className, Mode type)
 	{
 		for(int i=0;i<g_enginesUpload.size();i++)
 		{
-			if(className == g_enginesUpload[i].shortName)
+			if(!g_enginesUpload[i].removed && className == g_enginesUpload[i].shortName)
 				return i;
 		}
 	}
@@ -191,6 +248,8 @@ Transfer* Transfer::createInstance(Mode mode, int classID)
 {
 	const EngineEntry* entries = engines(mode);
 	
+	if(entries[classID].removed || !entries[classID].lpfnCreate2)
+		return 0;
 	return entries[classID].lpfnCreate2(&entries[classID]);
 }
 

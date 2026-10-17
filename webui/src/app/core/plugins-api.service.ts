@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RestClient } from './api/rest-client';
-import { AvailablePlugin, Plugin, PluginRepository } from './api/models';
+import { AvailablePlugin, Plugin, PluginInstallResult, PluginRepository } from './api/models';
 
 const e = encodeURIComponent;
 
@@ -30,10 +30,10 @@ export class PluginsApi {
    * packages come from PyPI rather than from the repository the user chose, so the server
    * insists on being told yes to them specifically.
    */
-  install(repository: string, plugin: string, withDependencies = false): Observable<{ restartRequired: boolean }> {
+  install(repository: string, plugin: string, withDependencies = false): Observable<PluginInstallResult> {
     const body: Record<string, unknown> = { repository, plugin };
     if (withDependencies) body['withDependencies'] = true;
-    return this.rest.post<{ restartRequired: boolean }>('/plugins', body);
+    return this.rest.post<PluginInstallResult>('/plugins', body);
   }
 
   setEnabled(plugin: string, enabled: boolean): Observable<Plugin> {

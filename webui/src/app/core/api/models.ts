@@ -161,6 +161,8 @@ export interface PluginConfigItem {
 }
 
 /** An installed plugin, as its manifest describes it. */
+export type PluginState = 'loaded' | 'draining' | 'failed' | 'unloaded';
+
 export interface Plugin {
   name: string;
   /** False when the manifest could not be read; then only name and error are set. */
@@ -171,13 +173,35 @@ export interface Plugin {
   license?: string;
   homepage?: string;
   api?: string;
-  /** Disabled plugins stay installed but are not loaded at the next start. */
+  /** Disabled plugins stay installed but are not loaded. */
   enabled?: boolean;
+  /**
+   * What is loaded right now. "draining" is a plugin that was switched off, replaced or removed
+   * while transfers started from it are still running: it takes no new ones and goes when they end.
+   */
+  state?: PluginState;
+  /** Transfers still using the plugin. */
+  activeTransfers?: number;
+  /** A newer version is installed and takes over once the transfers end. */
+  pendingReload?: boolean;
+  /** Removal is waiting for the transfers to end. */
+  pendingUninstall?: boolean;
+  /** Why the plugin failed to load, when state is "failed". */
+  loadError?: string;
   config?: PluginConfigItem[];
   permissions?: string[];
   /** Id of the repository it was installed from, when known. */
   repository?: string;
   source?: string;
+}
+
+/** What installing a plugin did; the plugin is already in effect unless it is draining or failed. */
+export interface PluginInstallResult {
+  plugin: string;
+  state: PluginState;
+  activeTransfers: number;
+  pendingReload: boolean;
+  loadError?: string;
 }
 
 /** A plugin repository the user has added. */

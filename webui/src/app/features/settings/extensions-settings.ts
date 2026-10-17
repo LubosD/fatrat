@@ -6,6 +6,7 @@ import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ConfirmationService } from 'primeng/api';
+import { Observable } from 'rxjs';
 import { ApiError } from '../../core/api/rest-client';
 import { AvailablePlugin, Plugin, PluginConfigItem, PluginRepository } from '../../core/api/models';
 import { JsonValue } from '../../core/api/json-value';
@@ -141,9 +142,15 @@ export class ExtensionsSettings {
   }
 
   private doInstall(entry: AvailablePlugin, withDependencies: boolean): void {
-    this.run(this.api.install(entry.repository, entry.name, withDependencies), () =>
-      this.message.set(`${entry.name} installed. Restart FatRat to load it.`),
-    );
+    this.run(this.api.install(entry.repository, entry.name, withDependencies), (result) => {
+      if (result.pendingReload)
+        this.message.set(
+          `${entry.name} installed. ${result.activeTransfers} transfer(s) still use the old version; the new one takes over when they finish.`,
+        );
+      else if (result.state === 'failed')
+        this.message.set(`${entry.name} installed, but could not be loaded: ${result.loadError ?? 'unknown error'}`);
+      else this.message.set(`${entry.name} installed.`);
+    });
   }
 
   protected uninstall(plugin: Plugin): void {
@@ -155,9 +162,22 @@ export class ExtensionsSettings {
   }
 
   protected setEnabled(plugin: Plugin, enabled: boolean): void {
-    this.run(this.api.setEnabled(plugin.name, enabled), () =>
-      this.message.set('Takes effect the next time FatRat starts.'),
-    );
+    this.run(this.api.setEnabled(plugin.name, enabled), (updated) => this.message.set(this.describeState(updated)));
+  }
+
+  /** One line for the Installed list: empty when there is nothing to add to "Enabled". */
+  protected statusOf(plugin: Plugin): string {
+    if (plugin.state === 'draining') {
+      const n = plugin.activeTransfers ?? 0;
+      const what = plugin.pendingUninstall ? 'Will be removed' : plugin.pendingReload ? 'Will be replaced' : 'Will be unloaded';
+      return `${what} when its ${n} transfer(s) finish; it cannot start new ones.`;
+    }
+    if (plugin.state === 'failed') return `Could not be loaded: ${plugin.loadError ?? 'unknown error'}`;
+    return '';
+  }
+
+  private describeState(plugin: Plugin): string {
+    return this.statusOf(plugin) || (plugin.enabled ? `${plugin.name} is loaded.` : `${plugin.name} is unloaded.`);
   }
 
   protected stage(key: string | undefined, value: JsonValue): void {
@@ -211,14 +231,13 @@ export class ExtensionsSettings {
     });
   }
 
-  private run<T>(call: { subscribe: (observer: { next: (v: T) => void; error: (e: ApiError) => void }) => void },
-                 done?: () => void): void {
+  private run<T>(call: Observable<T>, done?: (value: T) => void): void {
     this.busy.set(true);
     this.message.set('');
     call.subscribe({
-      next: () => {
+      next: (value) => {
         this.busy.set(false);
-        done?.();
+        done?.(value);
         this.reload();
       },
       error: (err: ApiError) => {

@@ -333,6 +333,8 @@ static RestResult getTransferClasses(const RestRequest&)
 	auto add = [&rv](const QVector<EngineEntry>& engines, const char* mode) {
 		for (const EngineEntry& e : engines)
 		{
+			if (e.removed)
+				continue;
 			QJsonObject o;
 			o["mode"] = mode;
 			o["shortName"] = e.shortName;

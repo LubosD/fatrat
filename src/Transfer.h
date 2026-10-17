@@ -241,9 +241,19 @@ struct EngineEntry
 		int (*lpfnAcceptable2)(QString, bool /*localSearch*/, const EngineEntry*);
 	};
 	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
+	// The engine's plugin was unloaded. The slot stays where it is, so that indexes and
+	// EngineEntry pointers held elsewhere stay valid, and is reused if the plugin returns.
+	// Lists shown to the user skip these.
+	bool removed;
 };
 
 void initTransferClasses();
+
+/* Engines can come and go while FatRat runs (Python plugins), so the tables only ever grow:
+ * the vectors are reserved up front and never reallocate, and removing an engine only marks
+ * its slot. shortName and longName must stay valid for the life of the process.
+ */
 void addTransferClass(const EngineEntry& e, Transfer::Mode m);
+void removeTransferClass(const char* shortName, Transfer::Mode m);
 
 #endif

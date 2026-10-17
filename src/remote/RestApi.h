@@ -90,6 +90,7 @@ struct RestResult
 	static RestResult created(QJsonValue body, QString location) { RestResult r; r.status = 201; r.body = body; r.location = location; return r; }
 	static RestResult noContent() { RestResult r; r.status = 204; return r; }
 	static RestResult accepted() { RestResult r; r.status = 202; return r; }
+	static RestResult accepted(QJsonValue body) { RestResult r; r.status = 202; r.body = body; return r; }
 };
 
 struct RestResponse

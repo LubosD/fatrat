@@ -226,7 +226,10 @@ class Example(fatrat.DownloadPlugin):
 
 [examples/plugin-repo/](examples/plugin-repo/) is a complete repository with worked examples of
 every plugin type, and `doc/plugins.html` documents the API. A local directory used as a repository
-is also the development loop: edit the plugin, restart FatRat.
+is also the development loop: edit the plugin, then switch it off and on in Settings -> Extensions
+(or `POST /api/v1/plugins/<name>/reload`) to load the new code. Installing, enabling, disabling and
+removing plugins all take effect at once; a plugin that is switched off or removed while transfers
+still use it keeps running for them, takes no new ones, and is unloaded when the last one ends.
 
 Requires a build with `WITH_PYPLUGINS`.
 

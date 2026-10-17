@@ -40,6 +40,7 @@ respects for all of the code used other than "OpenSSL".
 #include "StaticTransferMessage.h"
 #include "Transfer.h"
 #include "python/PyRef.h"
+#include "python/PluginLease.h"
 
 class PyPlugin;
 
@@ -91,6 +92,7 @@ protected:
 	void finishedExtraction(const QStringList& links);
 	void failWith(const QString& message);
 private:
+	PluginLease m_lease; // declared first: released last
 	QString m_strIdentifier, m_strUrl, m_strTarget;
 
 	PyPlugin* m_plugin;

@@ -56,6 +56,11 @@ void ExtensionsDialog::reload()
 			// A plugin FatRat could not read is shown with its error: one that
 			// quietly does not appear is the worst kind.
 			row.detail = row.valid ? o["description"].toString() : o["error"].toString();
+			// Loaded and unloaded are what the checkbox says already.
+			if (o["state"].toString() == "draining")
+				row.detail += "  [" + m_app.tr("%1 transfers still use it").arg(o["activeTransfers"].toInt()) + "]";
+			else if (o["state"].toString() == "failed")
+				row.detail += "  [" + m_app.tr("failed to load: %1").arg(o["loadError"].toString()) + "]";
 
 			m_installed.push_back(row);
 		}
@@ -230,8 +235,9 @@ void ExtensionsDialog::toggleEnabled()
 	body["enabled"] = enabled;
 	m_app.api().call("PATCH", "/plugins/" + ApiClient::encode(row->id), body,
 			 busy(m_app.tr("Cannot change %1").arg(row->id)));
-	// Engines are registered once, at startup, here as everywhere else.
-	m_note = m_app.tr("Takes effect the next time FatRat starts.");
+	// A plugin that transfers still use stays loaded for them; the list says so.
+	m_note = enabled ? m_app.tr("Enabled.")
+			 : m_app.tr("Disabled. Transfers already using it carry on.");
 }
 
 void ExtensionsDialog::removePlugin()
@@ -273,7 +279,7 @@ void ExtensionsDialog::installSelected()
 			body["withDependencies"] = true;
 
 		m_app.api().call("POST", "/plugins", body, busy(m_app.tr("Cannot install %1").arg(name)));
-		m_note = m_app.tr("%1 installed. Restart FatRat to load it.").arg(name);
+		m_note = m_app.tr("%1 installed.").arg(name);
 	};
 
 	if (dependencies.isEmpty())

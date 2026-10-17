@@ -78,6 +78,9 @@
             </span>
             @if (plugin.valid) {
               <span class="ext-desc">{{ plugin.description }}</span>
+              @if (statusOf(plugin); as status) {
+                <span class="ext-desc" data-testid="ext-status">{{ status }}</span>
+              }
             } @else {
               <span class="form-error">{{ plugin.error }}</span>
             }

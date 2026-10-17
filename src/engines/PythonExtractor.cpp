@@ -45,7 +45,7 @@ QMap<QString, PythonExtractor::PyEngine>& PythonExtractor::engines()
 }
 
 PythonExtractor::PythonExtractor(const char* identifier)
-	: m_strIdentifier(identifier), m_plugin(0)
+	: m_lease(QLatin1String(identifier)), m_strIdentifier(identifier), m_plugin(0)
 {
 	if (!engines().contains(m_strIdentifier))
 	{

@@ -52,7 +52,7 @@ QMap<QString, PythonDownload::PyEngine>& PythonDownload::engines()
 }
 
 PythonDownload::PythonDownload(const char* identifier)
-	: m_strIdentifier(identifier), m_bHasLock(false), m_bTruncate(false),
+	: m_lease(QLatin1String(identifier)), m_strIdentifier(identifier), m_bHasLock(false), m_bTruncate(false),
 	  m_bFinalChecked(false), m_plugin(0)
 {
 	if (!engines().contains(m_strIdentifier))

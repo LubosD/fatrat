@@ -217,7 +217,7 @@ private slots:
 		QVERIFY2(text.contains("plugin.json has no name"), qPrintable(text));
 	}
 
-	void togglingAPluginPatchesItAndSaysWhenItApplies()
+	void togglingAPluginPatchesItAndSaysWhatHappensToItsTransfers()
 	{
 		open();
 		key('e');
@@ -228,7 +228,7 @@ private slots:
 
 		QCOMPARE(QUrl(QString::fromLatin1(r.path)).path(), QString("/api/v1/plugins/dummy"));
 		QCOMPARE(QJsonDocument::fromJson(r.body).object().value("enabled").toBool(), false);
-		QVERIFY(render().contains("next time FatRat starts"));
+		QVERIFY(render().contains("already using it carry on"));
 	}
 
 	void removingAPluginAsksFirst()

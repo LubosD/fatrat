@@ -102,7 +102,7 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 		{
 			for(int i=0;i<g_enginesDownload.size();i++)
 			{
-				if(className == g_enginesDownload[i].shortName)
+				if(!g_enginesDownload[i].removed && className == g_enginesDownload[i].shortName)
 				{
 					_class = &g_enginesDownload[i];
 					break;
@@ -111,7 +111,7 @@ QString DbusImpl::addTransfersNonInteractive(QString uris, QString target, QStri
 			
 			for(int i=0;i<g_enginesUpload.size();i++)
 			{
-				if(className == g_enginesUpload[i].shortName)
+				if(!g_enginesUpload[i].removed && className == g_enginesUpload[i].shortName)
 				{
 					_class = &g_enginesUpload[i];
 					break;

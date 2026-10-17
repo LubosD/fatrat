@@ -105,8 +105,7 @@ SettingsPageSpec buildExtensionsSpec(const QJsonArray& plugins)
 
 		if (!enabledKey.isEmpty())
 		{
-			// Takes effect at the next start, like everywhere else.
-			spec.items << makeItem(B::Bool, enabledKey, QObject::tr("Enabled (after restart)"));
+			spec.items << makeItem(B::Bool, enabledKey, QObject::tr("Enabled"));
 		}
 
 		appendConfig(plugin["config"].toArray(), name, spec.items);

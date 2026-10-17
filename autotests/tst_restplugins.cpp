@@ -13,7 +13,7 @@
 /* The /plugins and /plugin-repositories routes: status codes, JSON shape and
  * the error envelope, against a repository in a temp directory.
  *
- * PluginRegistry's three lookups are stubbed below -- the real one imports
+ * PluginRegistry's lookups are stubbed below -- the real one imports
  * plugins into a live interpreter, which is not what this is testing.
  */
 static QStringList s_disabled;
@@ -39,6 +39,17 @@ void PluginRegistry::setPluginEnabled(const QString& name, bool enabled)
 
 	if (!enabled)
 		s_disabled << name;
+}
+
+// No interpreter here, so nothing is ever loaded or in use.
+void PluginRegistry::sync(const QString&) {}
+void PluginRegistry::reload(const QString&) {}
+void PluginRegistry::syncAll() {}
+PluginRegistry::Status PluginRegistry::status(const QString&) { return Status(); }
+
+bool PluginRegistry::uninstall(const QString& name, QString* error)
+{
+	return PluginRepository::uninstall(name, error);
 }
 
 class tst_restplugins : public QObject
@@ -182,7 +193,8 @@ void tst_restplugins::installsListsDisablesAndRemovesAPlugin()
 
 	QCOMPARE(installed.status, 201);
 	// Engines register at startup, and the client is told so.
-	QVERIFY(json(installed).toObject().value("restartRequired").toBool());
+	QVERIFY(!json(installed).toObject().value("restartRequired").toBool());
+	QCOMPARE(json(installed).toObject().value("state").toString(), QString("unloaded"));
 
 	RestResponse list = call("GET", "/plugins");
 	QJsonArray plugins = json(list).toArray();
@@ -210,6 +222,12 @@ void tst_restplugins::installsListsDisablesAndRemovesAPlugin()
 				     QJsonDocument(QJsonObject{{"nonsense", true}}).toJson());
 
 	QCOMPARE(rejected.status, 422);
+
+	RestResponse reloaded = call("POST", "/plugins/sample/reload");
+
+	QCOMPARE(reloaded.status, 200);
+	QCOMPARE(json(reloaded).toObject().value("state").toString(), QString("unloaded"));
+	QCOMPARE(call("POST", "/plugins/nonexistent/reload").status, 404);
 
 	RestResponse removed = call("DELETE", "/plugins/sample");
 

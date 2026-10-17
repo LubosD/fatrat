@@ -5,8 +5,11 @@
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
+#include <QDir>
+#include <QFile>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QTemporaryDir>
 #include <QTest>
 
 #include "python/PyPlugin.h"
@@ -89,6 +92,7 @@ private slots:
 	void captchaResolvesWithSolution();
 	void unsolvedCaptchaRaises();
 	void pluginLoaderImportsADirectory();
+	void pluginLoaderReloadsEditedCodeAndForgetsTheOld();
 private:
 	// Runs `source` (which must define `main(plugin, server_url)` as a
 	// coroutine function), waits for it, and reports what came back.
@@ -351,6 +355,55 @@ void tst_pyplugins::pluginLoaderImportsADirectory()
 	QCOMPARE(QString::fromStdString(py::str(descriptor.attr("identifier")).cast<std::string>()),
 		 QString("fatrat_plugins.dummy.Dummy"));
 	QVERIFY(descriptor.attr("options")["single_transfer"].cast<bool>() == false);
+}
+
+void tst_pyplugins::pluginLoaderReloadsEditedCodeAndForgetsTheOld()
+{
+	QTemporaryDir dir;
+	QVERIFY(dir.isValid());
+
+	auto write = [&](const QString& name, const QByteArray& content) {
+		QFile f(QDir(dir.path()).filePath(name));
+		QVERIFY(f.open(QIODevice::WriteOnly));
+		f.write(content);
+	};
+
+	write("helper.py", "VALUE = 1\n");
+	write("reloadme.py",
+		"import fatrat, helper\n"
+		"@fatrat.search_plugin(name='V' + str(helper.VALUE))\n"
+		"class P(fatrat.SearchPlugin):\n"
+		"    pass\n");
+
+	py::gil_scoped_acquire gil;
+
+	py::module_ loader = py::module_::import("fatrat._loader");
+	py::module_ sys = py::module_::import("sys");
+	auto nameOf = [&]() {
+		py::object descriptors = loader.attr("load")("reloadme", dir.path().toStdString(), "reloadme.py");
+		return QString::fromStdString(py::str(descriptors[py::int_(0)].attr("name")).cast<std::string>());
+	};
+
+	QCOMPARE(nameOf(), QString("V1"));
+	QVERIFY(sys.attr("modules").contains("helper"));
+	QVERIFY(sys.attr("path").attr("__contains__")(dir.path().toStdString()).cast<bool>());
+
+	// Edit both the plugin's helper and the plugin, as a developer would.
+	// Python decides a cached .pyc is stale by mtime and size, so make
+	// sure the new file differs.
+	write("helper.py", "VALUE = 22\n");
+
+	QCOMPARE(nameOf(), QString("V22"));
+
+	// Unloading forgets the modules, the path entry and the registration.
+	int before = int(py::len(py::module_::import("fatrat.registry").attr("registered")()));
+
+	loader.attr("unload")("reloadme");
+
+	QVERIFY(!sys.attr("modules").contains("helper"));
+	QVERIFY(!sys.attr("modules").contains("fatrat_plugins.reloadme"));
+	QVERIFY(!sys.attr("path").attr("__contains__")(dir.path().toStdString()).cast<bool>());
+	QCOMPARE(int(py::len(py::module_::import("fatrat.registry").attr("registered")())), before - 1);
 }
 
 QTEST_GUILESS_MAIN(tst_pyplugins)

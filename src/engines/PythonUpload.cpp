@@ -47,7 +47,7 @@ QMap<QString, PythonUpload::PyEngine>& PythonUpload::engines()
 }
 
 PythonUpload::PythonUpload(const char* identifier)
-	: m_strIdentifier(identifier), m_nTotal(0), m_nDone(0), m_nThisPart(0), m_nPartEnd(-1),
+	: m_lease(QLatin1String(identifier)), m_strIdentifier(identifier), m_nTotal(0), m_nDone(0), m_nThisPart(0), m_nPartEnd(-1),
 	  m_plugin(0), m_curl(0), m_mime(0)
 {
 	m_errorBuffer[0] = 0;

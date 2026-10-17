@@ -25,6 +25,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "NewTransferDlg.h"
+#include <QStandardItemModel>
 #include "Settings.h"
 #include "Queue.h"
 #include "UserAuthDlg.h"
@@ -61,13 +62,22 @@ NewTransferDlg::NewTransferDlg(QWidget* parent)
 	
 	comboClass->addItem(tr("Auto detect"));
 	
+	// A removed engine keeps its slot (the combo index is the engine index) but cannot be picked.
 	for(int i=0;i<g_enginesDownload.size();i++)
+	{
 		comboClass->addItem(g_enginesDownload[i].longName);
+		if(g_enginesDownload[i].removed)
+			qobject_cast<QStandardItemModel*>(comboClass->model())->item(i+1)->setEnabled(false);
+	}
 	
 	comboClass2->addItem(tr("Auto detect"));
 	
 	for(int i=0;i<g_enginesUpload.size();i++)
+	{
 		comboClass2->addItem(g_enginesUpload[i].longName);
+		if(g_enginesUpload[i].removed)
+			qobject_cast<QStandardItemModel*>(comboClass2->model())->item(i+1)->setEnabled(false);
+	}
 	
 	QMenu* menu = new QMenu(toolAddSpecial);
 	QAction* act;
@@ -196,7 +206,7 @@ void NewTransferDlg::load()
 		bool bFound = false;
 		for(int i=0;i<g_enginesDownload.size();i++)
 		{
-			if(m_strClass == g_enginesDownload[i].shortName)
+			if(!g_enginesDownload[i].removed && m_strClass == g_enginesDownload[i].shortName)
 			{
 				comboClass->setCurrentIndex(i+1);
 				bFound = true;
@@ -208,7 +218,7 @@ void NewTransferDlg::load()
 		{
 			for(int i=0;i<g_enginesDownload.size();i++)
 			{
-				if(m_strClass == g_enginesDownload[i].shortName)
+				if(!g_enginesDownload[i].removed && m_strClass == g_enginesDownload[i].shortName)
 				{
 					comboClass2->setCurrentIndex(i+1);
 					break;

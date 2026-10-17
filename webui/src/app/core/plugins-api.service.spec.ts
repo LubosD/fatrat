@@ -39,7 +39,7 @@ describe('PluginsApi', () => {
     let req = http.expectOne('/api/v1/plugins');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ repository: 'example-plugins', plugin: 'dummy' });
-    req.flush({ restartRequired: true });
+    req.flush({ plugin: 'x', state: 'loaded', activeTransfers: 0, pendingReload: false });
 
     api.setEnabled('a plugin', false).subscribe();
     req = http.expectOne('/api/v1/plugins/a%20plugin');

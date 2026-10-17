@@ -398,6 +398,7 @@ if(WITH_PYPLUGINS)
 		src/remote/RestPlugins.cpp
 		src/python/PluginRegistry.cpp
 		src/python/PluginServices.cpp
+		src/python/PluginLease.cpp
 		src/engines/PythonPersistentVariables.cpp
 		src/engines/PythonDownload.cpp
 		src/engines/PythonExtractor.cpp

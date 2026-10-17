@@ -71,6 +71,19 @@ static QJsonObject manifestToJson(const PluginManifest& manifest, const QString&
 	// generically (the TUI does).
 	rv["enabledKey"] = PluginRegistry::enabledKey(manifest.name);
 	rv["config"] = manifest.config;
+
+	// What is loaded right now. "draining": switched off or being replaced
+	// or removed, but still held by transfers that were started from it.
+	PluginRegistry::Status status = PluginRegistry::status(manifest.name);
+
+	rv["state"] = status.draining ? "draining" : status.loaded
+		? (status.error.isEmpty() ? "loaded" : "failed") : "unloaded";
+	rv["activeTransfers"] = status.activeTransfers;
+	rv["pendingReload"] = status.pendingReload;
+	rv["pendingUninstall"] = status.pendingUninstall;
+	if (!status.error.isEmpty())
+		rv["loadError"] = status.error;
+
 	rv["repository"] = repository;
 	rv["source"] = installedFrom;
 
@@ -138,7 +151,17 @@ static RestResult patchPlugin(const RestRequest& req)
 			throw RestError(422, "unknown_property", QString("Unknown property: %1").arg(it.key()));
 	}
 
-	// Engines are registered once, at startup; this takes effect on the next.
+	// Applied already (or draining, which the state says).
+	return RestResult::ok(manifestToJson(findPlugin(manifest.name), QString(), QString()));
+}
+
+// Imports the plugin's files again: the development loop for a plugin used in place.
+static RestResult reloadPlugin(const RestRequest& req)
+{
+	PluginManifest manifest = findPlugin(req.pathParams["plugin"]);
+
+	PluginRegistry::reload(manifest.name);
+
 	return RestResult::ok(manifestToJson(findPlugin(manifest.name), QString(), QString()));
 }
 
@@ -149,8 +172,20 @@ static RestResult deletePlugin(const RestRequest& req)
 
 	findPlugin(name);
 
-	if (!PluginRepository::uninstall(name, &error))
+	if (!PluginRegistry::uninstall(name, &error))
 		throw RestError(500, "uninstall_failed", error);
+
+	// 202 if transfers still use it: the files go when they are done.
+	if (PluginRegistry::status(name).pendingUninstall)
+	{
+		QJsonObject rv;
+
+		rv["plugin"] = name;
+		rv["state"] = "draining";
+		rv["activeTransfers"] = PluginRegistry::status(name).activeTransfers;
+
+		return RestResult::accepted(rv);
+	}
 
 	return RestResult::noContent();
 }
@@ -189,8 +224,19 @@ static RestResult installPlugin(const RestRequest& req)
 		installedDependencies << dependency;
 
 	rv["dependencies"] = installedDependencies;
-	// Worth saying in the response: the engines are registered at startup.
-	rv["restartRequired"] = true;
+	// Loads it now, or replaces the running version once its transfers end.
+	PluginRegistry::reload(plugin);
+
+	PluginRegistry::Status status = PluginRegistry::status(plugin);
+
+	rv["state"] = status.draining ? "draining" : status.loaded
+		? (status.error.isEmpty() ? "loaded" : "failed") : "unloaded";
+	rv["activeTransfers"] = status.activeTransfers;
+	rv["pendingReload"] = status.pendingReload;
+	if (!status.error.isEmpty())
+		rv["loadError"] = status.error;
+	// Nothing needs a restart any more; kept for clients written before.
+	rv["restartRequired"] = false;
 
 	return RestResult::created(rv, QString("/plugins/%1").arg(plugin));
 }
@@ -295,6 +341,7 @@ void RestResources::registerPlugins()
 	RestApi::registerRoute("GET", "/plugins/:plugin", getPlugin);
 	RestApi::registerRoute("PATCH", "/plugins/:plugin", patchPlugin);
 	RestApi::registerRoute("DELETE", "/plugins/:plugin", deletePlugin);
+	RestApi::registerRoute("POST", "/plugins/:plugin/reload", reloadPlugin);
 
 	RestApi::registerRoute("GET", "/plugin-repositories", listRepositories);
 	RestApi::registerRoute("POST", "/plugin-repositories", addRepository);

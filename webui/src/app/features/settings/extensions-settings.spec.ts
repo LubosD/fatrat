@@ -35,7 +35,7 @@ function configure(opts: { plugins?: Plugin[]; api?: Record<string, unknown>; va
     list: vi.fn().mockReturnValue(of(opts.plugins ?? [plugin])),
     available: vi.fn().mockReturnValue(of(available)),
     repositories: vi.fn().mockReturnValue(of([repository])),
-    install: vi.fn().mockReturnValue(of({ restartRequired: true })),
+    install: vi.fn().mockReturnValue(of({ plugin: 'extras', state: 'loaded', activeTransfers: 0, pendingReload: false })),
     uninstall: vi.fn().mockReturnValue(of(undefined)),
     setEnabled: vi.fn().mockReturnValue(of(plugin)),
     addRepository: vi.fn().mockReturnValue(of(repository)),
@@ -116,13 +116,37 @@ describe('ExtensionsSettings', () => {
     expect(api.addRepository).not.toHaveBeenCalled();
   });
 
-  it('says a restart is needed after installing', () => {
+  it('says the plugin is in effect after installing, with no restart', () => {
     const { c, api } = configure();
 
     c['install'](available[1]);
 
     expect(api.install).toHaveBeenCalledWith('example-plugins', 'extras', false);
-    expect(c['message']()).toContain('Restart FatRat');
+    expect(c['message']()).toBe('extras installed.');
+  });
+
+  it('says when an upgrade waits for running transfers', () => {
+    const { c, api } = configure();
+
+    api.install.mockReturnValue(
+      of({ plugin: 'extras', state: 'draining', activeTransfers: 2, pendingReload: true }),
+    );
+    c['install'](available[1]);
+
+    expect(c['message']()).toContain('2 transfer(s) still use the old version');
+  });
+
+  it('describes a plugin that is draining, and one that failed to load', () => {
+    const { c } = configure();
+
+    expect(c['statusOf']({ name: 'x', valid: true, state: 'draining', activeTransfers: 3 })).toContain(
+      'unloaded when its 3 transfer(s) finish',
+    );
+    expect(
+      c['statusOf']({ name: 'x', valid: true, state: 'draining', activeTransfers: 1, pendingUninstall: true }),
+    ).toContain('removed');
+    expect(c['statusOf']({ name: 'x', valid: true, state: 'failed', loadError: 'boom' })).toContain('boom');
+    expect(c['statusOf']({ name: 'x', valid: true, state: 'loaded' })).toBe('');
   });
 
   it('names the PyPI packages before installing a plugin that needs them', () => {

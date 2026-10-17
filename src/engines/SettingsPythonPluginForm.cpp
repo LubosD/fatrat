@@ -244,11 +244,29 @@ void SettingsPythonPluginForm::installSelected()
 		return;
 	}
 
+	// Loads it, or -- on an upgrade of a plugin that is in use -- replaces
+	// it once its transfers are done.
+	PluginRegistry::reload(plugin);
+
 	loadAvailable();
 	loadInstalled();
+	buildSettingsPages();
 
-	QMessageBox::information(getMainWindow(), "FatRat",
-		tr("%1 is installed. Restart FatRat to load it.").arg(plugin));
+	PluginRegistry::Status status = PluginRegistry::status(plugin);
+
+	if (status.pendingReload)
+	{
+		QMessageBox::information(getMainWindow(), "FatRat",
+			tr("%1 is installed. The old version is still used by %2 transfers; "
+			   "the new one takes over when they are done.").arg(plugin).arg(status.activeTransfers));
+	}
+	else if (!status.error.isEmpty())
+	{
+		QMessageBox::warning(getMainWindow(), "FatRat",
+			tr("%1 is installed, but could not be loaded: %2").arg(plugin).arg(status.error));
+	}
+	else
+		QMessageBox::information(getMainWindow(), "FatRat", tr("%1 is installed.").arg(plugin));
 }
 
 void SettingsPythonPluginForm::loadInstalled()
@@ -506,8 +524,8 @@ void SettingsPythonPluginForm::accepted()
 		}
 	}
 
-	// Enabling or disabling a plugin only takes effect on the next start:
-	// engines are registered once, at startup.
+	// Takes effect now. A plugin that is switched off while transfers use
+	// it stays loaded for them, and just cannot start new ones.
 	for (int i = 0; i < treeInstalled->topLevelItemCount(); i++)
 	{
 		QTreeWidgetItem* item = treeInstalled->topLevelItem(i);
@@ -542,7 +560,7 @@ void SettingsPythonPluginForm::removeSelected()
 
 	QString error;
 
-	if (!PluginRepository::uninstall(name.isEmpty() ? item->text(0) : name, &error))
+	if (!PluginRegistry::uninstall(name.isEmpty() ? item->text(0) : name, &error))
 	{
 		QMessageBox::critical(getMainWindow(), "FatRat",
 				      tr("Failed to remove \"%1\": %2").arg(directory).arg(error));

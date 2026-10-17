@@ -44,6 +44,7 @@ respects for all of the code used other than "OpenSSL".
 #include "StaticTransferMessage.h"
 #include "Transfer.h"
 #include "python/PyRef.h"
+#include "python/PluginLease.h"
 
 class PyPlugin;
 
@@ -118,6 +119,7 @@ protected:
 private slots:
 	void deliverResponse();
 private:
+	PluginLease m_lease; // declared first: released last
 	QString m_strIdentifier, m_strSource, m_strName, m_strUrl;
 	qint64 m_nTotal, m_nDone, m_nThisPart, m_nPartEnd;
 

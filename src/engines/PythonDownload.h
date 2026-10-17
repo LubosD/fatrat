@@ -42,6 +42,7 @@ respects for all of the code used other than "OpenSSL".
 #include "WidgetHostChild.h"
 #include "engines/CurlDownload.h"
 #include "python/PyRef.h"
+#include "python/PluginLease.h"
 
 class PyPlugin;
 
@@ -113,6 +114,7 @@ protected:
 	void deriveName();
 	void failWith(const QString& message);
 private:
+	PluginLease m_lease; // declared first: released last
 	QString m_strIdentifier;
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;
