@@ -28,6 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Transfer.h"
 #include "Settings.h"
 #include "Queue.h"
+#include "Logger.h"
 
 #ifdef WITH_BITTORRENT
 #	include "engines/TorrentDownload.h"
@@ -59,10 +60,18 @@ extern QReadWriteLock g_queuesLock;
 // Never reallocate: callers keep EngineEntry pointers.
 static const int MAX_ENGINES = 512;
 
+static void reserveEngineTables()
+{
+	// Python plugins register their engines before initTransferClasses() runs.
+	if(g_enginesDownload.capacity() < MAX_ENGINES)
+		g_enginesDownload.reserve(MAX_ENGINES);
+	if(g_enginesUpload.capacity() < MAX_ENGINES)
+		g_enginesUpload.reserve(MAX_ENGINES);
+}
+
 void initTransferClasses()
 {
-	g_enginesDownload.reserve(MAX_ENGINES);
-	g_enginesUpload.reserve(MAX_ENGINES);
+	reserveEngineTables();
 
 #ifdef ENABLE_FAKEDOWNLOAD
 	{ // couldn't look more lazy and lame
@@ -97,6 +106,8 @@ void initTransferClasses()
 
 static QVector<EngineEntry>* engineTable(Transfer::Mode m)
 {
+	reserveEngineTables();
+
 	if(m == Transfer::Download)
 		return &g_enginesDownload;
 	if(m == Transfer::Upload)
@@ -126,6 +137,8 @@ void addTransferClass(const EngineEntry& e, Transfer::Mode m)
 	if(table->size() >= table->capacity() || table->size() >= MAX_ENGINES)
 	{
 		qWarning() << "Too many transfer engines, ignoring" << e.shortName;
+		Logger::global()->enterLogMessage(QLatin1String("Transfer"),
+			QObject::tr("Too many transfer engines, ignoring %1").arg(QLatin1String(e.shortName)));
 		return;
 	}
 
