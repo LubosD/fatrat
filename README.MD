@@ -178,7 +178,7 @@ Other options: `--no-mouse`, `--ascii` (plain ASCII drawing), `--socket PATH`, `
 | Log | `F` follow, `/` search, `n` next match, `T` log of the selected transfer |
 | Settings | `↑` `↓` pick a page, `Enter` edit it, `Tab` next field (past the last one: back to the pages), `PgUp` `PgDn` other page, `Enter` save, `S` save from the page list, `Esc` back or cancel, `Ctrl-G` generate a certificate (web interface page) |
 
-**Settings** (`O`, `F2`, or click "Settings" at the top right) has the same pages as the web interface: BitTorrent, RSS (switch and interval; feeds and rules are on the RSS tab) and the web interface. Edits on all pages are kept until you save, then sent in one request. The global speed limit is shown at the right end of the status line; click it or press `F3` to change it.
+**Settings** (`O`, `F2`, or click "Settings" at the top right) has the same pages as the web interface: BitTorrent, RSS (switch and interval; feeds and rules are on the RSS tab), the web interface and the Scheduler. Edits on all pages are kept until you save, then sent in one request. The Scheduler page is different: it lists the scheduled actions (`A` add, `Enter` or `E` edit, `D` delete) and every change is saved at once. The global speed limit is shown at the right end of the status line; click it or press `F3` to change it.
 
 **Mouse**: click to select, double-click to open details, right-click for a context menu, Ctrl-click to mark, Shift-click to mark a range, wheel to scroll, and drag a transfer to another row to reorder it or onto a queue to send it there. Every key hint in the bottom bar is clickable. Hold Shift to select text with the terminal's own selection.
 

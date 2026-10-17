@@ -1,5 +1,6 @@
 #pragma once
 #include "App.h"
+#include "SchedulerPanel.h"
 #include "SettingsPages.h"
 #include <memory>
 #include <vector>
@@ -29,6 +30,8 @@ namespace tui
 			SettingsPageSpec ownSpec;
 			QJsonObject loaded;
 			FormPanel panel;
+			// Set for the Scheduler page, which is a list edited in place rather than a form
+			std::unique_ptr<SchedulerPanel> scheduler;
 		};
 		enum class State { Loading, Ready, Failed };
 

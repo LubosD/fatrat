@@ -6,6 +6,8 @@
 namespace tui
 {
 
+static const char* const SchedulerScript = "/scripts/settings/scheduler.js";
+
 SettingsDialog::SettingsDialog(App& app) : m_app(app)
 {
 	loadPages();
@@ -36,6 +38,8 @@ void SettingsDialog::loadPages()
 			p->title = v.toObject()["title"].toString();
 			p->script = v.toObject()["script"].toString();
 			p->spec = settingsPageSpec(p->script);
+			if (p->script == SchedulerScript)
+				p->scheduler = std::make_unique<SchedulerPanel>(m_app);
 			if (p->spec)
 				keys << p->spec->keys();
 			if (p->script == ExtensionsScript)
@@ -104,7 +108,9 @@ void SettingsDialog::buildPages(const QJsonObject& values)
 	for (auto& p : m_pages)
 	{
 		p->loaded = values;
-		if (p->spec)
+		if (p->scheduler)
+			p->scheduler->load();
+		else if (p->spec)
 			buildSettingsPanel(*p->spec, values, p->panel);
 		else
 			p->panel.addLabel(m_app.tr("This settings page isn't supported in this UI yet."));
@@ -276,6 +282,14 @@ QVector<Hint> SettingsDialog::hints()
 		h.push_back({ "Esc", m_app.tr("Cancel"), [this]() { requestCancel(); } });
 		return h;
 	}
+	if (Page* p = page(); p && p->scheduler)
+	{
+		for (const Hint& sh : p->scheduler->hints())
+			h.push_back(sh);
+		h.push_back({ "PgDn", m_app.tr("Next page"), [this]() { selectRelative(1); } });
+		h.push_back({ "Esc", compact() ? m_app.tr("Back") : m_app.tr("Pages"), [this]() { m_formFocus = false; } });
+		return h;
+	}
 	h.push_back({ enter, m_app.tr("Save"), [this]() { save(); } });
 	h.push_back({ "Tab", m_app.tr("Next"), [this]() { if (Page* p = page()) p->panel.moveFocus(1); } });
 	h.push_back({ "PgDn", m_app.tr("Next page"), [this]() { selectRelative(1); } });
@@ -311,6 +325,20 @@ void SettingsDialog::handleFormKey(const Event& e)
 	if (e.is(KeyEscape))
 	{
 		m_formFocus = false;
+		return;
+	}
+	if (p->scheduler)
+	{
+		if (e.is(KeyPageUp))
+			return selectRelative(-1);
+		if (e.is(KeyPageDown))
+			return selectRelative(1);
+		if (e.is(KeyTab) || e.is(KeyBackTab))
+		{
+			m_formFocus = false;
+			return;
+		}
+		p->scheduler->key(e);
 		return;
 	}
 	if (e.is(KeyEnter))
@@ -425,8 +453,14 @@ void SettingsDialog::draw(Canvas& c, HitMap& hits, const Rect& screen)
 			}
 		}
 		if (showForm)
-			if (Page* p = page())
+		{
+			if (Page* p = page(); p && p->scheduler)
+				p->scheduler->draw(c, { formX, body.y, formW, body.h }, m_formFocus, [this](const Rect& r, std::function<void()> fn) {
+					addClick(r, [this, fn]() { m_formFocus = true; fn(); });
+				});
+			else if (p)
 				p->panel.draw(c, { formX, body.y, formW, body.h }, m_formFocus);
+		}
 	}
 
 	// error line and the hints

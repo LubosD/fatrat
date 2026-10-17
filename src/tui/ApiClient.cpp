@@ -235,6 +235,14 @@ void ApiClient::transferLog(const QString& t, Callback cb)
 
 void ApiClient::settingsPages(Callback cb) { get("/settings/pages", std::move(cb)); }
 
+void ApiClient::schedulerActions(Callback cb) { get("/scheduler/actions", std::move(cb)); }
+void ApiClient::createSchedulerAction(const QJsonObject& props, Callback cb) { call("POST", "/scheduler/actions", props, std::move(cb)); }
+void ApiClient::patchSchedulerAction(const QString& id, const QJsonObject& props, Callback cb)
+{
+	call("PATCH", "/scheduler/actions/" + encode(id), props, std::move(cb));
+}
+void ApiClient::deleteSchedulerAction(const QString& id, Callback cb) { call("DELETE", "/scheduler/actions/" + encode(id), QJsonValue(), std::move(cb)); }
+
 void ApiClient::settingsValues(const QStringList& keys, Callback cb)
 {
 	QStringList qs;

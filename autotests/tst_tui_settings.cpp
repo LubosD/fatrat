@@ -1,6 +1,7 @@
 #include "App.h"
 #include "Format.h"
 #include "SettingsDialog.h"
+#include "SchedulerPanel.h"
 #include "SettingsPages.h"
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -51,6 +52,7 @@ public:
 	QJsonObject values;
 	QJsonArray pages;
 	int pagesStatus = 200;
+	QJsonArray actions;
 
 	QVector<Request> of(const QByteArray& method) const
 	{
@@ -90,6 +92,14 @@ private:
 			return reply(s, 202);
 		if (r.method == "POST" && url.path() == "/api/v1/settings/web-interface/certificate")
 			return reply(s, 200, "{\"path\":\"/tmp/fatrat-webui.pem\"}");
+		if (url.path() == "/api/v1/scheduler/actions" && r.method == "GET")
+			return reply(s, 200, QJsonDocument(actions).toJson(QJsonDocument::Compact));
+		if (url.path() == "/api/v1/scheduler/actions" && r.method == "POST")
+			return reply(s, 201, r.body);
+		if (url.path().startsWith("/api/v1/scheduler/actions/") && r.method == "PATCH")
+			return reply(s, 200, r.body);
+		if (url.path().startsWith("/api/v1/scheduler/actions/") && r.method == "DELETE")
+			return reply(s, 204);
 		reply(s, 404, "{\"error\":{\"code\":\"not_found\",\"message\":\"no\"}}");
 	}
 
@@ -555,6 +565,144 @@ private slots:
 	}
 
 	// TUI_DUMP=1 ./tst_tui_settings dump  prints the screens
+	// ---- the Scheduler page
+
+	void schedulerLabels()
+	{
+		QCOMPARE(scheduler::daysLabel({ true, true, true, true, true, true, true }), QString("Every day"));
+		QCOMPARE(scheduler::daysLabel({ true, true, true, true, true, false, false }), QString("Mon-Fri"));
+		QCOMPARE(scheduler::daysLabel({ true, false, true, false, false, false, true }), QString("Mon, Wed, Sun"));
+		QCOMPARE(scheduler::daysLabel({ true, true, false, false, false, false, false }), QString("Mon, Tue"));
+
+		scheduler::Entry a = scheduler::Entry::fromJson({ { "id", "1" }, { "action", "speedLimit" }, { "repeated", false }, { "at", "2026-10-20T08:00" },
+			{ "speedLimit", QJsonObject{ { "down", 512000 }, { "up", 0 } } } });
+		QCOMPARE(scheduler::whenLabel(a), QString("2026-10-20 08:00"));
+		QCOMPARE(scheduler::actionLabel(a), QString("Set speed limit (down 500 kB/s, up unlimited)"));
+	}
+
+	void openScheduler(bool withQueues = true)
+	{
+		if (withQueues)
+		{
+			QueueInfo q1, q2;
+			q1.uuid = "q1"; q1.name = "Main queue";
+			q2.uuid = "q2"; q2.name = "Movies";
+			m_app->store().setQueues({ q1, q2 });
+		}
+		m_server->pages << page("Scheduler", "/scripts/settings/scheduler.js");
+		m_server->actions = {
+			QJsonObject{ { "id", "a1" }, { "name", "Nightly" }, { "queue", "q2" }, { "action", "resume" }, { "repeated", true }, { "time", "22:30" },
+				{ "days", QJsonArray{ true, true, true, true, true, false, false } }, { "at", "" } },
+		};
+		openSettings();
+		for (int i = 0; i < 4; i++)
+			key(KeyDown);
+		QTRY_VERIFY_WITH_TIMEOUT(render().contains("Nightly"), 5000);
+		key(KeyEnter);
+	}
+
+	void schedulerPageListsTheActions()
+	{
+		openScheduler();
+		const QString s = render();
+		QVERIFY(s.contains("Movies"));
+		QVERIFY(s.contains("Mon-Fri 22:30"));
+		QVERIFY(s.contains("Resume all"));
+		QVERIFY(!s.contains("isn't supported"));
+	}
+
+	void addingAnActionSendsItAtOnce()
+	{
+		openScheduler();
+		key('a');
+		QVERIFY(render().contains("New action"));
+		setField("Morning");
+		key(KeyEnter);
+		QTRY_VERIFY_WITH_TIMEOUT(!m_server->of("POST").isEmpty(), 5000);
+		const QJsonObject o = QJsonDocument::fromJson(m_server->of("POST").first().body).object();
+		QCOMPARE(o["name"].toString(), QString("Morning"));
+		QCOMPARE(o["queue"].toString(), QString("q1"));
+		QCOMPARE(o["action"].toString(), QString("resume"));
+		QVERIFY(o["repeated"].toBool());
+		QCOMPARE(o["time"].toString().size(), 5);
+		QCOMPARE(o["days"].toArray().size(), 7);
+		// the list is loaded again
+		QTRY_VERIFY_WITH_TIMEOUT(m_server->of("GET").size() >= 3, 5000);
+	}
+
+	void aBadTimeIsRefused()
+	{
+		openScheduler();
+		key('a');
+		setField("Morning");
+		for (int i = 0; i < 6; i++)      // queue, action, two limits, "when", time
+			key(KeyTab);
+		setField("99:99");
+		key(KeyEnter);
+		QVERIFY(render().contains("HH:mm"));
+		QTest::qWait(100);
+		QCOMPARE(m_server->of("POST").size(), 0);
+	}
+
+	void anEmptyNameIsRefused()
+	{
+		openScheduler();
+		key('a');
+		key(KeyEnter);
+		QVERIFY(render().contains("needs a name"));
+		QTest::qWait(100);
+		QCOMPARE(m_server->of("POST").size(), 0);
+	}
+
+	void editingPatchesTheAction()
+	{
+		openScheduler();
+		key('e');
+		QVERIFY(render().contains("Edit action"));
+		key(KeyEnter);
+		QTRY_VERIFY_WITH_TIMEOUT(!m_server->of("PATCH").isEmpty(), 5000);
+		bool found = false;
+		for (const FakeServer::Request& r : m_server->of("PATCH"))
+			if (r.path == "/api/v1/scheduler/actions/a1")
+			{
+				found = true;
+				const QJsonObject o = QJsonDocument::fromJson(r.body).object();
+				QCOMPARE(o["name"].toString(), QString("Nightly"));
+				QCOMPARE(o["queue"].toString(), QString("q2"));
+				QCOMPARE(o["time"].toString(), QString("22:30"));
+			}
+		QVERIFY(found);
+	}
+
+	void deletingAsksFirst()
+	{
+		openScheduler();
+		key('d');
+		QVERIFY(render().contains("Delete the scheduled action"));
+		key(KeyEscape);
+		QCOMPARE(m_server->of("DELETE").size(), 0);
+		key('d');
+		key('d');
+		QTRY_VERIFY_WITH_TIMEOUT(!m_server->of("DELETE").isEmpty(), 5000);
+		QCOMPARE(QString::fromLatin1(m_server->of("DELETE").first().path), QString("/api/v1/scheduler/actions/a1"));
+	}
+
+	void addingNeedsAQueue()
+	{
+		openScheduler(false);
+		key('a');
+		QVERIFY(!render().contains("New action"));
+		QVERIFY(render().contains("Add a queue first"));
+	}
+
+	void theSchedulerDoesNotMakeTheDialogDirty()
+	{
+		openScheduler();
+		key(KeyEscape);              // back to the page list
+		key(KeyEscape);              // nothing staged: closes without asking
+		QVERIFY(!m_app->hasDialog());
+	}
+
 	void dump()
 	{
 		if (!qEnvironmentVariableIsSet("TUI_DUMP"))

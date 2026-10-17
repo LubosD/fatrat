@@ -79,6 +79,10 @@ namespace tui
 
 		// Settings
 		void settingsPages(Callback cb);
+		void schedulerActions(Callback cb);
+		void createSchedulerAction(const QJsonObject& props, Callback cb);
+		void patchSchedulerAction(const QString& id, const QJsonObject& props, Callback cb);
+		void deleteSchedulerAction(const QString& id, Callback cb);
 		void settingsValues(const QStringList& keys, Callback cb);       // json: object key -> value
 		void patchSettings(const QJsonObject& values, Callback cb);
 		void applySettings(Callback cb);
