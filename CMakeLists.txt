@@ -181,6 +181,7 @@ set(fatrat_SRCS
 	src/plugins/Task.cpp
 	src/plugins/TaskManager.cpp
 	src/plugins/TransferActions.cpp
+	src/plugins/PluginLoader.cpp
 )
 
 set(fatrat_GUI_SRCS
@@ -704,6 +705,11 @@ set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlStat.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/UrlClient.h
 	)
+set(fatrat_DEV_HEADERS_PLUGINS
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginApi.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/Task.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/TransferAction.h
+	)
 
 install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
@@ -727,6 +733,7 @@ endif(WITH_GUI)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
 install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
+install(FILES ${fatrat_DEV_HEADERS_PLUGINS} DESTINATION include/fatrat/plugins)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/poller/Poller.h DESTINATION include/fatrat/poller)
 
 if(WITH_NLS)

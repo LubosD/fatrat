@@ -70,6 +70,36 @@ target_include_directories(tst_transferactions PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_transferactions Qt6::Core Qt6::Test)
 add_test(NAME transferactions COMMAND tst_transferactions)
 
+# fatrat.h pulls in QNetworkProxy, and QIcon in a GUI build (see tst_pyplugins).
+set(fatrat_h_LIBS Qt6::Core Qt6::Network)
+if(WITH_GUI)
+	set(fatrat_h_LIBS ${fatrat_h_LIBS} Qt6::Gui)
+endif(WITH_GUI)
+
+foreach(variant testaction testaction_needsgui testaction_wrongapi testaction_legacy)
+	add_library(${variant} MODULE plugins/testaction.cpp)
+	set_target_properties(${variant} PROPERTIES PREFIX "")
+	target_include_directories(${variant} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
+	target_link_libraries(${variant} PRIVATE ${fatrat_h_LIBS})
+endforeach()
+target_compile_definitions(testaction_needsgui PRIVATE TESTACTION_NEEDS_GUI)
+target_compile_definitions(testaction_wrongapi PRIVATE TESTACTION_API_VERSION=999)
+target_compile_definitions(testaction_legacy PRIVATE TESTACTION_LEGACY)
+
+add_executable(tst_pluginloader tst_pluginloader.cpp ${plugin_core_SRCS}
+	${CMAKE_SOURCE_DIR}/src/plugins/PluginLoader.cpp)
+target_include_directories(tst_pluginloader PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_compile_definitions(tst_pluginloader PRIVATE
+	TESTACTION_PATH="$<TARGET_FILE:testaction>"
+	TESTACTION_NEEDSGUI_PATH="$<TARGET_FILE:testaction_needsgui>"
+	TESTACTION_WRONGAPI_PATH="$<TARGET_FILE:testaction_wrongapi>"
+	TESTACTION_LEGACY_PATH="$<TARGET_FILE:testaction_legacy>")
+# The plugins resolve registerTransferAction() & co. from the executable, as they do from fatrat.
+set_target_properties(tst_pluginloader PROPERTIES ENABLE_EXPORTS ON)
+target_link_libraries(tst_pluginloader ${fatrat_h_LIBS} Qt6::Test ${CMAKE_DL_LIBS})
+add_dependencies(tst_pluginloader testaction testaction_needsgui testaction_wrongapi testaction_legacy)
+add_test(NAME pluginloader COMMAND tst_pluginloader)
+
 if(WITH_TUI)
 	foreach(t format httpclient store keymap render connection settings extensions)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)

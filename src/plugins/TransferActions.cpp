@@ -59,8 +59,9 @@ void registerTransferAction(const TransferAction& action)
 	// The registry is unsynchronised and meant for initPlugin() on the main thread.
 	if (QCoreApplication::instance() && QThread::currentThread() != QCoreApplication::instance()->thread())
 	{
-		Logger::global()->enterLogMessage(currentPlugin(),
-			QObject::tr("The plugin registered an action from another thread; ignored"));
+		// Not currentPlugin(): that reads s_loadingPlugin, which belongs to the main thread.
+		Logger::global()->enterLogMessage(QStringLiteral("fatrat"),
+			QObject::tr("A plugin registered an action from another thread; ignored"));
 		return;
 	}
 
