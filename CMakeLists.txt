@@ -180,6 +180,7 @@ set(fatrat_SRCS
 	src/plugins/FormValidator.cpp
 	src/plugins/Task.cpp
 	src/plugins/TaskManager.cpp
+	src/plugins/TransferActions.cpp
 )
 
 set(fatrat_GUI_SRCS
