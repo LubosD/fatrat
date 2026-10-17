@@ -376,6 +376,51 @@ describe('Shell', () => {
     expect(fixture.componentInstance['transferClasses']()).toEqual([{ mode: 'Download', shortName: 'http', longName: 'HTTP Download' }]);
   });
 
+  it('re-fetches the transfer classes each time the new-transfer dialog opens, so a freshly loaded plugin shows up', () => {
+    const http = { mode: 'Download', shortName: 'http', longName: 'HTTP Download' };
+    const plugin = { mode: 'Download', shortName: 'warforum', longName: 'Warforum free' };
+    const getTransferClasses = vi.fn().mockReturnValueOnce(of([http])).mockReturnValue(of([http, plugin]));
+    TestBed.configureTestingModule({
+      imports: [Shell],
+      providers: [
+        { provide: QueuesStore, useValue: { queues: () => [], selectedQueueUuid: () => null, selectQueue: vi.fn() } },
+        {
+          provide: TransfersStore,
+          useValue: { transfers: () => [], selectedUuids: () => [], isSelected: () => false, currentUuid: () => null, toggleSelection: vi.fn(), selectOnly: vi.fn() },
+        },
+        { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() } },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: QueueActionsService, useValue: makeQueueActionsStub() },
+        {
+          provide: TransferApi,
+          useValue: {
+            getTransferClasses,
+            getTransferSpeedGraph: () => of([]),
+            getQueueSpeedGraph: () => of([]),
+            getStats: () => of({ total: { down: 0, up: 0 }, queues: {} }),
+            getSettingsPages: () => of([]),
+            getSettingsValues: () => of([]),
+            setSettingsValues: () => of(undefined),
+            applySettings: () => of(undefined),
+          },
+        },
+        { provide: BrowseService, useValue: { list: () => of([]) } },
+        { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
+        { provide: CaptchaSocketService, useValue: { captchaEvents$: new Subject() } },
+        { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
+        ConfirmationService,
+      ],
+    });
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(fixture.componentInstance['transferClasses']()).toEqual([http]);
+
+    fixture.componentInstance['openNewTransferDialog']();
+
+    expect(getTransferClasses).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance['transferClasses']()).toEqual([http, plugin]);
+  });
+
   it('saving the new-transfer dialog with a file calls addTransferWithData()', () => {
     const { actions } = configure([]);
     const fixture = TestBed.createComponent(Shell);

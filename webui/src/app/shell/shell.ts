@@ -97,6 +97,10 @@ export class Shell {
   });
 
   constructor() {
+    this.loadTransferClasses();
+  }
+
+  private loadTransferClasses(): void {
     this.transferApi.getTransferClasses().subscribe({
       next: (classes) => this.transferClasses.set(classes),
       error: (err) => console.error('Failed to load transfer classes', err),
@@ -216,6 +220,8 @@ export class Shell {
   protected readonly showNewTransferDialog = signal(false);
 
   protected openNewTransferDialog(): void {
+    // Plugins can be installed or switched on while this page is open.
+    this.loadTransferClasses();
     this.showNewTransferDialog.set(true);
   }
 
