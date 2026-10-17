@@ -1,5 +1,4 @@
 #include "Dialogs.h"
-#include "SettingsPages.h"
 #include <QRegularExpression>
 #include "Format.h"
 #include <QDir>
@@ -364,32 +363,6 @@ void limitTransfers(App& app, const QStringList& uuids, const SpeedPair& initial
 			return false;
 		}
 		app.api().patchTransfers(uuids, QJsonObject{ { "userSpeedLimits", limitsJson(down, up) } }, app.reply(app.tr("Cannot set the limit")));
-		return true;
-	});
-	app.push(std::move(d));
-}
-
-void globalLimits(App& app)
-{
-	auto d = std::make_unique<FormDialog>(app.tr("Global speed limit"), 62);
-	d->addLabel(app.tr("Applies to all transfers together"));
-	d->addSpacer();
-	d->addText("down", app.tr("Download"), kbText(app.globalLimits().down), "KB/s, 0 = none");
-	d->addText("up", app.tr("Upload"), kbText(app.globalLimits().up), "KB/s, 0 = none");
-	d->setSubmit(app.tr("Apply"), [&app](FormDialog& f) {
-		bool ok1, ok2;
-		const qint64 down = parseKb(f.text("down"), &ok1), up = parseKb(f.text("up"), &ok2);
-		if (!ok1 || !ok2)
-		{
-			f.setError(app.tr("Speed limits must be whole numbers"));
-			return false;
-		}
-		app.api().patchSettings(QJsonObject{ { SettingSpeedDown, down }, { SettingSpeedUp, up } }, [&app, down, up](const ApiResult& r) {
-			if (!r.ok())
-				return app.toast(app.tr("Cannot set the global limit: %1").arg(r.describe()), true);
-			app.setGlobalLimits({ down, up });
-			app.api().applySettings(app.reply(app.tr("Cannot apply the limit")));
-		});
 		return true;
 	});
 	app.push(std::move(d));

@@ -14,8 +14,7 @@
   color: var(--p-text-muted-color);
 }
 
-.rates,
-.limits {
+.rates {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -29,26 +28,8 @@
   color: var(--p-red-500);
 }
 
-.limits-label {
-  margin-right: -0.25rem;
-}
-
-.limit-editor {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 14rem;
-}
-
-.presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
 @media (max-width: 600px) {
-  .queue-rate,
-  .limits-label {
+  .queue-rate {
     display: none;
   }
 }

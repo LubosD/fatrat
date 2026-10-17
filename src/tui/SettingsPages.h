@@ -44,7 +44,4 @@ namespace tui
 	// of the offending field, if a field cannot be used.
 	bool collectSettings(const SettingsPageSpec& spec, const FormPanel& panel, const QJsonObject& loaded, QJsonObject& changes, QString* error, QString* badKey);
 
-	// The global speed limits of the status bar, in bytes per second (0 = unlimited)
-	extern const char* const SettingSpeedDown;
-	extern const char* const SettingSpeedUp;
 }

@@ -6,7 +6,6 @@
 #include "RssView.h"
 #include "ExtensionsDialog.h"
 #include "SettingsDialog.h"
-#include "SettingsPages.h"
 #include "ServerManager.h"
 #include "TransfersView.h"
 #include <QDateTime>
@@ -214,9 +213,6 @@ void App::tick()
 		});
 	}
 
-	if (m_ticks % 30 == 1)
-		refreshLimits();
-
 	currentView()->poll();
 }
 
@@ -274,7 +270,6 @@ void App::perform(Action a)
 		case Action::TabLog: return showTab(Tab::Log);
 		case Action::Settings: return showSettings();
 		case Action::Extensions: return showExtensions();
-		case Action::GlobalLimit: return askGlobalLimits();
 		case Action::Help: return showHelp();
 		case Action::Quit: return requestQuit();
 		case Action::Redraw: return;
@@ -309,29 +304,6 @@ void App::showExtensions()
 		return;
 	}
 	push(std::make_unique<ExtensionsDialog>(*this));
-}
-
-void App::refreshLimits()
-{
-	m_api->settingsValues({ SettingSpeedDown, SettingSpeedUp }, [this](const ApiResult& r) {
-		if (!r.ok())
-			return;
-		auto bytes = [&](const char* key) {
-			const QJsonValue v = r.json.toObject().value(key);
-			return qMax<qint64>(0, v.isString() ? v.toString().toLongLong() : qint64(v.toDouble()));
-		};
-		setGlobalLimits({ bytes(SettingSpeedDown), bytes(SettingSpeedUp) });
-	});
-}
-
-void App::askGlobalLimits()
-{
-	if (m_conn != Conn::Connected)
-	{
-		toast(tr("Not connected"), true);
-		return;
-	}
-	dialogs::globalLimits(*this);
 }
 
 void App::askFilter()
@@ -423,7 +395,6 @@ void App::showHelp()
 			case KeyEnter: return QString::fromUtf8("⏎");
 			case KeyF1: return QString("F1");
 			case KeyF2: return QString("F2");
-			case KeyF3: return QString("F3");
 			case KeyF4: return QString("F4");
 			default: break;
 		}
@@ -431,7 +402,7 @@ void App::showHelp()
 		return b.ctrl ? "Ctrl-" + k : k;
 	};
 	static const QMap<Action, const char*> names = {
-		{ Action::TabTransfers, "Transfers tab" }, { Action::TabRss, "RSS tab" }, { Action::TabLog, "Log tab" }, { Action::Settings, "Settings" }, { Action::Extensions, "Extensions (plugins)" }, { Action::GlobalLimit, "Global speed limit" },
+		{ Action::TabTransfers, "Transfers tab" }, { Action::TabRss, "RSS tab" }, { Action::TabLog, "Log tab" }, { Action::Settings, "Settings" }, { Action::Extensions, "Extensions (plugins)" },
 		{ Action::FocusNext, "Next pane" }, { Action::FocusPrev, "Previous pane" }, { Action::Up, "Up" }, { Action::Down, "Down" },
 		{ Action::Left, "Left (queues pane)" }, { Action::Right, "Right (transfers pane)" }, { Action::PageUp, "Page up" }, { Action::PageDown, "Page down" },
 		{ Action::Home, "First" }, { Action::End, "Last" }, { Action::Filter, "Filter by name" }, { Action::Help, "This help" },
@@ -585,17 +556,6 @@ void App::drawChrome(Canvas& c, const Rect& area)
 				s += tr(" │ %1 marked").arg(m_store.marks().size());
 		}
 		c.put(0, H - 2, fit(s, W), Style::Status);
-	}
-	if (m_limitsKnown)
-	{
-		auto limit = [&](qint64 v) { return v > 0 ? formatSpeed(v) : g.inf; };
-		const QString text = " " + tr("Limit") + " " + g.down + " " + limit(m_limits.down) + " " + g.up + " " + limit(m_limits.up) + " ";
-		const int lx = W - displayWidth(text);
-		if (lx > 20)
-		{
-			c.put(lx, H - 2, text, Style::Status);
-			m_hits.add({ lx, H - 2, displayWidth(text), 1 }, Action::GlobalLimit, TagBar);
-		}
 	}
 
 	// key bar

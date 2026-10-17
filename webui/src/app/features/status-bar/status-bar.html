@@ -13,23 +13,4 @@
       Queue: ↓ {{ formatSpeed(stats.selectedQueue().down) }} ↑ {{ formatSpeed(stats.selectedQueue().up) }}
     </span>
   </span>
-  <span class="limits">
-    <span class="limits-label">Global limit</span>
-    <button pButton type="button" [text]="true" size="small" severity="secondary" data-testid="limit-down" aria-label="Global download limit" (click)="open(pop, $event, 'down')">↓ {{ formatLimit(limits().down) }}</button>
-    <button pButton type="button" [text]="true" size="small" severity="secondary" data-testid="limit-up" aria-label="Global upload limit" (click)="open(pop, $event, 'up')">↑ {{ formatLimit(limits().up) }}</button>
-  </span>
 </footer>
-
-<p-popover #pop>
-  <div class="limit-editor" data-testid="limit-editor">
-    <label for="global-limit">Global {{ editing() === 'down' ? 'download' : 'upload' }} limit (KB/s)</label>
-    <p-inputnumber inputId="global-limit" [(ngModel)]="limitKb" [min]="0" (keydown.enter)="apply(pop, limitKb)"></p-inputnumber>
-    <div class="presets">
-      <button pButton type="button" size="small" severity="secondary" data-testid="limit-unlimited" (click)="apply(pop, 0)">∞</button>
-      @for (kb of presets; track kb) {
-        <button pButton type="button" size="small" severity="secondary" [attr.data-testid]="'limit-preset-' + kb" (click)="apply(pop, kb)">{{ kb }}</button>
-      }
-    </div>
-    <button pButton type="button" size="small" data-testid="limit-apply" (click)="apply(pop, limitKb)">Apply</button>
-  </div>
-</p-popover>

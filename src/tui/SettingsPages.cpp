@@ -5,9 +5,6 @@
 namespace tui
 {
 
-const char* const SettingSpeedDown = "network/speed_down";
-const char* const SettingSpeedUp = "network/speed_up";
-
 namespace
 {
 	using Item = SettingsPageSpec::Item;
