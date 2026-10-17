@@ -15,6 +15,7 @@ private slots:
 	void sendsAddedChangedRemoved();
 	void holdsBackRapidProgress();
 	void sendsOtherChangesAtOnce();
+	void skipsTrailingMessageWhenBackToSent();
 private:
 	QList<QJsonObject> m_sent;
 	TaskPush* m_push = nullptr;
@@ -98,6 +99,20 @@ void tst_taskpush::sendsOtherChangesAtOnce()
 	QJsonObject last = about(id).last().value("task").toObject();
 	QCOMPARE(last.value("state").toString(), QString("waiting"));
 	QCOMPARE(last.value("progress").toInt(), 5);
+}
+
+void tst_taskpush::skipsTrailingMessageWhenBackToSent()
+{
+	Task* task = TaskManager::instance()->create("p.so", "Flips");
+	QString id = task->id();
+
+	task->setProgress(5);
+	QCOMPARE(about(id).size(), 1);
+	task->setProgress(-1); // the state the client already has
+	QCOMPARE(about(id).size(), 1);
+
+	QTest::qWait(TaskPush::ProgressIntervalMs * 2);
+	QCOMPARE(about(id).size(), 1);
 }
 
 QTEST_GUILESS_MAIN(tst_taskpush)

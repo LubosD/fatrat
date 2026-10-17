@@ -71,8 +71,15 @@ void TaskPush::changed(Task* task)
 
 			sent.pending = true;
 			QTimer::singleShot(ProgressIntervalMs - since, this, [this, guard, id] {
-				if (guard && m_sent.value(id).pending)
-					send(id, TasksJson::task(guard));
+				if (!guard || !m_sent.value(id).pending)
+					return;
+
+				// The task may have returned to what the client already has.
+				QJsonObject now = TasksJson::task(guard);
+				if (now == m_sent.value(id).json)
+					m_sent[id].pending = false;
+				else
+					send(id, now);
 			});
 		}
 		return;
