@@ -23,17 +23,20 @@ private slots:
 	void invalidAnswerStaysOpen();
 	void cancelDismisses();
 	void closesWhenAnsweredElsewhere();
+	void closesOnExpiry();
+	void closingDismisses();
+	void closedPromptIsNotOpen();
 private:
-	Task* asking(std::optional<QJsonObject>* got, bool* called);
+	Task* asking(std::optional<QJsonObject>* got, bool* called, int timeoutMs = 60000);
 };
 
-Task* tst_formdialog::asking(std::optional<QJsonObject>* got, bool* called)
+Task* tst_formdialog::asking(std::optional<QJsonObject>* got, bool* called, int timeoutMs)
 {
 	Task* task = TaskManager::instance()->create("p.so", "Asks");
 
 	task->ask(QJsonDocument::fromJson(R"({ "title": "Name?",
 		"fields": [ { "type": "combo", "key": "c", "options": [ { "value": "a" } ] },
-			    { "type": "text", "key": "name", "default": "x" } ] })").object(), 60000,
+			    { "type": "text", "key": "name", "default": "x" } ] })").object(), timeoutMs,
 		[got, called](std::optional<QJsonObject> r) { *called = true; *got = r; });
 	return task;
 }
@@ -52,6 +55,7 @@ void tst_formdialog::okAnswers()
 	QVERIFY(called);
 	QCOMPARE(got->value("name").toString(), QString("Ann"));
 	QTRY_VERIFY(!dlg); // deletes itself on close
+	task->finish(true);
 }
 
 void tst_formdialog::invalidAnswerStaysOpen()
@@ -75,6 +79,7 @@ void tst_formdialog::invalidAnswerStaysOpen()
 	dlg->reject();
 	QVERIFY(called);
 	QVERIFY(!got.has_value());
+	task->finish(true);
 }
 
 void tst_formdialog::cancelDismisses()
@@ -82,11 +87,13 @@ void tst_formdialog::cancelDismisses()
 	std::optional<QJsonObject> got = QJsonObject();
 	bool called = false;
 	Task* task = asking(&got, &called);
-	FormDialog* dlg = new FormDialog(task);
+	QPointer<FormDialog> dlg = new FormDialog(task);
 
 	dlg->reject();
 	QVERIFY(called);
 	QVERIFY(!got.has_value());
+	QTRY_VERIFY(!dlg);
+	task->finish(true);
 }
 
 void tst_formdialog::closesWhenAnsweredElsewhere()
@@ -102,6 +109,50 @@ void tst_formdialog::closesWhenAnsweredElsewhere()
 
 	QCOMPARE(got->value("name").toString(), QString("web"));
 	QTRY_VERIFY(!dlg);
+	task->finish(true);
+}
+
+void tst_formdialog::closesOnExpiry()
+{
+	std::optional<QJsonObject> got = QJsonObject();
+	bool called = false;
+	Task* task = asking(&got, &called, 1000);
+	QPointer<FormDialog> dlg = new FormDialog(task);
+	dlg->show();
+
+	QTRY_VERIFY_WITH_TIMEOUT(!dlg, 3000);
+	QVERIFY(called);
+	QVERIFY(!got.has_value());
+	task->finish(true);
+}
+
+void tst_formdialog::closingDismisses()
+{
+	std::optional<QJsonObject> got = QJsonObject();
+	bool called = false;
+	Task* task = asking(&got, &called);
+	QPointer<FormDialog> dlg = new FormDialog(task);
+	dlg->show();
+
+	dlg->close();
+	QVERIFY(called);
+	QVERIFY(!got.has_value());
+	QTRY_VERIFY(!dlg);
+	task->finish(true);
+}
+
+void tst_formdialog::closedPromptIsNotOpen()
+{
+	std::optional<QJsonObject> got;
+	bool called = false;
+	Task* task = asking(&got, &called);
+	task->dismissPrompt(task->prompt()->id);
+	QVERIFY(called);
+
+	QPointer<FormDialog> dlg = new FormDialog(task);
+	QVERIFY(!dlg->isOpen());
+	QTRY_VERIFY(!dlg);
+	task->finish(true);
 }
 
 QTEST_MAIN(tst_formdialog)

@@ -167,6 +167,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 		{
 			QLabel* label = new QLabel(title, parent);
 
+			label->setTextFormat(Qt::PlainText); // plugin text is never markup
 			label->setWordWrap(true);
 			layout->addWidget(label, row, 0, 1, 2);
 		}

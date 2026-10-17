@@ -51,6 +51,9 @@ public:
 	~FormDialog();
 
 	QString promptId() const { return m_promptId; }
+	// A dialog constructed for a task whose question is already closed is not
+	// open: it closes and deletes itself, and callers must not show() it.
+	bool isOpen() const { return !m_promptId.isEmpty(); }
 public slots:
 	void accept() override;
 	void reject() override;

@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QLabel>
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 FormDialog::FormDialog(Task* task, QWidget* parent)
@@ -48,7 +49,7 @@ FormDialog::FormDialog(Task* task, QWidget* parent)
 	{
 		// Answered before we got here.
 		m_done = true;
-		QMetaObject::invokeMethod(this, "close", Qt::QueuedConnection);
+		QMetaObject::invokeMethod(this, [this] { close(); }, Qt::QueuedConnection);
 		return;
 	}
 
@@ -66,12 +67,18 @@ FormDialog::FormDialog(Task* task, QWidget* parent)
 		layout->addWidget(label);
 	}
 
-	QWidget* fields = new QWidget(this);
+	// Scrolls, so that a long form does not grow past the screen.
+	QScrollArea* scroll = new QScrollArea(this);
+	QWidget* fields = new QWidget(scroll);
 	m_widgets.reset(new FormWidgets(prompt->form.value("fields").toArray(), QJsonObject(), fields));
-	layout->addWidget(fields);
+	scroll->setWidget(fields);
+	scroll->setWidgetResizable(true);
+	scroll->setFrameShape(QFrame::NoFrame);
+	layout->addWidget(scroll, 1);
 
 	m_error = new QLabel(this);
 	m_error->setStyleSheet("color: red");
+	m_error->setTextFormat(Qt::PlainText);
 	m_error->setWordWrap(true);
 	m_error->hide();
 	layout->addWidget(m_error);
@@ -102,7 +109,11 @@ FormDialog::~FormDialog() = default;
 
 void FormDialog::updateCountdown()
 {
-	qint64 secs = qMax<qint64>(0, QDateTime::currentDateTimeUtc().secsTo(m_expiresAt));
+	// At least 1, as formatTime(0) is empty.
+	qint64 secs = qMax<qint64>(1, QDateTime::currentDateTimeUtc().secsTo(m_expiresAt));
+
+	// Only worth mentioning when it is near.
+	m_countdown->setVisible(secs < 600);
 	m_countdown->setText(tr("Without an answer, this closes in %1.").arg(formatTime(secs)));
 }
 
