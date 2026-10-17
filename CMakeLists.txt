@@ -211,6 +211,7 @@ set(fatrat_GUI_SRCS
 	src/SettingsClipboardMonitorForm.cpp
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
+	src/FormWidgets.cpp
 	src/engines/MetalinkSettings.cpp
 	src/captcha/CaptchaQt.cpp
 	src/captcha/CaptchaQtDlg.cpp

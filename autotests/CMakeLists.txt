@@ -178,3 +178,13 @@ if(WITH_PYPLUGINS)
 	target_link_libraries(tst_pyplugins ${tst_pyplugins_LIBS})
 	add_test(NAME pyplugins COMMAND tst_pyplugins)
 endif(WITH_PYPLUGINS)
+
+if(WITH_GUI)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets)
+
+	add_executable(tst_formwidgets tst_formwidgets.cpp ${CMAKE_SOURCE_DIR}/src/FormWidgets.cpp)
+	target_include_directories(tst_formwidgets PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_formwidgets Qt6::Widgets Qt6::Test)
+	add_test(NAME formwidgets COMMAND tst_formwidgets)
+	set_tests_properties(formwidgets PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif(WITH_GUI)

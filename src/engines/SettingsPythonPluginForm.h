@@ -38,9 +38,13 @@ respects for all of the code used other than "OpenSSL".
 #include <QObject>
 #include <QString>
 #include <QWidget>
+#include <memory>
+#include <vector>
 
 #include "WidgetHostChild.h"
 #include "ui_SettingsPythonPluginForm.h"
+
+class FormWidgets;
 
 /* Settings -> Extensions.
  *
@@ -53,6 +57,7 @@ class SettingsPythonPluginForm : public QObject, public WidgetHostChild, Ui_Sett
 Q_OBJECT
 public:
 	SettingsPythonPluginForm(QWidget* me, QObject* parent);
+	~SettingsPythonPluginForm();
 
 	static WidgetHostChild* create(QWidget* me, QObject* parent)
 	{
@@ -75,10 +80,9 @@ private:
 	void loadInstalled();
 	void buildSettingsPages();
 	QWidget* buildPage(const QJsonArray& items);
-	void addItems(const QJsonArray& items, QWidget* parent);
 
-	// Widget -> settings key, for everything this page created.
-	QMap<QWidget*, QString> m_boundWidgets;
+	// One per plugin settings page, in the order of stackedWidget.
+	std::vector<std::unique_ptr<FormWidgets>> m_pages;
 };
 
 #endif // SETTINGSPYTHONPLUGINFORM_H
