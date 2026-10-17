@@ -74,6 +74,7 @@ const QVector<Binding>& Keymap::bindings()
 		{ X::Global, C('3'), false, A::TabLog, nullptr, nullptr },
 		{ X::Global, KeyF2, false, A::Settings, nullptr, nullptr },
 		{ X::Global, KeyF3, false, A::GlobalLimit, nullptr, nullptr },
+		{ X::Global, KeyF4, false, A::Extensions, nullptr, nullptr },
 		{ X::Global, KeyTab, false, A::FocusNext, nullptr, nullptr },
 		{ X::Global, KeyBackTab, false, A::FocusPrev, nullptr, nullptr },
 		{ X::Global, KeyUp, false, A::Up, nullptr, nullptr },
@@ -91,6 +92,7 @@ const QVector<Binding>& Keymap::bindings()
 		{ X::Global, C('?'), false, A::Help, "?", "Help" },
 		{ X::Global, C('q'), false, A::Quit, "Q", "Quit" },
 		{ X::Global, C('o'), false, A::Settings, nullptr, nullptr },
+		{ X::Global, C('x'), false, A::Extensions, nullptr, nullptr },
 		{ X::Global, C('l'), true, A::Redraw, nullptr, nullptr },
 		{ X::Global, KeyEscape, false, A::Back, nullptr, nullptr },
 	};

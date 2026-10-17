@@ -54,6 +54,49 @@ open(sys.argv[1], 'wb').write(b({'announce': 'http://127.0.0.1:1/announce', 'inf
 PY
 
 # ------------------------------------------------------------------------------------------------
+# Extensions: add the example repository, install a plugin from it, see it listed as installed.
+# Needs a FatRat built with WITH_PYPLUGINS; skipped otherwise.
+EXAMPLES=${EXAMPLES:-$(dirname "$0")/../examples/plugin-repo}
+if "$SERVER" --help 2>&1 | grep -q -- --no-python; then
+	fresh_profile
+	run extensions "
+waitfor connected
+# the queue list means the server really answered: \"Not connected.\" contains the word too
+waitfor Main queue
+key f4
+waitfor Extensions
+waitfor Repositories
+# the repositories section, then add the example repository
+key Tab
+key Tab
+waitfor [Repositories
+key a
+waitfor Add plugin repository
+type $EXAMPLES
+key Enter
+waitfor full privileges
+key y
+waitfor example-plugins
+# what it offers, installed from there (Tab wraps Repositories -> Installed -> Available)
+key Tab
+key Tab
+waitfor [Available
+waitfor dummy
+key Enter
+waitfor Restart FatRat
+# and it is listed as installed
+key Tab
+key Tab
+waitfor [Installed
+waitfor dummy
+expect [x] dummy
+key Esc
+" "${local_args[@]}"
+else
+	echo "skip  extensions (server built without Python extension support)"
+fi
+
+# ------------------------------------------------------------------------------------------------
 fresh_profile
 run queues-and-transfers "
 waitfor connected

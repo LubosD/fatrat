@@ -49,7 +49,7 @@ target_link_libraries(tst_scheduleresources Qt6::Core Qt6::Network Qt6::Test)
 add_test(NAME scheduleresources COMMAND tst_scheduleresources)
 
 if(WITH_TUI)
-	foreach(t format httpclient store keymap render connection settings)
+	foreach(t format httpclient store keymap render connection settings extensions)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)
 		target_link_libraries(tst_tui_${t} fatrat_tui_core Qt6::Test)
 		add_test(NAME tui_${t} COMMAND tst_tui_${t})

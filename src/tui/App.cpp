@@ -4,6 +4,7 @@
 #include "Format.h"
 #include "LogView.h"
 #include "RssView.h"
+#include "ExtensionsDialog.h"
 #include "SettingsDialog.h"
 #include "SettingsPages.h"
 #include "ServerManager.h"
@@ -272,6 +273,7 @@ void App::perform(Action a)
 		case Action::TabRss: return showTab(Tab::Rss);
 		case Action::TabLog: return showTab(Tab::Log);
 		case Action::Settings: return showSettings();
+		case Action::Extensions: return showExtensions();
 		case Action::GlobalLimit: return askGlobalLimits();
 		case Action::Help: return showHelp();
 		case Action::Quit: return requestQuit();
@@ -297,6 +299,16 @@ void App::showSettings()
 		return;
 	}
 	push(std::make_unique<SettingsDialog>(*this));
+}
+
+void App::showExtensions()
+{
+	if (m_conn != Conn::Connected)
+	{
+		toast(tr("Not connected"), true);
+		return;
+	}
+	push(std::make_unique<ExtensionsDialog>(*this));
 }
 
 void App::refreshLimits()
@@ -412,13 +424,14 @@ void App::showHelp()
 			case KeyF1: return QString("F1");
 			case KeyF2: return QString("F2");
 			case KeyF3: return QString("F3");
+			case KeyF4: return QString("F4");
 			default: break;
 		}
 		QString k = QString(QChar(b.key)).toUpper();
 		return b.ctrl ? "Ctrl-" + k : k;
 	};
 	static const QMap<Action, const char*> names = {
-		{ Action::TabTransfers, "Transfers tab" }, { Action::TabRss, "RSS tab" }, { Action::TabLog, "Log tab" }, { Action::Settings, "Settings" }, { Action::GlobalLimit, "Global speed limit" },
+		{ Action::TabTransfers, "Transfers tab" }, { Action::TabRss, "RSS tab" }, { Action::TabLog, "Log tab" }, { Action::Settings, "Settings" }, { Action::Extensions, "Extensions (plugins)" }, { Action::GlobalLimit, "Global speed limit" },
 		{ Action::FocusNext, "Next pane" }, { Action::FocusPrev, "Previous pane" }, { Action::Up, "Up" }, { Action::Down, "Down" },
 		{ Action::Left, "Left (queues pane)" }, { Action::Right, "Right (transfers pane)" }, { Action::PageUp, "Page up" }, { Action::PageDown, "Page down" },
 		{ Action::Home, "First" }, { Action::End, "Last" }, { Action::Filter, "Filter by name" }, { Action::Help, "This help" },

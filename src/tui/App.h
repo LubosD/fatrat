@@ -70,6 +70,7 @@ namespace tui
 		void closeDetails();
 		void showHelp();
 		void showSettings();
+		void showExtensions();
 		// The global speed limits (bytes per second, 0 = none); unknown until the server has answered
 		bool limitsKnown() const { return m_limitsKnown; }
 		SpeedPair globalLimits() const { return m_limits; }

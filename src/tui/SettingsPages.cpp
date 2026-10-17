@@ -69,10 +69,12 @@ SettingsPageSpec buildExtensionsSpec(const QJsonArray& plugins)
 
 	spec.script = ExtensionsScript;
 
+	spec.items << makeNote(QObject::tr("Press F4 to add repositories and install plugins."));
+	spec.items << makeSpacer();
+
 	if (plugins.isEmpty())
 	{
 		spec.items << makeNote(QObject::tr("No plugins are installed."));
-		spec.items << makeNote(QObject::tr("Add a repository with: fatrat-conf plugins add <url>"));
 		return spec;
 	}
 
