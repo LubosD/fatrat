@@ -313,7 +313,7 @@ void SettingsPythonPluginForm::buildSettingsPages()
 
 	foreach (const PluginRegistry::Manifest& manifest, PluginRegistry::installed())
 	{
-		if (!manifest.valid || manifest.config.isEmpty())
+		if (!manifest.valid || PluginSettingsValues::settingsItems(manifest.config).isEmpty())
 			continue;
 		if (!PluginRegistry::isPluginEnabled(manifest.name))
 			continue;
