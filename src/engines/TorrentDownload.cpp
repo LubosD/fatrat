@@ -256,7 +256,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 		if (bAuth)
 		{
 			settings.set_str(libtorrent::settings_pack::proxy_username, proxy.strUser.toStdString());
-			settings.set_str(libtorrent::settings_pack::proxy_password, proxy.strUser.toStdString());
+			settings.set_str(libtorrent::settings_pack::proxy_password, proxy.strPassword.toStdString());
 		}
 
 		if (proxy.nType == Proxy::ProxyHttp)
