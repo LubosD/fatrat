@@ -193,4 +193,12 @@ if(WITH_GUI)
 	target_link_libraries(tst_formwidgets Qt6::Widgets Qt6::Test)
 	add_test(NAME formwidgets COMMAND tst_formwidgets)
 	set_tests_properties(formwidgets PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+	add_executable(tst_formdialog tst_formdialog.cpp ${plugin_core_SRCS}
+		${CMAKE_SOURCE_DIR}/src/FormWidgets.cpp
+		${CMAKE_SOURCE_DIR}/src/FormDialog.cpp)
+	target_include_directories(tst_formdialog PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_formdialog ${fatrat_h_LIBS} Qt6::Widgets Qt6::Test)
+	add_test(NAME formdialog COMMAND tst_formdialog)
+	set_tests_properties(formdialog PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif(WITH_GUI)
