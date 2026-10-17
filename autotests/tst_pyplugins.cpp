@@ -354,7 +354,7 @@ void tst_pyplugins::pluginLoaderImportsADirectory()
 	QCOMPARE(QString::fromStdString(py::str(descriptor.attr("kind")).cast<std::string>()), QString("download"));
 	QCOMPARE(QString::fromStdString(py::str(descriptor.attr("identifier")).cast<std::string>()),
 		 QString("fatrat_plugins.dummy.Dummy"));
-	QVERIFY(descriptor.attr("options")["single_transfer"].cast<bool>() == false);
+	QVERIFY(descriptor.attr("options")["single_transfer"].cast<int>() == 0);
 }
 
 void tst_pyplugins::pluginLoaderReloadsEditedCodeAndForgetsTheOld()

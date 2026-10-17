@@ -9,7 +9,7 @@ transfer needs it.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 #: Plugin kinds FatRat knows about.
 DOWNLOAD = "download"
@@ -78,7 +78,7 @@ def _register(kind: str, cls: Type[Any], name: str, url_pattern: str, options: D
 
 
 def download_plugin(name: str, url_pattern: str = "", *,
-                    single_transfer: bool = False,
+                    single_transfer: Union[bool, int] = False,
                     truncate_incomplete: bool = False) -> Callable[[Type[Any]], Type[Any]]:
     """Register a download plugin.
 
@@ -86,15 +86,17 @@ def download_plugin(name: str, url_pattern: str = "", *,
     :param url_pattern: regular expression matching the links this plugin
         handles, anchored at both ends. Leave it empty and implement
         ``acceptable(self, url) -> int`` instead when matching needs code.
-    :param single_transfer: only one transfer of this plugin may run at a
-        time (free-tier file hosts usually insist).
+    :param single_transfer: limit how many transfers of this plugin may run
+        at a time: ``True`` for one (free-tier file hosts usually insist), or
+        a number such as ``2`` for a host that allows that many. A transfer
+        over the limit fails with a message saying so. ``False`` is no limit.
     :param truncate_incomplete: a restarted transfer starts from zero rather
         than resuming, because the link is single-use.
     """
 
     def decorate(cls: Type[Any]) -> Type[Any]:
         _register(DOWNLOAD, cls, name, url_pattern, {
-            "single_transfer": bool(single_transfer),
+            "single_transfer": max(0, int(single_transfer)),
             "truncate_incomplete": bool(truncate_incomplete),
         })
         return cls

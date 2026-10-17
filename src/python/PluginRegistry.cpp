@@ -207,6 +207,11 @@ QString optionString(const py::dict& options, const char* key)
 	return QString::fromStdString(py::str(options[key]).cast<std::string>());
 }
 
+int optionInt(const py::dict& options, const char* key)
+{
+	return options.contains(key) ? options[key].cast<int>() : 0;
+}
+
 bool optionBool(const py::dict& options, const char* key)
 {
 	return options.contains(key) && options[key].cast<bool>();
@@ -225,7 +230,7 @@ static QString registerDownloadEngine(py::handle descriptor)
 	engine.probe = common.probe;
 	engine.regexp = common.regexp;
 	engine.ownAcceptable = common.ownAcceptable;
-	engine.singleTransfer = optionBool(common.options, "single_transfer");
+	engine.maxTransfers = qMax(0, optionInt(common.options, "single_transfer"));
 	engine.truncate = optionBool(common.options, "truncate_incomplete");
 
 	PythonDownload::engines()[common.identifier] = engine;

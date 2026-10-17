@@ -43,7 +43,7 @@ respects for all of the code used other than "OpenSSL".
 
 namespace py = pybind11;
 
-QMap<QString, QMutex*> PythonDownload::m_mutexes;
+QMap<QString, QSemaphore*> PythonDownload::m_slots;
 
 QMap<QString, PythonDownload::PyEngine>& PythonDownload::engines()
 {
@@ -170,7 +170,7 @@ void PythonDownload::changeActive(bool bActive)
 	{
 		if (m_bHasLock)
 		{
-			m_mutexes[m_strIdentifier]->unlock();
+			m_slots[m_strIdentifier]->release();
 			m_bHasLock = false;
 		}
 
@@ -217,13 +217,13 @@ void PythonDownload::changeActive(bool bActive)
 
 	const PyEngine& engine = engines()[m_strIdentifier];
 
-	// Free accounts on file hosts usually allow exactly one transfer.
-	if (engine.singleTransfer)
+	// Free accounts on file hosts usually allow one transfer, or a few.
+	if (engine.maxTransfers > 0)
 	{
-		if (!m_mutexes[m_strIdentifier])
-			m_mutexes[m_strIdentifier] = new QMutex;
+		if (!m_slots[m_strIdentifier])
+			m_slots[m_strIdentifier] = new QSemaphore(engine.maxTransfers);
 
-		if (!m_bHasLock && !m_mutexes[m_strIdentifier]->tryLock())
+		if (!m_bHasLock && !m_slots[m_strIdentifier]->tryAcquire())
 		{
 			failWith(tr("You cannot have multiple active transfers from this server."));
 			return;

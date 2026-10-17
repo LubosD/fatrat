@@ -33,7 +33,7 @@ respects for all of the code used other than "OpenSSL".
 #endif
 
 #include <QMap>
-#include <QMutex>
+#include <QSemaphore>
 #include <QRegularExpression>
 #include <QUrl>
 #include <string>
@@ -93,11 +93,12 @@ public:
 	 */
 	struct PyEngine
 	{
-		PyEngine() : singleTransfer(false), truncate(false), ownAcceptable(false) {}
+		PyEngine() : maxTransfers(0), truncate(false), ownAcceptable(false) {}
 
 		std::string name, identifier;
 		QRegularExpression regexp;
-		bool singleTransfer, truncate, ownAcceptable;
+		int maxTransfers; // at most this many at once; 0 = unlimited
+		bool truncate, ownAcceptable;
 		PyRef cls;   // the plugin class, instantiated per transfer
 		PyRef probe; // one instance, for acceptable()
 	};
@@ -124,7 +125,7 @@ private:
 	PyRef m_pluginObject; // keeps the Python half alive
 	PyRef m_task;         // the running coroutine, if any
 
-	static QMap<QString, QMutex*> m_mutexes;
+	static QMap<QString, QSemaphore*> m_slots;
 
 	friend class PyPlugin;
 };
