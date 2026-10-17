@@ -23,9 +23,17 @@ export class PluginsApi {
     return this.rest.get<AvailablePlugin[]>('/plugins/available', updatesOnly ? { updates: true } : undefined);
   }
 
-  /** Installs, or updates an installed plugin to what the repository now offers. */
-  install(repository: string, plugin: string): Observable<{ restartRequired: boolean }> {
-    return this.rest.post<{ restartRequired: boolean }>('/plugins', { repository, plugin });
+  /**
+   * Installs, or updates an installed plugin to what the repository now offers.
+   *
+   * A plugin that declares dependencies is refused unless `withDependencies` is set: those
+   * packages come from PyPI rather than from the repository the user chose, so the server
+   * insists on being told yes to them specifically.
+   */
+  install(repository: string, plugin: string, withDependencies = false): Observable<{ restartRequired: boolean }> {
+    const body: Record<string, unknown> = { repository, plugin };
+    if (withDependencies) body['withDependencies'] = true;
+    return this.rest.post<{ restartRequired: boolean }>('/plugins', body);
   }
 
   setEnabled(plugin: string, enabled: boolean): Observable<Plugin> {

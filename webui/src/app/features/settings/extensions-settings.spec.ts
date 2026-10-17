@@ -26,6 +26,7 @@ const plugin: Plugin = {
 const available: AvailablePlugin[] = [
   { name: 'dummy', version: '1.1.0', description: 'a worked example', repository: 'example-plugins', installedVersion: '1.0.0' },
   { name: 'extras', version: '1.0.0', description: 'the other kinds', repository: 'example-plugins', installedVersion: '' },
+  { name: 'feedwatch', version: '1.0.0', description: 'needs a package', repository: 'example-plugins', installedVersion: '', dependencies: ['feedparser'] },
 ];
 
 function configure(opts: { plugins?: Plugin[]; api?: Record<string, unknown>; values?: unknown[] } = {}) {
@@ -120,8 +121,39 @@ describe('ExtensionsSettings', () => {
 
     c['install'](available[1]);
 
-    expect(api.install).toHaveBeenCalledWith('example-plugins', 'extras');
+    expect(api.install).toHaveBeenCalledWith('example-plugins', 'extras', false);
     expect(c['message']()).toContain('Restart FatRat');
+  });
+
+  it('names the PyPI packages before installing a plugin that needs them', () => {
+    const { c, api, confirm } = configure();
+
+    c['install'](available[2]);
+
+    expect(confirm).toHaveBeenCalled();
+    expect(confirm.mock.calls[0][0].message).toContain('feedparser');
+    expect(confirm.mock.calls[0][0].message).toContain('Python Package Index');
+    expect(api.install).toHaveBeenCalledWith('example-plugins', 'feedwatch', true);
+  });
+
+  it('installs nothing when the packages are declined', () => {
+    const confirm = vi.fn();
+    const { c, api } = configure();
+
+    (c as any).confirmation = { confirm };
+    c['install'](available[2]);
+
+    expect(api.install).not.toHaveBeenCalled();
+  });
+
+  it('shows what the server says when it refuses the dependencies anyway', () => {
+    const { c } = configure({
+      api: { install: vi.fn().mockReturnValue(apiError('feedwatch needs these packages from PyPI: feedparser')) },
+    });
+
+    c['install'](available[2]);
+
+    expect(c['message']()).toContain('feedparser');
   });
 
   it('does not offer a text box for a settings array it would overwrite', () => {

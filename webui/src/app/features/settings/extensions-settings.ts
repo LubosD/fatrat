@@ -120,7 +120,27 @@ export class ExtensionsSettings {
   }
 
   protected install(entry: AvailablePlugin): void {
-    this.run(this.api.install(entry.repository, entry.name), () =>
+    const dependencies = entry.dependencies ?? [];
+
+    if (!dependencies.length) {
+      this.doInstall(entry, false);
+      return;
+    }
+
+    // These come from PyPI, not from the repository the user chose to trust, so
+    // they get their own question naming every package.
+    this.confirmation.confirm({
+      header: 'Install dependencies',
+      message:
+        `${entry.name} needs these packages from the Python Package Index:\n\n` +
+        `${dependencies.join('\n')}\n\n` +
+        'They will be downloaded with pip and installed for this plugin only. Install them?',
+      accept: () => this.doInstall(entry, true),
+    });
+  }
+
+  private doInstall(entry: AvailablePlugin, withDependencies: boolean): void {
+    this.run(this.api.install(entry.repository, entry.name, withDependencies), () =>
       this.message.set(`${entry.name} installed. Restart FatRat to load it.`),
     );
   }

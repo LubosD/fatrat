@@ -200,4 +200,6 @@ export interface AvailablePlugin {
   repository: string;
   /** Empty when not installed; different from version when an update is available. */
   installedVersion: string;
+  /** Packages this plugin would pull in from PyPI; the user has to agree to them by name. */
+  dependencies?: string[];
 }
