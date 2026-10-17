@@ -1,0 +1,49 @@
+#!/bin/bash
+# Publishes https://fatrat.dolezel.info/ on GitHub Pages: the website (this directory) together with the
+# apt repository built by packaging/deb/publish.sh (packaging/deb/repo/, or REPO).
+#
+#   website/deploy.sh [COMMIT MESSAGE]
+#
+# Both go into the gh-pages branch, checked out as a worktree in packaging/deb/gh-pages/, which is then
+# committed and pushed. Without a local repository (no REPO/dists), the apt files already in gh-pages are
+# left as they are and only the website is updated.
+#
+# The custom domain needs a DNS CNAME record fatrat.dolezel.info -> lubosd.github.io, and "Enforce HTTPS"
+# ticked in the GitHub repository's Pages settings once the certificate has been issued.
+set -euo pipefail
+
+TOP=$(git -C "$(dirname "$0")" rev-parse --show-toplevel)
+REPO=${REPO:-$TOP/packaging/deb/repo}
+PAGES=$TOP/packaging/deb/gh-pages
+DOMAIN=fatrat.dolezel.info
+MESSAGE=${1:-Update website}
+
+cd "$TOP"
+git worktree prune
+if [ ! -d "$PAGES" ]; then
+	if git show-ref -q --verify refs/heads/gh-pages; then
+		git worktree add "$PAGES" gh-pages
+	elif git fetch origin gh-pages 2>/dev/null; then
+		git worktree add -B gh-pages "$PAGES" origin/gh-pages
+	else
+		git worktree add --orphan -b gh-pages "$PAGES"
+	fi
+fi
+
+# The repository first, with --delete so packages dropped from it disappear; this also removes the
+# website files, which are copied back right after. conf/ and db/ are reprepro's own state.
+if [ -d "$REPO/dists" ]; then
+	rsync -a --delete --exclude=.git --exclude=/conf --exclude=/db "$REPO/" "$PAGES/"
+fi
+rsync -a --exclude=deploy.sh "$TOP/website/" "$PAGES/"
+echo "$DOMAIN" > "$PAGES/CNAME"
+touch "$PAGES/.nojekyll"   # serve the files as they are, without Jekyll processing
+
+git -C "$PAGES" add -A
+if git -C "$PAGES" diff --cached --quiet; then
+	echo "gh-pages is up to date"
+else
+	git -C "$PAGES" commit -q -m "$MESSAGE"
+	git -C "$PAGES" push origin gh-pages
+	echo "Pushed; GitHub Pages will serve it at https://$DOMAIN/ in a minute or two"
+fi
