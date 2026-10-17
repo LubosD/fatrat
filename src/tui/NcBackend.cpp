@@ -53,7 +53,7 @@ static int extraAttrs(Style s)
 		case Style::Dim: return A_DIM;
 		case Style::Bold:
 		case Style::Hl:
-		case Style::TabOn:
+		// not TabOn: its black foreground drawn bold turns grey on many terminals (bold as bright)
 		case Style::KeyHint:
 		case Style::Mark:
 		case Style::Error:
