@@ -24,6 +24,22 @@ feedwatch/               a plugin with a PyPI dependency, and how that is confir
 Each plugin directory holds a `plugin.json` manifest (name, version, entry
 module, the settings page it wants) next to the module itself.
 
+## Trying plugins without FatRat
+
+`fatrat_devkit` (in `data/python`, installed to `share/fatrat/data/python`)
+runs plugins from the command line under plain Python 3.11+:
+
+```
+export PYTHONPATH=/path/to/fatrat/data/python
+python3 -m fatrat_devkit check .                      # validate the manifests, import every plugin
+python3 -m fatrat_devkit match . dummy://example/x    # which plugin takes this URL?
+python3 -m fatrat_devkit download dummy dummy://127.0.0.1:8099/f/1 --captcha abc
+```
+
+It also drives plugins from unit tests with canned responses; see
+"Testing a plugin without FatRat" in `doc/plugins.html`. Its own tests use
+this repository: `python3 -m unittest discover -s tests/python`.
+
 ## Publishing your own
 
 Copy this directory, replace `dummy/` with your plugin, push it to any git

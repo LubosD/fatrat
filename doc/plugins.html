@@ -117,6 +117,138 @@ desktop settings dialog and in the web interface, and the values land in the
 settings keys you name.
 </p>
 
+<h3>Testing a plugin without FatRat</h3>
+
+<p>
+FatRat ships a small development kit, <code>fatrat_devkit</code>, that runs a
+plugin under plain <code>python3</code> (3.11 or newer): no FatRat build, no
+restart, no desktop. It stands in for FatRat's side of the API, so your
+<code>process_link()</code> really runs &mdash; pages are fetched over the
+network, a countdown can be skipped, a captcha is asked for on the terminal
+&mdash; and what the plugin hands back is printed instead of downloaded. It is
+installed with FatRat under <code>share/fatrat/data/python</code>; in a source
+checkout it is <code>data/python</code>.
+</p>
+
+<pre>
+export PYTHONPATH=/usr/share/fatrat/data/python     # or .../fatrat/data/python in a checkout
+
+python3 -m fatrat_devkit check    ./my-repo
+python3 -m fatrat_devkit match    ./my-repo 'https://example.com/f/abc123'
+python3 -m fatrat_devkit download ./my-repo 'https://example.com/f/abc123'
+</pre>
+
+<p>
+<code>PATH</code> is a plugin directory (with a <code>plugin.json</code>) or a
+whole repository (with a <code>fatrat-plugins.json</code>).
+</p>
+
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><td><code>check PATH</code></td>
+    <td>Validates the manifests the way FatRat reads them, imports the plugin
+        and checks what a plugin author tends to get wrong: a missing or
+        non-<code>async</code> <code>process_link()</code>, a
+        <code>url_pattern</code> that is not a regular expression, a plugin
+        that registers nothing, an entry module that is not there, a
+        <code>config</code> entry with an unknown type or no
+        <code>options</code>. Exits non-zero when FatRat would refuse to load
+        it; warnings (a missing license, a settings key outside your
+        plugin's namespace) do not.</td></tr>
+<tr><td><code>match PATH URL</code></td>
+    <td>Which plugins would accept the URL, and how well. Use it to get a
+        <code>url_pattern</code> right before anything is fetched. FatRat
+        anchors the pattern at both ends; so does this.</td></tr>
+<tr><td><code>download PATH URL</code></td>
+    <td>Runs a download plugin and prints the link it resolved, the file
+        name, referrer and anything it kept in <code>self.vars</code>. The
+        plugin's log goes to stderr as it happens. With
+        <code>--download DIR</code> the resolved link is also fetched into
+        <code>DIR</code> and <code>final_check()</code> runs on the
+        file.</td></tr>
+<tr><td><code>extract PATH URL</code><br /><code>search PATH QUERY</code><br />
+        <code>account PATH</code><br /><code>upload PATH FILE</code></td>
+    <td>The same for the other plugin kinds.</td></tr>
+</table>
+
+<p>
+The commands that run a plugin take these options:
+</p>
+
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><td><code>-s KEY=VALUE</code>, <code>--settings FILE.json</code></td>
+    <td>Settings the plugin reads through <code>fatrat.settings</code>, such as
+        <code>-s example/user=me</code>. <code>true</code> and
+        <code>false</code> become booleans.</td></tr>
+<tr><td><code>--captcha TEXT</code>, <code>--captcha-prompt</code></td>
+    <td>Answer every captcha with <code>TEXT</code>, or save each image to a
+        temporary file and ask on the terminal. With neither, a captcha fails
+        with <code>CaptchaError</code>.</td></tr>
+<tr><td><code>--real-wait</code></td>
+    <td>Countdowns are skipped by default (the plugin still sees them finish,
+        and they are listed in the log); this waits them out.</td></tr>
+<tr><td><code>-p NAME</code></td>
+    <td>Choose a plugin or class when the path holds several of that kind.</td></tr>
+<tr><td><code>--json</code>, <code>-q</code>, <code>--timeout SECONDS</code></td>
+    <td>Machine-readable output, a silent log, and a limit on how long a run
+        may take.</td></tr>
+</table>
+
+<p>
+It exits 0 when the plugin succeeded, 1 when it failed (with the message the
+user would see; an unexpected exception also prints its traceback) and 2 when
+it could not be loaded.
+</p>
+
+<h4>Unit tests</h4>
+
+<p>
+For tests that must not touch the network, give the same machinery canned
+responses. Import <code>fatrat_devkit</code> <em>before</em>
+<code>fatrat</code> &mdash; the plugin base classes are chosen when
+<code>fatrat</code> is first imported &mdash; then drive your plugin class with a
+<code>Host</code>:
+</p>
+
+<pre>
+from fatrat_devkit import Host, MockTransport      # first
+from example import Example                        # then your plugin
+
+def test_resolves_the_link():
+    host = Host(transport=MockTransport({
+        "https://example.com/f/abc": '&lt;input name="token" value="T"&gt;',
+        ("POST", "https://example.com/f/abc"): '{"link": "https://cdn.example.com/abc.bin"}',
+    }), settings={"example/user": "me"})
+
+    result = host.run_download(Example, "https://example.com/f/abc")
+
+    assert result.ok, result.error
+    assert result.download.url == "https://cdn.example.com/abc.bin"
+    assert result.requests[1].form["token"] == "T"
+</pre>
+
+<p>
+A canned response is a body, a dict with <code>status</code>,
+<code>body</code> and <code>headers</code>, a callable that receives the
+<code>Request</code>, an exception to raise, or a list of those answered in
+turn. An HTTP status of 400 or more fails the fetch with
+<code>NetworkError</code>, as it does in FatRat. The returned
+<code>Result</code> carries <code>ok</code>, <code>error</code>,
+<code>download</code>, <code>file_name</code>, <code>vars</code>,
+<code>waits</code>, <code>requests</code> and <code>log</code>; the other plugin
+kinds have <code>run_extract</code>, <code>run_search</code>,
+<code>run_account_status</code> and <code>run_upload</code>. Without
+<code>pytest</code> it works the same under <code>python3 -m unittest</code>.
+</p>
+
+<p>
+The devkit is an approximation, not FatRat: pages are fetched with Python's
+<code>urllib</code> rather than FatRat's network stack (so proxy settings, the
+exact user agent and redirect handling can differ), FatRat's captcha dialogs are
+replaced by the terminal, and <code>url_pattern</code> is matched with Python's
+<code>re</code> where FatRat uses Qt's regular expressions. Before you publish,
+install the plugin into FatRat once and try it for real.
+</p>
+
 <h3>Dependencies</h3>
 
 <p>
