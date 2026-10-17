@@ -1,0 +1,33 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: FatRat
+Source: https://github.com/LubosD/fatrat
+
+Files: *
+Copyright: 2006-2026 Lubos Dolezel <lubos@dolezel.info>
+License: GPL-3 with OpenSSL exception
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ version 3 as published by the Free Software Foundation.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ In addition, as a special exemption, Lubos Dolezel gives permission
+ to link the code of FatRat with the OpenSSL project's "OpenSSL"
+ library (or with modified versions of it that use the same license
+ as the "OpenSSL" library), and distribute the linked executables.
+ You must obey the GNU General Public License in all respects for all
+ of the code used other than "OpenSSL".
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License version 3 can be found in "/usr/share/common-licenses/GPL-3".
+
+Files: data/remote/*
+Copyright: 2026 Lubos Dolezel <lubos@dolezel.info>
+           Google LLC (Angular), PrimeTek (PrimeNG) and other npm package authors
+License: GPL-3 with OpenSSL exception and MIT
+ The web interface is built from webui/ and bundles Angular, PrimeNG
+ and other npm packages, which are licensed under the MIT license
+ (see webui/package-lock.json for the full list).

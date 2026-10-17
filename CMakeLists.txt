@@ -16,6 +16,7 @@ option(WITH_DBUS "Enable the D-Bus interface and the single-instance check" ON)
 option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
 option(WITH_TUI "Build fatrat-tui, an ncurses terminal client for FatRat" OFF)
 option(WITH_PYPLUGINS "Build the Python extension system (requires Python 3.11+ and pybind11)" OFF)
+option(WEBUI_PREBUILT "Install the web UI already built in data/remote/ instead of building it with npm" OFF)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
 find_package(OpenSSL REQUIRED)
@@ -513,6 +514,14 @@ if(WITH_WEBINTERFACE)
 		src/remote/CertGenDlg.ui
 	)
 
+	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
+endif(WITH_WEBINTERFACE)
+
+if(WITH_WEBINTERFACE AND WEBUI_PREBUILT)
+	if(NOT EXISTS ${WEBUI_TARGET_DIR}/index.html)
+		message(FATAL_ERROR "WEBUI_PREBUILT is ON but there is no web UI in ${WEBUI_TARGET_DIR}")
+	endif()
+elseif(WITH_WEBINTERFACE)
 	# The web interface's frontend is the Angular app in webui/ (requires Node.js/npm)
 	find_program(NPM_EXECUTABLE npm)
 	if(NOT NPM_EXECUTABLE)
@@ -521,7 +530,6 @@ if(WITH_WEBINTERFACE)
 
 	set(WEBUI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/webui)
 	set(WEBUI_DIST_DIR ${WEBUI_SRC_DIR}/dist/webui/browser)
-	set(WEBUI_TARGET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/remote)
 
 	# NOTE: replaces data/remote/ with the Angular build output (untracked, listed in .gitignore).
 	#
@@ -562,7 +570,7 @@ if(WITH_WEBINTERFACE)
 	)
 
 	add_custom_target(webui ALL DEPENDS ${WEBUI_BUILD_STAMP})
-endif(WITH_WEBINTERFACE)
+endif()
 
 if(WITH_DOCUMENTATION)
 	set(fatrat_GUI_SRCS
@@ -657,7 +665,7 @@ endif (POSIX_LINUX)
 
 target_link_libraries(fatrat ${DL_LDFLAGS} -lpthread ${QT_LIBRARIES}
 	${fatrat_QT_LIBS}
-	${gloox_LDFLAGS} ${curl_LDFLAGS} ${Boost_LIBRARIES}
+	${curl_LDFLAGS} ${Boost_LIBRARIES}
 	OpenSSL::SSL OpenSSL::Crypto ${XATTR_LIBRARIES})
 set_target_properties(fatrat PROPERTIES ENABLE_EXPORTS ON)
 if(WITH_BITTORRENT)

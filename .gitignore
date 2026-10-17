@@ -32,3 +32,8 @@ data/remote/
 # Python bytecode from plugins run in place
 __pycache__/
 *.pyc
+
+# .deb packaging output (packaging/deb/build.sh, publish.sh)
+/packaging/deb/out/
+/packaging/deb/repo/
+/packaging/deb/gh-pages/

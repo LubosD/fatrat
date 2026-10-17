@@ -1,0 +1,16 @@
+usr/bin/fatrat-conf
+usr/share/fatrat/LICENSE
+usr/share/fatrat/TRANSLATIONS
+usr/share/fatrat/README
+usr/share/fatrat/AUTHORS
+usr/share/fatrat/INSTALL
+usr/share/fatrat/data/defaults.conf
+usr/share/fatrat/data/mirrors.txt
+usr/share/fatrat/data/btlinks.txt
+usr/share/fatrat/data/bttrackers.txt
+usr/share/fatrat/data/remote
+usr/share/fatrat/data/genssl.cnf
+usr/share/fatrat/data/genssl.sh
+usr/share/fatrat/data/python
+usr/share/fatrat/lang
+usr/share/man/man1/fatrat.1

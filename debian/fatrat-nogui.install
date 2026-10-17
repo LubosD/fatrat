@@ -1,0 +1,3 @@
+debian/tmp-nogui/usr/bin/fatrat-nogui usr/bin
+debian/tmp-nogui/usr/bin/fatrat-tui usr/bin
+debian/tmp-nogui/usr/share/man/man1/fatrat-tui.1 usr/share/man/man1

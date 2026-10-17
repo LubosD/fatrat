@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+# Builds FatRat twice: with the Qt GUI (package fatrat) and without it (fatrat-nogui, plus fatrat-tui).
+# The web UI must already be built into data/remote/ (packaging/deb/build.sh does that), since it
+# needs npm and network access.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export QT_SELECT = qt6
+
+COMMON_FLAGS = -DWITH_CURL=ON -DWITH_BITTORRENT=ON -DWITH_NLS=ON -DWITH_WEBINTERFACE=ON \
+	-DWEBUI_PREBUILT=ON -DWITH_PYPLUGINS=ON
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure --builddirectory=build-gui -- $(COMMON_FLAGS) \
+		-DWITH_GUI=ON -DWITH_DBUS=ON -DWITH_DOCUMENTATION=ON -DWITH_TUI=OFF
+	dh_auto_configure --builddirectory=build-nogui -- $(COMMON_FLAGS) \
+		-DWITH_GUI=OFF -DWITH_DBUS=OFF -DWITH_DOCUMENTATION=OFF -DWITH_TUI=ON
+
+override_dh_auto_build:
+	dh_auto_build --builddirectory=build-gui
+	dh_auto_build --builddirectory=build-nogui
+
+override_dh_auto_test:
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory=build-gui --destdir=debian/tmp
+	dh_auto_install --builddirectory=build-nogui --destdir=debian/tmp-nogui
+
+override_dh_auto_clean:
+	rm -rf build-gui build-nogui debian/tmp-nogui

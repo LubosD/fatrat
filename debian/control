@@ -1,0 +1,61 @@
+Source: fatrat
+Section: net
+Priority: optional
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Build-Depends: debhelper-compat (= 13),
+               cmake,
+               pkgconf,
+               qt6-base-dev (>= 6.5),
+               qt6-svg-dev,
+               qt6-tools-dev,
+               qt6-tools-dev-tools,
+               qt6-l10n-tools,
+               qt6-documentation-tools,
+               libcurl4-openssl-dev,
+               libssl-dev,
+               libtorrent-rasterbar-dev (>= 2.0),
+               libboost-dev,
+               libboost-date-time-dev,
+               python3-dev (>= 3.11),
+               pybind11-dev,
+               libncurses-dev,
+               libattr1-dev
+Standards-Version: 4.7.0
+Homepage: https://github.com/LubosD/fatrat
+Vcs-Git: https://github.com/LubosD/fatrat.git
+Vcs-Browser: https://github.com/LubosD/fatrat
+Rules-Requires-Root: no
+
+Package: fatrat-common
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: python3-pip, git
+Description: download manager - common files
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains the files shared by the desktop (fatrat) and
+ the headless (fatrat-nogui) versions: the web interface, Python
+ extension support files, translations and the fatrat-conf tool.
+
+Package: fatrat
+Architecture: any
+Depends: fatrat-common (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Recommends: qt6-svg-plugins
+Description: download manager - Qt desktop version
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains the Qt desktop application.
+
+Package: fatrat-nogui
+Architecture: any
+Depends: fatrat-common (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: download manager - headless version and terminal UI
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains fatrat-nogui, a version without a graphical
+ user interface that is controlled through the web interface, and
+ fatrat-tui, a terminal (ncurses) client which can start fatrat-nogui
+ or connect to a running FatRat.
