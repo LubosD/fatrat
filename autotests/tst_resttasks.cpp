@@ -68,6 +68,11 @@ private slots:
 	void expiredPromptIs410();
 	void dismissingAPrompt();
 	void deleteCancelsThenDismisses();
+	void dismissingAnExpiredPromptIs410();
+	void deletingAnUnknownTaskIs404();
+	void throwingAfterCreatingATaskFailsIt();
+	void answeringACancelledTaskIs409();
+	void malformedAnswerBodyIs400();
 private:
 	RestResponse call(const QString& method, const QString& path, const QByteArray& body = QByteArray());
 	QJsonObject object(const RestResponse& r) { return QJsonDocument::fromJson(r.body).object(); }
@@ -93,6 +98,10 @@ void tst_resttasks::initTestCase()
 	reg("t.instant", true, [](Transfer*, TaskHost&) {});
 	reg("t.never", false, [](Transfer*, TaskHost&) {});
 	reg("t.throw", true, [](Transfer*, TaskHost&) { throw std::runtime_error("broken"); });
+	reg("t.taskthrow", true, [](Transfer*, TaskHost& host) {
+		host.createTask("Doomed");
+		throw std::runtime_error("kaput");
+	});
 }
 
 RestResponse tst_resttasks::call(const QString& method, const QString& path, const QByteArray& body)
@@ -129,7 +138,7 @@ void tst_resttasks::listsApplicableActions()
 	for (const QJsonValue& v : list)
 		ids << v.toObject().value("id").toString();
 
-	QCOMPARE(ids, QStringList({ "t.ask", "t.short", "t.long", "t.instant", "t.throw" }));
+	QCOMPARE(ids, QStringList({ "t.ask", "t.short", "t.long", "t.instant", "t.throw", "t.taskthrow" }));
 	QCOMPARE(list[0].toObject().value("label").toString(), QString("t.ask label"));
 	QCOMPARE(list[0].toObject().value("icon").toString(), QString("system-run"));
 }
@@ -257,6 +266,66 @@ void tst_resttasks::deleteCancelsThenDismisses()
 
 	QCOMPARE(call("DELETE", "/tasks/" + id).status, 204);
 	QCOMPARE(call("GET", "/tasks/" + id).status, 404);
+}
+
+void tst_resttasks::dismissingAnExpiredPromptIs410()
+{
+	QString id = start("t.short");
+	QString pid = object(call("GET", "/tasks/" + id)).value("prompt").toObject().value("id").toString();
+
+	QTRY_COMPARE_WITH_TIMEOUT(object(call("GET", "/tasks/" + id)).value("state").toString(), QString("failed"), 3000);
+
+	RestResponse r = call("DELETE", "/tasks/" + id + "/prompts/" + pid);
+	QCOMPARE(r.status, 410);
+	QCOMPARE(errorCode(r), QString("expired"));
+}
+
+void tst_resttasks::deletingAnUnknownTaskIs404()
+{
+	RestResponse r = call("DELETE", "/tasks/unknown");
+	QCOMPARE(r.status, 404);
+	QCOMPARE(errorCode(r), QString("task_not_found"));
+}
+
+void tst_resttasks::throwingAfterCreatingATaskFailsIt()
+{
+	RestResponse r = call("POST", "/transfers/T1/actions/t.taskthrow");
+	QCOMPARE(r.status, 500);
+	QCOMPARE(errorCode(r), QString("plugin_error"));
+
+	bool found = false;
+	for (const QJsonValue& v : QJsonDocument::fromJson(call("GET", "/tasks").body).array())
+	{
+		QJsonObject t = v.toObject();
+		if (t.value("title").toString() != "Doomed")
+			continue;
+		found = true;
+		QCOMPARE(t.value("state").toString(), QString("failed"));
+		QCOMPARE(t.value("message").toString(), QString("kaput"));
+	}
+	QVERIFY(found);
+}
+
+void tst_resttasks::answeringACancelledTaskIs409()
+{
+	QString id = start("t.ask");
+	QString pid = object(call("GET", "/tasks/" + id)).value("prompt").toObject().value("id").toString();
+
+	QCOMPARE(call("DELETE", "/tasks/" + id).status, 202);
+
+	RestResponse r = call("POST", "/tasks/" + id + "/prompts/" + pid, R"({ "values": { "name": "Ann" } })");
+	QCOMPARE(r.status, 409);
+	QCOMPARE(errorCode(r), QString("already_answered"));
+}
+
+void tst_resttasks::malformedAnswerBodyIs400()
+{
+	QString id = start("t.ask");
+	QString pid = object(call("GET", "/tasks/" + id)).value("prompt").toObject().value("id").toString();
+
+	RestResponse r = call("POST", "/tasks/" + id + "/prompts/" + pid, "{ not json");
+	QCOMPARE(r.status, 400);
+	QCOMPARE(errorCode(r), QString("invalid_json"));
 }
 
 QTEST_GUILESS_MAIN(tst_resttasks)

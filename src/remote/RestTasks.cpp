@@ -70,7 +70,7 @@ static void checkPromptResult(Task::AnswerResult result, const QString& error)
 	case Task::Invalid:
 		throw RestError(400, "invalid_answer", error);
 	case Task::AlreadyAnswered:
-		throw RestError(409, "already_answered", "The question has already been answered");
+		throw RestError(409, "already_answered", "The question is no longer open");
 	case Task::Expired:
 		throw RestError(410, "expired", "The question has expired");
 	case Task::UnknownPrompt:
