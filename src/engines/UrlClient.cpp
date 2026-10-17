@@ -361,13 +361,13 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	
 	if(m_rangeTo == -1)
 	{
-		double len;
+		curl_off_t len = -1;
 		//long code;
 
 		//curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &code);
 		//if (code/100 == 2)
 		{
-			curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
+			curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &len);
 			if(len > 0)
 			{
 				m_rangeTo = m_rangeFrom + len;

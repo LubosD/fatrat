@@ -255,9 +255,9 @@ qulonglong CurlUpload::done() const
 		return m_nDone;
 	else
 	{
-		double totalBytes, doneBytes;
-		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &totalBytes);
-		curl_easy_getinfo(m_curl, CURLINFO_SIZE_UPLOAD, &doneBytes);
+		curl_off_t totalBytes = 0, doneBytes = 0;
+		curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_UPLOAD_T, &totalBytes);
+		curl_easy_getinfo(m_curl, CURLINFO_SIZE_UPLOAD_T, &doneBytes);
 		
 		//qDebug() << "CURLINFO_CONTENT_LENGTH_UPLOAD" << totalBytes;
 		//qDebug() << "CURLINFO_SIZE_UPLOAD" << doneBytes;
