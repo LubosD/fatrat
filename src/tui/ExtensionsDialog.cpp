@@ -19,6 +19,15 @@ ExtensionsDialog::~ExtensionsDialog()
 
 // ------------------------------------------------------------------ loading
 
+// A server built without the Python extension system has no /plugins routes at
+// all, which is not an error worth showing as "No such resource".
+static QString describeFailure(App& app, const ApiResult& r)
+{
+	if (r.status == 404 && r.errorCode == "unknown_route")
+		return app.tr("This FatRat server was built without the Python extension system (WITH_PYPLUGINS).");
+	return r.describe();
+}
+
 void ExtensionsDialog::reload()
 {
 	std::weak_ptr<bool> alive = m_alive;
@@ -30,7 +39,7 @@ void ExtensionsDialog::reload()
 		if (alive.expired())
 			return;
 		if (!r.ok())
-			return fail(r.describe());
+			return fail(describeFailure(m_app, r));
 
 		m_installed.clear();
 		for (const QJsonValue& v : r.json.toArray())
@@ -57,7 +66,7 @@ void ExtensionsDialog::reload()
 		if (alive.expired())
 			return;
 		if (!r.ok())
-			return fail(r.describe());
+			return fail(describeFailure(m_app, r));
 
 		m_available.clear();
 		for (const QJsonValue& v : r.json.toArray())
@@ -90,7 +99,7 @@ void ExtensionsDialog::reload()
 		if (alive.expired())
 			return;
 		if (!r.ok())
-			return fail(r.describe());
+			return fail(describeFailure(m_app, r));
 
 		m_repositories.clear();
 		for (const QJsonValue& v : r.json.toArray())
