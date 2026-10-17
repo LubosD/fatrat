@@ -231,6 +231,13 @@ std::optional<QJsonObject> Task::askBlocking(const QJsonObject& form, int timeou
 	}
 
 	QMetaObject::invokeMethod(this, [this, form, timeoutMs, wait] {
+		{
+			// Cancel or finish woke the asker directly while this call was queued;
+			// asking now would only log a bogus "asked after its task ended".
+			QMutexLocker l(&wait->mutex);
+			if (wait->done)
+				return;
+		}
 		ask(form, timeoutMs, [this, wait](std::optional<QJsonObject> result) {
 			{
 				QMutexLocker l(&m_mutex);

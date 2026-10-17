@@ -8,6 +8,7 @@
 #include <atomic>
 #include <stdexcept>
 
+#include "Logger.h"
 #include "plugins/Task.h"
 #include "plugins/TaskManager.h"
 
@@ -400,13 +401,16 @@ void tst_taskmanager::cancelWakesAnAskerWhoseQuestionNeverRan()
 		QThread::msleep(5);
 	QThread::msleep(100);
 
+	QString logBefore = Logger::global()->logContents();
+
 	task->requestCancel(); // no events processed since the worker started
 	QVERIFY(worker->wait(2000));
 	delete worker;
 	QVERIFY(!got.has_value());
 
-	// The late queued ask() must not open a prompt on a cancelled task.
+	// The late queued ask() must not open a prompt on a cancelled task, nor log a plugin bug.
 	QCoreApplication::processEvents();
+	QCOMPARE(Logger::global()->logContents(), logBefore);
 	QVERIFY(!task->prompt().has_value());
 }
 

@@ -498,6 +498,8 @@ if(WITH_WEBINTERFACE)
 		src/remote/RssJson.cpp
 		src/remote/RestScheduler.cpp
 		src/remote/SchedulerJson.cpp
+		src/remote/RestTasks.cpp
+		src/remote/TasksJson.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_GUI_SRCS

@@ -108,6 +108,16 @@ add_dependencies(tst_pluginloader testaction testaction_needsgui testaction_wron
 	testaction_noinit testaction_norequires testaction_throws)
 add_test(NAME pluginloader COMMAND tst_pluginloader)
 
+if(WITH_WEBINTERFACE)
+	add_executable(tst_resttasks tst_resttasks.cpp ${plugin_core_SRCS}
+		${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/RestTasks.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/TasksJson.cpp)
+	target_include_directories(tst_resttasks PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
+	target_link_libraries(tst_resttasks Qt6::Core Qt6::Test)
+	add_test(NAME resttasks COMMAND tst_resttasks)
+endif(WITH_WEBINTERFACE)
+
 if(WITH_TUI)
 	foreach(t format httpclient store keymap render connection settings extensions)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)
