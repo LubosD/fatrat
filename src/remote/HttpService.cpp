@@ -215,7 +215,7 @@ void HttpService::applySettings()
 				QString pemFile = getSettingsValue("remote/ssl_pem").toString();
 				bool useSSL = getSettingsValue("remote/ssl").toBool();
 
-				if (port != m_port || m_strSSLPem != pemFile || m_bUseSSL != useSSL)
+				if (port != m_port || m_bUseSSL != useSSL || (useSSL && m_strSSLPem != pemFile))
 				{
 					Logger::global()->enterLogMessage("HttpService",
 						tr("Restarting the service due to a port or SSL config change"));
@@ -262,18 +262,17 @@ void HttpService::setup()
 	if (m_bUseSSL)
 	{
 		QString file = getSettingsValue("remote/ssl_pem").toString();
+		m_strSSLPem = file; // the configured value, so applySettings() can detect real changes
 		if (file.isEmpty() || !QFile::exists(file))
 		{
 			Logger::global()->enterLogMessage("HttpService",
 				tr("SSL key file not found, disabling HTTPS"));
 			m_server = std::make_unique<httplib::Server>();
-			m_strSSLPem.clear();
 		}
 		else
 		{
 			Logger::global()->enterLogMessage("HttpService",
 				tr("Loading a SSL key from %1").arg(file));
-			m_strSSLPem = file;
 			auto s = std::make_unique<httplib::SSLServer>(
 				file.toStdString().c_str(),
 				file.toStdString().c_str()
