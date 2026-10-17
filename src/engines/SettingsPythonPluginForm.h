@@ -82,7 +82,12 @@ private:
 	QWidget* buildPage(const QJsonArray& items);
 
 	// One per plugin settings page, in the order of stackedWidget.
-	std::vector<std::unique_ptr<FormWidgets>> m_pages;
+	struct Page
+	{
+		QJsonArray items; // what the form was built from, for saving
+		std::unique_ptr<FormWidgets> form;
+	};
+	std::vector<Page> m_pages;
 };
 
 #endif // SETTINGSPYTHONPLUGINFORM_H

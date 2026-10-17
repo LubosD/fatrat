@@ -26,22 +26,15 @@ respects for all of the code used other than "OpenSSL".
 
 #include "SettingsPythonPluginForm.h"
 
-#include <QCheckBox>
-#include <QComboBox>
 #include <QDir>
 #include <QFileDialog>
-#include <QGridLayout>
-#include <QGroupBox>
 #include <QHeaderView>
-#include <QJsonValue>
 #include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
 #include <QApplication>
 #include <QMessageBox>
-#include <QtDebug>
 
 #include "FormWidgets.h"
+#include "PluginSettingsValues.h"
 #include "Settings.h"
 #include "fatrat.h"
 #include "python/PluginRegistry.h"
@@ -344,58 +337,34 @@ void SettingsPythonPluginForm::buildSettingsPages()
 }
 
 /* A plugin's settings page from the `config` array of its plugin.json, with
- * the values from the settings. FormWidgets knows the widgets; this knows
- * where the values live -- an `order` list as a settings array. */
-QWidget* SettingsPythonPluginForm::buildPage(const QJsonArray& items)
+ * the values from the settings. FormWidgets knows the widgets and
+ * PluginSettingsValues the mapping; this knows where the values live. */
+QWidget* SettingsPythonPluginForm::buildPage(const QJsonArray& config)
 {
 	QWidget* page = new QWidget(stackedWidget);
-	QJsonObject values;
+	Page entry;
 
-	for (const QPair<QString, QString>& key : FormWidgets::keys(items))
-	{
-		if (key.second == "order")
-		{
-			QJsonArray order;
+	entry.items = PluginSettingsValues::settingsItems(config);
 
-			for (const QMap<QString, QVariant>& entry : getSettingsArray(key.first))
-				order << entry.value(QLatin1String("item")).toString();
-			values[key.first] = order;
-		}
-		else if (key.second == "checkbox" || key.second == "group")
-			values[key.first] = getSettingsValue(key.first, false).toBool();
-		else
-			values[key.first] = getSettingsValue(key.first).toString();
-	}
+	QJsonObject values = PluginSettingsValues::load(entry.items,
+		[](const QString& key, const QVariant& def) { return getSettingsValue(key, def); },
+		[](const QString& key) { return getSettingsArray(key); });
 
-	m_pages.emplace_back(new FormWidgets(items, values, page));
+	entry.form.reset(new FormWidgets(entry.items, values, page));
+	m_pages.push_back(std::move(entry));
 	return page;
 }
 
 void SettingsPythonPluginForm::accepted()
 {
-	for (const std::unique_ptr<FormWidgets>& page : m_pages)
+	for (const Page& page : m_pages)
 	{
-		QJsonObject values = page->values();
-
-		for (QJsonObject::const_iterator it = values.constBegin(); it != values.constEnd(); it++)
-		{
-			// Settings pages have no checklists, so an array is an `order` list.
-			if (it.value().isArray())
-			{
-				QList<QMap<QString, QVariant> > entries;
-
-				for (const QJsonValue& v : it.value().toArray())
-				{
-					QMap<QString, QVariant> entry;
-
-					entry[QLatin1String("item")] = v.toString();
-					entries << entry;
-				}
-				setSettingsArray(it.key(), entries);
-			}
-			else
-				setSettingsValue(it.key(), it.value().toVariant());
-		}
+		PluginSettingsValues::save(page.items, page.form->values(),
+			[](const QString& key, const QVariant& value) { setSettingsValue(key, value); },
+			[](const QString& key, const QList<QMap<QString, QVariant> >& value) {
+				QList<QMap<QString, QVariant> > copy = value;
+				setSettingsArray(key, copy);
+			});
 	}
 
 	// Takes effect now. A plugin that is switched off while transfers use

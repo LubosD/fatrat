@@ -64,6 +64,7 @@ private:
 	};
 
 	void addItems(const QJsonArray& items, QWidget* parent);
+	void bind(const QString& key, const QString& type, QWidget* widget);
 	QJsonValue initial(const QJsonObject& item) const;
 
 	QJsonObject m_values;

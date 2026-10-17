@@ -407,6 +407,7 @@ if(WITH_PYPLUGINS)
 		src/python/PluginRegistry.cpp
 		src/python/PluginServices.cpp
 		src/python/PluginLease.cpp
+		src/engines/PluginSettingsValues.cpp
 		src/engines/PythonPersistentVariables.cpp
 		src/engines/PythonDownload.cpp
 		src/engines/PythonExtractor.cpp

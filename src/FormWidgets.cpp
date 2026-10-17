@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "FormWidgets.h"
 
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QGridLayout>
@@ -79,6 +80,16 @@ QJsonValue FormWidgets::initial(const QJsonObject& item) const
 	return QString();
 }
 
+// Only a keyed field has a value to read back. The key is the object name, so
+// that tests can find the widget.
+void FormWidgets::bind(const QString& key, const QString& type, QWidget* widget)
+{
+	if (key.isEmpty())
+		return;
+	widget->setObjectName(key);
+	m_bound << Bound{key, type, widget};
+}
+
 void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 {
 	QGridLayout* layout = new QGridLayout(parent);
@@ -101,7 +112,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 
 			layout->addWidget(new QLabel(title, parent), row, 0);
 			layout->addWidget(edit, row, 1);
-			m_bound << Bound{key, type, edit};
+			bind(key, type, edit);
 		}
 		else if (type == "directory")
 		{
@@ -117,14 +128,14 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 
 			QObject::connect(browse, &QToolButton::clicked, edit, [edit] {
 				QString dir = QFileDialog::getExistingDirectory(edit->window(),
-					QObject::tr("Choose a directory"), edit->text());
+					QCoreApplication::translate("FormWidgets", "Choose a directory"), edit->text());
 				if (!dir.isEmpty())
 					edit->setText(dir);
 			});
 
 			layout->addWidget(new QLabel(title, parent), row, 0);
 			layout->addWidget(box, row, 1);
-			m_bound << Bound{key, type, edit};
+			bind(key, type, edit);
 		}
 		else if (type == "checkbox")
 		{
@@ -132,7 +143,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 
 			box->setChecked(value.toBool());
 			layout->addWidget(box, row, 0, 1, 2);
-			m_bound << Bound{key, type, box};
+			bind(key, type, box);
 		}
 		else if (type == "combo")
 		{
@@ -150,7 +161,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 
 			layout->addWidget(new QLabel(title, parent), row, 0);
 			layout->addWidget(combo, row, 1);
-			m_bound << Bound{key, type, combo};
+			bind(key, type, combo);
 		}
 		else if (type == "label")
 		{
@@ -199,7 +210,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 			if (!title.isEmpty())
 				layout->addWidget(new QLabel(title, parent), row++, 0, 1, 2);
 			layout->addWidget(tree, row, 0, 1, 2);
-			m_bound << Bound{key, type, tree};
+			bind(key, type, tree);
 		}
 		else if (type == "order")
 		{
@@ -238,7 +249,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 			if (!title.isEmpty())
 				layout->addWidget(new QLabel(title, parent), row++, 0, 1, 2);
 			layout->addWidget(list, row, 0, 1, 2);
-			m_bound << Bound{key, type, list};
+			bind(key, type, list);
 		}
 		else if (type == "group")
 		{
@@ -250,7 +261,7 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 			{
 				box->setCheckable(true);
 				box->setChecked(value.toBool());
-				m_bound << Bound{key, type, box};
+				bind(key, type, box);
 			}
 
 			addItems(item.value("items").toArray(), box);
@@ -263,9 +274,6 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 
 	if (!qobject_cast<QGroupBox*>(parent))
 		layout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding), row, 0, 1, 2);
-
-	for (const Bound& b : m_bound)
-		b.widget->setObjectName(b.key);
 }
 
 QJsonObject FormWidgets::values() const

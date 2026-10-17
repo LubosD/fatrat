@@ -142,6 +142,12 @@ if(WITH_PYPLUGINS)
 	target_link_libraries(tst_pluginmanifest Qt6::Core Qt6::Test)
 	add_test(NAME pluginmanifest COMMAND tst_pluginmanifest)
 
+	add_executable(tst_pluginsettingsvalues tst_pluginsettingsvalues.cpp
+		${CMAKE_SOURCE_DIR}/src/engines/PluginSettingsValues.cpp)
+	target_include_directories(tst_pluginsettingsvalues PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_pluginsettingsvalues Qt6::Core Qt6::Test)
+	add_test(NAME pluginsettingsvalues COMMAND tst_pluginsettingsvalues)
+
 	add_executable(tst_restplugins tst_restplugins.cpp
 		${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
 		${CMAKE_SOURCE_DIR}/src/remote/RestPlugins.cpp
