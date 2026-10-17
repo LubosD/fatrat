@@ -182,6 +182,54 @@ Other options: `--no-mouse`, `--ascii` (plain ASCII drawing), `--socket PATH`, `
 
 **Mouse**: click to select, double-click to open details, right-click for a context menu, Ctrl-click to mark, Shift-click to mark a range, wheel to scroll, and drag a transfer to another row to reorder it or onto a queue to send it there. Every key hint in the bottom bar is clickable. Hold Shift to select text with the terminal's own selection.
 
+### Extensions
+
+Some sites cannot be downloaded from with a plain HTTP request: the link is a web page, with a
+login, a countdown or a captcha in front of the file. Extensions are small Python plugins that do
+that scraping and hand FatRat the real URL, which then downloads it like any other transfer, with
+the same segmenting, speed limits and resume. There are also plugins that turn one link into many
+(a folder page), upload files, search a site, or report what is left of a premium account.
+
+**There is no central plugin index.** You add the repositories you want — a git URL, or a
+directory — and install individual plugins from them. FatRat records the exact commit it installed,
+so an update is something you ask for rather than something that happens to you.
+
+From the desktop: **Settings → Extensions**. In the terminal UI: **F4**. In the web interface:
+**Settings → Extensions**. Or without any of them:
+
+```sh
+fatrat-conf plugins add https://example.com/someone/fatrat-plugins.git
+fatrat-conf plugins repos        # the ids FatRat gave them
+fatrat-conf plugins available    # name, version, repository, installed version
+fatrat-conf plugins install fatrat-plugins myplugin
+fatrat-conf plugins list         # also: updates, refresh, uninstall, remove-repo
+```
+
+An installed plugin runs with your full privileges, the same as anything else you install from a
+git repository, so FatRat shows the source and asks before adding a repository. If a plugin needs
+packages from PyPI, those are named and confirmed separately, then installed with pip for that
+plugin alone. A plugin can be switched off without removing it, and `fatrat --no-python` disables
+the lot.
+
+Plugins live in `~/.local/share/fatrat/plugins/`. Writing one needs nothing but a text editor:
+
+```python
+import fatrat
+
+@fatrat.download_plugin(name="Example.com", url_pattern=r"https?://example\.com/f/\w+")
+class Example(fatrat.DownloadPlugin):
+    async def process_link(self, url):
+        page = await self.fetch(url)
+        await self.wait(30)
+        self.start_download(page.search(r'href="([^"]+\.bin)"'))
+```
+
+[examples/plugin-repo/](examples/plugin-repo/) is a complete repository with worked examples of
+every plugin type, and `doc/plugins.html` documents the API. A local directory used as a repository
+is also the development loop: edit the plugin, restart FatRat.
+
+Requires a build with `WITH_PYPLUGINS`.
+
 ### Docker
 
 The [Dockerfile](Dockerfile) builds a headless FatRat on Ubuntu 26.04 with HTTP(S)/FTP(S) (libcurl), BitTorrent, the web interface and the terminal UI. Ubuntu 24.04 does not work as the base, as it only has Qt 6.4 and FatRat needs 6.5.
