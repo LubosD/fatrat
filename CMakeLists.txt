@@ -177,6 +177,7 @@ set(fatrat_SRCS
 	src/rss/RssStore.cpp
 	src/util/BmpWriter.cpp
 	src/util/ExtendedAttributes.cpp
+	src/plugins/FormValidator.cpp
 )
 
 set(fatrat_GUI_SRCS

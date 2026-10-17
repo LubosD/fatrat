@@ -48,6 +48,11 @@ target_include_directories(tst_scheduleresources PRIVATE ${CMAKE_SOURCE_DIR}/src
 target_link_libraries(tst_scheduleresources Qt6::Core Qt6::Network Qt6::Test)
 add_test(NAME scheduleresources COMMAND tst_scheduleresources)
 
+add_executable(tst_formvalidator tst_formvalidator.cpp ${CMAKE_SOURCE_DIR}/src/plugins/FormValidator.cpp)
+target_include_directories(tst_formvalidator PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_formvalidator Qt6::Core Qt6::Test)
+add_test(NAME formvalidator COMMAND tst_formvalidator)
+
 if(WITH_TUI)
 	foreach(t format httpclient store keymap render connection settings extensions)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)
