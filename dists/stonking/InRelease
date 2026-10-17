@@ -1,0 +1,48 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Origin: FatRat
+Label: FatRat
+Codename: stonking
+Date: Sat, 17 Oct 2026 11:57:31 UTC
+Architectures: amd64 arm64
+Components: main
+Description: FatRat download manager for Ubuntu stonking
+MD5Sum:
+ ee288576bb165af26d727ef22866d9ee 3342 main/binary-amd64/Packages
+ 93921242ee3a34b5ed3e86bec25693bf 1171 main/binary-amd64/Packages.gz
+ 34de60dc0450fca88013cfb05540cb2c 122 main/binary-amd64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 main/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 main/binary-arm64/Packages.gz
+ 1cbf89fb0612b9c8b9ce5f8d744a22b2 122 main/binary-arm64/Release
+SHA1:
+ 0374022e29caed1b359c6e765dd1d4fa837950c1 3342 main/binary-amd64/Packages
+ dfbac0b53e9e107470f23b635f916ab3a3b31074 1171 main/binary-amd64/Packages.gz
+ 16ee8664ad5eef8858d3dd59549aee85e1c9dab0 122 main/binary-amd64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/binary-arm64/Packages.gz
+ 2c487ece61c88ca5403abac70b8b28cf897e5a57 122 main/binary-arm64/Release
+SHA256:
+ 5d78fa6c8cf2ad958ee815db8376b8f03a13dcfc3cb79efdce3493c4a9131c05 3342 main/binary-amd64/Packages
+ 99614403776879faabef1cf27d7f76828163f51d8f09dcf2274459fc14252520 1171 main/binary-amd64/Packages.gz
+ 1ae066c93c1668e6a2a5bee3c15a00c36a77884512e2ea1e5168cf9e8ad03274 122 main/binary-amd64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/binary-arm64/Packages.gz
+ 19bef9011f1c13c2983ff099f8fce6aa863fabd939fb5560c6e160de36ce9814 122 main/binary-arm64/Release
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCAA5FiEEjxYHlgPFskJuXfYCh2GddQlqfkEFAmrTYrEbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEIdhnXUJan5BJQMP+gJFrtRZYuii5WxyYpe8
+Xm/RpFWCGadP5u+OQ98oIQBmy6nncDjO1guMJW2SeoEZCroEleJmaFozE27BH264
+uDSSBcxx4Tn+JQ/pNOF51cGbK0kSawcW9QJSbFyQpaq27NAPZEOAT4Sl9jH+m8Np
+EpMeHUXz+rzQaCckOSvhmIFXvlym1IqmZPKj0lbPJYR1Pokz9DPTDvvycbgS/oQu
+ddf9DHVt4Sjh859TH9ENfIM2VEcnMLDQsZUvQhAbDdxvazYCUqqw7jgcj3yHo9Pj
+DnU0IiDvd3W9Qcanz2HGsljPi8QPAtc3pFo0ULwFiS/FdTEBrkXgTuaMFdeElU31
+jdueMAmEyh4WQJbfTpYSn+TC3zKmYBczbAjEZG643r/x10WTVBy/ArG3dLv2vrxv
+CRl49ECCCCUN6u4RsxqfwPs5Cjf1lbBLfxxWlYXPcVGExsXNKjc7vsb5BVEQhDQb
+Z4dPohq+2k4CvGLH7rqmWSoIgN2Gkhd4eT4BkvRORTDyrPpQVQxdWC1bxDHKn4Pa
+vbBT5qyevd8oiBn147JeGn3LhLGurNo7yooYAh6O/2IZe1/HyhEfg1UcBts0jDDb
+FrSVgy3mlkfZ6vwBwgx3on7KlXPPi8GhiWnS/GXQfUdlQWTXX29DOQgo73Xs6UTW
+eWNf7t4pdhwV6SA6rMqFLbdG
+=Fi5G
+-----END PGP SIGNATURE-----

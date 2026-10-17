@@ -1,0 +1,5 @@
+Component: main
+Origin: FatRat
+Label: FatRat
+Architecture: arm64
+Description: FatRat download manager for Ubuntu resolute

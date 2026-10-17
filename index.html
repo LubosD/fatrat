@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FatRat apt repository</title>
+<style>
+	:root { --bg: #fff; --fg: #1d1d1f; --muted: #5f6368; --code-bg: #f3f4f6; --link: #0b57d0; }
+	@media (prefers-color-scheme: dark) {
+		:root { --bg: #16171a; --fg: #e8e8ea; --muted: #a0a3a8; --code-bg: #24262b; --link: #8ab4f8; }
+	}
+	body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, sans-serif; }
+	main { max-width: 46rem; margin: 0 auto; padding: 2rem 16px 4rem; }
+	h1 { font-size: 1.8rem; margin-bottom: .2rem; }
+	p.lead { color: var(--muted); margin-top: 0; }
+	pre { background: var(--code-bg); padding: .9rem 1rem; border-radius: 6px; overflow-x: auto; font-size: .9rem; }
+	a { color: var(--link); }
+	td, th { padding: .25rem .8rem .25rem 0; text-align: left; vertical-align: top; }
+</style>
+</head>
+<body>
+<main>
+<h1>FatRat apt repository</h1>
+<p class="lead">Ubuntu packages of the <a href="https://github.com/LubosD/fatrat">FatRat</a> download manager.</p>
+
+<h2>Supported releases</h2>
+<p>Ubuntu 26.10 (stonking) and 26.04 LTS (resolute), amd64.</p>
+
+<h2>Installation</h2>
+<pre>sudo install -d /etc/apt/keyrings
+sudo curl -fsSLo /etc/apt/keyrings/fatrat.gpg https://lubosd.github.io/fatrat/fatrat.gpg
+echo "deb [signed-by=/etc/apt/keyrings/fatrat.gpg] https://lubosd.github.io/fatrat $(. /etc/os-release; echo $VERSION_CODENAME) main" \
+    | sudo tee /etc/apt/sources.list.d/fatrat.list
+sudo apt update
+sudo apt install fatrat          # desktop version
+sudo apt install fatrat-nogui    # headless version + terminal UI</pre>
+
+<h2>Packages</h2>
+<table>
+	<tr><th>fatrat</th><td>Qt desktop application</td></tr>
+	<tr><th>fatrat-nogui</th><td><code>fatrat-nogui</code> (controlled through the web interface) and <code>fatrat-tui</code></td></tr>
+	<tr><th>fatrat-common</th><td>files shared by both (installed automatically)</td></tr>
+</table>
+</main>
+</body>
+</html>

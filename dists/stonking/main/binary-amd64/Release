@@ -1,0 +1,5 @@
+Component: main
+Origin: FatRat
+Label: FatRat
+Architecture: amd64
+Description: FatRat download manager for Ubuntu stonking

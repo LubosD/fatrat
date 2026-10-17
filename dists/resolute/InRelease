@@ -1,0 +1,48 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Origin: FatRat
+Label: FatRat
+Codename: resolute
+Date: Sat, 17 Oct 2026 11:57:31 UTC
+Architectures: amd64 arm64
+Components: main
+Description: FatRat download manager for Ubuntu resolute
+MD5Sum:
+ a36446c0e66308a111831b26315a5fa6 3347 main/binary-amd64/Packages
+ 7fd0a71379ce6a135a2127deabdaf1a6 1166 main/binary-amd64/Packages.gz
+ 0c8c7d6f6faa61a2242bb5590fc0fe36 122 main/binary-amd64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 main/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 main/binary-arm64/Packages.gz
+ c879d91e6b298457c8c851297c43036e 122 main/binary-arm64/Release
+SHA1:
+ 58e3dd4fc080ca21199d4f2f0b80b805d94f1337 3347 main/binary-amd64/Packages
+ db801a2c2f46bdad6838548e4359314b65d4a87a 1166 main/binary-amd64/Packages.gz
+ 4a1699fee38905af90982fa2063029ffe3c53f65 122 main/binary-amd64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/binary-arm64/Packages.gz
+ 7abeaa2681d931c7526f3941e2fb995909174fef 122 main/binary-arm64/Release
+SHA256:
+ 9dc10e2a3eec6acdf5c79dc710e3449041493d7efc37ab6dff08f07b945b89e8 3347 main/binary-amd64/Packages
+ ae507c733701ae26a15282ff2a214202c5bfeffcece8bd6f9f86052f4c8a78a0 1166 main/binary-amd64/Packages.gz
+ ba8ffe62f11d7c0406d54658645c40e58eaa757d2681d6e2f0c4982ccb2eb541 122 main/binary-amd64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/binary-arm64/Packages.gz
+ 2ff2ff8b3b783b967d47330a294907cb33f0a16dd333aa297b8d0c824f914d0e 122 main/binary-arm64/Release
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCAA5FiEEjxYHlgPFskJuXfYCh2GddQlqfkEFAmrTYqsbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEIdhnXUJan5BmjcP/199SJIPyPBOUNJD1VZt
+caJ/yp9YHmvDt+PepygjP5ZctDt+gjkVA3kCxQf8c7r04VBEe8lAPkL0MP5GfTNS
+uzwuG53iUD22scQKoayYTFu+0SOUaMT7UxlXwOwYU7j+D7GdgG8jedWbx2v07Dww
+PbptQKeP7DHN6XWwnCokEpNG58qv9rQInJTyrQ1LmiOkrQY6f07HuWB7IzwatPCj
+2KL7XDZmyuVCbrUxJG7FtF0oC1QrMcC+HLTZHuIES95nZ6w761oOApRoVaps3rz7
+AmUnBTfwSTfSedc4cxwbWxjIguG4JMrutF2D0HToiqOa9xLBa9fnnOnEWyYA2Ho9
+HIi5c7c5HnY5QE4vApnVNR0n9HQgx8PEku8kRgeVWSQsK7QUpyZfqf1JGb/yaYe9
+CshsOnb+/lUNAlW2TfJ2fi4+aKrYOlPcQk/IXP/hUBEDclpwMHdVvc+fqRZ7SkVP
+Ax01mom+tOElZJ19R/Y5vT9P3v5jeVS6bwORq83PL9GwmknTY9yeNTQNjYSJij4P
+zjOAOgMROBAgM0x2daZ6WSfEGSfC8tcVdRMAJ64E+zxoYWOpCZn85b0XaX4Ok2ml
+nno3+36g95ADPyWZCHmfkqCyG3qLOeLBghSvibv0tvki44JMXKRRxFNsSOHkjryt
+h+MPXdJZ+uNsaLpqo9xXMsvJ
+=p5wd
+-----END PGP SIGNATURE-----
