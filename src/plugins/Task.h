@@ -46,8 +46,14 @@ respects for all of the code used other than "OpenSSL".
  *
  * Tasks are created through TaskHost (TransferAction.h), owned by TaskManager
  * and live on the main thread. The setters, finish() and askBlocking() may be
- * called from any thread; ask() and the front ends' side only from the main
- * thread.
+ * called from any thread; ask() may too (it hops to the main thread), the front
+ * ends' side only from the main thread.
+ *
+ * The Task* stays valid until TaskManager drops it: its retention period after
+ * finish(), or at once when a front end dismisses a finished task. A plugin
+ * must not use it after finish(). changed() may be emitted on any thread, so
+ * connect to it with a main-thread context object, or use TaskManager's
+ * signals instead.
  */
 class Task : public QObject
 {
@@ -67,6 +73,8 @@ public:
 	// Every timeout given to ask()/askBlocking() is clamped to these.
 	static constexpr int MinTimeoutMs = 1000;
 	static constexpr int MaxTimeoutMs = 24 * 60 * 60 * 1000;
+
+	~Task() override;
 
 	QString id() const { return m_id; }
 	QString plugin() const { return m_plugin; }

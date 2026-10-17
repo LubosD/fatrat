@@ -50,6 +50,12 @@ Task::Task(const QString& plugin, const QString& title, const QString& transferU
 	connect(&m_expiry, &QTimer::timeout, this, [this] { closePrompt(ClosedExpired, std::nullopt); });
 }
 
+Task::~Task()
+{
+	// Wakes a thread still blocked in askBlocking().
+	closePrompt(ClosedDismissed, std::nullopt);
+}
+
 Task::State Task::state() const
 {
 	QMutexLocker l(&m_mutex);
@@ -141,7 +147,12 @@ void Task::finish(bool ok, const QString& message)
 
 void Task::ask(const QJsonObject& form, int timeoutMs, AnswerCallback callback)
 {
-	Q_ASSERT(onMainThread());
+	if (!onMainThread())
+	{
+		// The state below belongs to the main thread; hop over instead of racing.
+		QMetaObject::invokeMethod(this, [=] { ask(form, timeoutMs, callback); }, Qt::QueuedConnection);
+		return;
+	}
 
 	QString refusal = FormValidator::checkForm(form);
 	timeoutMs = qBound(MinTimeoutMs, timeoutMs, MaxTimeoutMs);
@@ -179,7 +190,12 @@ void Task::ask(const QJsonObject& form, int timeoutMs, AnswerCallback callback)
 
 std::optional<QJsonObject> Task::askBlocking(const QJsonObject& form, int timeoutMs)
 {
-	Q_ASSERT(!onMainThread());
+	if (onMainThread())
+	{
+		// Nobody could run the queued ask() while we wait: this would hang for good.
+		Logger::global()->enterLogMessage(m_plugin, tr("asked a blocking question on the main thread"));
+		return std::nullopt;
+	}
 
 	struct Wait
 	{
@@ -221,6 +237,9 @@ Task::AnswerResult Task::answer(const QString& promptId, const QJsonObject& valu
 	{
 		QMutexLocker l(&m_mutex);
 
+		// finish() closes the prompt through a queued call that may not have run yet.
+		if (m_state != Running)
+			return AlreadyAnswered;
 		if (!m_prompt || m_prompt->id != promptId)
 			return closedResult(promptId);
 
@@ -241,6 +260,8 @@ Task::AnswerResult Task::dismissPrompt(const QString& promptId)
 {
 	{
 		QMutexLocker l(&m_mutex);
+		if (m_state != Running)
+			return AlreadyAnswered;
 		if (!m_prompt || m_prompt->id != promptId)
 			return closedResult(promptId);
 	}
@@ -298,5 +319,14 @@ void Task::runCallback(const AnswerCallback& callback, std::optional<QJsonObject
 	{
 		if (!isFinished())
 			finish(false, QString::fromUtf8(e.what()));
+		else
+			Logger::global()->enterLogMessage(m_plugin, QString::fromUtf8(e.what()));
+	}
+	catch (...)
+	{
+		if (!isFinished())
+			finish(false, tr("unknown error"));
+		else
+			Logger::global()->enterLogMessage(m_plugin, tr("unknown error"));
 	}
 }

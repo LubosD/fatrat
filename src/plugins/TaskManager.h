@@ -56,6 +56,8 @@ public:
 	bool cancel(const QString& id);
 	// Drops a finished task now; false if there is no such finished task
 	bool dismiss(const QString& id);
+	// Also run when the application is about to quit
+	void cancelAll();
 
 	void setRetention(int ms) { m_retentionMs = ms; } // for the tests
 signals:
@@ -65,7 +67,7 @@ signals:
 	void promptOpened(Task* task);
 	void promptClosed(Task* task, const QString& promptId);
 private:
-	TaskManager() = default;
+	TaskManager();
 	void remove(Task* task);
 
 	QList<Task*> m_tasks;

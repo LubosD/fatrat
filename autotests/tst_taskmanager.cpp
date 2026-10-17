@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QSignalSpy>
 #include <QTest>
+#include <QScopeGuard>
 #include <QThread>
 #include <stdexcept>
 
@@ -26,6 +27,11 @@ private slots:
 	void callbackExceptionFailsTheTask();
 	void finishedTasksAreDroppedAfterRetention();
 	void managerForwardsSignals();
+	void askBlockingOnTheMainThreadReturnsAtOnce();
+	void askFromAWorkerThreadHopsToTheMainThread();
+	void cancelAllCancelsRunningTasks();
+	void finishWithOpenPromptClosesIt();
+	void answerThenDismissSecondIsAlreadyAnswered();
 };
 
 static QJsonObject nameForm()
@@ -163,6 +169,15 @@ void tst_taskmanager::askBlockingFromAWorkerThread()
 	std::optional<QJsonObject> got;
 
 	QThread* worker = QThread::create([&] { got = task->askBlocking(nameForm(), 60000); });
+	// A failing QTRY must not leave the worker pointing at dead stack variables.
+	auto cleanup = qScopeGuard([&] {
+		if (worker && worker->isRunning())
+		{
+			if (task->prompt().has_value())
+				task->dismissPrompt(task->prompt()->id);
+			worker->wait(5000);
+		}
+	});
 	worker->start();
 
 	QTRY_VERIFY(task->prompt().has_value());
@@ -170,6 +185,7 @@ void tst_taskmanager::askBlockingFromAWorkerThread()
 
 	QVERIFY(worker->wait(5000));
 	delete worker;
+	worker = nullptr;
 	QVERIFY(got.has_value());
 	QCOMPARE(got->value("name").toString(), QString("Cy"));
 }
@@ -248,6 +264,77 @@ void tst_taskmanager::managerForwardsSignals()
 	task->finish(false);
 	QVERIFY(manager->dismiss(task->id()));
 	QCOMPARE(manager->task(task->id()), nullptr);
+}
+
+void tst_taskmanager::askBlockingOnTheMainThreadReturnsAtOnce()
+{
+	Task* task = newTask();
+
+	QVERIFY(!task->askBlocking(nameForm(), 60000).has_value());
+	QVERIFY(!task->prompt().has_value());
+}
+
+void tst_taskmanager::askFromAWorkerThreadHopsToTheMainThread()
+{
+	Task* task = newTask();
+	std::optional<QJsonObject> got;
+	bool called = false;
+
+	QThread* worker = QThread::create([&] {
+		task->ask(nameForm(), 60000, [&](std::optional<QJsonObject> r) { got = r; called = true; });
+	});
+	worker->start();
+	QVERIFY(worker->wait(5000));
+	delete worker;
+
+	QTRY_VERIFY(task->prompt().has_value());
+	QCOMPARE(task->answer(task->prompt()->id, QJsonDocument::fromJson(R"({ "name": "Di" })").object()), Task::Answered);
+	QVERIFY(called);
+	QCOMPARE(got->value("name").toString(), QString("Di"));
+}
+
+void tst_taskmanager::cancelAllCancelsRunningTasks()
+{
+	Task* task = newTask();
+	bool called = false;
+	std::optional<QJsonObject> got = QJsonObject();
+
+	task->ask(nameForm(), 60000, [&](std::optional<QJsonObject> r) { called = true; got = r; });
+	TaskManager::instance()->cancelAll();
+
+	QVERIFY(task->cancelRequested());
+	QVERIFY(called);
+	QVERIFY(!got.has_value());
+}
+
+void tst_taskmanager::finishWithOpenPromptClosesIt()
+{
+	Task* task = newTask();
+	bool called = false;
+	std::optional<QJsonObject> got = QJsonObject();
+
+	task->ask(nameForm(), 60000, [&](std::optional<QJsonObject> r) { called = true; got = r; });
+	QString id = task->prompt()->id;
+	task->finish(true);
+
+	QCOMPARE(task->answer(id, QJsonDocument::fromJson(R"({ "name": "x" })").object()), Task::AlreadyAnswered);
+	QTRY_VERIFY(called);
+	QVERIFY(!got.has_value());
+}
+
+void tst_taskmanager::answerThenDismissSecondIsAlreadyAnswered()
+{
+	Task* task = newTask();
+
+	task->ask(nameForm(), 60000, [](std::optional<QJsonObject>) {});
+	QString id = task->prompt()->id;
+	QCOMPARE(task->answer(id, QJsonDocument::fromJson(R"({ "name": "x" })").object()), Task::Answered);
+	QCOMPARE(task->dismissPrompt(id), Task::AlreadyAnswered);
+
+	task->ask(nameForm(), 60000, [](std::optional<QJsonObject>) {});
+	id = task->prompt()->id;
+	QCOMPARE(task->dismissPrompt(id), Task::Answered);
+	QCOMPARE(task->answer(id, QJsonDocument::fromJson(R"({ "name": "x" })").object()), Task::AlreadyAnswered);
 }
 
 QTEST_GUILESS_MAIN(tst_taskmanager)

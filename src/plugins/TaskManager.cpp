@@ -27,10 +27,27 @@ respects for all of the code used other than "OpenSSL".
 #include "TaskManager.h"
 #include "Task.h"
 
+#include <QCoreApplication>
 #include <QPointer>
 #include <QThread>
 #include <QTimer>
 #include <memory>
+
+TaskManager::TaskManager()
+{
+	// Unblocks plugin threads waiting for an answer nobody will give.
+	if (QCoreApplication::instance())
+		connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &TaskManager::cancelAll);
+}
+
+void TaskManager::cancelAll()
+{
+	for (Task* t : QList<Task*>(m_tasks))
+	{
+		if (!t->isFinished())
+			t->requestCancel();
+	}
+}
 
 TaskManager* TaskManager::instance()
 {
@@ -51,7 +68,7 @@ Task* TaskManager::create(const QString& plugin, const QString& title,
 
 	// Task::changed may come from a worker thread; `this` as the context makes it queued then.
 	connect(task, &Task::changed, this, [this, guard, removalScheduled] {
-		if (!guard)
+		if (!guard || !m_tasks.contains(guard))
 			return;
 		emit taskChanged(guard);
 
@@ -113,6 +130,7 @@ void TaskManager::remove(Task* task)
 		return;
 
 	QString id = task->id();
+	task->disconnect(this);
 	task->deleteLater();
 	emit taskRemoved(id);
 }
