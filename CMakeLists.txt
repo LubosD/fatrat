@@ -39,9 +39,8 @@ ADD_CUSTOM_TARGET(uninstall
 	COMMAND ${CMAKE_COMMAND} -E echo Use 'xargs rm < install_manifest.txt' to uninstall this program
 	)
 
-IF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-	SET(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
-ENDIF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+# Defines CMAKE_INSTALL_LIBDIR (relative, e.g. lib64) and the absolute CMAKE_INSTALL_FULL_LIBDIR
+include(GNUInstallDirs)
 
 if(WITH_EVERYTHING)
 	set(WITH_BITTORRENT ON)
