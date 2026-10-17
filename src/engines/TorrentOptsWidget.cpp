@@ -95,7 +95,7 @@ void TorrentOptsWidget::load()
 	
 	for (int i = 0; i < m_download->m_info->num_files(); i++)
 	{
-		auto path = m_download->m_info->files().file_path(i);
+		auto path = m_download->m_info->files().file_path(libtorrent::file_index_t(i));
 		QStringList elems = QString::fromStdString(path).split('/');
 		//QString name = elems.takeLast();
 		
@@ -138,7 +138,7 @@ void TorrentOptsWidget::load()
 		}
 		
 		// fill in info
-		auto size = m_download->m_info->files().file_size(i);
+		auto size = m_download->m_info->files().file_size(libtorrent::file_index_t(i));
 		item->setText(1, formatSize(size));
 		item->setData(1, Qt::UserRole, qint64(size));
 		m_files << item;
@@ -148,7 +148,7 @@ void TorrentOptsWidget::load()
 	{
 		bool download = true;
 		if(size_t(i) < m_download->m_vecPriorities.size())
-			download = m_download->m_vecPriorities[i] >= 1;
+			download = m_download->m_vecPriorities[i] != libtorrent::dont_download;
 		
 		m_files[i]->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
 		m_files[i]->setCheckState(0, download ? Qt::Checked : Qt::Unchecked);
@@ -177,10 +177,10 @@ void TorrentOptsWidget::accepted()
 		bool yes = m_files[i]->checkState(0) == Qt::Checked;
 		auto& prio = m_download->m_vecPriorities[i];
 		
-		if(yes && !prio)
-			prio = 1;
-		else if(!yes && prio)
-			prio = 0;
+		if(yes && prio == libtorrent::dont_download)
+			prio = libtorrent::download_priority_t(1);
+		else if(!yes && prio != libtorrent::dont_download)
+			prio = libtorrent::dont_download;
 	}
 	
 	for(auto it = m_download->m_vecPriorities.begin();

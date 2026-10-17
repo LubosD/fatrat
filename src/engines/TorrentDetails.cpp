@@ -121,7 +121,7 @@ void TorrentDetails::openFile()
 	
 	int i = m_selFiles[0];
 	
-	QString relative = QString::fromStdString(m_download->m_info->files().file_path(i));
+	QString relative = QString::fromStdString(m_download->m_info->files().file_path(libtorrent::file_index_t(i)));
 	QString path = m_download->dataPath(false);
 	
 	if(!path.endsWith('/'))
@@ -181,10 +181,10 @@ void TorrentDetails::fill()
 	{
 		m_bFilled = true;
 		
-		boost::optional<time_t> time = m_download->m_info->creation_date();
+		const std::time_t time = m_download->m_info->creation_date();
 		if(time)
 		{
-			std::string created = boost::posix_time::to_simple_string(boost::posix_time::from_time_t(time.get()));
+			std::string created = boost::posix_time::to_simple_string(boost::posix_time::from_time_t(time));
 			lineCreationDate->setText(created.c_str());
 		}
 		linePieceLength->setText( QString("%1 kB").arg(m_download->m_info->piece_length()/1024.f) );

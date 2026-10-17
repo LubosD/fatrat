@@ -260,11 +260,11 @@ void HasherThread::run()
 {
 	try
 	{
-		libtorrent::set_piece_hashes(*m_info, m_baseDir.data(), [&](int p) {
+		libtorrent::set_piece_hashes(*m_info, m_baseDir.data(), [&](libtorrent::piece_index_t p) {
 			if (m_bAbort)
 				throw abort_exception();
 
-			emit progress(p);
+			emit progress(static_cast<int>(p));
 		});
 	}
 	catch (const abort_exception& e)

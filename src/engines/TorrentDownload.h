@@ -80,8 +80,6 @@ public:
 	static QString bencode(libtorrent::entry& e);
 	static libtorrent::session_params readSessionParams(const QByteArray& data, libtorrent::save_state_flags_t flags);
 	
-	static libtorrent::proxy_settings proxyToLibtorrent(Proxy p);
-	
 	virtual void init(QString source, QString target);
 	virtual void setObject(QString source);
 	

@@ -83,7 +83,7 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 		{
 			case 0:
 			{
-				QString name = QString::fromStdString(m_download->m_info->files().file_path(i));
+				QString name = QString::fromStdString(m_download->m_info->files().file_path(libtorrent::file_index_t(i)));
 				int p = name.indexOf('/');
 				
 				if(p != -1)
@@ -92,16 +92,16 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 				return name;
 			}
 			case 1:
-				return formatSize(m_download->m_info->files().file_size(i));
+				return formatSize(m_download->m_info->files().file_size(libtorrent::file_index_t(i)));
 			case 2:
 				if(!m_progresses.empty())
 				{
-					int v = int( double(m_progresses[i])/double(m_download->m_info->files().file_size(i))*1000 );
+					int v = int( double(m_progresses[i])/double(m_download->m_info->files().file_size(libtorrent::file_index_t(i)))*1000 );
 					return QString("%1%").arg(v / 10.0, 0, 'f', 1);
 				}
 				break;
 			case 3:
-				switch(m_download->m_vecPriorities[i])
+				switch(static_cast<std::uint8_t>(m_download->m_vecPriorities[i]))
 				{
 					case 0:
 						return tr("Do not download");
@@ -150,8 +150,8 @@ void TorrentProgressDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 		quint32* buf = new quint32[myrect.width()];
 		auto files = model->m_download->m_info->files();
 		
-		const auto offset = files.file_offset(row);
-		const auto size = files.file_size(row);
+		const auto offset = files.file_offset(libtorrent::file_index_t(row));
+		const auto size = files.file_size(libtorrent::file_index_t(row));
 		int piece_size = model->m_download->m_info->piece_length();
 		
 		QImage im;

@@ -404,7 +404,7 @@ void TorrentDownload::createDefaultPriorityList()
 {
 	qDebug() << "createDefaultPriorityList()";
 	int numFiles = m_info->num_files();
-	m_vecPriorities.assign(numFiles, 1);
+	m_vecPriorities.assign(numFiles, libtorrent::download_priority_t(1));
 }
 
 void TorrentDownload::init(QString source, QString target)
@@ -493,7 +493,7 @@ void TorrentDownload::init(QString source, QString target)
 			downloadTorrent(source);
 		}
 	}
-	catch(const libtorrent::invalid_encoding&)
+	catch(const libtorrent::system_error&)
 	{
 		throw RuntimeException(tr("The torrent file is invalid."));
 	}
@@ -864,7 +864,7 @@ void TorrentDownload::load(const QDomNode& map)
 				m_vecPriorities.resize(numFiles);
 				
 				for(int i=0;i<numFiles;i++)
-					m_vecPriorities[i] = priorities[i].toInt();
+					m_vecPriorities[i] = libtorrent::download_priority_t(static_cast<std::uint8_t>(priorities[i].toInt()));
 			}
 			
 			m_handle.prioritize_files(m_vecPriorities);
@@ -1003,7 +1003,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 	{
 		if(i > 0)
 			prio += '|';
-		prio += QString::number(m_vecPriorities[i]);
+		prio += QString::number(static_cast<std::uint8_t>(m_vecPriorities[i]));
 	}
 	setXMLProperty(doc, map, "priorities", prio);
 	
@@ -1186,12 +1186,12 @@ QVariantMap TorrentDownload::properties() const
 	{
 		QVariantMap map;
 
-		map["name"] = QString::fromStdString(m_info->files().file_path(i));
-		map["size"] = qint64(m_info->files().file_size(i));
+		map["name"] = QString::fromStdString(m_info->files().file_path(libtorrent::file_index_t(i)));
+		map["size"] = qint64(m_info->files().file_size(libtorrent::file_index_t(i)));
 		map["done"] = qint64(progresses[i]);
 
 		if (m_vecPriorities.size() > i)
-			map["priority"] = int(m_vecPriorities[i]);
+			map["priority"] = int(static_cast<std::uint8_t>(m_vecPriorities[i]));
 		files << map;
 	}
 	rv["files"] = files;
@@ -1366,7 +1366,7 @@ void TorrentWorker::doWork()
 		
 		if(d->isActive())
 		{
-			const bool isSuperSeeding = d->m_handle.flags() & libtorrent::torrent_flags::super_seeding;
+			const bool isSuperSeeding = bool(d->m_handle.flags() & libtorrent::torrent_flags::super_seeding);
 
 			if(d->mode() == Transfer::Download)
 			{

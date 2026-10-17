@@ -109,28 +109,22 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 				else
 					return QVariant();
 			case 4:
-				switch(info.source)
-				{
-					case libtorrent::peer_info::tracker:
-						return "Tracker";
-					case libtorrent::peer_info::dht:
-						return "DHT";
-					case libtorrent::peer_info::pex:
-						return "PEX";
-					case libtorrent::peer_info::lsd:
-						return "LSD";
-					case libtorrent::peer_info::resume_data:
-						return "Resume";
-					case libtorrent::peer_info::incoming:
-						return "Incoming";
-					default:
-					{
-						if(info.flags & libtorrent::peer_info::local_connection)
-							return QVariant();
-						else
-							return "Incoming";
-					}
-				}
+				if(info.source & libtorrent::peer_info::tracker)
+					return "Tracker";
+				else if(info.source & libtorrent::peer_info::dht)
+					return "DHT";
+				else if(info.source & libtorrent::peer_info::pex)
+					return "PEX";
+				else if(info.source & libtorrent::peer_info::lsd)
+					return "LSD";
+				else if(info.source & libtorrent::peer_info::resume_data)
+					return "Resume";
+				else if(info.source & libtorrent::peer_info::incoming)
+					return "Incoming";
+				else if(info.flags & libtorrent::peer_info::local_connection)
+					return QVariant();
+				else
+					return "Incoming";
 			case 5:
 				return formatSize ( info.down_speed, true );
 			case 6:
@@ -165,8 +159,8 @@ QVariant TorrentPeersModel::data ( const QModelIndex &index, int role ) const
 			case 10:
 			{
 				int pcs = 0;
-				for ( ssize_t i=0;i<info.pieces.size();i++ )
-					if ( info.pieces[i] )
+				for ( int i=0;i<info.pieces.size();i++ )
+					if ( info.pieces[libtorrent::piece_index_t(i)] )
 						pcs++;
 				QString pct = QString ( "%1%" ).arg ( ( int ) ( 100.0/double ( info.pieces.size() ) *pcs ) );
 				
