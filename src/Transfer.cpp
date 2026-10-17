@@ -574,6 +574,10 @@ QString Transfer::uuid() const
 
 void Transfer::replaceItself(Transfer* newObject)
 {
+	// The same transfer in another engine (e.g. a downloaded .torrent becoming a torrent): keep its identity,
+	// so that clients holding the UUID (REST API, web UI selection) can still find it
+	newObject->m_uuid = m_uuid;
+
 	QReadLocker l(&g_queuesLock);
 	foreach (Queue* q, g_queues)
 	{
