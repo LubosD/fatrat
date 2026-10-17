@@ -278,7 +278,8 @@ private slots:
 			text += item.text;
 
 		QVERIFY(text.contains("No plugins are installed."));
-		QVERIFY(text.contains("fatrat-conf plugins add"));
+		// Points at the screen that can actually install one
+		QVERIFY2(text.contains("Press F4"), qPrintable(text));
 	}
 
 	void valuesThatCameBackAsTextAreUnderstood()
