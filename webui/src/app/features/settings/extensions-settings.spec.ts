@@ -124,6 +124,25 @@ describe('ExtensionsSettings', () => {
     expect(c['message']()).toContain('Restart FatRat');
   });
 
+  it('does not offer a text box for a settings array it would overwrite', () => {
+    const withOrder: Plugin = {
+      ...plugin,
+      config: [
+        { type: 'text', key: 'dummy/user', title: 'Username' },
+        { type: 'order', key: 'dummy/mirrors', title: 'Mirrors', options: [{ value: 'eu' }] },
+      ],
+    };
+    const { fixture, c, transferApi } = configure({ plugins: [withOrder], values: ['someone'] });
+
+    // The order item is shown, so the user knows the setting exists...
+    expect(fixture.nativeElement.querySelector('[data-testid="ext-field-readonly"]').textContent)
+      .toContain('desktop interface');
+    // ...but its value is neither read nor bound to a field.
+    expect(transferApi.getSettingsValues).toHaveBeenCalledWith(['dummy/user']);
+    expect(c['fields']().find((f: any) => f.item.key === 'dummy/mirrors').editable).toBe(false);
+    expect(c['fields']().find((f: any) => f.item.key === 'dummy/user').value).toBe('someone');
+  });
+
   it('flattens a plugin config into fields and stages edits for the OK button', () => {
     const { c, draft } = configure();
     const fields = c['fields']();

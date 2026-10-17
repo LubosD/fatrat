@@ -97,7 +97,11 @@
       <legend>Plugin settings</legend>
       @for (field of fields(); track field.item.key) {
         <div class="field" data-testid="ext-field">
-          @switch (field.item.type) {
+          @switch (field.editable ? field.item.type : 'readonly') {
+            @case ('readonly') {
+              <label>{{ field.group }} — {{ field.item.title }}</label>
+              <span class="hint" data-testid="ext-field-readonly">Set this one in the desktop interface.</span>
+            }
             @case ('checkbox') {
               <p-checkbox [binary]="true" [inputId]="'ext-' + field.item.key" [(ngModel)]="field.value"
                           (ngModelChange)="stage(field.item.key, $event)"></p-checkbox>

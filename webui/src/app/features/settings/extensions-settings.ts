@@ -19,7 +19,12 @@ interface Field {
   item: PluginConfigItem;
   group: string;
   value: JsonValue;
+  /** False for item types this page cannot edit; it shows them instead of hiding them. */
+  editable: boolean;
 }
+
+/** Item types this page has a field for. An `order` list is not one of them. */
+const EDITABLE = new Set(['text', 'password', 'checkbox', 'combo']);
 
 /**
  * Extensions: plugin repositories, what they offer, and the settings of what is installed.
@@ -145,20 +150,23 @@ export class ExtensionsSettings {
   /** Reads the current value of every key the installed plugins declare. */
   private loadFields(plugins: Plugin[]): void {
     const fields: Field[] = [];
+    const add = (item: PluginConfigItem, group: string) =>
+      fields.push({ item, group, value: null, editable: EDITABLE.has(item.type) && !!item.key });
 
     for (const plugin of plugins) {
       if (!plugin.valid) continue;
       for (const item of plugin.config ?? []) {
         if (item.type === 'group') {
-          for (const child of item.items ?? [])
-            fields.push({ item: child, group: `${plugin.name} — ${item.title ?? ''}`, value: null });
+          for (const child of item.items ?? []) add(child, `${plugin.name} — ${item.title ?? ''}`);
         } else {
-          fields.push({ item, group: plugin.name, value: null });
+          add(item, plugin.name);
         }
       }
     }
 
-    const keys = fields.map((f) => f.item.key).filter((k): k is string => !!k);
+    // Only the editable ones: an `order` list is stored as a settings array, and
+    // a text field bound to it would write a string over the array.
+    const keys = fields.filter((f) => f.editable).map((f) => f.item.key as string);
 
     if (!keys.length) {
       this.fields.set(fields);
@@ -168,12 +176,12 @@ export class ExtensionsSettings {
 
     this.transferApi.getSettingsValues(keys).subscribe({
       next: (values) => {
-        let i = 0;
+        const byKey = new Map<string, JsonValue>(keys.map((key, i) => [key, values[i]]));
+
         for (const field of fields) {
-          if (!field.item.key) continue;
-          const staged = this.draft.get(field.item.key);
-          field.value = staged ?? values[i] ?? (field.item.type === 'checkbox' ? false : '');
-          i++;
+          if (!field.editable) continue;
+          const key = field.item.key as string;
+          field.value = this.draft.get(key) ?? byKey.get(key) ?? (field.item.type === 'checkbox' ? false : '');
         }
         this.fields.set(fields);
         this.cdr.markForCheck();
