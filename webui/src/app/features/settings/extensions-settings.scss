@@ -1,0 +1,103 @@
+.ext-items {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  > li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--p-content-border-color);
+    border-radius: var(--p-content-border-radius);
+    background: var(--p-surface-50);
+
+    &.hint {
+      display: block;
+      border-style: dashed;
+      background: transparent;
+      margin: 0;
+    }
+  }
+}
+
+.ext-item-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  .hint {
+    margin: 0;
+  }
+}
+
+.ext-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.ext-version {
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: var(--p-surface-200);
+  color: var(--p-text-muted-color);
+}
+
+.ext-source {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.ext-item-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  label {
+    margin-right: 0.5rem;
+  }
+}
+
+.ext-add {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+
+  input {
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .ext-items > li:not(.hint) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ext-item-actions {
+    justify-content: space-between;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

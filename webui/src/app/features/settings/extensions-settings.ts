@@ -38,6 +38,7 @@ const EDITABLE = new Set(['text', 'password', 'checkbox', 'combo']);
   selector: 'app-extensions-settings',
   imports: [FormsModule, TableModule, ButtonDirective, Checkbox, InputText, Select],
   templateUrl: './extensions-settings.html',
+  styleUrl: './extensions-settings.scss',
 })
 export class ExtensionsSettings {
   private readonly api = inject(PluginsApi);

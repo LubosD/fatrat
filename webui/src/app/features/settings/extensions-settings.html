@@ -14,11 +14,13 @@
       @for (repository of repositories(); track repository.id) {
         <li>
           <div class="ext-item-text">
-            <strong>{{ repository.name || repository.id }}</strong>
-            <span class="hint">{{ repository.source }}</span>
-            <span class="hint">{{ shortRevision(repository) }}</span>
+            <span class="ext-title">
+              <strong>{{ repository.name || repository.id }}</strong>
+              <span class="ext-version">{{ shortRevision(repository) }}</span>
+            </span>
+            <span class="hint ext-source">{{ repository.source }}</span>
           </div>
-          <button pButton type="button" severity="danger" [text]="true" label="Forget"
+          <button pButton type="button" severity="danger" [outlined]="true" size="small" label="Forget"
                   [attr.aria-label]="'Forget ' + repository.id" data-testid="ext-forget-repo"
                   [disabled]="busy()" (click)="removeRepository(repository)"></button>
         </li>
@@ -27,8 +29,8 @@
       }
     </ul>
 
-    <div class="field">
-      <label for="ext-new-repo">Repository</label>
+    <div class="ext-add">
+      <label class="sr-only" for="ext-new-repo">Repository</label>
       <input pInputText id="ext-new-repo" [(ngModel)]="newRepository" [disabled]="busy()"
              placeholder="https://example.com/someone/fatrat-plugins.git" data-testid="ext-new-repo" />
       <button pButton type="button" label="Add" data-testid="ext-add-repo"
@@ -44,13 +46,16 @@
       @for (entry of available(); track entry.repository + '/' + entry.name) {
         <li>
           <div class="ext-item-text">
-            <strong>{{ entry.name }} {{ entry.version }}</strong>
-            <span class="hint">{{ entry.description }}</span>
+            <span class="ext-title">
+              <strong>{{ entry.name }}</strong>
+              <span class="ext-version">{{ entry.version }}</span>
+            </span>
+            <span class="ext-desc">{{ entry.description }}</span>
             <span class="hint">
               {{ entry.repository }}@if (entry.installedVersion) { · installed: {{ entry.installedVersion }} }
             </span>
           </div>
-          <button pButton type="button" [text]="true" data-testid="ext-install"
+          <button pButton type="button" size="small" [outlined]="!!entry.installedVersion && !isUpdate(entry)" data-testid="ext-install"
                   [label]="isUpdate(entry) ? 'Update' : (entry.installedVersion ? 'Reinstall' : 'Install')"
                   [attr.aria-label]="'Install ' + entry.name"
                   [disabled]="busy()" (click)="install(entry)"></button>
@@ -67,9 +72,12 @@
       @for (plugin of plugins(); track plugin.name) {
         <li>
           <div class="ext-item-text">
-            <strong>{{ plugin.name }} {{ plugin.version }}</strong>
+            <span class="ext-title">
+              <strong>{{ plugin.name }}</strong>
+              <span class="ext-version">{{ plugin.version }}</span>
+            </span>
             @if (plugin.valid) {
-              <span class="hint">{{ plugin.description }}</span>
+              <span class="ext-desc">{{ plugin.description }}</span>
             } @else {
               <span class="form-error">{{ plugin.error }}</span>
             }
@@ -81,7 +89,7 @@
                           (ngModelChange)="setEnabled(plugin, $event)"></p-checkbox>
               <label [for]="'ext-enabled-' + plugin.name">Enabled</label>
             }
-            <button pButton type="button" severity="danger" [text]="true" label="Remove"
+            <button pButton type="button" severity="danger" [outlined]="true" size="small" label="Remove"
                     [attr.aria-label]="'Remove ' + plugin.name" data-testid="ext-remove"
                     [disabled]="busy()" (click)="uninstall(plugin)"></button>
           </div>
