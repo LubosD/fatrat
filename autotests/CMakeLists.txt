@@ -116,6 +116,13 @@ if(WITH_WEBINTERFACE)
 	target_include_directories(tst_resttasks PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
 	target_link_libraries(tst_resttasks Qt6::Core Qt6::Test)
 	add_test(NAME resttasks COMMAND tst_resttasks)
+
+	add_executable(tst_taskpush tst_taskpush.cpp ${plugin_core_SRCS}
+		${CMAKE_SOURCE_DIR}/src/remote/TaskPush.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/TasksJson.cpp)
+	target_include_directories(tst_taskpush PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
+	target_link_libraries(tst_taskpush Qt6::Core Qt6::Test)
+	add_test(NAME taskpush COMMAND tst_taskpush)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_TUI)

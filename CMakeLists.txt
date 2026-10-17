@@ -500,6 +500,7 @@ if(WITH_WEBINTERFACE)
 		src/remote/SchedulerJson.cpp
 		src/remote/RestTasks.cpp
 		src/remote/TasksJson.cpp
+		src/remote/TaskPush.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_GUI_SRCS
@@ -511,6 +512,7 @@ if(WITH_WEBINTERFACE)
 		${fatrat_MOC_HDRS}
 		src/remote/HttpService.h
 		src/captcha/CaptchaHttp.h
+		src/remote/TaskPush.h
 	)
 	set(fatrat_GUI_MOC_HDRS
 		${fatrat_GUI_MOC_HDRS}

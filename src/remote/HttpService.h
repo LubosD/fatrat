@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QThread>
 #include <QMap>
 #include <QByteArray>
+#include <QJsonObject>
 #include <QVariantMap>
 #include <QFile>
 #include <QMutex>
@@ -49,6 +50,8 @@ respects for all of the code used other than "OpenSSL".
 #include <atomic>
 #include "captcha/CaptchaHttp.h"
 #include "remote/TransferHttpService.h"
+
+class TaskPush;
 
 #ifndef WITH_WEBINTERFACE
 #	error This file is not supposed to be included!
@@ -74,6 +77,8 @@ public:
 
 	void addCaptchaEvent(int id, QString url);
 	bool hasCaptchaHandlers();
+	// Sends a message to every /websocket client (captchas, tasks).
+	void pushEvent(const QJsonObject& message);
 
 	static void findQueue(QString queueUUID, Queue** q);
 	static int findTransfer(QString transferUUID, Queue** q, Transfer** t, bool lockForWrite = false);
@@ -91,6 +96,7 @@ private:
 private:
 	static HttpService* m_instance;
 	CaptchaHttp m_captchaHttp;
+	std::unique_ptr<TaskPush> m_taskPush;
 
 	QTimer m_timer;
 	QList<WebSocketService*> m_registeredCaptchaClients;
@@ -111,12 +117,10 @@ private:
 	class WebSocketService
 	{
 	public:
-		typedef QPair<int,QString> Captcha;
-
-		void pushCaptcha(const Captcha& cap) {
+		void pushMessage(const QByteArray& message) {
 			{
 				std::lock_guard<std::mutex> lk(m_mutex);
-				m_queue.enqueue(cap);
+				m_queue.enqueue(message);
 			}
 			m_cv.notify_one();
 		}
@@ -132,7 +136,7 @@ private:
 		}
 
 		// Blocks up to timeout_ms if queue is empty. Returns drained queue.
-		QQueue<Captcha> waitAndDrain(int timeout_ms) {
+		QQueue<QByteArray> waitAndDrain(int timeout_ms) {
 			std::unique_lock<std::mutex> lk(m_mutex);
 			m_cv.wait_for(lk, std::chrono::milliseconds(timeout_ms),
 				[this]{ return !m_queue.isEmpty() || m_terminate.load() || m_sendPing.load(); });
@@ -145,7 +149,7 @@ private:
 	private:
 		std::mutex m_mutex;
 		std::condition_variable m_cv;
-		QQueue<Captcha> m_queue;
+		QQueue<QByteArray> m_queue;
 		std::atomic<bool> m_terminate{false};
 		std::atomic<bool> m_sendPing{false};
 	};

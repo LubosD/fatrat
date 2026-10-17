@@ -39,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 #include "TransferFactory.h"
 #include "remote/RestApi.h"
 #include "remote/RestResources.h"
+#include "remote/TaskPush.h"
 
 #include <QSettings>
 #include <QtDebug>
@@ -76,6 +77,7 @@ HttpService::HttpService()
 	: m_port(0)
 {
 	m_instance = this;
+	m_taskPush.reset(new TaskPush([this](const QJsonObject& message) { pushEvent(message); }));
 	applySettings();
 
 	SettingsItem si;
@@ -594,7 +596,7 @@ void HttpService::registerRoutes(httplib::Server& server, bool authenticated)
 
 			bool running = true;
 			while (running && !svc->shouldTerminate()) {
-				QQueue<WebSocketService::Captcha> queue = svc->waitAndDrain(500);
+				QQueue<QByteArray> queue = svc->waitAndDrain(500);
 
 				if (svc->shouldTerminate()) break;
 
@@ -604,13 +606,8 @@ void HttpService::registerRoutes(httplib::Server& server, bool authenticated)
 
 				while (!queue.isEmpty()) {
 					if (svc->shouldTerminate()) { running = false; break; }
-					QJsonObject notif;
-					auto cap = queue.dequeue();
-					notif.insert("type", "captcha");
-					notif.insert("id", cap.first);
-					notif.insert("url", cap.second);
-					QByteArray ba = QJsonDocument(notif).toJson(QJsonDocument::Compact);
-					if (!ws.send(ba.toStdString())) { running = false; break; }
+					QByteArray message = queue.dequeue();
+					if (!ws.send(message.toStdString())) { running = false; break; }
 				}
 			}
 
@@ -676,12 +673,21 @@ void HttpService::findQueue(QString queueUUID, Queue** q)
 
 void HttpService::addCaptchaEvent(int id, QString url)
 {
+	QJsonObject message;
+
+	message.insert("type", "captcha");
+	message.insert("id", id);
+	message.insert("url", url);
+	pushEvent(message);
+}
+
+void HttpService::pushEvent(const QJsonObject& message)
+{
+	QByteArray data = QJsonDocument(message).toJson(QJsonDocument::Compact);
 	QMutexLocker l(&m_registeredCaptchaClientsMutex);
 
 	for (WebSocketService* ws : m_registeredCaptchaClients)
-	{
-		ws->pushCaptcha(WebSocketService::Captcha(id, url));
-	}
+		ws->pushMessage(data);
 }
 
 void HttpService::addCaptchaClient(WebSocketService* client)
