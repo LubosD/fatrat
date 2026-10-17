@@ -1,5 +1,6 @@
 #include <QJsonDocument>
 #include <QTest>
+#include <dlfcn.h>
 
 #include "plugins/PluginLoader.h"
 #include "plugins/Task.h"
@@ -24,6 +25,9 @@ private slots:
 	void loadsAGuiPluginWithTheGui();
 	void refusesAnotherApiVersion();
 	void legacyPluginNeedsTheGui();
+	void refusesAPluginWithoutInit();
+	void refusesAPluginWithoutRequiresGui();
+	void aThrowingInitLeavesNothingBehind();
 	void reportsAMissingFile();
 };
 
@@ -79,6 +83,7 @@ void tst_pluginloader::refusesAnotherApiVersion()
 
 	QCOMPARE(r.outcome, PluginLoader::Incompatible);
 	QVERIFY(r.message.contains("999"));
+	QVERIFY(!dlopen(TESTACTION_WRONGAPI_PATH, RTLD_NOW | RTLD_NOLOAD));
 	QVERIFY(!TransferActions::find("test.greet").has_value());
 }
 
@@ -91,6 +96,43 @@ void tst_pluginloader::legacyPluginNeedsTheGui()
 	PluginLoader::Result gui = PluginLoader::load(TESTACTION_LEGACY_PATH, true);
 	QCOMPARE(gui.outcome, PluginLoader::LoadedLegacy);
 	QCOMPARE(gui.info->name, QString("Test legacy plugin"));
+}
+
+void tst_pluginloader::refusesAPluginWithoutInit()
+{
+	PluginLoader::Result r = PluginLoader::load(TESTACTION_NOINIT_PATH, true);
+
+	QCOMPARE(r.outcome, PluginLoader::Incompatible);
+	QVERIFY(r.message.contains("initPlugin"));
+	QVERIFY(!dlopen(TESTACTION_NOINIT_PATH, RTLD_NOW | RTLD_NOLOAD));
+}
+
+void tst_pluginloader::refusesAPluginWithoutRequiresGui()
+{
+	PluginLoader::Result r = PluginLoader::load(TESTACTION_NOREQUIRES_PATH, true);
+
+	QCOMPARE(r.outcome, PluginLoader::Incompatible);
+	QVERIFY(r.message.contains("requiresGui"));
+	QVERIFY(!TransferActions::find("test.greet").has_value());
+	QVERIFY(!dlopen(TESTACTION_NOREQUIRES_PATH, RTLD_NOW | RTLD_NOLOAD));
+}
+
+void tst_pluginloader::aThrowingInitLeavesNothingBehind()
+{
+	PluginLoader::Result r = PluginLoader::load(TESTACTION_THROWS_PATH, true);
+
+	QCOMPARE(r.outcome, PluginLoader::Failed);
+	QVERIFY(r.message.contains("on purpose"));
+	QVERIFY(!r.info.has_value());
+	// It registered test.greet before throwing; that must be gone again.
+	QVERIFY(!TransferActions::find("test.greet").has_value());
+
+	// And the loader must not still be attributing registrations to the plugin.
+	TransferAction a;
+	a.id = "later.action";
+	a.trigger = [](Transfer*, TaskHost&) {};
+	registerTransferAction(a);
+	QCOMPARE(TransferActions::find("later.action")->plugin, QString("fatrat"));
 }
 
 void tst_pluginloader::reportsAMissingFile()

@@ -585,10 +585,10 @@ QStringList listDataDir(QString path)
 
 void loadPlugins()
 {
-	loadPlugins(PLUGIN_LOCATION);
-	
+	// PLUGIN_PATH first, so a developer's copy of a plugin overrides the installed one.
 	if(const char* p = getenv("PLUGIN_PATH"))
 		loadPlugins(p);
+	loadPlugins(PLUGIN_LOCATION);
 }
 
 void loadPlugins(const char* p)
@@ -596,8 +596,19 @@ void loadPlugins(const char* p)
 	QDir dir(p);
 	QStringList plugins = dir.entryList(QStringList("*.so"));
 
+	// File name -> directory it was tried from. The same plugin twice would
+	// register its actions twice.
+	static QMap<QString, QString> attempted;
+
 	foreach(QString pl, plugins)
 	{
+		if (attempted.contains(pl))
+		{
+			Logger::global()->enterLogMessage(QObject::tr("Skipped a plugin: %1: already loaded from %2").arg(pl, attempted[pl]));
+			continue;
+		}
+		attempted[pl] = dir.path();
+
 		PluginLoader::Result r = PluginLoader::load(dir.filePath(pl), programHasGUI());
 
 		switch (r.outcome)
@@ -621,7 +632,8 @@ void loadPlugins(const char* p)
 		{
 			g_plugins[pl] = *r.info;
 
-			if (strcmp(r.info->version, VERSION))
+			// Plugins written for the plugin API are gated by its version instead.
+			if (r.outcome == PluginLoader::LoadedLegacy && strcmp(r.info->version, VERSION))
 			{
 				qDebug() << "WARNING! Version conflict." << pl << "is" << r.info->version << "but FatRat is" << VERSION;
 				Logger::global()->enterLogMessage(QObject::tr("WARNING: the plugin is incompatible:") + ' ' + pl);

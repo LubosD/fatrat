@@ -42,6 +42,15 @@ respects for all of the code used other than "OpenSSL".
  *
  * A plugin with requiresGui() returning false must not use QtWidgets or the
  * desktop-only functions of fatrat.h; it then works the same everywhere.
+ *
+ * Build a plugin against the headers of the FatRat it is loaded into: the
+ * layout of Transfer differs between desktop and headless builds (virtual
+ * functions after its GUI-only ones move), so a plugin built for one can call
+ * the wrong function in the other.
+ *
+ * A plugin that runs threads of its own must stop and join them when
+ * QCoreApplication::aboutToQuit fires; FatRat cancels running tasks first, so
+ * a worker that checks Task::cancelRequested() ends promptly.
  */
 #include "Task.h"
 #include "TransferAction.h"

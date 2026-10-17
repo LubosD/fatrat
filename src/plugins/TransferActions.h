@@ -58,6 +58,8 @@ namespace TransferActions
 
 	// What registrations are attributed to while the loader runs a plugin's initPlugin().
 	void setLoadingPlugin(const QString& name);
+	// Removes everything a plugin registered; for a plugin whose initPlugin() threw.
+	void removePlugin(const QString& name);
 	void clear(); // for the tests
 }
 

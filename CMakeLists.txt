@@ -706,6 +706,7 @@ set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/UrlClient.h
 	)
 set(fatrat_DEV_HEADERS_PLUGINS
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/FormValidator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginApi.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/Task.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/TransferAction.h

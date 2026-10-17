@@ -36,7 +36,7 @@ respects for all of the code used other than "OpenSSL".
 
 // What only the desktop build exports. A plugin that links against one of them
 // fails dlopen() in a headless build, which is not an error worth alarming anyone with.
-static const char* const GuiSymbols[] = { "addMenuAction", "getMainWindow", "addStatusWidget", "removeStatusWidget" };
+static const char* const GuiSymbols[] = { "addMenuAction", "getMainWindow", "addStatusWidget", "removeStatusWidget", "WidgetHostDlg", "runProperties" };
 
 static QString needsGui()
 {
@@ -51,10 +51,14 @@ PluginLoader::Result PluginLoader::load(const QString& path, bool haveGui)
 	if (!handle)
 	{
 		QString error = QString::fromLocal8Bit(dlerror());
+		// Look only at the symbol name: the plugin's path could contain one of ours.
+		static const QLatin1String marker("undefined symbol: ");
+		int at = error.indexOf(marker);
+		QString symbolText = at >= 0 ? error.mid(at + marker.size()) : QString();
 
 		for (const char* symbol : GuiSymbols)
 		{
-			if (error.contains(QLatin1String(symbol)))
+			if (symbolText.contains(QLatin1String(symbol)))
 			{
 				r.outcome = SkippedNeedsGui;
 				r.message = needsGui();
@@ -67,67 +71,92 @@ PluginLoader::Result PluginLoader::load(const QString& path, bool haveGui)
 
 	PluginInfo (*info)() = (PluginInfo (*)()) dlsym(handle, "getInfo");
 	int (*apiVersion)() = (int (*)()) dlsym(handle, "getApiVersion");
+	bool initStarted = false;
 
-	if (!apiVersion)
+	// Everything below calls into the plugin, which may throw. Until initPlugin()
+	// starts nothing of the plugin's is registered, so it can be unloaded again.
+	try
 	{
-		// From before the plugin API. Its static constructors have run, so it
-		// stays mapped whether it is used or not.
-		if (!haveGui)
+		if (!apiVersion)
 		{
+			// From before the plugin API. Its static constructors have run, so it
+			// stays mapped whether it is used or not.
+			if (!haveGui)
+			{
+				r.outcome = SkippedNeedsGui;
+				r.message = needsGui();
+				return r;
+			}
+			r.outcome = LoadedLegacy;
+			if (info)
+				r.info = info();
+			return r;
+		}
+
+		bool (*requiresGui)() = (bool (*)()) dlsym(handle, "requiresGui");
+		void (*init)() = (void (*)()) dlsym(handle, "initPlugin");
+		int version = apiVersion();
+
+		if (version != FATRAT_PLUGIN_API_VERSION)
+			r.message = QObject::tr("built for plugin API %1, this FatRat has %2").arg(version).arg(FATRAT_PLUGIN_API_VERSION);
+		else if (!requiresGui)
+			r.message = QObject::tr("exports no requiresGui()");
+		else if (!init)
+			r.message = QObject::tr("exports no initPlugin()");
+
+		if (!r.message.isEmpty())
+		{
+			dlclose(handle);
+			r.outcome = Incompatible;
+			return r;
+		}
+
+		if (requiresGui() && !haveGui)
+		{
+			dlclose(handle);
 			r.outcome = SkippedNeedsGui;
 			r.message = needsGui();
 			return r;
 		}
-		r.outcome = LoadedLegacy;
-		if (info)
-			r.info = info();
-		return r;
-	}
 
-	bool (*requiresGui)() = (bool (*)()) dlsym(handle, "requiresGui");
-	void (*init)() = (void (*)()) dlsym(handle, "initPlugin");
-	int version = apiVersion();
+		QString name = QFileInfo(path).fileName();
+		initStarted = true;
+		TransferActions::setLoadingPlugin(name);
+		try
+		{
+			init();
+		}
+		catch (...)
+		{
+			// Whatever it registered before throwing would point at code that is
+			// about to stay mapped only by our choice; drop it.
+			TransferActions::setLoadingPlugin(QString());
+			TransferActions::removePlugin(name);
+			throw;
+		}
+		TransferActions::setLoadingPlugin(QString());
 
-	if (version != FATRAT_PLUGIN_API_VERSION)
-		r.message = QObject::tr("built for plugin API %1, this FatRat has %2").arg(version).arg(FATRAT_PLUGIN_API_VERSION);
-	else if (!init)
-		r.message = QObject::tr("exports no initPlugin()");
-
-	if (!r.message.isEmpty())
-	{
-		dlclose(handle);
-		r.outcome = Incompatible;
-		return r;
-	}
-
-	if (requiresGui && requiresGui() && !haveGui)
-	{
-		dlclose(handle);
-		r.outcome = SkippedNeedsGui;
-		r.message = needsGui();
-		return r;
-	}
-
-	TransferActions::setLoadingPlugin(QFileInfo(path).fileName());
-	try
-	{
-		init();
 		r.outcome = Loaded;
 		if (info)
 			r.info = info();
 	}
 	catch (const std::exception& e)
 	{
-		// Left mapped: it may have registered something before it threw.
 		r.outcome = Failed;
 		r.message = QString::fromUtf8(e.what());
+		r.info.reset();
+		// Left mapped once initPlugin() has started: it may have started threads or the like.
+		if (!initStarted && apiVersion)
+			dlclose(handle);
 	}
 	catch (...)
 	{
 		r.outcome = Failed;
 		r.message = QObject::tr("unknown error");
+		r.info.reset();
+		if (!initStarted && apiVersion)
+			dlclose(handle);
 	}
-	TransferActions::setLoadingPlugin(QString());
 
 	return r;
 }

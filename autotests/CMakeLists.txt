@@ -76,7 +76,8 @@ if(WITH_GUI)
 	set(fatrat_h_LIBS ${fatrat_h_LIBS} Qt6::Gui)
 endif(WITH_GUI)
 
-foreach(variant testaction testaction_needsgui testaction_wrongapi testaction_legacy)
+foreach(variant testaction testaction_needsgui testaction_wrongapi testaction_legacy
+	testaction_noinit testaction_norequires testaction_throws)
 	add_library(${variant} MODULE plugins/testaction.cpp)
 	set_target_properties(${variant} PROPERTIES PREFIX "")
 	target_include_directories(${variant} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
@@ -85,6 +86,9 @@ endforeach()
 target_compile_definitions(testaction_needsgui PRIVATE TESTACTION_NEEDS_GUI)
 target_compile_definitions(testaction_wrongapi PRIVATE TESTACTION_API_VERSION=999)
 target_compile_definitions(testaction_legacy PRIVATE TESTACTION_LEGACY)
+target_compile_definitions(testaction_noinit PRIVATE TESTACTION_NO_INIT)
+target_compile_definitions(testaction_norequires PRIVATE TESTACTION_NO_REQUIRES_GUI)
+target_compile_definitions(testaction_throws PRIVATE TESTACTION_INIT_THROWS)
 
 add_executable(tst_pluginloader tst_pluginloader.cpp ${plugin_core_SRCS}
 	${CMAKE_SOURCE_DIR}/src/plugins/PluginLoader.cpp)
@@ -93,11 +97,15 @@ target_compile_definitions(tst_pluginloader PRIVATE
 	TESTACTION_PATH="$<TARGET_FILE:testaction>"
 	TESTACTION_NEEDSGUI_PATH="$<TARGET_FILE:testaction_needsgui>"
 	TESTACTION_WRONGAPI_PATH="$<TARGET_FILE:testaction_wrongapi>"
-	TESTACTION_LEGACY_PATH="$<TARGET_FILE:testaction_legacy>")
+	TESTACTION_LEGACY_PATH="$<TARGET_FILE:testaction_legacy>"
+	TESTACTION_NOINIT_PATH="$<TARGET_FILE:testaction_noinit>"
+	TESTACTION_NOREQUIRES_PATH="$<TARGET_FILE:testaction_norequires>"
+	TESTACTION_THROWS_PATH="$<TARGET_FILE:testaction_throws>")
 # The plugins resolve registerTransferAction() & co. from the executable, as they do from fatrat.
 set_target_properties(tst_pluginloader PROPERTIES ENABLE_EXPORTS ON)
 target_link_libraries(tst_pluginloader ${fatrat_h_LIBS} Qt6::Test ${CMAKE_DL_LIBS})
-add_dependencies(tst_pluginloader testaction testaction_needsgui testaction_wrongapi testaction_legacy)
+add_dependencies(tst_pluginloader testaction testaction_needsgui testaction_wrongapi testaction_legacy
+	testaction_noinit testaction_norequires testaction_throws)
 add_test(NAME pluginloader COMMAND tst_pluginloader)
 
 if(WITH_TUI)

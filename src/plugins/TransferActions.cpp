@@ -175,3 +175,12 @@ void TransferActions::clear()
 	s_actions.clear();
 	s_loadingPlugin.clear();
 }
+
+void TransferActions::removePlugin(const QString& name)
+{
+	for (int i = s_actions.size() - 1; i >= 0; i--)
+	{
+		if (s_actions[i].plugin == name)
+			s_actions.removeAt(i);
+	}
+}
