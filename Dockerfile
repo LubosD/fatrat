@@ -1,4 +1,4 @@
-# FatRat for headless use: HTTP(S)/FTP(S) (libcurl), BitTorrent, the web interface and the terminal UI.
+# FatRat for headless use: HTTP(S)/FTP(S) (libcurl), BitTorrent, the web interface, the terminal UI and Python extensions.
 #
 #   docker build -t fatrat .
 #   docker run -d --name fatrat -p 2233:2233 -e FATRAT_PASSWORD=secret -v fatrat-config:/config -v ~/Downloads:/downloads fatrat
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		build-essential cmake ninja-build pkg-config ca-certificates curl xz-utils \
 		qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
 		libcurl4-openssl-dev libssl-dev libtorrent-rasterbar-dev libboost-dev libboost-date-time-dev \
-		libncurses-dev \
+		libncurses-dev python3-dev pybind11-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
@@ -34,7 +34,7 @@ COPY . .
 # WITH_GUI=OFF installs bin/fatrat-nogui; the D-Bus single-instance check is not needed in a container
 RUN cmake -S . -B /build -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
-		-DWITH_GUI=OFF -DWITH_DBUS=OFF -DWITH_CURL=ON -DWITH_BITTORRENT=ON -DWITH_WEBINTERFACE=ON -DWITH_TUI=ON \
+		-DWITH_GUI=OFF -DWITH_DBUS=OFF -DWITH_CURL=ON -DWITH_BITTORRENT=ON -DWITH_WEBINTERFACE=ON -DWITH_TUI=ON -DWITH_PYPLUGINS=ON \
 	&& cmake --build /build \
 	&& DESTDIR=/stage cmake --install /build \
 	&& ls -l /stage/usr/bin
@@ -43,11 +43,14 @@ RUN cmake -S . -B /build -G Ninja \
 FROM ubuntu:${UBUNTU_VERSION}
 ARG DEBIAN_FRONTEND=noninteractive
 
+# Python extensions need the interpreter (its standard library, and pip for plugin dependencies) and git
+# (plugin repositories are cloned with it).
 # Runtime libraries are found from what the binaries link against, so package names (which change with
 # Ubuntu releases) do not have to be spelled out. 'xz' etc. are not needed, ncurses brings its terminfo.
 COPY --from=build /stage/ /
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends ca-certificates ncurses-term libqt6network6 libqt6xml6 libqt6sql6 \
+		python3 python3-pip git \
 	&& missing=$(ldd /usr/bin/fatrat-nogui /usr/bin/fatrat-tui | awk '/not found/ {print $1}' | sort -u); \
 	if [ -n "$missing" ]; then \
 		echo "Resolving missing libraries: $missing" >&2; \
