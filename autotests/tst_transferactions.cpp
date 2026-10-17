@@ -1,4 +1,5 @@
 #include <QTest>
+#include <QThread>
 #include <stdexcept>
 
 #include "plugins/Task.h"
@@ -43,6 +44,9 @@ private slots:
 	void triggerCreatesAnAttributedTask();
 	void triggerWithoutTask();
 	void throwingTriggerFailsItsTask();
+	void nonStdExceptionsAreCaught();
+	void throwingTriggerFailsEveryTask();
+	void registrationFromAnotherThreadIsIgnored();
 };
 
 void tst_transferactions::init()
@@ -150,6 +154,72 @@ void tst_transferactions::throwingTriggerFailsItsTask()
 	QVERIFY(threw);
 	QVERIFY(created);
 	QCOMPARE(created->state(), Task::Failed);
+}
+
+void tst_transferactions::nonStdExceptionsAreCaught()
+{
+	registerTransferAction(action("a.int", [](Transfer*) -> bool { throw 42; }));
+	QCOMPARE(TransferActions::applicable(fakeTransfer()).size(), 0);
+
+	Task* created = nullptr;
+	registerTransferAction(action("a.int2", nullptr, [&](Transfer*, TaskHost& host) {
+		created = host.createTask("Doomed");
+		throw 42;
+	}));
+
+	bool threw = false;
+	try
+	{
+		TransferActions::trigger(*TransferActions::find("a.int2"), fakeTransfer(), "u", "n");
+	}
+	catch (const PluginError& e)
+	{
+		threw = true;
+		QCOMPARE(e.message, QString("unknown error"));
+	}
+
+	QVERIFY(threw);
+	QVERIFY(created);
+	QCOMPARE(created->state(), Task::Failed);
+}
+
+void tst_transferactions::throwingTriggerFailsEveryTask()
+{
+	Task* first = nullptr;
+	Task* second = nullptr;
+	registerTransferAction(action("a.two", nullptr, [&](Transfer*, TaskHost& host) {
+		first = host.createTask("One");
+		second = host.createTask("Two");
+		QCOMPARE(host.createdTask(), first);
+		QCOMPARE(host.tasks().size(), 2);
+		throw std::runtime_error("broken");
+	}));
+
+	bool threw = false;
+	try
+	{
+		TransferActions::trigger(*TransferActions::find("a.two"), fakeTransfer(), "u", "n");
+	}
+	catch (const PluginError&)
+	{
+		threw = true;
+	}
+	QVERIFY(threw);
+	QVERIFY(first && second);
+	QCOMPARE(first->state(), Task::Failed);
+	QCOMPARE(second->state(), Task::Failed);
+}
+
+void tst_transferactions::registrationFromAnotherThreadIsIgnored()
+{
+	QThread* thread = QThread::create([] {
+		registerTransferAction(action("a.thread", nullptr));
+	});
+	thread->start();
+	QVERIFY(thread->wait(5000));
+	delete thread;
+
+	QVERIFY(!TransferActions::find("a.thread").has_value());
 }
 
 QTEST_GUILESS_MAIN(tst_transferactions)

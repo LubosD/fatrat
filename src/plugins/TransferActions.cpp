@@ -29,7 +29,9 @@ respects for all of the code used other than "OpenSSL".
 #include "Task.h"
 #include "TaskManager.h"
 
+#include <QCoreApplication>
 #include <QObject>
+#include <QThread>
 #include <exception>
 
 static QList<TransferActions::Entry> s_actions;
@@ -47,12 +49,21 @@ TaskHost::TaskHost(const QString& plugin, const QString& transferUuid, const QSt
 
 Task* TaskHost::createTask(const QString& title)
 {
-	m_task = TaskManager::instance()->create(m_plugin, title, m_transferUuid, m_transferName);
-	return m_task;
+	Task* task = TaskManager::instance()->create(m_plugin, title, m_transferUuid, m_transferName);
+	m_tasks << task;
+	return task;
 }
 
 void registerTransferAction(const TransferAction& action)
 {
+	// The registry is unsynchronised and meant for initPlugin() on the main thread.
+	if (QCoreApplication::instance() && QThread::currentThread() != QCoreApplication::instance()->thread())
+	{
+		Logger::global()->enterLogMessage(currentPlugin(),
+			QObject::tr("The plugin registered an action from another thread; ignored"));
+		return;
+	}
+
 	for (const TransferActions::Entry& e : s_actions)
 	{
 		if (e.action.id == action.id)
@@ -70,16 +81,24 @@ bool TransferActions::applies(const Entry& entry, Transfer* t)
 	if (!entry.action.appliesTo)
 		return true;
 
+	QString message;
+
 	try
 	{
 		return entry.action.appliesTo(t);
 	}
 	catch (const std::exception& e)
 	{
-		Logger::global()->enterLogMessage(entry.plugin, QObject::tr("The action %1 failed to say whether it applies: %2")
-			.arg(entry.action.id, QString::fromUtf8(e.what())));
-		return false;
+		message = QString::fromUtf8(e.what());
 	}
+	catch (...)
+	{
+		message = QObject::tr("unknown error");
+	}
+
+	Logger::global()->enterLogMessage(entry.plugin, QObject::tr("The action %1 failed to say whether it applies: %2")
+		.arg(entry.action.id, message));
+	return false;
 }
 
 QList<TransferActions::Entry> TransferActions::applicable(Transfer* t)
@@ -107,27 +126,42 @@ std::optional<TransferActions::Entry> TransferActions::find(const QString& id)
 Task* TransferActions::trigger(const Entry& entry, Transfer* t, const QString& transferUuid, const QString& transferName)
 {
 	TaskHost host(entry.plugin, transferUuid, transferName);
+	QString message;
 
 	try
 	{
 		if (entry.action.trigger)
 			entry.action.trigger(t, host);
+		return host.createdTask();
 	}
 	catch (const std::exception& e)
 	{
-		QString message = QString::fromUtf8(e.what());
-
-		Logger::global()->enterLogMessage(entry.plugin, QObject::tr("The action %1 failed: %2")
-			.arg(entry.action.label, message));
-
-		Task* task = host.createdTask();
-		if (task && !task->isFinished())
-			task->finish(false, message);
-
-		throw PluginError{entry.plugin, message};
+		message = QString::fromUtf8(e.what());
+	}
+	catch (...)
+	{
+		message = QObject::tr("unknown error");
 	}
 
-	return host.createdTask();
+	// Finishing a task as failed logs the failure itself, so only log when
+	// there was no task to do it.
+	bool logged = false;
+	for (Task* task : host.tasks())
+	{
+		if (!task->isFinished())
+		{
+			task->finish(false, message);
+			logged = true;
+		}
+	}
+
+	if (!logged)
+	{
+		Logger::global()->enterLogMessage(entry.plugin, QObject::tr("The action %1 failed: %2")
+			.arg(entry.action.id, message));
+	}
+
+	throw PluginError{entry.plugin, message};
 }
 
 void TransferActions::setLoadingPlugin(const QString& name)
@@ -138,4 +172,5 @@ void TransferActions::setLoadingPlugin(const QString& name)
 void TransferActions::clear()
 {
 	s_actions.clear();
+	s_loadingPlugin.clear();
 }

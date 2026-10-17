@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #ifndef TRANSFERACTION_H
 #define TRANSFERACTION_H
 #include <QString>
+#include <QList>
 #include <functional>
 
 class Task;
@@ -40,10 +41,14 @@ public:
 	TaskHost(const QString& plugin, const QString& transferUuid, const QString& transferName);
 
 	Task* createTask(const QString& title);
-	Task* createdTask() const { return m_task; } // the last one created, if any
+	// The first task created, if any. This is the one the front ends report
+	// back to whoever triggered the action.
+	Task* createdTask() const { return m_tasks.isEmpty() ? nullptr : m_tasks.first(); }
+	// Every task created, in order.
+	QList<Task*> tasks() const { return m_tasks; }
 private:
 	QString m_plugin, m_transferUuid, m_transferName;
-	Task* m_task = nullptr;
+	QList<Task*> m_tasks;
 };
 
 /* An entry in a transfer's context menu, in every front end.
