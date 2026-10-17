@@ -625,6 +625,7 @@ if(WITH_TUI)
 	target_include_directories(fatrat-tui PRIVATE ${TUI_CURSES_INCLUDE_DIRS})
 	target_link_libraries(fatrat-tui PRIVATE fatrat_tui_core ${TUI_CURSES_LIBRARIES})
 	install(TARGETS fatrat-tui RUNTIME DESTINATION bin)
+	install(FILES doc/fatrat-tui.1 DESTINATION share/man/man1)
 
 	if(NOT WITH_WEBINTERFACE)
 		message(WARNING "WITH_TUI without WITH_WEBINTERFACE: fatrat-tui cannot start a local server, it can only connect with --url")

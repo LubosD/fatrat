@@ -1,0 +1,146 @@
+.TH FATRAT-TUI 1 "October 17, 2026"
+.SH NAME
+fatrat-tui \- terminal client for the FatRat download manager
+.SH SYNOPSIS
+.B fatrat-tui
+.RI [ options ]
+.SH DESCRIPTION
+\fBfatrat-tui\fP is a full-screen terminal (ncurses) client for
+.BR fatrat (1).
+It manages transfers and queues, shows transfer details, the RSS feeds and
+rules, the log, the settings, the scheduler and the Python extensions.
+It talks to FatRat over its REST API; it needs a terminal and a FatRat built
+with the web interface.
+.PP
+By default (\fB\-\-mode auto\fR) it uses, in this order:
+a server that is already running on the unix socket;
+a running FatRat on this machine whose settings turn on the web interface;
+or a private server that it starts itself on the unix socket.
+Use \fB\-\-which\fR to see what it would do.
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show a summary of options.
+.TP
+.B \-\-mode \fImode\fR
+How to reach FatRat: \fBauto\fR (the default); \fBlocal\fR, the running FatRat
+found through its settings; \fBsocket\fR, a server on the unix socket, started
+if needed; or \fBurl\fR (needs \fB\-\-url\fR).
+.TP
+.B \-\-url \fIurl\fR
+Connect to a FatRat web interface: \fIhttp://host:port\fR,
+\fIhttps://host:port\fR or \fIunix:/path/to.sock\fR. Implies \fB\-\-mode url\fR.
+May also be given in the \fBFATRAT_URL\fR environment variable.
+.TP
+.B \-\-no\-start
+In auto mode, do not start a server; fail if none is running.
+.TP
+.B \-\-which
+Print how \fBfatrat-tui\fR would connect, and why, then exit.
+.TP
+.B \-\-password\-file \fIfile\fR
+Read the web interface password from the first line of \fIfile\fR. The file
+must not be accessible by group or others.
+.TP
+.B \-\-password\-prompt
+Ask for the password even if \fBFATRAT_PASSWORD\fR, \fB\-\-password\-file\fR or
+the settings of a local FatRat provide one.
+.TP
+.B \-\-insecure
+Do not verify the server certificate.
+.TP
+.B \-\-socket \fIpath\fR
+Unix socket of the local server (default:
+\fI$XDG_RUNTIME_DIR/fatrat/rest.sock\fR).
+.TP
+.B \-\-server\-bin \fIpath\fR
+The FatRat program to start (default: \fBfatrat-nogui\fR or \fBfatrat\fR next
+to this program, or in \fBPATH\fR).
+.TP
+.B \-\-config \fIfile\fR
+FatRat settings file: read to find a running FatRat, and used by a server that
+\fBfatrat-tui\fR starts (default: the normal FatRat settings).
+.TP
+.B \-\-stop
+Stop a local server that was started by \fBfatrat-tui\fR, then exit.
+.TP
+.B \-\-no\-mouse
+Do not use the mouse.
+.TP
+.B \-\-ascii
+Draw with plain ASCII characters.
+.TP
+.B \-\-script \fIfile\fR
+Run the commands in \fIfile\fR against a virtual screen and print the results.
+Meant for tests.
+.TP
+.B \-\-size \fIcolsxrows\fR
+Screen size for \fB\-\-script\fR (default 110x34).
+.SH KEYS
+Keys act on the focused pane; the bottom bar always shows those that apply.
+Press \fB?\fR or \fBF1\fR for the full list.
+.TP
+.B Ctrl\-1, Ctrl\-2, Ctrl\-3
+Switch to Transfers, RSS or Log.
+.TP
+.B Tab, Shift\-Tab
+Move focus between panes (next tab in the details view).
+.TP
+.B Up, Down, Ctrl\-K, Ctrl\-J, PgUp, PgDn, Home, End
+Move through a list.
+.TP
+.B Ctrl\-/
+Filter the list (search, in the log).
+.TP
+.B Ctrl\-N, Ctrl\-E, Ctrl\-D
+New, edit and delete the selected item.
+.TP
+.B Ctrl\-R, Ctrl\-P, Ctrl\-F
+Resume, pause and force-start the selected transfers.
+.TP
+.B Space, Ctrl\-A
+Mark a transfer; mark all.
+.TP
+.B Enter
+Open the details of a transfer, or open a queue.
+.TP
+.B F2 (Ctrl\-O), F3, F4 (Ctrl\-X)
+Settings, global speed limit, extensions.
+.TP
+.B Esc
+Go back or close a dialog.
+.TP
+.B Ctrl\-L
+Redraw the screen.
+.TP
+.B Ctrl\-Q
+Quit. A private server started by \fBfatrat-tui\fR is left running unless it
+is stopped with \fB\-\-stop\fR.
+.SH ENVIRONMENT
+.TP
+.B FATRAT_URL
+Default for \fB\-\-url\fR.
+.TP
+.B FATRAT_PASSWORD
+The web interface password, used for connections over the network.
+.TP
+.B XDG_RUNTIME_DIR
+Where the default unix socket lives.
+.SH FILES
+.TP
+.I ~/.config/fatrat/tui.conf
+Settings of \fBfatrat-tui\fR, including trusted server certificate fingerprints.
+.TP
+.I $XDG_RUNTIME_DIR/fatrat/rest.sock
+Default unix socket of the local server.
+.SH EXIT STATUS
+.B 0
+on success,
+.B 1
+if the connection plan failed under \fB\-\-which\fR, no terminal is available, or
+\fB\-\-stop\fR found nothing to stop; \fB2\fR for invalid options or a connection
+that cannot be planned.
+.SH SEE ALSO
+.BR fatrat (1)
+.SH AUTHOR
+Lubos Dolezel <lubos@dolezel.info>.
