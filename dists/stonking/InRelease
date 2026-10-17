@@ -4,45 +4,45 @@ Hash: SHA256
 Origin: FatRat
 Label: FatRat
 Codename: stonking
-Date: Sat, 17 Oct 2026 12:12:42 UTC
+Date: Sat, 17 Oct 2026 13:37:56 UTC
 Architectures: amd64 arm64
 Components: main
 Description: FatRat download manager for Ubuntu stonking
 MD5Sum:
- ee288576bb165af26d727ef22866d9ee 3342 main/binary-amd64/Packages
- 93921242ee3a34b5ed3e86bec25693bf 1171 main/binary-amd64/Packages.gz
+ 5c625e780140ed161b03fc29b0e1e926 3342 main/binary-amd64/Packages
+ 33cf6800848605272497e3528f5ae499 1163 main/binary-amd64/Packages.gz
  34de60dc0450fca88013cfb05540cb2c 122 main/binary-amd64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/binary-arm64/Packages
  7029066c27ac6f5ef18d660d5741979a 20 main/binary-arm64/Packages.gz
  1cbf89fb0612b9c8b9ce5f8d744a22b2 122 main/binary-arm64/Release
 SHA1:
- 0374022e29caed1b359c6e765dd1d4fa837950c1 3342 main/binary-amd64/Packages
- dfbac0b53e9e107470f23b635f916ab3a3b31074 1171 main/binary-amd64/Packages.gz
+ cf80574c4936adceef4f7865f0bb45f5c3d9f7c9 3342 main/binary-amd64/Packages
+ 859958a08f1e943130a881231deebbbc103d4c9d 1163 main/binary-amd64/Packages.gz
  16ee8664ad5eef8858d3dd59549aee85e1c9dab0 122 main/binary-amd64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/binary-arm64/Packages
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/binary-arm64/Packages.gz
  2c487ece61c88ca5403abac70b8b28cf897e5a57 122 main/binary-arm64/Release
 SHA256:
- 5d78fa6c8cf2ad958ee815db8376b8f03a13dcfc3cb79efdce3493c4a9131c05 3342 main/binary-amd64/Packages
- 99614403776879faabef1cf27d7f76828163f51d8f09dcf2274459fc14252520 1171 main/binary-amd64/Packages.gz
+ 9f27831d42e5bbf676208fe7c56917c8a32c848ef38a9c2cd99fa36bc6e4a8e3 3342 main/binary-amd64/Packages
+ b90dc3d6c4a355f1aed9ca8190aaa80e0ce2c9b5af9f1558437d258bdd516403 1163 main/binary-amd64/Packages.gz
  1ae066c93c1668e6a2a5bee3c15a00c36a77884512e2ea1e5168cf9e8ad03274 122 main/binary-amd64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/binary-arm64/Packages
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/binary-arm64/Packages.gz
  19bef9011f1c13c2983ff099f8fce6aa863fabd939fb5560c6e160de36ce9814 122 main/binary-arm64/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQJPBAEBCAA5FiEEjxYHlgPFskJuXfYCh2GddQlqfkEFAmrTZjsbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEIdhnXUJan5B6R0P/1aC/y8zmHDNDut+JDwy
-V4Jh+zDD3bbvqF7d+EIh8FFQ0c2eVd27aocBrM6D6/pUCKFqETTC8fRP95WIw6AE
-OtgAWQGBNenJI0Bsnas5if6qqLjdjevmSOCueP1mdLP7cBulXE11iyqwF7CEh5T4
-tX/SXtPZVNu9ySpLgivsZ1o1L4iOYVQLkO7lzmfjMvXcJdJ7zhk2iV/W2Rl5K3MY
-WUexVelGUtJ/3ufwPpikNQ/ZWBKtUIV8YvTXRIYidaY5RkAvMEt6dfQGTXNOxfBb
-u+ZAFVmTZkCjMQ9N71VMZVoIVIxU5Lot0zvtD2pkalgHQCUJ8+nnjFbHmMKBSPeQ
-Y/HBJS++XDiUojKR9sb82A4RSlR66eIxQ+V/xoWzrUNS9XxmJAd3RFoY4mzRLh6b
-90EiWElZpxFCt/zcCaVjM75eMYtj9Lc1zaXcD98VHa/7HF0sZ1SOR5FrLJzLM1Ss
-87pgUG6O6RRa7kGLU3kMg5T2CakfEB8tjOv+1lOcUvXJ0V7xcXbFfBRbUw7dlyhV
-pviaFFpj9h/sYfMj5QTiDD3ugoJRrX5j+hEn0YSpEm1M33mX24FjxoaFONaZ0Glf
-g+H+9K8pZS1gLw/Q476rwu49GeMQ3WqmPFWZxj8wI3LMZzG0CnMdeOmJam4BzrsJ
-06PajVa62huL2EEkSZKDqYIq
-=aj6W
+iQJPBAEBCAA5FiEEjxYHlgPFskJuXfYCh2GddQlqfkEFAmrTejkbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEIdhnXUJan5BLRQP/RqXsgNVfePVVabn9o9D
+JZuHRbDqjHLwvVx2sKm+KZs41ZmbDHp1n38wPVl5uM8ipDxAuXg1MKB2LQ+ZpZ1r
+bYOQXq3xQ17NUBM66p+hVcqlWII4/QTQTIs/4gYyw6m/fOgD+/DzN1WXIrqcnudd
+It1DkOYV5LYp+YwGM9fGJqi1yG6Gmi6OOfTwoOjKsRDioJa4uFM9IVEq8h5cQ25b
+hxwvXU4OepsZNavnl+ERyawNR+th9QSIKj65Azt7AM+qBMVYkLtoV/1ZhLx0WT1k
+7Qx+775/S+MJ9SfG5RRrZhZWScn89RXWNGwCNj1ZD0fKoUupYO1zpOVs5OtitlQ/
+3uCeOPLmn67oXZ8s2nDzLPRtR4hEvqlKDaCwdyrIVkfDd0at2kbWvdEg4vJLilS4
+2nlfAfxTaoAwKwyT7pIJMU7YJTaEe1ZkntF+04XD/8HYw2N4pvp0xHswq4je1BoF
+mkPeLCuybmgSFfE1ssWwJLuoTU2TkYvTx6iqICRhuOxoB8bQsVkEa1C6dr9Wm3EJ
+Hcyv1JMxtf7/4PNcME1ejvdLg6CNfaU1pPcu4B63qOwfOwCZtMNaPWqh2WnSPM18
+o81TVfzYWRjF/LLpz3+zMGXHTEJGkLZJ6CvdU5odABjxg1vMF9bVTea9WWBWHRS1
+0UpeAq0YRD3cBjiQUkveSH5a
+=yBOT
 -----END PGP SIGNATURE-----
