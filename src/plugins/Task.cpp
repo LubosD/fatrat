@@ -197,6 +197,10 @@ std::optional<QJsonObject> Task::askBlocking(const QJsonObject& form, int timeou
 		return std::nullopt;
 	}
 
+	// A cancelled worker must not wait on an event loop that may have stopped.
+	if (isFinished() || cancelRequested())
+		return std::nullopt;
+
 	struct Wait
 	{
 		QMutex mutex;
@@ -237,11 +241,11 @@ Task::AnswerResult Task::answer(const QString& promptId, const QJsonObject& valu
 	{
 		QMutexLocker l(&m_mutex);
 
+		if (!m_prompt || m_prompt->id != promptId)
+			return closedResult(promptId);
 		// finish() closes the prompt through a queued call that may not have run yet.
 		if (m_state != Running)
 			return AlreadyAnswered;
-		if (!m_prompt || m_prompt->id != promptId)
-			return closedResult(promptId);
 
 		QString problem = FormValidator::checkAnswer(m_prompt->form, values, &normalized);
 		if (!problem.isEmpty())
@@ -260,10 +264,10 @@ Task::AnswerResult Task::dismissPrompt(const QString& promptId)
 {
 	{
 		QMutexLocker l(&m_mutex);
-		if (m_state != Running)
-			return AlreadyAnswered;
 		if (!m_prompt || m_prompt->id != promptId)
 			return closedResult(promptId);
+		if (m_state != Running)
+			return AlreadyAnswered;
 	}
 
 	closePrompt(ClosedDismissed, std::nullopt);

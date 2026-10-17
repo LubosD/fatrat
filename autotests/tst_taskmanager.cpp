@@ -1,3 +1,4 @@
+#include <QCoreApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSignalSpy>
@@ -15,6 +16,9 @@ class tst_taskmanager : public QObject
 {
 	Q_OBJECT
 private slots:
+	// Safety net for prompts a test leaves open. Tests whose callbacks capture locals
+	// must close the prompt themselves: cleanup() runs after their frame is gone.
+	void cleanup();
 	void reportsProgressStatusAndFinish();
 	void callbackGetsTheNormalizedAnswer();
 	void invalidAnswerKeepsThePromptOpen();
@@ -32,7 +36,15 @@ private slots:
 	void cancelAllCancelsRunningTasks();
 	void finishWithOpenPromptClosesIt();
 	void answerThenDismissSecondIsAlreadyAnswered();
+	void finishedTaskKeepsUnknownAndExpiredDistinct();
+	void askBlockingAfterCancelReturnsAtOnce();
 };
+
+void tst_taskmanager::cleanup()
+{
+	TaskManager::instance()->cancelAll();
+	QCoreApplication::processEvents();
+}
 
 static QJsonObject nameForm()
 {
@@ -102,6 +114,9 @@ void tst_taskmanager::invalidAnswerKeepsThePromptOpen()
 	QVERIFY(!error.isEmpty());
 	QVERIFY(!called);
 	QVERIFY(task->prompt().has_value());
+
+	// The callback captures `called`, which dies with this function; cleanup() would be too late.
+	task->dismissPrompt(task->prompt()->id);
 }
 
 void tst_taskmanager::promptTimesOut()
@@ -335,6 +350,37 @@ void tst_taskmanager::answerThenDismissSecondIsAlreadyAnswered()
 	id = task->prompt()->id;
 	QCOMPARE(task->dismissPrompt(id), Task::Answered);
 	QCOMPARE(task->answer(id, QJsonDocument::fromJson(R"({ "name": "x" })").object()), Task::AlreadyAnswered);
+}
+
+void tst_taskmanager::finishedTaskKeepsUnknownAndExpiredDistinct()
+{
+	Task* task = newTask();
+	bool called = false;
+
+	task->ask(nameForm(), 1, [&](std::optional<QJsonObject>) { called = true; });
+	QString id = task->prompt()->id;
+	QTRY_VERIFY_WITH_TIMEOUT(called, 3000);
+	task->finish(true);
+
+	QJsonObject values = QJsonDocument::fromJson(R"({ "name": "x" })").object();
+	QCOMPARE(task->answer(id, values), Task::Expired);
+	QCOMPARE(task->answer("no-such-prompt", values), Task::UnknownPrompt);
+	QCOMPARE(task->dismissPrompt("no-such-prompt"), Task::UnknownPrompt);
+}
+
+void tst_taskmanager::askBlockingAfterCancelReturnsAtOnce()
+{
+	Task* task = newTask();
+	std::optional<QJsonObject> got = QJsonObject();
+
+	task->requestCancel();
+	QThread* worker = QThread::create([&] { got = task->askBlocking(nameForm(), 60000); });
+	worker->start();
+	QVERIFY(worker->wait(3000));
+	delete worker;
+
+	QVERIFY(!got.has_value());
+	QVERIFY(!task->prompt().has_value());
 }
 
 QTEST_GUILESS_MAIN(tst_taskmanager)
