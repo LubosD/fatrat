@@ -1,27 +1,27 @@
 Origin: FatRat
 Label: FatRat
 Codename: stonking
-Date: Sat, 17 Oct 2026 13:37:56 UTC
+Date: Sat, 17 Oct 2026 17:31:46 UTC
 Architectures: amd64 arm64
 Components: main
 Description: FatRat download manager for Ubuntu stonking
 MD5Sum:
- 5c625e780140ed161b03fc29b0e1e926 3342 main/binary-amd64/Packages
- 33cf6800848605272497e3528f5ae499 1163 main/binary-amd64/Packages.gz
+ e7259fd50ce92c63b4d5073211f75012 3342 main/binary-amd64/Packages
+ 7d868b2dbcdf625f13f93465242cb808 1168 main/binary-amd64/Packages.gz
  34de60dc0450fca88013cfb05540cb2c 122 main/binary-amd64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/binary-arm64/Packages
  7029066c27ac6f5ef18d660d5741979a 20 main/binary-arm64/Packages.gz
  1cbf89fb0612b9c8b9ce5f8d744a22b2 122 main/binary-arm64/Release
 SHA1:
- cf80574c4936adceef4f7865f0bb45f5c3d9f7c9 3342 main/binary-amd64/Packages
- 859958a08f1e943130a881231deebbbc103d4c9d 1163 main/binary-amd64/Packages.gz
+ 4cedda4cc3c9f9ef019fc5078ff9b72a6fecf5f5 3342 main/binary-amd64/Packages
+ b10a9203e5aeb39388ac7a611960337212430234 1168 main/binary-amd64/Packages.gz
  16ee8664ad5eef8858d3dd59549aee85e1c9dab0 122 main/binary-amd64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/binary-arm64/Packages
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/binary-arm64/Packages.gz
  2c487ece61c88ca5403abac70b8b28cf897e5a57 122 main/binary-arm64/Release
 SHA256:
- 9f27831d42e5bbf676208fe7c56917c8a32c848ef38a9c2cd99fa36bc6e4a8e3 3342 main/binary-amd64/Packages
- b90dc3d6c4a355f1aed9ca8190aaa80e0ce2c9b5af9f1558437d258bdd516403 1163 main/binary-amd64/Packages.gz
+ 0d8b834af8699eb64e74efb71ab9b49bee8b3526483adf6e35529020b3609b42 3342 main/binary-amd64/Packages
+ b3ed0eed6eb0f60ef656615fe54987bc8b94f5e1206ce19470ad4bf9c32bba2b 1168 main/binary-amd64/Packages.gz
  1ae066c93c1668e6a2a5bee3c15a00c36a77884512e2ea1e5168cf9e8ad03274 122 main/binary-amd64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/binary-arm64/Packages
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/binary-arm64/Packages.gz

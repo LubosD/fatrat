@@ -1,18 +1,18 @@
 Package: fatrat
-Version: 1.3.0-2~ubuntu26.04.1
+Version: 1.3.1-1~ubuntu26.04.1
 Architecture: amd64
 Maintainer: Lubos Dolezel <lubos@dolezel.info>
 Installed-Size: 5929
-Depends: fatrat-common (= 1.3.0-2~ubuntu26.04.1), libc6 (>= 2.38), libcurl4t64 (>= 7.56.1), libgcc-s1 (>= 3.3.1), libpython3.14 (>= 3.14.1), libqt6core6t64 (>= 6.10.2), libqt6dbus6 (>= 6.5), libqt6gui6 (>= 6.9.1), libqt6help6 (>= 6.6.0), libqt6network6 (>= 6.7.2), libqt6svg6 (>= 6.6.0), libqt6widgets6 (>= 6.5), libqt6xml6 (>= 6.6.0), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14), libtorrent-rasterbar2.0t64 (>= 2.0.12)
+Depends: fatrat-common (= 1.3.1-1~ubuntu26.04.1), libc6 (>= 2.38), libcurl4t64 (>= 7.56.1), libgcc-s1 (>= 3.3.1), libpython3.14 (>= 3.14.1), libqt6core6t64 (>= 6.10.2), libqt6dbus6 (>= 6.5), libqt6gui6 (>= 6.9.1), libqt6help6 (>= 6.6.0), libqt6network6 (>= 6.7.2), libqt6svg6 (>= 6.6.0), libqt6widgets6 (>= 6.5), libqt6xml6 (>= 6.6.0), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14), libtorrent-rasterbar2.0t64 (>= 2.0.12)
 Recommends: qt6-svg-plugins
 Homepage: https://github.com/LubosD/fatrat
 Priority: optional
 Section: net
-Filename: pool/main/f/fatrat/fatrat_1.3.0-2~ubuntu26.04.1_amd64.deb
-Size: 3157924
-SHA256: 9e8385801b03c0fa45cec24d87bb388d009325f31bfb19f88cbf5b637d4f8aab
-SHA1: 8ebe8cf93e2654edfb843f5c2cbc4054c1d5bba1
-MD5sum: 061279c603ebc15fea3ff037e7c3acc2
+Filename: pool/main/f/fatrat/fatrat_1.3.1-1~ubuntu26.04.1_amd64.deb
+Size: 3158034
+SHA256: 4ed9875262052848abfa401ed490a567a91b11ec4d736532cc85a0a957e96d43
+SHA1: 63b44a670c8ac034a575abc43c6ccbac96bbb481
+MD5sum: ab094388a6457632be6f07c10bd86d5d
 Description: download manager - Qt desktop version
  FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
  RSS feeds, Python extensions and a web interface.
@@ -21,7 +21,7 @@ Description: download manager - Qt desktop version
 
 Package: fatrat-common
 Source: fatrat
-Version: 1.3.0-2~ubuntu26.04.1
+Version: 1.3.1-1~ubuntu26.04.1
 Architecture: amd64
 Maintainer: Lubos Dolezel <lubos@dolezel.info>
 Installed-Size: 4022
@@ -30,11 +30,11 @@ Recommends: python3-pip, git
 Homepage: https://github.com/LubosD/fatrat
 Priority: optional
 Section: net
-Filename: pool/main/f/fatrat/fatrat-common_1.3.0-2~ubuntu26.04.1_amd64.deb
-Size: 866278
-SHA256: f5eaf0621de2a7116518b6bd6760f81ccd2afd7c84c3300e4a292b2520b3a702
-SHA1: 46f0ee761266b9ae9246f35bac56083d21612350
-MD5sum: 2dc1cf391a68dc2cea384e9f7d4e9d8b
+Filename: pool/main/f/fatrat/fatrat-common_1.3.1-1~ubuntu26.04.1_amd64.deb
+Size: 866276
+SHA256: 8205d2eb8818b66b9d4ae5adfc42c518273991468e3fa431b45a6cebd07c4ff2
+SHA1: 5482042daf53ce30d425c1775191f5cb01d2e893
+MD5sum: ede007075404d075736d0108c772446b
 Description: download manager - common files
  FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
  RSS feeds, Python extensions and a web interface.
@@ -45,19 +45,19 @@ Description: download manager - common files
 
 Package: fatrat-nogui
 Source: fatrat
-Version: 1.3.0-2~ubuntu26.04.1
+Version: 1.3.1-1~ubuntu26.04.1
 Architecture: amd64
 Maintainer: Lubos Dolezel <lubos@dolezel.info>
 Installed-Size: 3016
-Depends: fatrat-common (= 1.3.0-2~ubuntu26.04.1), libc6 (>= 2.38), libcurl4t64 (>= 7.56.1), libgcc-s1 (>= 3.3.1), libncursesw6 (>= 6), libpython3.14 (>= 3.14.1), libqt6core6t64 (>= 6.10.2), libqt6network6 (>= 6.7.2), libqt6xml6 (>= 6.6.0), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14), libtinfo6 (>= 6), libtorrent-rasterbar2.0t64 (>= 2.0.12)
+Depends: fatrat-common (= 1.3.1-1~ubuntu26.04.1), libc6 (>= 2.38), libcurl4t64 (>= 7.56.1), libgcc-s1 (>= 3.3.1), libncursesw6 (>= 6), libpython3.14 (>= 3.14.1), libqt6core6t64 (>= 6.10.2), libqt6network6 (>= 6.7.2), libqt6xml6 (>= 6.6.0), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14), libtinfo6 (>= 6), libtorrent-rasterbar2.0t64 (>= 2.0.12)
 Homepage: https://github.com/LubosD/fatrat
 Priority: optional
 Section: net
-Filename: pool/main/f/fatrat/fatrat-nogui_1.3.0-2~ubuntu26.04.1_amd64.deb
-Size: 1069632
-SHA256: 961d944d063ffbb4994e79fbd0c15173d669cbd6b3d56980b479045fafe3ed96
-SHA1: bb3e1ab577c8aae0d56241d8a7f974006bc4f5e9
-MD5sum: 81961b2f07cd2407f9eb647d51cbe7d1
+Filename: pool/main/f/fatrat/fatrat-nogui_1.3.1-1~ubuntu26.04.1_amd64.deb
+Size: 1069624
+SHA256: e2b59762f80a3e2b0bb9beaccc2cb2bae70601e7c7d1081be576cb9e27841ad4
+SHA1: f543607195c9eb8234520b1b05f45b27ba2a6df3
+MD5sum: 9be4c4a869e4ce98ea62018f1de1b12e
 Description: download manager - headless version and terminal UI
  FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
  RSS feeds, Python extensions and a web interface.

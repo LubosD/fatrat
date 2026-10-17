@@ -1,27 +1,27 @@
 Origin: FatRat
 Label: FatRat
 Codename: resolute
-Date: Sat, 17 Oct 2026 13:37:56 UTC
+Date: Sat, 17 Oct 2026 17:31:46 UTC
 Architectures: amd64 arm64
 Components: main
 Description: FatRat download manager for Ubuntu resolute
 MD5Sum:
- 7afa7dd550d5a198899392a435abfae8 3347 main/binary-amd64/Packages
- 3c3cef75838f8d0760b88b43414af20d 1172 main/binary-amd64/Packages.gz
+ 39a9215af9898e408f672232f30804c6 3347 main/binary-amd64/Packages
+ 1e4106fbef4a4e851a78cd581b3552ac 1170 main/binary-amd64/Packages.gz
  0c8c7d6f6faa61a2242bb5590fc0fe36 122 main/binary-amd64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/binary-arm64/Packages
  7029066c27ac6f5ef18d660d5741979a 20 main/binary-arm64/Packages.gz
  c879d91e6b298457c8c851297c43036e 122 main/binary-arm64/Release
 SHA1:
- 5c7f54802b6a11adc2f460fedec62d9187bbe393 3347 main/binary-amd64/Packages
- 1935298557b13d340f97fc0802968173b17075e9 1172 main/binary-amd64/Packages.gz
+ 48dfd6136858e9515fb26a0241508b5adedf4501 3347 main/binary-amd64/Packages
+ d7c69c1c52e22b3291489dd43af2d98de4448f02 1170 main/binary-amd64/Packages.gz
  4a1699fee38905af90982fa2063029ffe3c53f65 122 main/binary-amd64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/binary-arm64/Packages
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/binary-arm64/Packages.gz
  7abeaa2681d931c7526f3941e2fb995909174fef 122 main/binary-arm64/Release
 SHA256:
- 7b65a1b127c292bdfb0861d19d11fc2da880533651cb713a6b7020f97d3f2ec0 3347 main/binary-amd64/Packages
- 19ba4d49d67e43a3716c64573dd095f1f8b2d372c698e5fde12dd7b8a5dc0622 1172 main/binary-amd64/Packages.gz
+ a480239e98d16ff9a1e14c4f0fdf00908b02fd384d30268fc2607b22ee06fb01 3347 main/binary-amd64/Packages
+ e3a0473a2d00c1ea383c97d1c719c3725358fd2eacc70067f879789322e99b76 1170 main/binary-amd64/Packages.gz
  ba8ffe62f11d7c0406d54658645c40e58eaa757d2681d6e2f0c4982ccb2eb541 122 main/binary-amd64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/binary-arm64/Packages
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/binary-arm64/Packages.gz
