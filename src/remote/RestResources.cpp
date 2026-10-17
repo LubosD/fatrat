@@ -678,6 +678,16 @@ static RestResult addTransfers(const RestRequest& req)
 	QueueGuard g(req.pathParams["queue"]);
 	Queue* q = g.queue();
 	const Transfer::Mode mode = opts.upload ? Transfer::Upload : Transfer::Download;
+
+	// A download without a target goes where the queue's downloads go. An empty target would make the
+	// engines write relative to FatRat's working directory (and a .torrent fetched over HTTP could then
+	// not be loaded, as TorrentDownload only recognizes absolute paths as local files).
+	if (mode == Transfer::Download && opts.target.isEmpty())
+	{
+		opts.target = q->defaultDirectory();
+		if (opts.target.isEmpty())
+			opts.target = QDir::homePath();
+	}
 	QStringList uuids;
 	QList<Transfer*> created;
 

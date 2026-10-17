@@ -95,6 +95,13 @@ req DELETE "/transfers/$(enc "$T3")?withData=true"; check "single delete" 204
 req DELETE "/transfers/$(enc "$T3")";            check "delete again" 404
 req GET "/queues/$QE/transfers";                 check "queue empty" 200 'length==0'
 
+# without a target, a download goes to the queue's default directory (not FatRat's working directory)
+json PATCH "/queues/$QE" '{"defaultDirectory":"/tmp"}'; check "set default directory" 200 '.defaultDirectory=="/tmp"'
+json POST "/queues/$QE/transfers" "{\"urls\":[\"$M1\"],\"paused\":true}"; check "add without target" 201 '.uuids|length==1'
+TD=$(echo "$body" | jq -r '.uuids[0]')
+req GET "/transfers/$(enc "$TD")";               check "target defaults to the queue directory" 200 '.object=="/tmp"'
+req DELETE "/transfers/$(enc "$TD")";            check "delete defaulted transfer" 204
+
 # protocol-level checks
 req POST /queues -H 'Content-Type: text/xml' --data '<x/>';           check "text/xml rejected" 415 '.error.code=="unsupported_media_type"'
 req POST /settings/apply -H 'Origin: https://evil.example';           check "foreign origin rejected" 403 '.error.code=="forbidden_origin"'
