@@ -75,6 +75,7 @@ respects for all of the code used other than "OpenSSL".
 #include "rss/RssFetcher.h"
 #include "Scheduler.h"
 #include "TransferFactory.h"
+#include "plugins/TaskManager.h"
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
@@ -199,6 +200,8 @@ int main(int argc,char** argv)
 #endif
 
 	
+	// Before any plugin is loaded: TaskManager lives on the thread that first uses it.
+	TaskManager::instance();
 	installSignalHandler();
 	initTransferClasses();
 	loadPlugins();

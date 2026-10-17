@@ -53,6 +53,17 @@ target_include_directories(tst_formvalidator PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_formvalidator Qt6::Core Qt6::Test)
 add_test(NAME formvalidator COMMAND tst_formvalidator)
 
+set(plugin_core_SRCS
+	${CMAKE_SOURCE_DIR}/src/plugins/FormValidator.cpp
+	${CMAKE_SOURCE_DIR}/src/plugins/Task.cpp
+	${CMAKE_SOURCE_DIR}/src/plugins/TaskManager.cpp
+	${CMAKE_SOURCE_DIR}/src/Logger.cpp)
+
+add_executable(tst_taskmanager tst_taskmanager.cpp ${plugin_core_SRCS})
+target_include_directories(tst_taskmanager PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_taskmanager Qt6::Core Qt6::Test)
+add_test(NAME taskmanager COMMAND tst_taskmanager)
+
 if(WITH_TUI)
 	foreach(t format httpclient store keymap render connection settings extensions)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)

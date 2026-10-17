@@ -178,6 +178,8 @@ set(fatrat_SRCS
 	src/util/BmpWriter.cpp
 	src/util/ExtendedAttributes.cpp
 	src/plugins/FormValidator.cpp
+	src/plugins/Task.cpp
+	src/plugins/TaskManager.cpp
 )
 
 set(fatrat_GUI_SRCS
@@ -239,6 +241,8 @@ set(fatrat_MOC_HDRS
 	src/QueueMgr.h
 	src/Transfer.h
 	src/Scheduler.h
+	src/plugins/Task.h
+	src/plugins/TaskManager.h
 	src/SimpleEmail.h
 	src/Queue.h
 	src/Logger.h
