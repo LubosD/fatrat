@@ -119,6 +119,11 @@ PluginLoader::Result PluginLoader::load(const QString& path, bool haveGui)
 			return r;
 		}
 
+		// Before initPlugin(), so that a getInfo() that throws leaves nothing registered.
+		std::optional<PluginInfo> pluginInfo;
+		if (info)
+			pluginInfo = info();
+
 		QString name = QFileInfo(path).fileName();
 		initStarted = true;
 		TransferActions::setLoadingPlugin(name);
@@ -137,8 +142,7 @@ PluginLoader::Result PluginLoader::load(const QString& path, bool haveGui)
 		TransferActions::setLoadingPlugin(QString());
 
 		r.outcome = Loaded;
-		if (info)
-			r.info = info();
+		r.info = pluginInfo;
 	}
 	catch (const std::exception& e)
 	{

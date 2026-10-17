@@ -5,6 +5,7 @@
 #include <QTest>
 #include <QScopeGuard>
 #include <QThread>
+#include <atomic>
 #include <stdexcept>
 
 #include "plugins/Task.h"
@@ -38,6 +39,8 @@ private slots:
 	void answerThenDismissSecondIsAlreadyAnswered();
 	void finishedTaskKeepsUnknownAndExpiredDistinct();
 	void askBlockingAfterCancelReturnsAtOnce();
+	void cancelWakesAnAskerWhoseQuestionNeverRan();
+	void finishWakesAnAskerWhoseQuestionNeverRan();
 };
 
 void tst_taskmanager::cleanup()
@@ -380,6 +383,51 @@ void tst_taskmanager::askBlockingAfterCancelReturnsAtOnce()
 	delete worker;
 
 	QVERIFY(!got.has_value());
+	QVERIFY(!task->prompt().has_value());
+}
+
+// The main thread is not running its event loop (at quit, a plugin may be joining
+// its workers), so the queued ask() cannot run and cancelling must wake the worker itself.
+void tst_taskmanager::cancelWakesAnAskerWhoseQuestionNeverRan()
+{
+	Task* task = newTask();
+	std::optional<QJsonObject> got = QJsonObject();
+	std::atomic<bool> entered(false);
+
+	QThread* worker = QThread::create([&] { entered = true; got = task->askBlocking(nameForm(), 60000); });
+	worker->start();
+	while (!entered)
+		QThread::msleep(5);
+	QThread::msleep(100);
+
+	task->requestCancel(); // no events processed since the worker started
+	QVERIFY(worker->wait(2000));
+	delete worker;
+	QVERIFY(!got.has_value());
+
+	// The late queued ask() must not open a prompt on a cancelled task.
+	QCoreApplication::processEvents();
+	QVERIFY(!task->prompt().has_value());
+}
+
+void tst_taskmanager::finishWakesAnAskerWhoseQuestionNeverRan()
+{
+	Task* task = newTask();
+	std::optional<QJsonObject> got = QJsonObject();
+	std::atomic<bool> entered(false);
+
+	QThread* worker = QThread::create([&] { entered = true; got = task->askBlocking(nameForm(), 60000); });
+	worker->start();
+	while (!entered)
+		QThread::msleep(5);
+	QThread::msleep(100);
+
+	task->finish(false, "gave up");
+	QVERIFY(worker->wait(2000));
+	delete worker;
+	QVERIFY(!got.has_value());
+
+	QCoreApplication::processEvents();
 	QVERIFY(!task->prompt().has_value());
 }
 

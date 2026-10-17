@@ -36,6 +36,25 @@ respects for all of the code used other than "OpenSSL".
 #include <exception>
 #include <memory>
 
+struct Task::Wait
+{
+	QMutex mutex;
+	QWaitCondition cond;
+	bool done = false;
+	std::optional<QJsonObject> result;
+
+	// A second call is harmless: the first outcome stands.
+	void complete(std::optional<QJsonObject> value)
+	{
+		QMutexLocker l(&mutex);
+		if (done)
+			return;
+		result = std::move(value);
+		done = true;
+		cond.wakeAll();
+	}
+};
+
 static bool onMainThread()
 {
 	return QThread::currentThread() == QCoreApplication::instance()->thread();
@@ -54,6 +73,7 @@ Task::~Task()
 {
 	// Wakes a thread still blocked in askBlocking().
 	closePrompt(ClosedDismissed, std::nullopt);
+	wakeWaiters();
 }
 
 Task::State Task::state() const
@@ -136,6 +156,8 @@ void Task::finish(bool ok, const QString& message)
 			m_progress = 100;
 	}
 
+	wakeWaiters();
+
 	// Headless, nobody watches the task list; the log is where a failure stays visible.
 	if (!ok)
 		Logger::global()->enterLogMessage(m_plugin, tr("%1 failed: %2").arg(m_title, message));
@@ -197,25 +219,24 @@ std::optional<QJsonObject> Task::askBlocking(const QJsonObject& form, int timeou
 		return std::nullopt;
 	}
 
-	// A cancelled worker must not wait on an event loop that may have stopped.
-	if (isFinished() || cancelRequested())
-		return std::nullopt;
-
-	struct Wait
-	{
-		QMutex mutex;
-		QWaitCondition cond;
-		bool done = false;
-		std::optional<QJsonObject> result;
-	};
 	auto wait = std::make_shared<Wait>();
 
+	{
+		// Checked and registered under one lock: a cancel either happened before
+		// (we return) or finds the waiter and wakes it.
+		QMutexLocker l(&m_mutex);
+		if (m_state != Running || m_cancelRequested)
+			return std::nullopt;
+		m_waiters << wait;
+	}
+
 	QMetaObject::invokeMethod(this, [this, form, timeoutMs, wait] {
-		ask(form, timeoutMs, [wait](std::optional<QJsonObject> result) {
-			QMutexLocker l(&wait->mutex);
-			wait->result = result;
-			wait->done = true;
-			wait->cond.wakeAll();
+		ask(form, timeoutMs, [this, wait](std::optional<QJsonObject> result) {
+			{
+				QMutexLocker l(&m_mutex);
+				m_waiters.removeAll(wait);
+			}
+			wait->complete(std::move(result));
 		});
 	}, Qt::QueuedConnection);
 
@@ -223,6 +244,18 @@ std::optional<QJsonObject> Task::askBlocking(const QJsonObject& form, int timeou
 	while (!wait->done)
 		wait->cond.wait(&wait->mutex);
 	return wait->result;
+}
+
+void Task::wakeWaiters()
+{
+	QList<std::shared_ptr<Wait>> waiters;
+
+	{
+		QMutexLocker l(&m_mutex);
+		waiters.swap(m_waiters);
+	}
+	for (const std::shared_ptr<Wait>& w : waiters)
+		w->complete(std::nullopt);
 }
 
 Task::AnswerResult Task::closedResult(const QString& promptId) const
@@ -283,6 +316,7 @@ void Task::requestCancel()
 		m_cancelRequested = true;
 	}
 
+	wakeWaiters();
 	emit cancelled();
 	closePrompt(ClosedDismissed, std::nullopt);
 	emit changed();

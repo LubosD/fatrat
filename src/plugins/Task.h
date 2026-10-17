@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QString>
 #include <QTimer>
 #include <functional>
+#include <memory>
 #include <optional>
 
 /* Something a plugin does on the user's behalf, visible in every front end.
@@ -121,6 +122,12 @@ private:
 	void runCallback(const AnswerCallback& callback, std::optional<QJsonObject> result);
 	AnswerResult closedResult(const QString& promptId) const; // m_mutex held
 
+	// A thread blocked in askBlocking(). Cancelling or finishing the task wakes it
+	// directly: the main thread may by then be waiting for that very thread (a
+	// plugin joining its workers at quit), so it cannot be left to ask()'s callback.
+	struct Wait;
+	void wakeWaiters();
+
 	const QString m_id, m_plugin, m_title, m_transferUuid, m_transferName;
 
 	mutable QMutex m_mutex; // guards everything below except m_expiry
@@ -131,6 +138,7 @@ private:
 	std::optional<Prompt> m_prompt;
 	AnswerCallback m_callback;
 	QHash<QString, CloseReason> m_closedPrompts;
+	QList<std::shared_ptr<Wait>> m_waiters;
 
 	QTimer m_expiry; // main thread
 };

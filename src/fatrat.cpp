@@ -201,7 +201,9 @@ int main(int argc,char** argv)
 #endif
 
 	
-	// Before any plugin is loaded: TaskManager lives on the thread that first uses it.
+	// Before any plugin is loaded: TaskManager lives on the thread that first uses it,
+	// and its aboutToQuit connection (cancelAll) must come before the plugins' own, so
+	// that tasks are cancelled before a plugin joins its threads.
 	TaskManager::instance();
 	installSignalHandler();
 	initTransferClasses();
@@ -604,7 +606,7 @@ void loadPlugins(const char* p)
 	{
 		if (attempted.contains(pl))
 		{
-			Logger::global()->enterLogMessage(QObject::tr("Skipped a plugin: %1: already loaded from %2").arg(pl, attempted[pl]));
+			Logger::global()->enterLogMessage(QObject::tr("Skipped a plugin: %1: already tried from %2").arg(pl, attempted[pl]));
 			continue;
 		}
 		attempted[pl] = dir.path();

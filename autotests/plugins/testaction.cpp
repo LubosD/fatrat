@@ -164,8 +164,9 @@ FATRAT_PLUGIN_EXPORT bool requiresGui()
 #ifndef TESTACTION_NO_INIT
 FATRAT_PLUGIN_EXPORT void initPlugin()
 {
-	QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, QCoreApplication::instance(), joinWorkers,
-		Qt::DirectConnection);
+	if (QCoreApplication::instance())
+		QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, QCoreApplication::instance(), joinWorkers,
+			Qt::DirectConnection);
 
 	TransferAction a;
 
