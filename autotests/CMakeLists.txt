@@ -55,3 +55,49 @@ if(WITH_TUI)
 		add_test(NAME tui_${t} COMMAND tst_tui_${t})
 	endforeach()
 endif(WITH_TUI)
+
+if(WITH_PYPLUGINS)
+	add_executable(tst_pluginmanifest tst_pluginmanifest.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginManifest.cpp)
+	target_include_directories(tst_pluginmanifest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_compile_definitions(tst_pluginmanifest PRIVATE
+		EXAMPLE_REPO_DIR="${CMAKE_SOURCE_DIR}/examples/plugin-repo")
+	target_link_libraries(tst_pluginmanifest Qt6::Core Qt6::Test)
+	add_test(NAME pluginmanifest COMMAND tst_pluginmanifest)
+
+	add_executable(tst_restplugins tst_restplugins.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/RestPlugins.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginRepository.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginManifest.cpp)
+	target_include_directories(tst_restplugins PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
+	target_link_libraries(tst_restplugins Qt6::Core Qt6::Test)
+	add_test(NAME restplugins COMMAND tst_restplugins)
+
+	add_executable(tst_pluginrepository tst_pluginrepository.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginRepository.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PluginManifest.cpp)
+	target_include_directories(tst_pluginrepository PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_pluginrepository Qt6::Core Qt6::Test)
+	add_test(NAME pluginrepository COMMAND tst_pluginrepository)
+
+	add_executable(tst_pyplugins tst_pyplugins.cpp pystubs.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyVM.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyRef.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyPython.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyCore.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyModule.cpp
+		${CMAKE_SOURCE_DIR}/src/python/PyPlugin.cpp
+		${CMAKE_SOURCE_DIR}/src/Logger.cpp)
+	target_include_directories(tst_pyplugins PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/python)
+	target_compile_definitions(tst_pyplugins PRIVATE
+		FATRAT_PYTHON_RUNTIME="${CMAKE_SOURCE_DIR}/data/python"
+		EXAMPLE_PLUGIN_DIR="${CMAKE_SOURCE_DIR}/examples/plugin-repo/dummy")
+	# Qt6::Gui only in a GUI build: that is where DelayedIcon pulls in QIcon.
+	set(tst_pyplugins_LIBS Qt6::Core Qt6::Network Qt6::Xml Qt6::Test pybind11::embed)
+	if(WITH_GUI)
+		set(tst_pyplugins_LIBS ${tst_pyplugins_LIBS} Qt6::Gui)
+	endif(WITH_GUI)
+	target_link_libraries(tst_pyplugins ${tst_pyplugins_LIBS})
+	add_test(NAME pyplugins COMMAND tst_pyplugins)
+endif(WITH_PYPLUGINS)

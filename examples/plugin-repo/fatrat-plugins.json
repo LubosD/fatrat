@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "name": "example-plugins",
+  "description": "Example FatRat plugin repository. Add it as a local directory to see how plugin repositories work, or copy it as the starting point for your own.",
+  "homepage": "http://fatrat.dolezel.info",
+  "plugins": [
+    {
+      "name": "dummy",
+      "source": "./dummy",
+      "description": "A worked example: resolves a link in two steps, with a countdown and a captcha."
+    },
+    {
+      "name": "extras",
+      "source": "./extras",
+      "description": "Extractor, upload, search and account-status examples."
+    },
+    {
+      "name": "feedwatch",
+      "source": "./feedwatch",
+      "description": "Needs feedparser from PyPI; shows how dependencies are declared and confirmed."
+    }
+  ]
+}

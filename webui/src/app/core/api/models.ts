@@ -147,3 +147,57 @@ export interface ScheduledAction {
 }
 
 export type ScheduledActionProperties = Partial<Omit<ScheduledAction, 'id'>>;
+
+/** One item of a plugin's settings page, as declared in its plugin.json. */
+export interface PluginConfigItem {
+  type: 'text' | 'password' | 'checkbox' | 'combo' | 'order' | 'group';
+  /** The settings key this item reads and writes. Absent on a plain group. */
+  key?: string;
+  title?: string;
+  /** For combo and order. */
+  options?: { value: string; title?: string }[];
+  /** For group. */
+  items?: PluginConfigItem[];
+}
+
+/** An installed plugin, as its manifest describes it. */
+export interface Plugin {
+  name: string;
+  /** False when the manifest could not be read; then only name and error are set. */
+  valid: boolean;
+  error?: string;
+  version?: string;
+  description?: string;
+  license?: string;
+  homepage?: string;
+  api?: string;
+  /** Disabled plugins stay installed but are not loaded at the next start. */
+  enabled?: boolean;
+  config?: PluginConfigItem[];
+  permissions?: string[];
+  /** Id of the repository it was installed from, when known. */
+  repository?: string;
+  source?: string;
+}
+
+/** A plugin repository the user has added. */
+export interface PluginRepository {
+  id: string;
+  source: string;
+  /** Local repositories are used in place rather than fetched. */
+  local: boolean;
+  name: string;
+  description: string;
+  /** The commit FatRat last fetched; empty for a local repository. */
+  revision: string;
+}
+
+/** A plugin one of the configured repositories offers. */
+export interface AvailablePlugin {
+  name: string;
+  version: string;
+  description: string;
+  repository: string;
+  /** Empty when not installed; different from version when an update is available. */
+  installedVersion: string;
+}

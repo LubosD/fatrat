@@ -41,8 +41,10 @@ respects for all of the code used other than "OpenSSL".
 class SpeedGraph;
 class NewTransferDlg;
 class ClipboardMonitor;
-class ExtensionMgr;
 class ClickableLabel;
+#ifdef WITH_PYPLUGINS
+class PluginUpdateChecker;
+#endif
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -120,11 +122,12 @@ public slots:
 	void showHelp();
 	void reportBug();
 	void filterTextChanged(const QString& text);
-#ifdef WITH_JPLUGINS
+#ifdef WITH_PYPLUGINS
 	void showPremiumStatus();
 	void premiumStatusClosed();
-	void updatesChecked();
-	void updateBubbleManuallyClosed();
+#endif
+#ifdef WITH_PYPLUGINS
+	void pluginUpdatesAvailable(int count);
 #endif
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
@@ -164,12 +167,12 @@ private:
 	NewTransferDlg* m_dlgNewTransfer;
 	QLineEdit* filterLineEdit;
 	CaptchaQt m_captcha;
-#ifdef WITH_JPLUGINS
+#ifdef WITH_PYPLUGINS
 	ClickableLabel* m_premiumAccounts;
-	ClickableLabel* m_updates;
-	ExtensionMgr* m_extensionMgr;
-	QTimer m_extensionCheckTimer;
-	bool m_bUpdatesBubbleManuallyClosed;
+#endif
+#ifdef WITH_PYPLUGINS
+	ClickableLabel* m_pluginUpdates;
+	PluginUpdateChecker* m_pluginUpdateChecker;
 #endif
 	
 	QList<QAction*> m_menuActionObjects;

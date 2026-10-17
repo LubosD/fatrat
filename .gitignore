@@ -16,8 +16,8 @@ install_manifest.txt
 *.qhc
 gfx/resources.qrc.depends
 fatrat.creator.user
-fatrat
-fatrat-conf
+/fatrat
+/fatrat-conf
 moc_*
 
 webui/node_modules/
@@ -28,3 +28,7 @@ webui/.angular/
 
 # Angular build output (installed by the webui CMake target)
 data/remote/
+
+# Python bytecode from plugins run in place
+__pycache__/
+*.pyc

@@ -1,0 +1,10 @@
+feedparser_sgmllib-2.1.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+feedparser_sgmllib-2.1.0.dist-info/METADATA,sha256=B9V0a3Ku5OvSSPtcy9qTRu9BMNkEMDQHjndfe_EICMY,926
+feedparser_sgmllib-2.1.0.dist-info/RECORD,,
+feedparser_sgmllib-2.1.0.dist-info/WHEEL,sha256=eY7nduwzv-ldUxpzbRlxwvC693Hg6PX8bWDjEHjZ_dk,88
+feedparser_sgmllib-2.1.0.dist-info/licenses/LICENSE,sha256=3k0fLSrVrQz9FlehBkdrMctdte-dH_hCsjfAyB8MiiM,12775
+feedparser_sgmllib/__init__.py,sha256=3fjkdPy8SgNBXHKxotm8qCIQ330evvOho-YO_9Y5BBg,19152
+feedparser_sgmllib/__pycache__/__init__.cpython-312.pyc,,
+feedparser_sgmllib/__pycache__/_compat.cpython-312.pyc,,
+feedparser_sgmllib/_compat.py,sha256=Lj10kzA9wXq18P77VQUCqE6LTICbi3DhHuIsY6ztlIM,1226
+feedparser_sgmllib/py.typed,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0

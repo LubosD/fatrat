@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "name": "feedwatch",
+  "version": "1.0.0",
+  "api": "1",
+  "description": "Example of a plugin with a PyPI dependency (feedparser).",
+  "license": "GPL-3.0-only",
+  "entry": "feedwatch.py",
+  "permissions": ["network"],
+  "dependencies": ["feedparser"]
+}

@@ -8,7 +8,6 @@ INCLUDE(CheckFunctionExists)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(FindPkgConfig)
 INCLUDE(FindBoost)
-#INCLUDE(FindJNI)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -16,6 +15,7 @@ option(WITH_GUI "Build the Qt desktop UI (OFF builds a headless fatrat-nogui)" O
 option(WITH_DBUS "Enable the D-Bus interface and the single-instance check" ON)
 option(WITH_TESTS "Build the unit tests (run them with ctest)" OFF)
 option(WITH_TUI "Build fatrat-tui, an ncurses terminal client for FatRat" OFF)
+option(WITH_PYPLUGINS "Build the Python extension system (requires Python 3.11+ and pybind11)" OFF)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Xml LinguistTools)
 find_package(OpenSSL REQUIRED)
@@ -52,7 +52,7 @@ if(WITH_EVERYTHING)
 	endif(WITH_GUI)
 	set(WITH_WEBINTERFACE ON)
 	set(WITH_CURL ON)
-	set(WITH_JPLUGINS ON)
+	set(WITH_PYPLUGINS ON)
 endif(WITH_EVERYTHING)
 
 if(WITH_DOCUMENTATION AND NOT WITH_GUI)
@@ -63,14 +63,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ADD_DEFINITIONS(-DQT_DISABLE_DEPRECATED_BEFORE=0x060500)
 
-if(WITH_JPLUGINS)
+
+if(WITH_PYPLUGINS)
 	set(WITH_CURL ON)
 
-	INCLUDE(FindJNI)
-	find_package(JNI REQUIRED)
-	
-	include_directories(${JNI_INCLUDE_DIRS})
-endif(WITH_JPLUGINS)
+	# Interpreter as well as Development.Embed: plugin dependencies are
+	# installed by running that interpreter's pip.
+	find_package(Python3 3.11 REQUIRED COMPONENTS Interpreter Development.Embed)
+	find_package(pybind11 2.10 REQUIRED)
+
+	message(STATUS "Python ${Python3_VERSION} found OK, pybind11 ${pybind11_VERSION}")
+
+	# Plugin dependencies have to be installed for the interpreter that is
+	# embedded, not for whatever "python3" happens to be on PATH.
+	add_definitions(-DFATRAT_PYTHON_EXECUTABLE="${Python3_EXECUTABLE}")
+endif(WITH_PYPLUGINS)
 
 if(WITH_BITTORRENT)
 	find_package(LibtorrentRasterbar 2.0.0 REQUIRED)
@@ -374,76 +381,58 @@ if(WITH_CURL)
 	)
 endif(WITH_CURL)
 
-if(WITH_JPLUGINS)
+
+if(WITH_PYPLUGINS)
 	set(fatrat_SRCS
 		${fatrat_SRCS}
-		src/java/JString.cpp
-		src/java/JClass.cpp
-		src/java/JObject.cpp
-		src/java/JArray.cpp
-		src/java/JScope.cpp
-		src/java/JException.cpp
-		src/java/JValue.cpp
-		src/java/JSignature.cpp
-		src/java/JByteBuffer.cpp
-		src/java/JMap.cpp
-		src/java/JVM.cpp
-		src/java/JPlugin.cpp
-		src/java/JExtractorPlugin.cpp
-		src/java/JTransferPlugin.cpp
-		src/java/JDownloadPlugin.cpp
-		src/java/JUploadPlugin.cpp
-		src/java/JLinkCheckerPlugin.cpp
-		src/java/JNativeMethod.cpp
-		src/java/JSettings.cpp
-		src/java/JBackgroundWorker.cpp
-		src/java/JSingleCObject.cpp
-		src/java/JAccountStatusPlugin.cpp
-		src/engines/JavaPersistentVariables.cpp
-		src/engines/JavaDownload.cpp
-		src/engines/JavaExtractor.cpp
-		src/engines/JavaUpload.cpp
-		src/ExtensionMgr.cpp
-	)
-	set(fatrat_GUI_SRCS
-		${fatrat_GUI_SRCS}
-		src/engines/JavaDownloadOptsForm.cpp
-		src/engines/JavaAccountStatusWidget.cpp
-		src/engines/ExtensionDownloadDlg.cpp
-		src/engines/SettingsJavaPluginForm.cpp
-		src/java/JSearchPlugin.cpp
-		src/tools/FileSharingSearch.cpp
+		src/python/PyVM.cpp
+		src/python/PyRef.cpp
+		src/python/PyPython.cpp
+		src/python/PyCore.cpp
+		src/python/PyModule.cpp
+		src/python/PyPlugin.cpp
+		src/python/PyTransferBindings.cpp
+		src/python/PluginManifest.cpp
+		src/python/PluginRepository.cpp
+		src/python/PluginUpdateChecker.cpp
+		src/remote/RestPlugins.cpp
+		src/python/PluginRegistry.cpp
+		src/python/PluginServices.cpp
+		src/engines/PythonPersistentVariables.cpp
+		src/engines/PythonDownload.cpp
+		src/engines/PythonExtractor.cpp
+		src/engines/PythonUpload.cpp
 	)
 	set(fatrat_MOC_HDRS
 		${fatrat_MOC_HDRS}
-		src/engines/JavaDownload.h
-		src/engines/JavaExtractor.h
-		src/engines/JavaUpload.h
-		src/java/JPlugin.h
-		src/java/JTransferPlugin.h
-		src/java/JDownloadPlugin.h
-		src/java/JAccountStatusPlugin.h
-		src/java/JLinkCheckerPlugin.h
-		src/java/JBackgroundWorker.h
-		src/ExtensionMgr.h
+		src/python/PyPlugin.h
+		src/python/PluginUpdateChecker.h
+		src/engines/PythonDownload.h
+		src/engines/PythonExtractor.h
+		src/engines/PythonUpload.h
+	)
+	set(fatrat_GUI_SRCS
+		${fatrat_GUI_SRCS}
+		src/engines/PythonDownloadOptsForm.cpp
+		src/engines/PythonAccountStatusWidget.cpp
+		src/engines/SettingsPythonPluginForm.cpp
+		src/tools/PythonFileSearch.cpp
 	)
 	set(fatrat_GUI_MOC_HDRS
 		${fatrat_GUI_MOC_HDRS}
-		src/engines/JavaDownloadOptsForm.h
-		src/engines/JavaAccountStatusWidget.h
-		src/engines/ExtensionDownloadDlg.h
-		src/engines/SettingsJavaPluginForm.h
-		src/tools/FileSharingSearch.h
+		src/engines/PythonDownloadOptsForm.h
+		src/engines/PythonAccountStatusWidget.h
+		src/engines/SettingsPythonPluginForm.h
+		src/tools/PythonFileSearch.h
 	)
 	set(fatrat_UIS
 		${fatrat_UIS}
-		src/engines/ExtensionDownloadDlg.ui
-		src/engines/JavaDownloadOptsForm.ui
-		src/engines/SettingsJavaPluginForm.ui
-		src/engines/JavaAccountStatusWidget.ui
-		src/tools/FileSharingSearch.ui
+		src/engines/PythonDownloadOptsForm.ui
+		src/engines/PythonAccountStatusWidget.ui
+		src/engines/SettingsPythonPluginForm.ui
+		src/tools/PythonFileSearch.ui
 	)
-endif(WITH_JPLUGINS)
+endif(WITH_PYPLUGINS)
 
 if(WITH_BITTORRENT)
 	set(fatrat_SRCS
@@ -648,7 +637,14 @@ endif(WITH_TESTS)
 
 add_executable(fatrat ${fatrat_SRCS} ${fatrat_MOC_SRCS} ${fatrat_UIS_H}
 ${fatrat_QRC_H} ${lrelease_outputs})
-add_executable(fatrat-conf src/fatrat-conf.cpp)
+set(fatrat_conf_SRCS src/fatrat-conf.cpp)
+if(WITH_PYPLUGINS)
+	# Plugin management from the command line, for headless installs.
+	set(fatrat_conf_SRCS ${fatrat_conf_SRCS}
+		src/python/PluginRepository.cpp
+		src/python/PluginManifest.cpp)
+endif(WITH_PYPLUGINS)
+add_executable(fatrat-conf ${fatrat_conf_SRCS})
 
 if(NOT WITH_GUI)
 	set_target_properties(fatrat PROPERTIES OUTPUT_NAME fatrat-nogui)
@@ -666,6 +662,9 @@ set_target_properties(fatrat PROPERTIES ENABLE_EXPORTS ON)
 if(WITH_BITTORRENT)
 	target_link_libraries(fatrat LibtorrentRasterbar::torrent-rasterbar)
 endif(WITH_BITTORRENT)
+if(WITH_PYPLUGINS)
+	target_link_libraries(fatrat pybind11::embed)
+endif(WITH_PYPLUGINS)
 target_link_libraries(fatrat-conf Qt6::Core)
 
 set(fatrat_DEV_HEADERS
@@ -736,12 +735,10 @@ if(WITH_WEBINTERFACE)
 		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif(WITH_WEBINTERFACE)
 
-if(WITH_JPLUGINS)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/findjvm.sh DESTINATION share/fatrat/data/java PERMISSIONS
-		OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/java/extension.policy DESTINATION share/fatrat/data/java)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/java/libs DESTINATION share/fatrat/data/java)
-endif(WITH_JPLUGINS)
+
+if(WITH_PYPLUGINS)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/python DESTINATION share/fatrat/data)
+endif(WITH_PYPLUGINS)
 
 if(WITH_DOCUMENTATION)
 	find_program(QHELPGENERATOR_EXECUTABLE qhelpgenerator

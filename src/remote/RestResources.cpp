@@ -1052,5 +1052,8 @@ void RestResources::registerAll()
 	RestApi::registerRoute("POST", "/settings/web-interface/certificate", generateCertificate);
 
 	registerRss();
+#ifdef WITH_PYPLUGINS
+	registerPlugins();
+#endif
 	registerScheduler();
 }

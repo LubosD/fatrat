@@ -67,12 +67,12 @@ respects for all of the code used other than "OpenSSL".
 #include "ClickableLabel.h"
 #include "util/BalloonTip.h"
 
-#ifdef WITH_JPLUGINS
-#	include "engines/JavaAccountStatusWidget.h"
-#	include "engines/SettingsJavaPluginForm.h"
-#	include "java/JVM.h"
-#	include "ExtensionMgr.h"
+#ifdef WITH_PYPLUGINS
+#	include "engines/PythonAccountStatusWidget.h"
+#	include "python/PluginUpdateChecker.h"
+#	include "util/BalloonTip.h"
 #endif
+
 
 #ifdef WITH_DOCUMENTATION
 #	include "tools/HelpBrowser.h"
@@ -168,8 +168,11 @@ void MainWindow::setupUi()
 	if(getSettingsValue("css").toBool())
 		loadCSS();
 
-#ifdef WITH_JPLUGINS
-	if (JVM::JVMAvailable())
+#ifdef WITH_PYPLUGINS
+	// Null unless there is something to show: connectActions() tests it.
+	m_premiumAccounts = 0;
+
+	if (PythonAccountStatusWidget::available())
 	{
 		m_premiumAccounts = new ClickableLabel(this);
 
@@ -180,35 +183,33 @@ void MainWindow::setupUi()
 		m_premiumAccounts->setCursor(Qt::PointingHandCursor);
 		statusbar->insertPermanentWidget(1, m_premiumAccounts);
 		m_premiumAccounts->show();
-
-		m_updates = new ClickableLabel(this);
-		m_updates->setScaledContents(true);
-		m_updates->setToolTip(tr("Extension updates: %1").arg(0));
-		m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
-		m_updates->setMaximumSize(16, 16);
-		m_updates->setCursor(Qt::PointingHandCursor);
-		statusbar->insertPermanentWidget(1, m_updates);
-		m_updates->show();
-
-		m_extensionMgr = new ExtensionMgr;
-		connect(&m_extensionCheckTimer, SIGNAL(timeout()), m_extensionMgr, SLOT(loadFromServer()));
-		connect(m_extensionMgr, SIGNAL(loaded()), this, SLOT(updatesChecked()));
-
-		m_bUpdatesBubbleManuallyClosed = false;
-		m_extensionCheckTimer.setInterval(60*60*1000);
-
-		if (getSettingsValue("java/check_updates").toBool())
-		{
-			m_extensionCheckTimer.start();
-			QTimer::singleShot(20*1000, m_extensionMgr, SLOT(loadFromServer()));
-		}
-
-		connect(m_updates, SIGNAL(clicked()), this, SLOT(showSettings()));
 	}
-	else
-		m_premiumAccounts = nullptr;
 #endif
+
 	
+#ifdef WITH_PYPLUGINS
+	m_pluginUpdates = new ClickableLabel(this);
+	m_pluginUpdateChecker = new PluginUpdateChecker(this);
+
+	m_pluginUpdates->setScaledContents(true);
+	m_pluginUpdates->setToolTip(tr("Extension updates: %1").arg(0));
+	m_pluginUpdates->setPixmap(grayscalePixmap(QPixmap(":/fatrat/updates.png")));
+	m_pluginUpdates->setMaximumSize(16, 16);
+	m_pluginUpdates->setCursor(Qt::PointingHandCursor);
+	statusbar->insertPermanentWidget(1, m_pluginUpdates);
+	m_pluginUpdates->show();
+
+	connect(m_pluginUpdates, SIGNAL(clicked()), this, SLOT(showSettings()));
+	connect(m_pluginUpdateChecker, SIGNAL(updatesAvailable(int)), this, SLOT(pluginUpdatesAvailable(int)));
+
+	m_pluginUpdateChecker->applySettings();
+
+	// Not at startup: the user did not ask for network traffic in the first
+	// seconds of a launch.
+	if (getSettingsValue("python/check_updates").toBool())
+		QTimer::singleShot(30*1000, m_pluginUpdateChecker, SLOT(checkNow()));
+#endif
+
 	connectActions();
 	setupTrayIconMenu();
 	
@@ -369,7 +370,7 @@ void MainWindow::connectActions()
 
 	connect(actionPauseAll, SIGNAL(triggered()), this, SLOT(pauseAllTransfers()));
 
-#ifdef WITH_JPLUGINS
+#ifdef WITH_PYPLUGINS
 	if (m_premiumAccounts)
 	{
 		connect(m_premiumAccounts, SIGNAL(clicked()), this, SLOT(showPremiumStatus()));
@@ -1594,10 +1595,6 @@ void MainWindow::showSettings()
 
 	if (QAction* act = dynamic_cast<QAction*>(sender()))
 		index = act->data().toInt();
-#ifdef WITH_JPLUGINS
-	if (dynamic_cast<ClickableLabel*>(sender()) || dynamic_cast<BalloonTip*>(sender()))
-		dlg.setPageByType<SettingsJavaPluginForm>();
-#endif
 
 	if(index)
 		dlg.setPage(index);
@@ -1775,19 +1772,6 @@ void MainWindow::applySettings()
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(refreshQueues()));
 	connect(m_timer, SIGNAL(timeout()), widgetStats, SLOT(refresh()));
 
-#ifdef WITH_JPLUGINS
-	bool now = m_extensionCheckTimer.isActive();
-	if (getSettingsValue("java/check_updates").toBool())
-	{
-		if (!now)
-			m_extensionCheckTimer.start();
-	}
-	else
-	{
-		if (now)
-			m_extensionCheckTimer.stop();
-	}
-#endif
 }
 
 void MainWindow::menuActionTriggered()
@@ -1854,10 +1838,14 @@ void MainWindow::pauseAllTransfers()
 		QueueMgr::instance()->unpauseAllTransfers();
 }
 
-#ifdef WITH_JPLUGINS
+#ifdef WITH_PYPLUGINS
 void MainWindow::showPremiumStatus()
 {
-	JavaAccountStatusWidget* w = new JavaAccountStatusWidget(this);
+	if (!PythonAccountStatusWidget::available())
+		return;
+
+	QWidget* w = new PythonAccountStatusWidget(this);
+
 	QPoint pos = mapFromGlobal(QCursor::pos());
 
 	pos -= QPoint(290, 210);
@@ -1873,45 +1861,32 @@ void MainWindow::premiumStatusClosed()
 {
 	m_premiumAccounts->setEnabled(true);
 }
-
-void MainWindow::updatesChecked()
-{
-	QList<ExtensionMgr::PackageInfo> pkgs = m_extensionMgr->getPackages();
-	int numUpdates = 0;
-
-	for (int i = 0; i < pkgs.size(); i++)
-	{
-		qDebug() << pkgs[i].name << pkgs[i].installedVersion << pkgs[i].latestVersion;
-		if (!pkgs[i].installedVersion.isEmpty() && !pkgs[i].latestVersion.isEmpty() &&
-				pkgs[i].installedVersion < pkgs[i].latestVersion)
-		{
-			numUpdates++;
-		}
-	}
-
-	if (numUpdates)
-	{
-		if (!m_bUpdatesBubbleManuallyClosed && isVisible())
-		{
-			BalloonTip* baloonTip = new BalloonTip(this, QIcon(), tr("Extension updates"),
-							  tr("There are %1 updates available.").arg(numUpdates));
-			baloonTip->balloon(m_updates->mapToGlobal(QPoint(8, 8)) , 0);
-			connect(baloonTip, SIGNAL(messageClicked()), this, SLOT(showSettings()));
-			connect(baloonTip, SIGNAL(manuallyClosed()), this, SLOT(updateBubbleManuallyClosed()));
-			m_updates->setToolTip(tr("Extension updates: %1").arg(numUpdates));
-			m_updates->setPixmap(QPixmap(":/fatrat/updates.png"));
-		}
-	}
-	else
-		m_updates->setPixmap(grayscalePixmap(QPixmap(":/fatrat/updates.png")));
-}
-
-void MainWindow::updateBubbleManuallyClosed()
-{
-	m_bUpdatesBubbleManuallyClosed = true;
-}
-
 #endif
+
+#ifdef WITH_PYPLUGINS
+void MainWindow::pluginUpdatesAvailable(int count)
+{
+	if (!count)
+	{
+		m_pluginUpdates->setToolTip(tr("Extension updates: %1").arg(0));
+		m_pluginUpdates->setPixmap(grayscalePixmap(QPixmap(":/fatrat/updates.png")));
+		return;
+	}
+
+	m_pluginUpdates->setToolTip(tr("Extension updates: %1").arg(count));
+	m_pluginUpdates->setPixmap(QPixmap(":/fatrat/updates.png"));
+
+	if (!isVisible())
+		return;
+
+	BalloonTip* tip = new BalloonTip(this, QIcon(), tr("Extension updates"),
+					 tr("There are %1 updates available.").arg(count));
+
+	tip->balloon(m_pluginUpdates->mapToGlobal(QPoint(8, 8)), 0);
+	connect(tip, SIGNAL(messageClicked()), this, SLOT(showSettings()));
+}
+#endif
+
 
 QPixmap MainWindow::grayscalePixmap(QPixmap pixmap)
 {

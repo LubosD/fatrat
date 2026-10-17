@@ -203,8 +203,8 @@ protected:
 	
 	friend class QueueMgr;
 	friend class Queue;
-#ifdef WITH_JPLUGINS
-	friend class JPlugin;
+#ifdef WITH_PYPLUGINS
+	friend class PyPlugin;
 #endif
 };
 

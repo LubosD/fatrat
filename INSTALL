@@ -22,7 +22,7 @@ Should you need to make install to a different directory, the traditional DESTDI
 | Jabber remote control         | WITH_JABBER           | gloox 0.9/1.0                                |
 | Documentation                 | WITH_DOCUMENTATION    | QtHelp                                       |
 | Web interface                 | WITH_WEBINTERFACE     | libpion-net                                  |
-| Java extensions               | WITH_JPLUGINS         | JRE 1.6, (JDK for compilation)               |
+| Python extensions             | WITH_PYPLUGINS        | Python 3.11 (shared libpython), pybind11 2.10|
 | Desktop UI (OFF = fatrat-nogui) | WITH_GUI (default ON) | QtWidgets, QtSvg                             |
 | D-Bus interface               | WITH_DBUS (default ON)| QtDBus                                       |
 | Terminal UI (fatrat-tui)      | WITH_TUI (default OFF)| ncurses with wide characters (ncursesw)      |
@@ -53,8 +53,8 @@ Press ? in the program for the list of keys; every action is also shown in the b
 tests/tui-smoke.sh runs the program against a real headless FatRat on a virtual screen (see --script).
 +-------------------------------+-----------------------+----------------------------------------------+
 
-CMake may have issues finding your JDK installation. Should that happen, try exporting variables such as
-JAVA_INCLUDE_PATH2, JAVA_INCLUDE_PATH and JAVA_JVM_LIB_PATH.
+WITH_PYPLUGINS needs a Python built as a shared library (Py_ENABLE_SHARED) and the pybind11 headers. Should CMake
+pick the wrong interpreter, point it at the right one with -DPython3_EXECUTABLE=/path/to/python3.
 
 *** HIERARCHY ***
 
@@ -64,7 +64,7 @@ All shared data is stored in prefix/share/fatrat:
 * doc/ - Optional end-user documentaton
 * data/ - Other data
   * remote/ - Data for the web interface
-  * java/ - Data for Java extensions
+  * python/ - The fatrat Python package that plugins import
   * btlinks.txt - Regular expressions that help identify .torrent links
   * mirrors.txt - Mirror lists for segmented downloads mirror search
   * defaults.conf - Default confguration options
@@ -74,7 +74,8 @@ User data is stored in ~/.local/share/fatrat, except for the configuration file 
 ~/.config/Dolezel/fatrat.conf
 
 * data/ - All files stored in this directory have precedence over files stored in prefix/share/fatrat/data
-          Notably all installed Java extensions are stored here.
+* plugins/ - Python extensions: repos.json (the repositories you added and what you installed from them),
+             repos/ (fetched repositories) and installed/ (the plugins themselves)
 * torrents/ - .torrent file storage, needs to be purged time from time
 * queues.xml - Information about all queues and transfers in FatRat
 

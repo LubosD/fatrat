@@ -80,19 +80,11 @@ respects for all of the code used other than "OpenSSL".
 #	include "remote/HttpService.h"
 #endif
 
-#ifdef WITH_JPLUGINS
-#	include "java/JVM.h"
-#	include "engines/JavaDownload.h"
-#	include "engines/JavaExtractor.h"
-#	include "engines/JavaUpload.h"
-#	ifdef WITH_GUI
-#		include "tools/FileSharingSearch.h"
-#	endif
-#	include "java/JClass.h"
-#	include "java/JString.h"
-#	include "java/JArray.h"
-#	include "java/JScope.h"
+#ifdef WITH_PYPLUGINS
+#	include "python/PluginRegistry.h"
+#	include "python/PyVM.h"
 #endif
+
 
 using namespace std;
 
@@ -100,6 +92,9 @@ using namespace std;
 MainWindow* g_wndMain = 0;
 #endif
 QMap<QString,PluginInfo> g_plugins;
+#ifdef WITH_PYPLUGINS
+static PyVM* g_pyvm = 0;
+#endif
 
 extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
@@ -114,7 +109,6 @@ static void loadPlugins();
 static void loadPlugins(const char* dir);
 static void showHelp();
 static void installSignalHandler();
-static void testJava();
 static void daemonize();
 #ifdef WITH_DBUS
 static void initDbus();
@@ -126,7 +120,7 @@ static void dropPrivileges();
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
 static bool m_bStartGUI = true;
-static bool m_bDisableJava = false, m_bJavaForceSearch = false;
+static bool m_bDisablePython = false;
 static QString m_strSettingsPath;
 static QString m_strPidFile, m_strSetUser;
 
@@ -191,22 +185,19 @@ int main(int argc,char** argv)
 	
 	initSettingsPages();
 
-#ifdef WITH_JPLUGINS
-	if (!m_bDisableJava)
-	{
-		new JVM(m_bJavaForceSearch);
+#ifdef WITH_PYPLUGINS
+	// Says so even with --no-python: the jars are dead either way.
+	PluginRegistry::reportLegacyJavaPlugins();
 
-		if (JVM::JVMAvailable())
-		{
-			JavaDownload::globalInit();
-			JavaExtractor::globalInit();
-			JavaUpload::globalInit();
-#ifdef WITH_GUI
-			FileSharingSearch::globalInit();
-#endif
-		}
+	if (!m_bDisablePython)
+	{
+		g_pyvm = new PyVM;
+
+		if (PyVM::available())
+			PluginRegistry::globalInit();
 	}
 #endif
+
 	
 	installSignalHandler();
 	initTransferClasses();
@@ -276,15 +267,13 @@ int main(int argc,char** argv)
 	
 	runEngines(false);
 
-#ifdef WITH_JPLUGINS
-	if (!m_bDisableJava && JVM::JVMAvailable())
-	{
-		JavaExtractor::globalExit();
-		JavaDownload::globalExit();
-#ifdef WITH_GUI
-		FileSharingSearch::globalExit();
-#endif
-	}
+
+#ifdef WITH_PYPLUGINS
+	if (PyVM::available())
+		PluginRegistry::globalExit();
+
+	delete g_pyvm;
+	g_pyvm = 0;
 #endif
 	
 	delete g_qmgr;
@@ -320,15 +309,10 @@ QString argsToArg(int argc,char** argv)
 			m_strPidFile = argv[++i];
 		else if (!strcasecmp(argv[i], "--user") || !strcasecmp(argv[i], "-u"))
 			m_strSetUser = argv[++i];
-		else if(!strcasecmp(argv[i], "--no-java"))
+		else if(!strcasecmp(argv[i], "--no-python"))
 		{
-			qDebug() << "Disabling Java support";
-			m_bDisableJava = true;
-		}
-		else if(!strcasecmp(argv[i], "--force-jre-search"))
-		{
-			qDebug() << "Forcing the search for Java Runtime Environment\n";
-			m_bJavaForceSearch = true;
+			qDebug() << "Disabling Python support";
+			m_bDisablePython = true;
 		}
 		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
 			m_strSettingsPath = argv[++i];
@@ -661,9 +645,8 @@ void showHelp()
 			"--syslog         \tPrint global log contents to syslog\n"
 			"-p, --pidfile file\tSave PID to file\n"
 			"-u, --user user[:grp]\tSetuid to user, setgid to grp\n"
-#ifdef WITH_JPLUGINS
-			"--no-java        \tDisable support for Java extensions\n"
-			//"--force-jre-search\tIgnore the cached JRE location\n"
+#ifdef WITH_PYPLUGINS
+			"--no-python      \tDisable support for Python extensions\n"
 #endif
 			"-h, --help       \tShow this help\n\n"
 			"If started in the GUI mode, you may pass transfers as arguments and they will be presented to the user\n";
@@ -706,22 +689,6 @@ void restartApplication()
 		qDebug() << "execvp() failed: " << strerror(errno);
 }
 
-#ifdef WITH_JPLUGINS
-void __attribute__ ((unused)) testJava()
-{
-	try
-	{
-		JClass system("java/lang/System");
-		JObject obj = system.getStaticValue("out", JSignature::sig("java.io.PrintStream")).value<JObject>();
-		obj.call("println", JSignature().addString(), JArgs() << "Hello JNI world");
-	}
-	catch (const RuntimeException& e)
-	{
-		qDebug() << e.what();
-	}
-	qDebug() << "End test";
-}
-#endif
 
 void daemonize()
 {

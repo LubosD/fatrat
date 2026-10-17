@@ -23,13 +23,19 @@ namespace tui
 		struct Page
 		{
 			QString title, script;
+			// Points at `ownSpec` for a page built from server data
+			// (Extensions), at a static spec otherwise.
 			const SettingsPageSpec* spec = nullptr;
+			SettingsPageSpec ownSpec;
 			QJsonObject loaded;
 			FormPanel panel;
 		};
 		enum class State { Loading, Ready, Failed };
 
 		void loadPages();
+		// The Extensions page's contents depend on what is installed, so
+		// its spec is built after fetching GET /plugins.
+		void loadPlugins(const QStringList& keys);
 		void loadValues(const QStringList& keys);
 		void buildPages(const QJsonObject& values);
 		void fail(const QString& msg);

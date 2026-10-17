@@ -28,6 +28,8 @@ void SettingsDialog::loadPages()
 			return fail(r.describe());
 
 		QStringList keys;
+		bool hasExtensions = false;
+
 		for (const QJsonValue& v : r.json.toArray())
 		{
 			auto p = std::make_unique<Page>();
@@ -36,15 +38,52 @@ void SettingsDialog::loadPages()
 			p->spec = settingsPageSpec(p->script);
 			if (p->spec)
 				keys << p->spec->keys();
+			if (p->script == ExtensionsScript)
+				hasExtensions = true;
 			m_pages.push_back(std::move(p));
 		}
 		if (m_pages.empty())
 			return fail(m_app.tr("The server reports no settings pages."));
 		keys.removeDuplicates();
-		if (keys.isEmpty())
+
+		// Extensions needs the installed plugins before it knows its keys.
+		if (hasExtensions)
+			loadPlugins(keys);
+		else if (keys.isEmpty())
 			buildPages(QJsonObject());
 		else
 			loadValues(keys);
+	});
+}
+
+void SettingsDialog::loadPlugins(const QStringList& keys)
+{
+	std::weak_ptr<bool> alive = m_alive;
+	m_app.api().get("/plugins", [this, alive, keys](const ApiResult& r) {
+		if (alive.expired())
+			return;
+
+		QStringList allKeys = keys;
+
+		for (auto& p : m_pages)
+		{
+			if (p->script != ExtensionsScript)
+				continue;
+
+			// A server that cannot list its plugins still gets a page,
+			// saying why rather than showing an empty one.
+			p->ownSpec = r.ok() ? buildExtensionsSpec(r.json.toArray())
+					    : buildExtensionsSpec(QJsonArray());
+			p->spec = &p->ownSpec;
+			allKeys << p->ownSpec.keys();
+		}
+
+		allKeys.removeDuplicates();
+
+		if (allKeys.isEmpty())
+			buildPages(QJsonObject());
+		else
+			loadValues(allKeys);
 	});
 }
 

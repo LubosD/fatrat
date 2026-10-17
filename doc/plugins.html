@@ -1,0 +1,166 @@
+<html>
+<head>
+<title>Writing a FatRat plugin</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<style type="text/css">
+pre, code { background-color: #eee }
+</style>
+</head>
+
+<body>
+
+<table width="100%"><tr>
+	<td width="33%"></td>
+	<td width="33%" align="center" valign="middle"><h2>Writing a FatRat plugin</h2></td>
+	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
+</tr></table>
+
+<p>
+A FatRat plugin is a Python module that teaches FatRat about links it does not
+otherwise understand &mdash; typically a file host, where the link the user has
+is a web page and the real download URL has to be scraped out of it. The plugin
+does the scraping; the downloading stays FatRat's job, so a plugin's transfers
+get segmenting, speed limits, resume and the rest without asking.
+</p>
+
+<h3>The shape of one</h3>
+
+<pre>
+import fatrat
+
+@fatrat.download_plugin(name="Example.com", url_pattern=r"https?://example\.com/f/\w+")
+class Example(fatrat.DownloadPlugin):
+    async def process_link(self, url):
+        page = await self.fetch(url)
+        token = page.search(r'name="token" value="([^"]+)"')
+        if not token:
+            raise fatrat.PluginError("no download token on the page")
+
+        await self.wait(30)
+        answer = await self.solve_captcha(page.urljoin("/captcha.png"))
+
+        final = await self.fetch(url, data={"token": token, "captcha": answer})
+        self.start_download(fatrat.DownloadUrl(url=final.json()["link"], referrer=url))
+</pre>
+
+<p>
+Plugin code runs on FatRat's main thread, so it must never block it: anything
+slow is awaited. Everything you can await is something FatRat does for you
+&mdash; a page fetch, a countdown, a captcha &mdash; and the coroutine resumes
+when it is done.
+</p>
+
+<h3>What a download plugin can use</h3>
+
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><td><code>await self.fetch(url, data=..., headers=...)</code></td>
+    <td>Fetch through FatRat: this transfer's cookie jar, the configured proxy,
+        FatRat's user agent. <code>data</code> makes it a POST (a mapping is
+        form-encoded). Gives a <code>Response</code> with <code>.text</code>,
+        <code>.content</code>, <code>.headers</code>, <code>.json()</code>,
+        <code>.search(pattern)</code>, <code>.urljoin(url)</code> and
+        <code>.filename</code>.</td></tr>
+<tr><td><code>await self.wait(seconds)</code></td>
+    <td>A countdown the user can watch, instead of a transfer that looks stuck.</td></tr>
+<tr><td><code>await self.solve_captcha(url)</code></td>
+    <td>Hands the image to whichever captcha front-end is configured. Raises
+        <code>fatrat.CaptchaError</code> if nobody solved it.</td></tr>
+<tr><td><code>self.start_download(url_or_DownloadUrl)</code></td>
+    <td>Hand the resolved link back and finish. Your cookies come along.</td></tr>
+<tr><td><code>self.report_file_name(name)</code></td>
+    <td>Name the transfer when the link does not carry a usable name.</td></tr>
+<tr><td><code>self.vars["key"]</code></td>
+    <td>Values saved with the transfer, still there after a restart.</td></tr>
+<tr><td><code>fatrat.settings["myplugin/user"]</code></td>
+    <td>FatRat's settings, including whatever your plugin.json declares.</td></tr>
+<tr><td><code>await fatrat.run_in_thread(fn, ...)</code></td>
+    <td>The one way to leave the main thread, for genuinely CPU-bound work.
+        It must not touch FatRat's API.</td></tr>
+<tr><td><code>self.log(message)</code>, <code>self.fail(message)</code></td>
+    <td>Write to this transfer's log; fail it with a message the user reads.</td></tr>
+</table>
+
+<p>
+Two more methods are worth overriding: <code>final_check(path)</code>, which
+gets the finished file so you can reject the HTML error page a host served with
+a 200, and <code>on_failed()</code>, to drop state when a transfer fails.
+Anything you raise out of <code>process_link</code> fails the transfer with that
+text, so write those messages for a user rather than for a log.
+</p>
+
+<h3>Packaging</h3>
+
+<p>
+A plugin is a directory with a <code>plugin.json</code> manifest next to the
+module:
+</p>
+
+<pre>
+{
+  "schema": 1,
+  "name": "example",
+  "version": "1.0.0",
+  "api": "1",
+  "entry": "example.py",
+  "license": "GPL-3.0-only",
+  "config": [
+    {"type": "text", "key": "example/user", "title": "Username"},
+    {"type": "password", "key": "example/password", "title": "Password"}
+  ]
+}
+</pre>
+
+<p>
+The <code>config</code> list is your settings page: FatRat renders it in the
+desktop settings dialog and in the web interface, and the values land in the
+settings keys you name.
+</p>
+
+<h3>Dependencies</h3>
+
+<p>
+Most plugins need nothing but the standard library and <code>fatrat</code>.
+When yours genuinely needs a library, list it in the manifest:
+</p>
+
+<pre>  "dependencies": ["feedparser"]</pre>
+
+<p>
+FatRat will not install those packages as a side effect of installing your
+plugin: it names them and asks first, because they come from PyPI rather than
+from the repository the user chose. They are then fetched with pip into a
+<code>_vendor</code> directory inside your plugin, so two plugins may depend on
+different versions of the same package, and removing a plugin removes its
+dependencies with it. Keep the list short: every entry is one more thing the
+user has to trust.
+</p>
+
+<h3>Publishing</h3>
+
+<p>
+There is no central plugin index. You publish a <em>repository</em> &mdash; a
+git repository, or any directory &mdash; with a
+<code>fatrat-plugins.json</code> at its root listing what it offers, and users
+add it by URL under <b>Settings &rarr; Extensions</b>. FatRat records the exact
+commit it installed, so updates are something a user chooses.
+</p>
+
+<p>
+The FatRat source ships a complete example under
+<code>examples/plugin-repo/</code>: a repository manifest and a commented
+<code>dummy</code> plugin that exercises fetching, a countdown, a captcha and
+<code>final_check</code>. Adding that directory as a repository is also the way
+to develop a plugin, since a local repository is used where it lies.
+</p>
+
+<p>
+A plugin runs with your full user privileges &mdash; the same trust you extend
+to anything else you install from a git repository. FatRat shows the source and
+the revision before it installs anything, and a plugin can be switched off
+again under <b>Settings &rarr; Extensions</b>, or all of them at once with
+<code>fatrat --no-python</code>.
+</p>
+
+</body>
+</html>

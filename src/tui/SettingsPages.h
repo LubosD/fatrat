@@ -1,5 +1,6 @@
 #pragma once
 #include "Dialog.h"
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
 
@@ -31,6 +32,12 @@ namespace tui
 
 	// Null for a script this client does not know about
 	const SettingsPageSpec* settingsPageSpec(const QString& script);
+
+	// The Extensions page is not a fixed list of settings: the plugins the
+	// server has installed decide what it contains. `plugins` is the array
+	// GET /plugins returns.
+	const char* const ExtensionsScript = "/scripts/settings/extensions.js";
+	SettingsPageSpec buildExtensionsSpec(const QJsonArray& plugins);
 	// Creates the fields of a page from the values the server returned
 	void buildSettingsPanel(const SettingsPageSpec& spec, const QJsonObject& loaded, FormPanel& panel);
 	// The values the user changed (only those), ready for PATCH /settings. Returns false, with a message and the key

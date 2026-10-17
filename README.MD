@@ -15,7 +15,7 @@ Licensed under the GNU GPL version 3. Copyright © 2006-2015 Luboš Doležel. Cr
 - BitTorrent through libtorrent-rasterbar: .torrent files and magnet links, per-file priorities, creating torrents.
 - Metalink files.
 - FTP uploads.
-- Extensions written in Java, for sites that need special handling (login, link extraction, captchas).
+- Extensions written in Python, for sites that need special handling (login, link extraction, captchas), installed from plugin repositories you add yourself.
 - Per-transfer, per-queue and global speed limits.
 
 **Organising**
@@ -51,7 +51,7 @@ FatRat uses CMake (3.16 or newer), needs Qt 6.5 or newer and a C++17 compiler.
 | HTTP/FTP | `WITH_CURL` | libcurl |
 | BitTorrent | `WITH_BITTORRENT` | libtorrent-rasterbar 2.0 or newer, Boost (date_time) |
 | Web interface | `WITH_WEBINTERFACE` | Node.js and npm at build time (the Angular front end in `webui/` is built and installed into `data/remote`) |
-| Java extensions | `WITH_JPLUGINS` | A JRE, and a JDK to build |
+| Python extensions | `WITH_PYPLUGINS` | Python 3.11+ built as a shared library, and pybind11 |
 | Terminal UI | `WITH_TUI` | ncurses with wide character support (`ncursesw`) |
 | Translations | `WITH_NLS` | |
 | Built-in help | `WITH_DOCUMENTATION` | QtHelp, requires `WITH_GUI` |
@@ -208,7 +208,7 @@ docker exec -it fatrat fatrat-tui
 | `FATRAT_PORT` | Port of the web interface, 2233 by default |
 | `FATRAT_PASSWORD` | Web interface password (any user name). Without it, the password from an earlier run is kept, or a random one is generated and printed in the container log; FatRat's built-in default password is never used |
 
-Extra arguments after the image name are passed to `fatrat-nogui` (for example `--no-java`). `/config` holds the settings (`fatrat.conf`), queues and `.torrent` files, and `/downloads` is the working directory. The container runs as an unprivileged user (uid 10001), so those mounts must be writable by it. Port 6881 (TCP and UDP) is for incoming BitTorrent connections and has to be published to be reachable.
+Extra arguments after the image name are passed to `fatrat-nogui` (for example `--no-python`). `/config` holds the settings (`fatrat.conf`), queues and `.torrent` files, and `/downloads` is the working directory. The container runs as an unprivileged user (uid 10001), so those mounts must be writable by it. Port 6881 (TCP and UDP) is for incoming BitTorrent connections and has to be published to be reachable.
 
 ### D-Bus
 
@@ -225,7 +225,7 @@ See `doc/dbus.html` for `addTransfersNonInteractive` and the other methods.
 
 | Path | Contents |
 | --- | --- |
-| `src/` | The program: queues, transfers, engines (`src/engines`), RSS (`src/rss`), the HTTP server and REST API (`src/remote`), Java bridge (`src/java`) |
+| `src/` | The program: queues, transfers, engines (`src/engines`), RSS (`src/rss`), the HTTP server and REST API (`src/remote`), the Python plugin host (`src/python`) |
 | `src/tui/` | The terminal client |
 | `webui/` | The Angular web interface (sources; the build output goes to `data/remote`) |
 | `docs/api/` | OpenAPI description of the REST API |
