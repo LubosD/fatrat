@@ -58,6 +58,8 @@ namespace tui
 		void queueTransfers(const QString& queue, Callback cb);
 		void transferClasses(Callback cb);
 		void transferDetails(const QString& transfer, Callback cb);
+		void transferOptions(const QString& transfer, Callback cb);                          // json: {fields, values}
+		void patchTransferOptions(const QString& transfer, const QJsonObject& values, Callback cb);
 		void listDirectories(const QString& path, const QString& queue, bool showHidden, Callback cb);
 
 		void createQueue(const QJsonObject& props, Callback cb);

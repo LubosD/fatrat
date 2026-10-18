@@ -126,7 +126,7 @@ if(WITH_WEBINTERFACE)
 endif(WITH_WEBINTERFACE)
 
 if(WITH_TUI)
-	foreach(t format httpclient store keymap render connection settings extensions)
+	foreach(t format httpclient store keymap render connection settings extensions options properties)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)
 		target_link_libraries(tst_tui_${t} fatrat_tui_core Qt6::Test)
 		add_test(NAME tui_${t} COMMAND tst_tui_${t})

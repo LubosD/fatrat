@@ -156,6 +156,37 @@ reject Movies
 " "${local_args[@]}"
 
 fresh_profile
+run transfer-properties "
+waitfor connected
+waitfor Main queue
+key Right
+key n
+waitfor New transfer
+type http://127.0.0.1:1/props.iso
+key Tab
+key Tab
+key Tab
+key Tab
+key Tab
+key Tab
+key Space
+key Enter
+waitfor props.iso
+key e
+waitfor Transfer properties
+waitfor Target file name
+expect Destination
+expect Run on completion
+key Tab
+key Tab
+key Tab
+key Tab
+type echo done
+key Enter
+waitfor Saved
+" "${local_args[@]}"
+
+fresh_profile
 run torrent-files "
 waitfor connected
 waitfor Main queue

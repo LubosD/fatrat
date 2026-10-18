@@ -3,6 +3,7 @@
 #include "Canvas.h"
 #include <QStringList>
 #include <functional>
+#include <memory>
 
 namespace tui
 {
@@ -75,8 +76,10 @@ namespace tui
 		FormField& addSelect(const QString& id, const QString& label, const QStringList& options, const QStringList& values, int index = 0);
 		FormField& addCheck(const QString& id, const QString& label, bool checked);
 		FormField& addRadio(const QString& id, const QString& label, const QStringList& options, const QString& hotkeys = QString(), int index = 0);
-		void addLabel(const QString& text);
+		FormField& addLabel(const QString& text);
 		void addSpacer();
+		// Removes a field; the focus stays on the field it was on
+		void removeField(const QString& id);
 
 		QString text(const QString& id) const;
 		void setText(const QString& id, const QString& value);
@@ -108,6 +111,7 @@ namespace tui
 		void changeSelect(FormField& f, int dir);
 		QStringList wrap(const QString& text, int width) const;
 		void addClick(const Rect& r, std::function<void()> fn) { m_clicks.push_back({ r, std::move(fn) }); }
+		FormField& append(const FormField& f);
 
 		QVector<FormField> m_fields;
 		QVector<Click> m_clicks;
@@ -127,8 +131,12 @@ namespace tui
 		FormField& addCheck(const QString& id, const QString& label, bool checked) { return m_panel.addCheck(id, label, checked); }
 		FormField& addRadio(const QString& id, const QString& label, const QStringList& options, const QString& hotkeys = QString(), int index = 0)
 		{ return m_panel.addRadio(id, label, options, hotkeys, index); }
-		void addLabel(const QString& text) { m_panel.addLabel(text); }
+		FormField& addLabel(const QString& text) { return m_panel.addLabel(text); }
 		void addSpacer() { m_panel.addSpacer(); }
+		void removeField(const QString& id) { m_panel.removeField(id); }
+		FormPanel& panel() { return m_panel; }
+		const FormPanel& panel() const { return m_panel; }
+		const QString& error() const { return m_error; }
 
 		QString text(const QString& id) const { return m_panel.text(id); }
 		void setText(const QString& id, const QString& value) { m_panel.setText(id, value); }
@@ -139,6 +147,15 @@ namespace tui
 
 		// Return true to close the dialog; call setError() and return false to keep it open
 		void setSubmit(const QString& label, std::function<bool(FormDialog&)> fn);
+		// For work that ends later: fn starts it and calls done() when it finishes. An empty error
+		// closes the dialog; a message is shown and the dialog stays open with what was typed.
+		// While waiting the dialog ignores input, so fn must always call done() eventually, also on
+		// failure. done() is safe to call after the dialog is gone.
+		using SubmitDone = std::function<void(QString)>;
+		void setSubmitAsync(const QString& label, std::function<void(FormDialog&, SubmitDone)> fn);
+		bool busy() const { return m_busy; }
+		// Expires when the dialog is destroyed; for callbacks that may outlive it
+		std::weak_ptr<bool> aliveToken() const { return m_alive; }
 		void setCancel(std::function<void()> fn) { m_onCancel = std::move(fn); }
 		void setError(const QString& msg) { m_error = msg; }
 		void addShortcut(int key, bool ctrl, const QString& keyLabel, const QString& label, std::function<void(FormDialog&)> fn);
@@ -162,6 +179,10 @@ namespace tui
 		std::function<bool(FormDialog&)> m_onSubmit;
 		std::function<void()> m_onCancel;
 		QVector<Shortcut> m_shortcuts;
+		std::function<void(FormDialog&, SubmitDone)> m_onSubmitAsync;
+		bool m_busy = false;
+		int m_submitGeneration = 0;
+		std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
 	};
 
 	// ------------------------------------------------------------- choices

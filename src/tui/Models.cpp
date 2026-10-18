@@ -67,8 +67,10 @@ TransferInfo TransferInfo::fromJson(const QJsonObject& o)
 	t.dataPath = o["dataPath"].toString();
 	t.comment = o["comment"].toString();
 	t.object = o["object"].toString();
+	t.completionCommand = o["completionCommand"].toString();
 	t.state = parseState(o["state"].toString());
 	t.upload = o["mode"].toString() == "Upload";
+	t.primaryUpload = o["primaryMode"].toString() == "Upload";
 	t.total = qint64(o["total"].toDouble());
 	t.done = qint64(o["done"].toDouble());
 	t.timeRunning = o["timeRunning"].toDouble();

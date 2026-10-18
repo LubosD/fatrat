@@ -1,3 +1,4 @@
+#include "Models.h"
 #include "Store.h"
 #include <QtTest>
 
@@ -24,6 +25,19 @@ class TestTuiStore : public QObject
 {
 	Q_OBJECT
 private slots:
+	void transferInfoParsesThePropertiesFields()
+	{
+		const TransferInfo seeding = TransferInfo::fromJson(QJsonObject{
+			{ "uuid", "{1}" }, { "mode", "Upload" }, { "primaryMode", "Download" }, { "completionCommand", "notify %N" } });
+		QCOMPARE(seeding.completionCommand, QString("notify %N"));
+		QVERIFY(seeding.upload);          // the current mode, for the list
+		QVERIFY(!seeding.primaryUpload);  // what the transfer is: a download
+
+		const TransferInfo upload = TransferInfo::fromJson(QJsonObject{ { "mode", "Upload" }, { "primaryMode", "Upload" } });
+		QVERIFY(upload.primaryUpload);
+		QCOMPARE(upload.completionCommand, QString());
+	}
+
 	void cursorFollowsTransferAcrossRefresh()
 	{
 		Store s;
