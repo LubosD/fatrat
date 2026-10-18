@@ -45,7 +45,17 @@ function initialValue(field: PluginFormField): JsonValue {
       return field.default ?? field.rows?.[0]?.value ?? '';
     case 'combo':
       return field.default ?? field.options?.[0]?.value ?? '';
+    case 'number':
+      return field.default ?? numberFallback(field);
     default:
       return field.default ?? '';
   }
+}
+
+/** What an empty number field becomes: 0, or the nearest value its limits allow. */
+export function numberFallback(field: PluginFormField): number {
+  let value = 0;
+  if (field.min !== undefined) value = Math.max(value, field.min);
+  if (field.max !== undefined) value = Math.min(value, field.max);
+  return value;
 }

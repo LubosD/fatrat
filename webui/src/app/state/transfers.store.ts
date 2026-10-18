@@ -28,8 +28,8 @@ export interface AvailableTransferActions {
   /** Some selected transfer isn't already last (also gates Move to Bottom). */
   moveDown: boolean;
   /**
-   * Exactly one selected, as in the legacy UI: the dialog is prefilled from a single transfer,
-   * so saving it for several would overwrite all their comments with that one.
+   * One or more selected. The dialog sends only the fields the user changed, so a bulk edit
+   * doesn't overwrite each transfer's own values; class options are offered for a single one only.
    */
   properties: boolean;
 }
@@ -43,7 +43,7 @@ export function availableTransferActions(transfers: Transfer[], selectedUuids: s
     delete: selected.size > 0,
     moveUp: false,
     moveDown: false,
-    properties: selected.size === 1,
+    properties: selected.size >= 1,
   };
   transfers.forEach((t, index) => {
     if (!selected.has(t.uuid)) return;

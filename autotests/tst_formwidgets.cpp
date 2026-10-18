@@ -1,5 +1,6 @@
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QGroupBox>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -21,6 +22,8 @@ private slots:
 	void readsBackEdits();
 	void orderKeepsTheSavedOrderThenNewOptions();
 	void listsEveryKey();
+	void numbersReadBackAsTheirKind();
+	void numberRangesAreUsable();
 };
 
 static QJsonArray items()
@@ -123,6 +126,57 @@ void tst_formwidgets::listsEveryKey()
 	QVERIFY(keys.contains(qMakePair(QString("grp"), QString("group"))));
 	QVERIFY(keys.contains(qMakePair(QString("inner"), QString("text"))));
 	QVERIFY(keys.contains(qMakePair(QString("order"), QString("order"))));
+}
+
+void tst_formwidgets::numbersReadBackAsTheirKind()
+{
+	QWidget parent;
+	QJsonArray numbers = QJsonDocument::fromJson(R"([
+		{ "type": "number", "key": "whole", "title": "Whole", "min": 0, "max": 100, "suffix": "MB" },
+		{ "type": "number", "key": "ratio", "title": "Ratio", "decimals": 2, "default": 1.5 }
+	])").array();
+	FormWidgets form(numbers, QJsonDocument::fromJson(R"({ "whole": 7 })").object(), &parent);
+
+	QDoubleSpinBox* whole = parent.findChild<QDoubleSpinBox*>("whole");
+	QVERIFY(whole);
+	QCOMPARE(whole->decimals(), 0);
+	QCOMPARE(whole->maximum(), 100.0);
+	QCOMPARE(whole->suffix(), QString(" MB"));
+
+	QJsonObject v = form.values();
+	QVERIFY(v.value("whole").isDouble());
+	QCOMPARE(v.value("whole").toInt(), 7);
+	QCOMPARE(v.value("ratio").toDouble(), 1.5);
+	QCOMPARE(parent.findChild<QDoubleSpinBox*>("ratio")->decimals(), 2);
+
+	whole->setValue(42);
+	QCOMPARE(QJsonDocument(QJsonObject{ { "whole", form.values().value("whole") } }).toJson(QJsonDocument::Compact),
+		QByteArray(R"({"whole":42})"));
+}
+
+void tst_formwidgets::numberRangesAreUsable()
+{
+	QWidget parent;
+	QJsonArray numbers = QJsonDocument::fromJson(R"([
+		{ "type": "number", "key": "open", "title": "Open" },
+		{ "type": "number", "key": "capped", "title": "Capped", "min": 0, "max": 100 },
+		{ "type": "number", "key": "fractional", "title": "Fractional", "min": 0.4, "max": 10.6 }
+	])").array();
+	FormWidgets form(numbers, QJsonDocument::fromJson(R"({ "capped": 500 })").object(), &parent);
+
+	QDoubleSpinBox* open = parent.findChild<QDoubleSpinBox*>("open");
+	QVERIFY(open);
+	QCOMPARE(open->minimum(), -1e12);
+	QCOMPARE(open->maximum(), 1e12);
+
+	// A saved value beyond the limit is clamped rather than shown out of range.
+	QCOMPARE(form.values().value("capped").toInt(), 100);
+
+	// Whole-number limits round inward, so no pickable value is rejected.
+	QDoubleSpinBox* fractional = parent.findChild<QDoubleSpinBox*>("fractional");
+	QVERIFY(fractional);
+	QCOMPARE(fractional->minimum(), 1.0);
+	QCOMPARE(fractional->maximum(), 10.0);
 }
 
 QTEST_MAIN(tst_formwidgets)

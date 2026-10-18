@@ -50,6 +50,7 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
     total: 1000,
     done: 250,
     comment: '',
+    completionCommand: '',
     object: '',
     timeRunning: 10,
     speeds: { down: 0, up: 0 },
@@ -66,7 +67,7 @@ function makeActionsStub() {
     deleteSelected: vi.fn(),
     deleteCompleted: vi.fn(),
     moveSelected: vi.fn(),
-    updateProperties: vi.fn(),
+    updateProperties: vi.fn(() => of(undefined)),
     addTransfers: vi.fn(),
     addTransferWithData: vi.fn(),
   };
@@ -112,6 +113,7 @@ function configure(
         provide: TransferApi,
         useValue: {
           getTransferClasses: () => of([]),
+          getTransferOptions: () => of({ fields: [], values: {} }),
           getTransferSpeedGraph: () => of([]),
           getQueueSpeedGraph: () => of([]),
           getStats: () => of({ total: { down: 0, up: 0 }, queues: {} }),
@@ -321,15 +323,20 @@ describe('Shell', () => {
     findByTestId(fixture.nativeElement, 'action-properties').click();
     fixture.detectChanges();
     expect(fixture.componentInstance['transferPropertiesTarget']()).toEqual(t1);
+    expect(fixture.componentInstance['transferPropertiesCount']()).toBe(1);
   });
 
-  it('saving the transfer properties dialog calls TransferActionsService.updateProperties()', () => {
-    const { actions } = configure(['t1'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [makeTransfer({ uuid: 't1' })]);
+  it('"Properties" stays enabled with several selected and passes the first one and the count', () => {
+    const t1 = makeTransfer({ uuid: 't1' });
+    const t2 = makeTransfer({ uuid: 't2' });
+    configure(['t1', 't2'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [t1, t2]);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
-
-    fixture.componentInstance['onTransferPropertiesSave']({ comment: 'new', speedLimits: { down: 1, up: 2 } });
-    expect(actions.updateProperties).toHaveBeenCalledWith('new', { down: 1, up: 2 }, undefined);
+    expect(findByTestId(fixture.nativeElement, 'action-properties').disabled).toBe(false);
+    findByTestId(fixture.nativeElement, 'action-properties').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['transferPropertiesTarget']()).toEqual(t1);
+    expect(fixture.componentInstance['transferPropertiesCount']()).toBe(2);
   });
 
   it('"New Transfer" opens the new-transfer dialog', () => {

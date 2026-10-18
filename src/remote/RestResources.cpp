@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Transfer.h"
 #include "TransferFactory.h"
 #include "TransferHttpService.h"
+#include "plugins/FormValidator.h"
 #include "Settings.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -129,6 +130,7 @@ static QJsonObject transferToJson(Transfer* t)
 	o["done"] = double(t->done());
 	o["uuid"] = t->uuid();
 	o["comment"] = t->comment();
+	o["completionCommand"] = t->autoActionCommand(Transfer::Completed);
 	o["object"] = t->object();
 	o["timeRunning"] = double(t->timeRunning());
 
@@ -234,7 +236,7 @@ namespace
 	struct TransferUpdate
 	{
 		std::optional<Transfer::State> state;
-		std::optional<QString> comment, object, queue;
+		std::optional<QString> comment, object, queue, completionCommand;
 		std::optional<QPair<int,int>> userSpeedLimits;
 
 		static TransferUpdate parse(const QJsonObject& o)
@@ -263,6 +265,8 @@ namespace
 				}
 				else if (key == "comment")
 					u.comment = RestApi::asString(it.value(), key);
+				else if (key == "completionCommand")
+					u.completionCommand = RestApi::asString(it.value(), key);
 				else if (key == "object")
 					u.object = RestApi::asString(it.value(), key);
 				else if (key == "queue")
@@ -279,11 +283,47 @@ namespace
 			return u;
 		}
 
+		// Like the desktop dialog's GenericOptsForm::accept(): a download needs
+		// an existing directory, an upload a readable file. Run for every target
+		// before any is changed.
+		void check(Transfer* t) const
+		{
+			if (!object)
+				return;
+
+			if (!QDir::isAbsolutePath(*object))
+				throw RestError(422, "invalid_property", QString("Not an absolute path: %1").arg(*object));
+
+			QFileInfo info(*object);
+			bool ok = (t->primaryMode() == Transfer::Download)
+				? (info.isDir() && info.isReadable())
+				: (info.isFile() && info.isReadable());
+
+			if (!ok)
+			{
+				throw RestError(422, "invalid_property", (t->primaryMode() == Transfer::Download)
+					? QString("Not a readable directory: %1").arg(*object)
+					: QString("Not a readable file: %1").arg(*object));
+			}
+		}
+
 		void apply(Transfer* t) const
 		{
+			// The only step that can fail on I/O, so it goes first: a 422 then means this transfer was not touched.
+			if (object)
+			{
+				try
+				{
+					t->setObject(*object);
+				}
+				catch (const RuntimeException& e)
+				{
+					throw RestError(422, "invalid_property", e.what());
+				}
+			}
 			if (state) TransferFactory::instance()->setState(t, *state);
 			if (comment) t->setComment(*comment);
-			if (object) t->setObject(*object);
+			if (completionCommand) t->setAutoActionCommand(Transfer::Completed, *completionCommand);
 			if (userSpeedLimits) t->setUserSpeedLimits(userSpeedLimits->first, userSpeedLimits->second);
 		}
 	};
@@ -796,6 +836,55 @@ static RestResult getTransferDetails(const RestRequest& req)
 	return RestResult::ok(QJsonObject::fromVariantMap(vmap));
 }
 
+// The form as the class declares it. A class's own form is never invalid; the
+// assertion catches a mistake in one while developing.
+static QJsonObject checkedOptionsForm(Transfer* t)
+{
+	QJsonObject form = t->optionsForm();
+	Q_ASSERT_X(FormValidator::checkForm(form).isEmpty(), "optionsForm",
+		qPrintable(t->myClass() + ": " + FormValidator::checkForm(form)));
+	return form;
+}
+
+// Both options handlers run on the main thread: the forms read settings arrays (the proxy list), and
+// setOptions can rename files or change the state of a transfer.
+static RestResult getTransferOptions(const RestRequest& req)
+{
+	QJsonObject form;
+	RestResources::onMainThread([&] {
+		TransferGuard g(req.pathParams["transfer"]);
+		form = checkedOptionsForm(g.transfer());
+	});
+	return RestResult::ok(form);
+}
+
+static RestResult patchTransferOptions(const RestRequest& req)
+{
+	QJsonObject body = req.jsonObject();
+
+	QJsonObject result;
+	RestResources::onMainThread([&] {
+		TransferGuard g(req.pathParams["transfer"]);
+		QString error = FormValidator::checkValues(checkedOptionsForm(g.transfer()), body);
+
+		if (!error.isEmpty())
+			throw RestError(422, "invalid_property", "Invalid option: " + error);
+
+		try
+		{
+			g.transfer()->setOptions(body);
+		}
+		catch (const RuntimeException& e)
+		{
+			throw RestError(422, "invalid_property", e.what());
+		}
+		result = checkedOptionsForm(g.transfer());
+	});
+
+	Queue::saveQueuesAsync();
+	return RestResult::ok(result);
+}
+
 static RestResult transferSpeedData(const RestRequest& req)
 {
 	TransferGuard g(req.pathParams["transfer"]);
@@ -846,20 +935,38 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 {
 	TransferUpdate update = TransferUpdate::parse(properties);
 
-	// all-or-nothing as far as bad input is concerned: check that every transfer exists before touching any
-	for (const QString& uuid : uuids)
-		TransferGuard g(uuid);
-	if (update.queue)
-		QueueGuard g(*update.queue);
-
+	// all-or-nothing as far as bad input is concerned: check every transfer before touching any.
+	// An I/O failure in setObject during a bulk update can still leave earlier transfers changed.
 	for (const QString& uuid : uuids)
 	{
 		TransferGuard g(uuid);
-		update.apply(g.transfer());
+		update.check(g.transfer());
+	}
+	if (update.queue)
+		QueueGuard g(*update.queue);
+
+	bool changed = false;
+	try
+	{
+		for (const QString& uuid : uuids)
+		{
+			TransferGuard g(uuid);
+			changed = true; // apply() may have changed something even if it throws
+			update.apply(g.transfer());
+		}
+
+		if (update.queue)
+			moveTransfersToQueue(uuids, *update.queue);
+	}
+	catch (...)
+	{
+		// keep what was applied before the failure
+		if (changed)
+			Queue::saveQueuesAsync();
+		throw;
 	}
 
-	if (update.queue)
-		moveTransfersToQueue(uuids, *update.queue);
+	Queue::saveQueuesAsync();
 }
 
 static RestResult patchTransfer(const RestRequest& req)
@@ -1056,6 +1163,8 @@ void RestResources::registerAll()
 	RestApi::registerRoute("PATCH", "/transfers/:transfer", patchTransfer);
 	RestApi::registerRoute("DELETE", "/transfers/:transfer", deleteTransfer);
 	RestApi::registerRoute("GET", "/transfers/:transfer/details", getTransferDetails);
+	RestApi::registerRoute("GET", "/transfers/:transfer/options", getTransferOptions);
+	RestApi::registerRoute("PATCH", "/transfers/:transfer/options", patchTransferOptions);
 	RestApi::registerRoute("GET", "/transfers/:transfer/speed-data", transferSpeedData);
 
 	RestApi::registerRoute("GET", "/settings", getSettings);

@@ -31,10 +31,12 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
 #include <QtDebug>
 
 #include "Logger.h"
 #include "RuntimeException.h"
+#include "TransferFactory.h"
 #include "fatrat.h"
 #include "python/PyPlugin.h"
 #ifdef WITH_GUI
@@ -120,6 +122,36 @@ QString PythonDownload::name() const
 QString PythonDownload::remoteURI() const
 {
 	return m_strOriginal;
+}
+
+QJsonObject PythonDownload::optionsForm() const
+{
+	QJsonArray fields = {
+		QJsonObject{ { "type", "label" }, { "title", tr("This transfer is handled by a plugin: %1").arg(myClass()) } },
+		QJsonObject{ { "type", "text" }, { "key", "url" }, { "title", tr("URL") } },
+	};
+	return QJsonObject{ { "fields", fields }, { "values", QJsonObject{ { "url", m_strOriginal } } } };
+}
+
+// A new link means resolving it again: init() only stores it, and a running
+// transfer is restarted, as the desktop dialog does.
+void PythonDownload::setOptions(const QJsonObject& values)
+{
+	if (!values.contains("url"))
+		return;
+
+	QString url = values.value("url").toString().trimmed();
+
+	if (url.isEmpty())
+		throw RuntimeException(tr("The URL cannot be empty"));
+	if (url == m_strOriginal)
+		return;
+	if (PythonDownload::acceptableFor(myClass(), url) == 0)
+		throw RuntimeException(tr("Invalid URL."));
+
+	init(url, object());
+	if (isActive())
+		TransferFactory::instance()->setState(this, Waiting);
 }
 
 void PythonDownload::load(const QDomNode& map)

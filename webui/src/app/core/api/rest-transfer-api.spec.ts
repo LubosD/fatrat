@@ -160,6 +160,25 @@ describe('RestTransferApi', () => {
     expect(out).toEqual({ uuid: 't1' });
   });
 
+  it('getTransferOptions() GETs /transfers/<uuid>/options', () => {
+    let result: unknown;
+    api.getTransferOptions('a b').subscribe((r) => (result = r));
+    const req = httpMock.expectOne('/api/v1/transfers/a%20b/options');
+    expect(req.request.method).toBe('GET');
+    req.flush({ fields: [], values: {} });
+    expect(result).toEqual({ fields: [], values: {} });
+  });
+
+  it('setTransferOptions() PATCHes only the given values and returns the new options', () => {
+    let result: unknown;
+    api.setTransferOptions('t1', { fileName: 'x.bin' }).subscribe((r) => (result = r));
+    const req = httpMock.expectOne('/api/v1/transfers/t1/options');
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ fileName: 'x.bin' });
+    req.flush({ fields: [{ type: 'text', key: 'fileName' }], values: { fileName: 'x.bin' } });
+    expect(result).toEqual({ fields: [{ type: 'text', key: 'fileName' }], values: { fileName: 'x.bin' } });
+  });
+
   it('getTransferAdvancedProperties: GET /transfers/{uuid}/details', () => {
     let out: unknown;
     api.getTransferAdvancedProperties('t1').subscribe((v) => (out = v));

@@ -48,6 +48,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QDir>
 #include <QVariant>
 #include <QProcess>
+#include <QJsonArray>
 
 Q_GLOBAL_STATIC(TransferNotifier, transferNotifier);
 
@@ -551,6 +552,15 @@ void Transfer::setAutoActionCommand(State state, QString command)
 {
 	if(state == Completed)
 		m_strCommandCompleted = command;
+}
+
+QJsonObject Transfer::optionsForm() const
+{
+	return QJsonObject{ { "fields", QJsonArray() }, { "values", QJsonObject() } };
+}
+
+void Transfer::setOptions(const QJsonObject&)
+{
 }
 
 QString Transfer::stateString() const

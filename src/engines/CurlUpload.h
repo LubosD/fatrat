@@ -64,6 +64,8 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
+	virtual QJsonObject optionsForm() const;
+	virtual void setOptions(const QJsonObject& values);
 #ifdef WITH_GUI
 	virtual WidgetHostChild* createOptionsWidget(QWidget*);
 	virtual void fillContextMenu(QMenu& menu);

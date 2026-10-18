@@ -52,6 +52,8 @@ export interface Transfer {
   total: number;
   done: number;
   comment: string;
+  /** Run when the transfer completes; %N name, %T type, %D destination directory, %P file path. */
+  completionCommand: string;
   object: string;
   timeRunning: number;
   speeds: SpeedLimits;
@@ -230,9 +232,9 @@ export interface AvailablePlugin {
   dependencies?: string[];
 }
 
-/** One field of a plugin's question; the vocabulary is src/plugins/FormValidator.h's. */
+/** One field of a form (a plugin's question, or a transfer's options); the vocabulary is src/plugins/FormValidator.h's. */
 export type PluginFormFieldType =
-  | 'text' | 'password' | 'checkbox' | 'combo' | 'group' | 'label' | 'directory' | 'list' | 'checklist';
+  | 'text' | 'password' | 'checkbox' | 'combo' | 'group' | 'label' | 'directory' | 'list' | 'checklist' | 'number';
 
 export interface PluginFormRow {
   value: string;
@@ -253,6 +255,11 @@ export interface PluginFormField {
   /** For list and checklist. */
   columns?: string[];
   rows?: PluginFormRow[];
+  /** For number. decimals 0 (the default) means whole numbers; suffix is a unit. */
+  min?: number;
+  max?: number;
+  decimals?: number;
+  suffix?: string;
 }
 
 export interface PluginForm {
@@ -291,4 +298,10 @@ export interface PluginTransferAction {
   id: string;
   label: string;
   icon: string;
+}
+
+/** GET /transfers/<uuid>/options: what a transfer class lets you change, as a form. */
+export interface TransferOptions {
+  fields: PluginFormField[];
+  values: Record<string, JsonValue>;
 }

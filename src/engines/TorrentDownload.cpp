@@ -58,6 +58,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QLibrary>
 #include <QDir>
+#include <QJsonArray>
 #include <QUrl>
 #include <QFile>
 #include <QVector>
@@ -931,6 +932,36 @@ void TorrentDownload::addUrlSeed(QString str)
 		m_urlSeeds << str;
 }
 
+// The desktop dialog's "Seeding limits" page. As stored, 0 means no limit for the
+// upload amount, but for the ratio it means stop as soon as it is downloaded;
+// TorrentWorker applies all three on its timer.
+QJsonObject TorrentDownload::optionsForm() const
+{
+	QJsonArray fields = {
+		QJsonObject{ { "type", "number" }, { "key", "seedRatio" }, { "title", tr("Seed up to ratio (0 = stop when downloaded)") },
+			{ "min", 0 }, { "decimals", 2 } },
+		QJsonObject{ { "type", "number" }, { "key", "seedUpload" }, { "title", tr("Seed until uploaded (0 = no limit)") },
+			{ "min", 0 }, { "max", 1000000000 }, { "suffix", "MB" } },
+		QJsonObject{ { "type", "checkbox" }, { "key", "superSeeding" }, { "title", tr("Use super seeding") } },
+	};
+	QJsonObject values = {
+		{ "seedRatio", m_seedLimitRatio },
+		{ "seedUpload", m_seedLimitUpload },
+		{ "superSeeding", m_bSuperSeeding },
+	};
+	return QJsonObject{ { "fields", fields }, { "values", values } };
+}
+
+void TorrentDownload::setOptions(const QJsonObject& values)
+{
+	if (values.contains("seedRatio"))
+		m_seedLimitRatio = values.value("seedRatio").toDouble();
+	if (values.contains("seedUpload"))
+		m_seedLimitUpload = values.value("seedUpload").toInt();
+	if (values.contains("superSeeding"))
+		m_bSuperSeeding = values.value("superSeeding").toBool();
+}
+
 void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 {
 	Transfer::save(doc, map);
@@ -1389,7 +1420,7 @@ void TorrentWorker::doWork()
 				else if(d->state() != Transfer::ForcedActive)
 				{
 					if(double(d->totalUpload()) / d->totalDownload() >= d->m_seedLimitRatio
-					  || (d->totalUpload() >= d->m_seedLimitUpload*1024*1024 && d->m_seedLimitUpload))
+					  || (d->totalUpload() >= qint64(d->m_seedLimitUpload)*1024*1024 && d->m_seedLimitUpload))
 					{
 						d->setState(Transfer::Completed);
 						d->setMode(Transfer::Download);

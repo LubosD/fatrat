@@ -33,6 +33,13 @@
     <label>{{ title() }}</label>
     <ng-container *ngTemplateOutlet="rowsTable; context: { mode: 'multiple' }"></ng-container>
   }
+  @case ('number') {
+    <label [for]="inputId()">{{ title() }}</label>
+    <p-inputnumber [inputId]="inputId()" [ngModel]="num()" (ngModelChange)="onNumber($event)"
+                   [min]="field().min" [max]="field().max"
+                   [minFractionDigits]="field().decimals ?? 0" [maxFractionDigits]="field().decimals ?? 0"
+                   [suffix]="field().suffix ? ' ' + field().suffix : ''" [useGrouping]="false" [allowEmpty]="false"></p-inputnumber>
+  }
   @default {
     <label [for]="inputId()">{{ title() }}</label>
     <input pInputText [id]="inputId()" [type]="field().type === 'password' ? 'password' : 'text'"

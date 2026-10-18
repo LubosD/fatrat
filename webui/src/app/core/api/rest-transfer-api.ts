@@ -14,6 +14,7 @@ import {
   Stats,
   Transfer,
   TransferClass,
+  TransferOptions,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -96,6 +97,14 @@ export class RestTransferApi extends TransferApi {
     return this.rest.get<{ [key: string]: JsonValue }>(
       `/transfers/${encodeURIComponent(uuid)}/details`,
     );
+  }
+
+  getTransferOptions(uuid: string): Observable<TransferOptions> {
+    return this.rest.get<TransferOptions>(`/transfers/${encodeURIComponent(uuid)}/options`);
+  }
+
+  setTransferOptions(uuid: string, values: Record<string, JsonValue>): Observable<TransferOptions> {
+    return this.rest.patch<TransferOptions>(`/transfers/${encodeURIComponent(uuid)}/options`, values);
   }
 
   setTransferProperties(

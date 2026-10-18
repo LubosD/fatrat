@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QCheckBox>
 #include <QCoreApplication>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -42,6 +43,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QtDebug>
+#include <cmath>
 
 FormWidgets::FormWidgets(const QJsonArray& items, const QJsonObject& values, QWidget* parent)
 	: m_values(values)
@@ -77,6 +79,8 @@ QJsonValue FormWidgets::initial(const QJsonObject& item) const
 		return QJsonArray();
 	if (type == "list" && !item.value("rows").toArray().isEmpty())
 		return item.value("rows").toArray().first().toObject().value("value");
+	if (type == "number")
+		return 0;
 	return QString();
 }
 
@@ -162,6 +166,33 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 			layout->addWidget(new QLabel(title, parent), row, 0);
 			layout->addWidget(combo, row, 1);
 			bind(key, type, combo);
+		}
+		else if (type == "number")
+		{
+			QDoubleSpinBox* spin = new QDoubleSpinBox(parent);
+			QString suffix = item.value("suffix").toString();
+
+			int decimals = qMax(0, item.value("decimals").toInt());
+			// QDoubleSpinBox has a small default range; a missing limit means none.
+			double min = item.contains("min") ? item.value("min").toDouble() : -1e12;
+			double max = item.contains("max") ? item.value("max").toDouble() : 1e12;
+
+			// With no decimals the spin box would round a fractional limit outward,
+			// offering values FormValidator rejects, so round it inward instead.
+			if (decimals == 0)
+			{
+				min = std::ceil(min);
+				max = std::floor(max);
+			}
+			spin->setDecimals(decimals);
+			spin->setRange(min, max);
+			if (!suffix.isEmpty())
+				spin->setSuffix(' ' + suffix);
+			spin->setValue(value.toDouble());
+
+			layout->addWidget(new QLabel(title, parent), row, 0);
+			layout->addWidget(spin, row, 1);
+			bind(key, type, spin);
 		}
 		else if (type == "label")
 		{
@@ -291,6 +322,8 @@ QJsonObject FormWidgets::values() const
 			rv[b.key] = box->isChecked();
 		else if (QComboBox* combo = qobject_cast<QComboBox*>(b.widget))
 			rv[b.key] = combo->itemData(combo->currentIndex()).toString();
+		else if (QDoubleSpinBox* spin = qobject_cast<QDoubleSpinBox*>(b.widget))
+			rv[b.key] = spin->value();
 		else if (QTreeWidget* tree = qobject_cast<QTreeWidget*>(b.widget))
 		{
 			if (b.type == "checklist")

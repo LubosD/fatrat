@@ -81,6 +81,10 @@ public:
 	virtual qulonglong done() const;
 	virtual void setState(State newState);
 	virtual QString remoteURI() const;
+	// Replaces CurlDownload's form, like the desktop dialog does: the file
+	// name comes from the plugin.
+	virtual QJsonObject optionsForm() const;
+	virtual void setOptions(const QJsonObject& values);
 
 	static Transfer* createInstance(const EngineEntry* e) { return new PythonDownload(e->shortName); }
 	static int acceptable(QString uri, bool, const EngineEntry* e);

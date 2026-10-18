@@ -17,6 +17,16 @@ private slots:
 	void acceptsAnAnswerAndDropsExtras();
 	void rejectsInvalidAnswers_data();
 	void rejectsInvalidAnswers();
+	void checksNumberFields_data();
+	void checksNumberFields();
+	void checksNumberValues_data();
+	void checksNumberValues();
+	void checkValuesAcceptsPartialUpdates();
+	void checkValuesRejects_data();
+	void checkValuesRejects();
+	void checkValuesChecksNumbers();
+	void explicitZeroDecimalsRejectFractions();
+	void rejectsNaN();
 };
 
 static QJsonObject obj(const char* json)
@@ -111,6 +121,108 @@ void tst_formvalidator::rejectsInvalidAnswers()
 	QFETCH(QString, answer);
 	QJsonObject normalized;
 	QVERIFY(!FormValidator::checkAnswer(obj(EveryType), obj(answer.toUtf8().constData()), &normalized).isEmpty());
+}
+
+void tst_formvalidator::checksNumberFields_data()
+{
+	QTest::addColumn<QString>("form");
+	QTest::addColumn<bool>("valid");
+
+	QTest::newRow("bare") << R"({ "fields": [ { "type": "number", "key": "n" } ] })" << true;
+	QTest::newRow("all attributes") << R"({ "fields": [ { "type": "number", "key": "n", "min": 0, "max": 10, "decimals": 2, "suffix": "MB" } ] })" << true;
+	QTest::newRow("no key") << R"({ "fields": [ { "type": "number" } ] })" << false;
+	QTest::newRow("min not a number") << R"({ "fields": [ { "type": "number", "key": "n", "min": "0" } ] })" << false;
+	QTest::newRow("max not a number") << R"({ "fields": [ { "type": "number", "key": "n", "max": true } ] })" << false;
+	QTest::newRow("decimals not a number") << R"({ "fields": [ { "type": "number", "key": "n", "decimals": "2" } ] })" << false;
+	QTest::newRow("decimals fractional") << R"({ "fields": [ { "type": "number", "key": "n", "decimals": 1.5 } ] })" << false;
+	QTest::newRow("decimals negative") << R"({ "fields": [ { "type": "number", "key": "n", "decimals": -1 } ] })" << false;
+	QTest::newRow("min above max") << R"({ "fields": [ { "type": "number", "key": "n", "min": 5, "max": 1 } ] })" << false;
+}
+
+void tst_formvalidator::checksNumberFields()
+{
+	QFETCH(QString, form);
+	QFETCH(bool, valid);
+	QCOMPARE(FormValidator::checkForm(obj(form.toUtf8().constData())).isEmpty(), valid);
+}
+
+static const char* Numbers = R"({
+	"fields": [
+		{ "type": "number", "key": "whole", "min": 0, "max": 100 },
+		{ "type": "number", "key": "ratio", "min": 0, "decimals": 2 }
+	]
+})";
+
+void tst_formvalidator::checksNumberValues_data()
+{
+	QTest::addColumn<QString>("answer");
+	QTest::addColumn<bool>("valid");
+
+	QTest::newRow("in range") << R"({ "whole": 5, "ratio": 1.5 })" << true;
+	QTest::newRow("at the limits") << R"({ "whole": 100, "ratio": 0 })" << true;
+	QTest::newRow("a whole number written with a fraction") << R"({ "whole": 5.0, "ratio": 1 })" << true;
+	QTest::newRow("a string") << R"({ "whole": "5", "ratio": 1 })" << false;
+	QTest::newRow("below min") << R"({ "whole": -1, "ratio": 1 })" << false;
+	QTest::newRow("above max") << R"({ "whole": 101, "ratio": 1 })" << false;
+	QTest::newRow("a fraction without decimals") << R"({ "whole": 2.5, "ratio": 1 })" << false;
+}
+
+void tst_formvalidator::checksNumberValues()
+{
+	QFETCH(QString, answer);
+	QFETCH(bool, valid);
+	QJsonObject normalized;
+	QCOMPARE(FormValidator::checkAnswer(obj(Numbers), obj(answer.toUtf8().constData()), &normalized).isEmpty(), valid);
+}
+
+void tst_formvalidator::checkValuesAcceptsPartialUpdates()
+{
+	QCOMPARE(FormValidator::checkValues(obj(EveryType), obj(R"({ "c": true })")), QString());
+	QCOMPARE(FormValidator::checkValues(obj(EveryType), obj(R"({})")), QString());
+	QCOMPARE(FormValidator::checkValues(obj(EveryType), obj(R"({ "t": "x", "o": "b", "inner": "y" })")), QString());
+	QCOMPARE(FormValidator::checkValues(obj(Numbers), obj(R"({ "ratio": 0.25 })")), QString());
+}
+
+void tst_formvalidator::checkValuesRejects_data()
+{
+	QTest::addColumn<QString>("values");
+
+	QTest::newRow("unknown key") << R"({ "nope": 1 })";
+	QTest::newRow("label has no value") << R"({ "": "x" })";
+	QTest::newRow("text not a string") << R"({ "t": 5 })";
+	QTest::newRow("checkbox not a bool") << R"({ "c": "yes" })";
+	QTest::newRow("combo not an option") << R"({ "o": "z" })";
+	QTest::newRow("one good, one bad") << R"({ "t": "x", "c": 1 })";
+}
+
+void tst_formvalidator::checkValuesRejects()
+{
+	QFETCH(QString, values);
+	QVERIFY(!FormValidator::checkValues(obj(EveryType), obj(values.toUtf8().constData())).isEmpty());
+}
+
+void tst_formvalidator::checkValuesChecksNumbers()
+{
+	QVERIFY(!FormValidator::checkValues(obj(Numbers), obj(R"({ "whole": 2.5 })")).isEmpty());
+	QVERIFY(!FormValidator::checkValues(obj(Numbers), obj(R"({ "whole": 101 })")).isEmpty());
+	QVERIFY(FormValidator::checkValues(obj(Numbers), obj(R"({ "whole": 7 })")).isEmpty());
+}
+
+void tst_formvalidator::explicitZeroDecimalsRejectFractions()
+{
+	const char* form = R"({ "fields": [ { "type": "number", "key": "n", "decimals": 0 } ] })";
+
+	QVERIFY(!FormValidator::checkValues(obj(form), obj(R"({ "n": 1.5 })")).isEmpty());
+	QVERIFY(FormValidator::checkValues(obj(form), obj(R"({ "n": 2 })")).isEmpty());
+}
+
+void tst_formvalidator::rejectsNaN()
+{
+	QJsonObject nan{{"whole", qQNaN()}, {"ratio", 1}};
+	QJsonObject normalized;
+
+	QVERIFY(!FormValidator::checkAnswer(obj(Numbers), nan, &normalized).isEmpty());
+	QVERIFY(!FormValidator::checkValues(obj(Numbers), nan).isEmpty());
 }
 
 QTEST_GUILESS_MAIN(tst_formvalidator)

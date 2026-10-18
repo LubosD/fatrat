@@ -59,6 +59,8 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	virtual void setSpeedLimits(int down, int up);
+	virtual QJsonObject optionsForm() const;
+	virtual void setOptions(const QJsonObject& values);
 	
 	static int acceptable(QString uri, bool);
 #ifdef WITH_GUI

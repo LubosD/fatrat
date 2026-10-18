@@ -21,6 +21,7 @@ function makeTransfer(uuid: string, name: string): Transfer {
     total: 100,
     done: 50,
     comment: '',
+    completionCommand: '',
     object: '',
     timeRunning: 10,
     speeds: { down: 0, up: 0 },
@@ -315,9 +316,10 @@ describe('availableTransferActions', () => {
     expect(availableTransferActions(transfers, ['a', 'c'])).toMatchObject({ moveUp: true, moveDown: true });
   });
 
-  it('enables Properties for exactly one selected transfer', () => {
+  it('enables Properties for one or more selected transfers, not for none', () => {
     const transfers = [t('a', 'Active'), t('b', 'Active')];
     expect(availableTransferActions(transfers, ['a']).properties).toBe(true);
-    expect(availableTransferActions(transfers, ['a', 'b']).properties).toBe(false);
+    expect(availableTransferActions(transfers, ['a', 'b']).properties).toBe(true);
+    expect(availableTransferActions(transfers, []).properties).toBe(false);
   });
 });

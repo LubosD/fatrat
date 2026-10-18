@@ -1,0 +1,37 @@
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+
+  & + fieldset,
+  & + p {
+    margin-top: 1rem;
+  }
+}
+
+legend {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.form-error {
+  color: var(--p-red-500, #ef4444);
+  flex: 1 1 100%;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+.hint {
+  overflow-wrap: anywhere;
+}

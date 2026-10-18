@@ -38,8 +38,9 @@ class QWidget;
  * plugin questions (FormDialog) and Python plugins' settings pages.
  *
  * Values are JSON: a string for text, password, directory, combo and list; a
- * bool for checkbox and a keyed group; an array of strings for checklist and
- * order. Each keyed widget gets its key as object name.
+ * bool for checkbox and a keyed group; a number for number; an array of
+ * strings for checklist and order. Each keyed widget gets its key as object
+ * name.
  *
  * The widgets are owned by the parent passed to the constructor; this object
  * only points into them, so it must not outlive that parent.
