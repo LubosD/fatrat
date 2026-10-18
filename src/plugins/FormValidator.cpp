@@ -82,6 +82,18 @@ namespace
 			if (item.contains(attribute) && !item.value(attribute).isDouble())
 				return QString("\"%1\" has a %2 that is not a number").arg(key, QLatin1String(attribute));
 		}
+
+		// `decimals` only decides whether fractions are allowed; the precision
+		// is for display.
+		if (item.contains("decimals"))
+		{
+			double decimals = item.value("decimals").toDouble();
+
+			if (decimals < 0 || decimals != std::floor(decimals))
+				return QString("\"%1\" has a decimals that is not a non-negative whole number").arg(key);
+		}
+		if (item.contains("min") && item.contains("max") && item.value("min").toDouble() > item.value("max").toDouble())
+			return QString("\"%1\" has a min above its max").arg(key);
 		return QString();
 	}
 
@@ -188,9 +200,9 @@ namespace
 			if (!v.isDouble() || !std::isfinite(d))
 				return QString("\"%1\" must be a number").arg(f.key);
 			if (f.item.contains("min") && d < f.item.value("min").toDouble())
-				return QString("\"%1\" must be at least %2").arg(f.key).arg(f.item.value("min").toDouble());
+				return QString("\"%1\" must be at least %2").arg(f.key, QString::number(f.item.value("min").toDouble(), 'g', 15));
 			if (f.item.contains("max") && d > f.item.value("max").toDouble())
-				return QString("\"%1\" must be at most %2").arg(f.key).arg(f.item.value("max").toDouble());
+				return QString("\"%1\" must be at most %2").arg(f.key, QString::number(f.item.value("max").toDouble(), 'g', 15));
 			if (f.item.value("decimals").toInt() <= 0 && d != std::floor(d))
 				return QString("\"%1\" must be a whole number").arg(f.key);
 		}
@@ -221,11 +233,13 @@ QString FormValidator::checkAnswer(const QJsonObject& form, const QJsonObject& a
 		if (!answer.contains(f.key))
 			return QString("no value for \"%1\"").arg(f.key);
 
-		error = checkValue(f, answer.value(f.key));
+		QJsonValue v = answer.value(f.key);
+
+		error = checkValue(f, v);
 		if (!error.isEmpty())
 			return error;
 
-		result.insert(f.key, answer.value(f.key));
+		result.insert(f.key, v);
 	}
 
 	if (normalized)
@@ -246,7 +260,7 @@ QString FormValidator::checkValues(const QJsonObject& form, const QJsonObject& v
 		auto f = std::find_if(keyed.begin(), keyed.end(), [&it](const Keyed& k) { return k.key == it.key(); });
 
 		if (f == keyed.end())
-			return QString("unknown option \"%1\"").arg(it.key());
+			return QString("unknown field \"%1\"").arg(it.key());
 
 		error = checkValue(*f, it.value());
 		if (!error.isEmpty())
