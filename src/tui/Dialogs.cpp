@@ -359,7 +359,8 @@ FormDialog* editTransfer(App& app, const TransferInfo& t)
 	});
 
 	const QString uuid = t.uuid;
-	const TransferInfo orig = t;
+	// what the server holds: a save that stopped at the options has still changed these
+	auto orig = std::make_shared<TransferInfo>(t);
 	d->setSubmitAsync(app.tr("Save"), [&app, uuid, orig, opts](FormDialog& f, FormDialog::SubmitDone done) {
 		bool ok1, ok2;
 		const qint64 down = parseKb(f.text("down"), &ok1), up = parseKb(f.text("up"), &ok2);
@@ -376,14 +377,20 @@ FormDialog* editTransfer(App& app, const TransferInfo& t)
 
 		// send only what changed: the limits are shown in whole KB/s and must not be rounded silently
 		QJsonObject o;
-		if (f.text("comment") != orig.comment)
+		if (f.text("comment") != orig->comment)
 			o["comment"] = f.text("comment");
-		if (f.text("object") != orig.object)
+		if (f.text("object") != orig->object)
 			o["object"] = f.text("object");
-		if (f.text("down") != kbText(orig.userSpeedLimits.down) || f.text("up") != kbText(orig.userSpeedLimits.up))
+		if (f.text("down") != kbText(orig->userSpeedLimits.down) || f.text("up") != kbText(orig->userSpeedLimits.up))
 			o["userSpeedLimits"] = limitsJson(down, up);
-		if (f.text("command") != orig.completionCommand)
+		if (f.text("command") != orig->completionCommand)
 			o["completionCommand"] = f.text("command");
+		TransferInfo sent = *orig;
+		sent.comment = f.text("comment");
+		sent.object = f.text("object");
+		if (o.contains("userSpeedLimits"))
+			sent.userSpeedLimits = { down, up };
+		sent.completionCommand = f.text("command");
 
 		if (o.isEmpty() && changedOptions.isEmpty())
 			return done(QString());
@@ -406,9 +413,12 @@ FormDialog* editTransfer(App& app, const TransferInfo& t)
 
 		if (o.isEmpty())
 			return saveOptions();
-		app.api().patchTransfer(uuid, o, [done, saveOptions](const ApiResult& r) {
+		app.api().patchTransfer(uuid, o, [&app, done, saveOptions, orig, sent](const ApiResult& r) {
 			if (!r.ok())
 				return done(r.describe());
+			*orig = sent;
+			// the list shows the change even if the options are refused and the dialog then cancelled
+			app.refreshSoon();
 			saveOptions();
 		});
 	});

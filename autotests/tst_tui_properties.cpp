@@ -56,6 +56,24 @@ public:
 	QByteArray patchError = "{\"error\":{\"code\":\"invalid_property\",\"message\":\"Not a readable directory: /nope\"}}";
 	QByteArray optionsError = "{\"error\":{\"code\":\"invalid_property\",\"message\":\"Invalid file name: \\\"\\\"\"}}";
 
+	// keeps the options GET unanswered until release()
+	bool holdOptions = false;
+	void release()
+	{
+		if (m_held)
+			reply(m_held, 200, QJsonDocument(options).toJson(QJsonDocument::Compact));
+		m_held = nullptr;
+	}
+
+	QVector<Request> to(const QByteArray& method, const QString& path) const
+	{
+		QVector<Request> r;
+		for (const Request& q : requests)
+			if (q.method == method && QUrl(QString::fromLatin1(q.path)).path() == path)
+				r << q;
+		return r;
+	}
+
 	QVector<Request> of(const QByteArray& method) const
 	{
 		QVector<Request> r;
@@ -75,6 +93,11 @@ private:
 	{
 		requests << r;
 		const QString path = QUrl(QString::fromLatin1(r.path)).path();
+		if (r.method == "GET" && path.endsWith("/options") && holdOptions)
+		{
+			m_held = s;
+			return;
+		}
 		if (r.method == "GET" && path.endsWith("/options"))
 			return optionsStatus == 200 ? reply(s, 200, QJsonDocument(options).toJson(QJsonDocument::Compact))
 						    : reply(s, optionsStatus, "{\"error\":{\"code\":\"boom\",\"message\":\"The server is broken\"}}");
@@ -88,6 +111,7 @@ private:
 
 	QLocalServer m_server;
 	QHash<QLocalSocket*, QByteArray> m_buf;
+	QLocalSocket* m_held = nullptr;
 };
 
 // FormDialog's async submit and the field operations a form filled in later needs. The dialog
@@ -356,6 +380,57 @@ private slots:
 		key(KeyEnter);
 		QTRY_VERIFY_WITH_TIMEOUT(render().contains("Options not saved"), 5000);
 		QVERIFY(m_app->hasDialog());
+	}
+
+	void aSecondSaveComparesWithWhatTheFirstOneSaved()
+	{
+		m_server->patchOptionsStatus = 422;
+		open(transfer());
+		set("comment", "new");
+		set("opt:fileName", "x");
+		key(KeyEnter);
+		QTRY_VERIFY_WITH_TIMEOUT(render().contains("Options not saved"), 5000);
+
+		// the comment was saved; going back to the old one is a change again
+		m_server->patchOptionsStatus = 200;
+		set("comment", "c");
+		key(KeyEnter);
+		QTRY_VERIFY_WITH_TIMEOUT((render(), !m_app->hasDialog()), 5000);
+		const auto p = m_server->of("PATCH");
+		QVector<QJsonObject> general;
+		for (const auto& r : p)
+			if (!r.path.endsWith("/options"))
+				general << QJsonDocument::fromJson(r.body).object();
+		QCOMPARE(general.size(), 2);
+		QCOMPARE(general[1], QJsonObject({ { "comment", "c" } }));
+	}
+
+	void aPartialSaveRefreshesTheList()
+	{
+		m_server->patchOptionsStatus = 422;
+		open(transfer());
+		set("comment", "new");
+		set("opt:fileName", "x");
+		m_app->setPaused(false);
+		QTest::qWait(50);   // the poll the unpausing may start
+		const int before = m_server->to("GET", "/api/v1/stats").size();
+		key(KeyEnter);
+		QTRY_VERIFY_WITH_TIMEOUT(render().contains("Options not saved"), 5000);
+		// sooner than the once-a-second poll
+		QTRY_VERIFY_WITH_TIMEOUT(m_server->to("GET", "/api/v1/stats").size() > before, 300);
+	}
+
+	void optionsArrivingAfterTheDialogIsGoneAreIgnored()
+	{
+		m_server->holdOptions = true;
+		m_dlg = dialogs::editTransfer(*m_app, transfer());
+		QTRY_VERIFY_WITH_TIMEOUT(!m_server->to("GET", "/api/v1/transfers/{11111111-2222-3333-4444-555555555555}/options").isEmpty(), 5000);
+		key(KeyEscape);
+		render();
+		QVERIFY(!m_app->hasDialog());
+		m_server->release();
+		QTest::qWait(200);   // the reply is handled and must not touch the destroyed dialog
+		QVERIFY(!render().contains("Target file name"));
 	}
 
 	void aBadNumberIsCaughtBeforeSending()
