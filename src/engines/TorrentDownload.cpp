@@ -454,7 +454,9 @@ void TorrentDownload::init(QString source, QString target)
 			else
 			{
 				libtorrent::add_torrent_params params = libtorrent::parse_magnet_uri(source.toStdString());
-				params.name = source.toStdString();
+				m_strMagnet = source;
+				if(params.name.empty()) // no dn= in the link
+					params.name = source.toStdString();
 				params.save_path = target.toStdString();
 				params.storage_mode = storageMode;
 
@@ -487,6 +489,13 @@ void TorrentDownload::init(QString source, QString target)
 				
 				if(!m_bAuto)
 					RssFetcher::performManualCheck(name());
+			}
+			else
+			{
+				// Fetch the real status now; until the worker's next tick m_status would be
+				// default-constructed (checking_resume_data, not paused), shown as
+				// "Checking resume data: 0%" even for a paused magnet link.
+				m_worker->doWork();
 			}
 		}
 		else
@@ -803,25 +812,35 @@ void TorrentDownload::load(const QDomNode& map)
 		
 		m_strTarget = str = getXMLProperty(map, "target");
 		
-		QString sfile = dir.absoluteFilePath( getXMLProperty(map, "torrent_file") );
-		
-		if(!QFile(sfile).open(QIODevice::ReadOnly))
+		// A magnet link that has not fetched its metadata yet has no stored .torrent file;
+		// it is restored from the saved magnet URI instead.
+		m_strMagnet = getXMLProperty(map, "magnet");
+
+		QString tfile = getXMLProperty(map, "torrent_file");
+		QString sfile = tfile.isEmpty() ? QString() : dir.absoluteFilePath(tfile);
+		bool haveFile = !sfile.isEmpty() && QFile(sfile).open(QIODevice::ReadOnly);
+
+		if(!haveFile && m_strMagnet.isEmpty())
 		{
 			m_strError = tr("Unable to open the file!");
 			setState(Failed);
 			return;
 		}
-		
-		std::shared_ptr<libtorrent::torrent_info> ti = std::make_shared<libtorrent::torrent_info>(sfile.toStdString());
-		m_info = ti;
-		
-		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
-		
-		std::cout << "Loaded " << getXMLProperty(map, "torrent_resume").size() << " bytes of resume data\n";
-		
-		libtorrent::add_torrent_params params;
 
-		if(!torrent_resume.isEmpty())
+		libtorrent::add_torrent_params params;
+		std::shared_ptr<libtorrent::torrent_info> ti;
+
+		if(haveFile)
+		{
+			ti = std::make_shared<libtorrent::torrent_info>(sfile.toStdString());
+			m_info = ti;
+		}
+
+		torrent_resume = QByteArray::fromBase64(getXMLProperty(map, "torrent_resume").toUtf8());
+
+		std::cout << "Loaded " << getXMLProperty(map, "torrent_resume").size() << " bytes of resume data\n";
+
+		if(m_info && !torrent_resume.isEmpty())
 		{
 			// Resume data is only a hint: a corrupt blob must not fail the transfer
 			libtorrent::error_code ec;
@@ -834,9 +853,29 @@ void TorrentDownload::load(const QDomNode& map)
 		}
 		
 		//params.storage_mode = (libtorrent::storage_mode_t) getSettingsValue("torrent/allocation").toInt();
+		if(!m_info)
+		{
+			if(tfile.isEmpty())
+				std::cout << "No metadata yet, restoring the magnet link\n";
+			else
+				std::cout << "Torrent file missing, restoring the magnet link\n";
+
+			libtorrent::error_code ec;
+			params = libtorrent::parse_magnet_uri(m_strMagnet.toStdString(), ec);
+			if(ec)
+			{
+				m_strError = tr("Invalid magnet link: %1").arg(QString::fromStdString(ec.message()));
+				setState(Failed);
+				return;
+			}
+			// FatRat's queue decides when to start; as in init(), libtorrent's own queueing
+			// (on in the default flags) would otherwise unpause a Paused transfer
+			params.flags &= ~libtorrent::torrent_flags::auto_managed;
+		}
+
 		params.storage_mode = libtorrent::storage_mode_sparse; // don't force full allocation upon load
 		params.ti = ti;
-		
+
 		QByteArray path = str.toUtf8();
 		params.save_path = path.constData();
 		params.flags |= libtorrent::torrent_flags::paused;
@@ -850,8 +889,10 @@ void TorrentDownload::load(const QDomNode& map)
 		//m_nPrevUpload = getXMLProperty(map, "uploaded").toLongLong();
 		
 		str = getXMLProperty(map, "priorities");
-		
-		if(str.isEmpty())
+
+		if(!m_info)
+			; // no files known yet; metadata_received_alert creates the list
+		else if(str.isEmpty())
 			createDefaultPriorityList();
 		else
 		{
@@ -1038,6 +1079,13 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 	}
 	setXMLProperty(doc, map, "priorities", prio);
 	
+	// Without metadata (a magnet link that has not been started yet) there is no .torrent
+	// file to restore from, so the magnet URI is what load() re-adds. Saved for torrents
+	// with metadata too, as a fallback should the stored .torrent file go missing.
+	QString magnet = m_handle.is_valid() ? remoteURI() : m_strMagnet;
+	if(!magnet.isEmpty())
+		setXMLProperty(doc, map, "magnet", magnet);
+	
 	if(m_handle.is_valid())
 	{
 		QDomElement sub = doc.createElement("trackers");
@@ -1046,6 +1094,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 		{
 			setXMLProperty(doc, sub, "tracker", QString::fromUtf8(trackers[i].url.c_str()));
 		}
+		map.appendChild(sub);
 		
 		sub = doc.createElement("url_seeds");
 		std::set<std::string> seeds = m_handle.url_seeds();
@@ -1053,6 +1102,7 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 		{
 			setXMLProperty(doc, sub, "url", QString::fromUtf8(it->c_str()));
 		}
+		map.appendChild(sub);
 	}
 }
 
@@ -1317,10 +1367,11 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 			qDebug() << "metadata_received_alert";
 
 			d->enterLogMessage(tr("Successfully retrieved the metadata"));
-			d->storeTorrent();
 
+			// storedTorrentName() needs m_info, set it before storing the file
 			if (!d->m_info)
 				d->m_info = d->m_handle.torrent_file();
+			d->storeTorrent();
 
 			d->createDefaultPriorityList();
 		}
