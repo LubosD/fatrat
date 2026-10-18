@@ -291,6 +291,9 @@ namespace
 			if (!object)
 				return;
 
+			if (!QDir::isAbsolutePath(*object))
+				throw RestError(422, "invalid_property", QString("Not an absolute path: %1").arg(*object));
+
 			QFileInfo info(*object);
 			bool ok = (t->primaryMode() == Transfer::Download)
 				? (info.isDir() && info.isReadable())
@@ -306,9 +309,7 @@ namespace
 
 		void apply(Transfer* t) const
 		{
-			if (state) TransferFactory::instance()->setState(t, *state);
-			if (comment) t->setComment(*comment);
-			if (completionCommand) t->setAutoActionCommand(Transfer::Completed, *completionCommand);
+			// The only step that can fail on I/O, so it goes first: a 422 then means this transfer was not touched.
 			if (object)
 			{
 				try
@@ -320,6 +321,9 @@ namespace
 					throw RestError(422, "invalid_property", e.what());
 				}
 			}
+			if (state) TransferFactory::instance()->setState(t, *state);
+			if (comment) t->setComment(*comment);
+			if (completionCommand) t->setAutoActionCommand(Transfer::Completed, *completionCommand);
 			if (userSpeedLimits) t->setUserSpeedLimits(userSpeedLimits->first, userSpeedLimits->second);
 		}
 	};
@@ -850,21 +854,19 @@ static RestResult getTransferOptions(const RestRequest& req)
 
 static RestResult patchTransferOptions(const RestRequest& req)
 {
-	QJsonValue body = req.json();
-	if (!body.isObject())
-		throw RestError(422, "invalid_property", "A JSON object of option values was expected");
+	QJsonObject body = req.jsonObject();
 
 	QJsonObject result;
 	{
 		TransferGuard g(req.pathParams["transfer"]);
-		QString error = FormValidator::checkValues(checkedOptionsForm(g.transfer()), body.toObject());
+		QString error = FormValidator::checkValues(checkedOptionsForm(g.transfer()), body);
 
 		if (!error.isEmpty())
-			throw RestError(422, "invalid_property", error);
+			throw RestError(422, "invalid_property", "Invalid option: " + error);
 
 		try
 		{
-			g.transfer()->setOptions(body.toObject());
+			g.transfer()->setOptions(body);
 		}
 		catch (const RuntimeException& e)
 		{
@@ -927,7 +929,8 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 {
 	TransferUpdate update = TransferUpdate::parse(properties);
 
-	// all-or-nothing as far as bad input is concerned: check every transfer before touching any
+	// all-or-nothing as far as bad input is concerned: check every transfer before touching any.
+	// An I/O failure in setObject during a bulk update can still leave earlier transfers changed.
 	for (const QString& uuid : uuids)
 	{
 		TransferGuard g(uuid);
@@ -944,6 +947,8 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 
 	if (update.queue)
 		moveTransfersToQueue(uuids, *update.queue);
+
+	Queue::saveQueuesAsync();
 }
 
 static RestResult patchTransfer(const RestRequest& req)

@@ -226,6 +226,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
     patch:
       summary: Change some of the options; the body holds only the changed keys
+      description: Unknown keys, invalid values and values the class refuses give 422 invalid_property; nothing is changed then.
       parameters: [ { $ref: "#/components/parameters/transfer" } ]
       requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
       responses:
@@ -575,7 +576,7 @@ components:
         queue: { type: string, description: "UUID of a queue; moves the transfers to the end of it (404 queue_not_found if unknown)" }
         state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed] }
         comment: { type: string }
-        completionCommand: { type: string }
+        completionCommand: { type: string, description: "See Transfer.completionCommand" }
         object: { type: string, description: "Download - an existing directory; upload - a readable file (422 invalid_property otherwise)" }
         userSpeedLimits: { $ref: "#/components/schemas/SpeedPair" }
     FormField:
@@ -591,6 +592,7 @@ components:
         max: { type: number }
         decimals: { type: integer, description: "0 (default) means whole numbers only" }
         suffix: { type: string, description: "A unit shown after the number" }
+        items: { type: array, items: { $ref: "#/components/schemas/FormField" }, description: "For a group, its fields" }
     TransferOptions:
       type: object
       required: [fields, values]

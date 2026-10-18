@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "engines/PlaceholderTransfer.h"
 #include <unistd.h>
+#include <QCoreApplication>
 #include <QList>
 #include <QReadWriteLock>
 #include <QDir>
@@ -155,6 +156,9 @@ void Queue::BackgroundSaver::run()
 void Queue::saveQueuesAsync()
 {
 	BackgroundSaver* t = new BackgroundSaver;
+	// Callers may be threads without an event loop (the HTTP server's); finished() must be
+	// delivered where deleteLater() will run, or the thread object leaks.
+	t->moveToThread(QCoreApplication::instance()->thread());
 	connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
 	t->start();
 }
