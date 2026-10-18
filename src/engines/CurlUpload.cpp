@@ -31,6 +31,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Auth.h"
 #include "Settings.h"
 #include <QFileInfo>
+#include <QJsonArray>
 #include "util/LegacyRegex.h"
 
 CurlUpload::CurlUpload()
@@ -304,6 +305,76 @@ void CurlUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "done", QString::number(m_nDone));
 	setXMLProperty(doc, map, "proxy", m_proxy.toString());
 	setXMLProperty(doc, map, "bindaddr", m_strBindAddress);
+}
+
+// The desktop dialog's FtpUploadOptsForm. Credentials live in the target URL;
+// they are shown, and set, as separate fields.
+QJsonObject CurlUpload::optionsForm() const
+{
+	QUrl target = m_strTarget;
+	QJsonArray proxies = { QJsonObject{ { "value", "" }, { "title", tr("None") } } };
+	QString proxy;
+
+	target.setUserInfo(QString());
+	for (const Proxy& p : Proxy::loadProxys())
+	{
+		proxies << QJsonObject{ { "value", p.uuid.toString() }, { "title", p.toString() } };
+		if (p.uuid == m_proxy)
+			proxy = p.uuid.toString();
+	}
+
+	QJsonArray modes = {
+		QJsonObject{ { "value", "active" }, { "title", tr("Active mode") } },
+		QJsonObject{ { "value", "passive" }, { "title", tr("Passive mode") } },
+	};
+	QJsonArray fields = {
+		QJsonObject{ { "type", "text" }, { "key", "target" }, { "title", tr("Target URL") } },
+		QJsonObject{ { "type", "combo" }, { "key", "ftpMode" }, { "title", tr("FTP connection mode") }, { "options", modes } },
+		QJsonObject{ { "type", "text" }, { "key", "username" }, { "title", tr("Username") } },
+		QJsonObject{ { "type", "password" }, { "key", "password" }, { "title", tr("Password") } },
+		QJsonObject{ { "type", "combo" }, { "key", "proxy" }, { "title", tr("Proxy server") }, { "options", proxies } },
+		QJsonObject{ { "type", "text" }, { "key", "bindAddress" }, { "title", tr("Bind IP address") } },
+	};
+	QJsonObject values = {
+		{ "target", target.toString() },
+		{ "ftpMode", m_mode == FtpActive ? "active" : "passive" },
+		{ "username", m_strTarget.userName() },
+		{ "password", m_strTarget.password() },
+		{ "proxy", proxy },
+		{ "bindAddress", m_strBindAddress },
+	};
+	return QJsonObject{ { "fields", fields }, { "values", values } };
+}
+
+// Takes effect on the next start, as in the desktop dialog.
+void CurlUpload::setOptions(const QJsonObject& values)
+{
+	QUrl url = m_strTarget;
+
+	if (values.contains("target"))
+	{
+		QString target = values.value("target").toString().trimmed();
+
+		if (!target.startsWith("ftp://") && !target.startsWith("sftp://"))
+			throw RuntimeException(tr("Invalid protocol for this upload class (FTP)"));
+
+		QUrl newUrl(target);
+		newUrl.setUserName(url.userName());
+		newUrl.setPassword(url.password());
+		url = newUrl;
+	}
+	if (values.contains("username"))
+		url.setUserName(values.value("username").toString());
+	if (values.contains("password"))
+		url.setPassword(values.value("password").toString());
+
+	m_strTarget = url;
+	if (values.contains("ftpMode"))
+		m_mode = (values.value("ftpMode").toString() == "active") ? FtpActive : FtpPassive;
+	if (values.contains("proxy"))
+		m_proxy = QUuid(values.value("proxy").toString()); // "" gives the null UUID: no proxy
+	if (values.contains("bindAddress"))
+		m_strBindAddress = values.value("bindAddress").toString().trimmed();
 }
 
 int CurlUpload::acceptable(QString url, bool bDrop)

@@ -58,6 +58,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include <QLibrary>
 #include <QDir>
+#include <QJsonArray>
 #include <QUrl>
 #include <QFile>
 #include <QVector>
@@ -929,6 +930,35 @@ void TorrentDownload::addUrlSeed(QString str)
 		m_handle.add_url_seed(str.toStdString());
 	else
 		m_urlSeeds << str;
+}
+
+// The desktop dialog's "Seeding limits" page. 0 means no limit, as stored;
+// TorrentWorker applies all three on its timer.
+QJsonObject TorrentDownload::optionsForm() const
+{
+	QJsonArray fields = {
+		QJsonObject{ { "type", "number" }, { "key", "seedRatio" }, { "title", tr("Seed up to ratio (0 = no limit)") },
+			{ "min", 0 }, { "decimals", 2 } },
+		QJsonObject{ { "type", "number" }, { "key", "seedUpload" }, { "title", tr("Seed until uploaded (0 = no limit)") },
+			{ "min", 0 }, { "max", 1000000000 }, { "suffix", "MB" } },
+		QJsonObject{ { "type", "checkbox" }, { "key", "superSeeding" }, { "title", tr("Use super seeding") } },
+	};
+	QJsonObject values = {
+		{ "seedRatio", m_seedLimitRatio },
+		{ "seedUpload", m_seedLimitUpload },
+		{ "superSeeding", m_bSuperSeeding },
+	};
+	return QJsonObject{ { "fields", fields }, { "values", values } };
+}
+
+void TorrentDownload::setOptions(const QJsonObject& values)
+{
+	if (values.contains("seedRatio"))
+		m_seedLimitRatio = values.value("seedRatio").toDouble();
+	if (values.contains("seedUpload"))
+		m_seedLimitUpload = values.value("seedUpload").toInt();
+	if (values.contains("superSeeding"))
+		m_bSuperSeeding = values.value("superSeeding").toBool();
 }
 
 void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const

@@ -34,6 +34,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QDateTime>
 #include <QDomNode>
 #include <QUuid>
+#include <QJsonObject>
 #include "Logger.h"
 
 struct EngineEntry;
@@ -132,6 +133,15 @@ public:
 	// AUTO ACTIONS
 	QString autoActionCommand(State state) const;
 	void setAutoActionCommand(State state, QString command);
+	
+	// OPTIONS of a particular transfer class, as a form in the vocabulary of
+	// plugins/FormValidator.h: {"fields": [...], "values": {"<key>": value}}.
+	// Front ends render it without knowing the class. The default has none.
+	virtual QJsonObject optionsForm() const;
+	// Applies values already checked with FormValidator::checkValues() against
+	// optionsForm(); only the changed keys are present. Throws
+	// RuntimeException to reject a value, before changing anything.
+	virtual void setOptions(const QJsonObject& values);
 	
 	Q_INVOKABLE QString uuid() const;
 	Q_PROPERTY(QString uuid READ uuid)

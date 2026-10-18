@@ -42,6 +42,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <QRandomGenerator>
+#include <QJsonArray>
 #include <QtDebug>
 #include <iostream>
 #include <algorithm>
@@ -350,6 +351,34 @@ void CurlDownload::setTargetName(QString newFileName)
 		}
 		m_strFile = newFileName;
 	}
+}
+
+// The desktop dialog's "Target file name"; the URL list is not offered here.
+QJsonObject CurlDownload::optionsForm() const
+{
+	QJsonArray fields = {
+		QJsonObject{ { "type", "text" }, { "key", "fileName" }, { "title", tr("Target file name") } },
+	};
+	return QJsonObject{ { "fields", fields }, { "values", QJsonObject{ { "fileName", m_strFile } } } };
+}
+
+void CurlDownload::setOptions(const QJsonObject& values)
+{
+	if (!values.contains("fileName"))
+		return;
+
+	QString name = values.value("fileName").toString().trimmed();
+
+	if (name.isEmpty() || name == "." || name == ".." || name.contains('/'))
+		throw RuntimeException(tr("Invalid file name: \"%1\"").arg(name));
+	if (name == m_strFile)
+		return;
+
+	// setTargetName() keeps the old name if the file on disk cannot be renamed.
+	setTargetName(name);
+	if (m_strFile != name)
+		throw RuntimeException(tr("Cannot rename the file to \"%1\"").arg(name));
+	m_bAutoName = false;
 }
 
 void CurlDownload::speeds(int& down, int& up) const
