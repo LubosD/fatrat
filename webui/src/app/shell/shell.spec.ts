@@ -21,6 +21,7 @@ import { ViewportService } from '../core/viewport.service';
 import { signal } from '@angular/core';
 import { Queue, Transfer } from '../core/api/models';
 import { of, Subject } from 'rxjs';
+import { PluginActions } from '../features/transfers/plugin-actions';
 
 function makeQueue(overrides: Partial<Queue> = {}): Queue {
   return {
@@ -105,6 +106,7 @@ function configure(
         useValue: { intervalSeconds: () => intervalSeconds, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() },
       },
       { provide: TransferActionsService, useValue: actions },
+      { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       { provide: QueueActionsService, useValue: queueActions },
       {
         provide: TransferApi,
@@ -353,6 +355,7 @@ describe('Shell', () => {
         },
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() } },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
         { provide: QueueActionsService, useValue: makeQueueActionsStub() },
         {
           provide: TransferApi,
@@ -398,6 +401,7 @@ describe('Shell', () => {
         },
         { provide: PollingService, useValue: { intervalSeconds: () => 5, allowedIntervals: [2, 5, 15, 30], setIntervalSeconds: vi.fn(), ticks$: new Subject<number>() } },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
         { provide: QueueActionsService, useValue: makeQueueActionsStub() },
         {
           provide: TransferApi,

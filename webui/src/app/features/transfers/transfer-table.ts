@@ -1,4 +1,5 @@
-import { Component, ElementRef, EventEmitter, Output, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import type { TableContextMenuSelectEvent } from 'primeng/table';
 import { ProgressBar } from 'primeng/progressbar';
@@ -9,6 +10,7 @@ import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';
 import { progressPercent, stateIconPath, stateLabelText } from './transfer-presentation';
 import { createTransferMenuItems, withAvailability } from './transfer-menu';
+import { PluginActions } from './plugin-actions';
 import { elideMiddle, formatEta, formatSize, formatSpeed } from './format';
 
 /** Magnet links without metadata yet carry hash-long names; elide them instead of letting the column stretch. */
@@ -35,7 +37,11 @@ export class TransferTable {
   /** Emitted from the context menu; Shell owns the properties dialog. */
   @Output() readonly propertiesRequested = new EventEmitter<void>();
 
-  protected contextMenuItems: MenuItem[] = createTransferMenuItems(this.actions, () => this.propertiesRequested.emit());
+  private readonly pluginActions = inject(PluginActions);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly baseMenuItems: MenuItem[] = createTransferMenuItems(this.actions, () => this.propertiesRequested.emit());
+  private pluginMenu?: Subscription;
+  protected contextMenuItems: MenuItem[] = this.baseMenuItems;
 
   protected progress(total: number, done: number): number {
     return progressPercent(total, done);
@@ -159,9 +165,16 @@ export class TransferTable {
       this.store.selectOnly(event.data.uuid);
     }
     // A fresh array, so the menu re-renders the new disabled flags.
-    this.contextMenuItems = withAvailability(
-      this.contextMenuItems,
-      availableTransferActions(this.store.transfers(), this.store.selectedUuids()),
-    );
+    const base = withAvailability(this.baseMenuItems, availableTransferActions(this.store.transfers(), this.store.selectedUuids()));
+    this.contextMenuItems = base;
+
+    this.pluginMenu?.unsubscribe();
+    const selected = this.store.selectedUuids();
+    if (selected.length === 1) {
+      this.pluginMenu = this.pluginActions.menuItems(selected[0]).subscribe((extra) => {
+        this.contextMenuItems = [...base, ...extra];
+        this.cdr.markForCheck();
+      });
+    }
   }
 }

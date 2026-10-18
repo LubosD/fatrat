@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ProgressBar } from 'primeng/progressbar';
 import { Menu } from 'primeng/menu';
 import { ButtonDirective, ButtonIcon } from 'primeng/button';
@@ -9,6 +10,7 @@ import { Transfer } from '../../core/api/models';
 import { elideMiddle, formatEta, formatSize, formatSpeed } from './format';
 import { progressPercent, stateIconPath, stateLabelText } from './transfer-presentation';
 import { createTransferMenuItems, withAvailability } from './transfer-menu';
+import { PluginActions } from './plugin-actions';
 
 export const LONG_PRESS_MS = 500;
 /** A finger that drifts further than this is scrolling, not pressing. */
@@ -30,6 +32,8 @@ const CARD_NAME_MAX_LENGTH = 60;
 export class TransferCards {
   protected readonly store = inject(TransfersStore);
   private readonly actions = inject(TransferActionsService);
+  private readonly pluginActions = inject(PluginActions);
+  private pluginMenu?: Subscription;
 
   /** Emitted from the card menu; Shell owns the properties dialog. */
   @Output() readonly propertiesRequested = new EventEmitter<void>();
@@ -114,6 +118,12 @@ export class TransferCards {
     this.menuItems.set(
       withAvailability(this.baseMenuItems, availableTransferActions(this.store.transfers(), this.store.selectedUuids())),
     );
+    const base = this.menuItems();
+    this.pluginMenu?.unsubscribe();
+    const selected = this.store.selectedUuids();
+    if (selected.length === 1) {
+      this.pluginMenu = this.pluginActions.menuItems(selected[0]).subscribe((extra) => this.menuItems.set([...base, ...extra]));
+    }
     menu.toggle(event);
   }
 }
