@@ -76,8 +76,13 @@ void FtpUploadOptsForm::accepted()
 	QList<Proxy> listProxy = Proxy::loadProxys();
 	QUrl url = lineTarget->text();
 	
-	url.setUserName(lineUsername->text());
-	url.setPassword(linePassword->text());
+	// User info typed into the target is used; the fields win only if edited
+	const QUrl& old = m_upload->m_strTarget;
+	const bool typedUserInfo = !url.userInfo().isEmpty();
+	if(!typedUserInfo || lineUsername->text() != old.userName())
+		url.setUserName(lineUsername->text());
+	if(!typedUserInfo || linePassword->text() != old.password())
+		url.setPassword(linePassword->text());
 	
 	m_upload->m_strTarget = url.toString();
 	int ix = comboProxy->currentIndex();

@@ -202,3 +202,8 @@ if(WITH_GUI)
 	add_test(NAME formdialog COMMAND tst_formdialog)
 	set_tests_properties(formdialog PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif(WITH_GUI)
+
+add_executable(tst_uploadtarget tst_uploadtarget.cpp)
+target_include_directories(tst_uploadtarget PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_uploadtarget Qt6::Core Qt6::Test)
+add_test(NAME uploadtarget COMMAND tst_uploadtarget)
