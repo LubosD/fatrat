@@ -58,7 +58,7 @@ void QueueMgr::doWork()
 	
 	const bool autoremove = getSettingsValue("autoremove").toBool();
 	
-	foreach(Queue* q,g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		int lim_down,lim_up;
 		int down,up, active = 0;
@@ -77,7 +77,7 @@ void QueueMgr::doWork()
 		
 		for(int i=0;i<q->m_transfers.size();i++)
 		{
-			Transfer* d = q->m_transfers[i];
+			Transfer* d = q->m_transfers.at(i);
 			int downs,ups;
 			Transfer::State state = d->state();
 			Transfer::Mode mode = d->mode();
@@ -126,9 +126,9 @@ void QueueMgr::doWork()
 		}
 		
 		foreach(int x, stopList)
-			q->m_transfers[x]->setState(Transfer::Waiting);
+			q->m_transfers.at(x)->setState(Transfer::Waiting);
 		foreach(int x, resumeList)
-			q->m_transfers[x]->setState(Transfer::Active);
+			q->m_transfers.at(x)->setState(Transfer::Active);
 		
 		total[0] += stats.down;
 		total[1] += stats.up;
@@ -277,10 +277,10 @@ void QueueMgr::exit()
 	delete m_timer;
 	
 	QReadLocker l(&g_queuesLock);
-	foreach(Queue* q,g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		q->lock();
-		foreach(Transfer* d,q->m_transfers)
+		for (Transfer* d : std::as_const(q->m_transfers))
 		{
 			if(d->isActive())
 				d->changeActive(false);
@@ -295,7 +295,7 @@ void QueueMgr::pauseAllTransfers()
 
 	m_paused.clear();
 
-	foreach (Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		q->lock();
 
@@ -318,7 +318,7 @@ void QueueMgr::unpauseAllTransfers()
 {
 	QReadLocker l(&g_queuesLock);
 
-	foreach (Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		q->lock();
 

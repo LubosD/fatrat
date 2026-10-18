@@ -159,7 +159,7 @@ QStringList DbusImpl::getQueues()
 	QStringList result;
 	g_queuesLock.lockForRead();
 	
-	foreach(Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 		result << q->name();
 	
 	g_queuesLock.unlock();

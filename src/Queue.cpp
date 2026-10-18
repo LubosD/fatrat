@@ -42,6 +42,9 @@ respects for all of the code used other than "OpenSSL".
 
 using namespace std;
 
+// Never copy g_queues (iterate it with a range-for over std::as_const(), not Qt's foreach, which copies):
+// threads holding g_queuesLock only for read use non-const accessors such as operator[], which detach a
+// shared list, i.e. reallocate it under the feet of the other readers and of the copy's owner.
 QList<Queue*> g_queues;
 QReadWriteLock g_queuesLock(QReadWriteLock::Recursive);
 
@@ -255,7 +258,7 @@ void Queue::saveQueues()
 	
 	g_queuesLock.lockForRead();
 	
-	foreach(Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		QDomElement elem = doc.createElement("queue");
 		elem.setAttribute("name",q->m_strName);
@@ -333,7 +336,7 @@ void Queue::saveQueue(QDomNode& node,QDomDocument& doc)
 {
 	lock();
 	
-	foreach(Transfer* d,m_transfers)
+	for (Transfer* d : std::as_const(m_transfers))
 	{
 		QDomElement elem = doc.createElement("download");
 		
@@ -357,7 +360,7 @@ Transfer* Queue::at(int r)
 	if(r < 0 || r >= m_transfers.size())
 		return 0;
 	else
-		return m_transfers[r];
+		return m_transfers.at(r);
 }
 
 void Queue::add(Transfer* d)
@@ -481,7 +484,7 @@ void Queue::setAutoLimits(int down, int up)
 	m_nDownAuto = down;
 	m_nUpAuto = up;
 	
-	foreach(Transfer* d, m_transfers)
+	for (Transfer* d : std::as_const(m_transfers))
 	{
 		if(!d->isActive())
 			continue;
