@@ -130,6 +130,8 @@ public:
 protected:
 	void updateGraph();
 
+	// Like g_queues, never copied and only read through const accessors under a read lock: a copy makes the
+	// list shared, and a non-const accessor would then detach (reallocate) it while other readers use it.
 	QList<Transfer*> m_transfers;
 	QQueue<QPair<int,int> > m_qSpeedData;
 	
@@ -138,6 +140,7 @@ protected:
 	class BackgroundSaver : public QThread
 	{
 	public:
+		~BackgroundSaver() override;
 		virtual void run();
 	};
 

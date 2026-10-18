@@ -589,7 +589,7 @@ void Transfer::replaceItself(Transfer* newObject)
 	newObject->m_uuid = m_uuid;
 
 	QReadLocker l(&g_queuesLock);
-	foreach (Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		if (q->contains(this))
 		{
@@ -602,7 +602,7 @@ void Transfer::replaceItself(Transfer* newObject)
 void Transfer::replaceItself(Transfer::TransferList newObjects)
 {
 	QReadLocker l(&g_queuesLock);
-	foreach (Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		if (q->contains(this))
 		{
@@ -615,7 +615,7 @@ void Transfer::replaceItself(Transfer::TransferList newObjects)
 Queue* Transfer::myQueue() const
 {
 	QReadLocker l(&g_queuesLock);
-	foreach (Queue* q, g_queues)
+	for (Queue* q : std::as_const(g_queues))
 	{
 		if (q->contains(const_cast<Transfer*>(this)))
 			return q;
