@@ -1,5 +1,6 @@
 #include "Dialog.h"
 #include "Format.h"
+#include <QObject>
 #include <algorithm>
 
 namespace tui
@@ -138,12 +139,13 @@ FormField& FormPanel::addRadio(const QString& id, const QString& label, const QS
 	return m_fields.last();
 }
 
-void FormPanel::addLabel(const QString& text)
+FormField& FormPanel::addLabel(const QString& text)
 {
 	FormField f;
 	f.type = FormField::Label;
 	f.text = text;
 	m_fields.push_back(f);
+	return m_fields.last();
 }
 
 void FormPanel::addSpacer()
@@ -151,6 +153,20 @@ void FormPanel::addSpacer()
 	FormField f;
 	f.type = FormField::Spacer;
 	m_fields.push_back(f);
+}
+
+void FormPanel::removeField(const QString& id)
+{
+	for (int i = 0; i < m_fields.size(); i++)
+	{
+		if (m_fields[i].id != id)
+			continue;
+		m_fields.remove(i);
+		if (m_focus > i)
+			m_focus--;
+		m_focus = qBound(0, m_focus, qMax(0, int(m_fields.size()) - 1));
+		return;
+	}
 }
 
 FormField* FormPanel::field(const QString& id)
@@ -660,6 +676,12 @@ void FormDialog::setSubmit(const QString& label, std::function<bool(FormDialog&)
 	m_onSubmit = std::move(fn);
 }
 
+void FormDialog::setSubmitAsync(const QString& label, std::function<void(FormDialog&, SubmitDone)> fn)
+{
+	m_submitLabel = label;
+	m_onSubmitAsync = std::move(fn);
+}
+
 void FormDialog::addShortcut(int key, bool ctrl, const QString& keyLabel, const QString& label, std::function<void(FormDialog&)> fn)
 {
 	m_shortcuts.push_back({ key, ctrl, keyLabel, label, std::move(fn) });
@@ -667,12 +689,32 @@ void FormDialog::addShortcut(int key, bool ctrl, const QString& keyLabel, const 
 
 void FormDialog::submit()
 {
+	if (m_busy)
+		return;
+	if (m_onSubmitAsync)
+	{
+		m_busy = true;
+		m_error.clear();
+		const std::weak_ptr<bool> alive = m_alive;
+		m_onSubmitAsync(*this, [this, alive](const QString& error) {
+			if (alive.expired() || finished())
+				return;
+			m_busy = false;
+			if (error.isEmpty())
+				close();
+			else
+				m_error = error;
+		});
+		return;
+	}
 	if (!m_onSubmit || m_onSubmit(*this))
 		close();
 }
 
 void FormDialog::cancel()
 {
+	if (m_busy)
+		return;
 	if (m_onCancel)
 		m_onCancel();
 	close();
@@ -693,7 +735,9 @@ void FormDialog::draw(Canvas& c, HitMap& hits, const Rect& screen)
 
 	// error line and the hints
 	const int x0 = m_rect.x + 2;
-	if (!m_error.isEmpty())
+	if (m_busy)
+		c.put(x0, m_rect.bottom() - 3, fit(QObject::tr("Saving…"), innerW), Style::Dim);
+	else if (!m_error.isEmpty())
 		c.put(x0, m_rect.bottom() - 3, fit(m_error, innerW), Style::Red);
 
 	QVector<Hint> hints;
@@ -708,6 +752,8 @@ void FormDialog::draw(Canvas& c, HitMap& hits, const Rect& screen)
 
 void FormDialog::handle(const Event& e)
 {
+	if (m_busy)
+		return;   // the input stays as it was sent until the result arrives
 	if (e.type == Event::Mouse)
 	{
 		if (!m_rect.contains(e.x, e.y) || !m_panel.mouse(e))
