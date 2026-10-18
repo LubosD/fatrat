@@ -185,9 +185,10 @@ void CurlDownload::setObject(QString target)
 	QDir dirnew = target;
 	if(dirnew != m_dir)
 	{
-		if(!QFile::rename(filePath(), target+"/"+m_strFile))
+		// A download that has not written anything yet has no file to move.
+		if(QFile::exists(filePath()) && !QFile::rename(filePath(), target+"/"+m_strFile))
 			throw RuntimeException(tr("Cannot move the file."));
-			
+
 		m_dir = dirnew;
 	}
 }
