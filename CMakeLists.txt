@@ -213,6 +213,8 @@ set(fatrat_GUI_SRCS
 	src/fancylineedit.cpp
 	src/FormWidgets.cpp
 	src/FormDialog.cpp
+	src/TaskGui.cpp
+	src/TaskStatusWidget.cpp
 	src/engines/MetalinkSettings.cpp
 	src/captcha/CaptchaQt.cpp
 	src/captcha/CaptchaQtDlg.cpp
@@ -256,6 +258,8 @@ set(fatrat_MOC_HDRS
 
 set(fatrat_GUI_MOC_HDRS
 	src/FormDialog.h
+	src/TaskGui.h
+	src/TaskStatusWidget.h
 	src/TransfersModel.h
 	src/QueueDlg.h
 	src/SpeedGraph.h

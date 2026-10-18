@@ -66,6 +66,8 @@ respects for all of the code used other than "OpenSSL".
 #include "ClipboardMonitor.h"
 #include "ClickableLabel.h"
 #include "util/BalloonTip.h"
+#include "TaskGui.h"
+#include "plugins/TransferActions.h"
 
 #ifdef WITH_PYPLUGINS
 #	include "engines/PythonAccountStatusWidget.h"
@@ -210,6 +212,7 @@ void MainWindow::setupUi()
 		QTimer::singleShot(30*1000, m_pluginUpdateChecker, SLOT(checkNow()));
 #endif
 
+	new TaskGui(this);
 	connectActions();
 	setupTrayIconMenu();
 	
@@ -1523,6 +1526,8 @@ void MainWindow::transferItemContext(const QPoint&)
 		menu.addAction(actionCopyRemoteURI);
 		menu.addSeparator();
 		
+		QList<TransferActions::Entry> pluginActions;
+		QString uuid;
 		Queue* q = getCurrentQueue();
 		if(q != 0)
 		{
@@ -1530,19 +1535,29 @@ void MainWindow::transferItemContext(const QPoint&)
 			{
 				Transfer* t = q->at(sel[0]);
 				t->fillContextMenu(menu);
+				// Asked with the queue locked, as appliesTo expects.
+				pluginActions = TransferActions::applicable(t);
+				uuid = t->uuid();
 			}
-			
+
 			doneQueue(q, true, false);
 		}
-		
+
 		menu.addSeparator();
-		
-		if(!m_menuActions.isEmpty())
+
+		if(!m_menuActions.isEmpty() || !pluginActions.isEmpty())
 		{
 			m_menuActionObjects.clear();
 			foreach(MenuAction act, m_menuActions)
 			{
 				m_menuActionObjects << menu.addAction(act.icon, act.strName, this, SLOT(menuActionTriggered()));
+			}
+			for (const TransferActions::Entry& entry : pluginActions)
+			{
+				QAction* a = menu.addAction(QIcon::fromTheme(entry.action.icon), entry.action.label,
+					this, SLOT(transferActionTriggered()));
+				// The transfer it was offered for, not whatever is current once the menu closes.
+				a->setData(QStringList() << entry.action.id << uuid);
 			}
 			menu.addSeparator();
 		}
@@ -1789,9 +1804,56 @@ void MainWindow::menuActionTriggered()
 		Transfer* t = q->at(ctrans.row());
 		
 		m_menuActions[i].lpfnTriggered(t, q);
-		
+
 		doneQueue(q, true, false);
 	}
+}
+
+void MainWindow::transferActionTriggered()
+{
+	QAction* action = static_cast<QAction*>(sender());
+	QStringList data = action->data().toStringList();
+	QString error, label;
+
+	if(data.size() != 2)
+		return;
+
+	std::optional<TransferActions::Entry> entry = TransferActions::find(data[0]);
+	if(!entry)
+		return;
+	label = entry->action.label;
+
+	Queue* q = getCurrentQueue();
+	if(q == 0)
+		return;
+
+	Transfer* t = 0;
+	for(int i = 0; i < q->size(); i++)
+	{
+		if(q->at(i)->uuid() == data[1])
+		{
+			t = q->at(i);
+			break;
+		}
+	}
+
+	// The transfer may have changed or gone while the menu was open.
+	if(t != 0 && TransferActions::applies(*entry, t))
+	{
+		try
+		{
+			TransferActions::trigger(*entry, t, t->uuid(), t->name());
+		}
+		catch(const PluginError& e)
+		{
+			error = e.message;
+		}
+	}
+	doneQueue(q, true, false);
+
+	// Not with the queue locked.
+	if(!error.isEmpty())
+		QMessageBox::critical(this, "FatRat", tr("%1 failed: %2").arg(label, error));
 }
 
 void MainWindow::reportBug()
