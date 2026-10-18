@@ -141,6 +141,7 @@ protected:
 	libtorrent::torrent_status m_status;
 	
 	QString m_strError, m_strTarget;
+	QString m_strMagnet; // the magnet link this transfer was added from, if any
 	//qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<libtorrent::download_priority_t> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
