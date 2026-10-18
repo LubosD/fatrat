@@ -1,5 +1,6 @@
 #pragma once
 #include "App.h"
+#include "Dialog.h"
 
 namespace tui
 {
@@ -7,7 +8,8 @@ namespace tui
 	namespace dialogs
 	{
 		void newTransfer(App& app);
-		void editTransfer(App& app, const TransferInfo& t);
+		// Returns the dialog it pushed (owned by the App), for tests
+		FormDialog* editTransfer(App& app, const TransferInfo& t);
 		void limitTransfers(App& app, const QStringList& uuids, const SpeedPair& initial);
 		void queueEditor(App& app, const QueueInfo* existing);
 		void deleteQueue(App& app, const QueueInfo& q);

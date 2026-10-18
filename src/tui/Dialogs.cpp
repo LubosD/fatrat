@@ -1,6 +1,8 @@
 #include "Dialogs.h"
 #include <QRegularExpression>
 #include "Format.h"
+#include "OptionsForm.h"
+#include <memory>
 #include <QDir>
 #include <QFileInfo>
 
@@ -312,25 +314,66 @@ void newTransfer(App& app)
 	});
 }
 
-void editTransfer(App& app, const TransferInfo& t)
+FormDialog* editTransfer(App& app, const TransferInfo& t)
 {
 	auto d = std::make_unique<FormDialog>(app.tr("Transfer properties"), 74);
+	FormDialog* dialog = d.get();
+
 	d->addLabel(t.name);
 	d->addSpacer();
 	d->addText("comment", app.tr("Comment"), t.comment);
-	d->addText("object", app.tr("Source"), t.object);
+	d->addText("object", t.primaryUpload ? app.tr("Source") : app.tr("Destination"), t.object);
 	d->addText("down", app.tr("Speed limit down"), kbText(t.userSpeedLimits.down), "KB/s, 0 = none");
 	d->addText("up", app.tr("Speed limit up"), kbText(t.userSpeedLimits.up), "KB/s, 0 = none");
+	d->addText("command", app.tr("Run on completion"), t.completionCommand);
+	d->addLabel(t.primaryUpload ? app.tr("%N name, %T type, %D source directory, %P file path")
+				    : app.tr("%N name, %T type, %D destination directory, %P file path"));
+	d->addSpacer();
+	d->addLabel(app.tr("Options")).id = "opt-heading";
+	d->addLabel(app.tr("Loading options…")).id = "opt-status";
+
+	// filled in when the server answers; the save below only sends options once they are shown
+	struct Options { QJsonArray fields; QJsonObject values; bool shown = false; };
+	auto opts = std::make_shared<Options>();
+
+	const std::weak_ptr<bool> alive = dialog->aliveToken();
+	app.api().transferOptions(t.uuid, [&app, dialog, alive, opts](const ApiResult& r) {
+		if (alive.expired())
+			return;
+		if (!r.ok())
+		{
+			dialog->panel().setText("opt-status", app.tr("Could not load the options: %1").arg(r.describe()));
+			return;
+		}
+		const QJsonObject o = r.json.toObject();
+		opts->fields = o["fields"].toArray();
+		opts->values = o["values"].toObject();
+		dialog->removeField("opt-status");
+		if (opts->fields.isEmpty())
+		{
+			dialog->removeField("opt-heading");
+			return;
+		}
+		options::addFields(dialog->panel(), opts->fields, opts->values);
+		opts->shown = true;
+	});
+
 	const QString uuid = t.uuid;
 	const TransferInfo orig = t;
-	d->setSubmit(app.tr("Save"), [&app, uuid, orig](FormDialog& f) {
+	d->setSubmitAsync(app.tr("Save"), [&app, uuid, orig, opts](FormDialog& f, FormDialog::SubmitDone done) {
 		bool ok1, ok2;
 		const qint64 down = parseKb(f.text("down"), &ok1), up = parseKb(f.text("up"), &ok2);
 		if (!ok1 || !ok2)
+			return done(app.tr("Speed limits must be whole numbers"));
+
+		QJsonObject changedOptions;
+		if (opts->shown)
 		{
-			f.setError(app.tr("Speed limits must be whole numbers"));
-			return false;
+			const QString error = options::changed(f.panel(), opts->fields, opts->values, &changedOptions);
+			if (!error.isEmpty())
+				return done(error);
 		}
+
 		// send only what changed: the limits are shown in whole KB/s and must not be rounded silently
 		QJsonObject o;
 		if (f.text("comment") != orig.comment)
@@ -339,12 +382,38 @@ void editTransfer(App& app, const TransferInfo& t)
 			o["object"] = f.text("object");
 		if (f.text("down") != kbText(orig.userSpeedLimits.down) || f.text("up") != kbText(orig.userSpeedLimits.up))
 			o["userSpeedLimits"] = limitsJson(down, up);
+		if (f.text("command") != orig.completionCommand)
+			o["completionCommand"] = f.text("command");
+
+		if (o.isEmpty() && changedOptions.isEmpty())
+			return done(QString());
+
+		auto finished = [&app, done]() {
+			app.toast(app.tr("Saved"));
+			app.refreshSoon();
+			done(QString());
+		};
+		// the general properties go first: a refused path then leaves the options untouched too
+		auto saveOptions = [&app, uuid, changedOptions, done, finished]() {
+			if (changedOptions.isEmpty())
+				return finished();
+			app.api().patchTransferOptions(uuid, changedOptions, [&app, done, finished](const ApiResult& r) {
+				if (!r.ok())
+					return done(app.tr("Options not saved: %1").arg(r.describe()));
+				finished();
+			});
+		};
+
 		if (o.isEmpty())
-			return true;
-		app.api().patchTransfer(uuid, o, app.reply(app.tr("Cannot save the properties")));
-		return true;
+			return saveOptions();
+		app.api().patchTransfer(uuid, o, [done, saveOptions](const ApiResult& r) {
+			if (!r.ok())
+				return done(r.describe());
+			saveOptions();
+		});
 	});
 	app.push(std::move(d));
+	return dialog;
 }
 
 void limitTransfers(App& app, const QStringList& uuids, const SpeedPair& initial)
