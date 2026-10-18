@@ -13,7 +13,8 @@
       <label for="transfer-speed-up">Max upload speed (KB/s)</label>
       <p-inputnumber inputId="transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
     </div>
-    @if (transfer) {
+    <!-- One transfer only: a path can't suit downloads and uploads selected together. -->
+    @if (transfer && transferCount === 1) {
       <div class="field">
         <label for="transfer-object">{{ isUpload ? 'Source' : 'Destination' }}</label>
         <p-inputgroup class="fr-grow">

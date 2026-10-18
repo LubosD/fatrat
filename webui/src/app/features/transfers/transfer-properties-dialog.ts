@@ -164,7 +164,7 @@ export class TransferPropertiesDialog implements OnChanges {
     }
 
     const object = this.object.trim();
-    if (object !== '' && object !== (t?.object ?? '')) properties['object'] = object;
+    if (this.transferCount === 1 && object !== '' && object !== (t?.object ?? '')) properties['object'] = object;
     if (this.completionCommand !== (t?.completionCommand ?? '')) properties['completionCommand'] = this.completionCommand;
     return properties;
   }

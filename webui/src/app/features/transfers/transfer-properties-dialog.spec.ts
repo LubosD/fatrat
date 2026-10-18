@@ -121,6 +121,14 @@ describe('TransferPropertiesDialog', () => {
       expect(byTestId('transfer-browse-object')).toBeNull();
     });
 
+    it('offers no path field for several transfers', () => {
+      open({ count: 3 });
+      expect(document.getElementById('transfer-object')).toBeNull();
+      expect(byTestId('transfer-browse-object')).toBeNull();
+      expect(document.getElementById('transfer-comment')).not.toBeNull();
+      expect(document.getElementById('transfer-completion')).not.toBeNull();
+    });
+
     it('lists the completion command placeholders', () => {
       open();
       const hint = byTestId('transfer-completion-hint')!.textContent!;
