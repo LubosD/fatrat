@@ -443,51 +443,6 @@ describe('Shell', () => {
     expect(fixture.componentInstance['transferClasses']()).toEqual([http, plugin]);
   });
 
-  it('saving the new-transfer dialog with a file calls addTransferWithData()', () => {
-    const { actions } = configure([]);
-    const fixture = TestBed.createComponent(Shell);
-    fixture.detectChanges();
-
-    const file = new File(['data'], 'test.torrent');
-    fixture.componentInstance['onNewTransferSave']({
-      urls: [],
-      file,
-      queueUuid: 'q1',
-      targetClass: '',
-      target: '/downloads',
-      paused: false,
-      speedLimits: { down: 0, up: 0 },
-    });
-
-    expect(actions.addTransferWithData).toHaveBeenCalledWith(
-      file,
-      expect.objectContaining({ upload: false, queueUuid: 'q1', target: '/downloads' }),
-    );
-    expect(actions.addTransfers).not.toHaveBeenCalled();
-  });
-
-  it('saving the new-transfer dialog with urls and no file calls addTransfers()', () => {
-    const { actions } = configure([]);
-    const fixture = TestBed.createComponent(Shell);
-    fixture.detectChanges();
-
-    fixture.componentInstance['onNewTransferSave']({
-      urls: ['http://example.com/a'],
-      file: null,
-      queueUuid: 'q1',
-      targetClass: '',
-      target: '/downloads',
-      paused: false,
-      speedLimits: { down: 0, up: 0 },
-    });
-
-    expect(actions.addTransfers).toHaveBeenCalledWith(
-      ['http://example.com/a'],
-      expect.objectContaining({ upload: false, queueUuid: 'q1', target: '/downloads' }),
-    );
-    expect(actions.addTransferWithData).not.toHaveBeenCalled();
-  });
-
   it('renders Transfers and Details tabs', () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);

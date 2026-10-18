@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
+import { TransferActionsService } from '../../core/transfer-actions.service';
 import { TransferApi } from '../../core/api/transfer-api';
 import { NewTransferDialog } from './new-transfer-dialog';
 import { Queue, TransferClass } from '../../core/api/models';
@@ -22,12 +23,22 @@ describe('NewTransferDialog', () => {
     of({ path: path || '/home/u', parent: '/home', entries: [{ name: 'movies', path: '/home/u/movies' }] }),
   );
 
-  beforeEach(() => browseDirectories.mockClear());
+  const addTransfers = vi.fn();
+  const addTransferWithData = vi.fn();
+
+  beforeEach(() => {
+    browseDirectories.mockClear();
+    addTransfers.mockReset().mockReturnValue(of(undefined));
+    addTransferWithData.mockReset().mockReturnValue(of(undefined));
+  });
 
   function setup(queues: Queue[] = [makeQueue()], transferClasses: TransferClass[] = [], defaultQueueUuid: string | null = null) {
     TestBed.configureTestingModule({
       imports: [NewTransferDialog],
-      providers: [{ provide: TransferApi, useValue: { browseDirectories: browseDirectories } }],
+      providers: [
+        { provide: TransferApi, useValue: { browseDirectories: browseDirectories } },
+        { provide: TransferActionsService, useValue: { addTransfers, addTransferWithData } },
+      ],
     });
     const fixture = TestBed.createComponent(NewTransferDialog);
     fixture.componentRef.setInput('queues', queues);
@@ -72,41 +83,112 @@ describe('NewTransferDialog', () => {
     expect(fixture.componentInstance.target).toBe('/custom');
   });
 
-  it('emits save() with urls split from the textarea, trimmed, and empty lines dropped', () => {
+  it('adds the URLs split from the textarea, trimmed, and empty lines dropped, then closes', () => {
     const fixture = setup();
-    const saved: unknown[] = [];
-    fixture.componentInstance.save.subscribe((value) => saved.push(value));
+    const visibleChanges: boolean[] = [];
+    fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
 
-    fixture.componentInstance.urlsText = '  http://example.com/a  \n\nhttp://example.com/b\n';
+    fixture.componentInstance.urlsText = '  http://example.com/a  \n\nmagnet:?xt=urn:btih:abc\n';
     fixture.componentInstance.queueUuid = 'q1';
     fixture.componentInstance.target = '/downloads';
     fixture.componentInstance['onSave']();
 
-    expect(saved).toEqual([
-      {
-        urls: ['http://example.com/a', 'http://example.com/b'],
-        file: null,
-        queueUuid: 'q1',
-        targetClass: '',
-        target: '/downloads',
-        paused: false,
-        speedLimits: { down: 0, up: 0 },
-      },
-    ]);
+    expect(addTransfers).toHaveBeenCalledWith(['http://example.com/a', 'magnet:?xt=urn:btih:abc'], {
+      upload: false,
+      queueUuid: 'q1',
+      targetClass: '',
+      target: '/downloads',
+      paused: false,
+      speedLimits: { down: 0, up: 0 },
+    });
+    expect(visibleChanges).toEqual([false]);
   });
 
   it('a selected file takes priority over any typed URLs', () => {
     const fixture = setup();
-    const saved: unknown[] = [];
-    fixture.componentInstance.save.subscribe((value) => saved.push(value));
-
     fixture.componentInstance.urlsText = 'http://example.com/a';
     const file = new File(['data'], 'test.torrent');
     fixture.componentInstance['onFileSelect']({ files: [file] } as unknown as import('primeng/fileupload').FileSelectEvent);
     fixture.componentInstance['onSave']();
 
-    expect((saved[0] as { file: File | null }).file).toBe(file);
-    expect((saved[0] as { urls: string[] }).urls).toEqual([]);
+    expect(addTransferWithData).toHaveBeenCalledWith(file, expect.objectContaining({ upload: false, queueUuid: 'q1' }));
+    expect(addTransfers).not.toHaveBeenCalled();
+  });
+
+  it('stays open, shows the server message and keeps the input when adding fails', async () => {
+    addTransfers.mockReturnValue(throwError(() => new Error('Unsupported protocol: "magnet"')));
+    const fixture = setup();
+    await fixture.whenStable();
+    const visibleChanges: boolean[] = [];
+    fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
+
+    fixture.componentInstance.urlsText = 'http://example.com/a\nmagnet:?xt=urn:btih:abc';
+    fixture.componentInstance.target = '/mnt/x';
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.componentInstance['onSave']();
+    fixture.detectChanges();
+
+    expect(visibleChanges).toEqual([]);
+    expect(fixture.componentInstance.urlsText).toBe('http://example.com/a\nmagnet:?xt=urn:btih:abc');
+    expect(fixture.componentInstance.target).toBe('/mnt/x');
+    const alert = document.body.querySelector('[data-testid="new-transfer-error"]');
+    expect(alert?.getAttribute('role')).toBe('alert');
+    expect(alert?.textContent).toContain('Unsupported protocol: "magnet"');
+
+    // A retry clears the message and can succeed.
+    addTransfers.mockReturnValue(of(undefined));
+    fixture.componentInstance['onSave']();
+    expect(visibleChanges).toEqual([false]);
+    expect(fixture.componentInstance['error']()).toBe('');
+  });
+
+  it('asks for a URL or file instead of sending an empty request', () => {
+    const fixture = setup();
+    fixture.componentInstance['onSave']();
+    fixture.detectChanges();
+
+    expect(addTransfers).not.toHaveBeenCalled();
+    expect(document.body.querySelector('[data-testid="new-transfer-error"]')).not.toBeNull();
+  });
+
+  it('ignores a second Save while the request is in flight', () => {
+    const pending = new Subject<void>();
+    addTransfers.mockReturnValue(pending);
+    const fixture = setup();
+    fixture.componentInstance.urlsText = 'http://example.com/a';
+
+    fixture.componentInstance['onSave']();
+    fixture.componentInstance['onSave']();
+    expect(addTransfers).toHaveBeenCalledTimes(1);
+
+    pending.next();
+    pending.complete();
+    fixture.componentInstance.urlsText = 'http://example.com/b';
+    fixture.componentInstance['onSave']();
+    expect(addTransfers).toHaveBeenCalledTimes(2);
+  });
+
+  it('drops the result of a request started in an earlier session', () => {
+    const pending = new Subject<void>();
+    addTransfers.mockReturnValue(pending);
+    const fixture = setup();
+    const visibleChanges: boolean[] = [];
+    fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
+    fixture.componentInstance.urlsText = 'http://example.com/a';
+    fixture.componentInstance['onSave']();
+
+    // Closed and reopened while the request was still running.
+    fixture.componentRef.setInput('visible', false);
+    fixture.detectChanges();
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    pending.error(new Error('late failure'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['error']()).toBe('');
+    expect(visibleChanges).toEqual([]);
   });
 
   it('disables the URLs textarea once a file is selected', () => {
@@ -129,16 +211,14 @@ describe('NewTransferDialog', () => {
     expect(textarea.disabled).toBe(false);
   });
 
-  it('closes without emitting save() on cancel', () => {
+  it('closes without adding anything on cancel', () => {
     const fixture = setup();
-    const saved: unknown[] = [];
     const visibleChanges: boolean[] = [];
-    fixture.componentInstance.save.subscribe((value) => saved.push(value));
     fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
 
     fixture.componentInstance['onCancel']();
 
-    expect(saved).toEqual([]);
+    expect(addTransfers).not.toHaveBeenCalled();
     expect(visibleChanges).toEqual([false]);
   });
 

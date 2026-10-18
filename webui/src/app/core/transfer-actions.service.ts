@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TransferApi } from './api/transfer-api';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
@@ -105,20 +105,24 @@ export class TransferActionsService {
     this.transfersStore.refreshNow();
   }
 
-  addTransfers(urls: string[], options: NewTransferOptions): void {
-    if (urls.length === 0) return;
+  /**
+   * Adds the URLs; the caller (the New Transfer dialog) shows a failure and keeps the user's input,
+   * so errors are not swallowed here. Completes without a request when there is nothing to add.
+   */
+  addTransfers(urls: string[], options: NewTransferOptions): Observable<void> {
+    if (urls.length === 0) return of(undefined);
 
-    this.transferApi.addTransfers(urls, options).subscribe({
-      next: () => this.transfersStore.refreshNow(),
-      error: (err) => console.error('Failed to add transfers', err),
-    });
+    return this.transferApi.addTransfers(urls, options).pipe(
+      tap(() => this.transfersStore.refreshNow()),
+      map(() => undefined),
+    );
   }
 
-  addTransferWithData(file: File, options: NewTransferOptions): void {
-    this.transferApi.addTransferWithData(file, options).subscribe({
-      next: () => this.transfersStore.refreshNow(),
-      error: (err) => console.error('Failed to add transfer from file', err),
-    });
+  addTransferWithData(file: File, options: NewTransferOptions): Observable<void> {
+    return this.transferApi.addTransferWithData(file, options).pipe(
+      tap(() => this.transfersStore.refreshNow()),
+      map(() => undefined),
+    );
   }
 
   private setState(state: Extract<TransferState, 'Waiting' | 'ForcedActive' | 'Paused'>): void {

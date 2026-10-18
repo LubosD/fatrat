@@ -207,23 +207,33 @@ describe('TransferActionsService', () => {
     expect(refreshNow).toHaveBeenCalled();
   });
 
+  const addOptions = { upload: false, queueUuid: 'q1', targetClass: '', target: '/downloads', paused: false, speedLimits: { down: 0, up: 0 } };
+
   it('addTransfers() calls TransferApi.addTransfers() and refreshes', () => {
-    const options = { upload: false, queueUuid: 'q1', targetClass: '', target: '/downloads', paused: false, speedLimits: { down: 0, up: 0 } };
-    service.addTransfers(['http://example.com/a'], options);
-    expect(addTransfers).toHaveBeenCalledWith(['http://example.com/a'], options);
+    service.addTransfers(['http://example.com/a'], addOptions).subscribe();
+    expect(addTransfers).toHaveBeenCalledWith(['http://example.com/a'], addOptions);
     expect(refreshNow).toHaveBeenCalled();
   });
 
   it('addTransfers() does nothing when the url list is empty', () => {
-    service.addTransfers([], { upload: false, queueUuid: 'q1', targetClass: '', target: '', paused: false, speedLimits: { down: 0, up: 0 } });
+    let completed = false;
+    service.addTransfers([], addOptions).subscribe({ complete: () => (completed = true) });
     expect(addTransfers).not.toHaveBeenCalled();
+    expect(completed).toBe(true);
+  });
+
+  it('addTransfers() passes the error on and does not refresh', () => {
+    addTransfers.mockReturnValue(throwError(() => new Error('nope')));
+    let message = '';
+    service.addTransfers(['magnet:?xt=a'], addOptions).subscribe({ error: (e: Error) => (message = e.message) });
+    expect(message).toBe('nope');
+    expect(refreshNow).not.toHaveBeenCalled();
   });
 
   it('addTransferWithData() calls TransferApi.addTransferWithData() and refreshes', () => {
     const file = new File(['data'], 'test.torrent');
-    const options = { upload: false, queueUuid: 'q1', targetClass: '', target: '/downloads', paused: false, speedLimits: { down: 0, up: 0 } };
-    service.addTransferWithData(file, options);
-    expect(addTransferWithData).toHaveBeenCalledWith(file, options);
+    service.addTransferWithData(file, addOptions).subscribe();
+    expect(addTransferWithData).toHaveBeenCalledWith(file, addOptions);
     expect(refreshNow).toHaveBeenCalled();
   });
 });

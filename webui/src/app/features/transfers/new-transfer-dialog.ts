@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, signal, ElementRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
@@ -10,31 +10,27 @@ import { FileUpload, FileSelectEvent } from 'primeng/fileupload';
 import { ButtonDirective } from 'primeng/button';
 import { InputGroup } from 'primeng/inputgroup';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
-import { Queue, TransferClass } from '../../core/api/models';
+import { NewTransferOptions, Queue, TransferClass } from '../../core/api/models';
+import { TransferActionsService } from '../../core/transfer-actions.service';
 import { PathSuggest } from '../../shared/path-suggest/path-suggest';
-
-export interface NewTransferFormValue {
-  urls: string[];
-  file: File | null;
-  queueUuid: string;
-  targetClass: string;
-  target: string;
-  paused: boolean;
-  speedLimits: { down: number; up: number };
-}
 
 @Component({
   selector: 'app-new-transfer-dialog',
   imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, FileUpload, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
   templateUrl: './new-transfer-dialog.html',
+  styleUrl: './new-transfer-dialog.scss',
 })
+/**
+ * Adds the transfers itself: on a failure it stays open with the server's message and the typed
+ * input, and it closes only once the server accepted everything.
+ */
 export class NewTransferDialog implements OnChanges {
+  private readonly actions = inject(TransferActionsService);
   @Input() queues: Queue[] = [];
   @Input() transferClasses: TransferClass[] = [];
   @Input() defaultQueueUuid: string | null = null;
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() save = new EventEmitter<NewTransferFormValue>();
 
   @ViewChild('urlsModel') private urlsModel?: NgModel;
   @ViewChild('urlsModel', { read: ElementRef }) private urlsEl?: ElementRef<HTMLTextAreaElement>;
@@ -48,6 +44,10 @@ export class NewTransferDialog implements OnChanges {
   protected pickerOpen = false;
   speedDown = 0;
   speedUp = 0;
+  protected readonly error = signal('');
+  protected readonly saving = signal(false);
+  // Bumped whenever the form is reset, so the answer to a request from an earlier session is dropped.
+  private session = 0;
 
   // Also reset when the dialog is (re)opened, not just when the input reference changes —
   // reopening with a reference-equal input (e.g. null again, or the same object) would
@@ -90,6 +90,9 @@ export class NewTransferDialog implements OnChanges {
     this.pickerOpen = false;
     this.speedDown = 0;
     this.speedUp = 0;
+    this.error.set('');
+    this.saving.set(false);
+    this.session++;
     this.urlsModel?.control.enable();
   }
 
@@ -104,6 +107,8 @@ export class NewTransferDialog implements OnChanges {
   }
 
   protected onSave(): void {
+    if (this.saving()) return;
+
     const urls =
       this.file !== null
         ? []
@@ -111,17 +116,36 @@ export class NewTransferDialog implements OnChanges {
             .split('\n')
             .map((line) => line.trim())
             .filter((line) => line.length > 0);
+    if (this.file === null && urls.length === 0) {
+      this.error.set('Enter at least one URL or choose a local file.');
+      return;
+    }
 
-    this.save.emit({
-      urls,
-      file: this.file,
+    const options: NewTransferOptions = {
+      upload: false,
       queueUuid: this.queueUuid,
       targetClass: this.targetClass,
       target: this.target,
       paused: this.paused,
       speedLimits: { down: (this.speedDown ?? 0) * 1024, up: (this.speedUp ?? 0) * 1024 },
+    };
+    const request = this.file !== null ? this.actions.addTransferWithData(this.file, options) : this.actions.addTransfers(urls, options);
+
+    const session = this.session;
+    this.error.set('');
+    this.saving.set(true);
+    request.subscribe({
+      next: () => {
+        if (session !== this.session) return;
+        this.saving.set(false);
+        this.closeDialog();
+      },
+      error: (err: unknown) => {
+        if (session !== this.session) return;
+        this.saving.set(false);
+        this.error.set(err instanceof Error && err.message ? err.message : 'Failed to add the transfer.');
+      },
     });
-    this.closeDialog();
   }
 
   protected onCancel(): void {

@@ -19,7 +19,7 @@ import { TransferCards } from '../features/transfers/transfer-cards';
 import { TransferDetails } from '../features/transfers/transfer-details';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
 import { TransferPropertiesDialog } from '../features/transfers/transfer-properties-dialog';
-import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
+import { NewTransferDialog } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { CaptchaDialog } from '../features/captcha/captcha-dialog';
 import { TaskPromptDialog } from '../features/tasks/task-prompt-dialog';
@@ -225,22 +225,6 @@ export class Shell {
     // Plugins can be installed or switched on while this page is open.
     this.loadTransferClasses();
     this.showNewTransferDialog.set(true);
-  }
-
-  protected onNewTransferSave(value: NewTransferFormValue): void {
-    const options: NewTransferOptions = {
-      upload: false,
-      queueUuid: value.queueUuid,
-      targetClass: value.targetClass,
-      target: value.target,
-      paused: value.paused,
-      speedLimits: value.speedLimits,
-    };
-    if (value.file !== null) {
-      this.actions.addTransferWithData(value.file, options);
-    } else {
-      this.actions.addTransfers(value.urls, options);
-    }
   }
 
   protected readonly showSettingsDialog = signal(false);
