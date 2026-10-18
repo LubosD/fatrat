@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include "CurlUpload.h"
 #include "CurlPoller.h"
+#include "UploadTarget.h"
 #include "RuntimeException.h"
 #include "Proxy.h"
 #include "Auth.h"
@@ -349,8 +350,6 @@ QJsonObject CurlUpload::optionsForm() const
 // Takes effect on the next start, as in the desktop dialog.
 void CurlUpload::setOptions(const QJsonObject& values)
 {
-	QUrl url = m_strTarget;
-
 	if (values.contains("target"))
 	{
 		QString target = values.value("target").toString().trimmed();
@@ -361,16 +360,9 @@ void CurlUpload::setOptions(const QJsonObject& values)
 		QUrl newUrl(target);
 		if (!newUrl.isValid() || newUrl.host().isEmpty())
 			throw RuntimeException(tr("Invalid target URL: %1").arg(target));
-		newUrl.setUserName(url.userName());
-		newUrl.setPassword(url.password());
-		url = newUrl;
 	}
-	if (values.contains("username"))
-		url.setUserName(values.value("username").toString());
-	if (values.contains("password"))
-		url.setPassword(values.value("password").toString());
 
-	m_strTarget = url;
+	m_strTarget = composeUploadTarget(m_strTarget, values);
 	if (values.contains("ftpMode"))
 		m_mode = (values.value("ftpMode").toString() == "active") ? FtpActive : FtpPassive;
 	if (values.contains("proxy"))
