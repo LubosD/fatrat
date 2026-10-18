@@ -275,6 +275,10 @@ void PythonDownload::changeActive(bool bActive)
 
 		m_segments.clear();
 		m_segments << s;
+
+		// A size left over from the previous attempt would turn into
+		// a "Range: bytes=0-<size-1>" request, which such links reject.
+		m_nTotal = 0;
 	}
 
 	m_bFinalChecked = false;
@@ -343,6 +347,7 @@ void PythonDownload::startDownload(const QString& url, const QString& referrer, 
 
 			m_segments.clear();
 			m_segments << s;
+			m_nTotal = 0;
 		}
 
 		m_urls[0].cookies = cookies;
