@@ -33,6 +33,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QCoreApplication>
 #include <QList>
 #include <QReadWriteLock>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QDir>
 #include <QFile>
 #include <QDomDocument>
@@ -165,6 +167,12 @@ void Queue::saveQueuesAsync()
 
 void Queue::saveQueues()
 {
+	// Every save writes and renames the same queues.xml.new; concurrent saves (saveQueuesAsync() after each
+	// change, plus the synchronous one at exit) would interleave their writes. Held while taking g_queuesLock
+	// for read, so no caller may hold g_queuesLock for write when calling this.
+	static QMutex saveMutex;
+	QMutexLocker saveLocker(&saveMutex);
+
 	if (!m_bLoaded)
 	{
 		qDebug() << "Not saving queues as they haven't been loaded yet.";
