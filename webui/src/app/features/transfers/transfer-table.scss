@@ -83,11 +83,16 @@
 }
 
 .name-cell {
+  min-width: 12rem;
   word-break: break-word;
 }
 
+// Messages can carry long unbreakable tokens (e.g. redirect URLs); let them wrap anywhere
+// so they don't widen the column and squeeze the name column down to a few characters.
 .message-cell {
+  min-width: 12rem;
   color: var(--p-text-muted-color);
+  overflow-wrap: anywhere;
 }
 
 :host ::ng-deep .p-progressbar {
