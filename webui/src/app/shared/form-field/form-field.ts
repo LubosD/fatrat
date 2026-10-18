@@ -56,7 +56,10 @@ export class FormField {
     return typeof value === 'number' ? value : null;
   }
 
-  /** InputNumber reports a cleared field as null; a form value is always a number. */
+  /**
+   * With allowEmpty off, clearing gives 0 and blur clamps it to the limits; null only comes from
+   * a lone '-'. A form value is always a number.
+   */
   protected onNumber(value: number | null): void {
     this.value.set(value ?? numberFallback(this.field()));
   }
