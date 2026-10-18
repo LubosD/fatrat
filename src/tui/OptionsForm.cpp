@@ -1,6 +1,5 @@
 #include "OptionsForm.h"
 #include "Dialog.h"
-#include <QLocale>
 #include <QObject>
 #include <cmath>
 
@@ -13,10 +12,13 @@ static QString idOf(const QString& key)
 	return "opt:" + key;
 }
 
-// the shortest text that reads back as the same double, so an untouched field is never a change
+// Text that reads back as the same double, so an untouched field is never a change. 16 digits
+// keeps whole numbers up to 1e15 free of exponents (the shortest form prints 100000 as 1e+05);
+// 17 digits always round-trip, for the doubles 16 do not.
 static QString numberText(double v)
 {
-	return QString::number(v, 'g', QLocale::FloatingPointShortest);
+	const QString text = QString::number(v, 'g', 16);
+	return text.toDouble() == v ? text : QString::number(v, 'g', 17);
 }
 
 static QStringList comboValues(const QJsonObject& f)

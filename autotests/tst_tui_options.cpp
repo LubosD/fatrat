@@ -110,6 +110,29 @@ private slots:
 		QVERIFY(out.isEmpty());
 	}
 
+	void numbersShowWithoutExponents_data()
+	{
+		QTest::addColumn<double>("value");
+		QTest::addColumn<QString>("text");
+
+		QTest::newRow("100000") << 100000.0 << "100000";
+		QTest::newRow("1e9") << 1e9 << "1000000000";
+		QTest::newRow("1e15") << 1e15 << "1000000000000000";
+		QTest::newRow("0.3") << 0.3 << "0.3";
+	}
+
+	void numbersShowWithoutExponents()
+	{
+		QFETCH(double, value);
+		QFETCH(QString, text);
+
+		const QJsonArray f = fields(R"([ { "type": "number", "key": "n", "title": "N", "decimals": 2 } ])");
+		const QJsonObject values{ { "n", value } };
+		FormPanel p;
+		options::addFields(p, f, values);
+		QCOMPARE(p.text("opt:n"), text);
+	}
+
 	void aGroupBecomesANote()
 	{
 		FormPanel p;
