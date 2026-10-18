@@ -846,10 +846,16 @@ static QJsonObject checkedOptionsForm(Transfer* t)
 	return form;
 }
 
+// Both options handlers run on the main thread: the forms read settings arrays (the proxy list), and
+// setOptions can rename files or change the state of a transfer.
 static RestResult getTransferOptions(const RestRequest& req)
 {
-	TransferGuard g(req.pathParams["transfer"]);
-	return RestResult::ok(checkedOptionsForm(g.transfer()));
+	QJsonObject form;
+	RestResources::onMainThread([&] {
+		TransferGuard g(req.pathParams["transfer"]);
+		form = checkedOptionsForm(g.transfer());
+	});
+	return RestResult::ok(form);
 }
 
 static RestResult patchTransferOptions(const RestRequest& req)
@@ -857,7 +863,7 @@ static RestResult patchTransferOptions(const RestRequest& req)
 	QJsonObject body = req.jsonObject();
 
 	QJsonObject result;
-	{
+	RestResources::onMainThread([&] {
 		TransferGuard g(req.pathParams["transfer"]);
 		QString error = FormValidator::checkValues(checkedOptionsForm(g.transfer()), body);
 
@@ -873,7 +879,7 @@ static RestResult patchTransferOptions(const RestRequest& req)
 			throw RestError(422, "invalid_property", e.what());
 		}
 		result = checkedOptionsForm(g.transfer());
-	}
+	});
 
 	Queue::saveQueuesAsync();
 	return RestResult::ok(result);
@@ -939,14 +945,26 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 	if (update.queue)
 		QueueGuard g(*update.queue);
 
-	for (const QString& uuid : uuids)
+	bool changed = false;
+	try
 	{
-		TransferGuard g(uuid);
-		update.apply(g.transfer());
-	}
+		for (const QString& uuid : uuids)
+		{
+			TransferGuard g(uuid);
+			changed = true; // apply() may have changed something even if it throws
+			update.apply(g.transfer());
+		}
 
-	if (update.queue)
-		moveTransfersToQueue(uuids, *update.queue);
+		if (update.queue)
+			moveTransfersToQueue(uuids, *update.queue);
+	}
+	catch (...)
+	{
+		// keep what was applied before the failure
+		if (changed)
+			Queue::saveQueuesAsync();
+		throw;
+	}
 
 	Queue::saveQueuesAsync();
 }
