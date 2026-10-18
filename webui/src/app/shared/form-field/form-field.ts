@@ -9,6 +9,7 @@ import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { JsonValue } from '../../core/api/json-value';
 import { PluginFormField, PluginFormRow } from '../../core/api/models';
+import { numberFallback } from './form-values';
 import { DirectoryPicker } from '../directory-picker/directory-picker';
 import { PathSuggest } from '../path-suggest/path-suggest';
 
@@ -57,7 +58,7 @@ export class FormField {
 
   /** InputNumber reports a cleared field as null; a form value is always a number. */
   protected onNumber(value: number | null): void {
-    this.value.set(value ?? 0);
+    this.value.set(value ?? numberFallback(this.field()));
   }
 
   protected cellsOf(row: PluginFormRow): string[] {

@@ -44,4 +44,8 @@ describe('form values', () => {
       { type: 'number', key: 'b', default: 2.5 },
     ])).toEqual({ a: 0, b: 2.5 });
   });
+
+  it('starts a number inside its limits', () => {
+    expect(initialValues([{ type: 'number', key: 'a', min: 1 }])).toEqual({ a: 1 });
+  });
 });

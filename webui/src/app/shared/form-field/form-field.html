@@ -38,7 +38,7 @@
     <p-inputnumber [inputId]="inputId()" [ngModel]="num()" (ngModelChange)="onNumber($event)"
                    [min]="field().min" [max]="field().max"
                    [minFractionDigits]="field().decimals ?? 0" [maxFractionDigits]="field().decimals ?? 0"
-                   [suffix]="field().suffix ? ' ' + field().suffix : ''" [useGrouping]="false"></p-inputnumber>
+                   [suffix]="field().suffix ? ' ' + field().suffix : ''" [useGrouping]="false" [allowEmpty]="false"></p-inputnumber>
   }
   @default {
     <label [for]="inputId()">{{ title() }}</label>

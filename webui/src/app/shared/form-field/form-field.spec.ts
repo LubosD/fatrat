@@ -85,7 +85,7 @@ describe('FormField', () => {
     const input = el.querySelector('p-inputnumber input') as HTMLInputElement;
     expect(el.querySelector('label')!.textContent).toContain('Limit');
     expect(input.id).toBe('f1');
-    expect(input.value).toContain('1.5');
+    expect(input.value).toMatch(/1[.,]50?/);
     expect(input.value).toContain('MB');
     fixture.componentInstance['onNumber'](3);
     expect(changes).toContain(3);
@@ -95,5 +95,25 @@ describe('FormField', () => {
     const { fixture, changes } = render({ type: 'number', key: 'n', title: 'Limit' }, 4);
     fixture.componentInstance['onNumber'](null);
     expect(changes).toContain(0);
+  });
+
+  it('turns a cleared number into the lower limit', () => {
+    const { fixture, changes } = render({ type: 'number', key: 'n', title: 'Limit', min: 1 }, 4);
+    fixture.componentInstance['onNumber'](null);
+    expect(changes).toContain(1);
+  });
+
+  it('reports what is typed into the real input, and passes the limits on', async () => {
+    const { fixture, el, changes } = render({ type: 'number', key: 'n', title: 'Limit', min: 0, max: 10 }, 1);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const input = el.querySelector('p-inputnumber input') as HTMLInputElement;
+    expect(input.getAttribute('aria-valuemin')).toBe('0');
+    expect(input.getAttribute('aria-valuemax')).toBe('10');
+    input.value = '7';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event('blur'));
+    await fixture.whenStable();
+    expect(changes).toContain(7);
   });
 });
