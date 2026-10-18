@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QCheckBox>
 #include <QCoreApplication>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -77,6 +78,8 @@ QJsonValue FormWidgets::initial(const QJsonObject& item) const
 		return QJsonArray();
 	if (type == "list" && !item.value("rows").toArray().isEmpty())
 		return item.value("rows").toArray().first().toObject().value("value");
+	if (type == "number")
+		return 0;
 	return QString();
 }
 
@@ -162,6 +165,23 @@ void FormWidgets::addItems(const QJsonArray& items, QWidget* parent)
 			layout->addWidget(new QLabel(title, parent), row, 0);
 			layout->addWidget(combo, row, 1);
 			bind(key, type, combo);
+		}
+		else if (type == "number")
+		{
+			QDoubleSpinBox* spin = new QDoubleSpinBox(parent);
+			QString suffix = item.value("suffix").toString();
+
+			spin->setDecimals(qMax(0, item.value("decimals").toInt()));
+			// QDoubleSpinBox has a small default range; a missing limit means none.
+			spin->setRange(item.contains("min") ? item.value("min").toDouble() : -1e12,
+				item.contains("max") ? item.value("max").toDouble() : 1e12);
+			if (!suffix.isEmpty())
+				spin->setSuffix(' ' + suffix);
+			spin->setValue(value.toDouble());
+
+			layout->addWidget(new QLabel(title, parent), row, 0);
+			layout->addWidget(spin, row, 1);
+			bind(key, type, spin);
 		}
 		else if (type == "label")
 		{
@@ -291,6 +311,15 @@ QJsonObject FormWidgets::values() const
 			rv[b.key] = box->isChecked();
 		else if (QComboBox* combo = qobject_cast<QComboBox*>(b.widget))
 			rv[b.key] = combo->itemData(combo->currentIndex()).toString();
+		else if (QDoubleSpinBox* spin = qobject_cast<QDoubleSpinBox*>(b.widget))
+		{
+			// A whole-number field reads back as an integer, so it passes
+			// FormValidator's whole-number check and serializes as such.
+			if (spin->decimals() == 0)
+				rv[b.key] = qint64(qRound64(spin->value()));
+			else
+				rv[b.key] = spin->value();
+		}
 		else if (QTreeWidget* tree = qobject_cast<QTreeWidget*>(b.widget))
 		{
 			if (b.type == "checklist")
