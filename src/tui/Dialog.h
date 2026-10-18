@@ -111,6 +111,7 @@ namespace tui
 		void changeSelect(FormField& f, int dir);
 		QStringList wrap(const QString& text, int width) const;
 		void addClick(const Rect& r, std::function<void()> fn) { m_clicks.push_back({ r, std::move(fn) }); }
+		FormField& append(const FormField& f);
 
 		QVector<FormField> m_fields;
 		QVector<Click> m_clicks;
@@ -148,7 +149,8 @@ namespace tui
 		void setSubmit(const QString& label, std::function<bool(FormDialog&)> fn);
 		// For work that ends later: fn starts it and calls done() when it finishes. An empty error
 		// closes the dialog; a message is shown and the dialog stays open with what was typed.
-		// While waiting the dialog ignores input. done() is safe to call after the dialog is gone.
+		// While waiting the dialog ignores input, so fn must always call done() eventually, also on
+		// failure. done() is safe to call after the dialog is gone.
 		using SubmitDone = std::function<void(QString)>;
 		void setSubmitAsync(const QString& label, std::function<void(FormDialog&, SubmitDone)> fn);
 		bool busy() const { return m_busy; }
@@ -179,6 +181,7 @@ namespace tui
 		QVector<Shortcut> m_shortcuts;
 		std::function<void(FormDialog&, SubmitDone)> m_onSubmitAsync;
 		bool m_busy = false;
+		int m_submitGeneration = 0;
 		std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
 	};
 

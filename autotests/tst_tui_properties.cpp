@@ -1,4 +1,5 @@
 #include "App.h"
+#include "Canvas.h"
 #include "Dialog.h"
 #include "Format.h"
 #include <QtTest>
@@ -62,6 +63,62 @@ private slots:
 			d.handle(ev(KeyEnter));
 		}
 		pending("too late");   // must not touch the destroyed dialog
+	}
+
+	void aStaleResultDoesNotSettleALaterSubmit()
+	{
+		FormDialog d("Test", 60);
+		QVector<std::function<void(QString)>> dones;
+		d.setSubmitAsync("Save", [&](FormDialog&, std::function<void(QString)> done) { dones.push_back(done); });
+
+		d.handle(ev(KeyEnter));
+		dones[0]("Refused");
+		QCOMPARE(d.error(), QString("Refused"));
+
+		d.handle(ev(KeyEnter));
+		QCOMPARE(dones.size(), 2);
+		dones[0](QString());   // the first submit reporting again
+		QVERIFY(!d.finished());
+		QVERIFY(d.busy());
+
+		dones[1]("Refused again");
+		dones[1](QString());   // done called twice
+		QVERIFY(!d.finished());
+		QCOMPARE(d.error(), QString("Refused again"));
+	}
+
+	void aClickAfterRemovingAFieldBeforeARedrawDoesNothing()
+	{
+		FormDialog d("Test", 60);
+		d.addText("a", "A");   // not first: QList drops a front element without moving the rest
+		d.addCheck("c1", "First", false);
+		d.addCheck("c2", "Second", false);
+		TextCanvas c(80, 24);
+		HitMap hits;
+		d.draw(c, hits, { 0, 0, 80, 24 });
+		int row = -1, box = -1;
+		for (int y = 0; y < 24 && row < 0; y++)
+			if (c.line(y).contains("First"))
+				row = y;
+		for (int x = 0; x < 80 && box < 0 && row >= 0; x++)
+			if (c.charAt(x, row) == "[")
+				box = x;
+		QVERIFY(box >= 0);
+
+		d.removeField("c1");
+		// the box of the removed field; its stale handler would toggle whatever now sits at its index
+		d.handle(Event::mouseEvent(Event::Press, box + 1, row));
+		QVERIFY(!d.checked("c2"));
+	}
+
+	void removingAnEmptyIdRemovesNothing()
+	{
+		FormPanel p;
+		p.addLabel("Unnamed");
+		p.addText("a", "A");
+		const int before = p.contentHeight(40);
+		p.removeField(QString());
+		QCOMPARE(p.contentHeight(40), before);
 	}
 
 	void labelsCanBeNamedChangedAndRemoved()

@@ -101,14 +101,21 @@ FormDialog::FormDialog(const QString& title, int width) : m_title(title), m_widt
 {
 }
 
+FormField& FormPanel::append(const FormField& f)
+{
+	// the click handlers hold field indexes and references; the next draw rebuilds them
+	m_clicks.clear();
+	m_fields.push_back(f);
+	return m_fields.last();
+}
+
 FormField& FormPanel::addText(const QString& id, const QString& label, const QString& value, const QString& suffix)
 {
 	FormField f;
 	f.type = FormField::Text;
 	f.id = id; f.label = label; f.text = value; f.suffix = suffix;
 	f.cursor = value.size();
-	m_fields.push_back(f);
-	return m_fields.last();
+	return append(f);
 }
 
 FormField& FormPanel::addSelect(const QString& id, const QString& label, const QStringList& options, const QStringList& values, int index)
@@ -117,8 +124,7 @@ FormField& FormPanel::addSelect(const QString& id, const QString& label, const Q
 	f.type = FormField::Select;
 	f.id = id; f.label = label; f.options = options; f.values = values;
 	f.index = qBound(0, index, qMax(0, int(options.size()) - 1));
-	m_fields.push_back(f);
-	return m_fields.last();
+	return append(f);
 }
 
 FormField& FormPanel::addCheck(const QString& id, const QString& label, bool checked)
@@ -126,8 +132,7 @@ FormField& FormPanel::addCheck(const QString& id, const QString& label, bool che
 	FormField f;
 	f.type = FormField::Check;
 	f.id = id; f.label = label; f.checked = checked;
-	m_fields.push_back(f);
-	return m_fields.last();
+	return append(f);
 }
 
 FormField& FormPanel::addRadio(const QString& id, const QString& label, const QStringList& options, const QString& hotkeys, int index)
@@ -135,8 +140,7 @@ FormField& FormPanel::addRadio(const QString& id, const QString& label, const QS
 	FormField f;
 	f.type = FormField::Radio;
 	f.id = id; f.label = label; f.options = options; f.hotkeys = hotkeys; f.index = index;
-	m_fields.push_back(f);
-	return m_fields.last();
+	return append(f);
 }
 
 FormField& FormPanel::addLabel(const QString& text)
@@ -144,24 +148,26 @@ FormField& FormPanel::addLabel(const QString& text)
 	FormField f;
 	f.type = FormField::Label;
 	f.text = text;
-	m_fields.push_back(f);
-	return m_fields.last();
+	return append(f);
 }
 
 void FormPanel::addSpacer()
 {
 	FormField f;
 	f.type = FormField::Spacer;
-	m_fields.push_back(f);
+	append(f);
 }
 
 void FormPanel::removeField(const QString& id)
 {
+	if (id.isEmpty())
+		return;   // labels and spacers are unnamed by default
 	for (int i = 0; i < m_fields.size(); i++)
 	{
 		if (m_fields[i].id != id)
 			continue;
 		m_fields.remove(i);
+		m_clicks.clear();   // see append()
 		if (m_focus > i)
 			m_focus--;
 		m_focus = qBound(0, m_focus, qMax(0, int(m_fields.size()) - 1));
@@ -696,8 +702,10 @@ void FormDialog::submit()
 		m_busy = true;
 		m_error.clear();
 		const std::weak_ptr<bool> alive = m_alive;
-		m_onSubmitAsync(*this, [this, alive](const QString& error) {
-			if (alive.expired() || finished())
+		// a result from an earlier submit, or a second call of done(), must not settle this one
+		const int generation = ++m_submitGeneration;
+		m_onSubmitAsync(*this, [this, alive, generation](const QString& error) {
+			if (alive.expired() || finished() || !m_busy || generation != m_submitGeneration)
 				return;
 			m_busy = false;
 			if (error.isEmpty())
