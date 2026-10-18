@@ -32,6 +32,9 @@
 <!-- Self-managed, no bindings: visibility is derived internally from PushSocketService events. -->
 <app-captcha-dialog></app-captcha-dialog>
 
+<!-- Self-managed, like the captcha dialog: shows plugin questions from TasksStore. -->
+<app-task-prompt-dialog></app-task-prompt-dialog>
+
 @if (viewport.isMobile()) {
   <header class="mobile-bar" data-testid="mobile-bar">
     <button pButton type="button" [text]="true" severity="secondary" data-testid="mobile-queues-button" aria-label="Queues" (click)="showQueueDrawer.set(true)"><i class="pi pi-bars" pButtonIcon></i></button>

@@ -14,6 +14,8 @@ import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { PushSocketService } from '../core/push-socket.service';
+import { TasksStore } from '../state/tasks.store';
+import { TasksApi } from '../core/tasks-api.service';
 import { CaptchaHttpService } from '../core/captcha-http.service';
 import { ViewportService } from '../core/viewport.service';
 import { signal } from '@angular/core';
@@ -120,6 +122,8 @@ function configure(
       { provide: BrowseService, useValue: browseService },
       { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
       { provide: PushSocketService, useValue: { captchaEvents$: new Subject(), taskEvents$: new Subject(), connected$: new Subject() } },
+      { provide: TasksStore, useValue: { tasks: signal([]), openPrompts: signal([]), requested: signal(null), failures$: new Subject() } },
+      { provide: TasksApi, useValue: {} },
       { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
       ConfirmationService,
       MessageService,
@@ -366,6 +370,8 @@ describe('Shell', () => {
         { provide: BrowseService, useValue: { list: () => of([]) } },
         { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
         { provide: PushSocketService, useValue: { captchaEvents$: new Subject(), taskEvents$: new Subject(), connected$: new Subject() } },
+        { provide: TasksStore, useValue: { tasks: signal([]), openPrompts: signal([]), requested: signal(null), failures$: new Subject() } },
+        { provide: TasksApi, useValue: {} },
         { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
         ConfirmationService,
         MessageService,
@@ -409,6 +415,8 @@ describe('Shell', () => {
         { provide: BrowseService, useValue: { list: () => of([]) } },
         { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
         { provide: PushSocketService, useValue: { captchaEvents$: new Subject(), taskEvents$: new Subject(), connected$: new Subject() } },
+        { provide: TasksStore, useValue: { tasks: signal([]), openPrompts: signal([]), requested: signal(null), failures$: new Subject() } },
+        { provide: TasksApi, useValue: {} },
         { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
         ConfirmationService,
         MessageService,

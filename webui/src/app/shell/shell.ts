@@ -22,6 +22,7 @@ import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../featur
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { CaptchaDialog } from '../features/captcha/captcha-dialog';
+import { TaskPromptDialog } from '../features/tasks/task-prompt-dialog';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { ViewportService } from '../core/viewport.service';
@@ -75,6 +76,7 @@ interface ToolbarAction {
     NewTransferDialog,
     SettingsDialog,
     CaptchaDialog,
+    TaskPromptDialog,
     StatusBar,
   ],
   templateUrl: './shell.html',

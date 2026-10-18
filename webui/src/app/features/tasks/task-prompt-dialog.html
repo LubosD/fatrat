@@ -1,0 +1,42 @@
+<p-dialog
+  [visible]="current() !== null"
+  (visibleChange)="onVisibleChange($event)"
+  [header]="header()"
+  [modal]="true"
+  styleClass="fr-dialog"
+  [style]="{ width: '36rem' }"
+  data-testid="task-prompt-dialog"
+>
+  @if (current(); as task) {
+    @if (task.prompt?.form?.description) {
+      <p>{{ task.prompt?.form?.description }}</p>
+    }
+    @for (entry of fields(); track $index) {
+      @if (entry.group && ($first || fields()[$index - 1].group !== entry.group)) {
+        <h4>{{ entry.group }}</h4>
+      }
+      <div class="field">
+        <app-form-field
+          [field]="entry.field"
+          [inputId]="'prompt-' + $index"
+          [value]="entry.field.key ? (values()[entry.field.key] ?? null) : null"
+          (valueChange)="entry.field.key && setValue(entry.field.key, $event)"
+        ></app-form-field>
+      </div>
+    }
+    @if (error()) {
+      <p class="error" role="alert" data-testid="task-prompt-error">{{ error() }}</p>
+    }
+    <p class="hint" data-testid="task-prompt-countdown">
+      {{ task.title }}
+      @if (task.transferName) {
+        — {{ task.transferName }}
+      }
+      · Without an answer, this closes in {{ secondsLeft() }} s.
+    </p>
+  }
+  <ng-template #footer>
+    <button pButton type="button" severity="secondary" [text]="true" data-testid="task-prompt-cancel" (click)="cancel()">Cancel</button>
+    <button pButton type="button" data-testid="task-prompt-submit" [disabled]="busy()" (click)="submit()">OK</button>
+  </ng-template>
+</p-dialog>
