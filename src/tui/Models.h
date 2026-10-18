@@ -25,9 +25,10 @@ namespace tui
 	{
 		enum State { Waiting, Active, Paused, ForcedActive, Failed, Completed, Ready, Testing, Unknown };
 
-		QString uuid, name, cls, message, dataPath, comment, object;
+		QString uuid, name, cls, message, dataPath, comment, object, completionCommand;
 		State state = Unknown;
-		bool upload = false;
+		bool upload = false;          // the current mode: a finished torrent seeds in Upload mode
+		bool primaryUpload = false;   // what the transfer is; decides Destination vs Source
 		qint64 total = 0, done = 0;
 		double timeRunning = 0;
 		SpeedPair speeds, userSpeedLimits;

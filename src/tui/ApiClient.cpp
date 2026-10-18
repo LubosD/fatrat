@@ -87,6 +87,13 @@ void ApiClient::queueTransfers(const QString& q, Callback cb) { get("/queues/" +
 void ApiClient::transferClasses(Callback cb) { get("/transfer-classes", std::move(cb)); }
 void ApiClient::transferDetails(const QString& t, Callback cb) { get("/transfers/" + encode(t) + "/details", std::move(cb)); }
 
+void ApiClient::transferOptions(const QString& t, Callback cb) { get("/transfers/" + encode(t) + "/options", std::move(cb)); }
+
+void ApiClient::patchTransferOptions(const QString& t, const QJsonObject& values, Callback cb)
+{
+	call("PATCH", "/transfers/" + encode(t) + "/options", values, std::move(cb));
+}
+
 void ApiClient::listDirectories(const QString& path, const QString& queue, bool showHidden, Callback cb)
 {
 	QString p = "/filesystem/directories?showHidden=" + QString(showHidden ? "true" : "false");
