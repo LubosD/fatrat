@@ -306,7 +306,7 @@ void DetailsView::drawInfo(Canvas& c, const Rect& r)
 	row(m_app.tr("Message"), m_t.message, m_t.state == TransferInfo::Failed ? Style::Red : Style::Normal);
 	row(m_app.tr("Engine"), m_t.cls + (m_t.upload ? m_app.tr(" (upload)") : QString()));
 	row(m_app.tr("Path"), m_t.dataPath);
-	row(m_app.tr("Source"), m_t.object);
+	row(m_t.primaryUpload ? m_app.tr("Source") : m_app.tr("Destination"), m_t.object);
 	row(m_app.tr("Size"), QString("%1 of %2 (%3%)").arg(formatSize(m_t.done), formatSize(m_t.total)).arg(m_t.percent()));
 	row(m_app.tr("Running"), formatDuration(m_t.timeRunning));
 	row(m_app.tr("Limits"), QString("%1 %2    %3 %4").arg(g.down, limit(m_t.userSpeedLimits.down), g.up, limit(m_t.userSpeedLimits.up)));
