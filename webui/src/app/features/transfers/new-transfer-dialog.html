@@ -51,8 +51,13 @@
        template-ref variable named "footer" — <p-footer> projection does not work here
        (and Footer from primeng/api isn't a standalone component anyway). -->
   <ng-template #footer>
-    <button pButton type="button" severity="secondary" [text]="true" data-testid="new-transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
-    <button pButton type="button" data-testid="new-transfer-dialog-save" (click)="onSave()">Add</button>
+    <div class="footer">
+      @if (error()) {
+        <p class="form-error" role="alert" data-testid="new-transfer-error">{{ error() }}</p>
+      }
+      <button pButton type="button" severity="secondary" [text]="true" data-testid="new-transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
+      <button pButton type="button" data-testid="new-transfer-dialog-save" [disabled]="saving()" (click)="onSave()">Add</button>
+    </div>
   </ng-template>
 </p-dialog>
 @if (pickerOpen) {

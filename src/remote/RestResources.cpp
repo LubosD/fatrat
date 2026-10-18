@@ -764,13 +764,15 @@ static RestResult addTransfers(const RestRequest& req)
 		}
 		else
 		{
-			int detectedClass = -1;
+			// With an explicit class every URL uses it; otherwise each URL is detected on its own
+			// (a batch may mix e.g. HTTP links and magnet links).
+			int explicitClass = -1;
 			if (!opts.engine.isEmpty())
-				detectedClass = Transfer::getEngineID(opts.engine, mode);
+				explicitClass = Transfer::getEngineID(opts.engine, mode);
 
 			for (const QString& uri : opts.urls)
 			{
-				int classID = detectedClass;
+				int classID = explicitClass;
 				if (classID == -1)
 				{
 					Transfer::BestEngine eng = (mode == Transfer::Download)
@@ -779,7 +781,7 @@ static RestResult addTransfers(const RestRequest& req)
 
 					if (eng.nClass < 0)
 						throw RestError(422, "no_matching_engine", QString("Couldn't autodetect transfer type for \"%1\"").arg(uri));
-					classID = detectedClass = eng.nClass;
+					classID = eng.nClass;
 				}
 
 				Transfer* t = TransferFactory::instance()->createInstance(Transfer::getEngineName(classID, mode));
