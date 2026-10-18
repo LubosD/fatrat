@@ -113,22 +113,11 @@
               <label>{{ field.group }} — {{ field.item.title }}</label>
               <span class="hint" data-testid="ext-field-readonly">Set this one in the desktop interface.</span>
             }
-            @case ('checkbox') {
-              <p-checkbox [binary]="true" [inputId]="'ext-' + field.item.key" [(ngModel)]="field.value"
-                          (ngModelChange)="stage(field.item.key, $event)"></p-checkbox>
-              <label [for]="'ext-' + field.item.key">{{ field.item.title }}</label>
-            }
-            @case ('combo') {
-              <label [for]="'ext-' + field.item.key">{{ field.group }} — {{ field.item.title }}</label>
-              <p-select [inputId]="'ext-' + field.item.key" [options]="optionsOf(field.item)"
-                        optionLabel="label" optionValue="value" [(ngModel)]="field.value"
-                        (ngModelChange)="stage(field.item.key, $event)"></p-select>
-            }
             @default {
-              <label [for]="'ext-' + field.item.key">{{ field.group }} — {{ field.item.title }}</label>
-              <input pInputText [id]="'ext-' + field.item.key" [(ngModel)]="field.value"
-                     [type]="field.item.type === 'password' ? 'password' : 'text'"
-                     (ngModelChange)="stage(field.item.key, $event)" />
+              <app-form-field [field]="field.control" [inputId]="'ext-' + field.item.key"
+                              [label]="field.item.type === 'checkbox' ? '' : field.group + ' — ' + field.item.title"
+                              [value]="field.value"
+                              (valueChange)="field.value = $event; stage(field.item.key, $event)"></app-form-field>
             }
           }
         </div>

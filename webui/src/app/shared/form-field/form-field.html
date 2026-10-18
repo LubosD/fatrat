@@ -1,0 +1,62 @@
+@switch (field().type) {
+  @case ('label') {
+    <p class="form-label" data-testid="form-field-label">{{ title() }}</p>
+  }
+  @case ('checkbox') {
+    <div class="checkbox">
+      <p-checkbox [binary]="true" [inputId]="inputId()" [ngModel]="value()" (ngModelChange)="value.set($event)"></p-checkbox>
+      <label [for]="inputId()">{{ title() }}</label>
+    </div>
+  }
+  @case ('combo') {
+    <label [for]="inputId()">{{ title() }}</label>
+    <p-select [inputId]="inputId()" [options]="options()" optionLabel="label" optionValue="value"
+              [ngModel]="value()" (ngModelChange)="value.set($event)" appendTo="body"></p-select>
+  }
+  @case ('directory') {
+    <label [for]="inputId()">{{ title() }}</label>
+    <div class="directory">
+      <input pInputText [id]="inputId()" appPathSuggest [ngModel]="text()" (ngModelChange)="value.set($event)" />
+      <button pButton type="button" severity="secondary" [outlined]="true" icon="pi pi-folder-open"
+              aria-label="Browse" data-testid="form-field-browse" (click)="pickerOpen = true"></button>
+    </div>
+    @if (pickerOpen) {
+      <app-directory-picker [visible]="pickerOpen" (visibleChange)="pickerOpen = $event"
+                            [initialPath]="text()" (selected)="value.set($event)"></app-directory-picker>
+    }
+  }
+  @case ('list') {
+    <label>{{ title() }}</label>
+    <ng-container *ngTemplateOutlet="rowsTable; context: { mode: 'single' }"></ng-container>
+  }
+  @case ('checklist') {
+    <label>{{ title() }}</label>
+    <ng-container *ngTemplateOutlet="rowsTable; context: { mode: 'multiple' }"></ng-container>
+  }
+  @default {
+    <label [for]="inputId()">{{ title() }}</label>
+    <input pInputText [id]="inputId()" [type]="field().type === 'password' ? 'password' : 'text'"
+           [ngModel]="text()" (ngModelChange)="value.set($event)" />
+  }
+}
+
+<ng-template #rowsTable let-mode="mode">
+  <p-table [value]="rows()" dataKey="value" [selectionMode]="mode" [metaKeySelection]="false"
+           [selection]="selection()" (selectionChange)="onSelection($event)" data-testid="form-field-rows"
+           [scrollable]="true" scrollHeight="16rem">
+    <ng-template #header>
+      @if (field().columns?.length) {
+        <tr>
+          @if (mode === 'multiple') { <th class="check"></th> }
+          @for (column of field().columns; track $index) { <th>{{ column }}</th> }
+        </tr>
+      }
+    </ng-template>
+    <ng-template #body let-row>
+      <tr [pSelectableRow]="row" data-testid="form-field-row">
+        @if (mode === 'multiple') { <td class="check"><p-tableCheckbox [value]="row"></p-tableCheckbox></td> }
+        @for (cell of cellsOf(row); track $index) { <td>{{ cell }}</td> }
+      </tr>
+    </ng-template>
+  </p-table>
+</ng-template>

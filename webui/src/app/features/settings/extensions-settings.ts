@@ -3,17 +3,17 @@ import { FormsModule } from '@angular/forms';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ConfirmationService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { ApiError } from '../../core/api/rest-client';
-import { AvailablePlugin, Plugin, PluginConfigItem, PluginRepository } from '../../core/api/models';
+import { AvailablePlugin, Plugin, PluginConfigItem, PluginFormField, PluginRepository } from '../../core/api/models';
 import { JsonValue } from '../../core/api/json-value';
 import { PluginsApi } from '../../core/plugins-api.service';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { TransferApi } from '../../core/api/transfer-api';
 import { ViewportService } from '../../core/viewport.service';
+import { FormField } from '../../shared/form-field/form-field';
 
 /** A config item flattened for rendering, with its group's title carried along. */
 interface Field {
@@ -22,6 +22,8 @@ interface Field {
   value: JsonValue;
   /** False for item types this page cannot edit; it shows them instead of hiding them. */
   editable: boolean;
+  /** The item as a form field; only meaningful for the editable ones. */
+  control: PluginFormField;
 }
 
 /** Item types this page has a field for. An `order` list is not one of them. */
@@ -37,7 +39,7 @@ const EDITABLE = new Set(['text', 'password', 'checkbox', 'combo']);
  */
 @Component({
   selector: 'app-extensions-settings',
-  imports: [FormsModule, TableModule, ButtonDirective, Checkbox, InputText, Select],
+  imports: [FormsModule, TableModule, ButtonDirective, Checkbox, InputText, FormField],
   templateUrl: './extensions-settings.html',
   styleUrl: './extensions-settings.scss',
 })
@@ -184,15 +186,14 @@ export class ExtensionsSettings {
     if (key) this.draft.stage(key, value);
   }
 
-  protected optionsOf(item: PluginConfigItem): { label: string; value: string }[] {
-    return (item.options ?? []).map((o) => ({ label: o.title ?? o.value, value: o.value }));
-  }
-
   /** Reads the current value of every key the installed plugins declare. */
   private loadFields(plugins: Plugin[]): void {
     const fields: Field[] = [];
     const add = (item: PluginConfigItem, group: string) =>
-      fields.push({ item, group, value: null, editable: EDITABLE.has(item.type) && !!item.key });
+      fields.push({
+        item, group, value: null, editable: EDITABLE.has(item.type) && !!item.key,
+        control: item as PluginFormField,
+      });
 
     for (const plugin of plugins) {
       if (!plugin.valid) continue;
