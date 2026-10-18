@@ -36,7 +36,9 @@ respects for all of the code used other than "OpenSSL".
  * are caught here, before either reaches the other side.
  *
  * The vocabulary is the Python plugins' `config` one (text, password,
- * checkbox, combo, group) plus label, directory, list and checklist.
+ * checkbox, combo, group) plus label, directory, list, checklist and number.
+ * A number may have `min`, `max`, `decimals` (0, the default, means whole
+ * numbers only) and `suffix` (a unit, for display).
  */
 namespace FormValidator
 {
@@ -47,6 +49,11 @@ namespace FormValidator
 	// is wrong with it. On success `normalized` gets exactly one value per
 	// keyed field; anything else the client sent is dropped.
 	QString checkAnswer(const QJsonObject& form, const QJsonObject& answer, QJsonObject* normalized);
+
+	// Like checkAnswer(), but for a partial update such as a transfer's
+	// changed options: keys may be missing, but every key given must name a
+	// keyed field and have a valid value.
+	QString checkValues(const QJsonObject& form, const QJsonObject& values);
 }
 
 #endif

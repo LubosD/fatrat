@@ -29,11 +29,13 @@ respects for all of the code used other than "OpenSSL".
 #include <QJsonArray>
 #include <QList>
 #include <QSet>
+#include <algorithm>
+#include <cmath>
 
 namespace
 {
 	const QSet<QString> KeyedTypes = {
-		"text", "password", "checkbox", "combo", "directory", "list", "checklist"
+		"text", "password", "checkbox", "combo", "directory", "list", "checklist", "number"
 	};
 
 	struct Keyed
@@ -69,6 +71,16 @@ namespace
 			if (values.contains(value.toString()))
 				return QString("\"%1\" has the value \"%2\" twice").arg(key, value.toString());
 			values << value.toString();
+		}
+		return QString();
+	}
+
+	QString checkNumberField(const QJsonObject& item, const QString& key)
+	{
+		for (const char* attribute : { "min", "max", "decimals" })
+		{
+			if (item.contains(attribute) && !item.value(attribute).isDouble())
+				return QString("\"%1\" has a %2 that is not a number").arg(key, QLatin1String(attribute));
 		}
 		return QString();
 	}
@@ -121,6 +133,8 @@ namespace
 				error = checkChoices(item, "options", key);
 			else if (type == "list" || type == "checklist")
 				error = checkChoices(item, "rows", key);
+			else if (type == "number")
+				error = checkNumberField(item, key);
 			if (!error.isEmpty())
 				return error;
 
@@ -137,30 +151,10 @@ namespace
 			return "the form has no fields";
 		return checkItems(form.value("fields").toArray(), keys, keyed);
 	}
-}
 
-QString FormValidator::checkForm(const QJsonObject& form)
-{
-	QList<Keyed> keyed;
-	return collect(form, keyed);
-}
-
-QString FormValidator::checkAnswer(const QJsonObject& form, const QJsonObject& answer, QJsonObject* normalized)
-{
-	QList<Keyed> keyed;
-	QString error = collect(form, keyed);
-	QJsonObject result;
-
-	if (!error.isEmpty())
-		return error;
-
-	for (const Keyed& f : keyed)
+	// What is wrong with `v` as the value of `f`, or an empty string.
+	QString checkValue(const Keyed& f, const QJsonValue& v)
 	{
-		if (!answer.contains(f.key))
-			return QString("no value for \"%1\"").arg(f.key);
-
-		QJsonValue v = answer.value(f.key);
-
 		if (f.type == "checkbox" || f.type == "group")
 		{
 			if (!v.isBool())
@@ -187,13 +181,76 @@ QString FormValidator::checkAnswer(const QJsonObject& form, const QJsonObject& a
 				seen << e.toString();
 			}
 		}
+		else if (f.type == "number")
+		{
+			double d = v.toDouble();
+
+			if (!v.isDouble() || !std::isfinite(d))
+				return QString("\"%1\" must be a number").arg(f.key);
+			if (f.item.contains("min") && d < f.item.value("min").toDouble())
+				return QString("\"%1\" must be at least %2").arg(f.key).arg(f.item.value("min").toDouble());
+			if (f.item.contains("max") && d > f.item.value("max").toDouble())
+				return QString("\"%1\" must be at most %2").arg(f.key).arg(f.item.value("max").toDouble());
+			if (f.item.value("decimals").toInt() <= 0 && d != std::floor(d))
+				return QString("\"%1\" must be a whole number").arg(f.key);
+		}
 		else if (!v.isString())
 			return QString("\"%1\" must be text").arg(f.key);
 
-		result.insert(f.key, v);
+		return QString();
+	}
+}
+
+QString FormValidator::checkForm(const QJsonObject& form)
+{
+	QList<Keyed> keyed;
+	return collect(form, keyed);
+}
+
+QString FormValidator::checkAnswer(const QJsonObject& form, const QJsonObject& answer, QJsonObject* normalized)
+{
+	QList<Keyed> keyed;
+	QString error = collect(form, keyed);
+	QJsonObject result;
+
+	if (!error.isEmpty())
+		return error;
+
+	for (const Keyed& f : keyed)
+	{
+		if (!answer.contains(f.key))
+			return QString("no value for \"%1\"").arg(f.key);
+
+		error = checkValue(f, answer.value(f.key));
+		if (!error.isEmpty())
+			return error;
+
+		result.insert(f.key, answer.value(f.key));
 	}
 
 	if (normalized)
 		*normalized = result;
+	return QString();
+}
+
+QString FormValidator::checkValues(const QJsonObject& form, const QJsonObject& values)
+{
+	QList<Keyed> keyed;
+	QString error = collect(form, keyed);
+
+	if (!error.isEmpty())
+		return error;
+
+	for (auto it = values.begin(); it != values.end(); ++it)
+	{
+		auto f = std::find_if(keyed.begin(), keyed.end(), [&it](const Keyed& k) { return k.key == it.key(); });
+
+		if (f == keyed.end())
+			return QString("unknown option \"%1\"").arg(it.key());
+
+		error = checkValue(*f, it.value());
+		if (!error.isEmpty())
+			return error;
+	}
 	return QString();
 }
