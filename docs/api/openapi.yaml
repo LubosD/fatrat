@@ -585,7 +585,7 @@ components:
       description: One field of a form; the vocabulary of src/plugins/FormValidator.h.
       properties:
         type: { enum: [text, password, checkbox, combo, number, label, group, directory, list, checklist] }
-        key: { type: string, description: "Absent on a label" }
+        key: { type: string, description: "Absent on a label and on a plain (non-checkable) group; a group with a key is checkable, its value a boolean" }
         title: { type: string, description: "For a label, the text shown" }
         options: { type: array, items: { type: object, required: [value], properties: { value: { type: string }, title: { type: string } } } }
         min: { type: number }
@@ -593,6 +593,18 @@ components:
         decimals: { type: integer, description: "0 (default) means whole numbers only" }
         suffix: { type: string, description: "A unit shown after the number" }
         items: { type: array, items: { $ref: "#/components/schemas/FormField" }, description: "For a group, its fields" }
+        default: { description: "The initial value of a keyed field, of the type its answer takes" }
+        columns: { type: array, items: { type: string }, description: "For a list or checklist, the column headers" }
+        rows:
+          type: array
+          description: "For a list or checklist, its choices"
+          items:
+            type: object
+            required: [value]
+            properties:
+              value: { type: string }
+              cells: { type: array, items: { type: string }, description: "The text shown in each column; the value when absent" }
+              checked: { type: boolean, description: "For a checklist, whether the row starts checked" }
     TransferOptions:
       type: object
       required: [fields, values]
