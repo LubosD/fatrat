@@ -68,6 +68,58 @@ private slots:
 		QVERIFY(out["mb"].isDouble());
 	}
 
+	void aMissingNumberLeftEmptyIsNoChange()
+	{
+		const QJsonArray f = fields(R"([ { "type": "number", "key": "n", "title": "N" } ])");
+		for (const char* values : { "{}", R"({ "n": "x" })" })
+		{
+			FormPanel p;
+			options::addFields(p, f, object(values));
+			QCOMPARE(p.text("opt:n"), QString());
+			QJsonObject out;
+			QCOMPARE(options::changed(p, f, object(values), &out), QString());
+			QVERIFY(out.isEmpty());
+		}
+	}
+
+	void anUnknownComboValueIsNoChangeUntilPicked()
+	{
+		const QJsonArray f = fields(R"([ { "type": "combo", "key": "c", "title": "C", "options": [ { "value": "a" }, { "value": "b" } ] } ])");
+		for (const char* values : { "{}", R"({ "c": "gone" })" })
+		{
+			FormPanel p;
+			options::addFields(p, f, object(values));
+			QJsonObject out;
+			QCOMPARE(options::changed(p, f, object(values), &out), QString());
+			QVERIFY(out.isEmpty());
+
+			p.field("opt:c")->index = 1;
+			QCOMPARE(options::changed(p, f, object(values), &out), QString());
+			QCOMPARE(out, object(R"({ "c": "b" })"));
+		}
+	}
+
+	void anUntouchedNumberRoundTrips()
+	{
+		const QJsonArray f = fields(R"([ { "type": "number", "key": "n", "title": "N", "decimals": 2 } ])");
+		const QJsonObject values{ { "n", 0.1 + 0.2 } };   // 0.30000000000000004
+		FormPanel p;
+		options::addFields(p, f, values);
+		QJsonObject out;
+		QCOMPARE(options::changed(p, f, values, &out), QString());
+		QVERIFY(out.isEmpty());
+	}
+
+	void aGroupBecomesANote()
+	{
+		FormPanel p;
+		options::addFields(p, fields(R"([
+			{ "type": "group", "title": "Advanced", "items": [] },
+			{ "type": "group", "items": [] }
+		])"), QJsonObject());
+		QCOMPARE(p.contentHeight(80), 1);
+	}
+
 	void badNumbersAreRefused_data()
 	{
 		QTest::addColumn<QString>("field");

@@ -1,5 +1,6 @@
 #include "OptionsForm.h"
 #include "Dialog.h"
+#include <QLocale>
 #include <QObject>
 #include <cmath>
 
@@ -12,9 +13,24 @@ static QString idOf(const QString& key)
 	return "opt:" + key;
 }
 
+// the shortest text that reads back as the same double, so an untouched field is never a change
 static QString numberText(double v)
 {
-	return QString::number(v, 'g', 15);
+	return QString::number(v, 'g', QLocale::FloatingPointShortest);
+}
+
+static QStringList comboValues(const QJsonObject& f)
+{
+	QStringList vals;
+	for (const QJsonValue& o : f["options"].toArray())
+		vals << o["value"].toString();
+	return vals;
+}
+
+// a value that is missing or not among the options shows as the first one
+static int comboStart(const QJsonObject& f, const QJsonValue& value)
+{
+	return qMax(0, int(comboValues(f).indexOf(value.toString())));
 }
 
 static QString nameOf(const QJsonObject& f)
@@ -33,7 +49,7 @@ void addFields(FormPanel& panel, const QJsonArray& fields, const QJsonObject& va
 
 		if (type == "label")
 			panel.addLabel(title);
-		else if (key.isEmpty())
+		else if (key.isEmpty() && type != "group")
 			continue;
 		else if (type == "text" || type == "password")
 			panel.addText(idOf(key), title, value.toString()).secret = type == "password";
@@ -43,16 +59,15 @@ void addFields(FormPanel& panel, const QJsonArray& fields, const QJsonObject& va
 			panel.addCheck(idOf(key), title, value.toBool());
 		else if (type == "combo")
 		{
-			QStringList labels, vals;
+			QStringList labels;
 			for (const QJsonValue& o : f["options"].toArray())
 			{
-				const QString val = o["value"].toString(), t = o["title"].toString();
-				vals << val;
-				labels << (t.isEmpty() ? val : t);
+				const QString t = o["title"].toString();
+				labels << (t.isEmpty() ? o["value"].toString() : t);
 			}
-			panel.addSelect(idOf(key), title, labels, vals, qMax(0, int(vals.indexOf(value.toString()))));
+			panel.addSelect(idOf(key), title, labels, comboValues(f), comboStart(f, value));
 		}
-		else
+		else if (!nameOf(f).isEmpty())
 			panel.addLabel(QObject::tr("%1: edit in the desktop or web interface").arg(nameOf(f)));
 	}
 }
@@ -82,14 +97,21 @@ QString changed(const FormPanel& panel, const QJsonArray& fields, const QJsonObj
 		}
 		else if (type == "combo")
 		{
-			if (panel.value(id) != old.toString())
+			// only what the user picked: the first option standing in for an unknown value is not a change
+			if (panel.index(id) != comboStart(f, old))
 				result[key] = panel.value(id);
 		}
 		else if (type == "number")
 		{
+			const QString text = panel.text(id).trimmed();
+
+			// untouched, including a box left empty because the server had no number for it
+			if (text == (old.isDouble() ? numberText(old.toDouble()) : QString()))
+				continue;
+
 			// the same checks as FormValidator, so the user gets the message before anything is sent
 			bool ok = false;
-			const double d = panel.text(id).trimmed().toDouble(&ok);
+			const double d = text.toDouble(&ok);
 			const QString name = nameOf(f);
 
 			if (!ok || !std::isfinite(d))
