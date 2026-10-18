@@ -359,6 +359,8 @@ void CurlUpload::setOptions(const QJsonObject& values)
 			throw RuntimeException(tr("Invalid protocol for this upload class (FTP)"));
 
 		QUrl newUrl(target);
+		if (!newUrl.isValid() || newUrl.host().isEmpty())
+			throw RuntimeException(tr("Invalid target URL: %1").arg(target));
 		newUrl.setUserName(url.userName());
 		newUrl.setPassword(url.password());
 		url = newUrl;

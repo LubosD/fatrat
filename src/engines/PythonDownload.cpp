@@ -146,6 +146,8 @@ void PythonDownload::setOptions(const QJsonObject& values)
 		throw RuntimeException(tr("The URL cannot be empty"));
 	if (url == m_strOriginal)
 		return;
+	if (PythonDownload::acceptableFor(myClass(), url) == 0)
+		throw RuntimeException(tr("Invalid URL."));
 
 	init(url, object());
 	if (isActive())

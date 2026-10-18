@@ -932,12 +932,13 @@ void TorrentDownload::addUrlSeed(QString str)
 		m_urlSeeds << str;
 }
 
-// The desktop dialog's "Seeding limits" page. 0 means no limit, as stored;
+// The desktop dialog's "Seeding limits" page. As stored, 0 means no limit for the
+// upload amount, but for the ratio it means stop as soon as it is downloaded;
 // TorrentWorker applies all three on its timer.
 QJsonObject TorrentDownload::optionsForm() const
 {
 	QJsonArray fields = {
-		QJsonObject{ { "type", "number" }, { "key", "seedRatio" }, { "title", tr("Seed up to ratio (0 = no limit)") },
+		QJsonObject{ { "type", "number" }, { "key", "seedRatio" }, { "title", tr("Seed up to ratio (0 = stop when downloaded)") },
 			{ "min", 0 }, { "decimals", 2 } },
 		QJsonObject{ { "type", "number" }, { "key", "seedUpload" }, { "title", tr("Seed until uploaded (0 = no limit)") },
 			{ "min", 0 }, { "max", 1000000000 }, { "suffix", "MB" } },
@@ -1419,7 +1420,7 @@ void TorrentWorker::doWork()
 				else if(d->state() != Transfer::ForcedActive)
 				{
 					if(double(d->totalUpload()) / d->totalDownload() >= d->m_seedLimitRatio
-					  || (d->totalUpload() >= d->m_seedLimitUpload*1024*1024 && d->m_seedLimitUpload))
+					  || (d->totalUpload() >= qint64(d->m_seedLimitUpload)*1024*1024 && d->m_seedLimitUpload))
 					{
 						d->setState(Transfer::Completed);
 						d->setMode(Transfer::Download);
