@@ -74,4 +74,26 @@ describe('FormField', () => {
     fixture.detectChanges();
     expect(el.querySelector('app-directory-picker')).not.toBeNull();
   });
+
+  it('renders a number with its unit and reports edits as numbers', async () => {
+    const { fixture, el, changes } = render(
+      { type: 'number', key: 'n', title: 'Limit', min: 0, max: 10, decimals: 2, suffix: 'MB' },
+      1.5,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const input = el.querySelector('p-inputnumber input') as HTMLInputElement;
+    expect(el.querySelector('label')!.textContent).toContain('Limit');
+    expect(input.id).toBe('f1');
+    expect(input.value).toContain('1.5');
+    expect(input.value).toContain('MB');
+    fixture.componentInstance['onNumber'](3);
+    expect(changes).toContain(3);
+  });
+
+  it('turns a cleared number into 0, never null', () => {
+    const { fixture, changes } = render({ type: 'number', key: 'n', title: 'Limit' }, 4);
+    fixture.componentInstance['onNumber'](null);
+    expect(changes).toContain(0);
+  });
 });

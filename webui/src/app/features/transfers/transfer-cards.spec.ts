@@ -21,6 +21,7 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
     total: 2048,
     done: 1024,
     comment: '',
+    completionCommand: '',
     object: '',
     timeRunning: 10,
     speeds: { down: 512, up: 0 },

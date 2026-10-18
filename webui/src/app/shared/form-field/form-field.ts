@@ -3,6 +3,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
+import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
@@ -17,7 +18,7 @@ import { PathSuggest } from '../path-suggest/path-suggest';
  */
 @Component({
   selector: 'app-form-field',
-  imports: [NgTemplateOutlet, FormsModule, ButtonDirective, Checkbox, InputText, Select, TableModule, DirectoryPicker, PathSuggest],
+  imports: [NgTemplateOutlet, FormsModule, ButtonDirective, Checkbox, InputNumber, InputText, Select, TableModule, DirectoryPicker, PathSuggest],
   templateUrl: './form-field.html',
   styleUrl: './form-field.scss',
 })
@@ -47,6 +48,16 @@ export class FormField {
   protected text(): string {
     const value = this.value();
     return typeof value === 'string' ? value : '';
+  }
+
+  protected num(): number | null {
+    const value = this.value();
+    return typeof value === 'number' ? value : null;
+  }
+
+  /** InputNumber reports a cleared field as null; a form value is always a number. */
+  protected onNumber(value: number | null): void {
+    this.value.set(value ?? 0);
   }
 
   protected cellsOf(row: PluginFormRow): string[] {

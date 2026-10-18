@@ -37,4 +37,11 @@ describe('form values', () => {
       ['checkbox', 'deep', 'Plain'],
     ]);
   });
+
+  it('starts a number with its default, or 0', () => {
+    expect(initialValues([
+      { type: 'number', key: 'a' },
+      { type: 'number', key: 'b', default: 2.5 },
+    ])).toEqual({ a: 0, b: 2.5 });
+  });
 });

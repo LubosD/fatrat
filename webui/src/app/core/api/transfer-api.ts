@@ -10,6 +10,7 @@ import {
   SpeedLimits,
   Stats,
   NewTransferOptions,
+  TransferOptions,
 } from './models';
 import { JsonValue } from './json-value';
 
@@ -52,6 +53,10 @@ export abstract class TransferApi {
 
   abstract getTransferProperties(uuid: string): Observable<Transfer>;
   abstract getTransferAdvancedProperties(uuid: string): Observable<{ [key: string]: JsonValue }>;
+  /** The options specific to the transfer's class, as a form. */
+  abstract getTransferOptions(uuid: string): Observable<TransferOptions>;
+  /** Changes some options (only the changed keys); returns the options after the change. */
+  abstract setTransferOptions(uuid: string, values: Record<string, JsonValue>): Observable<TransferOptions>;
   abstract setTransferProperties(
     uuids: string[],
     properties: { [key: string]: JsonValue },

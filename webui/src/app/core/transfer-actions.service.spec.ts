@@ -21,6 +21,7 @@ function makeTransfer(uuid: string, state: Transfer['state']): Transfer {
     total: 100,
     done: 0,
     comment: '',
+    completionCommand: '',
     object: '',
     timeRunning: 0,
     speeds: { down: 0, up: 0 },

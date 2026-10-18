@@ -45,6 +45,8 @@ function initialValue(field: PluginFormField): JsonValue {
       return field.default ?? field.rows?.[0]?.value ?? '';
     case 'combo':
       return field.default ?? field.options?.[0]?.value ?? '';
+    case 'number':
+      return field.default ?? 0;
     default:
       return field.default ?? '';
   }

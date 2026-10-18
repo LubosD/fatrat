@@ -50,6 +50,7 @@ function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
     total: 1000,
     done: 250,
     comment: '',
+    completionCommand: '',
     object: '',
     timeRunning: 10,
     speeds: { down: 0, up: 0 },
