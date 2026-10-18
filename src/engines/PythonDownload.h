@@ -108,7 +108,7 @@ public:
 	// Called by the plugin through start_download().
 	void startDownload(const QString& url, const QString& referrer, const QString& userAgent,
 			   const QString& postData, const QString& fileName);
-	void setName(const QString& name) { m_strName = name; }
+	void setName(const QString& name) { m_strName = name; m_bNameReported = !name.isEmpty(); }
 
 	PyPlugin* plugin() const { return m_plugin; }
 protected:
@@ -119,7 +119,7 @@ private:
 	QString m_strIdentifier;
 	QString m_strOriginal, m_strName, m_strTarget;
 	QUrl m_downloadUrl;
-	bool m_bHasLock, m_bTruncate, m_bFinalChecked;
+	bool m_bHasLock, m_bTruncate, m_bFinalChecked, m_bNameReported;
 
 	PyPlugin* m_plugin;
 	PyRef m_pluginObject; // keeps the Python half alive

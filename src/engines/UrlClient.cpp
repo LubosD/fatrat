@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 UrlClient::UrlClient()
-	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_postData(0), m_bTerminating(false), m_bRangeRequested(false), m_bRangeChecked(false)
+	: m_source(0), m_target(0), m_rangeFrom(0), m_rangeTo(-1), m_progress(0), m_curl(0), m_postData(0), m_bTerminating(false), m_bRangeRequested(false), m_bRangeChecked(false), m_bResponseChecked(false)
 {
 	m_errorBuffer[0] = 0;
 }
@@ -95,6 +95,7 @@ void UrlClient::start()
 	}
 	m_bRangeRequested = m_rangeFrom > 0;
 	m_bRangeChecked = false;
+	m_bResponseChecked = false;
 	
 	if(!url.userInfo().isEmpty())
 	{
@@ -262,7 +263,12 @@ void UrlClient::processHeaders()
 			cut = hash;
 		if(cut != -1)
 			newurl.truncate(cut);
-		emit renameTo(QFileInfo(newurl).fileName());
+
+		// A redirect to a directory-like URL (an error page, typically)
+		// carries no file name at all
+		QString name = QFileInfo(newurl).fileName();
+		if(!name.isEmpty())
+			emit renameTo(name);
 	}
 	
 	m_headers.clear();
@@ -343,6 +349,21 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	int towrite = int(bytes);
 	if(m_bTerminating)
 		return true;
+	
+	if(!m_bResponseChecked)
+	{
+		m_bResponseChecked = true;
+		if(isRedirectedToWebPage())
+		{
+			char* url = 0;
+			curl_easy_getinfo(m_curl, CURLINFO_EFFECTIVE_URL, &url);
+
+			qDebug() << "Redirected to a web page instead of the file:" << url;
+			m_bTerminating = true;
+			emit failure(tr("The server redirected to a web page instead of the file (%1)").arg(QString::fromUtf8(url ? url : "")));
+			return false;
+		}
+	}
 	
 	if(m_bRangeRequested && !m_bRangeChecked)
 	{
@@ -428,6 +449,29 @@ bool UrlClient::writeData(const char* buffer, size_t bytes)
 	//	m_master->timeProcessDown(towrite);
 	
 	return true;
+}
+
+bool UrlClient::isRedirectedToWebPage()
+{
+	// File hosts answer an expired or refused link with a redirect to an HTML
+	// error page. Saving that page as the file (or reading its 200 as "the
+	// server cannot resume") only destroys what has been downloaded so far.
+	long redirects = 0;
+	char* type = 0;
+
+	if(curl_easy_getinfo(m_curl, CURLINFO_REDIRECT_COUNT, &redirects) != CURLE_OK || redirects <= 0)
+		return false;
+	if(curl_easy_getinfo(m_curl, CURLINFO_CONTENT_TYPE, &type) != CURLE_OK || !type)
+		return false;
+	if(qstrnicmp(type, "text/html", 9) != 0)
+		return false;
+
+	// Only when the requested URL clearly names a file that is not a page
+	static const QStringList pageSuffixes = QStringList() << "" << "htm" << "html" << "xhtml" << "shtml"
+		<< "php" << "asp" << "aspx" << "jsp" << "cgi" << "pl";
+	QString suffix = QFileInfo(m_source->url.path()).suffix().toLower();
+
+	return !pageSuffixes.contains(suffix);
 }
 
 void UrlClient::transferDone(CURLcode result)

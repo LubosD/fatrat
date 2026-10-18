@@ -80,7 +80,12 @@ void CurlDownload::init(QString uri, QString dest)
 	if(hash != -1)
 	{
 		QString name = QUrl::fromPercentEncoding(uri.mid(hash+12).toUtf8());
-		m_strFile = name;
+		if(!name.isEmpty())
+		{
+			// An explicitly given name must not be overridden by redirects or headers
+			m_strFile = name;
+			m_bAutoName = false;
+		}
 		uri.resize(hash);
 	}
 	hash = uri.indexOf('#');
@@ -332,9 +337,17 @@ bool CurlDownload::FreeSegment::compareByOffset(const FreeSegment& s1, const Fre
 
 void CurlDownload::setTargetName(QString newFileName)
 {
+	if(newFileName.isEmpty() || newFileName == "." || newFileName == ".." || newFileName.contains('/'))
+		return;
+
 	if(m_strFile != newFileName)
 	{
-		m_dir.rename(m_strFile, newFileName);
+		// Keep the name the data is actually stored under if the file cannot be renamed
+		if(!m_strFile.isEmpty() && m_dir.exists(m_strFile) && !m_dir.rename(m_strFile, newFileName))
+		{
+			enterLogMessage(tr("Cannot rename the file to \"%1\"").arg(newFileName));
+			return;
+		}
 		m_strFile = newFileName;
 	}
 }
@@ -584,6 +597,9 @@ void CurlDownload::clientRenameTo(QString name)
 	int pos = name.indexOf('?');
 	if (pos != -1)
 		name = name.left(pos);
+
+	if(name.isEmpty())
+		return;
 
 	m_nameChanger = client;
 	if(m_bAutoName)

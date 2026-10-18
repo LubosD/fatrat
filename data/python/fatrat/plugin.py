@@ -145,7 +145,9 @@ class DownloadPlugin(TransferPlugin):
 
     ``report_file_name(name)``
         name the transfer before the download starts, when the link itself
-        does not carry a usable name.
+        does not carry a usable name. Unless the DownloadUrl given to
+        ``start_download`` names the file itself, this is also the name the
+        file is saved under; redirects and server headers do not override it.
     """
 
     async def process_link(self, url: str) -> None:

@@ -53,7 +53,7 @@ QMap<QString, PythonDownload::PyEngine>& PythonDownload::engines()
 
 PythonDownload::PythonDownload(const char* identifier)
 	: m_lease(QLatin1String(identifier)), m_strIdentifier(identifier), m_bHasLock(false), m_bTruncate(false),
-	  m_bFinalChecked(false), m_plugin(0)
+	  m_bFinalChecked(false), m_bNameReported(false), m_plugin(0)
 {
 	if (!engines().contains(m_strIdentifier))
 	{
@@ -280,10 +280,16 @@ void PythonDownload::startDownload(const QString& url, const QString& referrer, 
 	try
 	{
 		QString target = url;
+		QString name = fileName;
 
-		if (!fileName.isEmpty())
+		// A name from report_file_name() is the plugin's word on the file
+		// name too; redirects to error pages must not get to rename it.
+		if (name.isEmpty() && m_bNameReported)
+			name = m_strName;
+
+		if (!name.isEmpty())
 		{
-			QString safe = fileName;
+			QString safe = name;
 			target += "#__filename=" + safe.replace('/', '-');
 		}
 

@@ -67,6 +67,7 @@ protected:
 	static size_t process_header(const char* ptr, size_t size, size_t nmemb, UrlClient* This);
 	static int curl_debug_callback(CURL*, curl_infotype, char* text, size_t bytes, UrlClient* This);
 	void processHeaders();
+	bool isRedirectedToWebPage();
 	void processContentDisposition(const QByteArray& value);
 signals:
 	void failure(QString msg);
@@ -85,7 +86,7 @@ private:
 	QHash<QByteArray, QByteArray> m_headers;
 	//CurlPollingMaster* m_master;
 	bool m_bTerminating;
-	bool m_bRangeRequested, m_bRangeChecked;
+	bool m_bRangeRequested, m_bRangeChecked, m_bResponseChecked;
 };
 
 #endif
