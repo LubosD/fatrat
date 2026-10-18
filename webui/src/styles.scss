@@ -94,8 +94,10 @@ legend {
   }
 
   // Dialogs (tagged styleClass="fr-dialog") fill the screen. !important beats PrimeNG's inline
-  // sizes, including the [style] widths and the Settings dialog's breakpoint rule.
-  .p-dialog.fr-dialog {
+  // [style] widths, but not its injected [breakpoints] rule, which is also !important and has
+  // specificity 0,3,0 (.p-dialog[pn_id_N]:not(.p-dialog-maximized)). The repeated class plus
+  // :not() lifts this selector to 0,4,0 so it wins regardless of stylesheet order.
+  .p-dialog.fr-dialog.fr-dialog:not(.p-dialog-maximized) {
     width: 100vw !important;
     max-width: 100vw !important;
     height: 100dvh !important;
