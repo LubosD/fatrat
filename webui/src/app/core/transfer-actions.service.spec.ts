@@ -202,6 +202,11 @@ describe('TransferActionsService', () => {
     expect(done).toBe(true);
   });
 
+  it('refresh() reloads the transfer list', () => {
+    service.refresh();
+    expect(refreshNow).toHaveBeenCalled();
+  });
+
   it('addTransfers() calls TransferApi.addTransfers() and refreshes', () => {
     const options = { upload: false, queueUuid: 'q1', targetClass: '', target: '/downloads', paused: false, speedLimits: { down: 0, up: 0 } };
     service.addTransfers(['http://example.com/a'], options);

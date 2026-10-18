@@ -100,6 +100,11 @@ export class TransferActionsService {
     return this.transferApi.setTransferProperties(uuids, properties).pipe(tap(() => this.transfersStore.refreshNow()));
   }
 
+  /** Reloads the transfer list now, e.g. after a change made through another endpoint. */
+  refresh(): void {
+    this.transfersStore.refreshNow();
+  }
+
   addTransfers(urls: string[], options: NewTransferOptions): void {
     if (urls.length === 0) return;
 

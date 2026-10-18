@@ -48,11 +48,13 @@ function open(setup: Setup = {}) {
   const getTransferOptions = vi.fn(() => setup.options ?? of(NO_OPTIONS));
   const setTransferOptions = vi.fn(() => setup.setOptions ?? of(NO_OPTIONS));
   const updateProperties = vi.fn(() => setup.update ?? of(undefined));
+  const refresh = vi.fn();
+  const browseDirectories = vi.fn(setup.browseDirectories ?? (() => of({ path: '/', parent: '', entries: [] })));
   TestBed.configureTestingModule({
     imports: [TransferPropertiesDialog],
     providers: [
-      { provide: TransferApi, useValue: { browseDirectories: vi.fn(setup.browseDirectories ?? (() => of({ path: '/', parent: '', entries: [] }))), getTransferOptions, setTransferOptions } },
-      { provide: TransferActionsService, useValue: { updateProperties } },
+      { provide: TransferApi, useValue: { browseDirectories, getTransferOptions, setTransferOptions } },
+      { provide: TransferActionsService, useValue: { updateProperties, refresh } },
     ],
   });
   const fixture = TestBed.createComponent(TransferPropertiesDialog);
@@ -63,7 +65,15 @@ function open(setup: Setup = {}) {
   const visibleChanges: boolean[] = [];
   fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
   const root = () => document.body;
-  return { fixture, component: fixture.componentInstance, getTransferOptions, setTransferOptions, updateProperties, visibleChanges, root };
+  return { fixture, component: fixture.componentInstance, getTransferOptions, setTransferOptions, updateProperties, refresh, browseDirectories, visibleChanges, root };
+}
+
+// Types like a user, so the change reaches the view through ngModel; a plain field assignment
+// followed by detectChanges() trips NG0100 inside the (OnPush) PrimeNG dialog.
+function typeInto(id: string, value: string): void {
+  const input = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement;
+  input.value = value;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 const byTestId = (id: string) => document.body.querySelector(`[data-testid="${id}"]`);
@@ -117,6 +127,30 @@ describe('TransferPropertiesDialog', () => {
       for (const p of ['%N', '%T', '%D', '%P']) expect(hint).toContain(p);
     });
 
+    it('describes the completion command field with the placeholder hint', () => {
+      open();
+      const input = document.getElementById('transfer-completion')!;
+      expect(document.getElementById(input.getAttribute('aria-describedby')!)).toBe(byTestId('transfer-completion-hint'));
+    });
+
+    it('suggests no directories for an upload source', () => {
+      vi.useFakeTimers();
+      try {
+        const { browseDirectories } = open({
+          transfer: makeTransfer({ primaryMode: 'Upload', mode: 'Upload', object: '/src/file.bin' }),
+          browseDirectories: () => of({ path: '/', parent: '', entries: [{ name: 'data', path: '/data' }] }),
+        });
+        const input = document.getElementById('transfer-object') as HTMLInputElement;
+        input.focus();
+        input.value = '/d';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        vi.advanceTimersByTime(200);
+        expect(browseDirectories).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
     it('clears a previously-typed comment when reopened with the same null transfer (e.g. after Cancel)', () => {
       const { fixture, component } = open({ transfer: null });
       component.comment = 'typed but not saved';
@@ -163,11 +197,34 @@ describe('TransferPropertiesDialog', () => {
   });
 
   describe('saving', () => {
-    it('sends the comment and speed limits, and closes', () => {
+    it('sends a changed comment and speed limits, and closes', () => {
       const { component, updateProperties, visibleChanges } = open();
       component.comment = 'updated comment';
+      component.speedDown = 20;
+      component.speedUp = 0;
       component['onSave']();
-      expect(updateProperties).toHaveBeenCalledWith({ comment: 'updated comment', userSpeedLimits: { down: 10240, up: 5120 } });
+      expect(updateProperties).toHaveBeenCalledWith({ comment: 'updated comment', userSpeedLimits: { down: 20480, up: 0 } });
+      expect(visibleChanges).toEqual([false]);
+    });
+
+    it('sends neither comment nor speed limits when unchanged', () => {
+      const { component, updateProperties } = open();
+      component.completionCommand = 'notify %N';
+      component['onSave']();
+      expect(updateProperties).toHaveBeenCalledWith({ completionCommand: 'notify %N' });
+    });
+
+    it('keeps the exact value of the unchanged speed limit', () => {
+      const { component, updateProperties } = open({ transfer: makeTransfer({ userSpeedLimits: { down: 1500, up: 5000 } }) });
+      component.speedUp = 10;
+      component['onSave']();
+      expect(updateProperties).toHaveBeenCalledWith({ userSpeedLimits: { down: 1500, up: 10240 } });
+    });
+
+    it('makes no PATCH when nothing changed, and closes', () => {
+      const { component, updateProperties, visibleChanges } = open();
+      component['onSave']();
+      expect(updateProperties).not.toHaveBeenCalled();
       expect(visibleChanges).toEqual([false]);
     });
 
@@ -190,6 +247,7 @@ describe('TransferPropertiesDialog', () => {
       const { fixture, component, visibleChanges } = open({
         update: throwError(() => new ApiError(422, 'invalid_property', 'Not a readable directory: /nope')),
       });
+      typeInto('transfer-object', '/nope');
       component['onSave']();
       fixture.detectChanges();
       expect(visibleChanges).toEqual([]);
@@ -200,9 +258,71 @@ describe('TransferPropertiesDialog', () => {
     it('ignores a second Save while the first is in flight', () => {
       const pending = new Subject<void>();
       const { component, updateProperties } = open({ update: pending });
+      component.comment = 'changed';
       component['onSave']();
       component['onSave']();
       expect(updateProperties).toHaveBeenCalledTimes(1);
+    });
+
+    it('disables Save while a save is pending', () => {
+      const pending = new Subject<void>();
+      const { fixture, component } = open({ update: pending });
+      typeInto('transfer-comment', 'changed');
+      component['onSave']();
+      fixture.detectChanges();
+      expect(component.comment).toBe('changed');
+      expect((byTestId('transfer-dialog-save') as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('is no longer saving when reopened after a successful save', () => {
+      const { fixture, component, visibleChanges } = open();
+      component.comment = 'changed';
+      component['onSave']();
+      expect(visibleChanges).toEqual([false]);
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      expect(component['saving']()).toBe(false);
+      expect((byTestId('transfer-dialog-save') as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    function closeAndReopen(fixture: ReturnType<typeof open>['fixture']) {
+      fixture.componentInstance['onCancel']();
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+    }
+
+    it('lets a save from before a close and reopen neither close the dialog nor block Save', () => {
+      const pending = new Subject<void>();
+      const { fixture, component, visibleChanges } = open({ update: pending });
+      component.comment = 'changed';
+      component['onSave']();
+      closeAndReopen(fixture);
+      expect(visibleChanges).toEqual([false]);
+
+      pending.next();
+      pending.complete();
+      fixture.detectChanges();
+      expect(visibleChanges).toEqual([false]);
+      expect(byTestId('transfer-dialog-error')).toBeNull();
+      expect((byTestId('transfer-dialog-save') as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    it('does not show the error of a save from before a close and reopen', () => {
+      const pending = new Subject<void>();
+      const { fixture, component, visibleChanges } = open({ update: pending });
+      component.comment = 'changed';
+      component['onSave']();
+      closeAndReopen(fixture);
+
+      pending.error(new ApiError(422, 'invalid_property', 'Not a readable directory: /nope'));
+      fixture.detectChanges();
+      expect(visibleChanges).toEqual([false]);
+      expect(byTestId('transfer-dialog-error')).toBeNull();
+      expect((byTestId('transfer-dialog-save') as HTMLButtonElement).disabled).toBe(false);
     });
   });
 
@@ -233,6 +353,7 @@ describe('TransferPropertiesDialog', () => {
       const { fixture, component, updateProperties } = open({ options: throwError(() => new ApiError(500, 'x', 'boom')) });
       fixture.detectChanges();
       expect(byTestId('transfer-options-error')!.textContent).toContain('boom');
+      component.comment = 'changed';
       component['onSave']();
       expect(updateProperties).toHaveBeenCalled();
     });
@@ -243,17 +364,41 @@ describe('TransferPropertiesDialog', () => {
       expect(byTestId('transfer-options')).toBeNull();
     });
 
+    it('loads the options when the count drops to one', () => {
+      const { fixture, getTransferOptions } = open({ count: 3, options: of(FILE_NAME) });
+      fixture.componentRef.setInput('transferCount', 1);
+      fixture.detectChanges();
+      expect(getTransferOptions).toHaveBeenCalledWith('t1');
+      expect(document.getElementById('transfer-option-fileName')).not.toBeNull();
+    });
+
     it('sends only the changed options, after the general properties', () => {
-      const { component, updateProperties, setTransferOptions } = open({
+      const general = new Subject<void>();
+      const { component, updateProperties, setTransferOptions, refresh } = open({
+        update: general,
         options: of({
           fields: [{ type: 'text', key: 'fileName' }, { type: 'checkbox', key: 'flag' }],
           values: { fileName: 'file.zip', flag: false },
         }),
       });
+      component.comment = 'changed';
       component['setOption']('fileName', 'renamed.zip');
       component['onSave']();
       expect(updateProperties).toHaveBeenCalled();
+      expect(setTransferOptions).not.toHaveBeenCalled();
+      general.next();
+      general.complete();
       expect(setTransferOptions).toHaveBeenCalledWith('t1', { fileName: 'renamed.zip' });
+      expect(refresh).toHaveBeenCalled();
+    });
+
+    it('sends changed options without a general PATCH when nothing else changed', () => {
+      const { component, updateProperties, setTransferOptions, visibleChanges } = open({ options: of(FILE_NAME) });
+      component['setOption']('fileName', 'renamed.zip');
+      component['onSave']();
+      expect(updateProperties).not.toHaveBeenCalled();
+      expect(setTransferOptions).toHaveBeenCalledWith('t1', { fileName: 'renamed.zip' });
+      expect(visibleChanges).toEqual([false]);
     });
 
     it('makes no options call when no option changed', () => {
@@ -268,11 +413,12 @@ describe('TransferPropertiesDialog', () => {
         options: of(FILE_NAME),
         setOptions: throwError(() => new ApiError(422, 'invalid_property', 'Invalid file name: ""')),
       });
+      component.comment = 'changed';
       component['setOption']('fileName', '');
       component['onSave']();
       fixture.detectChanges();
       expect(visibleChanges).toEqual([]);
-      expect(byTestId('transfer-dialog-error')!.textContent).toContain('Invalid file name');
+      expect(byTestId('transfer-dialog-error')!.textContent).toContain('Options not saved: Invalid file name');
     });
 
     it('ignores options that arrive after the dialog was reopened on another transfer', () => {

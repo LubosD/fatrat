@@ -17,8 +17,11 @@
       <div class="field">
         <label for="transfer-object">{{ isUpload ? 'Source' : 'Destination' }}</label>
         <p-inputgroup class="fr-grow">
-          <input pInputText id="transfer-object" appPathSuggest [(ngModel)]="object" (keydown.enter)="$event.defaultPrevented || onSave()" />
-          @if (!isUpload) {
+          @if (isUpload) {
+            <!-- No path suggestions: they list directories, and an upload's source is a file. -->
+            <input pInputText id="transfer-object" [(ngModel)]="object" (keydown.enter)="onSave()" />
+          } @else {
+            <input pInputText id="transfer-object" appPathSuggest [(ngModel)]="object" (keydown.enter)="$event.defaultPrevented || onSave()" />
             <button pButton type="button" severity="secondary" label="Browse…" data-testid="transfer-browse-object" (click)="pickerOpen = true"></button>
           }
         </p-inputgroup>
@@ -26,14 +29,14 @@
     }
     <div class="field">
       <label for="transfer-completion">Run on completion</label>
-      <input pInputText id="transfer-completion" class="fr-grow" [(ngModel)]="completionCommand" />
+      <input pInputText id="transfer-completion" class="fr-grow" aria-describedby="transfer-completion-hint" [(ngModel)]="completionCommand" />
     </div>
-    <p class="hint" data-testid="transfer-completion-hint">%N name, %T type, %D destination directory, %P file path</p>
+    <p class="hint" id="transfer-completion-hint" data-testid="transfer-completion-hint">%N name, %T type, %D destination directory, %P file path</p>
   </fieldset>
 
   @switch (optionsState()) {
     @case ('loading') {
-      <p class="hint" data-testid="transfer-options-loading"><i class="pi pi-spin pi-spinner"></i> Loading options…</p>
+      <p class="hint" data-testid="transfer-options-loading"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Loading options…</p>
     }
     @case ('error') {
       <p class="form-error" role="alert" data-testid="transfer-options-error">Could not load the options: {{ optionsError() }}</p>
