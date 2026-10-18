@@ -1,0 +1,35 @@
+@if (store.tasks().length) {
+  <button type="button" class="tasks-indicator" [class.waiting]="store.openPrompts().length > 0"
+          data-testid="tasks-indicator" title="Plugin tasks" (click)="popover.toggle($event)">
+    <i class="pi" [class.pi-question-circle]="store.openPrompts().length > 0"
+       [class.pi-cog]="store.openPrompts().length === 0"></i>
+    {{ store.tasks().length }}
+  </button>
+}
+<p-popover #popover>
+  <ul class="tasks" data-testid="tasks-list">
+    @for (task of store.tasks(); track task.id) {
+      <li data-testid="task-entry">
+        <div class="title">
+          {{ task.title }}
+          @if (task.transferName) { <span class="hint">— {{ task.transferName }}</span> }
+        </div>
+        <p-progressbar
+          [value]="task.progress < 0 ? 0 : task.progress"
+          [mode]="task.progress < 0 && !isFinished(task) ? 'indeterminate' : 'determinate'"
+          [showValue]="false"
+        ></p-progressbar>
+        <div class="status" [class.failed]="task.state === 'failed'">{{ statusText(task) }}</div>
+        <div class="buttons">
+          @if (task.prompt) {
+            <button pButton type="button" size="small" data-testid="task-answer" (click)="answer(task); popover.hide()">Answer</button>
+          }
+          <button pButton type="button" size="small" severity="secondary" [text]="true"
+                  [attr.data-testid]="isFinished(task) ? 'task-dismiss' : 'task-cancel'" (click)="stop(task)">
+            {{ isFinished(task) ? 'Dismiss' : 'Cancel' }}
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</p-popover>

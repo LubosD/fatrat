@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpService.h"
 #include "RuntimeException.h"
 #include "Queue.h"
+#include "RestTasks.h"
 #include "Transfer.h"
 #include "TransferFactory.h"
 #include "TransferHttpService.h"
@@ -1063,6 +1064,13 @@ void RestResources::registerAll()
 	RestApi::registerRoute("GET", "/settings/pages", getSettingsPages);
 	RestApi::registerRoute("POST", "/settings/web-interface/certificate", generateCertificate);
 
+	RestTasks::setTransferVisitor([](const QString& uuid, const RestTasks::TransferFn& fn) {
+		onMainThread([&] {
+			TransferGuard guard(uuid);
+			fn(guard.transfer(), guard.transfer()->name());
+		});
+	});
+	registerTasks();
 	registerRss();
 #ifdef WITH_PYPLUGINS
 	registerPlugins();

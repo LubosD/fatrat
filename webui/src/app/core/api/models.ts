@@ -1,3 +1,5 @@
+import { JsonValue } from './json-value';
+
 export interface SpeedLimits {
   down: number;
   up: number;
@@ -226,4 +228,67 @@ export interface AvailablePlugin {
   installedVersion: string;
   /** Packages this plugin would pull in from PyPI; the user has to agree to them by name. */
   dependencies?: string[];
+}
+
+/** One field of a plugin's question; the vocabulary is src/plugins/FormValidator.h's. */
+export type PluginFormFieldType =
+  | 'text' | 'password' | 'checkbox' | 'combo' | 'group' | 'label' | 'directory' | 'list' | 'checklist';
+
+export interface PluginFormRow {
+  value: string;
+  cells?: string[];
+  checked?: boolean;
+}
+
+export interface PluginFormField {
+  type: PluginFormFieldType;
+  /** Absent on a label and on a plain group. */
+  key?: string;
+  title?: string;
+  default?: JsonValue;
+  /** For combo. */
+  options?: { value: string; title?: string }[];
+  /** For group. */
+  items?: PluginFormField[];
+  /** For list and checklist. */
+  columns?: string[];
+  rows?: PluginFormRow[];
+}
+
+export interface PluginForm {
+  title?: string;
+  description?: string;
+  fields: PluginFormField[];
+}
+
+export type PluginTaskState = 'running' | 'waiting' | 'done' | 'failed' | 'cancelled';
+
+export interface PluginTaskPrompt {
+  id: string;
+  form: PluginForm;
+  /** ISO 8601, UTC. */
+  expiresAt: string;
+}
+
+/** Something a plugin is doing; see GET /tasks. */
+export interface PluginTask {
+  id: string;
+  plugin: string;
+  title: string;
+  transfer: string | null;
+  transferName: string | null;
+  state: PluginTaskState;
+  /** 0..100, or -1 when unknown. */
+  progress: number;
+  status: string;
+  message: string | null;
+  /** Present while the task waits for an answer. */
+  prompt?: PluginTaskPrompt;
+}
+
+/** An entry a plugin adds to a transfer's menu. `icon` is a desktop icon theme name. */
+export interface PluginTransferAction {
+  id: string;
+  label: string;
+  icon: string;
 }

@@ -177,6 +177,11 @@ set(fatrat_SRCS
 	src/rss/RssStore.cpp
 	src/util/BmpWriter.cpp
 	src/util/ExtendedAttributes.cpp
+	src/plugins/FormValidator.cpp
+	src/plugins/Task.cpp
+	src/plugins/TaskManager.cpp
+	src/plugins/TransferActions.cpp
+	src/plugins/PluginLoader.cpp
 )
 
 set(fatrat_GUI_SRCS
@@ -206,6 +211,10 @@ set(fatrat_GUI_SRCS
 	src/SettingsClipboardMonitorForm.cpp
 	src/filterlineedit.cpp
 	src/fancylineedit.cpp
+	src/FormWidgets.cpp
+	src/FormDialog.cpp
+	src/TaskGui.cpp
+	src/TaskStatusWidget.cpp
 	src/engines/MetalinkSettings.cpp
 	src/captcha/CaptchaQt.cpp
 	src/captcha/CaptchaQtDlg.cpp
@@ -238,6 +247,8 @@ set(fatrat_MOC_HDRS
 	src/QueueMgr.h
 	src/Transfer.h
 	src/Scheduler.h
+	src/plugins/Task.h
+	src/plugins/TaskManager.h
 	src/SimpleEmail.h
 	src/Queue.h
 	src/Logger.h
@@ -246,6 +257,9 @@ set(fatrat_MOC_HDRS
 )
 
 set(fatrat_GUI_MOC_HDRS
+	src/FormDialog.h
+	src/TaskGui.h
+	src/TaskStatusWidget.h
 	src/TransfersModel.h
 	src/QueueDlg.h
 	src/SpeedGraph.h
@@ -399,6 +413,7 @@ if(WITH_PYPLUGINS)
 		src/python/PluginRegistry.cpp
 		src/python/PluginServices.cpp
 		src/python/PluginLease.cpp
+		src/engines/PluginSettingsValues.cpp
 		src/engines/PythonPersistentVariables.cpp
 		src/engines/PythonDownload.cpp
 		src/engines/PythonExtractor.cpp
@@ -491,6 +506,9 @@ if(WITH_WEBINTERFACE)
 		src/remote/RssJson.cpp
 		src/remote/RestScheduler.cpp
 		src/remote/SchedulerJson.cpp
+		src/remote/RestTasks.cpp
+		src/remote/TasksJson.cpp
+		src/remote/TaskPush.cpp
 		src/captcha/CaptchaHttp.cpp
 	)
 	set(fatrat_GUI_SRCS
@@ -502,6 +520,7 @@ if(WITH_WEBINTERFACE)
 		${fatrat_MOC_HDRS}
 		src/remote/HttpService.h
 		src/captcha/CaptchaHttp.h
+		src/remote/TaskPush.h
 	)
 	set(fatrat_GUI_MOC_HDRS
 		${fatrat_GUI_MOC_HDRS}
@@ -698,6 +717,12 @@ set(fatrat_DEV_HEADERS_ENGINES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/CurlStat.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/engines/UrlClient.h
 	)
+set(fatrat_DEV_HEADERS_PLUGINS
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/FormValidator.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginApi.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/Task.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/TransferAction.h
+	)
 
 install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
@@ -721,6 +746,7 @@ endif(WITH_GUI)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)
 install(FILES ${fatrat_DEV_HEADERS_ENGINES} DESTINATION include/fatrat/engines)
+install(FILES ${fatrat_DEV_HEADERS_PLUGINS} DESTINATION include/fatrat/plugins)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/poller/Poller.h DESTINATION include/fatrat/poller)
 
 if(WITH_NLS)

@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { ButtonDirective } from 'primeng/button';
-import { CaptchaSocketService, CaptchaEvent } from '../../core/captcha-socket.service';
+import { PushSocketService, CaptchaEvent } from '../../core/push-socket.service';
 import { CaptchaHttpService } from '../../core/captcha-http.service';
 
 const COUNTDOWN_SECONDS = 30;
@@ -20,7 +20,7 @@ const COUNTDOWN_SECONDS = 30;
   templateUrl: './captcha-dialog.html',
 })
 export class CaptchaDialog {
-  private readonly socket = inject(CaptchaSocketService);
+  private readonly socket = inject(PushSocketService);
   private readonly captchaHttp = inject(CaptchaHttpService);
 
   private readonly queue = signal<CaptchaEvent[]>([]);

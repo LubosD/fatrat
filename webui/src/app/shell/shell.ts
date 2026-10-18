@@ -11,6 +11,7 @@ import { MenuItem } from 'primeng/api';
 import { ButtonDirective, ButtonIcon } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
@@ -21,6 +22,7 @@ import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../featur
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { CaptchaDialog } from '../features/captcha/captcha-dialog';
+import { TaskPromptDialog } from '../features/tasks/task-prompt-dialog';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { ViewportService } from '../core/viewport.service';
@@ -57,6 +59,7 @@ interface ToolbarAction {
     ButtonIcon,
     Tooltip,
     ConfirmDialog,
+    Toast,
     Tabs,
     TabList,
     Tab,
@@ -73,6 +76,7 @@ interface ToolbarAction {
     NewTransferDialog,
     SettingsDialog,
     CaptchaDialog,
+    TaskPromptDialog,
     StatusBar,
   ],
   templateUrl: './shell.html',

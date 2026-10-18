@@ -48,6 +48,83 @@ target_include_directories(tst_scheduleresources PRIVATE ${CMAKE_SOURCE_DIR}/src
 target_link_libraries(tst_scheduleresources Qt6::Core Qt6::Network Qt6::Test)
 add_test(NAME scheduleresources COMMAND tst_scheduleresources)
 
+add_executable(tst_formvalidator tst_formvalidator.cpp ${CMAKE_SOURCE_DIR}/src/plugins/FormValidator.cpp)
+target_include_directories(tst_formvalidator PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_formvalidator Qt6::Core Qt6::Test)
+add_test(NAME formvalidator COMMAND tst_formvalidator)
+
+set(plugin_core_SRCS
+	${CMAKE_SOURCE_DIR}/src/plugins/FormValidator.cpp
+	${CMAKE_SOURCE_DIR}/src/plugins/Task.cpp
+	${CMAKE_SOURCE_DIR}/src/plugins/TaskManager.cpp
+	${CMAKE_SOURCE_DIR}/src/plugins/TransferActions.cpp
+	${CMAKE_SOURCE_DIR}/src/Logger.cpp)
+
+add_executable(tst_taskmanager tst_taskmanager.cpp ${plugin_core_SRCS})
+target_include_directories(tst_taskmanager PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_taskmanager Qt6::Core Qt6::Test)
+add_test(NAME taskmanager COMMAND tst_taskmanager)
+
+add_executable(tst_transferactions tst_transferactions.cpp ${plugin_core_SRCS})
+target_include_directories(tst_transferactions PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_transferactions Qt6::Core Qt6::Test)
+add_test(NAME transferactions COMMAND tst_transferactions)
+
+# fatrat.h pulls in QNetworkProxy, and QIcon in a GUI build (see tst_pyplugins).
+set(fatrat_h_LIBS Qt6::Core Qt6::Network)
+if(WITH_GUI)
+	set(fatrat_h_LIBS ${fatrat_h_LIBS} Qt6::Gui)
+endif(WITH_GUI)
+
+foreach(variant testaction testaction_needsgui testaction_wrongapi testaction_legacy
+	testaction_noinit testaction_norequires testaction_throws)
+	add_library(${variant} MODULE plugins/testaction.cpp)
+	set_target_properties(${variant} PROPERTIES PREFIX "")
+	target_include_directories(${variant} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
+	target_link_libraries(${variant} PRIVATE ${fatrat_h_LIBS})
+endforeach()
+target_compile_definitions(testaction_needsgui PRIVATE TESTACTION_NEEDS_GUI)
+target_compile_definitions(testaction_wrongapi PRIVATE TESTACTION_API_VERSION=999)
+target_compile_definitions(testaction_legacy PRIVATE TESTACTION_LEGACY)
+target_compile_definitions(testaction_noinit PRIVATE TESTACTION_NO_INIT)
+target_compile_definitions(testaction_norequires PRIVATE TESTACTION_NO_REQUIRES_GUI)
+target_compile_definitions(testaction_throws PRIVATE TESTACTION_INIT_THROWS)
+
+add_executable(tst_pluginloader tst_pluginloader.cpp ${plugin_core_SRCS}
+	${CMAKE_SOURCE_DIR}/src/plugins/PluginLoader.cpp)
+target_include_directories(tst_pluginloader PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_compile_definitions(tst_pluginloader PRIVATE
+	TESTACTION_PATH="$<TARGET_FILE:testaction>"
+	TESTACTION_NEEDSGUI_PATH="$<TARGET_FILE:testaction_needsgui>"
+	TESTACTION_WRONGAPI_PATH="$<TARGET_FILE:testaction_wrongapi>"
+	TESTACTION_LEGACY_PATH="$<TARGET_FILE:testaction_legacy>"
+	TESTACTION_NOINIT_PATH="$<TARGET_FILE:testaction_noinit>"
+	TESTACTION_NOREQUIRES_PATH="$<TARGET_FILE:testaction_norequires>"
+	TESTACTION_THROWS_PATH="$<TARGET_FILE:testaction_throws>")
+# The plugins resolve registerTransferAction() & co. from the executable, as they do from fatrat.
+set_target_properties(tst_pluginloader PROPERTIES ENABLE_EXPORTS ON)
+target_link_libraries(tst_pluginloader ${fatrat_h_LIBS} Qt6::Test ${CMAKE_DL_LIBS})
+add_dependencies(tst_pluginloader testaction testaction_needsgui testaction_wrongapi testaction_legacy
+	testaction_noinit testaction_norequires testaction_throws)
+add_test(NAME pluginloader COMMAND tst_pluginloader)
+
+if(WITH_WEBINTERFACE)
+	add_executable(tst_resttasks tst_resttasks.cpp ${plugin_core_SRCS}
+		${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/RestTasks.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/TasksJson.cpp)
+	target_include_directories(tst_resttasks PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
+	target_link_libraries(tst_resttasks Qt6::Core Qt6::Test)
+	add_test(NAME resttasks COMMAND tst_resttasks)
+
+	add_executable(tst_taskpush tst_taskpush.cpp ${plugin_core_SRCS}
+		${CMAKE_SOURCE_DIR}/src/remote/TaskPush.cpp
+		${CMAKE_SOURCE_DIR}/src/remote/TasksJson.cpp)
+	target_include_directories(tst_taskpush PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/remote)
+	target_link_libraries(tst_taskpush Qt6::Core Qt6::Test)
+	add_test(NAME taskpush COMMAND tst_taskpush)
+endif(WITH_WEBINTERFACE)
+
 if(WITH_TUI)
 	foreach(t format httpclient store keymap render connection settings extensions)
 		add_executable(tst_tui_${t} tst_tui_${t}.cpp)
@@ -64,6 +141,12 @@ if(WITH_PYPLUGINS)
 		EXAMPLE_REPO_DIR="${CMAKE_SOURCE_DIR}/examples/plugin-repo")
 	target_link_libraries(tst_pluginmanifest Qt6::Core Qt6::Test)
 	add_test(NAME pluginmanifest COMMAND tst_pluginmanifest)
+
+	add_executable(tst_pluginsettingsvalues tst_pluginsettingsvalues.cpp
+		${CMAKE_SOURCE_DIR}/src/engines/PluginSettingsValues.cpp)
+	target_include_directories(tst_pluginsettingsvalues PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_pluginsettingsvalues Qt6::Core Qt6::Test)
+	add_test(NAME pluginsettingsvalues COMMAND tst_pluginsettingsvalues)
 
 	add_executable(tst_restplugins tst_restplugins.cpp
 		${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
@@ -101,3 +184,21 @@ if(WITH_PYPLUGINS)
 	target_link_libraries(tst_pyplugins ${tst_pyplugins_LIBS})
 	add_test(NAME pyplugins COMMAND tst_pyplugins)
 endif(WITH_PYPLUGINS)
+
+if(WITH_GUI)
+	find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets)
+
+	add_executable(tst_formwidgets tst_formwidgets.cpp ${CMAKE_SOURCE_DIR}/src/FormWidgets.cpp)
+	target_include_directories(tst_formwidgets PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_formwidgets Qt6::Widgets Qt6::Test)
+	add_test(NAME formwidgets COMMAND tst_formwidgets)
+	set_tests_properties(formwidgets PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+	add_executable(tst_formdialog tst_formdialog.cpp ${plugin_core_SRCS}
+		${CMAKE_SOURCE_DIR}/src/FormWidgets.cpp
+		${CMAKE_SOURCE_DIR}/src/FormDialog.cpp)
+	target_include_directories(tst_formdialog PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_formdialog ${fatrat_h_LIBS} Qt6::Widgets Qt6::Test)
+	add_test(NAME formdialog COMMAND tst_formdialog)
+	set_tests_properties(formdialog PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif(WITH_GUI)

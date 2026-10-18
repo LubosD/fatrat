@@ -111,6 +111,7 @@ public slots:
 	
 	void displayDestroyed();
 	void menuActionTriggered();
+	void transferActionTriggered();
 	
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void downloadStateChanged(Transfer* d, Transfer::State prev, Transfer::State now);

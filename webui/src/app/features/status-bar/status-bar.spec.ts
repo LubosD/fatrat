@@ -1,9 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { signal } from '@angular/core';
 import { StatusBar } from './status-bar';
 import { TransferApi } from '../../core/api/transfer-api';
 import { StatsStore } from '../../state/stats.store';
+import { TasksStore } from '../../state/tasks.store';
+import { TasksApi } from '../../core/tasks-api.service';
 
 describe('StatusBar', () => {
   let api: { getSettingsValues: ReturnType<typeof vi.fn>; setSettingsValues: ReturnType<typeof vi.fn> };
@@ -13,6 +16,9 @@ describe('StatusBar', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: TransferApi, useValue: api },
+        { provide: TasksStore, useValue: { tasks: signal([]), openPrompts: signal([]), failures$: new Subject() } },
+        { provide: TasksApi, useValue: {} },
+        { provide: MessageService, useValue: { add: vi.fn() } },
         {
           provide: StatsStore,
           useValue: {

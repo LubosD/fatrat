@@ -26,21 +26,15 @@ respects for all of the code used other than "OpenSSL".
 
 #include "SettingsPythonPluginForm.h"
 
-#include <QCheckBox>
-#include <QComboBox>
 #include <QDir>
 #include <QFileDialog>
-#include <QGridLayout>
-#include <QGroupBox>
 #include <QHeaderView>
-#include <QJsonValue>
 #include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
 #include <QApplication>
 #include <QMessageBox>
-#include <QtDebug>
 
+#include "FormWidgets.h"
+#include "PluginSettingsValues.h"
 #include "Settings.h"
 #include "fatrat.h"
 #include "python/PluginRegistry.h"
@@ -59,6 +53,8 @@ SettingsPythonPluginForm::SettingsPythonPluginForm(QWidget* me, QObject* parent)
 	connect(pushInstall, SIGNAL(clicked()), this, SLOT(installSelected()));
 	connect(lineRepository, SIGNAL(returnPressed()), this, SLOT(addRepository()));
 }
+
+SettingsPythonPluginForm::~SettingsPythonPluginForm() = default;
 
 void SettingsPythonPluginForm::load()
 {
@@ -304,7 +300,7 @@ void SettingsPythonPluginForm::loadInstalled()
 
 void SettingsPythonPluginForm::buildSettingsPages()
 {
-	m_boundWidgets.clear();
+	m_pages.clear();
 	comboSettingsPages->clear();
 
 	while (stackedWidget->count())
@@ -317,7 +313,7 @@ void SettingsPythonPluginForm::buildSettingsPages()
 
 	foreach (const PluginRegistry::Manifest& manifest, PluginRegistry::installed())
 	{
-		if (!manifest.valid || manifest.config.isEmpty())
+		if (!manifest.valid || PluginSettingsValues::settingsItems(manifest.config).isEmpty())
 			continue;
 		if (!PluginRegistry::isPluginEnabled(manifest.name))
 			continue;
@@ -340,188 +336,35 @@ void SettingsPythonPluginForm::buildSettingsPages()
 	stackedWidget->setCurrentIndex(0);
 }
 
-QWidget* SettingsPythonPluginForm::buildPage(const QJsonArray& items)
+/* A plugin's settings page from the `config` array of its plugin.json, with
+ * the values from the settings. FormWidgets knows the widgets and
+ * PluginSettingsValues the mapping; this knows where the values live. */
+QWidget* SettingsPythonPluginForm::buildPage(const QJsonArray& config)
 {
 	QWidget* page = new QWidget(stackedWidget);
+	Page entry;
 
-	addItems(items, page);
+	entry.items = PluginSettingsValues::settingsItems(config);
 
+	QJsonObject values = PluginSettingsValues::load(entry.items,
+		[](const QString& key, const QVariant& def) { return getSettingsValue(key, def); },
+		[](const QString& key) { return getSettingsArray(key); });
+
+	entry.form.reset(new FormWidgets(entry.items, values, page));
+	m_pages.push_back(std::move(entry));
 	return page;
-}
-
-/* The widget vocabulary a plugin may use. It is deliberately the same set the
- * Java extensions had in their XML dialogs -- text, password, checkbox, combo,
- * group, order -- since that proved to be what plugins actually need.
- */
-void SettingsPythonPluginForm::addItems(const QJsonArray& items, QWidget* parent)
-{
-	QGridLayout* layout = new QGridLayout(parent);
-	int row = 0;
-
-	for (QJsonArray::const_iterator it = items.begin(); it != items.end(); it++, row++)
-	{
-		QJsonObject item = (*it).toObject();
-		QString type = item.value(QLatin1String("type")).toString();
-		QString title = item.value(QLatin1String("title")).toString();
-		QString key = item.value(QLatin1String("key")).toString();
-
-		if (type == QLatin1String("text") || type == QLatin1String("password"))
-		{
-			QLabel* label = new QLabel(title, parent);
-			QLineEdit* edit = new QLineEdit(parent);
-
-			if (type == QLatin1String("password"))
-				edit->setEchoMode(QLineEdit::Password);
-
-			edit->setText(getSettingsValue(key).toString());
-
-			layout->addWidget(label, row, 0);
-			layout->addWidget(edit, row, 1);
-
-			m_boundWidgets[edit] = key;
-		}
-		else if (type == QLatin1String("checkbox"))
-		{
-			QCheckBox* box = new QCheckBox(title, parent);
-
-			box->setChecked(getSettingsValue(key, false).toBool());
-			layout->addWidget(box, row, 0, 1, 2);
-
-			m_boundWidgets[box] = key;
-		}
-		else if (type == QLatin1String("combo"))
-		{
-			QLabel* label = new QLabel(title, parent);
-			QComboBox* combo = new QComboBox(parent);
-			QJsonArray options = item.value(QLatin1String("options")).toArray();
-			QString current = getSettingsValue(key).toString();
-
-			for (QJsonArray::const_iterator o = options.begin(); o != options.end(); o++)
-			{
-				QJsonObject option = (*o).toObject();
-				QString value = option.value(QLatin1String("value")).toString();
-				QString text = option.value(QLatin1String("title")).toString();
-
-				combo->addItem(text.isEmpty() ? value : text, value);
-
-				if (value == current)
-					combo->setCurrentIndex(combo->count() - 1);
-			}
-
-			layout->addWidget(label, row, 0);
-			layout->addWidget(combo, row, 1);
-
-			m_boundWidgets[combo] = key;
-		}
-		else if (type == QLatin1String("order"))
-		{
-			// A list the user reorders by dragging; the plugin reads it
-			// back with fatrat.settings.array().
-			QListWidget* list = new QListWidget(parent);
-			QJsonArray options = item.value(QLatin1String("options")).toArray();
-			QMap<QString, QListWidgetItem*> byValue;
-			QList<QListWidgetItem*> unordered;
-
-			list->setDragDropMode(QAbstractItemView::InternalMove);
-
-			for (QJsonArray::const_iterator o = options.begin(); o != options.end(); o++)
-			{
-				QJsonObject option = (*o).toObject();
-				QString value = option.value(QLatin1String("value")).toString();
-				QString text = option.value(QLatin1String("title")).toString();
-				QListWidgetItem* entry = new QListWidgetItem;
-
-				entry->setText(text.isEmpty() ? value : text);
-				entry->setData(Qt::UserRole, value);
-
-				byValue[value] = entry;
-				unordered << entry;
-			}
-
-			// The saved order first, then anything the plugin has added
-			// since the user last looked.
-			QList<QMap<QString, QVariant> > saved = getSettingsArray(key);
-
-			for (int i = 0; i < saved.size(); i++)
-			{
-				QString value = saved[i].value(QLatin1String("item")).toString();
-
-				if (!byValue.contains(value))
-					continue;
-
-				QListWidgetItem* entry = byValue.take(value);
-
-				list->addItem(entry);
-				unordered.removeAll(entry);
-			}
-
-			foreach (QListWidgetItem* entry, unordered)
-				list->addItem(entry);
-
-			if (!title.isEmpty())
-			{
-				layout->addWidget(new QLabel(title, parent), row, 0, 1, 2);
-				row++;
-			}
-
-			layout->addWidget(list, row, 0, 1, 2);
-
-			m_boundWidgets[list] = key;
-		}
-		else if (type == QLatin1String("group"))
-		{
-			QGroupBox* box = new QGroupBox(title, parent);
-
-			layout->addWidget(box, row, 0, 1, 2);
-
-			if (!key.isEmpty())
-			{
-				box->setCheckable(true);
-				box->setChecked(getSettingsValue(key, false).toBool());
-				m_boundWidgets[box] = key;
-			}
-
-			addItems(item.value(QLatin1String("items")).toArray(), box);
-		}
-		else
-			qDebug() << "Unknown plugin config item type:" << type;
-	}
-
-	if (!dynamic_cast<QGroupBox*>(parent))
-		layout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding), row, 0, 1, 2);
-
-	parent->setLayout(layout);
 }
 
 void SettingsPythonPluginForm::accepted()
 {
-	for (QMap<QWidget*, QString>::iterator it = m_boundWidgets.begin(); it != m_boundWidgets.end(); it++)
+	for (const Page& page : m_pages)
 	{
-		QWidget* widget = it.key();
-		const QString& key = it.value();
-
-		if (QLineEdit* edit = dynamic_cast<QLineEdit*>(widget))
-			setSettingsValue(key, edit->text());
-		else if (QGroupBox* box = dynamic_cast<QGroupBox*>(widget))
-			setSettingsValue(key, box->isChecked());
-		else if (QCheckBox* box = dynamic_cast<QCheckBox*>(widget))
-			setSettingsValue(key, box->isChecked());
-		else if (QComboBox* combo = dynamic_cast<QComboBox*>(widget))
-			setSettingsValue(key, combo->itemData(combo->currentIndex()));
-		else if (QListWidget* list = dynamic_cast<QListWidget*>(widget))
-		{
-			QList<QMap<QString, QVariant> > values;
-
-			for (int i = 0; i < list->count(); i++)
-			{
-				QMap<QString, QVariant> entry;
-
-				entry[QLatin1String("item")] = list->item(i)->data(Qt::UserRole).toString();
-				values << entry;
-			}
-
-			setSettingsArray(key, values);
-		}
+		PluginSettingsValues::save(page.items, page.form->values(),
+			[](const QString& key, const QVariant& value) { setSettingsValue(key, value); },
+			[](const QString& key, const QList<QMap<QString, QVariant> >& value) {
+				QList<QMap<QString, QVariant> > copy = value;
+				setSettingsArray(key, copy);
+			});
 	}
 
 	// Takes effect now. A plugin that is switched off while transfers use

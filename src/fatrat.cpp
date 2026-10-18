@@ -75,6 +75,8 @@ respects for all of the code used other than "OpenSSL".
 #include "rss/RssFetcher.h"
 #include "Scheduler.h"
 #include "TransferFactory.h"
+#include "plugins/TaskManager.h"
+#include "plugins/PluginLoader.h"
 
 #ifdef WITH_WEBINTERFACE
 #	include "remote/HttpService.h"
@@ -199,6 +201,10 @@ int main(int argc,char** argv)
 #endif
 
 	
+	// Before any plugin is loaded: TaskManager lives on the thread that first uses it,
+	// and its aboutToQuit connection (cancelAll) must come before the plugins' own, so
+	// that tasks are cancelled before a plugin joins its threads.
+	TaskManager::instance();
 	installSignalHandler();
 	initTransferClasses();
 	loadPlugins();
@@ -581,40 +587,60 @@ QStringList listDataDir(QString path)
 
 void loadPlugins()
 {
-	loadPlugins(PLUGIN_LOCATION);
-	
+	// PLUGIN_PATH first, so a developer's copy of a plugin overrides the installed one.
 	if(const char* p = getenv("PLUGIN_PATH"))
 		loadPlugins(p);
+	loadPlugins(PLUGIN_LOCATION);
 }
 
 void loadPlugins(const char* p)
 {
 	QDir dir(p);
 	QStringList plugins = dir.entryList(QStringList("*.so"));
-	
+
+	// File name -> directory it was tried from. The same plugin twice would
+	// register its actions twice.
+	static QMap<QString, QString> attempted;
+
 	foreach(QString pl, plugins)
 	{
-		QByteArray p = dir.filePath(pl).toUtf8();
-		qDebug() << "dlopen" << p;
-		if(void* l = dlopen(p.constData(), RTLD_NOW))
+		if (attempted.contains(pl))
 		{
+			Logger::global()->enterLogMessage(QObject::tr("Skipped a plugin: %1: already tried from %2").arg(pl, attempted[pl]));
+			continue;
+		}
+		attempted[pl] = dir.path();
+
+		PluginLoader::Result r = PluginLoader::load(dir.filePath(pl), programHasGUI());
+
+		switch (r.outcome)
+		{
+		case PluginLoader::Loaded:
+		case PluginLoader::LoadedLegacy:
 			Logger::global()->enterLogMessage(QObject::tr("Loaded a plugin:") + ' ' + pl);
-			
-			PluginInfo (*info)() = (PluginInfo(*)()) dlsym(l, "getInfo");
-			if(info != 0)
+			break;
+		case PluginLoader::SkippedNeedsGui:
+			Logger::global()->enterLogMessage(QObject::tr("Skipped a plugin: %1: %2").arg(pl, r.message));
+			break;
+		case PluginLoader::Incompatible:
+			Logger::global()->enterLogMessage(QObject::tr("WARNING: the plugin is incompatible: %1: %2").arg(pl, r.message));
+			break;
+		case PluginLoader::Failed:
+			Logger::global()->enterLogMessage(QObject::tr("Failed to load a plugin: %1: %2").arg(pl, r.message));
+			break;
+		}
+
+		if (r.info)
+		{
+			g_plugins[pl] = *r.info;
+
+			// Plugins written for the plugin API are gated by its version instead.
+			if (r.outcome == PluginLoader::LoadedLegacy && strcmp(r.info->version, VERSION))
 			{
-				PluginInfo i = info();
-				g_plugins[pl] = i;
-				
-				if(strcmp(i.version, VERSION))
-				{
-					qDebug() << "WARNING! Version conflict." << pl << "is" << i.version << "but FatRat is" << VERSION;
-					Logger::global()->enterLogMessage(QObject::tr("WARNING: the plugin is incompatible:") + ' ' + pl);
-				}
+				qDebug() << "WARNING! Version conflict." << pl << "is" << r.info->version << "but FatRat is" << VERSION;
+				Logger::global()->enterLogMessage(QObject::tr("WARNING: the plugin is incompatible:") + ' ' + pl);
 			}
 		}
-		else
-			Logger::global()->enterLogMessage(QObject::tr("Failed to load a plugin: %1: %2").arg(pl).arg(dlerror()));
 	}
 }
 

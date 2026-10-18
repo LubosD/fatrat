@@ -3,6 +3,8 @@ import { TransferTable } from './transfer-table';
 import { TransfersStore } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';
+import { of } from 'rxjs';
+import { PluginActions } from './plugin-actions';
 
 function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
   return {
@@ -46,6 +48,7 @@ function createTable(store: ReturnType<typeof makeTransfersStoreStub>) {
     providers: [
       { provide: TransfersStore, useValue: store },
       { provide: TransferActionsService, useValue: makeActionsStub() },
+      { provide: PluginActions, useValue: { menuItems: () => of([]) } },
     ],
   });
   const fixture = TestBed.createComponent(TransferTable);
@@ -70,6 +73,7 @@ function createTableWithActions(store: ReturnType<typeof makeTransfersStoreStub>
     providers: [
       { provide: TransfersStore, useValue: store },
       { provide: TransferActionsService, useValue: actions },
+      { provide: PluginActions, useValue: { menuItems: () => of([]) } },
     ],
   });
   const fixture = TestBed.createComponent(TransferTable);
@@ -103,6 +107,7 @@ describe('TransferTable', () => {
       providers: [
         { provide: TransfersStore, useValue: makeTransfersStoreStub([makeTransfer()]) },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       ],
     });
     const fixture = TestBed.createComponent(TransferTable);
@@ -122,6 +127,7 @@ describe('TransferTable', () => {
       providers: [
         { provide: TransfersStore, useValue: makeTransfersStoreStub([]) },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       ],
     });
     const fixture = TestBed.createComponent(TransferTable);
@@ -136,6 +142,7 @@ describe('TransferTable', () => {
       providers: [
         { provide: TransfersStore, useValue: makeTransfersStoreStub([]) },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       ],
     });
     const fixture = TestBed.createComponent(TransferTable);
@@ -217,6 +224,7 @@ describe('TransferTable', () => {
       providers: [
         { provide: TransfersStore, useValue: store },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       ],
     }).createComponent(TransferTable);
     table.detectChanges();
@@ -232,6 +240,7 @@ describe('TransferTable', () => {
       providers: [
         { provide: TransfersStore, useValue: store },
         { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       ],
     }).createComponent(TransferTable);
     table.detectChanges();
@@ -263,6 +272,7 @@ describe('TransferTable', () => {
       providers: [
         { provide: TransfersStore, useValue: makeTransfersStoreStub([]) },
         { provide: TransferActionsService, useValue: actions },
+        { provide: PluginActions, useValue: { menuItems: () => of([]) } },
       ],
     }).createComponent(TransferTable);
     table.detectChanges();
@@ -343,5 +353,44 @@ describe('TransferTable', () => {
       rows(fixture)[0].dispatchEvent(dragEvent('drop'));
       expect(actions.moveBefore).not.toHaveBeenCalled();
     });
+  });
+
+  it('adds the plugin actions for a single selected transfer', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' })], ['t1']);
+    const menuItems = vi.fn().mockReturnValue(of([{ separator: true }, { label: 'Unpack' }]));
+    TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: store },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems } },
+      ],
+    });
+    const table = TestBed.createComponent(TransferTable);
+    table.detectChanges();
+
+    table.componentInstance['onContextMenuSelect']({ data: makeTransfer({ uuid: 't1' }), originalEvent: new Event('contextmenu'), index: 0 });
+
+    expect(menuItems).toHaveBeenCalledWith('t1');
+    const items = table.componentInstance['contextMenuItems'] as { label?: string }[];
+    expect(items.at(-1)!.label).toBe('Unpack');
+  });
+
+  it('adds no plugin actions for a multiple selection', () => {
+    const store = makeTransfersStoreStub([makeTransfer({ uuid: 't1' }), makeTransfer({ uuid: 't2' })], ['t1', 't2']);
+    const menuItems = vi.fn().mockReturnValue(of([]));
+    TestBed.configureTestingModule({
+      imports: [TransferTable],
+      providers: [
+        { provide: TransfersStore, useValue: store },
+        { provide: TransferActionsService, useValue: makeActionsStub() },
+        { provide: PluginActions, useValue: { menuItems } },
+      ],
+    });
+    const table = TestBed.createComponent(TransferTable);
+    table.detectChanges();
+
+    table.componentInstance['onContextMenuSelect']({ data: makeTransfer({ uuid: 't1' }), originalEvent: new Event('contextmenu'), index: 0 });
+    expect(menuItems).not.toHaveBeenCalled();
   });
 });

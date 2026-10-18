@@ -86,6 +86,8 @@ namespace RestResources
 	void registerRss();
 	// The /scheduler resources. Called by registerAll().
 	void registerScheduler();
+	// The /transfers/:transfer/actions and /tasks resources. Called by registerAll().
+	void registerTasks();
 #ifdef WITH_PYPLUGINS
 	// The /plugins and /plugin-repositories resources. Called by registerAll().
 	void registerPlugins();

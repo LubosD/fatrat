@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Subject, of } from 'rxjs';
 import { CaptchaDialog } from './captcha-dialog';
-import { CaptchaSocketService, CaptchaEvent } from '../../core/captcha-socket.service';
+import { PushSocketService, CaptchaEvent } from '../../core/push-socket.service';
 import { CaptchaHttpService } from '../../core/captcha-http.service';
 
 function configure(submitSolution = vi.fn().mockReturnValue(of(undefined))) {
@@ -9,7 +9,7 @@ function configure(submitSolution = vi.fn().mockReturnValue(of(undefined))) {
   TestBed.configureTestingModule({
     imports: [CaptchaDialog],
     providers: [
-      { provide: CaptchaSocketService, useValue: { captchaEvents$ } },
+      { provide: PushSocketService, useValue: { captchaEvents$ } },
       { provide: CaptchaHttpService, useValue: { submitSolution } },
     ],
   });

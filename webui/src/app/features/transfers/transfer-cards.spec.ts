@@ -4,6 +4,8 @@ import { TransferCards, LONG_PRESS_MS } from './transfer-cards';
 import { TransfersStore } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';
+import { of } from 'rxjs';
+import { PluginActions } from './plugin-actions';
 
 function makeTransfer(overrides: Partial<Transfer> = {}): Transfer {
   return {
@@ -51,6 +53,7 @@ function setup(transfers: Transfer[]) {
     providers: [
       { provide: TransfersStore, useValue: store },
       { provide: TransferActionsService, useValue: actions },
+      { provide: PluginActions, useValue: { menuItems: () => of([]) } },
     ],
   });
   const fixture = TestBed.createComponent(TransferCards);
