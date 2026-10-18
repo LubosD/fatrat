@@ -127,6 +127,28 @@ describe('TransferPropertiesDialog', () => {
       for (const p of ['%N', '%T', '%D', '%P']) expect(hint).toContain(p);
     });
 
+    it('names %D the source directory for an upload', () => {
+      open({ transfer: makeTransfer({ primaryMode: 'Upload', mode: 'Upload', object: '/src/file.bin' }) });
+      const hint = byTestId('transfer-completion-hint')!.textContent!;
+      expect(hint).toContain('%D source directory');
+      expect(hint).not.toContain('destination');
+    });
+
+    it('names %D the destination directory for a download', () => {
+      open();
+      expect(byTestId('transfer-completion-hint')!.textContent).toContain('%D destination directory');
+    });
+
+    it('puts the save error in its own footer wrapper, before the buttons', () => {
+      const { component, fixture } = open();
+      component['saveError'].set('Not a readable directory: /very/long/path');
+      fixture.detectChanges();
+      const footer = byTestId('transfer-dialog-footer')!;
+      expect(footer.classList.contains('footer')).toBe(true);
+      expect(footer.firstElementChild).toBe(byTestId('transfer-dialog-error'));
+      expect(footer.contains(byTestId('transfer-dialog-save'))).toBe(true);
+    });
+
     it('describes the completion command field with the placeholder hint', () => {
       open();
       const input = document.getElementById('transfer-completion')!;

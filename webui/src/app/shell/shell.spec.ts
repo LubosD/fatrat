@@ -326,6 +326,19 @@ describe('Shell', () => {
     expect(fixture.componentInstance['transferPropertiesCount']()).toBe(1);
   });
 
+  it('"Properties" stays enabled with several selected and passes the first one and the count', () => {
+    const t1 = makeTransfer({ uuid: 't1' });
+    const t2 = makeTransfer({ uuid: 't2' });
+    configure(['t1', 't2'], makeActionsStub(), 5, [], null, makeQueueActionsStub(), [t1, t2]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(findByTestId(fixture.nativeElement, 'action-properties').disabled).toBe(false);
+    findByTestId(fixture.nativeElement, 'action-properties').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['transferPropertiesTarget']()).toEqual(t1);
+    expect(fixture.componentInstance['transferPropertiesCount']()).toBe(2);
+  });
+
   it('"New Transfer" opens the new-transfer dialog', () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);

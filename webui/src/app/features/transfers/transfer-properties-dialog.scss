@@ -14,8 +14,24 @@ legend {
   margin-bottom: 0.5rem;
 }
 
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
 .form-error {
   color: var(--p-red-500, #ef4444);
-  margin: 0 auto 0 0;
-  align-self: center;
+  flex: 1 1 100%;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+.hint {
+  overflow-wrap: anywhere;
 }

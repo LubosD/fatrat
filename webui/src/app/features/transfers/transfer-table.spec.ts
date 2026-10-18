@@ -263,7 +263,7 @@ describe('TransferTable', () => {
     expect(disabled('Resume')).toBe(false); // t1 is Paused
     expect(disabled('Pause')).toBe(false); // t2 is Active
     expect(disabled('Move Up')).toBe(false); // t2 is not first
-    expect(disabled('Properties')).toBe(true); // two selected
+    expect(disabled('Properties')).toBe(false); // two selected: still editable
   });
 
   it('the context menu items call the corresponding TransferActionsService methods', () => {
