@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { TransferActionsService } from './transfer-actions.service';
 import { TransferApi } from './api/transfer-api';
@@ -178,21 +178,28 @@ describe('TransferActionsService', () => {
     expect(moveTransfersBefore).not.toHaveBeenCalled();
   });
 
-  it('updateProperties() sets comment and userSpeedLimits as a {down, up} object, then refreshes', () => {
-    service.updateProperties('new comment', { down: 100, up: 50 });
-    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'new comment', userSpeedLimits: { down: 100, up: 50 } });
+  it('updateProperties() PATCHes the selected transfers, then refreshes', () => {
+    let done = false;
+    service.updateProperties({ comment: 'new comment' }).subscribe(() => (done = true));
+    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'new comment' });
     expect(refreshNow).toHaveBeenCalled();
+    expect(done).toBe(true);
   });
 
-  it('updateProperties() includes the new data directory as "object" when given', () => {
-    service.updateProperties('c', { down: 0, up: 0 }, '/new/dir');
-    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { comment: 'c', userSpeedLimits: { down: 0, up: 0 }, object: '/new/dir' });
+  it('updateProperties() passes errors on and does not refresh', () => {
+    setTransferProperties.mockReturnValue(throwError(() => new Error('nope')));
+    let error: unknown;
+    service.updateProperties({ comment: 'x' }).subscribe({ error: (e) => (error = e) });
+    expect((error as Error).message).toBe('nope');
+    expect(refreshNow).not.toHaveBeenCalled();
   });
 
-  it('updateProperties() does nothing when nothing is selected', () => {
+  it('updateProperties() completes without a call when nothing is selected', () => {
     selectedUuids = [];
-    service.updateProperties('x', { down: 0, up: 0 });
+    let done = false;
+    service.updateProperties({ comment: 'x' }).subscribe(() => (done = true));
     expect(setTransferProperties).not.toHaveBeenCalled();
+    expect(done).toBe(true);
   });
 
   it('addTransfers() calls TransferApi.addTransfers() and refreshes', () => {

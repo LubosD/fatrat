@@ -10,9 +10,9 @@
 
 <app-transfer-properties-dialog
   [transfer]="transferPropertiesTarget()"
+  [transferCount]="transferPropertiesCount()"
   [visible]="showTransferPropertiesDialog()"
   (visibleChange)="showTransferPropertiesDialog.set($event)"
-  (save)="onTransferPropertiesSave($event)"
 ></app-transfer-properties-dialog>
 
 <app-new-transfer-dialog

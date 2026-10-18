@@ -1,0 +1,21 @@
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+
+  & + fieldset,
+  & + p {
+    margin-top: 1rem;
+  }
+}
+
+legend {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-error {
+  color: var(--p-red-500, #ef4444);
+  margin: 0 auto 0 0;
+  align-self: center;
+}

@@ -18,7 +18,7 @@ import { TransferTable } from '../features/transfers/transfer-table';
 import { TransferCards } from '../features/transfers/transfer-cards';
 import { TransferDetails } from '../features/transfers/transfer-details';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
-import { TransferPropertiesDialog, TransferPropertiesFormValue } from '../features/transfers/transfer-properties-dialog';
+import { TransferPropertiesDialog } from '../features/transfers/transfer-properties-dialog';
 import { NewTransferDialog, NewTransferFormValue } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { CaptchaDialog } from '../features/captcha/captcha-dialog';
@@ -208,17 +208,15 @@ export class Shell {
 
   protected readonly showTransferPropertiesDialog = signal(false);
   protected readonly transferPropertiesTarget = signal<Transfer | null>(null);
+  protected readonly transferPropertiesCount = signal(0);
 
   protected openTransferPropertiesDialog(): void {
     const uuids = this.transfersStore.selectedUuids();
     const representative =
       uuids.length > 0 ? (this.transfersStore.transfers().find((t) => t.uuid === uuids[0]) ?? null) : null;
     this.transferPropertiesTarget.set(representative);
+    this.transferPropertiesCount.set(uuids.length);
     this.showTransferPropertiesDialog.set(true);
-  }
-
-  protected onTransferPropertiesSave(value: TransferPropertiesFormValue): void {
-    this.actions.updateProperties(value.comment, value.speedLimits, value.object);
   }
 
   protected readonly showNewTransferDialog = signal(false);

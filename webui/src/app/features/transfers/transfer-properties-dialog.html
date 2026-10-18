@@ -1,31 +1,66 @@
 <p-dialog [visible]="visible" (visibleChange)="onDialogVisibleChange($event)" header="Transfer Properties" [modal]="true" styleClass="fr-dialog">
-  <div class="field">
-    <label for="transfer-comment">Comment</label>
-    <textarea pTextarea id="transfer-comment" rows="4" [(ngModel)]="comment"></textarea>
-  </div>
-  <div class="field">
-    <label for="transfer-speed-down">Max download speed (KB/s)</label>
-    <p-inputnumber inputId="transfer-speed-down" [(ngModel)]="speedDown"></p-inputnumber>
-  </div>
-  <div class="field">
-    <label for="transfer-speed-up">Max upload speed (KB/s)</label>
-    <p-inputnumber inputId="transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
-  </div>
-  @if (canRelocate) {
+  <fieldset>
+    <legend>General</legend>
     <div class="field">
-      <label for="transfer-object">Data directory</label>
-      <p-inputgroup>
-        <input pInputText id="transfer-object" appPathSuggest [(ngModel)]="object" (keydown.enter)="$event.defaultPrevented || onSave()" />
-        <button pButton type="button" severity="secondary" label="Browse…" data-testid="transfer-browse-object" (click)="pickerOpen = true"></button>
-      </p-inputgroup>
+      <label for="transfer-comment">Comment</label>
+      <textarea pTextarea id="transfer-comment" rows="4" [(ngModel)]="comment"></textarea>
     </div>
+    <div class="field">
+      <label for="transfer-speed-down">Max download speed (KB/s)</label>
+      <p-inputnumber inputId="transfer-speed-down" [(ngModel)]="speedDown"></p-inputnumber>
+    </div>
+    <div class="field">
+      <label for="transfer-speed-up">Max upload speed (KB/s)</label>
+      <p-inputnumber inputId="transfer-speed-up" [(ngModel)]="speedUp"></p-inputnumber>
+    </div>
+    @if (transfer) {
+      <div class="field">
+        <label for="transfer-object">{{ isUpload ? 'Source' : 'Destination' }}</label>
+        <p-inputgroup class="fr-grow">
+          <input pInputText id="transfer-object" appPathSuggest [(ngModel)]="object" (keydown.enter)="$event.defaultPrevented || onSave()" />
+          @if (!isUpload) {
+            <button pButton type="button" severity="secondary" label="Browse…" data-testid="transfer-browse-object" (click)="pickerOpen = true"></button>
+          }
+        </p-inputgroup>
+      </div>
+    }
+    <div class="field">
+      <label for="transfer-completion">Run on completion</label>
+      <input pInputText id="transfer-completion" class="fr-grow" [(ngModel)]="completionCommand" />
+    </div>
+    <p class="hint" data-testid="transfer-completion-hint">%N name, %T type, %D destination directory, %P file path</p>
+  </fieldset>
+
+  @switch (optionsState()) {
+    @case ('loading') {
+      <p class="hint" data-testid="transfer-options-loading"><i class="pi pi-spin pi-spinner"></i> Loading options…</p>
+    }
+    @case ('error') {
+      <p class="form-error" role="alert" data-testid="transfer-options-error">Could not load the options: {{ optionsError() }}</p>
+    }
+    @case ('ready') {
+      <fieldset data-testid="transfer-options">
+        <legend>Options</legend>
+        @for (field of optionFields(); track $index) {
+          <div class="field">
+            <app-form-field class="fr-grow" [field]="field" [inputId]="'transfer-option-' + (field.key ?? $index)"
+                            [value]="field.key ? (optionValues()[field.key] ?? null) : null"
+                            (valueChange)="setOption(field.key, $event)"></app-form-field>
+          </div>
+        }
+      </fieldset>
+    }
   }
+
   <!-- PrimeNG's Dialog detects footer content via a ContentChild query keyed on a
        template-ref variable named "footer" — <p-footer> projection does not work here
        (and Footer from primeng/api isn't a standalone component anyway). -->
   <ng-template #footer>
+    @if (saveError()) {
+      <p class="form-error" role="alert" data-testid="transfer-dialog-error">{{ saveError() }}</p>
+    }
     <button pButton type="button" severity="secondary" [text]="true" data-testid="transfer-dialog-cancel" (click)="onCancel()">Cancel</button>
-    <button pButton type="button" data-testid="transfer-dialog-save" (click)="onSave()">Save</button>
+    <button pButton type="button" data-testid="transfer-dialog-save" [disabled]="saving()" (click)="onSave()">Save</button>
   </ng-template>
 </p-dialog>
 @if (pickerOpen) {

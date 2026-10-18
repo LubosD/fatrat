@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TransferApi } from './api/transfer-api';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
@@ -87,19 +89,15 @@ export class TransferActionsService {
     });
   }
 
-  updateProperties(comment: string, speedLimits: { down: number; up: number }, object?: string): void {
+  /**
+   * PATCHes the selected transfers. The caller subscribes, so the Transfer Properties dialog can
+   * stay open and show the server's message when the change is refused.
+   */
+  updateProperties(properties: { [key: string]: JsonValue }): Observable<void> {
     const uuids = this.transfersStore.selectedUuids();
-    if (uuids.length === 0) return;
+    if (uuids.length === 0) return of(undefined);
 
-    const properties: { [key: string]: JsonValue } = { comment, userSpeedLimits: { down: speedLimits.down, up: speedLimits.up } };
-    if (object !== undefined) properties['object'] = object;
-
-    this.transferApi
-      .setTransferProperties(uuids, properties)
-      .subscribe({
-        next: () => this.transfersStore.refreshNow(),
-        error: (err) => console.error('Failed to update transfer properties', err),
-      });
+    return this.transferApi.setTransferProperties(uuids, properties).pipe(tap(() => this.transfersStore.refreshNow()));
   }
 
   addTransfers(urls: string[], options: NewTransferOptions): void {
