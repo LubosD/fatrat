@@ -47,6 +47,22 @@ QReadWriteLock g_queuesLock(QReadWriteLock::Recursive);
 
 bool Queue::m_bLoaded = false;
 
+namespace
+{
+	// Serialises saveQueues(): every save writes and renames the same queues.xml.new, and concurrent saves
+	// (saveQueuesAsync() after each change, plus the synchronous one at exit) would interleave their writes.
+	// After startup it also guards m_bLoaded. Lock order: s_saveMutex first, then g_queuesLock; nobody may
+	// take s_saveMutex while holding g_queuesLock for write.
+	QMutex s_saveMutex;
+
+	// Guards s_savers and s_saversClosed. It is a leaf lock: no other lock is taken while it is held.
+	QMutex s_saversMutex;
+	// The BackgroundSaver threads that have not been destroyed yet, so that unloadQueues() can wait for them.
+	QList<QThread*> s_savers;
+	// Set by unloadQueues(); from then on saveQueuesAsync() starts no more threads.
+	bool s_saversClosed = false;
+}
+
 Queue::Queue()
 	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1),
 	m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(false), m_lock(QReadWriteLock::Recursive)
@@ -66,7 +82,37 @@ Queue::~Queue()
 void Queue::unloadQueues()
 {
 	qDebug() << "Queue::unloadQueues()";
-	qDeleteAll(g_queues);
+
+	// A background save started just before shutdown (e.g. after a REST change) may still be waiting for
+	// s_saveMutex. Refuse new ones and wait for the running ones, so that none walks the queues after they
+	// are freed, or reads the settings after exitSettings(). The savers are deleted by deleteLater() on this
+	// (the main) thread, so the pointers stay valid while we wait. No lock may be held here, because a saver
+	// needs s_saveMutex and g_queuesLock to finish.
+	QList<QThread*> savers;
+	{
+		QMutexLocker l(&s_saversMutex);
+		s_saversClosed = true;
+		savers = s_savers;
+	}
+	for (QThread* t : savers)
+		t->wait();
+
+	// Other threads reach the queues through g_queues under g_queuesLock, so take them out of the list under
+	// the write lock; from then on those threads see an empty list instead of freed objects. Clearing
+	// m_bLoaded under s_saveMutex turns any later saveQueues() into a no-op, so that it cannot replace
+	// queues.xml with an empty file.
+	QList<Queue*> queues;
+	{
+		QMutexLocker s(&s_saveMutex);
+		QWriteLocker w(&g_queuesLock);
+		m_bLoaded = false;
+		queues.swap(g_queues);
+	}
+
+	// Delete without holding g_queuesLock: nothing can reach these queues any more, and a transfer's
+	// destructor may wait for a worker thread that is itself waiting for g_queuesLock (e.g. in
+	// Transfer::myQueue()).
+	qDeleteAll(queues);
 }
 
 void Queue::stopQueues()
@@ -155,27 +201,40 @@ void Queue::BackgroundSaver::run()
 		sync();
 }
 
+Queue::BackgroundSaver::~BackgroundSaver()
+{
+	QMutexLocker l(&s_saversMutex);
+	s_savers.removeOne(this);
+}
+
 void Queue::saveQueuesAsync()
 {
+	QMutexLocker l(&s_saversMutex);
+	if (s_saversClosed)
+	{
+		qDebug() << "Not saving queues as they have been unloaded.";
+		return;
+	}
+
 	BackgroundSaver* t = new BackgroundSaver;
 	// Callers may be threads without an event loop (the HTTP server's); finished() must be
-	// delivered where deleteLater() will run, or the thread object leaks.
+	// delivered where deleteLater() will run, or the thread object leaks. This also means that
+	// savers are only ever deleted on the main thread, which unloadQueues() relies on.
 	t->moveToThread(QCoreApplication::instance()->thread());
 	connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
+	s_savers << t;
 	t->start();
 }
 
 void Queue::saveQueues()
 {
-	// Every save writes and renames the same queues.xml.new; concurrent saves (saveQueuesAsync() after each
-	// change, plus the synchronous one at exit) would interleave their writes. Held while taking g_queuesLock
-	// for read, so no caller may hold g_queuesLock for write when calling this.
-	static QMutex saveMutex;
-	QMutexLocker saveLocker(&saveMutex);
+	// See s_saveMutex. It is held while taking g_queuesLock for read, so no caller may hold g_queuesLock
+	// for write when calling this.
+	QMutexLocker saveLocker(&s_saveMutex);
 
 	if (!m_bLoaded)
 	{
-		qDebug() << "Not saving queues as they haven't been loaded yet.";
+		qDebug() << "Not saving queues as they haven't been loaded yet or have been unloaded.";
 		return;
 	}
 

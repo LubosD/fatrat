@@ -138,6 +138,7 @@ protected:
 	class BackgroundSaver : public QThread
 	{
 	public:
+		~BackgroundSaver() override;
 		virtual void run();
 	};
 
