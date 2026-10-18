@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CaptchaSocketService } from './captcha-socket.service';
+import { PushSocketService } from './push-socket.service';
 
 class FakeWebSocket {
   static instances: FakeWebSocket[] = [];
@@ -20,11 +20,11 @@ class FakeWebSocket {
   }
 }
 
-describe('CaptchaSocketService', () => {
+describe('PushSocketService', () => {
   beforeEach(() => {
     FakeWebSocket.instances = [];
     vi.stubGlobal('WebSocket', FakeWebSocket);
-    TestBed.configureTestingModule({ providers: [CaptchaSocketService] });
+    TestBed.configureTestingModule({ providers: [PushSocketService] });
   });
 
   afterEach(() => {
@@ -33,7 +33,7 @@ describe('CaptchaSocketService', () => {
   });
 
   it('opens a WebSocket to /websocket on the current host, matching the page protocol', () => {
-    TestBed.inject(CaptchaSocketService);
+    TestBed.inject(PushSocketService);
 
     expect(FakeWebSocket.instances.length).toBe(1);
     const expectedProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -41,7 +41,7 @@ describe('CaptchaSocketService', () => {
   });
 
   it('emits a captcha event parsed from an incoming {"type":"captcha",...} message', () => {
-    const service = TestBed.inject(CaptchaSocketService);
+    const service = TestBed.inject(PushSocketService);
     const received: { id: number; url: string }[] = [];
     service.captchaEvents$.subscribe((ev) => received.push(ev));
 
@@ -51,7 +51,7 @@ describe('CaptchaSocketService', () => {
   });
 
   it('ignores a ping message', () => {
-    const service = TestBed.inject(CaptchaSocketService);
+    const service = TestBed.inject(PushSocketService);
     const received: unknown[] = [];
     service.captchaEvents$.subscribe((ev) => received.push(ev));
 
@@ -61,7 +61,7 @@ describe('CaptchaSocketService', () => {
   });
 
   it('ignores an unparseable message instead of throwing', () => {
-    const service = TestBed.inject(CaptchaSocketService);
+    const service = TestBed.inject(PushSocketService);
     const received: unknown[] = [];
     service.captchaEvents$.subscribe((ev) => received.push(ev));
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -72,7 +72,7 @@ describe('CaptchaSocketService', () => {
 
   it('reconnects after the connection closes, starting with a 1 second backoff', () => {
     vi.useFakeTimers();
-    TestBed.inject(CaptchaSocketService);
+    TestBed.inject(PushSocketService);
     expect(FakeWebSocket.instances.length).toBe(1);
 
     FakeWebSocket.instances[0].onclose?.();
@@ -84,7 +84,7 @@ describe('CaptchaSocketService', () => {
 
   it('doubles the backoff on repeated failures, up to a 30 second cap', () => {
     vi.useFakeTimers();
-    TestBed.inject(CaptchaSocketService);
+    TestBed.inject(PushSocketService);
 
     FakeWebSocket.instances[0].onclose?.(); // schedules reconnect #1 after 1s
     vi.advanceTimersByTime(1000);
@@ -105,7 +105,7 @@ describe('CaptchaSocketService', () => {
 
   it('resets the backoff to 1 second after a successful reconnect', () => {
     vi.useFakeTimers();
-    TestBed.inject(CaptchaSocketService);
+    TestBed.inject(PushSocketService);
 
     FakeWebSocket.instances[0].onclose?.(); // backoff becomes 2s for next attempt
     vi.advanceTimersByTime(1000);
@@ -120,10 +120,34 @@ describe('CaptchaSocketService', () => {
   });
 
   it('calls close() on the socket when it errors', () => {
-    TestBed.inject(CaptchaSocketService);
+    TestBed.inject(PushSocketService);
 
     FakeWebSocket.instances[0].onerror?.();
 
     expect(FakeWebSocket.instances[0].closeCallCount).toBe(1);
+  });
+
+  it('emits task events', () => {
+    const service = TestBed.inject(PushSocketService);
+    const received: unknown[] = [];
+    service.taskEvents$.subscribe((ev) => received.push(ev));
+
+    FakeWebSocket.instances[0].onmessage?.({ data: '{"type":"task","task":{"id":"k1","title":"T"}}' });
+    FakeWebSocket.instances[0].onmessage?.({ data: '{"type":"task-removed","id":"k1"}' });
+    FakeWebSocket.instances[0].onmessage?.({ data: '{"type":"task"}' }); // malformed: ignored
+
+    expect(received).toEqual([
+      { type: 'task', task: { id: 'k1', title: 'T' } },
+      { type: 'task-removed', id: 'k1' },
+    ]);
+  });
+
+  it('says when it (re)connects, so stores can reload what they missed', () => {
+    const service = TestBed.inject(PushSocketService);
+    let connects = 0;
+    service.connected$.subscribe(() => connects++);
+
+    FakeWebSocket.instances[0].onopen?.();
+    expect(connects).toBe(1);
   });
 });

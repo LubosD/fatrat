@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { of, Subject } from 'rxjs';
 import { App } from './app';
 import { QueuesStore } from './state/queues.store';
@@ -41,6 +41,7 @@ describe('App', () => {
         { provide: QueueActionsService, useValue: { createQueue: vi.fn(), updateQueueProperties: vi.fn() } },
         { provide: TransferApi, useValue: { getTransferClasses: () => of([]), getStats: () => of({ total: { down: 0, up: 0 }, queues: {} }), getSettingsValues: () => of([]) } },
         ConfirmationService,
+        MessageService,
       ],
     });
   });

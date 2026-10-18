@@ -11,6 +11,7 @@ import { MenuItem } from 'primeng/api';
 import { ButtonDirective, ButtonIcon } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
@@ -57,6 +58,7 @@ interface ToolbarAction {
     ButtonIcon,
     Tooltip,
     ConfirmDialog,
+    Toast,
     Tabs,
     TabList,
     Tab,

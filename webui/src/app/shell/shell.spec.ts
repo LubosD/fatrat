@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Shell } from './shell';
 import { QueuesStore } from '../state/queues.store';
 import { TransfersStore } from '../state/transfers.store';
@@ -13,7 +13,7 @@ import { LogService } from '../core/log.service';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
 import { SettingsDialog } from '../features/settings/settings-dialog';
-import { CaptchaSocketService } from '../core/captcha-socket.service';
+import { PushSocketService } from '../core/push-socket.service';
 import { CaptchaHttpService } from '../core/captcha-http.service';
 import { ViewportService } from '../core/viewport.service';
 import { signal } from '@angular/core';
@@ -119,9 +119,10 @@ function configure(
       },
       { provide: BrowseService, useValue: browseService },
       { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
-      { provide: CaptchaSocketService, useValue: { captchaEvents$: new Subject() } },
+      { provide: PushSocketService, useValue: { captchaEvents$: new Subject(), taskEvents$: new Subject(), connected$: new Subject() } },
       { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
       ConfirmationService,
+      MessageService,
     ],
   });
   return { actions, queueActions, browseService };
@@ -364,9 +365,10 @@ describe('Shell', () => {
         },
         { provide: BrowseService, useValue: { list: () => of([]) } },
         { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
-        { provide: CaptchaSocketService, useValue: { captchaEvents$: new Subject() } },
+        { provide: PushSocketService, useValue: { captchaEvents$: new Subject(), taskEvents$: new Subject(), connected$: new Subject() } },
         { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
         ConfirmationService,
+        MessageService,
       ],
     });
     const fixture = TestBed.createComponent(Shell);
@@ -406,9 +408,10 @@ describe('Shell', () => {
         },
         { provide: BrowseService, useValue: { list: () => of([]) } },
         { provide: LogService, useValue: { getGlobalLog: () => of(''), getTransferLog: () => of('') } },
-        { provide: CaptchaSocketService, useValue: { captchaEvents$: new Subject() } },
+        { provide: PushSocketService, useValue: { captchaEvents$: new Subject(), taskEvents$: new Subject(), connected$: new Subject() } },
         { provide: CaptchaHttpService, useValue: { submitSolution: () => of(undefined) } },
         ConfirmationService,
+        MessageService,
       ],
     });
     const fixture = TestBed.createComponent(Shell);

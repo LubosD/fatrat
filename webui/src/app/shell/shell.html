@@ -1,3 +1,4 @@
+<p-toast position="bottom-right"></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
 <app-queue-properties-dialog
@@ -28,7 +29,7 @@
   (visibleChange)="showSettingsDialog.set($event)"
 ></app-settings-dialog>
 
-<!-- Self-managed, no bindings: visibility is derived internally from CaptchaSocketService events. -->
+<!-- Self-managed, no bindings: visibility is derived internally from PushSocketService events. -->
 <app-captcha-dialog></app-captcha-dialog>
 
 @if (viewport.isMobile()) {
