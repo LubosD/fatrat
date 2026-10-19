@@ -1,8 +1,9 @@
 // webui/src/app/shell/hotkeys.ts
 
 /**
- * One key that triggers a toolbar action. Character keys are matched on the produced character
- * (`event.key`), so Shift is part of `key` ('n' vs 'N') and punctuation follows the user's layout.
+ * One key that triggers a toolbar action. For letters, case in `key` means Shift ('n' vs 'N'); the
+ * match uses the Shift state, not the produced case, so Caps Lock is ignored. Other character keys
+ * are matched on the produced character (`event.key`), so punctuation follows the user's layout.
  * Named keys such as 'Delete' produce the same `key` with or without Shift, so they set `shift`.
  */
 export interface Hotkey {
@@ -15,6 +16,9 @@ export interface Hotkey {
 }
 
 export function matchesHotkey(event: KeyboardEvent, hotkey: Hotkey): boolean {
+  if (/^[a-zA-Z]$/.test(hotkey.key)) {
+    return event.key.toLowerCase() === hotkey.key.toLowerCase() && event.shiftKey === (hotkey.key !== hotkey.key.toLowerCase());
+  }
   if (event.key !== hotkey.key) return false;
   return hotkey.shift === undefined || hotkey.shift === event.shiftKey;
 }

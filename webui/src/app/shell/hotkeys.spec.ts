@@ -15,6 +15,13 @@ describe('hotkeys', () => {
       expect(matchesHotkey(key({ key: 'N', shiftKey: true }), { key: 'N', label: 'Shift+N' })).toBe(true);
     });
 
+    it('ignores Caps Lock for letters, deciding by Shift', () => {
+      expect(matchesHotkey(key({ key: 'N' }), { key: 'n', label: 'N' })).toBe(true);
+      expect(matchesHotkey(key({ key: 'N' }), { key: 'N', label: 'Shift+N' })).toBe(false);
+      expect(matchesHotkey(key({ key: 'n', shiftKey: true }), { key: 'N', label: 'Shift+N' })).toBe(true);
+      expect(matchesHotkey(key({ key: 'N', shiftKey: true }), { key: 'N', label: 'Shift+N' })).toBe(true);
+    });
+
     it('checks Shift explicitly for named keys such as Delete', () => {
       const plain = { key: 'Delete', shift: false, label: 'Del' };
       const shifted = { key: 'Delete', shift: true, label: 'Shift+Del' };
