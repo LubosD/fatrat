@@ -644,6 +644,16 @@ describe('Shell (mobile)', () => {
     interval[2].command!({} as never);
     expect(TestBed.inject(PollingService).setIntervalSeconds).toHaveBeenCalledWith(15);
   });
+
+  it('keeps the badges off the mobile layout', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    fixture.componentInstance['showHotkeys'].set(true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.hotkey-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="action-hotkeys"]')).toBeNull();
+  });
 });
 
 describe('Shell hotkeys', () => {
@@ -776,5 +786,66 @@ describe('Shell hotkeys', () => {
     expect(actions.resume).not.toHaveBeenCalled();
     press('[', { repeat: true });
     expect(actions.moveSelected).toHaveBeenCalledWith('up');
+  });
+
+  it('? toggles the badges on the toolbar buttons and tabs, plus the hint strip', () => {
+    const { fixture } = setup();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hotkey-badge')).toBeNull();
+
+    press('?', { shiftKey: true });
+    fixture.detectChanges();
+    expect(el.querySelector('[data-testid="action-new-transfer"] .hotkey-badge')?.textContent?.trim()).toBe('N');
+    expect(el.querySelector('[data-testid="action-delete-with-data"] .hotkey-badge')?.textContent?.trim()).toBe('Shift+D');
+    expect([...el.querySelectorAll('p-tab .hotkey-badge')].map((b) => b.textContent?.trim())).toEqual(['1', '2', '3', '4']);
+    expect(el.querySelector('[data-testid="hotkey-hints"]')?.textContent).toContain('Del');
+
+    press('?', { shiftKey: true });
+    fixture.detectChanges();
+    expect(el.querySelector('.hotkey-badge')).toBeNull();
+    expect(el.querySelector('[data-testid="hotkey-hints"]')).toBeNull();
+  });
+
+  it('Escape, a click anywhere and running a hotkey hide the badges', () => {
+    const { fixture, shell } = setup();
+    shell['showHotkeys'].set(true);
+    press('Escape');
+    expect(shell['showHotkeys']()).toBe(false);
+
+    shell['showHotkeys'].set(true);
+    document.body.click();
+    expect(shell['showHotkeys']()).toBe(false);
+
+    shell['showHotkeys'].set(true);
+    press('r');
+    expect(shell['showHotkeys']()).toBe(false);
+    fixture.detectChanges();
+  });
+
+  it('the Shortcuts button toggles the badges and reports its state', () => {
+    const { fixture, shell } = setup();
+    const button = findByTestId(fixture.nativeElement, 'action-hotkeys');
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+
+    button.click();
+    fixture.detectChanges();
+    expect(shell['showHotkeys']()).toBe(true);
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+
+    button.click();
+    fixture.detectChanges();
+    expect(shell['showHotkeys']()).toBe(false);
+  });
+
+  it('puts the key in the aria-keyshortcuts attribute', () => {
+    const { fixture } = setup();
+    expect(findByTestId(fixture.nativeElement, 'action-new-transfer').getAttribute('aria-keyshortcuts')).toBe('N');
+    expect(findByTestId(fixture.nativeElement, 'action-delete').getAttribute('aria-keyshortcuts')).toBe('D Delete');
+  });
+
+  it('puts the key in the tooltip text', () => {
+    const { shell } = setup();
+    const newTransfer = shell['toolbarGroups'][0][0];
+    expect(shell['tooltipFor'](newTransfer)).toBe('New Transfer (N)');
   });
 });

@@ -59,7 +59,7 @@
     @for (group of toolbarGroups; track $index) {
       <span class="toolbar-group">
         @for (action of group; track action.id) {
-          <button pButton type="button" [text]="true" severity="secondary" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [pTooltip]="action.label" tooltipPosition="bottom" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i></button>
+          <button pButton type="button" [text]="true" severity="secondary" class="hotkey-host" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [attr.aria-keyshortcuts]="ariaKeyShortcuts(action.hotkeys)" [pTooltip]="tooltipFor(action)" tooltipPosition="bottom" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i>@if (hotkeyBadgesVisible() && action.hotkeys) {<kbd class="hotkey-badge" aria-hidden="true">{{ action.hotkeys[0].label }}</kbd>}</button>
         }
       </span>
     }
@@ -76,6 +76,7 @@
       <ng-template let-seconds #selectedItem>{{ seconds }} seconds</ng-template>
       <ng-template let-seconds #item>{{ seconds }} seconds</ng-template>
     </p-select>
+    <button pButton type="button" [text]="true" severity="secondary" data-testid="action-hotkeys" [attr.aria-pressed]="showHotkeys()" aria-keyshortcuts="?" pTooltip="Keyboard shortcuts (?)" tooltipPosition="bottom" (click)="toggleHotkeys()">Shortcuts <kbd class="hotkey-chip" aria-hidden="true">?</kbd></button>
   </ng-template>
 </p-toolbar>
 }
@@ -83,10 +84,9 @@
 <ng-template #detailsPane>
   <p-tabs [(value)]="activeTab" class="details-tabs">
     <p-tablist>
-      <p-tab value="0">Transfers</p-tab>
-      <p-tab value="1">Details</p-tab>
-      <p-tab value="2">Speed Graphs</p-tab>
-      <p-tab value="3">Log</p-tab>
+      @for (tab of ['Transfers', 'Details', 'Speed Graphs', 'Log']; track $index) {
+        <p-tab [value]="'' + $index" class="hotkey-host">{{ tab }}@if (hotkeyBadgesVisible()) {<kbd class="hotkey-badge" aria-hidden="true">{{ $index + 1 }}</kbd>}</p-tab>
+      }
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="0">
@@ -128,6 +128,15 @@
       <ng-container *ngTemplateOutlet="detailsPane"></ng-container>
     </ng-template>
   </p-splitter>
+}
+
+@if (hotkeyBadgesVisible()) {
+  <div class="hotkey-hints" data-testid="hotkey-hints">
+    <span><kbd>Del</kbd> Delete</span>
+    <span><kbd>Shift+D</kbd> / <kbd>Shift+Del</kbd> Delete with data</span>
+    <span><kbd>1</kbd>–<kbd>4</kbd> Tabs</span>
+    <span><kbd>?</kbd> / <kbd>Esc</kbd> Hide</span>
+  </div>
 }
 
 <app-status-bar></app-status-bar>

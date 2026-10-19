@@ -32,7 +32,7 @@ import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
 import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
-import { Hotkey, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from './hotkeys';
+import { Hotkey, ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from './hotkeys';
 import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
 
 interface ToolbarAction {
@@ -144,12 +144,42 @@ export class Shell {
 
   protected readonly primaryActions: ToolbarAction[] = this.toolbarGroups.flat().filter((a) => a.primary);
 
+  protected readonly showHotkeys = signal(false);
+  // The badges are positioned over the desktop toolbar and tab headers, which the mobile layout lacks.
+  protected readonly hotkeyBadgesVisible = computed(() => this.showHotkeys() && !this.viewport.isMobile());
+  protected readonly ariaKeyShortcuts = ariaKeyShortcuts;
+
+  protected tooltipFor(action: ToolbarAction): string {
+    const key = action.hotkeys?.[0]?.label;
+    return key ? `${action.label} (${key})` : action.label;
+  }
+
+  protected toggleHotkeys(): void {
+    this.showHotkeys.update((v) => !v);
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected onDocumentClick(event: MouseEvent): void {
+    // The Shortcuts button toggles on its own; hiding here first would turn it straight back on.
+    if (event.target instanceof Element && event.target.closest('[data-testid="action-hotkeys"]')) return;
+    this.showHotkeys.set(false);
+  }
+
   private readonly document = inject(DOCUMENT);
   private readonly allActions = this.toolbarGroups.flat();
 
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
     if (event.defaultPrevented || hasCommandModifier(event) || isTypingTarget(event.target) || isOverlayOpen(this.document)) {
+      return;
+    }
+    if (event.key === '?') {
+      event.preventDefault();
+      if (!event.repeat) this.toggleHotkeys();
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.showHotkeys.set(false);
       return;
     }
     let run: () => void;
@@ -177,6 +207,7 @@ export class Shell {
     }
     event.preventDefault();
     if (event.repeat && !repeats) return;
+    this.showHotkeys.set(false);
     run();
   }
 
