@@ -848,4 +848,52 @@ describe('Shell hotkeys', () => {
     const newTransfer = shell['toolbarGroups'][0][0];
     expect(shell['tooltipFor'](newTransfer)).toBe('New Transfer (N)');
   });
+
+  describe('confirm dialog', () => {
+    async function openConfirm() {
+      const ctx = setup();
+      const accept = vi.fn();
+      const reject = vi.fn();
+      TestBed.inject(ConfirmationService).confirm({ header: 'Confirm Delete', message: 'Delete 1 transfer?', accept, reject });
+      ctx.fixture.detectChanges();
+      await ctx.fixture.whenStable();
+      ctx.fixture.detectChanges();
+      return { ...ctx, accept, reject };
+    }
+
+    it('Enter accepts it', async () => {
+      const { accept } = await openConfirm();
+      const event = press('Enter');
+      expect(accept).toHaveBeenCalledTimes(1);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('Enter accepts it once even when the accept button has focus', async () => {
+      const { accept } = await openConfirm();
+      const acceptButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-accept-button')!;
+      acceptButton.focus();
+      press('Enter', {}, acceptButton);
+      expect(accept).toHaveBeenCalledTimes(1);
+    });
+
+    it('Enter on the reject button is left to the button', async () => {
+      const { accept } = await openConfirm();
+      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
+      const event = press('Enter', {}, rejectButton);
+      expect(accept).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('ignores a held-down Enter', async () => {
+      const { accept } = await openConfirm();
+      press('Enter', { repeat: true });
+      expect(accept).not.toHaveBeenCalled();
+    });
+
+    it('a hotkey does not fire while it is open', async () => {
+      const { actions } = await openConfirm();
+      press('r');
+      expect(actions.resume).not.toHaveBeenCalled();
+    });
+  });
 });

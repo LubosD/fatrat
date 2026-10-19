@@ -1,5 +1,5 @@
 import { StatusBar } from '../features/status-bar/status-bar';
-import { Component, computed, DOCUMENT, HostListener, inject, signal } from '@angular/core';
+import { Component, computed, DOCUMENT, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
@@ -168,8 +168,25 @@ export class Shell {
   private readonly document = inject(DOCUMENT);
   private readonly allActions = this.toolbarGroups.flat();
 
+  @ViewChild(ConfirmDialog) private confirmDialog?: ConfirmDialog;
+
+  /**
+   * Enter accepts the shared confirmation, wherever focus landed, so a hotkey delete is `D` then
+   * Enter. Another focused button (Reject, the close ✕) keeps its own Enter.
+   */
+  private acceptConfirmOnEnter(event: KeyboardEvent): boolean {
+    if (event.key !== 'Enter' || !this.confirmDialog?.visible || hasCommandModifier(event)) return false;
+    const button = event.target instanceof Element ? event.target.closest('button') : null;
+    if (button && !button.classList.contains('p-confirmdialog-accept-button')) return false;
+    // Also stops the focused accept button's own Enter-click, which would accept a second time.
+    event.preventDefault();
+    if (!event.repeat) this.confirmDialog.onAccept();
+    return true;
+  }
+
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
+    if (this.acceptConfirmOnEnter(event)) return;
     if (event.defaultPrevented || hasCommandModifier(event) || isTypingTarget(event.target) || isOverlayOpen(this.document)) {
       return;
     }
