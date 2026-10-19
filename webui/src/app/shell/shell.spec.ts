@@ -876,12 +876,37 @@ describe('Shell hotkeys', () => {
       expect(accept).toHaveBeenCalledTimes(1);
     });
 
-    it('Enter on the reject button is left to the button', async () => {
+    it('Enter on the reject button is left to the button once the user tabbed there', async () => {
       const { accept } = await openConfirm();
       const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
+      press('Tab', {}, rejectButton);
       const event = press('Enter', {}, rejectButton);
       expect(accept).not.toHaveBeenCalled();
       expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('Enter accepts even when PrimeNG put the initial focus on the reject button', async () => {
+      const { accept } = await openConfirm();
+      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
+      const event = press('Enter', {}, rejectButton);
+      expect(accept).toHaveBeenCalledTimes(1);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('a Tab in one confirmation does not carry over to the next', async () => {
+      const { accept, fixture } = await openConfirm();
+      press('Tab');
+      press('Enter');
+      expect(accept).toHaveBeenCalledTimes(1);
+      fixture.detectChanges();
+      const second = vi.fn();
+      TestBed.inject(ConfirmationService).confirm({ header: 'Confirm', message: 'Again?', accept: second });
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
+      press('Enter', {}, rejectButton);
+      expect(second).toHaveBeenCalledTimes(1);
     });
 
     it('ignores a held-down Enter', async () => {

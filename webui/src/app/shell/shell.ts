@@ -170,17 +170,32 @@ export class Shell {
 
   @ViewChild(ConfirmDialog) private confirmDialog?: ConfirmDialog;
 
+  /** The confirmation during which the user pressed Tab; a new confirmation is a different object. */
+  private confirmTabbedIn: unknown = null;
+
   /**
    * Enter accepts the shared confirmation, wherever focus landed, so a hotkey delete is `D` then
-   * Enter. Another focused button (Reject, the close ✕) keeps its own Enter.
+   * Enter. PrimeNG lands the initial focus on Reject (its `defaultFocus` selector matches nothing),
+   * so a focused non-accept button only keeps its own Enter once the user moved focus there
+   * themselves with Tab.
    */
   private acceptConfirmOnEnter(event: KeyboardEvent): boolean {
-    if (event.key !== 'Enter' || !this.confirmDialog?.visible || hasCommandModifier(event)) return false;
+    const dialog = this.confirmDialog;
+    if (!dialog?.visible) {
+      this.confirmTabbedIn = null;
+      return false;
+    }
+    if (event.key === 'Tab') {
+      this.confirmTabbedIn = dialog.confirmation ?? null;
+      return false;
+    }
+    if (event.key !== 'Enter' || hasCommandModifier(event)) return false;
     const button = event.target instanceof Element ? event.target.closest('button') : null;
-    if (button && !button.classList.contains('p-confirmdialog-accept-button')) return false;
+    const movedByUser = this.confirmTabbedIn !== null && this.confirmTabbedIn === dialog.confirmation;
+    if (movedByUser && button && !button.classList.contains('p-confirmdialog-accept-button')) return false;
     // Also stops the focused accept button's own Enter-click, which would accept a second time.
     event.preventDefault();
-    if (!event.repeat) this.confirmDialog.onAccept();
+    if (!event.repeat) dialog.onAccept();
     return true;
   }
 
