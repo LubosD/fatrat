@@ -106,6 +106,12 @@ export class NewTransferDialog implements OnChanges {
     this.urlsModel?.control.enable();
   }
 
+  /** Ctrl-Enter / Cmd-Enter in the URLs textarea or the target input submits the dialog. */
+  protected onSubmitShortcut(event: Event): void {
+    event.preventDefault();
+    this.onSave();
+  }
+
   protected onSave(): void {
     if (this.saving()) return;
 

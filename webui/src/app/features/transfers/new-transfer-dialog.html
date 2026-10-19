@@ -5,7 +5,7 @@
   </div>
   <div class="field">
     <label for="new-transfer-urls">URLs (one per line)</label>
-    <textarea pTextarea id="new-transfer-urls" class="fr-grow" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel"></textarea>
+    <textarea pTextarea id="new-transfer-urls" class="fr-grow" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel" (keydown.control.enter)="onSubmitShortcut($event)" (keydown.meta.enter)="onSubmitShortcut($event)"></textarea>
     @if (file !== null) {
       <p class="hint">A local file is selected — typed URLs will be ignored.</p>
     }
@@ -20,7 +20,7 @@
   <div class="field">
     <label for="new-transfer-target">Target directory</label>
     <p-inputgroup>
-      <input pInputText id="new-transfer-target" appPathSuggest [(ngModel)]="target" />
+      <input pInputText id="new-transfer-target" appPathSuggest [(ngModel)]="target" (keydown.control.enter)="onSubmitShortcut($event)" (keydown.meta.enter)="onSubmitShortcut($event)" />
       <button pButton type="button" severity="secondary" label="Browse…" data-testid="new-transfer-browse" (click)="pickerOpen = true"></button>
     </p-inputgroup>
   </div>

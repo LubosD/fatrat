@@ -104,6 +104,30 @@ describe('NewTransferDialog', () => {
     expect(visibleChanges).toEqual([false]);
   });
 
+  for (const [name, init] of [
+    ['Ctrl-Enter', { ctrlKey: true }],
+    ['Cmd-Enter', { metaKey: true }],
+  ] as const) {
+    for (const selector of ['#new-transfer-urls', '#new-transfer-target']) {
+      it(`${name} in ${selector} adds the transfers`, () => {
+        const fixture = setup();
+        fixture.componentInstance.urlsText = 'http://example.com/a';
+        const el = document.querySelector(selector) as HTMLElement;
+        const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, ...init });
+        el.dispatchEvent(event);
+        expect(addTransfers).toHaveBeenCalledWith(['http://example.com/a'], expect.anything());
+        expect(event.defaultPrevented).toBe(true);
+      });
+    }
+  }
+
+  it('plain Enter in the URLs textarea does not submit', () => {
+    const fixture = setup();
+    fixture.componentInstance.urlsText = 'http://example.com/a';
+    document.querySelector('#new-transfer-urls')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(addTransfers).not.toHaveBeenCalled();
+  });
+
   it('a selected file takes priority over any typed URLs', () => {
     const fixture = setup();
     fixture.componentInstance.urlsText = 'http://example.com/a';
