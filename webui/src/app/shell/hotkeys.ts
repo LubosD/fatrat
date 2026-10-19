@@ -1,0 +1,54 @@
+// webui/src/app/shell/hotkeys.ts
+
+/**
+ * One key that triggers a toolbar action. Character keys are matched on the produced character
+ * (`event.key`), so Shift is part of `key` ('n' vs 'N') and punctuation follows the user's layout.
+ * Named keys such as 'Delete' produce the same `key` with or without Shift, so they set `shift`.
+ */
+export interface Hotkey {
+  key: string;
+  shift?: boolean;
+  /** As shown in the badge and tooltip, e.g. 'N', 'Shift+D', 'Del'. */
+  label: string;
+  /** Whether holding the key down keeps triggering it (only the move keys). */
+  repeat?: boolean;
+}
+
+export function matchesHotkey(event: KeyboardEvent, hotkey: Hotkey): boolean {
+  if (event.key !== hotkey.key) return false;
+  return hotkey.shift === undefined || hotkey.shift === event.shiftKey;
+}
+
+/** Ctrl/Meta/Alt combinations belong to the browser, the OS and the table's own Ctrl+A. */
+export function hasCommandModifier(event: KeyboardEvent): boolean {
+  return event.ctrlKey || event.metaKey || event.altKey;
+}
+
+// Comboboxes and listboxes count as typing: PrimeNG's Select picks options by typed letters.
+const TYPING_SELECTOR =
+  'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="combobox"], [role="listbox"]';
+
+export function isTypingTarget(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(TYPING_SELECTOR) !== null;
+}
+
+// PrimeNG only renders these while open: modal dialog/drawer masks, popup and context menus,
+// and the dropdown of a Select.
+const OVERLAY_SELECTOR = '.p-overlay-mask, .p-menu-overlay, .p-select-overlay, .p-contextmenu';
+
+export function isOverlayOpen(doc: Document): boolean {
+  return doc.querySelector(OVERLAY_SELECTOR) !== null;
+}
+
+/** The value of `aria-keyshortcuts`: alternatives separated by spaces, ARIA key names. */
+export function ariaKeyShortcuts(hotkeys: Hotkey[] | undefined): string | null {
+  if (!hotkeys?.length) return null;
+  return hotkeys
+    .map((h) => {
+      if (h.key.length > 1) return (h.shift ? 'Shift+' : '') + h.key;
+      const upper = h.key.toUpperCase();
+      if (upper === h.key.toLowerCase()) return h.key; // punctuation or digit
+      return h.key === upper ? `Shift+${upper}` : upper;
+    })
+    .join(' ');
+}
