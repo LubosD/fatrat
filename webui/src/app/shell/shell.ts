@@ -204,6 +204,19 @@ export class Shell {
     return true;
   }
 
+  /**
+   * PrimeNG's initial focus lands on Reject (the first footer button; its `defaultFocus` selector
+   * matches nothing), while Enter accepts. Move it to Accept unless the user has tabbed around.
+   */
+  @HostListener('document:focusin', ['$event'])
+  protected onDocumentFocusin(event: FocusEvent): void {
+    const dialog = this.confirmDialog;
+    if (!dialog?.visible || !(event.target instanceof Element)) return;
+    if (!event.target.classList.contains('p-confirmdialog-reject-button')) return;
+    if (this.confirmTabbedIn !== null && this.confirmTabbedIn === dialog.confirmation) return;
+    event.target.closest('.p-confirmdialog')?.querySelector<HTMLElement>('.p-confirmdialog-accept-button')?.focus();
+  }
+
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
     if (this.acceptConfirmOnEnter(event)) return;

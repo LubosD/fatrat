@@ -909,6 +909,23 @@ describe('Shell hotkeys', () => {
       expect(second).toHaveBeenCalledTimes(1);
     });
 
+    it('moves focus from the reject button to the accept button', async () => {
+      await openConfirm();
+      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
+      rejectButton.focus();
+      rejectButton.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      expect(document.activeElement).toBe(document.querySelector('.p-confirmdialog-accept-button'));
+    });
+
+    it('leaves focus on the reject button after the user pressed Tab', async () => {
+      await openConfirm();
+      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
+      press('Tab', {}, rejectButton);
+      rejectButton.focus();
+      rejectButton.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      expect(document.activeElement).toBe(rejectButton);
+    });
+
     it('ignores a held-down Enter', async () => {
       const { accept } = await openConfirm();
       press('Enter', { repeat: true });
