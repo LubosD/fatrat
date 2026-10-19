@@ -144,7 +144,8 @@ export class Shell {
     [{ id: 'settings', label: 'Settings', icon: 'pi-cog', hotkeys: [{ key: 'o', label: 'O' }], disabled: () => false, run: () => this.openSettingsDialog() }],
   ];
 
-  protected readonly primaryActions: ToolbarAction[] = this.toolbarGroups.flat().filter((a) => a.primary);
+  private readonly allActions = this.toolbarGroups.flat();
+  protected readonly primaryActions: ToolbarAction[] = this.allActions.filter((a) => a.primary);
 
   protected readonly showHotkeys = signal(false);
   // The badges are positioned over the desktop toolbar and tab headers, which the mobile layout lacks.
@@ -173,7 +174,6 @@ export class Shell {
   }
 
   private readonly document = inject(DOCUMENT);
-  private readonly allActions = this.toolbarGroups.flat();
 
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {

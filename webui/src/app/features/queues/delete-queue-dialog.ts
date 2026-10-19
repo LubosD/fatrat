@@ -1,10 +1,10 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, DOCUMENT, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { RadioButton } from 'primeng/radiobutton';
 import { Select } from 'primeng/select';
 import { ButtonDirective } from 'primeng/button';
+import { hasCommandModifier } from '../../shared/hotkeys/hotkeys';
 import { DeleteQueueOptions, Queue } from '../../core/api/models';
 
 type DeleteMode = 'move' | 'delete' | 'deleteWithData';
@@ -44,7 +44,7 @@ export class DeleteQueueDialog implements OnChanges {
   /** Enter deletes with the chosen mode, except on another button or in the target select. */
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
-    if (!this.visible || event.key !== 'Enter' || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (!this.visible || event.defaultPrevented || event.key !== 'Enter' || hasCommandModifier(event)) return;
     const target = event.target instanceof Element ? event.target : null;
     if (target?.closest('button:not([data-testid="delete-queue-confirm"]), p-select, [role="combobox"], [role="listbox"]')) return;
     if (this.document.querySelector('.p-select-overlay')) return;

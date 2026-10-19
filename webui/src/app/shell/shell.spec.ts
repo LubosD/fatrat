@@ -857,6 +857,21 @@ describe('Shell hotkeys', () => {
     expect(shell['tooltipFor'](newTransfer)).toBe('New Transfer (N)');
   });
 
+  it('an open context menu blocks the hotkeys', () => {
+    const { actions } = setup();
+    const menu = document.createElement('div');
+    menu.className = 'p-contextmenu';
+    document.body.appendChild(menu);
+    try {
+      press('r');
+      expect(actions.resume).not.toHaveBeenCalled();
+    } finally {
+      menu.remove();
+    }
+    press('r');
+    expect(actions.resume).toHaveBeenCalled();
+  });
+
   it('a hotkey does not fire while a confirmation is open', async () => {
     const { actions, fixture } = setup();
     TestBed.inject(ConfirmationService).confirm({ header: 'Confirm Delete', message: 'Delete 1 transfer?', accept: vi.fn() });

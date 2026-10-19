@@ -67,6 +67,14 @@ describe('DeleteQueueDialog', () => {
     expect(emitted).toEqual([]);
   });
 
+  it('Enter on the header close button does not delete', () => {
+    const { emitted } = setup([q('q2', 'Two')]);
+    const close = document.querySelector('.p-dialog-close-button, .p-dialog-header-close')!;
+    expect(close).not.toBeNull();
+    enter(close);
+    expect(emitted).toEqual([]);
+  });
+
   it('Enter inside the target queue select does not delete', () => {
     const { emitted } = setup([q('q2', 'Two')]);
     const combobox = document.querySelector('[data-testid="delete-queue-target"] [role="combobox"]')!;
