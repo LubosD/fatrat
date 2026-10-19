@@ -84,3 +84,60 @@
     padding: 0.5rem;
   }
 }
+
+// `?` hotkey badges: pinned to the corner of the tab, or the bottom edge of the button, they belong to.
+.hotkey-host,
+:host ::ng-deep .hotkey-host {
+  position: relative;
+  // PrimeNG buttons clip their content (for the ripple), which would cut the badge off.
+  overflow: visible;
+}
+
+.hotkey-badge,
+:host ::ng-deep .hotkey-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  z-index: 1;
+  padding: 0 0.25rem;
+  border-radius: 4px;
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+// Toolbar buttons sit at the top of the page and next to each other: centre the badge underneath.
+.hotkey-badge-below {
+  top: auto;
+  right: auto;
+  bottom: -0.625rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.hotkey-chip,
+.hotkey-hints kbd {
+  padding: 0 0.3125rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 4px;
+  background: var(--p-content-background);
+  color: var(--p-text-color);
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.hotkey-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1.25rem;
+  padding: 0.25rem 1rem;
+  border-top: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  color: var(--p-text-muted-color);
+  font-size: 0.8125rem;
+}

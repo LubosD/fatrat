@@ -1,5 +1,5 @@
 import { StatusBar } from '../features/status-bar/status-bar';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DOCUMENT, HostListener, inject, signal } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
@@ -13,6 +13,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Toast } from 'primeng/toast';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { ConfirmEnter } from '../shared/confirm-enter/confirm-enter.directive';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
 import { TransferCards } from '../features/transfers/transfer-cards';
@@ -32,6 +33,7 @@ import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
 import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
+import { Hotkey, ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from '../shared/hotkeys/hotkeys';
 import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
 
 interface ToolbarAction {
@@ -42,7 +44,11 @@ interface ToolbarAction {
   run: () => void;
   // Shown directly in the mobile top bar; everything else goes into its overflow menu.
   primary?: boolean;
+  // The first one is shown in the badge and tooltip; the rest are aliases.
+  hotkeys?: Hotkey[];
 }
+
+const TAB_KEYS = ['1', '2', '3', '4'];
 
 @Component({
   selector: 'app-shell',
@@ -59,6 +65,7 @@ interface ToolbarAction {
     ButtonIcon,
     Tooltip,
     ConfirmDialog,
+    ConfirmEnter,
     Toast,
     Tabs,
     TabList,
@@ -113,31 +120,103 @@ export class Shell {
 
   protected readonly toolbarGroups: ToolbarAction[][] = [
     [
-      { id: 'new-transfer', label: 'New Transfer', icon: 'pi-plus', primary: true, disabled: () => false, run: () => this.openNewTransferDialog() },
-      { id: 'delete', label: 'Delete', icon: 'pi-trash', primary: true, disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(false) },
-      { id: 'delete-with-data', label: 'Delete with Data', icon: 'pi-eraser', disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(true) },
-      { id: 'delete-completed', label: 'Delete Completed', icon: 'pi-check-circle', disabled: () => false, run: () => this.actions.deleteCompleted() },
+      { id: 'new-transfer', label: 'New Transfer', icon: 'pi-plus', primary: true, hotkeys: [{ key: 'n', label: 'N' }], disabled: () => false, run: () => this.openNewTransferDialog() },
+      { id: 'delete', label: 'Delete', icon: 'pi-trash', primary: true, hotkeys: [{ key: 'd', label: 'D' }, { key: 'Delete', shift: false, label: 'Del' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(false) },
+      { id: 'delete-with-data', label: 'Delete with Data', icon: 'pi-eraser', hotkeys: [{ key: 'D', label: 'Shift+D' }, { key: 'Delete', shift: true, label: 'Shift+Del' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(true) },
+      { id: 'delete-completed', label: 'Delete Completed', icon: 'pi-check-circle', hotkeys: [{ key: 'c', label: 'C' }], disabled: () => false, run: () => this.actions.deleteCompleted() },
     ],
     [
-      { id: 'resume', label: 'Resume', icon: 'pi-play', primary: true, disabled: () => !this.available.resume, run: () => this.actions.resume() },
-      { id: 'force-resume', label: 'Force Resume', icon: 'pi-forward', disabled: () => !this.available.forceResume, run: () => this.actions.forceResume() },
-      { id: 'pause', label: 'Pause', icon: 'pi-pause', primary: true, disabled: () => !this.available.pause, run: () => this.actions.pause() },
-      { id: 'properties', label: 'Properties', icon: 'pi-pencil', disabled: () => !this.available.properties, run: () => this.openTransferPropertiesDialog() },
+      { id: 'resume', label: 'Resume', icon: 'pi-play', primary: true, hotkeys: [{ key: 'r', label: 'R' }], disabled: () => !this.available.resume, run: () => this.actions.resume() },
+      { id: 'force-resume', label: 'Force Resume', icon: 'pi-forward', hotkeys: [{ key: 'f', label: 'F' }], disabled: () => !this.available.forceResume, run: () => this.actions.forceResume() },
+      { id: 'pause', label: 'Pause', icon: 'pi-pause', primary: true, hotkeys: [{ key: 'p', label: 'P' }], disabled: () => !this.available.pause, run: () => this.actions.pause() },
+      { id: 'properties', label: 'Properties', icon: 'pi-pencil', hotkeys: [{ key: 'e', label: 'E' }], disabled: () => !this.available.properties, run: () => this.openTransferPropertiesDialog() },
     ],
     [
-      { id: 'move-top', label: 'Move to Top', icon: 'pi-angle-double-up', disabled: () => !this.available.moveUp, run: () => this.actions.moveSelected('top') },
-      { id: 'move-up', label: 'Move Up', icon: 'pi-angle-up', disabled: () => !this.available.moveUp, run: () => this.actions.moveSelected('up') },
-      { id: 'move-down', label: 'Move Down', icon: 'pi-angle-down', disabled: () => !this.available.moveDown, run: () => this.actions.moveSelected('down') },
-      { id: 'move-bottom', label: 'Move to Bottom', icon: 'pi-angle-double-down', disabled: () => !this.available.moveDown, run: () => this.actions.moveSelected('bottom') },
+      { id: 'move-top', label: 'Move to Top', icon: 'pi-angle-double-up', hotkeys: [{ key: '{', label: '{' }], disabled: () => !this.available.moveUp, run: () => this.actions.moveSelected('top') },
+      { id: 'move-up', label: 'Move Up', icon: 'pi-angle-up', hotkeys: [{ key: '[', label: '[', repeat: true }], disabled: () => !this.available.moveUp, run: () => this.actions.moveSelected('up') },
+      { id: 'move-down', label: 'Move Down', icon: 'pi-angle-down', hotkeys: [{ key: ']', label: ']', repeat: true }], disabled: () => !this.available.moveDown, run: () => this.actions.moveSelected('down') },
+      { id: 'move-bottom', label: 'Move to Bottom', icon: 'pi-angle-double-down', hotkeys: [{ key: '}', label: '}' }], disabled: () => !this.available.moveDown, run: () => this.actions.moveSelected('bottom') },
     ],
     [
-      { id: 'new-queue', label: 'New Queue', icon: 'pi-folder-plus', disabled: () => false, run: () => this.openNewQueueDialog() },
-      { id: 'queue-properties', label: 'Queue Properties', icon: 'pi-sliders-h', disabled: () => !this.hasSelectedQueue, run: () => this.openQueuePropertiesDialog() },
+      { id: 'new-queue', label: 'New Queue', icon: 'pi-folder-plus', hotkeys: [{ key: 'N', label: 'Shift+N' }], disabled: () => false, run: () => this.openNewQueueDialog() },
+      { id: 'queue-properties', label: 'Queue Properties', icon: 'pi-sliders-h', hotkeys: [{ key: 'E', label: 'Shift+E' }], disabled: () => !this.hasSelectedQueue, run: () => this.openQueuePropertiesDialog() },
     ],
-    [{ id: 'settings', label: 'Settings', icon: 'pi-cog', disabled: () => false, run: () => this.openSettingsDialog() }],
+    [{ id: 'settings', label: 'Settings', icon: 'pi-cog', hotkeys: [{ key: 'o', label: 'O' }], disabled: () => false, run: () => this.openSettingsDialog() }],
   ];
 
-  protected readonly primaryActions: ToolbarAction[] = this.toolbarGroups.flat().filter((a) => a.primary);
+  private readonly allActions = this.toolbarGroups.flat();
+  protected readonly primaryActions: ToolbarAction[] = this.allActions.filter((a) => a.primary);
+
+  protected readonly showHotkeys = signal(false);
+  // The badges are positioned over the desktop toolbar and tab headers, which the mobile layout lacks.
+  protected readonly hotkeyBadgesVisible = computed(() => this.showHotkeys() && !this.viewport.isMobile());
+  protected readonly ariaKeyShortcuts = ariaKeyShortcuts;
+
+  // Badges sit under 40px-wide buttons, so "Shift+N" is shortened to "⇧N".
+  protected badgeLabel(hotkey: Hotkey): string {
+    return hotkey.label.replace('Shift+', '⇧');
+  }
+
+  protected tooltipFor(action: ToolbarAction): string {
+    const key = action.hotkeys?.[0]?.label;
+    return key ? `${action.label} (${key})` : action.label;
+  }
+
+  protected toggleHotkeys(): void {
+    this.showHotkeys.update((v) => !v);
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected onDocumentClick(event: MouseEvent): void {
+    // The Shortcuts button toggles on its own; hiding here first would turn it straight back on.
+    if (event.target instanceof Element && event.target.closest('[data-testid="action-hotkeys"]')) return;
+    this.showHotkeys.set(false);
+  }
+
+  private readonly document = inject(DOCUMENT);
+
+  @HostListener('document:keydown', ['$event'])
+  protected onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.defaultPrevented || hasCommandModifier(event) || isTypingTarget(event.target) || isOverlayOpen(this.document)) {
+      return;
+    }
+    if (event.key === '?') {
+      event.preventDefault();
+      if (!event.repeat) this.toggleHotkeys();
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.showHotkeys.set(false);
+      return;
+    }
+    let run: () => void;
+    let repeats = false;
+    const tab = TAB_KEYS.indexOf(event.key);
+    if (tab >= 0) {
+      run = () => this.activeTab.set(String(tab));
+    } else {
+      let action: ToolbarAction | undefined;
+      let hotkey: Hotkey | undefined;
+      for (const a of this.allActions) {
+        hotkey = a.hotkeys?.find((h) => matchesHotkey(event, h));
+        if (hotkey) {
+          action = a;
+          break;
+        }
+      }
+      if (!action || !hotkey) return;
+      repeats = hotkey.repeat === true;
+      const matched = action;
+      // A disabled action still swallows its key, like clicking a greyed-out button.
+      run = () => {
+        if (!matched.disabled()) matched.run();
+      };
+    }
+    event.preventDefault();
+    if (event.repeat && !repeats) return;
+    this.showHotkeys.set(false);
+    run();
+  }
 
   protected readonly overflowItems = signal<MenuItem[]>([]);
 

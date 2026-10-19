@@ -644,4 +644,241 @@ describe('Shell (mobile)', () => {
     interval[2].command!({} as never);
     expect(TestBed.inject(PollingService).setIntervalSeconds).toHaveBeenCalledWith(15);
   });
+
+  it('keeps the badges off the mobile layout', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    fixture.componentInstance['showHotkeys'].set(true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.hotkey-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="action-hotkeys"]')).toBeNull();
+  });
+});
+
+describe('Shell hotkeys', () => {
+  function press(key: string, init: KeyboardEventInit = {}, target: EventTarget = document.body): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+    target.dispatchEvent(event);
+    return event;
+  }
+
+  // A Failed transfer in the middle of the queue, so every state- and position-gated action applies.
+  function setup() {
+    const transfers = [makeTransfer({ uuid: 't0' }), makeTransfer({ uuid: 't1', state: 'Failed' }), makeTransfer({ uuid: 't2' })];
+    const ctx = configure(['t1'], makeActionsStub(), 5, [makeQueue()], 'q1', makeQueueActionsStub(), transfers);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    return { ...ctx, fixture, shell: fixture.componentInstance };
+  }
+
+  // Earlier mobile-drawer tests leave their mask in <body>, which would read as an open overlay.
+  beforeEach(() => document.querySelectorAll('.p-overlay-mask').forEach((el) => el.remove()));
+
+  afterEach(() => document.querySelectorAll('.test-input').forEach((el) => el.remove()));
+
+  it('runs each transfer action from its key', () => {
+    const { actions } = setup();
+    press('r');
+    expect(actions.resume).toHaveBeenCalled();
+    press('f');
+    expect(actions.forceResume).toHaveBeenCalled();
+    press('p');
+    expect(actions.pause).toHaveBeenCalled();
+    press('c');
+    expect(actions.deleteCompleted).toHaveBeenCalled();
+    press('{');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('top');
+    press('[');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('up');
+    press(']');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('down');
+    press('}');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('bottom');
+  });
+
+  it('D and Delete delete; Shift+D and Shift+Delete delete with data', () => {
+    const { actions } = setup();
+    press('d');
+    press('Delete');
+    expect(actions.deleteSelected.mock.calls).toEqual([[false], [false]]);
+    actions.deleteSelected.mockClear();
+    press('D', { shiftKey: true });
+    press('Delete', { shiftKey: true });
+    expect(actions.deleteSelected.mock.calls).toEqual([[true], [true]]);
+  });
+
+  it('opens the dialogs from their keys', () => {
+    const { shell } = setup();
+    press('n');
+    expect(shell['showNewTransferDialog']()).toBe(true);
+    shell['showNewTransferDialog'].set(false);
+    press('e');
+    expect(shell['showTransferPropertiesDialog']()).toBe(true);
+    shell['showTransferPropertiesDialog'].set(false);
+    press('N', { shiftKey: true });
+    expect(shell['showQueueDialog']()).toBe(true);
+    expect(shell['queueDialogTarget']()).toBeNull();
+    shell['showQueueDialog'].set(false);
+    press('E', { shiftKey: true });
+    expect(shell['showQueueDialog']()).toBe(true);
+    expect(shell['queueDialogTarget']()?.uuid).toBe('q1');
+    shell['showQueueDialog'].set(false);
+    press('o');
+    expect(shell['showSettingsDialog']()).toBe(true);
+  });
+
+  it('1-4 switch the tabs', () => {
+    const { shell } = setup();
+    press('2');
+    expect(shell['activeTab']()).toBe('1');
+    press('4');
+    expect(shell['activeTab']()).toBe('3');
+    press('1');
+    expect(shell['activeTab']()).toBe('0');
+  });
+
+  it('consumes handled keys and leaves others alone', () => {
+    setup();
+    expect(press('r').defaultPrevented).toBe(true);
+    expect(press('z').defaultPrevented).toBe(false);
+  });
+
+  it('does not run a disabled action', () => {
+    const actions = makeActionsStub();
+    configure([], actions); // nothing selected: resume/delete are disabled
+    TestBed.createComponent(Shell).detectChanges();
+    press('r');
+    press('d');
+    expect(actions.resume).not.toHaveBeenCalled();
+    expect(actions.deleteSelected).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys with Ctrl, Meta or Alt held', () => {
+    const { actions } = setup();
+    press('r', { ctrlKey: true });
+    press('r', { metaKey: true });
+    press('r', { altKey: true });
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys typed into an input', () => {
+    const { actions } = setup();
+    const input = document.createElement('input');
+    input.className = 'test-input';
+    document.body.appendChild(input);
+    press('r', {}, input);
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys while a modal dialog is open', () => {
+    const { actions, fixture, shell } = setup();
+    shell['showSettingsDialog'].set(true);
+    fixture.detectChanges();
+    expect(document.querySelector('.p-overlay-mask')).not.toBeNull();
+    press('r');
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
+
+  it('AltGr (reported as Ctrl+Alt) still types the bracket keys', () => {
+    const { actions } = setup();
+    const event = new KeyboardEvent('keydown', { key: '[', ctrlKey: true, altKey: true, bubbles: true, cancelable: true });
+    event.getModifierState = (name: string) => name === 'AltGraph';
+    document.body.dispatchEvent(event);
+    expect(actions.moveSelected).toHaveBeenCalledWith('up');
+  });
+
+  it('ignores auto-repeat, except for the move keys', () => {
+    const { actions } = setup();
+    press('r', { repeat: true });
+    expect(actions.resume).not.toHaveBeenCalled();
+    press('[', { repeat: true });
+    expect(actions.moveSelected).toHaveBeenCalledWith('up');
+  });
+
+  it('? toggles the badges on the toolbar buttons and tabs, plus the hint strip', () => {
+    const { fixture } = setup();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hotkey-badge')).toBeNull();
+
+    press('?', { shiftKey: true });
+    fixture.detectChanges();
+    expect(el.querySelector('[data-testid="action-new-transfer"] .hotkey-badge')?.textContent?.trim()).toBe('N');
+    expect(el.querySelector('[data-testid="action-delete-with-data"] .hotkey-badge')?.textContent?.trim()).toBe('⇧D');
+    expect([...el.querySelectorAll('p-tab .hotkey-badge')].map((b) => b.textContent?.trim())).toEqual(['1', '2', '3', '4']);
+    expect(el.querySelector('[data-testid="hotkey-hints"]')?.textContent).toContain('Del');
+
+    press('?', { shiftKey: true });
+    fixture.detectChanges();
+    expect(el.querySelector('.hotkey-badge')).toBeNull();
+    expect(el.querySelector('[data-testid="hotkey-hints"]')).toBeNull();
+  });
+
+  it('Escape, a click anywhere and running a hotkey hide the badges', () => {
+    const { fixture, shell } = setup();
+    shell['showHotkeys'].set(true);
+    press('Escape');
+    expect(shell['showHotkeys']()).toBe(false);
+
+    shell['showHotkeys'].set(true);
+    document.body.click();
+    expect(shell['showHotkeys']()).toBe(false);
+
+    shell['showHotkeys'].set(true);
+    press('r');
+    expect(shell['showHotkeys']()).toBe(false);
+    fixture.detectChanges();
+  });
+
+  it('the Shortcuts button toggles the badges and reports its state', () => {
+    const { fixture, shell } = setup();
+    const button = findByTestId(fixture.nativeElement, 'action-hotkeys');
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+
+    button.click();
+    fixture.detectChanges();
+    expect(shell['showHotkeys']()).toBe(true);
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+
+    button.click();
+    fixture.detectChanges();
+    expect(shell['showHotkeys']()).toBe(false);
+  });
+
+  it('puts the key in the aria-keyshortcuts attribute', () => {
+    const { fixture } = setup();
+    expect(findByTestId(fixture.nativeElement, 'action-new-transfer').getAttribute('aria-keyshortcuts')).toBe('N');
+    expect(findByTestId(fixture.nativeElement, 'action-delete').getAttribute('aria-keyshortcuts')).toBe('D Delete');
+  });
+
+  it('puts the key in the tooltip text', () => {
+    const { shell } = setup();
+    const newTransfer = shell['toolbarGroups'][0][0];
+    expect(shell['tooltipFor'](newTransfer)).toBe('New Transfer (N)');
+  });
+
+  it('an open context menu blocks the hotkeys', () => {
+    const { actions } = setup();
+    const menu = document.createElement('div');
+    menu.className = 'p-contextmenu';
+    document.body.appendChild(menu);
+    try {
+      press('r');
+      expect(actions.resume).not.toHaveBeenCalled();
+    } finally {
+      menu.remove();
+    }
+    press('r');
+    expect(actions.resume).toHaveBeenCalled();
+  });
+
+  it('a hotkey does not fire while a confirmation is open', async () => {
+    const { actions, fixture } = setup();
+    TestBed.inject(ConfirmationService).confirm({ header: 'Confirm Delete', message: 'Delete 1 transfer?', accept: vi.fn() });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    press('r');
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
 });
