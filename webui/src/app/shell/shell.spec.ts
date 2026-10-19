@@ -780,6 +780,14 @@ describe('Shell hotkeys', () => {
     expect(actions.resume).not.toHaveBeenCalled();
   });
 
+  it('AltGr (reported as Ctrl+Alt) still types the bracket keys', () => {
+    const { actions } = setup();
+    const event = new KeyboardEvent('keydown', { key: '[', ctrlKey: true, altKey: true, bubbles: true, cancelable: true });
+    event.getModifierState = (name: string) => name === 'AltGraph';
+    document.body.dispatchEvent(event);
+    expect(actions.moveSelected).toHaveBeenCalledWith('up');
+  });
+
   it('ignores auto-repeat, except for the move keys', () => {
     const { actions } = setup();
     press('r', { repeat: true });

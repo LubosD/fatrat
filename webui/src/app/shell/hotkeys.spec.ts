@@ -32,6 +32,12 @@ describe('hotkeys', () => {
     });
   });
 
+  it('hasCommandModifier is false for AltGr, which Windows reports as Ctrl+Alt', () => {
+    const event = key({ key: '[', ctrlKey: true, altKey: true });
+    event.getModifierState = (name: string) => name === 'AltGraph';
+    expect(hasCommandModifier(event)).toBe(false);
+  });
+
   it('hasCommandModifier is true for Ctrl, Meta and Alt but not Shift', () => {
     expect(hasCommandModifier(key({ key: 'n', ctrlKey: true }))).toBe(true);
     expect(hasCommandModifier(key({ key: 'n', metaKey: true }))).toBe(true);

@@ -23,8 +23,13 @@ export function matchesHotkey(event: KeyboardEvent, hotkey: Hotkey): boolean {
   return hotkey.shift === undefined || hotkey.shift === event.shiftKey;
 }
 
-/** Ctrl/Meta/Alt combinations belong to the browser, the OS and the table's own Ctrl+A. */
+/**
+ * Ctrl/Meta/Alt combinations belong to the browser, the OS and the table's own Ctrl+A. AltGr is not
+ * one: Windows reports it as Ctrl+Alt, and layouts such as Czech and German type [ ] { } with it.
+ */
 export function hasCommandModifier(event: KeyboardEvent): boolean {
+  // The Ctrl+Alt check keeps a lone Alt from reading as AltGr in engines (happy-dom) that alias the two.
+  if (event.ctrlKey && event.altKey && event.getModifierState?.('AltGraph')) return false;
   return event.ctrlKey || event.metaKey || event.altKey;
 }
 
