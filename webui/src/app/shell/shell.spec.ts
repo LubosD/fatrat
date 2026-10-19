@@ -645,3 +645,136 @@ describe('Shell (mobile)', () => {
     expect(TestBed.inject(PollingService).setIntervalSeconds).toHaveBeenCalledWith(15);
   });
 });
+
+describe('Shell hotkeys', () => {
+  function press(key: string, init: KeyboardEventInit = {}, target: EventTarget = document.body): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+    target.dispatchEvent(event);
+    return event;
+  }
+
+  // A Failed transfer in the middle of the queue, so every state- and position-gated action applies.
+  function setup() {
+    const transfers = [makeTransfer({ uuid: 't0' }), makeTransfer({ uuid: 't1', state: 'Failed' }), makeTransfer({ uuid: 't2' })];
+    const ctx = configure(['t1'], makeActionsStub(), 5, [makeQueue()], 'q1', makeQueueActionsStub(), transfers);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    return { ...ctx, fixture, shell: fixture.componentInstance };
+  }
+
+  // Earlier mobile-drawer tests leave their mask in <body>, which would read as an open overlay.
+  beforeEach(() => document.querySelectorAll('.p-overlay-mask').forEach((el) => el.remove()));
+
+  afterEach(() => document.querySelectorAll('.test-input').forEach((el) => el.remove()));
+
+  it('runs each transfer action from its key', () => {
+    const { actions } = setup();
+    press('r');
+    expect(actions.resume).toHaveBeenCalled();
+    press('f');
+    expect(actions.forceResume).toHaveBeenCalled();
+    press('p');
+    expect(actions.pause).toHaveBeenCalled();
+    press('c');
+    expect(actions.deleteCompleted).toHaveBeenCalled();
+    press('{');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('top');
+    press('[');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('up');
+    press(']');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('down');
+    press('}');
+    expect(actions.moveSelected).toHaveBeenLastCalledWith('bottom');
+  });
+
+  it('D and Delete delete; Shift+D and Shift+Delete delete with data', () => {
+    const { actions } = setup();
+    press('d');
+    press('Delete');
+    expect(actions.deleteSelected.mock.calls).toEqual([[false], [false]]);
+    actions.deleteSelected.mockClear();
+    press('D', { shiftKey: true });
+    press('Delete', { shiftKey: true });
+    expect(actions.deleteSelected.mock.calls).toEqual([[true], [true]]);
+  });
+
+  it('opens the dialogs from their keys', () => {
+    const { shell } = setup();
+    press('n');
+    expect(shell['showNewTransferDialog']()).toBe(true);
+    shell['showNewTransferDialog'].set(false);
+    press('e');
+    expect(shell['showTransferPropertiesDialog']()).toBe(true);
+    shell['showTransferPropertiesDialog'].set(false);
+    press('N', { shiftKey: true });
+    expect(shell['showQueueDialog']()).toBe(true);
+    expect(shell['queueDialogTarget']()).toBeNull();
+    shell['showQueueDialog'].set(false);
+    press('E', { shiftKey: true });
+    expect(shell['showQueueDialog']()).toBe(true);
+    expect(shell['queueDialogTarget']()?.uuid).toBe('q1');
+    shell['showQueueDialog'].set(false);
+    press('o');
+    expect(shell['showSettingsDialog']()).toBe(true);
+  });
+
+  it('1-4 switch the tabs', () => {
+    const { shell } = setup();
+    press('2');
+    expect(shell['activeTab']()).toBe('1');
+    press('4');
+    expect(shell['activeTab']()).toBe('3');
+    press('1');
+    expect(shell['activeTab']()).toBe('0');
+  });
+
+  it('consumes handled keys and leaves others alone', () => {
+    setup();
+    expect(press('r').defaultPrevented).toBe(true);
+    expect(press('z').defaultPrevented).toBe(false);
+  });
+
+  it('does not run a disabled action', () => {
+    const actions = makeActionsStub();
+    configure([], actions); // nothing selected: resume/delete are disabled
+    TestBed.createComponent(Shell).detectChanges();
+    press('r');
+    press('d');
+    expect(actions.resume).not.toHaveBeenCalled();
+    expect(actions.deleteSelected).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys with Ctrl, Meta or Alt held', () => {
+    const { actions } = setup();
+    press('r', { ctrlKey: true });
+    press('r', { metaKey: true });
+    press('r', { altKey: true });
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys typed into an input', () => {
+    const { actions } = setup();
+    const input = document.createElement('input');
+    input.className = 'test-input';
+    document.body.appendChild(input);
+    press('r', {}, input);
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys while a modal dialog is open', () => {
+    const { actions, fixture, shell } = setup();
+    shell['showSettingsDialog'].set(true);
+    fixture.detectChanges();
+    expect(document.querySelector('.p-overlay-mask')).not.toBeNull();
+    press('r');
+    expect(actions.resume).not.toHaveBeenCalled();
+  });
+
+  it('ignores auto-repeat, except for the move keys', () => {
+    const { actions } = setup();
+    press('r', { repeat: true });
+    expect(actions.resume).not.toHaveBeenCalled();
+    press('[', { repeat: true });
+    expect(actions.moveSelected).toHaveBeenCalledWith('up');
+  });
+});
