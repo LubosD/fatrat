@@ -796,7 +796,7 @@ describe('Shell hotkeys', () => {
     press('?', { shiftKey: true });
     fixture.detectChanges();
     expect(el.querySelector('[data-testid="action-new-transfer"] .hotkey-badge')?.textContent?.trim()).toBe('N');
-    expect(el.querySelector('[data-testid="action-delete-with-data"] .hotkey-badge')?.textContent?.trim()).toBe('Shift+D');
+    expect(el.querySelector('[data-testid="action-delete-with-data"] .hotkey-badge')?.textContent?.trim()).toBe('⇧D');
     expect([...el.querySelectorAll('p-tab .hotkey-badge')].map((b) => b.textContent?.trim())).toEqual(['1', '2', '3', '4']);
     expect(el.querySelector('[data-testid="hotkey-hints"]')?.textContent).toContain('Del');
 

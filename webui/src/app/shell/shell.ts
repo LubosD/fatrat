@@ -149,6 +149,11 @@ export class Shell {
   protected readonly hotkeyBadgesVisible = computed(() => this.showHotkeys() && !this.viewport.isMobile());
   protected readonly ariaKeyShortcuts = ariaKeyShortcuts;
 
+  // Badges sit under 40px-wide buttons, so "Shift+N" is shortened to "⇧N".
+  protected badgeLabel(hotkey: Hotkey): string {
+    return hotkey.label.replace('Shift+', '⇧');
+  }
+
   protected tooltipFor(action: ToolbarAction): string {
     const key = action.hotkeys?.[0]?.label;
     return key ? `${action.label} (${key})` : action.label;

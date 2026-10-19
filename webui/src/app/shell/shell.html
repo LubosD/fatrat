@@ -59,7 +59,7 @@
     @for (group of toolbarGroups; track $index) {
       <span class="toolbar-group">
         @for (action of group; track action.id) {
-          <button pButton type="button" [text]="true" severity="secondary" class="hotkey-host" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [attr.aria-keyshortcuts]="ariaKeyShortcuts(action.hotkeys)" [pTooltip]="tooltipFor(action)" tooltipPosition="bottom" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i>@if (hotkeyBadgesVisible() && action.hotkeys) {<kbd class="hotkey-badge" aria-hidden="true">{{ action.hotkeys[0].label }}</kbd>}</button>
+          <button pButton type="button" [text]="true" severity="secondary" class="hotkey-host" [attr.data-testid]="'action-' + action.id" [attr.aria-label]="action.label" [attr.aria-keyshortcuts]="ariaKeyShortcuts(action.hotkeys)" [pTooltip]="tooltipFor(action)" tooltipPosition="bottom" [disabled]="action.disabled()" (click)="action.run()"><i class="pi" [ngClass]="action.icon" pButtonIcon></i>@if (hotkeyBadgesVisible() && action.hotkeys) {<kbd class="hotkey-badge hotkey-badge-below" aria-hidden="true">{{ badgeLabel(action.hotkeys[0]) }}</kbd>}</button>
         }
       </span>
     }
