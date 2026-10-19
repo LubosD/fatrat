@@ -1,4 +1,4 @@
-// webui/src/app/shell/hotkeys.spec.ts
+// webui/src/app/shared/hotkeys/hotkeys.spec.ts
 import { ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from './hotkeys';
 
 function key(init: KeyboardEventInit): KeyboardEvent {

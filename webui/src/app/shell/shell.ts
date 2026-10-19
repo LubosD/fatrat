@@ -1,5 +1,5 @@
 import { StatusBar } from '../features/status-bar/status-bar';
-import { Component, computed, DOCUMENT, HostListener, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, DOCUMENT, HostListener, inject, signal } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
@@ -13,6 +13,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Toast } from 'primeng/toast';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { ConfirmEnter } from '../shared/confirm-enter/confirm-enter.directive';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
 import { TransferCards } from '../features/transfers/transfer-cards';
@@ -32,7 +33,7 @@ import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
 import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
-import { Hotkey, ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from './hotkeys';
+import { Hotkey, ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from '../shared/hotkeys/hotkeys';
 import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
 
 interface ToolbarAction {
@@ -64,6 +65,7 @@ const TAB_KEYS = ['1', '2', '3', '4'];
     ButtonIcon,
     Tooltip,
     ConfirmDialog,
+    ConfirmEnter,
     Toast,
     Tabs,
     TabList,
@@ -173,53 +175,8 @@ export class Shell {
   private readonly document = inject(DOCUMENT);
   private readonly allActions = this.toolbarGroups.flat();
 
-  @ViewChild(ConfirmDialog) private confirmDialog?: ConfirmDialog;
-
-  /** The confirmation during which the user pressed Tab; a new confirmation is a different object. */
-  private confirmTabbedIn: unknown = null;
-
-  /**
-   * Enter accepts the shared confirmation, wherever focus landed, so a hotkey delete is `D` then
-   * Enter. PrimeNG lands the initial focus on Reject (its `defaultFocus` selector matches nothing),
-   * so a focused non-accept button only keeps its own Enter once the user moved focus there
-   * themselves with Tab.
-   */
-  private acceptConfirmOnEnter(event: KeyboardEvent): boolean {
-    const dialog = this.confirmDialog;
-    if (!dialog?.visible) {
-      this.confirmTabbedIn = null;
-      return false;
-    }
-    if (event.key === 'Tab') {
-      this.confirmTabbedIn = dialog.confirmation ?? null;
-      return false;
-    }
-    if (event.key !== 'Enter' || hasCommandModifier(event)) return false;
-    const button = event.target instanceof Element ? event.target.closest('button') : null;
-    const movedByUser = this.confirmTabbedIn !== null && this.confirmTabbedIn === dialog.confirmation;
-    if (movedByUser && button && !button.classList.contains('p-confirmdialog-accept-button')) return false;
-    // Also stops the focused accept button's own Enter-click, which would accept a second time.
-    event.preventDefault();
-    if (!event.repeat) dialog.onAccept();
-    return true;
-  }
-
-  /**
-   * PrimeNG's initial focus lands on Reject (the first footer button; its `defaultFocus` selector
-   * matches nothing), while Enter accepts. Move it to Accept unless the user has tabbed around.
-   */
-  @HostListener('document:focusin', ['$event'])
-  protected onDocumentFocusin(event: FocusEvent): void {
-    const dialog = this.confirmDialog;
-    if (!dialog?.visible || !(event.target instanceof Element)) return;
-    if (!event.target.classList.contains('p-confirmdialog-reject-button')) return;
-    if (this.confirmTabbedIn !== null && this.confirmTabbedIn === dialog.confirmation) return;
-    event.target.closest('.p-confirmdialog')?.querySelector<HTMLElement>('.p-confirmdialog-accept-button')?.focus();
-  }
-
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
-    if (this.acceptConfirmOnEnter(event)) return;
     if (event.defaultPrevented || hasCommandModifier(event) || isTypingTarget(event.target) || isOverlayOpen(this.document)) {
       return;
     }

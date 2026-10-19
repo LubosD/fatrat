@@ -1,4 +1,4 @@
-// webui/src/app/shell/hotkeys.ts
+// webui/src/app/shared/hotkeys/hotkeys.ts
 
 /**
  * One key that triggers a toolbar action. For letters, case in `key` means Shift ('n' vs 'N'); the

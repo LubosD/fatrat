@@ -857,93 +857,13 @@ describe('Shell hotkeys', () => {
     expect(shell['tooltipFor'](newTransfer)).toBe('New Transfer (N)');
   });
 
-  describe('confirm dialog', () => {
-    async function openConfirm() {
-      const ctx = setup();
-      const accept = vi.fn();
-      const reject = vi.fn();
-      TestBed.inject(ConfirmationService).confirm({ header: 'Confirm Delete', message: 'Delete 1 transfer?', accept, reject });
-      ctx.fixture.detectChanges();
-      await ctx.fixture.whenStable();
-      ctx.fixture.detectChanges();
-      return { ...ctx, accept, reject };
-    }
-
-    it('Enter accepts it', async () => {
-      const { accept } = await openConfirm();
-      const event = press('Enter');
-      expect(accept).toHaveBeenCalledTimes(1);
-      expect(event.defaultPrevented).toBe(true);
-    });
-
-    it('Enter accepts it once even when the accept button has focus', async () => {
-      const { accept } = await openConfirm();
-      const acceptButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-accept-button')!;
-      acceptButton.focus();
-      press('Enter', {}, acceptButton);
-      expect(accept).toHaveBeenCalledTimes(1);
-    });
-
-    it('Enter on the reject button is left to the button once the user tabbed there', async () => {
-      const { accept } = await openConfirm();
-      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
-      press('Tab', {}, rejectButton);
-      const event = press('Enter', {}, rejectButton);
-      expect(accept).not.toHaveBeenCalled();
-      expect(event.defaultPrevented).toBe(false);
-    });
-
-    it('Enter accepts even when PrimeNG put the initial focus on the reject button', async () => {
-      const { accept } = await openConfirm();
-      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
-      const event = press('Enter', {}, rejectButton);
-      expect(accept).toHaveBeenCalledTimes(1);
-      expect(event.defaultPrevented).toBe(true);
-    });
-
-    it('a Tab in one confirmation does not carry over to the next', async () => {
-      const { accept, fixture } = await openConfirm();
-      press('Tab');
-      press('Enter');
-      expect(accept).toHaveBeenCalledTimes(1);
-      fixture.detectChanges();
-      const second = vi.fn();
-      TestBed.inject(ConfirmationService).confirm({ header: 'Confirm', message: 'Again?', accept: second });
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
-      press('Enter', {}, rejectButton);
-      expect(second).toHaveBeenCalledTimes(1);
-    });
-
-    it('moves focus from the reject button to the accept button', async () => {
-      await openConfirm();
-      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
-      rejectButton.focus();
-      rejectButton.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
-      expect(document.activeElement).toBe(document.querySelector('.p-confirmdialog-accept-button'));
-    });
-
-    it('leaves focus on the reject button after the user pressed Tab', async () => {
-      await openConfirm();
-      const rejectButton = document.querySelector<HTMLButtonElement>('.p-confirmdialog-reject-button')!;
-      press('Tab', {}, rejectButton);
-      rejectButton.focus();
-      rejectButton.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
-      expect(document.activeElement).toBe(rejectButton);
-    });
-
-    it('ignores a held-down Enter', async () => {
-      const { accept } = await openConfirm();
-      press('Enter', { repeat: true });
-      expect(accept).not.toHaveBeenCalled();
-    });
-
-    it('a hotkey does not fire while it is open', async () => {
-      const { actions } = await openConfirm();
-      press('r');
-      expect(actions.resume).not.toHaveBeenCalled();
-    });
+  it('a hotkey does not fire while a confirmation is open', async () => {
+    const { actions, fixture } = setup();
+    TestBed.inject(ConfirmationService).confirm({ header: 'Confirm Delete', message: 'Delete 1 transfer?', accept: vi.fn() });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    press('r');
+    expect(actions.resume).not.toHaveBeenCalled();
   });
 });
