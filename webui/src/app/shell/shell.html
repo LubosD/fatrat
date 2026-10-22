@@ -8,6 +8,15 @@
   (save)="onQueueDialogSave($event)"
 ></app-queue-properties-dialog>
 
+<app-delete-queue-dialog
+  [queue]="deleteQueueTarget()"
+  [otherQueues]="otherQueuesForDelete()"
+  [transferCount]="deleteQueueTransferCount()"
+  [visible]="showDeleteQueueDialog()"
+  (visibleChange)="showDeleteQueueDialog.set($event)"
+  (confirmed)="onDeleteQueueConfirmed($event)"
+></app-delete-queue-dialog>
+
 <app-transfer-properties-dialog
   [transfer]="transferPropertiesTarget()"
   [transferCount]="transferPropertiesCount()"
@@ -45,9 +54,14 @@
     <p-menu #moreMenu [popup]="true" [model]="overflowItems()" appendTo="body"></p-menu>
   </header>
   <p-drawer [visible]="showQueueDrawer()" (visibleChange)="showQueueDrawer.set($event)" position="left" header="Queues" styleClass="queue-drawer">
-    <!-- Choosing a queue bubbles up here and closes the drawer. -->
-    <div data-testid="queue-drawer-content" (click)="showQueueDrawer.set(false)">
-      <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
+    <div class="queue-drawer-body">
+      <!-- Choosing a queue bubbles up here and closes the drawer. -->
+      <div class="queue-drawer-list" data-testid="queue-drawer-content" (click)="showQueueDrawer.set(false)">
+        <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()" (deleteRequested)="requestDeleteQueue()"></app-queue-list>
+      </div>
+      <div class="queue-drawer-footer">
+        <button pButton type="button" severity="secondary" class="queue-drawer-new-button" data-testid="mobile-new-queue-button" (click)="showQueueDrawer.set(false); openNewQueueDialog()"><i class="pi pi-folder-plus" pButtonIcon></i> New Queue</button>
+      </div>
     </div>
   </p-drawer>
 }
@@ -122,7 +136,7 @@
 } @else {
   <p-splitter [panelSizes]="[20, 80]" styleClass="shell-splitter">
     <ng-template #panel>
-      <app-queue-list (propertiesRequested)="openQueuePropertiesDialog()"></app-queue-list>
+      <app-queue-list (newQueueRequested)="openNewQueueDialog()" (propertiesRequested)="openQueuePropertiesDialog()" (deleteRequested)="requestDeleteQueue()"></app-queue-list>
     </ng-template>
     <ng-template #panel>
       <ng-container *ngTemplateOutlet="detailsPane"></ng-container>

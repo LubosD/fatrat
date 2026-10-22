@@ -146,12 +146,16 @@ describe('QueueList', () => {
     const items = fixture.componentInstance['contextMenuItems'] as { label?: string; command?: () => void }[];
     expect(items.map((i) => i.label)).toEqual(['Resume All', 'Stop All', undefined, 'Properties', undefined, 'Delete Queue']);
     const onProperties = vi.fn();
+    const onDelete = vi.fn();
     fixture.componentInstance.propertiesRequested.subscribe(onProperties);
+    fixture.componentInstance.deleteRequested.subscribe(onDelete);
     items[0].command!();
     items[1].command!();
     items[3].command!();
+    items[5].command!();
     expect(resumeAll).toHaveBeenCalledWith('q2');
     expect(stopAll).toHaveBeenCalledWith('q2');
     expect(onProperties).toHaveBeenCalled();
+    expect(onDelete).toHaveBeenCalled();
   });
 });

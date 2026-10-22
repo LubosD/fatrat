@@ -19,6 +19,7 @@ import { TransferTable } from '../features/transfers/transfer-table';
 import { TransferCards } from '../features/transfers/transfer-cards';
 import { TransferDetails } from '../features/transfers/transfer-details';
 import { QueuePropertiesDialog, QueueFormValue } from '../features/queues/queue-properties-dialog';
+import { DeleteQueueDialog } from '../features/queues/delete-queue-dialog';
 import { TransferPropertiesDialog } from '../features/transfers/transfer-properties-dialog';
 import { NewTransferDialog } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
@@ -34,7 +35,7 @@ import { TransferApi } from '../core/api/transfer-api';
 import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
 import { Hotkey, ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from '../shared/hotkeys/hotkeys';
-import { Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
+import { DeleteQueueOptions, Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
 
 interface ToolbarAction {
   id: string;
@@ -79,6 +80,7 @@ const TAB_KEYS = ['1', '2', '3', '4'];
     TransferTable,
     TransferCards,
     QueuePropertiesDialog,
+    DeleteQueueDialog,
     TransferPropertiesDialog,
     NewTransferDialog,
     SettingsDialog,
@@ -140,6 +142,7 @@ export class Shell {
     [
       { id: 'new-queue', label: 'New Queue', icon: 'pi-folder-plus', hotkeys: [{ key: 'N', label: 'Shift+N' }], disabled: () => false, run: () => this.openNewQueueDialog() },
       { id: 'queue-properties', label: 'Queue Properties', icon: 'pi-sliders-h', hotkeys: [{ key: 'E', label: 'Shift+E' }], disabled: () => !this.hasSelectedQueue, run: () => this.openQueuePropertiesDialog() },
+      { id: 'delete-queue', label: 'Delete Queue', icon: 'pi-trash', disabled: () => !this.hasSelectedQueue, run: () => this.requestDeleteQueue() },
     ],
     [{ id: 'settings', label: 'Settings', icon: 'pi-cog', hotkeys: [{ key: 'o', label: 'O' }], disabled: () => false, run: () => this.openSettingsDialog() }],
   ];
@@ -274,6 +277,38 @@ export class Shell {
     const queue = uuid === null ? null : (this.queuesStore.queues().find((q) => q.uuid === uuid) ?? null);
     this.queueDialogTarget.set(queue);
     this.showQueueDialog.set(true);
+  }
+
+  protected readonly showDeleteQueueDialog = signal(false);
+  protected readonly deleteQueueTarget = signal<Queue | null>(null);
+  protected readonly deleteQueueTransferCount = signal(0);
+
+  protected otherQueuesForDelete(): Queue[] {
+    return this.queuesStore.queues().filter((q) => q.uuid !== this.deleteQueueTarget()?.uuid);
+  }
+
+  protected requestDeleteQueue(): void {
+    const uuid = this.queuesStore.selectedQueueUuid();
+    const queue = this.queuesStore.queues().find((q) => q.uuid === uuid);
+    if (!queue) return;
+
+    this.queueActions.countTransfers(queue.uuid).subscribe({
+      next: (count) => {
+        if (count === 0) {
+          this.queueActions.confirmDeleteEmptyQueue(queue);
+        } else {
+          this.deleteQueueTarget.set(queue);
+          this.deleteQueueTransferCount.set(count);
+          this.showDeleteQueueDialog.set(true);
+        }
+      },
+      error: (err) => console.error('Failed to count queue transfers', err),
+    });
+  }
+
+  protected onDeleteQueueConfirmed(options: DeleteQueueOptions): void {
+    const queue = this.deleteQueueTarget();
+    if (queue) this.queueActions.deleteQueue(queue, options);
   }
 
   protected onQueueDialogSave(value: QueueFormValue): void {

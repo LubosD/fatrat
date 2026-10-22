@@ -1,14 +1,12 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import type { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
-import { DeleteQueueDialog } from './delete-queue-dialog';
-import { DeleteQueueOptions, Queue } from '../../core/api/models';
 import { QueuesStore } from '../../state/queues.store';
 import { QueueActionsService } from '../../core/queue-actions.service';
 
 @Component({
   selector: 'app-queue-list',
-  imports: [ContextMenu, DeleteQueueDialog],
+  imports: [ContextMenu],
   templateUrl: './queue-list.html',
   styleUrl: './queue-list.scss',
 })
@@ -16,11 +14,10 @@ export class QueueList {
   protected readonly store = inject(QueuesStore);
   private readonly queueActions = inject(QueueActionsService);
 
-  protected readonly deleteTarget = signal<Queue | null>(null);
-  protected readonly deleteTransferCount = signal(0);
-  protected readonly showDeleteDialog = signal(false);
-
   readonly propertiesRequested = output<void>();
+  // The delete dialog and confirmation flow live at the shell level, like Queue Properties,
+  // so the toolbar/overflow-menu "Delete Queue" action works without this component being mounted.
+  readonly deleteRequested = output<void>();
 
   // Same entries as the desktop client's queue menu.
   protected readonly contextMenuItems: MenuItem[] = [
@@ -29,7 +26,7 @@ export class QueueList {
     { separator: true },
     { label: 'Properties', icon: 'pi pi-sliders-h', command: () => this.propertiesRequested.emit() },
     { separator: true },
-    { label: 'Delete Queue', icon: 'pi pi-trash', command: () => this.deleteSelectedQueue() },
+    { label: 'Delete Queue', icon: 'pi pi-trash', command: () => this.deleteRequested.emit() },
   ];
 
   protected onContextMenu(event: MouseEvent, uuid: string, menu: ContextMenu): void {
@@ -37,34 +34,6 @@ export class QueueList {
     this.store.selectQueue(uuid);
     menu.show(event);
     event.preventDefault();
-  }
-
-  protected otherQueues(): Queue[] {
-    return this.store.queues().filter((q) => q.uuid !== this.deleteTarget()?.uuid);
-  }
-
-  protected onDeleteConfirmed(options: DeleteQueueOptions): void {
-    const queue = this.deleteTarget();
-    if (queue) this.queueActions.deleteQueue(queue, options);
-  }
-
-  private deleteSelectedQueue(): void {
-    const uuid = this.store.selectedQueueUuid();
-    const queue = this.store.queues().find((q) => q.uuid === uuid);
-    if (!queue) return;
-
-    this.queueActions.countTransfers(queue.uuid).subscribe({
-      next: (count) => {
-        if (count === 0) {
-          this.queueActions.confirmDeleteEmptyQueue(queue);
-        } else {
-          this.deleteTarget.set(queue);
-          this.deleteTransferCount.set(count);
-          this.showDeleteDialog.set(true);
-        }
-      },
-      error: (err) => console.error('Failed to count queue transfers', err),
-    });
   }
 
   private withSelectedQueue(fn: (uuid: string) => void): void {

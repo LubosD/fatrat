@@ -580,6 +580,25 @@ describe('Shell (mobile)', () => {
     expect(fixture.componentInstance['showQueueDrawer']()).toBe(false);
   });
 
+  it('shows a New Queue button below the queue list in the mobile drawer', () => {
+    configureMobile();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(document.querySelector('[data-testid="mobile-new-queue-button"]')).toBeNull();
+
+    findByTestId(fixture.nativeElement, 'mobile-queues-button').click();
+    fixture.detectChanges();
+
+    const button = document.querySelector('[data-testid="mobile-new-queue-button"]') as HTMLButtonElement;
+    expect(button).toBeTruthy();
+    button.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['showQueueDrawer']()).toBe(false);
+    expect(fixture.componentInstance['queueDialogTarget']()).toBeNull();
+    expect(fixture.componentInstance['showQueueDialog']()).toBe(true);
+  });
+
   it('renders the queue list exactly once', () => {
     configureMobile();
     const fixture = TestBed.createComponent(Shell);
@@ -619,13 +638,14 @@ describe('Shell (mobile)', () => {
     expect(labels).toEqual([
       'Delete with Data', 'Delete Completed', 'Force Resume', 'Properties',
       'Move to Top', 'Move Up', 'Move Down', 'Move to Bottom',
-      'New Queue', 'Queue Properties', 'Settings',
+      'New Queue', 'Queue Properties', 'Delete Queue', 'Settings',
     ]);
     expect(groups.map((g) => g.label)).toEqual(['Actions', 'Refresh every']);
     const byLabel = (label: string) => items.find((i) => i.label === label)!;
     expect(byLabel('Delete with Data').disabled).toBe(true);
     expect(byLabel('Delete Completed').disabled).toBe(false);
     expect(byLabel('Queue Properties').disabled).toBe(false);
+    expect(byLabel('Delete Queue').disabled).toBe(false);
   });
 
   it('runs an overflow action and changes the refresh interval from the menu', () => {
