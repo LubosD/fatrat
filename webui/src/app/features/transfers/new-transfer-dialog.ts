@@ -29,6 +29,8 @@ export class NewTransferDialog implements OnChanges {
   @Input() queues: Queue[] = [];
   @Input() transferClasses: TransferClass[] = [];
   @Input() defaultQueueUuid: string | null = null;
+  /** Links to put in the URL box: on opening, or appended while the dialog is already open. */
+  @Input() prefillUrls: string[] = [];
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
 
@@ -61,6 +63,18 @@ export class NewTransferDialog implements OnChanges {
       this.queueUuid = this.defaultQueueUuid ?? this.queues[0]?.uuid ?? '';
       this.target = this.queueDefaultDir(this.queueUuid);
     }
+    // After a reset this fills the empty box; while open it appends.
+    if (this.visible && ('prefillUrls' in changes || changes['visible']?.currentValue === true)) {
+      this.appendUrls(this.prefillUrls);
+    }
+  }
+
+  private appendUrls(urls: string[]): void {
+    const listed = new Set(this.urlsText.split('\n').map((line) => line.trim()));
+    const added = urls.filter((url) => !listed.has(url));
+    if (added.length === 0) return;
+    if (this.file !== null) this.onClearFile();
+    this.urlsText = [this.urlsText.trimEnd(), ...added].filter((line) => line.length > 0).join('\n');
   }
 
   protected focusUrls(): void {

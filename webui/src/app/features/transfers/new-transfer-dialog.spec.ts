@@ -269,4 +269,44 @@ describe('NewTransferDialog', () => {
     expect(fixture.componentInstance.target).toBe('/home/u');
     expect(el.querySelector('app-directory-picker')).toBeNull();
   });
+
+  describe('prefillUrls', () => {
+    function reopenWith(fixture: ReturnType<typeof setup>, urls: string[]) {
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      fixture.componentRef.setInput('prefillUrls', urls);
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+    }
+
+    it('fills the URLs when the dialog opens', () => {
+      const fixture = setup();
+      reopenWith(fixture, ['http://a/1', 'http://b/2']);
+      expect(fixture.componentInstance.urlsText).toBe('http://a/1\nhttp://b/2');
+    });
+
+    it('does not carry a previous prefill into a plain reopen', () => {
+      const fixture = setup();
+      reopenWith(fixture, ['http://a/1']);
+      reopenWith(fixture, []);
+      expect(fixture.componentInstance.urlsText).toBe('');
+    });
+
+    it('appends new links to an open dialog, skipping ones already listed', () => {
+      const fixture = setup();
+      fixture.componentInstance.urlsText = 'http://a/1\n';
+      fixture.componentRef.setInput('prefillUrls', ['http://a/1', 'http://c/3']);
+      fixture.detectChanges();
+      expect(fixture.componentInstance.urlsText).toBe('http://a/1\nhttp://c/3');
+    });
+
+    it('drops a chosen file when a link arrives, so the link is not silently ignored', () => {
+      const fixture = setup();
+      fixture.componentInstance.file = new File(['x'], 'a.torrent');
+      fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
+      fixture.detectChanges();
+      expect(fixture.componentInstance.file).toBeNull();
+      expect(fixture.componentInstance.urlsText).toBe('http://c/3');
+    });
+  });
 });
