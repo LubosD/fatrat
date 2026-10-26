@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FatRat browser extension</title>
+<meta name="description" content="Send links from Chrome or Firefox to your FatRat web interface.">
+<meta name="theme-color" content="#1c160e">
+<link rel="icon" href="../img/favicon.png" type="image/png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+	<div class="wrap">
+		<a class="brand" href="../"><img src="../img/logo.svg" alt="" width="28" height="34">FatRat</a>
+		<nav>
+			<a href="https://github.com/LubosD/fatrat">GitHub</a>
+		</nav>
+	</div>
+</header>
+
+<main>
+	<section>
+		<div class="wrap">
+			<div id="install" hidden>
+				<h2>Install the FatRat extension</h2>
+				<p class="lead">Right-click any link and choose "Send link to FatRat" to open it in your FatRat web interface, ready to add.</p>
+				<div class="cta">
+					<a class="btn primary" data-store="chrome">Chrome</a>
+					<a class="btn primary" data-store="firefox">Firefox</a>
+				</div>
+				<p class="lead">After installing it, reload this page to connect it to your FatRat.</p>
+			</div>
+
+			<div id="connect" hidden>
+				<h2>Connect the extension to <code id="instance"></code></h2>
+				<p class="lead">The extension will send links to this FatRat web interface.</p>
+				<button class="btn primary" id="connect-button">Connect</button>
+				<p class="lead" id="connect-done" hidden>The extension opened its settings in a new tab — check the address there and click Save.</p>
+			</div>
+
+			<div id="ready" hidden>
+				<h2>The extension is installed</h2>
+				<p class="lead">To connect it, open Settings → Web Interface in your FatRat web UI and click Set up the browser extension…</p>
+			</div>
+		</div>
+	</section>
+</main>
+
+<script>
+	// Replaced by the store listings once published.
+	const STORE_LINKS = {
+		chrome: 'https://github.com/LubosD/fatrat-webext#install',
+		firefox: 'https://github.com/LubosD/fatrat-webext#install',
+	};
+	for (const a of document.querySelectorAll('[data-store]')) a.href = STORE_LINKS[a.dataset.store];
+
+	function instanceFromHash() {
+		const value = new URLSearchParams(location.hash.slice(1)).get('instance');
+		try {
+			const url = new URL(value);
+			return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+		} catch {
+			return null;
+		}
+	}
+
+	// Set by the extension's content script at document_start.
+	const installed = document.documentElement.dataset.fatratWebext !== undefined;
+	const instance = instanceFromHash();
+	document.getElementById(!installed ? 'install' : instance ? 'connect' : 'ready').hidden = false;
+	if (installed && instance) {
+		document.getElementById('instance').textContent = instance;
+		document.getElementById('connect-button').addEventListener('click', () => {
+			window.dispatchEvent(new CustomEvent('fatrat-webext-register', { detail: instance }));
+			document.getElementById('connect-done').hidden = false;
+		});
+	}
+</script>
+</body>
+</html>
