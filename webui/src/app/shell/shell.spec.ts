@@ -940,12 +940,29 @@ describe('Shell incoming links', () => {
     expect(window.location.hash).toBe('');
   });
 
+  it('opens the dialog prefilled on a hashchange with links while it is closed, then clears the fragment', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    expect(dialogOf(fixture).visible).toBe(false);
+
+    window.history.replaceState(null, '', withAdd('http://a/1'));
+    window.dispatchEvent(new Event('hashchange'));
+    fixture.detectChanges();
+
+    expect(dialogOf(fixture).visible).toBe(true);
+    expect(dialogOf(fixture).urlsText).toBe('http://a/1');
+    expect(window.location.hash).toBe('');
+  });
+
   it('ignores a hashchange without links', () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
+    window.history.replaceState(null, '', `${base}#x`);
     window.dispatchEvent(new Event('hashchange'));
     fixture.detectChanges();
     expect(dialogOf(fixture).visible).toBe(false);
+    expect(window.location.hash).toBe('#x');
   });
 });

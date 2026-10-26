@@ -1,4 +1,4 @@
-import { Component, signal, ElementRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, signal, ElementRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
@@ -26,6 +26,7 @@ import { PathSuggest } from '../../shared/path-suggest/path-suggest';
  */
 export class NewTransferDialog implements OnChanges {
   private readonly actions = inject(TransferActionsService);
+  private readonly cdr = inject(ChangeDetectorRef);
   @Input() queues: Queue[] = [];
   @Input() transferClasses: TransferClass[] = [];
   @Input() defaultQueueUuid: string | null = null;
@@ -50,6 +51,8 @@ export class NewTransferDialog implements OnChanges {
   protected readonly saving = signal(false);
   // Bumped whenever the form is reset, so the answer to a request from an earlier session is dropped.
   private session = 0;
+  // Links that arrived while an Add was in flight; the form is left alone until that Add settles.
+  private queuedUrls: string[] = [];
 
   // Also reset when the dialog is (re)opened, not just when the input reference changes —
   // reopening with a reference-equal input (e.g. null again, or the same object) would
@@ -70,6 +73,10 @@ export class NewTransferDialog implements OnChanges {
   }
 
   private appendUrls(urls: string[]): void {
+    if (this.saving()) {
+      this.queuedUrls.push(...urls);
+      return;
+    }
     const listed = new Set(this.urlsText.split('\n').map((line) => line.trim()));
     const added = urls.filter((url) => !listed.has(url));
     if (added.length === 0) return;
@@ -107,6 +114,7 @@ export class NewTransferDialog implements OnChanges {
     this.error.set('');
     this.saving.set(false);
     this.session++;
+    this.queuedUrls = [];
     this.urlsModel?.control.enable();
   }
 
@@ -157,12 +165,24 @@ export class NewTransferDialog implements OnChanges {
     request.subscribe({
       next: () => {
         if (session !== this.session) return;
+        const queued = this.queuedUrls;
+        if (queued.length > 0) {
+          // Links arrived during the Add: stay open as a fresh form holding just those.
+          this.resetForm();
+          this.appendUrls(queued);
+          this.cdr.markForCheck(); // urlsText is a plain field; the box must re-render
+          return;
+        }
         this.saving.set(false);
         this.closeDialog();
       },
       error: (err: unknown) => {
         if (session !== this.session) return;
         this.saving.set(false);
+        const queued = this.queuedUrls;
+        this.queuedUrls = [];
+        this.appendUrls(queued);
+        this.cdr.markForCheck();
         this.error.set(err instanceof Error && err.message ? err.message : 'Failed to add the transfer.');
       },
     });

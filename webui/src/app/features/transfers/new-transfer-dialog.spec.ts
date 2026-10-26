@@ -308,5 +308,76 @@ describe('NewTransferDialog', () => {
       expect(fixture.componentInstance.file).toBeNull();
       expect(fixture.componentInstance.urlsText).toBe('http://c/3');
     });
+
+    describe('while a request is in flight', () => {
+      it('keeps a link that arrives during a successful add, and stays open with just that link', () => {
+        const pending = new Subject<void>();
+        addTransfers.mockReturnValue(pending);
+        const fixture = setup();
+        const visibleChanges: boolean[] = [];
+        fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
+        fixture.componentInstance.urlsText = 'http://a/1';
+        fixture.componentInstance['onSave']();
+
+        fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
+        fixture.detectChanges();
+        expect(fixture.componentInstance.urlsText).toBe('http://a/1');
+
+        pending.next();
+        pending.complete();
+        fixture.detectChanges();
+
+        expect(visibleChanges).toEqual([]);
+        expect(fixture.componentInstance.visible).toBe(true);
+        expect(fixture.componentInstance.urlsText).toBe('http://c/3');
+        expect(fixture.componentInstance['saving']()).toBe(false);
+      });
+
+      it('appends a link that arrived during a failed add to the original lines', () => {
+        const pending = new Subject<void>();
+        addTransfers.mockReturnValue(pending);
+        const fixture = setup();
+        fixture.componentInstance.urlsText = 'http://a/1\nhttp://b/2';
+        fixture.componentInstance['onSave']();
+
+        fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
+        fixture.detectChanges();
+        pending.error(new Error('server said no'));
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.urlsText).toBe('http://a/1\nhttp://b/2\nhttp://c/3');
+        expect(fixture.componentInstance['error']()).toBe('server said no');
+        expect(fixture.componentInstance.visible).toBe(true);
+      });
+
+      it('does not discard a file whose upload is in flight when a link arrives', () => {
+        const pending = new Subject<void>();
+        addTransferWithData.mockReturnValue(pending);
+        const fixture = setup();
+        const file = new File(['x'], 'a.torrent');
+        fixture.componentInstance.file = file;
+        fixture.componentInstance['onSave']();
+
+        fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.file).toBe(file);
+      });
+
+      it('does not leak a queued link into a later session', () => {
+        const pending = new Subject<void>();
+        addTransfers.mockReturnValue(pending);
+        const fixture = setup();
+        fixture.componentInstance.urlsText = 'http://a/1';
+        fixture.componentInstance['onSave']();
+        fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
+        fixture.detectChanges();
+
+        reopenWith(fixture, []);
+        pending.next();
+        pending.complete();
+        expect(fixture.componentInstance.urlsText).toBe('');
+      });
+    });
   });
 });
