@@ -24,6 +24,12 @@
     <button pButton type="button" data-testid="webinterface-generate-cert" (click)="openCertDialog()">Generate a self-signed certificate...</button>
     <p>After toggling HTTPS or changing the certificate file, you may have to change the URL in your browser's location bar or press F5 to reload and accept the new certificate.</p>
   </fieldset>
+  <fieldset>
+    <legend>Browser extension</legend>
+    <p>The FatRat extension for Chrome and Firefox adds "Send link to FatRat" to the context menu of links. Clicking a link there opens it in this web interface.</p>
+    <a pButton data-testid="webinterface-browser-extension" [href]="browserExtensionUrl" target="_blank" rel="noopener">Set up the browser extension...</a>
+    <p>Opens a page that installs the extension or, if it's already installed, connects it to this FatRat.</p>
+  </fieldset>
 </div>
 
 <p-dialog [visible]="showCertDialog()" (visibleChange)="showCertDialog.set($event)" header="Generate a self-signed certificate" [modal]="true" styleClass="fr-dialog">
