@@ -460,7 +460,7 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 		else
 			actionDisplay->toggle();
 	}
-	else if(reason == QSystemTrayIcon::MiddleClick || reason == QSystemTrayIcon::Context)
+	else if(reason == QSystemTrayIcon::MiddleClick)
 	{
 		actionDropBox->toggle();
 	}
