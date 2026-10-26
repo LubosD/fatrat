@@ -28,6 +28,7 @@
   [queues]="queuesStore.queues()"
   [transferClasses]="transferClasses()"
   [defaultQueueUuid]="queuesStore.selectedQueueUuid()"
+  [prefillUrls]="newTransferPrefill()"
   [visible]="showNewTransferDialog()"
   (visibleChange)="showNewTransferDialog.set($event)"
 ></app-new-transfer-dialog>

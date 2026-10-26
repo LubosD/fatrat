@@ -12,6 +12,7 @@ import { BrowseService } from '../core/browse.service';
 import { LogService } from '../core/log.service';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
+import { NewTransferDialog } from '../features/transfers/new-transfer-dialog';
 import { SettingsDialog } from '../features/settings/settings-dialog';
 import { PushSocketService } from '../core/push-socket.service';
 import { TasksStore } from '../state/tasks.store';
@@ -900,5 +901,51 @@ describe('Shell hotkeys', () => {
     fixture.detectChanges();
     press('r');
     expect(actions.resume).not.toHaveBeenCalled();
+  });
+});
+
+describe('Shell incoming links', () => {
+  // happy-dom's base URL is not guaranteed; keep whatever it is and only touch the fragment.
+  const base = window.location.href.split('#')[0];
+  const withAdd = (...urls: string[]) => `${base}#${urls.map((u) => `add=${encodeURIComponent(u)}`).join('&')}`;
+
+  afterEach(() => window.history.replaceState(null, '', base));
+
+  function dialogOf(fixture: ReturnType<typeof TestBed.createComponent<Shell>>): NewTransferDialog {
+    return fixture.debugElement.query(By.directive(NewTransferDialog)).componentInstance;
+  }
+
+  it('opens the New Transfer dialog prefilled from a fragment present at startup, then clears it', () => {
+    window.history.replaceState(null, '', withAdd('magnet:?xt=urn:btih:abc&dn=x'));
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    expect(dialogOf(fixture).visible).toBe(true);
+    expect(dialogOf(fixture).urlsText).toBe('magnet:?xt=urn:btih:abc&dn=x');
+    expect(window.location.hash).toBe('');
+  });
+
+  it('appends links that arrive by hashchange while the dialog is open', () => {
+    window.history.replaceState(null, '', withAdd('http://a/1'));
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    window.history.replaceState(null, '', withAdd('http://b/2'));
+    window.dispatchEvent(new Event('hashchange'));
+    fixture.detectChanges();
+
+    expect(dialogOf(fixture).urlsText).toBe('http://a/1\nhttp://b/2');
+    expect(window.location.hash).toBe('');
+  });
+
+  it('ignores a hashchange without links', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    window.dispatchEvent(new Event('hashchange'));
+    fixture.detectChanges();
+    expect(dialogOf(fixture).visible).toBe(false);
   });
 });
