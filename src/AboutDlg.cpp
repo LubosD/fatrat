@@ -48,7 +48,8 @@ AboutDlg::AboutDlg(QWidget* parent) : QDialog(parent)
 	}
 	
 	labelVersion->setText(tr("Version %1").arg(VERSION));
-	
+	label->setPixmap(QPixmap(":/fatrat/fatrat_brown.png").scaledToHeight(128, Qt::SmoothTransformation));
+
 	loadFile(textLicense, "LICENSE");
 	loadFile(textTranslators, "TRANSLATIONS");
 	loadFile(text3rdParties, "README");

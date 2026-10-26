@@ -54,9 +54,6 @@
       <layout class="QGridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="label">
-         <property name="pixmap">
-          <pixmap resource="../gfx/resources.qrc">:/fatrat/fatrat_brown.png</pixmap>
-         </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
