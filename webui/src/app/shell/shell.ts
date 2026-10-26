@@ -125,8 +125,8 @@ export class Shell {
   protected readonly toolbarGroups: ToolbarAction[][] = [
     [
       { id: 'new-transfer', label: 'New Transfer', icon: 'pi-plus', primary: true, hotkeys: [{ key: 'n', label: 'N' }], disabled: () => false, run: () => this.openNewTransferDialog() },
-      { id: 'delete', label: 'Delete', icon: 'pi-trash', primary: true, hotkeys: [{ key: 'd', label: 'D' }, { key: 'Delete', shift: false, label: 'Del' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(false) },
-      { id: 'delete-with-data', label: 'Delete with Data', icon: 'pi-eraser', hotkeys: [{ key: 'D', label: 'Shift+D' }, { key: 'Delete', shift: true, label: 'Shift+Del' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(true) },
+      { id: 'delete', label: 'Delete', icon: 'pi-trash', primary: true, hotkeys: [{ key: 'd', label: 'D' }, { key: 'Delete', shift: false, label: 'Del' }, { key: 'Backspace', shift: false, label: 'Backspace' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(false) },
+      { id: 'delete-with-data', label: 'Delete with Data', icon: 'pi-eraser', hotkeys: [{ key: 'D', label: 'Shift+D' }, { key: 'Delete', shift: true, label: 'Shift+Del' }, { key: 'Backspace', shift: true, label: 'Shift+Backspace' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(true) },
       { id: 'delete-completed', label: 'Delete Completed', icon: 'pi-check-circle', hotkeys: [{ key: 'c', label: 'C' }], disabled: () => false, run: () => this.actions.deleteCompleted() },
     ],
     [

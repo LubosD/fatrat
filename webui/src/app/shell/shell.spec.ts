@@ -718,15 +718,17 @@ describe('Shell hotkeys', () => {
     expect(actions.moveSelected).toHaveBeenLastCalledWith('bottom');
   });
 
-  it('D and Delete delete; Shift+D and Shift+Delete delete with data', () => {
+  it('D, Delete and Backspace delete; Shift+D, Shift+Delete and Shift+Backspace delete with data', () => {
     const { actions } = setup();
     press('d');
     press('Delete');
-    expect(actions.deleteSelected.mock.calls).toEqual([[false], [false]]);
+    press('Backspace');
+    expect(actions.deleteSelected.mock.calls).toEqual([[false], [false], [false]]);
     actions.deleteSelected.mockClear();
     press('D', { shiftKey: true });
     press('Delete', { shiftKey: true });
-    expect(actions.deleteSelected.mock.calls).toEqual([[true], [true]]);
+    press('Backspace', { shiftKey: true });
+    expect(actions.deleteSelected.mock.calls).toEqual([[true], [true], [true]]);
   });
 
   it('opens the dialogs from their keys', () => {
@@ -869,7 +871,7 @@ describe('Shell hotkeys', () => {
   it('puts the key in the aria-keyshortcuts attribute', () => {
     const { fixture } = setup();
     expect(findByTestId(fixture.nativeElement, 'action-new-transfer').getAttribute('aria-keyshortcuts')).toBe('N');
-    expect(findByTestId(fixture.nativeElement, 'action-delete').getAttribute('aria-keyshortcuts')).toBe('D Delete');
+    expect(findByTestId(fixture.nativeElement, 'action-delete').getAttribute('aria-keyshortcuts')).toBe('D Delete Backspace');
   });
 
   it('puts the key in the tooltip text', () => {
