@@ -27,6 +27,7 @@ import { CaptchaDialog } from '../features/captcha/captcha-dialog';
 import { TaskPromptDialog } from '../features/tasks/task-prompt-dialog';
 import { SpeedGraphsTab } from '../features/speed-graphs/speed-graphs-tab';
 import { LogTab } from '../features/log/log-tab';
+import { parseAddFragment } from '../core/incoming-links';
 import { ViewportService } from '../core/viewport.service';
 import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
@@ -111,6 +112,7 @@ export class Shell {
 
   constructor() {
     this.loadTransferClasses();
+    this.consumeIncomingLinks();
   }
 
   private loadTransferClasses(): void {
@@ -335,10 +337,26 @@ export class Shell {
 
   protected readonly showNewTransferDialog = signal(false);
 
-  protected openNewTransferDialog(): void {
+  protected readonly newTransferPrefill = signal<string[]>([]);
+
+  protected openNewTransferDialog(prefill: string[] = []): void {
+    // A fresh array even when empty, so the dialog sees the change.
+    this.newTransferPrefill.set(prefill);
+    if (this.showNewTransferDialog()) return;
     // Plugins can be installed or switched on while this page is open.
     this.loadTransferClasses();
     this.showNewTransferDialog.set(true);
+  }
+
+  /** Links sent by the browser extension, as `#add=` on our address (see core/incoming-links.ts). */
+  @HostListener('window:hashchange')
+  protected consumeIncomingLinks(): void {
+    const location = this.document.location;
+    const urls = parseAddFragment(location.hash);
+    if (urls.length === 0) return;
+    // Cleared so that a reload doesn't offer the links again; replaceState fires no hashchange.
+    this.document.defaultView?.history.replaceState(null, '', location.href.split('#')[0]);
+    this.openNewTransferDialog(urls);
   }
 
   protected readonly showSettingsDialog = signal(false);

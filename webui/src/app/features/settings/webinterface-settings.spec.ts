@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { WebinterfaceSettings } from './webinterface-settings';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
+import { browserExtensionPageUrl } from './browser-extension';
 import { WebinterfaceSettingsApiService } from '../../core/webinterface-settings-api.service';
 
 const KEYS = ['remote/enable', 'remote/port', 'remote/password', 'remote/ssl', 'remote/ssl_pem'];
@@ -78,5 +79,14 @@ describe('WebinterfaceSettings', () => {
     expect(stage).toHaveBeenCalledWith('remote/ssl_pem', '-----BEGIN CERTIFICATE-----');
     expect(fixture.componentInstance['sslPem']).toBe('-----BEGIN CERTIFICATE-----');
     expect(fixture.componentInstance['showCertDialog']()).toBe(false);
+  });
+
+  it('links the browser extension button to the handoff page for this address', () => {
+    configure();
+    const fixture = TestBed.createComponent(WebinterfaceSettings);
+    fixture.detectChanges();
+    const link = fixture.nativeElement.querySelector('[data-testid="webinterface-browser-extension"]') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe(browserExtensionPageUrl(window.location.href));
+    expect(link.getAttribute('target')).toBe('_blank');
   });
 });

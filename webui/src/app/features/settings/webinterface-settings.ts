@@ -9,6 +9,7 @@ import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { WebinterfaceSettingsApiService } from '../../core/webinterface-settings-api.service';
 import { JsonValue } from '../../core/api/json-value';
+import { browserExtensionPageUrl } from './browser-extension';
 
 const KEYS = ['remote/enable', 'remote/port', 'remote/password', 'remote/ssl', 'remote/ssl_pem'] as const;
 
@@ -31,6 +32,7 @@ export class WebinterfaceSettings {
 
   protected readonly showCertDialog = signal(false);
   protected certHostname = '';
+  protected readonly browserExtensionUrl = browserExtensionPageUrl(window.location.href);
 
   constructor() {
     this.transferApi.getSettingsValues([...KEYS]).subscribe({
