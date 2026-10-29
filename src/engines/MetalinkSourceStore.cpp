@@ -48,7 +48,7 @@ QString MetalinkSourceStore::keep(const QString& file, const QString& uuid) cons
 	id.remove('{').remove('}');
 
 	const QString name = QFileInfo(file).fileName();
-	if (id.isEmpty() || id.contains('/') || name.isEmpty())
+	if (id.isEmpty() || id.contains('/') || name.isEmpty() || name == "." || name == "..")
 		throw RuntimeException(QCoreApplication::translate("MetalinkDownload", "Cannot copy the metalink file %1").arg(file));
 
 	const QString folder = m_dir + '/' + id;

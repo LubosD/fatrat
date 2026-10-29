@@ -209,9 +209,6 @@ void MetalinkDownload::processMetalink(QString fileName)
 		return;
 	}
 
-	// The parsed document holds everything needed from here on.
-	MetalinkSourceStore().release(fileName);
-
 	QList<MetaFile> files;
 	QDomElement root = doc.documentElement();
 	QDomElement dfile = root.firstChildElement("file");
@@ -345,6 +342,7 @@ decide:
 							this->myQueue()->add(t);
 						if (isActive())
 							t->setState(Waiting);
+						MetalinkSourceStore().release(m_strSource); // expanded: the copy is not needed any more
 						this->deleteLater();
 					}
 					catch (const RuntimeException& e)
@@ -415,6 +413,7 @@ decide:
 					this->myQueue()->add(t);
 				if (isActive())
 					t->setState(Waiting);
+				MetalinkSourceStore().release(m_strSource); // expanded: the copy is not needed any more
 				this->deleteLater();
 			}
 			else
