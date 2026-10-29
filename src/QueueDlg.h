@@ -40,8 +40,11 @@ public slots:
 	void limitToggled(bool checked);
 	void browse();
 	void browseMove();
+	void browseWatch();
 public:
-	QString m_strName, m_strDefaultDirectory, m_strMoveDirectory;
+	QString m_strName, m_strDefaultDirectory, m_strMoveDirectory, m_strWatchDirectory;
+	QString m_strQueueUuid;   // empty for a new queue
+	QString m_strWatchStatus; // as WatchFolderStatus::status() reports it
 	int m_nDownLimit, m_nUpLimit, m_nDownTransfersLimit, m_nUpTransfersLimit;
 	bool m_bUpAsDown, m_bLimit;
 };

@@ -68,6 +68,7 @@ respects for all of the code used other than "OpenSSL".
 #include "util/BalloonTip.h"
 #include "TaskGui.h"
 #include "plugins/TransferActions.h"
+#include "watch/WatchFolderQueues.h"
 
 #ifdef WITH_PYPLUGINS
 #	include "engines/PythonAccountStatusWidget.h"
@@ -710,6 +711,7 @@ void MainWindow::newQueue()
 		q->setUpAsDown(dlg.m_bUpAsDown);
 		q->setDefaultDirectory(dlg.m_strDefaultDirectory);
 		q->setMoveDirectory(dlg.m_strMoveDirectory);
+		q->setWatchDirectory(dlg.m_strWatchDirectory);
 		
 		g_queuesLock.lockForWrite();
 		g_queues << q;
@@ -763,6 +765,9 @@ void MainWindow::queueItemProperties()
 	dlg.m_bUpAsDown = q->upAsDown();
 	dlg.m_strDefaultDirectory = q->defaultDirectory();
 	dlg.m_strMoveDirectory = q->moveDirectory();
+	dlg.m_strWatchDirectory = q->watchDirectory();
+	dlg.m_strQueueUuid = q->uuid();
+	dlg.m_strWatchStatus = WatchFolderStatus::status(WatchFolderQueues::entries(), q->uuid());
 	q->speedLimits(dlg.m_nDownLimit, dlg.m_nUpLimit);
 	q->transferLimits(dlg.m_nDownTransfersLimit,dlg.m_nUpTransfersLimit);
 	
@@ -785,6 +790,7 @@ void MainWindow::queueItemProperties()
 		q->setUpAsDown(dlg.m_bUpAsDown);
 		q->setDefaultDirectory(dlg.m_strDefaultDirectory);
 		q->setMoveDirectory(dlg.m_strMoveDirectory);
+		q->setWatchDirectory(dlg.m_strWatchDirectory);
 		treeQueues->currentItem()->setText(0, dlg.m_strName);
 		
 		Queue::saveQueuesAsync();
