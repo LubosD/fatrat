@@ -30,13 +30,22 @@ respects for all of the code used other than "OpenSSL".
 #include "RuntimeException.h"
 #include <QFileInfo>
 #include <QDateTime>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QScopeGuard>
+#include <exception>
 
 WatchFolderService* WatchFolderService::m_instance = nullptr;
+// Guards m_instance against requestReload() racing with shutdown.
+static QMutex s_instanceLock;
 
 WatchFolderService::WatchFolderService(const Hooks& hooks)
 	: m_hooks(hooks), m_scanner(hooks.clock)
 {
-	m_instance = this;
+	{
+		QMutexLocker l(&s_instanceLock);
+		m_instance = this;
+	}
 
 	connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &WatchFolderService::scan);
 	connect(&m_rescan, &QTimer::timeout, this, [this] {
@@ -51,11 +60,14 @@ WatchFolderService::WatchFolderService(const Hooks& hooks)
 
 WatchFolderService::~WatchFolderService()
 {
+	QMutexLocker l(&s_instanceLock);
 	m_instance = nullptr;
 }
 
 void WatchFolderService::requestReload()
 {
+	// Held across the post: ~QObject removes posted events, so the target cannot dangle.
+	QMutexLocker l(&s_instanceLock);
 	if (WatchFolderService* s = m_instance)
 		QMetaObject::invokeMethod(s, &WatchFolderService::reload, Qt::QueuedConnection);
 }
@@ -116,6 +128,27 @@ void WatchFolderService::scan(const QString& dir)
 	if (queueUuid.isEmpty())
 		return;
 
+	// The queue may have been deleted or the folder reassigned since the last reload; acting on stale
+	// state would rename files of a queue that no longer exists to .failed.
+	{
+		const QList<WatchFolderStatus::Entry> entries = m_hooks.folders();
+		bool valid = false;
+		for (const WatchFolderStatus::Entry& e : entries)
+		{
+			if (e.queueUuid == queueUuid && WatchFolderStatus::normalize(e.dir) == dir
+					&& WatchFolderStatus::status(entries, queueUuid) == "ok")
+			{
+				valid = true;
+				break;
+			}
+		}
+		if (!valid)
+		{
+			reload();
+			return;
+		}
+	}
+
 	const WatchFolderScanner::Result r = m_scanner.scan(dir);
 	for (const QString& path : r.ready)
 		process(path, queueUuid);
@@ -136,6 +169,13 @@ void WatchFolderService::scheduleFollowUp(const QString& dir)
 
 void WatchFolderService::process(const QString& path, const QString& queueUuid)
 {
+	// hooks.add may run a nested event loop in the future, during which another scan would still list
+	// the not-yet-renamed file.
+	if (m_inProgress.contains(path))
+		return;
+	m_inProgress.insert(path);
+	const auto done = qScopeGuard([&] { m_inProgress.remove(path); });
+
 	const QFileInfo info(path);
 	const QString key = QString("%1|%2|%3").arg(path).arg(info.size()).arg(info.lastModified().toMSecsSinceEpoch());
 	if (m_stuck.contains(key))
@@ -156,9 +196,16 @@ void WatchFolderService::process(const QString& path, const QString& queueUuid)
 		{
 			error = e.what();
 		}
+		catch (const std::exception& e)
+		{
+			error = QString::fromLocal8Bit(e.what());
+		}
 
-		for (const QString& source : rejected)
-			log(tr("%1: no transfer class accepts \"%2\"").arg(info.fileName(), source));
+		const int MaxLogged = 10;
+		for (int i = 0; i < rejected.size() && i < MaxLogged; i++)
+			log(tr("%1: no transfer class accepts \"%2\"").arg(info.fileName(), rejected[i]));
+		if (rejected.size() > MaxLogged)
+			log(tr("%1: %2 more links were not accepted").arg(info.fileName()).arg(rejected.size() - MaxLogged));
 		if (error.isEmpty() && !added)
 			error = tr("nothing in it could be added");
 	}
@@ -167,6 +214,14 @@ void WatchFolderService::process(const QString& path, const QString& queueUuid)
 		log(tr("%1: added %2 transfer(s)").arg(info.fileName()).arg(added));
 	else
 		log(tr("%1: %2").arg(info.fileName(), error));
+
+	// A file replaced while it was being added is a different file; leave it for the next round.
+	const QFileInfo now(path);
+	if (now.size() != info.size() || now.lastModified() != info.lastModified())
+	{
+		log(tr("%1: the file changed while being added; it will be processed again").arg(info.fileName()));
+		return;
+	}
 
 	if (WatchFile::markProcessed(path, added > 0).isEmpty())
 	{

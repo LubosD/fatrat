@@ -19,6 +19,7 @@ class TestWatchFolderService : public QObject
 	QList<WatchFolderStatus::Entry> m_entries;
 	QList<AddCall> m_calls;
 	bool m_throw = false;
+	bool m_lockDirOnAdd = false;
 
 	QString dir() const { return m_tmp->path(); }
 	void write(const QString& name, const QByteArray& data)
@@ -39,6 +40,8 @@ class TestWatchFolderService : public QObject
 			if (m_throw)
 				throw RuntimeException("boom");
 			m_calls << AddCall{ queue, sources };
+			if (m_lockDirOnAdd)
+				QFile::setPermissions(dir(), QFile::ReadOwner | QFile::ExeOwner);
 			int n = 0;
 			for (const QString& s : sources)
 			{
@@ -65,9 +68,15 @@ private slots:
 		m_now = 0;
 		m_calls.clear();
 		m_throw = false;
+		m_lockDirOnAdd = false;
 		m_entries = { { "q1", dir() } };
 	}
-	void cleanup() { delete m_tmp; }
+	void cleanup()
+	{
+		// a failed QVERIFY must not leave a directory that cannot be deleted
+		QFile::setPermissions(dir(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+		delete m_tmp;
+	}
 
 	void addsTorrentAndRenames()
 	{
@@ -146,16 +155,12 @@ private slots:
 		write("a.torrent", "x");
 		QFile::setPermissions(dir(), QFile::ReadOwner | QFile::ExeOwner);
 		if (QFileInfo(dir()).isWritable())
-		{
-			QFile::setPermissions(dir(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 			QSKIP("running with privileges that ignore permissions");
-		}
 
 		WatchFolderService s(hooks());
 		settle(s, dir());
 		QVERIFY(m_calls.isEmpty());
 		QVERIFY(exists("a.torrent"));
-		QFile::setPermissions(dir(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	}
 
 	void missingFolderIsPickedUpOnceCreated()
@@ -173,6 +178,62 @@ private slots:
 		settle(s, sub);
 		QCOMPARE(m_calls.size(), 1);
 		QVERIFY(QFile::exists(QDir(sub).filePath("a.torrent.added")));
+	}
+
+	void renameFailureIsNotAddedAgain()
+	{
+		QFile::setPermissions(dir(), QFile::ReadOwner | QFile::ExeOwner);
+		const bool locks = !QFileInfo(dir()).isWritable();
+		QFile::setPermissions(dir(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+		if (!locks)
+			QSKIP("running with privileges that ignore permissions");
+
+		WatchFolderService s(hooks());
+		m_lockDirOnAdd = true;
+		write("a.torrent", "x");
+		settle(s, dir());
+		QCOMPARE(m_calls.size(), 1);
+		QVERIFY(exists("a.torrent"));
+
+		for (int i = 0; i < 2; i++)
+		{
+			m_now += WatchFolderScanner::SettleMs;
+			s.scan(dir());
+			m_now += WatchFolderScanner::SettleMs;
+			s.scan(dir());
+		}
+		QCOMPARE(m_calls.size(), 1);
+
+		m_lockDirOnAdd = false;
+		QFile::setPermissions(dir(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+		s.reload(); // the locked folder was dropped as not writable
+		write("a.torrent", "different content");
+		settle(s, dir());
+		QCOMPARE(m_calls.size(), 2);
+		QVERIFY(exists("a.torrent.added"));
+	}
+
+	void realEventsAddDroppedFile()
+	{
+		WatchFolderService::Hooks h = hooks();
+		h.clock = nullptr;
+		WatchFolderService s(h);
+		write("a.torrent", "x");
+		QTRY_VERIFY_WITH_TIMEOUT(exists("a.torrent.added"), 10000);
+		QCOMPARE(m_calls.size(), 1);
+	}
+
+	void deletedQueueLeavesFilesAlone()
+	{
+		WatchFolderService s(hooks());
+		write("a.torrent", "x");
+		s.scan(dir());
+
+		m_entries = {}; // no reload(): the service does not know yet
+		m_now += WatchFolderScanner::SettleMs;
+		s.scan(dir());
+		QVERIFY(m_calls.isEmpty());
+		QVERIFY(exists("a.torrent"));
 	}
 
 	void unwatchedFolderIsIgnored()

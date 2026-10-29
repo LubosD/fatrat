@@ -55,6 +55,7 @@ public:
 
 	explicit WatchFolderService(const Hooks& hooks);
 	~WatchFolderService();
+	// Main thread only, unlocked; other threads must go through requestReload().
 	static WatchFolderService* instance() { return m_instance; }
 
 	// Callable from any thread: rereads the configuration on the main thread.
@@ -76,6 +77,7 @@ private:
 	QHash<QString, QString> m_statuses; // queue UUID -> last logged status
 	QSet<QString> m_followUps;          // folders with a follow-up scan scheduled
 	QSet<QString> m_stuck;              // processed files that could not be renamed
+	QSet<QString> m_inProgress;         // files being processed right now
 	static WatchFolderService* m_instance;
 };
 
