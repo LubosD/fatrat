@@ -375,6 +375,14 @@ void PythonDownload::setObject(QString newdir)
 {
 	if (isActive())
 		CurlDownload::setObject(newdir);
+	else if (QDir(newdir) != QDir(m_strTarget))
+	{
+		// Curl's directory is set only while running; a stopped or completed
+		// download's file is known by our own target and name.
+		QString path = dataPath(true);
+		if (QFileInfo(path).isFile() && !QFile::rename(path, QDir(newdir).filePath(name())))
+			throw RuntimeException(tr("Cannot move the file."));
+	}
 	m_strTarget = newdir;
 }
 
