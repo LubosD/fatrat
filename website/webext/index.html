@@ -30,6 +30,7 @@
 					<a class="btn primary" data-store="chrome">Chrome</a>
 					<a class="btn primary" data-store="firefox">Firefox</a>
 				</div>
+				<p class="lead">The Firefox extension is pending approval by Mozilla.</p>
 				<p class="lead">After installing it, reload this page to connect it to your FatRat.</p>
 			</div>
 
@@ -49,10 +50,9 @@
 </main>
 
 <script>
-	// Replaced by the store listings once published.
 	const STORE_LINKS = {
-		chrome: 'https://github.com/LubosD/fatrat-webext#install',
-		firefox: 'https://github.com/LubosD/fatrat-webext#install',
+		chrome: 'https://chromewebstore.google.com/detail/fatrat/dplnhpcfmlioabhlhkjckajfmpedmmkp',
+		firefox: 'https://addons.mozilla.org/firefox/addon/fatrat/',
 	};
 	for (const a of document.querySelectorAll('[data-store]')) a.href = STORE_LINKS[a.dataset.store];
 

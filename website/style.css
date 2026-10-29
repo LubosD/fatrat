@@ -164,6 +164,17 @@ section.alt { background: var(--surface-2); }
 @media (max-width: 760px) { .fronts { grid-template-columns: 1fr; } }
 .fronts .card { display: flex; flex-direction: column; gap: .8rem; }
 .fronts pre { font-size: .82rem; }
+.browser { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; margin-top: 1rem; scroll-margin-top: 72px; }
+.browser > div:first-child { flex: 1 1 28rem; }
+.stores { display: flex; flex-wrap: wrap; gap: .75rem; }
+.store {
+	display: inline-flex; flex-direction: column; align-items: center;
+	padding: .65rem 1.3rem; border-radius: 999px;
+	background: var(--accent); color: var(--accent-fg);
+	font-weight: 600; text-decoration: none; line-height: 1.3;
+}
+.store:hover { filter: brightness(1.08); }
+.store small { font-weight: 400; font-size: .75rem; opacity: .85; }
 
 /* Split section */
 .split { display: grid; grid-template-columns: 1fr 1.1fr; gap: 2.5rem; align-items: center; }
