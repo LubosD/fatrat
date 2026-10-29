@@ -56,6 +56,24 @@ private slots:
 		QCOMPARE(s.scan(m_dir->path()).ready.size(), 1);
 	}
 
+	// The service renames processed files away; a file that comes back under the same name settles again.
+	void reappearingFileSettlesAgain()
+	{
+		WatchFolderScanner s = scanner();
+		write("c.torrent", "x");
+		s.scan(m_dir->path());
+		m_now += WatchFolderScanner::SettleMs;
+		QCOMPARE(s.scan(m_dir->path()).ready.size(), 1);
+
+		QFile::remove(m_dir->filePath("c.torrent"));
+		QVERIFY(s.scan(m_dir->path()).ready.isEmpty());
+
+		write("c.torrent", "x");
+		WatchFolderScanner::Result r = s.scan(m_dir->path());
+		QVERIFY(r.ready.isEmpty());
+		QVERIFY(r.pending);
+	}
+
 	void ignoresOtherFiles()
 	{
 		WatchFolderScanner s = scanner();

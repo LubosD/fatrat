@@ -37,7 +37,7 @@ class WatchFolderScanner
 {
 public:
 	using Clock = std::function<qint64()>; // milliseconds, monotonic
-	static const qint64 SettleMs = 2000;
+	static constexpr qint64 SettleMs = 2000;
 
 	struct Result
 	{
