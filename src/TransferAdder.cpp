@@ -82,9 +82,25 @@ QStringList TransferAdder::add(Queue* q, const QStringList& sources, Options opt
 			Transfer* t = TransferFactory::instance()->createInstance(Transfer::getEngineName(classID, mode));
 			if (!t)
 				throw Error("create_failed", "Failed to create a class instance.");
+
+			try
+			{
+				TransferFactory::instance()->init(t, source.trimmed(), opts.target);
+			}
+			catch (const RuntimeException&)
+			{
+				if (!rejected)
+				{
+					created << t;
+					throw;
+				}
+				// One bad link in a list shouldn't lose the others
+				delete t;
+				*rejected << source;
+				continue;
+			}
 			created << t;
 
-			TransferFactory::instance()->init(t, source.trimmed(), opts.target);
 			t->setUserSpeedLimits(opts.down, opts.up);
 			TransferFactory::instance()->setState(t, opts.paused ? Transfer::Paused : Transfer::Waiting);
 			uuids << t->uuid();
@@ -93,16 +109,22 @@ QStringList TransferAdder::add(Queue* q, const QStringList& sources, Options opt
 	catch (const Error&)
 	{
 		qDeleteAll(created);
+		if (rejected)
+			rejected->clear();
 		throw;
 	}
 	catch (const RuntimeException& e)
 	{
 		qDeleteAll(created);
+		if (rejected)
+			rejected->clear();
 		throw Error("transfer_failed", e.what());
 	}
 	catch (...)
 	{
 		qDeleteAll(created);
+		if (rejected)
+			rejected->clear();
 		throw;
 	}
 

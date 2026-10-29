@@ -722,7 +722,7 @@ static RestResult addTransfers(const RestRequest& req)
 	TransferAdder::Options add;
 	add.engine = opts.engine;
 	add.target = opts.target;
-	add.upload = opts.upload;
+	add.upload = opts.upload && !req.isMultipart(); // an uploaded file is always something to download
 	add.paused = opts.paused;
 	add.down = opts.down;
 	add.up = opts.up;

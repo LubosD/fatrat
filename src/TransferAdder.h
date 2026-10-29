@@ -53,8 +53,9 @@ namespace TransferAdder
 		QString m_code;
 	};
 
-	// Returns the UUIDs of the new transfers. A source no class accepts throws Error, unless rejected is given:
-	// then it is listed there and skipped. When Error is thrown nothing has been added to q.
+	// Returns the UUIDs of the new transfers. A source no class accepts, or whose transfer fails to initialize,
+	// throws Error, unless rejected is given: then it is listed there and skipped. When Error is thrown nothing
+	// has been added to q and rejected is cleared.
 	// The caller must not hold q's own lock.
 	QStringList add(Queue* q, const QStringList& sources, Options opts, QStringList* rejected = nullptr);
 }

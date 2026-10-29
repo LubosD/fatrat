@@ -203,7 +203,7 @@ void WatchFolderService::process(const QString& path, const QString& queueUuid)
 
 		const int MaxLogged = 10;
 		for (int i = 0; i < rejected.size() && i < MaxLogged; i++)
-			log(tr("%1: no transfer class accepts \"%2\"").arg(info.fileName(), rejected[i]));
+			log(tr("%1: cannot add \"%2\"").arg(info.fileName(), rejected[i]));
 		if (rejected.size() > MaxLogged)
 			log(tr("%1: %2 more links were not accepted").arg(info.fileName()).arg(rejected.size() - MaxLogged));
 		if (error.isEmpty() && !added)
