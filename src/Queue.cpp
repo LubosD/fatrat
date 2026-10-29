@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "QueueMgr.h"
 #include "Settings.h"
 #include "engines/PlaceholderTransfer.h"
+#include "watch/WatchFolderService.h"
 #include <unistd.h>
 #include <QCoreApplication>
 #include <QList>
@@ -91,6 +92,7 @@ Queue::~Queue()
 	QWriteLocker l(&m_lock);
 	qDebug() << "Queue::~Queue()";
 	qDeleteAll(m_transfers);
+	WatchFolderService::requestReload();
 }
 
 void Queue::unloadQueues()
@@ -195,6 +197,7 @@ void Queue::loadQueues()
 				pQueue->m_uuid = QUuid( n.attribute("uuid", pQueue->m_uuid.toString()) );
 				pQueue->m_strDefaultDirectory = n.attribute("defaultdir", pQueue->m_strDefaultDirectory);
 				pQueue->m_strMoveDirectory = n.attribute("movedir");
+				pQueue->m_strWatchDirectory = n.attribute("watchdir");
 				
 				pQueue->loadQueue(n);
 				g_queues << pQueue;
@@ -281,6 +284,7 @@ void Queue::saveQueues()
 		elem.setAttribute("uuid",q->m_uuid.toString());
 		elem.setAttribute("defaultdir",q->m_strDefaultDirectory);
 		elem.setAttribute("movedir",q->m_strMoveDirectory);
+		elem.setAttribute("watchdir",q->m_strWatchDirectory);
 		
 		q->saveQueue(elem,doc);
 		root.appendChild(elem);
@@ -536,6 +540,21 @@ QString Queue::moveDirectory() const
 {
 	QReadLocker l(&m_lock);
 	return m_strMoveDirectory;
+}
+
+void Queue::setWatchDirectory(QString path)
+{
+	{
+		QWriteLocker l(&m_lock);
+		m_strWatchDirectory = path.trimmed();
+	}
+	WatchFolderService::requestReload();
+}
+
+QString Queue::watchDirectory() const
+{
+	QReadLocker l(&m_lock);
+	return m_strWatchDirectory;
 }
 
 bool Queue::contains(Transfer* t) const
