@@ -161,6 +161,7 @@ set(fatrat_SRCS
 	src/Proxy.cpp
 	src/NetIface.cpp
 	src/Queue.cpp
+	src/TransferAdder.cpp
 	src/QueueMgr.cpp
 	src/SimpleEmail.cpp
 	src/Transfer.cpp

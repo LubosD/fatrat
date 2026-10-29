@@ -32,6 +32,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "RestTasks.h"
 #include "Transfer.h"
+#include "TransferAdder.h"
 #include "TransferFactory.h"
 #include "TransferHttpService.h"
 #include "plugins/FormValidator.h"
@@ -717,21 +718,16 @@ static RestResult addTransfers(const RestRequest& req)
 		opts = AddOptions::parse(req.jsonObject(), true);
 
 	QueueGuard g(req.pathParams["queue"]);
-	Queue* q = g.queue();
-	const Transfer::Mode mode = opts.upload ? Transfer::Upload : Transfer::Download;
 
-	// A download without a target goes where the queue's downloads go. An empty target would make the
-	// engines write relative to FatRat's working directory (and a .torrent fetched over HTTP could then
-	// not be loaded, as TorrentDownload only recognizes absolute paths as local files).
-	if (mode == Transfer::Download && opts.target.isEmpty())
-	{
-		opts.target = q->defaultDirectory();
-		if (opts.target.isEmpty())
-			opts.target = QDir::homePath();
-	}
+	TransferAdder::Options add;
+	add.engine = opts.engine;
+	add.target = opts.target;
+	add.upload = opts.upload;
+	add.paused = opts.paused;
+	add.down = opts.down;
+	add.up = opts.up;
+
 	QStringList uuids;
-	QList<Transfer*> created;
-
 	try
 	{
 		if (req.isMultipart())
@@ -743,73 +739,21 @@ static RestResult addTransfers(const RestRequest& req)
 			tempFile.write(uploadedData);
 			tempFile.flush();
 
-			QString engine = opts.engine;
-			if (engine.isEmpty())
+			if (add.engine.isEmpty())
 			{
 				if (Transfer::BestEngine be = Transfer::bestEngine("/" + uploadedName, Transfer::Download))
-					engine = be.engine->shortName;
-				if (engine.isEmpty())
+					add.engine = be.engine->shortName;
+				if (add.engine.isEmpty())
 					throw RestError(422, "no_matching_engine", "No download class is able to handle this file.");
 			}
-
-			Transfer* t = TransferFactory::instance()->createInstance(engine);
-			if (!t)
-				throw RestError(422, "no_matching_engine", QString("Unknown transfer class: %1").arg(engine));
-			created << t;
-
-			TransferFactory::instance()->init(t, tempFile.fileName(), opts.target);
-			t->setUserSpeedLimits(opts.down, opts.up);
-			TransferFactory::instance()->setState(t, opts.paused ? Transfer::Paused : Transfer::Waiting);
-			uuids << t->uuid();
+			uuids = TransferAdder::add(g.queue(), { tempFile.fileName() }, add);
 		}
 		else
-		{
-			// With an explicit class every URL uses it; otherwise each URL is detected on its own
-			// (a batch may mix e.g. HTTP links and magnet links).
-			int explicitClass = -1;
-			if (!opts.engine.isEmpty())
-				explicitClass = Transfer::getEngineID(opts.engine, mode);
-
-			for (const QString& uri : opts.urls)
-			{
-				int classID = explicitClass;
-				if (classID == -1)
-				{
-					Transfer::BestEngine eng = (mode == Transfer::Download)
-						? Transfer::bestEngine(uri, Transfer::Download)
-						: Transfer::bestEngine(opts.target, Transfer::Upload);
-
-					if (eng.nClass < 0)
-						throw RestError(422, "no_matching_engine", QString("Couldn't autodetect transfer type for \"%1\"").arg(uri));
-					classID = eng.nClass;
-				}
-
-				Transfer* t = TransferFactory::instance()->createInstance(Transfer::getEngineName(classID, mode));
-				if (!t)
-					throw RestError(500, "create_failed", "Failed to create a class instance.");
-				created << t;
-
-				TransferFactory::instance()->init(t, uri.trimmed(), opts.target);
-				t->setUserSpeedLimits(opts.down, opts.up);
-				TransferFactory::instance()->setState(t, opts.paused ? Transfer::Paused : Transfer::Waiting);
-				uuids << t->uuid();
-			}
-		}
-
-		q->lockW();
-		for (Transfer* t : created)
-			q->add(t);
-		q->unlock();
+			uuids = TransferAdder::add(g.queue(), opts.urls, add);
 	}
-	catch (const RuntimeException& e)
+	catch (const TransferAdder::Error& e)
 	{
-		qDeleteAll(created);
-		throw RestError(422, "transfer_failed", e.what());
-	}
-	catch (...)
-	{
-		qDeleteAll(created);
-		throw;
+		throw RestError(e.code() == "create_failed" ? 500 : 422, e.code(), e.what());
 	}
 
 	QJsonObject rv;
