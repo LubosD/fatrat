@@ -10,6 +10,8 @@ function makeQueue(uuid: string, name: string): Queue {
     name,
     defaultDirectory: '/downloads',
     moveDirectory: '',
+    watchDirectory: '',
+    watchStatus: 'off',
     upAsDown: false,
     transferLimits: { down: 0, up: 0 },
     speedLimits: { down: 0, up: 0 },
@@ -39,6 +41,30 @@ describe('QueueList', () => {
     expect(items[1].textContent).toContain('Second');
     expect(items[1].classList.contains('selected')).toBe(true);
     expect(items[0].classList.contains('selected')).toBe(false);
+  });
+
+  it('flags only the queues whose watch folder has a problem', () => {
+    const queuesStoreStub = {
+      queues: () => [
+        { ...makeQueue('q1', 'Default'), watchDirectory: '/w1', watchStatus: 'not_writable' as const },
+        { ...makeQueue('q2', 'Second'), watchDirectory: '/w2', watchStatus: 'ok' as const },
+      ],
+      selectedQueueUuid: () => null,
+      selectQueue: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [QueueList],
+      providers: [
+        { provide: QueuesStore, useValue: queuesStoreStub },
+        { provide: QueueActionsService, useValue: { resumeAll: vi.fn(), stopAll: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(QueueList);
+    fixture.detectChanges();
+
+    const flags = fixture.nativeElement.querySelectorAll('[data-testid="queue-watch-problem"]');
+    expect(flags.length).toBe(1);
+    expect(flags[0].getAttribute('title')).toContain("can't write");
   });
 
   it('calls selectQueue() when a queue is clicked', () => {

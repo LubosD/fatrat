@@ -3,6 +3,8 @@ import type { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { QueuesStore } from '../../state/queues.store';
 import { QueueActionsService } from '../../core/queue-actions.service';
+import { Queue } from '../../core/api/models';
+import { watchStatusProblem } from './watch-status';
 
 @Component({
   selector: 'app-queue-list',
@@ -28,6 +30,10 @@ export class QueueList {
     { separator: true },
     { label: 'Delete Queue', icon: 'pi pi-trash', command: () => this.deleteRequested.emit() },
   ];
+
+  protected watchProblem(queue: Queue): string | null {
+    return watchStatusProblem(queue.watchStatus);
+  }
 
   protected onContextMenu(event: MouseEvent, uuid: string, menu: ContextMenu): void {
     // The menu acts on the selected queue, so a right-click selects first.

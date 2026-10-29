@@ -11,6 +11,8 @@ function makeQueue(overrides: Partial<Queue> = {}): Queue {
     name: 'Default',
     defaultDirectory: '/downloads',
     moveDirectory: '',
+    watchDirectory: '',
+    watchStatus: 'off',
     upAsDown: false,
     transferLimits: { down: 0, up: 0 },
     speedLimits: { down: 0, up: 0 },

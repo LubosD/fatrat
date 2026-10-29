@@ -10,6 +10,8 @@ function makeQueue(overrides: Partial<Queue> = {}): Queue {
     name: 'Default',
     defaultDirectory: '/downloads',
     moveDirectory: '',
+    watchDirectory: '',
+    watchStatus: 'off',
     upAsDown: false,
     transferLimits: { down: 0, up: 0 },
     speedLimits: { down: 0, up: 0 },
@@ -77,12 +79,46 @@ describe('QueuePropertiesDialog', () => {
         name: 'New Queue Name',
         defaultDirectory: '',
         moveDirectory: '',
+        watchDirectory: '',
         speedLimits: { down: 204800, up: 0 },
         transferLimits: { down: 0, up: 0 },
         upAsDown: false,
       },
     ]);
     expect(visibleChanges).toEqual([false]);
+  });
+
+  it('loads and saves the watch folder', () => {
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
+    const fixture = TestBed.createComponent(QueuePropertiesDialog);
+    fixture.componentRef.setInput('queue', makeQueue({ watchDirectory: '/srv/watch' }));
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.watchDirectory).toBe('/srv/watch');
+
+    const saved: { watchDirectory: string }[] = [];
+    fixture.componentInstance.save.subscribe((v) => saved.push(v));
+    fixture.componentInstance.watchDirectory = '/srv/other';
+    fixture.componentInstance['onSave']();
+    expect(saved[0].watchDirectory).toBe('/srv/other');
+  });
+
+  it('warns about a watch folder problem until the path is edited', async () => {
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
+    const fixture = TestBed.createComponent(QueuePropertiesDialog);
+    fixture.componentRef.setInput('queue', makeQueue({ watchDirectory: '/srv/watch', watchStatus: 'missing' }));
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(document.body.querySelector('[data-testid="queue-watch-problem"]')?.textContent).toContain("doesn't exist");
+
+    const input = document.body.querySelector('#queue-watch-directory') as HTMLInputElement;
+    input.value = '/srv/new';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.watchDirectory).toBe('/srv/new');
+    expect(document.body.querySelector('[data-testid="queue-watch-problem"]')).toBeNull();
   });
 
   it('closes without emitting save() on cancel', () => {
