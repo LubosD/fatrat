@@ -112,10 +112,11 @@ void TransfersView::drawQueues(Canvas& c, HitMap& hits, const Rect& box)
 			c.put(box.x + 1, y, fit(" " + q->name, inner), Style::Hl);
 			c.put(box.x + 1, y + 1, fit(" Dir   " + q->defaultDirectory, inner), Style::Dim);
 			c.put(box.x + 1, y + 2, fit(" Move  " + (q->moveDirectory.isEmpty() ? "-" : q->moveDirectory), inner), Style::Dim);
-			QString watch = q->watchDirectory.isEmpty() ? QString("-") : q->watchDirectory;
-			if (q->watchProblem())
-				watch += " (" + QString(q->watchStatus).replace('_', ' ') + ")";
-			c.put(box.x + 1, y + 3, fit(" Watch " + watch, inner), Style::Dim);
+			// A long path is shortened rather than the problem, which is what this line is for
+			const QString problem = q->watchProblem() ? " (" + QString(q->watchStatus).replace('_', ' ') + ")" : QString();
+			const QString watch = q->watchDirectory.isEmpty() ? QString("-")
+				: elide(q->watchDirectory, inner - displayWidth(" Watch " + problem), Glyphs::isAscii());
+			c.put(box.x + 1, y + 3, fit(" Watch " + watch + problem, inner), Style::Dim);
 			c.put(box.x + 1, y + 4, fit(QString(" Lim   %1 %2  %3 %4").arg(g.down, limit(q->speedLimits.down), g.up, limit(q->speedLimits.up)), inner), Style::Dim);
 		}
 	}

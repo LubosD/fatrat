@@ -105,6 +105,15 @@ private slots:
 		QVERIFY(t.contains("Watch /w (missing)"));
 	}
 
+	void longWatchPathKeepsTheProblemVisible()
+	{
+		QueueInfo q = queue("q1", "Main queue");
+		q.watchDirectory = "/srv/downloads/blackhole/tv";
+		q.watchStatus = "not_writable";
+		m_app->store().setQueues({ q });
+		QVERIFY(render(110, 34).contains("(not writable)"));
+	}
+
 	void mainScreenShowsEverything()
 	{
 		const QString t = render(110, 34);
