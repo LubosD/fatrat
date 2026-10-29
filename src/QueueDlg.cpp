@@ -25,6 +25,7 @@ respects for all of the code used other than "OpenSSL".
 */
 
 #include "QueueDlg.h"
+#include "Queue.h"
 #include <QFileDialog>
 #include <QPushButton>
 
@@ -49,7 +50,7 @@ QueueDlg::QueueDlg(QWidget* parent)
 	spinTransfersDown->setMinimum(1);
 	spinTransfersUp->setMinimum(1);
 	
-	m_strDefaultDirectory = QDir::homePath();
+	m_strDefaultDirectory = Queue::defaultDownloadDirectory();
 }
 
 int QueueDlg::exec()

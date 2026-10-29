@@ -51,6 +51,8 @@ public:
 	static void saveQueues();
 	static void saveQueuesAsync();
 	static void unloadQueues();
+	// The platform's download directory (XDG_DOWNLOAD_DIR, ~/Downloads, the Downloads known folder) if it exists, else home.
+	static QString defaultDownloadDirectory();
 	
 	Q_INVOKABLE void setSpeedLimits(int down,int up) { m_nDownLimit=down; m_nUpLimit=up; }
 	void speedLimits(int& down, int& up) const { down=m_nDownLimit; up=m_nUpLimit; }

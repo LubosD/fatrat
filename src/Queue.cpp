@@ -37,6 +37,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QMutexLocker>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QStandardPaths>
 #include <QDomDocument>
 #include <QtDebug>
 
@@ -72,7 +74,16 @@ Queue::Queue()
 {
 	memset(&m_stats, 0, sizeof m_stats);
 	m_uuid = QUuid::createUuid();
-	m_strDefaultDirectory = QDir::homePath();
+	m_strDefaultDirectory = defaultDownloadDirectory();
+}
+
+QString Queue::defaultDownloadDirectory()
+{
+	// Qt falls back to ~/Downloads without checking that it exists, e.g. when xdg-user-dirs isn't set up
+	const QString dir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+	if (!dir.isEmpty() && QFileInfo(dir).isDir())
+		return dir;
+	return QDir::homePath();
 }
 
 Queue::~Queue()
