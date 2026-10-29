@@ -215,9 +215,11 @@ void WatchFolderService::process(const QString& path, const QString& queueUuid)
 	else
 		log(tr("%1: %2").arg(info.fileName(), error));
 
-	// A file replaced while it was being added is a different file; leave it for the next round.
+	// A file replaced while it was being added is a different file; leave it for the next round. Only the size
+	// is compared: some network filesystems report a slightly different mtime on every stat, and skipping the
+	// rename because of that would add the same file again on every scan.
 	const QFileInfo now(path);
-	if (now.size() != info.size() || now.lastModified() != info.lastModified())
+	if (now.exists() && now.size() != info.size())
 	{
 		log(tr("%1: the file changed while being added; it will be processed again").arg(info.fileName()));
 		return;
