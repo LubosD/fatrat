@@ -69,6 +69,14 @@ Use \fIfile\fR as settings storage
 .PP
 If started in the GUI mode, you may pass \fIlinks\fR
 as arguments and they will be presented to the user.
+.SH WATCH FOLDERS
+Each queue can watch a folder. \fB.torrent\fR, \fB.metalink\fR, \fB.meta4\fR,
+\fB.txt\fR (one link per line) and \fB.magnet\fR files dropped into it are
+added to the queue once they have stopped changing for two seconds. Each
+file is then renamed to \fIname\fB.added\fR, or to \fIname\fB.failed\fR if
+nothing could be added. Folders are also rescanned every minute, for
+network mounts. Set the folder in the queue's properties in the desktop,
+web or terminal interface, or through the REST API (\fBwatchDirectory\fR).
 .SH REPORTING BUGS
 All bugs should be reported at <http://fatrat.dolezel.info/bugs>
 .SH COPYRIGHT

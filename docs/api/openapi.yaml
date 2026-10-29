@@ -526,12 +526,17 @@ components:
         linkRegexp: { type: string }
     Queue:
       type: object
-      required: [uuid, name, defaultDirectory, moveDirectory, upAsDown, transferLimits, speedLimits]
+      required: [uuid, name, defaultDirectory, moveDirectory, watchDirectory, watchStatus, upAsDown, transferLimits, speedLimits]
       properties:
         uuid: { type: string }
         name: { type: string }
         defaultDirectory: { type: string }
         moveDirectory: { type: string }
+        watchDirectory: { type: string, description: "Folder whose dropped .torrent/.metalink/.meta4/.txt/.magnet files are added to this queue; empty = none" }
+        watchStatus:
+          enum: [off, ok, missing, not_writable, duplicate]
+          readOnly: true
+          description: "off: no watch folder; missing: the folder does not exist yet; not_writable: files could not be renamed, so nothing is picked up; duplicate: an earlier queue watches the same folder"
         upAsDown: { type: boolean }
         transferLimits: { $ref: "#/components/schemas/SpeedPair" }
         speedLimits: { $ref: "#/components/schemas/SpeedPair" }
@@ -543,6 +548,7 @@ components:
         name: { type: string }
         defaultDirectory: { type: string }
         moveDirectory: { type: string }
+        watchDirectory: { type: string, description: "Absolute path or empty. 422 invalid_watch_directory for a relative path, 422 watch_directory_in_use if another queue watches it." }
         upAsDown: { type: boolean }
         transferLimits: { $ref: "#/components/schemas/SpeedPair" }
         speedLimits: { $ref: "#/components/schemas/SpeedPair" }
