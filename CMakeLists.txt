@@ -166,6 +166,7 @@ set(fatrat_SRCS
 	src/watch/WatchFolderScanner.cpp
 	src/watch/WatchFolderService.cpp
 	src/watch/WatchFolderStatus.cpp
+	src/watch/WatchFolderQueues.cpp
 	src/QueueMgr.cpp
 	src/SimpleEmail.cpp
 	src/Transfer.cpp

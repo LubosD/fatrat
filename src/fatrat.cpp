@@ -73,6 +73,7 @@ respects for all of the code used other than "OpenSSL".
 #	include "dbus/KNotify.h"
 #endif
 #include "rss/RssFetcher.h"
+#include "watch/WatchFolderQueues.h"
 #include "Scheduler.h"
 #include "TransferFactory.h"
 #include "plugins/TaskManager.h"
@@ -237,6 +238,7 @@ int main(int argc,char** argv)
 		qDebug() << "FatRat is up and running now";
 	
 	new RssFetcher;
+	new WatchFolderService(WatchFolderQueues::hooks());
 	
 #ifdef WITH_DBUS
 	initDbus();
@@ -261,6 +263,7 @@ int main(int argc,char** argv)
 	delete HttpService::instance();
 #endif
 	delete RssFetcher::instance();
+	delete WatchFolderService::instance();
 	delete Scheduler::instance();
 #ifdef WITH_GUI
 	delete g_wndMain;
