@@ -72,6 +72,22 @@ private slots:
 		QVERIFY(!c.error.isEmpty());
 	}
 
+	void linkListAtTheLimitIsRead()
+	{
+		QByteArray data = "http://a/\n";
+		data.append(QByteArray(WatchFile::MaxListSize - data.size(), '\n'));
+		const WatchFile::Contents c = WatchFile::read(write("limit.txt", data));
+		QVERIFY(c.error.isEmpty());
+		QCOMPARE(c.sources, QStringList{ "http://a/" });
+	}
+
+	void unsupportedFileIsAnError()
+	{
+		const WatchFile::Contents c = WatchFile::read(write("notes.zip", "x"));
+		QVERIFY(c.sources.isEmpty());
+		QVERIFY(!c.error.isEmpty());
+	}
+
 	void markProcessedRenames()
 	{
 		const QString path = write("m.torrent", "x");
@@ -89,6 +105,11 @@ private slots:
 		write("c.torrent.added", "old");
 		write("c.torrent.added.1", "older");
 		QCOMPARE(WatchFile::markProcessed(path, true), path + ".added.2");
+
+		QFile old(path + ".added"), older(path + ".added.1");
+		QVERIFY(old.open(QIODevice::ReadOnly) && older.open(QIODevice::ReadOnly));
+		QCOMPARE(old.readAll(), QByteArray("old"));
+		QCOMPARE(older.readAll(), QByteArray("older"));
 	}
 
 	void markProcessedReportsFailure()

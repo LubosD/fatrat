@@ -51,16 +51,17 @@ Contents read(const QString& path)
 	Contents c;
 	const QFileInfo info(path);
 
-	if (kind(info.fileName()) != LinkList)
+	switch (kind(info.fileName()))
 	{
+	case Unsupported:
+		c.error = "Not a file type watch folders handle";
+		return c;
+	case Torrent:
+	case Metalink:
 		c.sources << info.absoluteFilePath();
 		return c;
-	}
-
-	if (info.size() > MaxListSize)
-	{
-		c.error = QString("The link list is larger than %1 bytes").arg(MaxListSize);
-		return c;
+	case LinkList:
+		break;
 	}
 
 	QFile file(path);
@@ -70,7 +71,15 @@ Contents read(const QString& path)
 		return c;
 	}
 
-	QString text = QString::fromUtf8(file.readAll());
+	// Read one byte past the limit rather than trusting the size listed earlier: the file may have grown since.
+	const QByteArray data = file.read(MaxListSize + 1);
+	if (data.size() > MaxListSize)
+	{
+		c.error = QString("The link list is larger than %1 bytes").arg(MaxListSize);
+		return c;
+	}
+
+	QString text = QString::fromUtf8(data);
 	if (text.startsWith(QChar(0xFEFF)))
 		text.remove(0, 1);
 
