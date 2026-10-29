@@ -1,5 +1,6 @@
 usr/bin/fatrat
 usr/share/fatrat/data/css
 usr/share/fatrat/doc
-usr/share/pixmaps/fatrat.png
+usr/share/icons/hicolor
 usr/share/applications/fatrat.desktop
+usr/share/metainfo/info.dolezel.fatrat.metainfo.xml

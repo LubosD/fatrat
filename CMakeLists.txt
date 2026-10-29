@@ -742,8 +742,9 @@ install(FILES
 
 if(WITH_GUI)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/css/queueview.css ${CMAKE_CURRENT_SOURCE_DIR}/data/css/label-headers.css DESTINATION share/fatrat/data/css)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/gfx/fatrat.png DESTINATION share/pixmaps)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gfx/icons/hicolor DESTINATION share/icons)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fatrat.desktop DESTINATION share/applications)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/info.dolezel.fatrat.metainfo.xml DESTINATION share/metainfo)
 endif(WITH_GUI)
 
 install(FILES ${fatrat_DEV_HEADERS} DESTINATION include/fatrat)

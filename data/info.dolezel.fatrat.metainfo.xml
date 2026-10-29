@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata for software centres (GNOME Software, KDE Discover, ...):
+     https://www.freedesktop.org/software/appstream/docs/
+     Validate with: appstreamcli validate data/info.dolezel.fatrat.metainfo.xml -->
+<component type="desktop-application">
+  <id>info.dolezel.fatrat</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <name>FatRat</name>
+  <summary>Download manager for HTTP, FTP and BitTorrent</summary>
+  <developer id="info.dolezel">
+    <name>Luboš Doležel</name>
+  </developer>
+
+  <description>
+    <p>
+      FatRat downloads over HTTP(S), FTP(S) and BitTorrent, keeps your transfers in queues,
+      follows RSS feeds and runs on a schedule. You can drive it from the desktop app,
+      a web browser, a terminal or a script, all at the same time.
+    </p>
+    <ul>
+      <li>Segmented HTTP and FTP downloads with mirror lists, Metalink and resume</li>
+      <li>BitTorrent with magnet links, DHT, per-file priorities and torrent creation</li>
+      <li>Queues with their own directories, speed limits and limits on running transfers</li>
+      <li>RSS rules and TV episode tracking</li>
+      <li>Scheduler that starts, stops and throttles queues at set times</li>
+      <li>Clipboard monitor, drop box and FTP uploads</li>
+      <li>Web interface, terminal UI and REST API for remote use</li>
+      <li>Extensions written in Python</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">fatrat.desktop</launchable>
+
+  <categories>
+    <category>Network</category>
+    <category>FileTransfer</category>
+  </categories>
+  <keywords>
+    <keyword>download</keyword>
+    <keyword>torrent</keyword>
+    <keyword>bittorrent</keyword>
+    <keyword>magnet</keyword>
+    <keyword>ftp</keyword>
+    <keyword>rss</keyword>
+  </keywords>
+  <provides>
+    <binary>fatrat</binary>
+    <mediatype>application/x-bittorrent</mediatype>
+  </provides>
+
+  <url type="homepage">https://fatrat.dolezel.info/</url>
+  <url type="bugtracker">https://github.com/LubosD/fatrat/issues</url>
+  <url type="vcs-browser">https://github.com/LubosD/fatrat</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The desktop application</caption>
+      <image>https://fatrat.dolezel.info/img/screenshots/desktop.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The web interface</caption>
+      <image>https://fatrat.dolezel.info/img/screenshots/web.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The terminal UI</caption>
+      <image>https://fatrat.dolezel.info/img/screenshots/tui.png</image>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="1.3.1" date="2026-10-17">
+      <description>
+        <p>Fixes the build with libtorrent-rasterbar 2.1 and passes the proxy password to libtorrent.</p>
+      </description>
+    </release>
+    <release version="1.3.0" date="2026-10-17">
+      <description>
+        <p>Ported to Qt 6, with a new web interface, a terminal UI, a REST API and Python extensions.</p>
+      </description>
+    </release>
+  </releases>
+</component>
