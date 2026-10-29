@@ -86,6 +86,25 @@ private slots:
 		delete m_http;
 	}
 
+	void queueInfoReadsWatchFields()
+	{
+		const QueueInfo q = QueueInfo::fromJson(QJsonObject{ { "watchDirectory", "/w" }, { "watchStatus", "missing" } });
+		QCOMPARE(q.watchDirectory, QString("/w"));
+		QCOMPARE(q.watchStatus, QString("missing"));
+		QVERIFY(q.watchProblem());
+	}
+
+	void watchFolderShownInQueuePanel()
+	{
+		QueueInfo q = queue("q1", "Main queue");
+		q.watchDirectory = "/w"; // the queue pane is 22 columns wide inside its border
+		q.watchStatus = "missing";
+		m_app->store().setQueues({ q, queue("q2", "Movies") });
+		const QString t = render(110, 34);
+		QVERIFY(t.contains("! Main queue"));
+		QVERIFY(t.contains("Watch /w (missing)"));
+	}
+
 	void mainScreenShowsEverything()
 	{
 		const QString t = render(110, 34);

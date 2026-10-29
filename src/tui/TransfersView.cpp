@@ -85,7 +85,7 @@ void TransfersView::drawQueues(Canvas& c, HitMap& hits, const Rect& box)
 
 	const int inner = box.w - 2;
 	const bool info = box.h >= 14;
-	const int listRows = box.h - 2 - (info ? 6 : 0);
+	const int listRows = box.h - 2 - (info ? 7 : 0);
 
 	for (int i = 0; i < st.queues().size() && i < listRows; i++)
 	{
@@ -93,7 +93,7 @@ void TransfersView::drawQueues(Canvas& c, HitMap& hits, const Rect& box)
 		const bool cur = i == st.queueIndex();
 		const int count = st.queueCount(q.uuid);
 		const QString num = count >= 0 ? QString::number(count) : QString();
-		const QString text = QString(" %1%2%3 ").arg(cur ? g.cursor : " ", fit(q.name, inner - 3 - 4), fitRight(num, 4));
+		const QString text = QString(" %1%2%3 ").arg(cur ? g.cursor : " ", fit((q.watchProblem() ? "! " : "") + q.name, inner - 3 - 4), fitRight(num, 4));
 		Style s = Style::Normal;
 		if (i == m_dropQueue)
 			s = Style::MenuSel;
@@ -107,12 +107,16 @@ void TransfersView::drawQueues(Canvas& c, HitMap& hits, const Rect& box)
 	{
 		if (const QueueInfo* q = st.currentQueue())
 		{
-			const int y = box.bottom() - 6;
+			const int y = box.bottom() - 7;
 			auto limit = [&](qint64 v) { return v > 0 ? formatSpeed(v) : g.inf; };
 			c.put(box.x + 1, y, fit(" " + q->name, inner), Style::Hl);
-			c.put(box.x + 1, y + 1, fit(" Dir  " + q->defaultDirectory, inner), Style::Dim);
-			c.put(box.x + 1, y + 2, fit(" Move " + (q->moveDirectory.isEmpty() ? "-" : q->moveDirectory), inner), Style::Dim);
-			c.put(box.x + 1, y + 3, fit(QString(" Lim  %1 %2  %3 %4").arg(g.down, limit(q->speedLimits.down), g.up, limit(q->speedLimits.up)), inner), Style::Dim);
+			c.put(box.x + 1, y + 1, fit(" Dir   " + q->defaultDirectory, inner), Style::Dim);
+			c.put(box.x + 1, y + 2, fit(" Move  " + (q->moveDirectory.isEmpty() ? "-" : q->moveDirectory), inner), Style::Dim);
+			QString watch = q->watchDirectory.isEmpty() ? QString("-") : q->watchDirectory;
+			if (q->watchProblem())
+				watch += " (" + QString(q->watchStatus).replace('_', ' ') + ")";
+			c.put(box.x + 1, y + 3, fit(" Watch " + watch, inner), Style::Dim);
+			c.put(box.x + 1, y + 4, fit(QString(" Lim   %1 %2  %3 %4").arg(g.down, limit(q->speedLimits.down), g.up, limit(q->speedLimits.up)), inner), Style::Dim);
 		}
 	}
 }

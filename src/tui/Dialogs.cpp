@@ -497,6 +497,7 @@ void queueEditor(App& app, const QueueInfo* existing)
 	d->addText("name", app.tr("Name"), existing ? existing->name : QString());
 	d->addText("dir", app.tr("Default directory"), existing ? existing->defaultDirectory : QString());
 	d->addText("move", app.tr("Move finished to"), existing ? existing->moveDirectory : QString());
+	d->addText("watch", app.tr("Watch folder"), existing ? existing->watchDirectory : QString(), "empty = none");
 	d->addCheck("upAsDown", app.tr("Upload as download"), existing ? existing->upAsDown : false);
 	d->addSpacer();
 	d->addText("sdown", app.tr("Speed limit down"), existing ? kbText(existing->speedLimits.down) : "0", "KB/s, 0 = none");
@@ -506,7 +507,7 @@ void queueEditor(App& app, const QueueInfo* existing)
 
 	d->addShortcut('b', true, "Ctrl-B", app.tr("Browse"), [&app, uuid = existing ? existing->uuid : QString()](FormDialog& f) {
 		const QString id = f.focusedId();
-		if (id != "dir" && id != "move")
+		if (id != "dir" && id != "move" && id != "watch")
 		{
 			app.toast(app.tr("Select a directory field first"), true);
 			return;
@@ -535,6 +536,7 @@ void queueEditor(App& app, const QueueInfo* existing)
 			return false;
 		}
 		QJsonObject o{ { "name", name }, { "defaultDirectory", f.text("dir").trimmed() }, { "moveDirectory", f.text("move").trimmed() },
+			{ "watchDirectory", f.text("watch").trimmed() },
 			{ "upAsDown", f.checked("upAsDown") }, { "speedLimits", limitsJson(sd, su) }, { "transferLimits", limitsJson(td, tu) } };
 		auto done = app.reply(app.tr("Cannot save the queue"), [&app]() { app.refreshQueues(); });
 		if (uuid.isEmpty())
