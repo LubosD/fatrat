@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "WatchFolderQueues.h"
 #include "Queue.h"
 #include "TransferAdder.h"
+#include "RuntimeException.h"
 #include <QCoreApplication>
 #include <QReadLocker>
 
