@@ -65,6 +65,8 @@ describe('QueueList', () => {
     const flags = fixture.nativeElement.querySelectorAll('[data-testid="queue-watch-problem"]');
     expect(flags.length).toBe(1);
     expect(flags[0].getAttribute('title')).toContain("can't write");
+    expect(flags[0].getAttribute('aria-hidden')).toBe('true');
+    expect(flags[0].closest('li')?.textContent).toContain("Watch folder problem: FatRat can't write");
   });
 
   it('calls selectQueue() when a queue is clicked', () => {

@@ -25,7 +25,7 @@
     </p-inputgroup>
     <p class="hint">.torrent, .metalink, .meta4, .txt and .magnet files dropped here are added to this queue.</p>
     @if (watchProblem; as problem) {
-      <p class="hint watch-problem" data-testid="queue-watch-problem"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i> {{ problem }}</p>
+      <p class="hint warn" data-testid="queue-watch-problem"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i> {{ problem }}</p>
     }
   </div>
   <div class="field">

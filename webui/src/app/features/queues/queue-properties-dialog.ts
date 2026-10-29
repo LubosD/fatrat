@@ -25,7 +25,7 @@ export interface QueueFormValue {
   selector: 'app-queue-properties-dialog',
   imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
   templateUrl: './queue-properties-dialog.html',
-  styles: ['.field > .hint { flex: 1 1 100%; } .watch-problem { color: var(--p-orange-500); }'],
+  styles: ['.field > .hint { flex: 1 1 100%; }'],
 })
 export class QueuePropertiesDialog implements OnChanges {
   @Input() queue: Queue | null = null;

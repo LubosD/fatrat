@@ -103,6 +103,19 @@ describe('QueuePropertiesDialog', () => {
     expect(saved[0].watchDirectory).toBe('/srv/other');
   });
 
+  it('trims whitespace around the watch folder on save', () => {
+    TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
+    const fixture = TestBed.createComponent(QueuePropertiesDialog);
+    fixture.componentRef.setInput('queue', makeQueue());
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    const saved: { watchDirectory: string }[] = [];
+    fixture.componentInstance.save.subscribe((v) => saved.push(v));
+    fixture.componentInstance.watchDirectory = '  /srv/x  ';
+    fixture.componentInstance['onSave']();
+    expect(saved[0].watchDirectory).toBe('/srv/x');
+  });
+
   it('warns about a watch folder problem until the path is edited', async () => {
     TestBed.configureTestingModule({ imports: [QueuePropertiesDialog], providers: [{ provide: TransferApi, useValue: { browseDirectories: vi.fn() } }] });
     const fixture = TestBed.createComponent(QueuePropertiesDialog);

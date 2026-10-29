@@ -57,6 +57,25 @@ legend {
   color: var(--p-text-muted-color);
 }
 
+.hint.warn,
+.warn-text {
+  color: #b45309;
+}
+
+.app-dark .hint.warn,
+.app-dark .warn-text {
+  color: #fbbf24;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .log-panel {
   margin: 0;
   max-height: 20rem;

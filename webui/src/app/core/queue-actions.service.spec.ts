@@ -54,7 +54,13 @@ describe('QueueActionsService', () => {
   it('shows the server message when saving a queue fails', () => {
     setQueueProperties.mockReturnValue(throwError(() => new ApiError(422, 'watch_directory_in_use', 'The queue "TV" already watches /srv/w')));
     service.updateQueueProperties('q1', { watchDirectory: '/srv/w' });
-    expect(messagesAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', detail: 'The queue "TV" already watches /srv/w' }));
+    expect(messagesAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Cannot save the queue', detail: 'The queue "TV" already watches /srv/w' }));
+  });
+
+  it('falls back to the message of a plain Error', () => {
+    setQueueProperties.mockReturnValue(throwError(() => new Error('boom')));
+    service.updateQueueProperties('q1', { name: 'x' });
+    expect(messagesAdd).toHaveBeenCalledWith(expect.objectContaining({ detail: 'boom' }));
   });
 
   it('shows the server message when creating a queue fails', () => {

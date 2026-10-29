@@ -16,7 +16,8 @@
       <i class="pi pi-list" aria-hidden="true"></i>
       <span>{{ queue.name }}</span>
       @if (watchProblem(queue); as problem) {
-        <i class="pi pi-exclamation-triangle queue-watch-problem" data-testid="queue-watch-problem" [attr.title]="'Watch folder: ' + problem" [attr.aria-label]="'Watch folder: ' + problem"></i>
+        <i class="pi pi-exclamation-triangle queue-watch-problem warn-text" data-testid="queue-watch-problem" aria-hidden="true" [attr.title]="'Watch folder: ' + problem"></i>
+        <span class="visually-hidden">Watch folder problem: {{ problem }}</span>
       }
     </li>
   }

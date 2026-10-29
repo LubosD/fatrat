@@ -4,7 +4,6 @@ import { QueuesStore } from '../state/queues.store';
 import { DeleteQueueOptions, Queue } from './api/models';
 import { TransfersStore } from '../state/transfers.store';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ApiError } from './api/rest-client';
 import { Observable, map, of, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -62,7 +61,7 @@ export class QueueActionsService {
   }
 
   private showError(summary: string, err: unknown): void {
-    this.messages.add({ severity: 'error', summary, detail: err instanceof ApiError ? err.message : String(err) });
+    this.messages.add({ severity: 'error', summary, detail: err instanceof Error ? err.message : String(err) });
   }
 
   private setAllStates(queueUuid: string, state: 'Waiting' | 'Paused'): void {
