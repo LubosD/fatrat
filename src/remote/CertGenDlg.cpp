@@ -27,6 +27,11 @@ respects for all of the code used other than "OpenSSL".
 #include "CertGenDlg.h"
 #include <unistd.h>
 
+#ifndef HOST_NAME_MAX // not defined on macOS
+#	include <sys/param.h>
+#	define HOST_NAME_MAX MAXHOSTNAMELEN
+#endif
+
 CertGenDlg::CertGenDlg(QWidget* parent) : QDialog(parent)
 {
 	setupUi(this);

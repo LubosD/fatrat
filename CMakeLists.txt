@@ -649,6 +649,8 @@ if(WITH_TUI)
 
 	add_executable(fatrat-tui src/tui/main.cpp src/tui/NcBackend.cpp)
 	target_include_directories(fatrat-tui PRIVATE ${TUI_CURSES_INCLUDE_DIRS})
+	# The wide API (get_wch & co.) is hidden without this in some headers, e.g. macOS's ncurses.h
+	target_compile_definitions(fatrat-tui PRIVATE NCURSES_WIDECHAR=1)
 	target_link_libraries(fatrat-tui PRIVATE fatrat_tui_core ${TUI_CURSES_LIBRARIES})
 	install(TARGETS fatrat-tui RUNTIME DESTINATION bin)
 	install(FILES doc/fatrat-tui.1 DESTINATION share/man/man1)

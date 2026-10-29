@@ -444,7 +444,7 @@ void ExtensionsDialog::draw(Canvas& c, HitMap& hits, const Rect& screen)
 		const QString title = active ? "[" + sectionTitle(s) + "]" : " " + sectionTitle(s) + " ";
 
 		c.put(x, body.y, title, active ? Style::Selected : Style::Normal);
-		addClick({ x, body.y, title.size(), 1 }, [this, s]() { m_section = s; m_note.clear(); });
+		addClick({ x, body.y, int(title.size()), 1 }, [this, s]() { m_section = s; m_note.clear(); });
 		x += title.size() + 1;
 	}
 

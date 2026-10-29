@@ -215,7 +215,6 @@ void tst_pyplugins::taskCancellationRaisesInPlugin()
 {
 	bool done = false;
 	QString errorText;
-	py::object task;
 
 	{
 		py::gil_scoped_acquire gil;
@@ -234,7 +233,8 @@ void tst_pyplugins::taskCancellationRaisesInPlugin()
 		py::object plugin = py::module_::import("fatrat").attr("Plugin")();
 		py::object coroutine = globals["main"](plugin, m_server->url("/hello").toStdString());
 
-		task = pySpawnTask(coroutine, [&done, &errorText](py::object, py::object exc)
+		// Released while the GIL is still held
+		py::object task = pySpawnTask(coroutine, [&done, &errorText](py::object, py::object exc)
 		{
 			if (!exc.is_none())
 				errorText = QString::fromStdString(py::str(exc).cast<std::string>());

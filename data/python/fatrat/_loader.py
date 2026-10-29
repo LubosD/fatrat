@@ -7,6 +7,7 @@ import its own modules normally.
 
 from __future__ import annotations
 
+import importlib.machinery
 import importlib.util
 import os
 import sys

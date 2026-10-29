@@ -82,6 +82,10 @@ foreach(variant testaction testaction_needsgui testaction_wrongapi testaction_le
 	set_target_properties(${variant} PROPERTIES PREFIX "")
 	target_include_directories(${variant} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
 	target_link_libraries(${variant} PRIVATE ${fatrat_h_LIBS})
+	if(APPLE)
+		# macOS ld refuses undefined symbols unless told they come from the host at load time
+		target_link_options(${variant} PRIVATE -undefined dynamic_lookup)
+	endif(APPLE)
 endforeach()
 target_compile_definitions(testaction_needsgui PRIVATE TESTACTION_NEEDS_GUI)
 target_compile_definitions(testaction_wrongapi PRIVATE TESTACTION_API_VERSION=999)
