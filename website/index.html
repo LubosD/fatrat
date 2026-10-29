@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FatRat download manager</title>
-<meta name="description" content="FatRat is an open source download manager for Linux: HTTP(S), FTP(S) and BitTorrent, with queues, RSS, a scheduler and Python extensions. Use it from the desktop, a web browser or a terminal.">
+<meta name="description" content="FatRat is an open source download manager for Linux and macOS: HTTP(S), FTP(S) and BitTorrent, with queues, RSS, a scheduler and Python extensions. Use it from the desktop, a web browser or a terminal.">
 <meta name="theme-color" content="#1c160e">
 <meta property="og:title" content="FatRat download manager">
-<meta property="og:description" content="Open source download manager for Linux. HTTP(S), FTP(S), BitTorrent, RSS. Desktop, web and terminal front ends.">
+<meta property="og:description" content="Open source download manager for Linux and macOS. HTTP(S), FTP(S), BitTorrent, RSS. Desktop, web and terminal front ends.">
 <meta property="og:image" content="https://fatrat.dolezel.info/img/og.jpg">
 <meta property="og:url" content="https://fatrat.dolezel.info/">
 <link rel="icon" href="img/favicon.png" type="image/png">
@@ -205,9 +205,10 @@ class Example(fatrat.DownloadPlugin):
 <section id="install" class="alt install">
 	<div class="wrap">
 		<h2>Install</h2>
-		<p class="lead">Packages for Ubuntu, a Docker image you build yourself, or a CMake build anywhere Qt 6.5 runs.</p>
+		<p class="lead">Packages for Ubuntu, a Homebrew formula for macOS, a Docker image you build yourself, or a CMake build anywhere Qt 6.5 runs.</p>
 		<div class="tabs" role="tablist" aria-label="Installation method">
 			<button role="tab" aria-selected="true" aria-controls="in-ubuntu" id="ti-ubuntu">Ubuntu</button>
+			<button role="tab" aria-selected="false" aria-controls="in-macos" id="ti-macos">macOS</button>
 			<button role="tab" aria-selected="false" aria-controls="in-docker" id="ti-docker">Docker</button>
 			<button role="tab" aria-selected="false" aria-controls="in-source" id="ti-source">From source</button>
 		</div>
@@ -225,6 +226,14 @@ sudo apt install fatrat-nogui    <span class="c"># headless version + terminal U
 				<tr><th>fatrat-nogui</th><td><code>fatrat-nogui</code> (controlled through the web interface) and <code>fatrat-tui</code></td></tr>
 				<tr><th>fatrat-common</th><td>Files shared by both (installed automatically)</td></tr>
 			</table>
+		</div>
+		<div class="panel" id="in-macos" role="tabpanel" aria-labelledby="ti-macos" hidden>
+			<p>A <a href="https://brew.sh/">Homebrew</a> formula that builds the latest source with BitTorrent, the web interface and Python extensions.</p>
+<pre>brew install --HEAD lubosd/fatrat/fatrat
+ln -sf "$(brew --prefix)/opt/fatrat/FatRat.app" /Applications/FatRat.app
+
+brew upgrade --fetch-HEAD fatrat   <span class="c"># update to the latest source</span></pre>
+			<p>The symlink puts <b>FatRat.app</b> in your Applications folder, and it keeps working after upgrades. <code>fatrat</code> is also on your <code>PATH</code>, e.g. <code>fatrat --nogui</code> for a headless instance. The formula lives in <a href="https://github.com/LubosD/homebrew-fatrat">LubosD/homebrew-fatrat</a>.</p>
 		</div>
 		<div class="panel" id="in-docker" role="tabpanel" aria-labelledby="ti-docker" hidden>
 			<p>A headless FatRat with HTTP(S)/FTP(S), BitTorrent, the web interface and the terminal UI.</p>

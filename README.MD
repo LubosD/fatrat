@@ -37,6 +37,21 @@ Licensed under the GNU GPL version 3. Copyright © 2006-2015 Luboš Doležel. Cr
 | D-Bus | `WITH_DBUS` (default on) | Add transfers from scripts and other programs, single-instance check. |
 | Command line | always | `fatrat "http://example.org/file.iso"` opens the new transfer dialog. |
 
+## Installing
+
+Ubuntu packages (signed apt repository), Docker and source build instructions are on [fatrat.dolezel.info](https://fatrat.dolezel.info/#install).
+
+### macOS (Homebrew)
+
+The [LubosD/homebrew-fatrat](https://github.com/LubosD/homebrew-fatrat) tap builds the desktop application as `FatRat.app`, with BitTorrent, the web interface and Python extensions. There is no macOS release yet, so it builds the latest source:
+
+```sh
+brew install --HEAD lubosd/fatrat/fatrat
+ln -sf "$(brew --prefix)/opt/fatrat/FatRat.app" /Applications/FatRat.app
+```
+
+The symlink keeps working across upgrades (`brew upgrade --fetch-HEAD fatrat`). `fatrat` is also on your `PATH`, e.g. `fatrat --nogui` for a headless instance. D-Bus is not available on macOS.
+
 ## Building
 
 FatRat uses CMake (3.16 or newer), needs Qt 6.5 or newer and a C++17 compiler.
