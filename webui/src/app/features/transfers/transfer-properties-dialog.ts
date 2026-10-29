@@ -169,6 +169,12 @@ export class TransferPropertiesDialog implements OnChanges {
     return properties;
   }
 
+  /** Ctrl-Enter / Cmd-Enter in any field of the dialog saves it. */
+  protected onSubmitShortcut(event: Event): void {
+    event.preventDefault();
+    this.onSave();
+  }
+
   protected onSave(): void {
     if (this.saving()) return;
 

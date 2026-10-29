@@ -226,6 +226,33 @@ describe('TransferPropertiesDialog', () => {
     });
   });
 
+  describe('Ctrl-Enter / Cmd-Enter', () => {
+    for (const [name, init] of [
+      ['Ctrl-Enter', { ctrlKey: true }],
+      ['Cmd-Enter', { metaKey: true }],
+    ] as const) {
+      for (const id of ['transfer-comment', 'transfer-speed-down', 'transfer-object', 'transfer-completion', 'transfer-option-fileName']) {
+        it(`${name} in #${id} saves`, () => {
+          const { fixture, updateProperties, visibleChanges } = open({ options: of(FILE_NAME) });
+          fixture.detectChanges();
+          typeInto('transfer-comment', 'changed');
+          const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, ...init });
+          document.getElementById(id)!.dispatchEvent(event);
+          expect(updateProperties).toHaveBeenCalledWith({ comment: 'changed' });
+          expect(visibleChanges).toEqual([false]);
+          expect(event.defaultPrevented).toBe(true);
+        });
+      }
+    }
+
+    it('plain Enter in the comment does not save', () => {
+      const { updateProperties } = open();
+      typeInto('transfer-comment', 'changed');
+      document.getElementById('transfer-comment')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      expect(updateProperties).not.toHaveBeenCalled();
+    });
+  });
+
   describe('saving', () => {
     it('sends a changed comment and speed limits, and closes', () => {
       const { component, updateProperties, visibleChanges } = open();
