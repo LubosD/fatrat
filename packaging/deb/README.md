@@ -48,3 +48,21 @@ If it is lost, the next publish only contains the packages being published then.
         | sudo tee /etc/apt/sources.list.d/fatrat.list
     sudo apt update
     sudo apt install fatrat          # or fatrat-nogui
+
+## Running as a service
+
+`fatrat-common` ships two systemd units named `fatrat.service`. Neither is enabled on install. They work
+with either package: they run `fatrat --nogui` if `fatrat` is installed, otherwise `fatrat-nogui`
+(`/usr/libexec/fatrat/fatrat-server` picks). The desktop build comes first because it registers on D-Bus,
+so the desktop app started in the same session finds the running service instead of starting a second
+instance on the same data. For the same reason the user unit exits without error if the desktop app is
+already running.
+
+- **User unit**: `systemctl --user enable --now fatrat`. It uses the user's normal settings and serves the
+  REST API on `$XDG_RUNTIME_DIR/fatrat/rest.sock`, where `fatrat-tui` finds it. Run
+  `sudo loginctl enable-linger $USER` to keep it running after logout.
+- **System unit**: `sudo systemctl enable --now fatrat`. It runs as the `fatrat` user (created by
+  sysusers) with its home in `/var/lib/fatrat`. Turn on the web interface with a password of your
+  own, then restart it:
+  `sudo -u fatrat fatrat-conf -w remote/enable=true remote/password=SECRET`. Or use the terminal UI:
+  `sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock` (`fatrat-tui` is in `fatrat-nogui`).

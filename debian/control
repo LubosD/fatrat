@@ -3,6 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Lubos Dolezel <lubos@dolezel.info>
 Build-Depends: debhelper-compat (= 13),
+               dh-sequence-installsysusers,
                cmake,
                pkgconf,
                qt6-base-dev (>= 6.5),

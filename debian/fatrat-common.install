@@ -14,3 +14,4 @@ usr/share/fatrat/data/genssl.sh
 usr/share/fatrat/data/python
 usr/share/fatrat/lang
 usr/share/man/man1/fatrat.1
+debian/fatrat-server usr/libexec/fatrat

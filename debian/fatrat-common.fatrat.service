@@ -1,0 +1,31 @@
+# System-wide FatRat server running as the "fatrat" user:  systemctl enable --now fatrat
+# Its home is /var/lib/fatrat: settings in .config/fatrat/fatrat.conf, data in .local/share/fatrat.
+# The web interface is off by default; turn it on with a password of your own, then restart:
+#   sudo -u fatrat fatrat-conf -w remote/enable=true remote/password=SECRET
+# or use the terminal UI:  sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock
+# To download into other directories, give the fatrat user write access to them
+# (and add a ReadWritePaths= in "systemctl edit fatrat" if they are under /usr, /boot or /etc).
+[Unit]
+Description=FatRat download manager
+Documentation=man:fatrat(1) man:fatrat-tui(1)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=fatrat
+Group=fatrat
+ExecStart=/usr/libexec/fatrat/fatrat-server --rest-socket /run/fatrat/rest.sock
+WorkingDirectory=~
+StateDirectory=fatrat
+StateDirectoryMode=0750
+RuntimeDirectory=fatrat
+UMask=0002
+Restart=on-failure
+# FatRat saves its queues on SIGTERM
+TimeoutStopSec=60
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

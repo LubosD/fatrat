@@ -1,0 +1,17 @@
+# Per-user FatRat server:  systemctl --user enable --now fatrat
+# Settings and data live in the user's home as usual (~/.config/fatrat, ~/.local/share/fatrat).
+# fatrat-tui finds it on the default unix socket. To keep it running after logout:
+#   sudo loginctl enable-linger $USER
+[Unit]
+Description=FatRat download manager
+Documentation=man:fatrat(1) man:fatrat-tui(1)
+After=network-online.target
+
+[Service]
+ExecStart=/usr/libexec/fatrat/fatrat-server --rest-socket %t/fatrat/rest.sock
+Restart=on-failure
+# FatRat saves its queues on SIGTERM
+TimeoutStopSec=60
+
+[Install]
+WantedBy=default.target

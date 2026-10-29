@@ -1,0 +1,11 @@
+#!/bin/sh
+# Starts the headless FatRat server for the systemd units, with whichever FatRat package is installed.
+# The desktop build comes first: run with --nogui it registers on the D-Bus session bus, so a desktop
+# FatRat started in the same session finds it instead of running a second instance on the same data.
+if [ -x /usr/bin/fatrat ]; then
+	exec /usr/bin/fatrat --nogui "$@"
+elif [ -x /usr/bin/fatrat-nogui ]; then
+	exec /usr/bin/fatrat-nogui "$@"
+fi
+echo "fatrat-server: neither the fatrat nor the fatrat-nogui package is installed" >&2
+exit 1

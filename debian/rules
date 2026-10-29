@@ -28,5 +28,13 @@ override_dh_auto_install:
 	dh_auto_install --builddirectory=build-gui --destdir=debian/tmp
 	dh_auto_install --builddirectory=build-nogui --destdir=debian/tmp-nogui
 
+# The services are opt-in: the system one needs the web interface configured first, and the user one
+# would otherwise start for every user who logs in
+override_dh_installsystemd:
+	dh_installsystemd --name=fatrat --no-enable --no-start
+
+override_dh_installsystemduser:
+	dh_installsystemduser --name=fatrat --no-enable
+
 override_dh_auto_clean:
 	rm -rf build-gui build-nogui debian/tmp-nogui
