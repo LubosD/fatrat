@@ -230,7 +230,8 @@ size_t CurlUpload::readData(char* buffer, size_t maxData)
 
 int CurlUpload::curl_debug_callback(CURL*, curl_infotype type, char* text, size_t bytes, CurlUpload* This)
 {
-	if(type != CURLINFO_DATA_IN && type != CURLINFO_DATA_OUT)
+	// Skip payload and raw TLS records (CURLINFO_SSL_DATA_*), which would only log binary garbage
+	if(type == CURLINFO_TEXT || type == CURLINFO_HEADER_IN || type == CURLINFO_HEADER_OUT)
 	{
 		QByteArray line = QByteArray(text, bytes).trimmed();
 		qDebug() << "CURL debug:" << line;
