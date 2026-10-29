@@ -72,7 +72,7 @@ QString status(const QList<Entry>& entries, const QString& queueUuid)
 		const QFileInfo info(dir);
 		if (!info.isDir())
 			return "missing";
-		if (!info.isReadable() || !info.isWritable())
+		if (!info.isReadable() || !info.isWritable() || !info.isExecutable()) // x: to create and rename entries
 			return "not_writable";
 		return "ok";
 	}
