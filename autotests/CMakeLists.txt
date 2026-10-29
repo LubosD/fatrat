@@ -223,3 +223,8 @@ add_executable(tst_watchfolderscanner tst_watchfolderscanner.cpp
 target_include_directories(tst_watchfolderscanner PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_watchfolderscanner Qt6::Core Qt6::Test)
 add_test(NAME watchfolderscanner COMMAND tst_watchfolderscanner)
+
+add_executable(tst_watchfolderstatus tst_watchfolderstatus.cpp ${CMAKE_SOURCE_DIR}/src/watch/WatchFolderStatus.cpp)
+target_include_directories(tst_watchfolderstatus PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_watchfolderstatus Qt6::Core Qt6::Test)
+add_test(NAME watchfolderstatus COMMAND tst_watchfolderstatus)
