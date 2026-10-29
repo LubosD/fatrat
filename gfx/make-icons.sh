@@ -4,6 +4,7 @@
 #   gfx/icons/hicolor/scalable/apps/fatrat.svg   the logo centred on a square canvas
 #   gfx/icons/hicolor/NxN/apps/fatrat.png        installed into share/icons
 #   gfx/fatrat.png                               window and tray icon compiled into the binary
+#   webui/public/favicon.png                     the web UI's favicon
 #
 # Rerun after changing the logo and commit the results. Needs rsvg-convert (librsvg).
 set -euo pipefail
@@ -35,3 +36,4 @@ for size in $SIZES; do
 done
 
 rsvg-convert -w 128 -h 128 "$OUT/scalable/apps/fatrat.svg" -o fatrat.png
+rsvg-convert -w 64 -h 64 "$OUT/scalable/apps/fatrat.svg" -o ../webui/public/favicon.png
