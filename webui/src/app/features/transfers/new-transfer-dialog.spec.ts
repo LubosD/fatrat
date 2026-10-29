@@ -132,11 +132,76 @@ describe('NewTransferDialog', () => {
     const fixture = setup();
     fixture.componentInstance.urlsText = 'http://example.com/a';
     const file = new File(['data'], 'test.torrent');
-    fixture.componentInstance['onFileSelect']({ files: [file] } as unknown as import('primeng/fileupload').FileSelectEvent);
+    fixture.componentInstance['addFiles']([file]);
     fixture.componentInstance['onSave']();
 
     expect(addTransferWithData).toHaveBeenCalledWith(file, expect.objectContaining({ upload: false, queueUuid: 'q1' }));
     expect(addTransfers).not.toHaveBeenCalled();
+  });
+
+  it('uploads every chosen file, one request each, and closes once all were accepted', () => {
+    const fixture = setup();
+    const visibleChanges: boolean[] = [];
+    fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
+    const a = new File(['a'], 'a.torrent');
+    const b = new File(['b'], 'b.torrent');
+    fixture.componentInstance['addFiles']([a, b]);
+    fixture.componentInstance['onSave']();
+
+    expect(addTransferWithData.mock.calls.map((c) => c[0])).toEqual([a, b]);
+    expect(visibleChanges).toEqual([false]);
+  });
+
+  it('keeps only the failed files listed and names them in the error', () => {
+    const a = new File(['a'], 'a.torrent');
+    const b = new File(['b'], 'b.torrent');
+    const c = new File(['c'], 'c.torrent');
+    addTransferWithData.mockImplementation((file: File) => (file === b ? throwError(() => new Error('Invalid torrent')) : of(undefined)));
+    const fixture = setup();
+    const visibleChanges: boolean[] = [];
+    fixture.componentInstance.visibleChange.subscribe((v) => visibleChanges.push(v));
+    fixture.componentInstance['addFiles']([a, b, c]);
+    fixture.componentInstance['onSave']();
+    fixture.detectChanges();
+
+    // A failure doesn't stop the files after it.
+    expect(addTransferWithData).toHaveBeenCalledTimes(3);
+    expect(visibleChanges).toEqual([]);
+    expect(fixture.componentInstance.files).toEqual([b]);
+    expect(fixture.componentInstance['error']()).toBe('b.torrent: Invalid torrent');
+
+    // A retry sends only the file that failed.
+    addTransferWithData.mockReset().mockReturnValue(of(undefined));
+    fixture.componentInstance['onSave']();
+    expect(addTransferWithData.mock.calls.map((call) => call[0])).toEqual([b]);
+    expect(visibleChanges).toEqual([false]);
+  });
+
+  it('lists the chosen files, skips ones already listed, and can remove one', () => {
+    const fixture = setup();
+    const a = new File(['a'], 'a.torrent');
+    const b = new File(['b'], 'b.torrent');
+    fixture.componentInstance['addFiles']([a]);
+    fixture.componentInstance['addFiles']([new File(['a'], 'a.torrent', { lastModified: a.lastModified }), b]);
+    fixture.detectChanges();
+
+    const names = () => Array.from(fixture.nativeElement.querySelectorAll('[data-testid="new-transfer-file-list"] .file-name')).map((el) => (el as HTMLElement).textContent);
+    expect(names()).toEqual(['a.torrent', 'b.torrent']);
+
+    (fixture.nativeElement.querySelectorAll('[data-testid="new-transfer-remove-file"]')[0] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(names()).toEqual(['b.torrent']);
+  });
+
+  it('takes the files picked in the file input, which accepts several', () => {
+    const fixture = setup();
+    const input = fixture.nativeElement.querySelector('[data-testid="new-transfer-file-input"]') as HTMLInputElement;
+    expect(input.multiple).toBe(true);
+    const a = new File(['a'], 'a.torrent');
+    const b = new File(['b'], 'b.torrent');
+    Object.defineProperty(input, 'files', { value: [a, b], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(fixture.componentInstance.files).toEqual([a, b]);
   });
 
   it('stays open, shows the server message and keeps the input when adding fails', async () => {
@@ -217,20 +282,20 @@ describe('NewTransferDialog', () => {
 
   it('disables the URLs textarea once a file is selected', () => {
     const fixture = setup();
-    fixture.componentInstance['onFileSelect']({ files: [new File(['data'], 'test.torrent')] } as unknown as import('primeng/fileupload').FileSelectEvent);
+    fixture.componentInstance['addFiles']([new File(['data'], 'test.torrent')]);
 
     const textarea = fixture.nativeElement.querySelector('#new-transfer-urls');
     expect(textarea.disabled).toBe(true);
   });
 
-  it('onClearFile() clears the selected file and re-enables urls', () => {
+  it('onClearFiles() clears the selected files and re-enables urls', () => {
     const fixture = setup();
-    fixture.componentInstance['onFileSelect']({ files: [new File(['data'], 'test.torrent')] } as unknown as import('primeng/fileupload').FileSelectEvent);
-    expect(fixture.componentInstance.file).not.toBeNull();
+    fixture.componentInstance['addFiles']([new File(['data'], 'test.torrent')]);
+    expect(fixture.componentInstance.files.length).toBe(1);
 
-    fixture.componentInstance['onClearFile']();
+    fixture.componentInstance['onClearFiles']();
 
-    expect(fixture.componentInstance.file).toBeNull();
+    expect(fixture.componentInstance.files).toEqual([]);
     const textarea = fixture.nativeElement.querySelector('#new-transfer-urls');
     expect(textarea.disabled).toBe(false);
   });
@@ -302,10 +367,10 @@ describe('NewTransferDialog', () => {
 
     it('drops a chosen file when a link arrives, so the link is not silently ignored', () => {
       const fixture = setup();
-      fixture.componentInstance.file = new File(['x'], 'a.torrent');
+      fixture.componentInstance.files = [new File(['x'], 'a.torrent')];
       fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
       fixture.detectChanges();
-      expect(fixture.componentInstance.file).toBeNull();
+      expect(fixture.componentInstance.files).toEqual([]);
       expect(fixture.componentInstance.urlsText).toBe('http://c/3');
     });
 
@@ -355,13 +420,13 @@ describe('NewTransferDialog', () => {
         addTransferWithData.mockReturnValue(pending);
         const fixture = setup();
         const file = new File(['x'], 'a.torrent');
-        fixture.componentInstance.file = file;
+        fixture.componentInstance.files = [file];
         fixture.componentInstance['onSave']();
 
         fixture.componentRef.setInput('prefillUrls', ['http://c/3']);
         fixture.detectChanges();
 
-        expect(fixture.componentInstance.file).toBe(file);
+        expect(fixture.componentInstance.files).toEqual([file]);
       });
 
       it('does not leak a queued link into a later session', () => {

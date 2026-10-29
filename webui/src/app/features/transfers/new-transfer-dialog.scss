@@ -15,3 +15,41 @@
   overflow-wrap: anywhere;
   text-align: start;
 }
+
+.form-error {
+  white-space: pre-line;
+}
+
+.files {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.file-list {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  max-height: 12rem;
+  overflow-y: auto;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+}
+
+.file-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -6,16 +6,31 @@
   <div class="field">
     <label for="new-transfer-urls">URLs (one per line)</label>
     <textarea pTextarea id="new-transfer-urls" class="fr-grow" rows="6" [(ngModel)]="urlsText" #urlsModel="ngModel" (keydown.control.enter)="onSubmitShortcut($event)" (keydown.meta.enter)="onSubmitShortcut($event)"></textarea>
-    @if (file !== null) {
-      <p class="hint">A local file is selected — typed URLs will be ignored.</p>
+    @if (files.length > 0) {
+      <p class="hint">Local files are selected — typed URLs will be ignored.</p>
     }
   </div>
   <div class="field">
-    <label>Local file (e.g. a .torrent)</label>
-    <p-fileupload mode="basic" [auto]="false" (onSelect)="onFileSelect($event)"></p-fileupload>
-    @if (file !== null) {
-      <button pButton type="button" data-testid="new-transfer-clear-file" (click)="onClearFile()">Clear file</button>
-    }
+    <label for="new-transfer-files">Local files (e.g. .torrent)</label>
+    <input #fileInput id="new-transfer-files" type="file" multiple hidden data-testid="new-transfer-file-input" (change)="onFileInputChange(fileInput)" />
+    <div class="files fr-grow">
+      <div class="file-buttons">
+        <button pButton type="button" severity="secondary" icon="pi pi-plus" label="Choose files…" data-testid="new-transfer-choose-files" (click)="fileInput.click()"></button>
+        @if (files.length > 0) {
+          <button pButton type="button" severity="secondary" [text]="true" data-testid="new-transfer-clear-file" (click)="onClearFiles()">Clear files</button>
+        }
+      </div>
+      @if (files.length > 0) {
+        <ul class="file-list" data-testid="new-transfer-file-list">
+          @for (f of files; track f) {
+            <li>
+              <span class="file-name" [title]="f.name">{{ f.name }}</span>
+              <button pButton type="button" severity="secondary" [text]="true" [rounded]="true" icon="pi pi-times" [attr.aria-label]="'Remove ' + f.name" data-testid="new-transfer-remove-file" (click)="onRemoveFile(f)"></button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
   </div>
   <div class="field">
     <label for="new-transfer-target">Target directory</label>

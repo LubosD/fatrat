@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, signal, ElementRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
+import { Observable, catchError, concatMap, from, map, of, tap, toArray } from 'rxjs';
 import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
 import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
-import { FileUpload, FileSelectEvent } from 'primeng/fileupload';
 import { ButtonDirective } from 'primeng/button';
 import { InputGroup } from 'primeng/inputgroup';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
@@ -16,7 +16,7 @@ import { PathSuggest } from '../../shared/path-suggest/path-suggest';
 
 @Component({
   selector: 'app-new-transfer-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, FileUpload, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
+  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
   templateUrl: './new-transfer-dialog.html',
   styleUrl: './new-transfer-dialog.scss',
 })
@@ -39,7 +39,7 @@ export class NewTransferDialog implements OnChanges {
   @ViewChild('urlsModel', { read: ElementRef }) private urlsEl?: ElementRef<HTMLTextAreaElement>;
 
   urlsText = '';
-  file: File | null = null;
+  files: File[] = [];
   queueUuid = '';
   targetClass = '';
   target = '';
@@ -80,7 +80,7 @@ export class NewTransferDialog implements OnChanges {
     const listed = new Set(this.urlsText.split('\n').map((line) => line.trim()));
     const added = urls.filter((url) => !listed.has(url));
     if (added.length === 0) return;
-    if (this.file !== null) this.onClearFile();
+    if (this.files.length > 0) this.onClearFiles();
     this.urlsText = [this.urlsText.trimEnd(), ...added].filter((line) => line.length > 0).join('\n');
   }
 
@@ -103,7 +103,7 @@ export class NewTransferDialog implements OnChanges {
 
   private resetForm(): void {
     this.urlsText = '';
-    this.file = null;
+    this.files = [];
     this.queueUuid = this.defaultQueueUuid ?? this.queues[0]?.uuid ?? '';
     this.targetClass = '';
     this.target = this.queueDefaultDir(this.queueUuid);
@@ -118,14 +118,60 @@ export class NewTransferDialog implements OnChanges {
     this.urlsModel?.control.enable();
   }
 
-  protected onFileSelect(event: FileSelectEvent): void {
-    this.file = event.files[0] ?? null;
-    this.urlsModel?.control.disable();
+  protected onFileInputChange(input: HTMLInputElement): void {
+    this.addFiles(Array.from(input.files ?? []));
+    // Lets the same file be picked again after it was removed from the list.
+    input.value = '';
   }
 
-  protected onClearFile(): void {
-    this.file = null;
-    this.urlsModel?.control.enable();
+  /** Adds to the chosen files; picking a file that is already listed doesn't list it twice. */
+  protected addFiles(files: File[]): void {
+    const key = (f: File) => `${f.name}\0${f.size}\0${f.lastModified}`;
+    const listed = new Set(this.files.map(key));
+    const added: File[] = [];
+    for (const f of files) {
+      if (listed.has(key(f))) continue;
+      listed.add(key(f));
+      added.push(f);
+    }
+    if (added.length > 0) this.setFiles([...this.files, ...added]);
+  }
+
+  protected onRemoveFile(file: File): void {
+    this.setFiles(this.files.filter((f) => f !== file));
+  }
+
+  protected onClearFiles(): void {
+    this.setFiles([]);
+  }
+
+  private setFiles(files: File[]): void {
+    this.files = files;
+    if (files.length > 0) this.urlsModel?.control.disable();
+    else this.urlsModel?.control.enable();
+  }
+
+  /**
+   * Uploads the files one request each, in order. Every file is tried even if an earlier one fails;
+   * each accepted file leaves the list, so afterwards it holds just the failed ones for a retry.
+   */
+  private uploadFiles(files: File[], options: NewTransferOptions, session: number): Observable<void> {
+    return from(files).pipe(
+      concatMap((file) =>
+        this.actions.addTransferWithData(file, options).pipe(
+          tap(() => {
+            if (session === this.session) this.files = this.files.filter((f) => f !== file);
+          }),
+          map(() => null),
+          catchError((err: unknown) => of(`${file.name}: ${err instanceof Error && err.message ? err.message : 'Failed to add the transfer.'}`)),
+        ),
+      ),
+      toArray(),
+      map((results) => {
+        const failures = results.filter((r): r is string => r !== null);
+        if (failures.length > 0) throw new Error(failures.join('\n'));
+      }),
+    );
   }
 
   /** Ctrl-Enter / Cmd-Enter in the URLs textarea or the target input submits the dialog. */
@@ -138,13 +184,13 @@ export class NewTransferDialog implements OnChanges {
     if (this.saving()) return;
 
     const urls =
-      this.file !== null
+      this.files.length > 0
         ? []
         : this.urlsText
             .split('\n')
             .map((line) => line.trim())
             .filter((line) => line.length > 0);
-    if (this.file === null && urls.length === 0) {
+    if (this.files.length === 0 && urls.length === 0) {
       this.error.set('Enter at least one URL or choose a local file.');
       return;
     }
@@ -157,9 +203,9 @@ export class NewTransferDialog implements OnChanges {
       paused: this.paused,
       speedLimits: { down: (this.speedDown ?? 0) * 1024, up: (this.speedUp ?? 0) * 1024 },
     };
-    const request = this.file !== null ? this.actions.addTransferWithData(this.file, options) : this.actions.addTransfers(urls, options);
-
     const session = this.session;
+    const request = this.files.length > 0 ? this.uploadFiles(this.files, options, session) : this.actions.addTransfers(urls, options);
+
     this.error.set('');
     this.saving.set(true);
     request.subscribe({
