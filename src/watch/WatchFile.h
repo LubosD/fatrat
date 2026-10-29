@@ -43,9 +43,11 @@ namespace WatchFile
 	struct Contents
 	{
 		QStringList sources; // the file itself, or the links of a link list
+		QStringList skipped; // lines of a link list that are not links
 		QString error;       // set when there is nothing to add: unsupported, unreadable, too large or empty
 	};
-	// The lines of a link list are not checked to be links; adding them rejects what no transfer class accepts.
+	// A link is a line of the form scheme:something, without spaces; whether a transfer class accepts it is up
+	// to the caller.
 	Contents read(const QString& path);
 
 	// Renames the file to <name>.added or <name>.failed, appending .1, .2, ... if that name is taken.

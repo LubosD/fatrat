@@ -187,7 +187,7 @@ void WatchFolderService::process(const QString& path, const QString& queueUuid)
 
 	if (error.isEmpty())
 	{
-		QStringList rejected;
+		QStringList rejected = contents.skipped;
 		try
 		{
 			added = m_hooks.add(queueUuid, contents.sources, rejected);

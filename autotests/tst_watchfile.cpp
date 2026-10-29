@@ -58,6 +58,15 @@ private slots:
 		QCOMPARE(c.sources, (QStringList{ "http://a/1", "http://b/2" }));
 	}
 
+	// Engine detection accepts any string, so a README dropped as .txt would otherwise turn into transfers.
+	void linkListSkipsLinesThatAreNotLinks()
+	{
+		const QString path = write("r.txt", "Some notes\nmagnet:?xt=urn:btih:abc\nftp://h/f\nC:\\file.iso\nsee: this\n");
+		const WatchFile::Contents c = WatchFile::read(path);
+		QCOMPARE(c.sources, (QStringList{ "magnet:?xt=urn:btih:abc", "ftp://h/f" }));
+		QCOMPARE(c.skipped, (QStringList{ "Some notes", "C:\\file.iso", "see: this" }));
+	}
+
 	void emptyLinkListIsAnError()
 	{
 		const WatchFile::Contents c = WatchFile::read(write("e.magnet", "# nothing\n"));

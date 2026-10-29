@@ -30,7 +30,7 @@ File extensions are not case-sensitive. Hidden files and all other kinds of file
 </p>
 
 <p>
-A file is processed once its size and modification time have not changed for 2 seconds, so you can copy a large file into the folder without it being picked up half-written.
+A file is processed once its size and modification time have not changed for 2 seconds, so a file that is still being copied in is not read half-written, as long as the copy doesn't stall for longer than that. Writing the file somewhere else and then moving it into the folder is always safe.
 </p>
 
 <h3>Setting it up</h3>

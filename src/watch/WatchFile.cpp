@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "WatchFile.h"
 #include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
 
 namespace WatchFile
 {
@@ -86,8 +87,15 @@ Contents read(const QString& path)
 	for (const QString& raw : text.split('\n'))
 	{
 		const QString line = raw.trimmed();
-		if (!line.isEmpty() && !line.startsWith('#'))
+		if (line.isEmpty() || line.startsWith('#'))
+			continue;
+		// Transfer class detection accepts any string (a metalink is the last resort), so plain text
+		// must not get that far. Two characters at least, so C:\path is not a scheme.
+		static const QRegularExpression link("^[A-Za-z][A-Za-z0-9+.-]+:\\S+$");
+		if (link.match(line).hasMatch())
 			c.sources << line;
+		else
+			c.skipped << line;
 	}
 
 	if (c.sources.isEmpty())
