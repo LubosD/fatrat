@@ -238,3 +238,8 @@ add_executable(tst_watchfolderservice tst_watchfolderservice.cpp
 target_include_directories(tst_watchfolderservice PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_watchfolderservice Qt6::Core Qt6::Test)
 add_test(NAME watchfolderservice COMMAND tst_watchfolderservice)
+
+add_executable(tst_metalinksourcestore tst_metalinksourcestore.cpp ${CMAKE_SOURCE_DIR}/src/engines/MetalinkSourceStore.cpp)
+target_include_directories(tst_metalinksourcestore PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
+target_link_libraries(tst_metalinksourcestore Qt6::Core Qt6::Test)
+add_test(NAME metalinksourcestore COMMAND tst_metalinksourcestore)

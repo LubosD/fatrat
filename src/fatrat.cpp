@@ -60,6 +60,9 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "config.h"
 #include "RuntimeException.h"
+#ifdef WITH_CURL
+#	include "engines/MetalinkDownload.h"
+#endif
 #ifdef WITH_GUI
 #	include "MainWindow.h"
 #	include "AppTools.h"
@@ -217,6 +220,9 @@ int main(int argc,char** argv)
 	qRegisterMetaType<Transfer::TransferList>("Transfer::TransferList");
 
 	Queue::loadQueues();
+#ifdef WITH_CURL
+	MetalinkDownload::pruneSourceCopies();
+#endif
 #ifdef WITH_GUI
 	initAppTools();
 #endif

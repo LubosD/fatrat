@@ -367,6 +367,7 @@ if(WITH_CURL)
 		src/engines/CurlPollingMaster.cpp
 		src/engines/UrlClient.cpp
 		src/engines/MetalinkDownload.cpp
+		src/engines/MetalinkSourceStore.cpp
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}

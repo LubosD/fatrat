@@ -41,6 +41,8 @@ public:
 
 	static void globalInit();
 	static int acceptable(QString url, bool);
+	// Deletes copies of local metalink files that no transfer uses any more. Call after loading the queues.
+	static void pruneSourceCopies();
 
 	virtual void changeActive(bool nowActive);
 	virtual void init(QString source, QString target);
