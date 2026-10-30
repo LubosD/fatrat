@@ -73,6 +73,19 @@ class FatratAdaptor: public QDBusAbstractAdaptor
 "      <arg direction=\"in\" type=\"i\" name=\"queueID\" />\n"
 "      <!-- an index, see getQueues -->\n"
 "    </method>\n"
+"    <!-- Same as addTransfersNonInteractive, but returns an empty string on success or a message describing why nothing (or not everything) was added -->\n"
+"    <method name=\"addTransfersChecked\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"uris\" />\n"
+"      <!-- separated by EOL -->\n"
+"      <arg direction=\"in\" type=\"s\" name=\"target\" />\n"
+"      <!-- leave empty for the default -->\n"
+"      <arg direction=\"in\" type=\"s\" name=\"className\" />\n"
+"      <!-- \"auto\" for auto-detection -->\n"
+"      <arg direction=\"in\" type=\"i\" name=\"queueID\" />\n"
+"      <!-- an index, see getQueues -->\n"
+"      <arg direction=\"out\" type=\"s\" name=\"error\" />\n"
+"      <!-- empty on success -->\n"
+"    </method>\n"
 "  </interface>\n"
         "")
 public:
@@ -83,6 +96,7 @@ public: // PROPERTIES
 public Q_SLOTS: // METHODS
     void addTransfers(const QString &uris);
     void addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, int queueID);
+    QString addTransfersChecked(const QString &uris, const QString &target, const QString &className, int queueID);
     QStringList getQueues();
 Q_SIGNALS: // SIGNALS
 };

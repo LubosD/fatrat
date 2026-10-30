@@ -14,6 +14,14 @@
       <arg name="className" type="s" direction="in"/> <!-- "auto" for auto-detection -->
       <arg name="queueID" type="i" direction="in"/> <!-- an index, see getQueues -->
     </method>
+    <!-- Same as addTransfersNonInteractive, but returns an empty string on success or a message describing why nothing (or not everything) was added -->
+    <method name="addTransfersChecked">
+      <arg name="uris" type="s" direction="in"/> <!-- separated by EOL -->
+      <arg name="target" type="s" direction="in"/> <!-- leave empty for the default -->
+      <arg name="className" type="s" direction="in"/> <!-- "auto" for auto-detection -->
+      <arg name="queueID" type="i" direction="in"/> <!-- an index, see getQueues -->
+      <arg name="error" type="s" direction="out"/> <!-- empty on success -->
+    </method>
   </interface>
 </node>
 

@@ -35,6 +35,11 @@ target_include_directories(tst_restapi PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_restapi Qt6::Core Qt6::Test)
 add_test(NAME restapi COMMAND tst_restapi)
 
+add_executable(tst_settingsstring tst_settingsstring.cpp)
+target_include_directories(tst_settingsstring PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_settingsstring Qt6::Core Qt6::Test)
+add_test(NAME settingsstring COMMAND tst_settingsstring)
+
 add_executable(tst_directorylisting tst_directorylisting.cpp
 	${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
 	${CMAKE_SOURCE_DIR}/src/remote/DirectoryListing.cpp)

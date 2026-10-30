@@ -3,7 +3,9 @@
 #include <QStringList>
 #include <iostream>
 #include <cstring>
+#include <memory>
 #include "config.h"
+#include "util/SettingsString.h"
 
 #ifdef WITH_PYPLUGINS
 #	include "python/PluginRepository.h"
@@ -22,51 +24,64 @@ int main(int argc, char** argv)
 	QCoreApplication::setOrganizationDomain("dolezel.info");
 	QCoreApplication::setApplicationName("fatrat");
 	QCoreApplication app(argc, argv);
-	QSettings settings;
+
+	// -c/--config <file> works like in fatrat: use that INI file instead of the default settings location
+	QStringList args;
+	QString settingsPath;
+	for (int i = 1; i < argc; i++)
+	{
+		if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "--config"))
+		{
+			if (i+1 >= argc)
+			{
+				cerr << argv[i] << " requires a file name\n";
+				return 1;
+			}
+			settingsPath = QString::fromLocal8Bit(argv[++i]);
+		}
+		else
+			args << QString::fromLocal8Bit(argv[i]);
+	}
+
+	std::unique_ptr<QSettings> settingsPtr(settingsPath.isEmpty()
+		? new QSettings
+		: new QSettings(settingsPath, QSettings::IniFormat));
+	QSettings& settings = *settingsPtr;
 
 	QSettings defSettings(DATA_LOCATION "/data/defaults.conf", QSettings::IniFormat, qApp);
 	
 #ifdef WITH_PYPLUGINS
-	if (argc > 1 && !strcmp(argv[1], "plugins"))
-	{
-		QStringList arguments;
-
-		for (int i = 2; i < argc; i++)
-			arguments << QString::fromLocal8Bit(argv[i]);
-
-		return pluginCommand(arguments);
-	}
+	if (!args.isEmpty() && args[0] == "plugins")
+		return pluginCommand(args.mid(1));
 #endif
 
-	if (argc == 1)
+	if (args.isEmpty())
 	{
 		printUsage();
 		return 1;
 	}
-	else if (strcmp(argv[1], "-w") != 0)
+	else if (args[0] != "-w")
 	{
-		for (int i = 1; i < argc; i++)
+		for (const QString& key : args)
 		{
-			QVariant defaultValue = defSettings.value(argv[i]);
-			QVariant value = settings.value(argv[i], defaultValue);
+			QVariant defaultValue = defSettings.value(key);
+			QVariant value = settings.value(key, defaultValue);
 
 			if (value.isNull())
-				cerr << "ERROR: Key " << argv[i] << " not found\n";
+				cerr << "ERROR: Key " << qPrintable(key) << " not found\n";
 			else
-				cout << argv[i] << " = " << value.toString().toStdString() << endl;
+				cout << qPrintable(key) << " = " << settingToString(value).toStdString() << endl;
 		}
 	}
 	else
 	{
-		for (int i = 2; i < argc; i++)
+		for (int i = 1; i < args.size(); i++)
 		{
-			// argv[i], not argv[2]: every pair on the command line, not
-			// the first one over and over.
-			QString arg(argv[i]);
+			const QString& arg = args[i];
 			int pos = arg.indexOf('=');
 			if (pos == -1)
 			{
-				cerr << "WARNING: Skipped invalid argument: " << argv[i] << endl;
+				cerr << "WARNING: Skipped invalid argument: " << qPrintable(arg) << endl;
 				continue;
 			}
 			
@@ -80,8 +95,9 @@ int main(int argc, char** argv)
 void printUsage()
 {
 	std::cout << "Usage:\n\n"
-                "fatrat-conf -w key=value [key=value...]\n"
-                "fatrat-conf key [key...]\n\n"
+                "fatrat-conf [-c file] -w key=value [key=value...]\n"
+                "fatrat-conf [-c file] key [key...]\n\n"
+                "-c, --config file\tUse file (INI format) as settings storage, like fatrat -c\n"
                 "-w key=value\tWrite a settings value 'key' with a 'value'\n"
                 "key\t\tPrint the key value\n\n"
 #ifdef WITH_PYPLUGINS

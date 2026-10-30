@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH FATRAT 1 "January 12, 2012"
+.TH FATRAT 1 "October 30, 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -31,7 +31,9 @@ command.
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics,
 .\" respectively.
 \fBfatrat\fP is an open source graphical download/upload manager
-written in C++ and built on top of the Trolltech Qt 4 library.
+written in C++ and built on top of the Qt 6 library. It can also run without
+a user interface, as a server controlled through its web interface, REST API,
+terminal client (\fBfatrat\-tui\fR) or D\-Bus.
 .SH OPTIONS
 This program follows the usual GNU command line syntax, with long
 options starting with two dashes (`-').
@@ -45,27 +47,38 @@ Run the program even if an instance already exists.
 .TP
 .B \-i, \-\-hidden
 Hide the GUI at startup (works only if the tray icon exists).
+Only available in the desktop build; \fBfatrat\-nogui\fR and builds without the GUI
+do not list this option.
 .TP
 .B \-n, \-\-nogui
 Start with no GUI at all. Useful for running as a daemon.
+Only available in the desktop build (running as \fBfatrat\-nogui\fR has the same effect).
 .TP
 .B \-d, \-\-daemon
 Daemonize the application (assumes \fB\-\-nogui\fR).
+.TP
+.B \-\-rest\-socket \fIpath\fR
+Also serve the REST API on a unix socket at \fIpath\fR, whether or not the web
+interface is enabled. The socket has mode 0600 and requests on it are not
+authenticated, access is governed by file permissions. Only available if built with the web interface.
 .TP
 .B \-\-syslog
 Print global log contents to syslog.
 .TP
 .B \-p, \-\-pidfile \fIfile\fR
-Write the PID to \fIfile\fR.
+Write the PID to \fIfile\fR. The file is removed on a clean exit.
 .TP
 .B \-u, \-\-user \fIuser\fR[:\fIgroup\fR]
-Setuid to \fIuser\fR and possibly setgid to \fIgroup\fR.
+Drop privileges to \fIuser\fR: the supplementary groups are replaced by those of \fIuser\fR and the group is set to \fIgroup\fR, or to the primary group of \fIuser\fR if not given. The PID file (if any) is handed over to \fIuser\fR and removed on a clean exit.
 .TP
 .B \-\-no\-python
 Disable support for Python extensions. Works only if compiled with extension support.
 .TP
 .B \-c, \-\-config \fIfile\fR
-Use \fIfile\fR as settings storage
+Use \fIfile\fR (INI format) as settings storage instead of
+\fI~/.config/Dolezel/fatrat.conf\fR
+.PP
+An unknown option is reported and ignored, it does not consume the argument after it.
 .PP
 If started in the GUI mode, you may pass \fIlinks\fR
 as arguments and they will be presented to the user.
@@ -80,8 +93,8 @@ web or terminal interface, or through the REST API (\fBwatchDirectory\fR).
 .SH REPORTING BUGS
 All bugs should be reported at <http://fatrat.dolezel.info/bugs>
 .SH COPYRIGHT
-Copyright (C) 2006 - 2011 Lubos Dolezel. Licensed under the GNU
-General Public License v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+Copyright (C) 2006 - 2026 Lubos Dolezel. Licensed under the GNU
+General Public License v3 <http://www.gnu.org/licenses/gpl-3.0.html>
 .PP
 Third party copyrights are described in the 3RDPARTIES.txt
 file distributed along with this program.

@@ -157,10 +157,11 @@ public:
 	
 	struct BestEngine
 	{
-		BestEngine() : engine(0), type(ModeInvalid), nClass(-1) {}
+		BestEngine() : engine(0), type(ModeInvalid), nClass(-1), score(0) {}
 		const EngineEntry* engine;
 		Mode type;
 		int nClass;
+		int score; // what the engine's acceptable() returned: 1 is a mere fallback
 
 		operator bool() const { return engine != 0; }
 	};

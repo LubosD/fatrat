@@ -338,20 +338,26 @@ namespace
 			}
 		}
 
-		void apply(Transfer* t) const
+		bool hasObject() const { return object.has_value(); }
+
+		// The only step that can fail on I/O, so bulk updates run it for every transfer before anything else.
+		void applyObject(Transfer* t) const
 		{
-			// The only step that can fail on I/O, so it goes first: a 422 then means this transfer was not touched.
-			if (object)
+			if (!object)
+				return;
+			try
 			{
-				try
-				{
-					t->setObject(*object);
-				}
-				catch (const RuntimeException& e)
-				{
-					throw RestError(422, "invalid_property", e.what());
-				}
+				t->setObject(*object);
 			}
+			catch (const RuntimeException& e)
+			{
+				throw RestError(422, "invalid_property", e.what());
+			}
+		}
+
+		// Cannot fail.
+		void applyRest(Transfer* t) const
+		{
 			if (state) TransferFactory::instance()->setState(t, *state);
 			if (comment) t->setComment(*comment);
 			if (completionCommand) t->setAutoActionCommand(Transfer::Completed, *completionCommand);
@@ -777,7 +783,9 @@ static RestResult addTransfers(const RestRequest& req)
 
 			if (add.engine.isEmpty())
 			{
-				if (Transfer::BestEngine be = Transfer::bestEngine("/" + uploadedName, Transfer::Download))
+				// Score 1 is only MetalinkDownload's fallback for any file name: an upload that nothing
+				// recognises (not a .torrent, .metalink or .meta4, no plugin claims it) is not a metalink.
+				if (Transfer::BestEngine be = Transfer::bestEngine("/" + uploadedName, Transfer::Download); be && be.score > 1)
 					add.engine = be.engine->shortName;
 				if (add.engine.isEmpty())
 					throw RestError(422, "no_matching_engine", "No download class is able to handle this file.");
@@ -917,8 +925,9 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 {
 	TransferUpdate update = TransferUpdate::parse(properties);
 
-	// all-or-nothing as far as bad input is concerned: check every transfer before touching any.
-	// An I/O failure in setObject during a bulk update can still leave earlier transfers changed.
+	// All-or-nothing. Bad input is caught by checking every transfer before touching any. The one step that can
+	// still fail afterwards is setObject (I/O), so it is applied to all transfers first, and if one of them
+	// fails the ones already changed are put back. Everything after that cannot fail.
 	for (const QString& uuid : uuids)
 	{
 		TransferGuard g(uuid);
@@ -927,26 +936,47 @@ static void updateTransfers(const QStringList& uuids, const QJsonObject& propert
 	if (update.queue)
 		QueueGuard g(*update.queue);
 
-	bool changed = false;
-	try
+	if (update.hasObject())
 	{
-		for (const QString& uuid : uuids)
+		QList<QPair<QString,QString>> done; // uuid, previous object
+		try
 		{
-			TransferGuard g(uuid);
-			changed = true; // apply() may have changed something even if it throws
-			update.apply(g.transfer());
+			for (const QString& uuid : uuids)
+			{
+				TransferGuard g(uuid);
+				const QString previous = g.transfer()->object();
+				update.applyObject(g.transfer());
+				done << qMakePair(uuid, previous);
+			}
 		}
+		catch (...)
+		{
+			for (const auto& d : done)
+			{
+				try
+				{
+					TransferGuard g(d.first);
+					g.transfer()->setObject(d.second);
+				}
+				catch (...)
+				{
+					qWarning() << "Cannot restore the object of" << d.first << "after a failed bulk update";
+				}
+			}
+			if (!done.isEmpty())
+				Queue::saveQueuesAsync();
+			throw;
+		}
+	}
 
-		if (update.queue)
-			moveTransfersToQueue(uuids, *update.queue);
-	}
-	catch (...)
+	for (const QString& uuid : uuids)
 	{
-		// keep what was applied before the failure
-		if (changed)
-			Queue::saveQueuesAsync();
-		throw;
+		TransferGuard g(uuid);
+		update.applyRest(g.transfer());
 	}
+
+	if (update.queue)
+		moveTransfersToQueue(uuids, *update.queue);
 
 	Queue::saveQueuesAsync();
 }
@@ -1054,19 +1084,21 @@ static RestResult generateCertificate(const RestRequest& req)
 	const QString hostname = RestApi::asString(req.jsonObject()["hostname"], "hostname");
 	const char* script = DATA_LOCATION "/data/genssl.sh";
 	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
 	const QString failure = QObject::tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed.");
 
+	// Created with mode 0600 and a unique name; genssl.sh overwrites it
+	QTemporaryFile file;
+	if (!file.open())
+		throw RestError(500, "certificate_failed", failure);
+
 	QProcess prc;
-	prc.start(script, QStringList() << config << hostname);
+	prc.start(script, QStringList() << config << hostname << file.fileName());
 	prc.waitForFinished();
 
 	if (prc.exitCode() != 0)
 		throw RestError(500, "certificate_failed", failure);
 
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-		throw RestError(500, "certificate_failed", failure);
+	file.seek(0);
 
 	QByteArray data = file.readAll();
 	QDir::home().mkpath(USER_PROFILE_PATH "/data");
@@ -1080,7 +1112,6 @@ static RestResult generateCertificate(const RestRequest& req)
 	out.write(data);
 	out.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
 	out.close();
-	file.remove();
 
 	QJsonObject rv;
 	rv["path"] = path;

@@ -45,6 +45,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 #include <QStringList>
 #include <QUrl>
+#include <QUuid>
 #include <QUrlQuery>
 #include <QDir>
 #include <QBuffer>
@@ -65,6 +66,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/un.h>
 #include <string.h>
 #include <algorithm>
+#include "util/SettingsString.h"
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -97,6 +99,22 @@ HttpService::HttpService()
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
 	m_timer.start(15 * 1000);
+}
+
+// An unreadable value must never read as "no password": that would switch authentication off.
+static QString readPassword()
+{
+	bool unreadable = false;
+	QString password = settingToString(getSettingsValue("remote/password"), &unreadable);
+
+	if (unreadable)
+	{
+		Logger::global()->enterLogMessage("HttpService",
+			HttpService::tr("The remote/password setting cannot be read as text, refusing all logins until it is fixed"));
+		// Random, never revealed: authentication stays on and nobody can guess it
+		password = QUuid::createUuid().toString();
+	}
+	return password;
 }
 
 HttpService::~HttpService()
@@ -232,7 +250,7 @@ void HttpService::applySettings()
 				else
 				{
 					std::lock_guard<std::mutex> lk(m_passwordMutex);
-					m_strPassword = getSettingsValue("remote/password").toString();
+					m_strPassword = readPassword();
 				}
 			}
 		}
@@ -257,7 +275,7 @@ void HttpService::setup()
 	m_port = getSettingsValue("remote/port").toUInt();
 	{
 		std::lock_guard<std::mutex> lk(m_passwordMutex);
-		m_strPassword = getSettingsValue("remote/password").toString();
+		m_strPassword = readPassword();
 	}
 	m_bUseSSL = getSettingsValue("remote/ssl").toBool();
 
@@ -279,6 +297,13 @@ void HttpService::setup()
 				file.toStdString().c_str(),
 				file.toStdString().c_str()
 			);
+			if (!s->is_valid())
+			{
+				// Do not fall back to plain HTTP: the user asked for encryption
+				Logger::global()->enterLogMessage("HttpService",
+					tr("Cannot use %1 as the SSL key and certificate (invalid or unreadable PEM, it needs both the private key and the certificate), not listening").arg(file));
+				return;
+			}
 			m_server = std::move(s);
 		}
 	}
@@ -292,11 +317,19 @@ void HttpService::setup()
 
 	registerRoutes(*m_server, true);
 
+	if (!m_server->bind_to_port("0.0.0.0", static_cast<int>(m_port)))
+	{
+		Logger::global()->enterLogMessage("HttpService",
+			tr("Cannot listen on port %1 (already in use?)").arg(m_port));
+		m_server.reset();
+		return;
+	}
+
 	Logger::global()->enterLogMessage("HttpService",
 		tr("Listening on port %1").arg(m_port));
 
 	m_serverThread = std::thread([this]() {
-		m_server->listen("0.0.0.0", static_cast<int>(m_port));
+		m_server->listen_after_bind();
 	});
 }
 
@@ -328,7 +361,14 @@ void HttpService::registerRoutes(httplib::Server& server, bool authenticated)
 			if (!ok) {
 				res.status = 401;
 				res.set_header("WWW-Authenticate", "Basic realm=\"FatRat\"");
-				res.set_content("Unauthorized", "text/plain");
+				// Same envelope as every /api/v1 error
+				QJsonObject err;
+				err["code"] = "unauthorized";
+				err["message"] = "Authentication required";
+				QJsonObject root;
+				root["error"] = err;
+				const QByteArray body = QJsonDocument(root).toJson(QJsonDocument::Compact);
+				res.set_content(body.constData(), body.size(), "application/json");
 				return httplib::Server::HandlerResponse::Handled;
 			}
 			return httplib::Server::HandlerResponse::Unhandled;
