@@ -703,6 +703,10 @@ void TorrentDownload::changeActive(bool nowActive)
 	{
 		if(nowActive)
 		{
+			// A failed disk write (full disk, permissions) puts libtorrent into upload mode without
+			// pausing it. resume() doesn't leave that mode and libtorrent's own periodic retry only
+			// applies to auto-managed torrents, which FatRat's are not.
+			m_handle.unset_flags(libtorrent::torrent_flags::upload_mode);
 			m_handle.resume();
 			QTimer::singleShot(10000, this, SLOT(forceReannounce()));
 		}
