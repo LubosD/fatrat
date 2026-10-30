@@ -124,7 +124,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Enter addresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded</string>
+          <string>Enter addresses in form &lt;code&gt;address:port&lt;/code&gt;, anything else will be disregarded. Private torrents have no DHT nodes.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -142,7 +142,17 @@
       </attribute>
       <layout class="QGridLayout">
        <item row="0" column="0">
-        <widget class="QListWidget" name="listWebSeeds"/>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Enter http:// or https:// URLs of copies of the data, anything else will be disregarded</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="ContextListWidget" name="listWebSeeds"/>
        </item>
       </layout>
      </widget>
