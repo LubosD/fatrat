@@ -42,6 +42,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QClipboard>
 
 #include "MainWindow.h"
+#include <QDir>
 #include "QueueDlg.h"
 #include "Queue.h"
 #include "QueueMgr.h"
@@ -1094,6 +1095,17 @@ show_dialog:
 			
 			source = uris[i].trimmed();
 			destination = m_dlgNewTransfer->m_strDestination;
+			
+			// Same fallback as TransferAdder: an empty destination would put the files in the working directory
+			if(m_dlgNewTransfer->m_mode == Transfer::Download && destination.isEmpty())
+			{
+				Queue* dq = getQueue(m_dlgNewTransfer->m_nQueue, false);
+				if(dq)
+					destination = dq->defaultDirectory();
+				doneQueue(dq, false, false);
+				if(destination.isEmpty())
+					destination = QDir::homePath();
+			}
 			
 			if(!m_dlgNewTransfer->m_auth.strUser.isEmpty())
 			{
