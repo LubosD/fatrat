@@ -1052,19 +1052,21 @@ static RestResult generateCertificate(const RestRequest& req)
 	const QString hostname = RestApi::asString(req.jsonObject()["hostname"], "hostname");
 	const char* script = DATA_LOCATION "/data/genssl.sh";
 	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
 	const QString failure = QObject::tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed.");
 
+	// Created with mode 0600 and a unique name; genssl.sh overwrites it
+	QTemporaryFile file;
+	if (!file.open())
+		throw RestError(500, "certificate_failed", failure);
+
 	QProcess prc;
-	prc.start(script, QStringList() << config << hostname);
+	prc.start(script, QStringList() << config << hostname << file.fileName());
 	prc.waitForFinished();
 
 	if (prc.exitCode() != 0)
 		throw RestError(500, "certificate_failed", failure);
 
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-		throw RestError(500, "certificate_failed", failure);
+	file.seek(0);
 
 	QByteArray data = file.readAll();
 	QDir::home().mkpath(USER_PROFILE_PATH "/data");
@@ -1078,7 +1080,6 @@ static RestResult generateCertificate(const RestRequest& req)
 	out.write(data);
 	out.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
 	out.close();
-	file.remove();
 
 	QJsonObject rv;
 	rv["path"] = path;
