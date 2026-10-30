@@ -28,7 +28,6 @@
 		</toc>
 		<files>
 			<file>index.html</file>
-			<file>logo.png</file>
 			<file>transfers/index.html</file>
 			<file>server/index.html</file>
 			<file>web/index.html</file>
