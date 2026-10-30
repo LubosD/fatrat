@@ -14,7 +14,7 @@ The desktop program is started with <code>fatrat</code>. A headless build, witho
 <pre>fatrat [options] [links ...]</pre>
 
 <p>
-<code>fatrat --help</code> prints the options your build supports. The manual page, <code>man fatrat</code>, lists them too.
+<code>fatrat --help</code> prints the options your build supports. The manual page, <code>man fatrat</code>, lists most of them (it has no entry for <code>--rest-socket</code>).
 </p>
 
 <h2>Options</h2>
@@ -81,7 +81,7 @@ At startup FatRat asks D-Bus whether another instance is already running. If one
 </p>
 
 <ul>
-<li>If you passed links, it sends them to the running instance, which opens its New transfer dialog. You do not need a running instance for this to work: if there is none, FatRat starts and opens the dialog itself.</li>
+<li>If you passed links, it sends them to the running instance, which opens its New transfer dialog (the headless <code>fatrat-nogui</code> only logs a note and adds nothing). You do not need a running instance for this to work: if there is none, FatRat starts and opens the dialog itself.</li>
 <li>If you passed no links, it tells you that an instance is already running. The desktop program shows this in a message box; <code>fatrat-nogui</code> prints it to the standard error output.</li>
 </ul>
 
@@ -94,6 +94,7 @@ Pass <code>--force</code> to skip the check. Without D-Bus support in the build,
 <ul>
 <li>0 after <code>--help</code>, and when FatRat found a running instance and handed over to it.</li>
 <li>1 if <code>--rest-socket</code> has no path, or the build has no web interface.</li>
+<li>The value of <code>errno</code> if the <code>--pidfile</code> cannot be written, or if <code>--user</code> names a user that cannot be found or switched to.</li>
 </ul>
 
 <h2>Unknown options</h2>

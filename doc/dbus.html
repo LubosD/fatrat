@@ -38,7 +38,7 @@ Desktop only. Opens the New transfer dialog with the links filled in. <code>uris
 
 <h3>getQueues</h3>
 
-<pre>getQueues() -> as</pre>
+<pre>getQueues() -&gt; as</pre>
 
 <p>
 Returns the names of the queues, in order. The position of a queue in this list is the <code>queueID</code> for <code>addTransfersNonInteractive</code>, counting from 0.
@@ -65,7 +65,7 @@ Adds transfers without showing any dialog. Works with the desktop and with <code
 <dt><code>target</code></dt>
 <dd>The destination: a directory for downloads, or a URL for uploads.</dd>
 <dt><code>className</code></dt>
-<dd>The transfer type. Use <code>auto</code> to let FatRat choose from the first link. Other values are <code>GeneralDownload</code> (HTTP(S), FTP(S) and SFTP downloads), <code>TorrentDownload</code> (BitTorrent), <code>MetalinkDownload</code> (Metalink files) and <code>FtpUpload</code> (FTP(S) and SFTP uploads).</dd>
+<dd>The transfer type. Use <code>auto</code> to let FatRat choose from the first link: it tries the download types first, then the upload types using <code>target</code>. Other values include <code>GeneralDownload</code> (HTTP(S), FTP(S) and SFTP downloads), <code>TorrentDownload</code> (BitTorrent), <code>MetalinkDownload</code> (Metalink files) and <code>FtpUpload</code> (FTP(S) and SFTP uploads), and the transfer types that installed extensions add.</dd>
 <dt><code>queueID</code></dt>
 <dd>The position of the queue, counting from 0 (see <code>getQueues</code>). The first queue is 0.</dd>
 </dl>
