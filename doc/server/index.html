@@ -7,7 +7,180 @@
 
 <h1>Running on a Server</h1>
 
-<p>This page is being written.</p>
+<p>FatRat can run without any window, on a machine you reach over the network or SSH. You then control it with the <a href="../web/index.html">web interface</a> in a browser, with <a href="../tui/index.html">fatrat-tui</a> in a terminal, or with scripts through the <a href="../rest/index.html">REST API</a>.</p>
+
+<h2>Installing</h2>
+
+<p>On Ubuntu, FatRat comes from its own signed apt repository. For a server, install the headless package:</p>
+
+<pre>sudo apt install fatrat-nogui</pre>
+
+<p>The <code>fatrat-nogui</code> package contains the headless <code>fatrat-nogui</code> program and <code>fatrat-tui</code>. It pulls in <code>fatrat-common</code>, which holds the web interface, <code>fatrat-conf</code> and the systemd units. The commands that add the repository are in the <a href="https://github.com/LubosD/fatrat#readme">README</a> and on <a href="https://fatrat.dolezel.info/#install">fatrat.dolezel.info</a>.</p>
+
+<p>On macOS, Homebrew builds the desktop application, which also runs headless with <code>fatrat --nogui</code>:</p>
+
+<pre>brew install --HEAD lubosd/fatrat/fatrat</pre>
+
+<p>See the <a href="https://github.com/LubosD/fatrat#readme">README</a> for the details, for Docker, and for building from source.</p>
+
+<h2>Starting FatRat without a window</h2>
+
+<p>There are two programs:</p>
+
+<ul>
+<li><code>fatrat-nogui</code> is a build without any desktop code. It never opens a window, so you don't need <code>--nogui</code>.</li>
+<li><code>fatrat</code> is the desktop build. Start it with <code>--nogui</code> (or <code>-n</code>) to run it without a window.</li>
+</ul>
+
+<p>The options for a server are:</p>
+
+<dl>
+<dt><code>-d</code>, <code>--daemon</code></dt>
+<dd>Go to the background and detach from the terminal. Implies <code>--nogui</code>.</dd>
+<dt><code>-p</code>, <code>--pidfile</code> <i>file</i></dt>
+<dd>Write the process ID to <i>file</i>. With <code>--daemon</code>, it is the ID of the background process. FatRat does not remove the file when it exits.</dd>
+<dt><code>-u</code>, <code>--user</code> <i>user</i>[:<i>group</i>]</dt>
+<dd>Switch to this user, and to this group if you give one. Start FatRat as root to use it. FatRat finds its settings and data through the <code>HOME</code> environment variable, which it does not change, so set <code>HOME</code> to that user's home directory too.</dd>
+<dt><code>--syslog</code></dt>
+<dd>Also send FatRat's log messages to syslog, with the tag <code>fatrat</code>.</dd>
+<dt><code>-c</code>, <code>--config</code> <i>file</i></dt>
+<dd>Read and write the settings in <i>file</i> instead of the usual settings file.</dd>
+<dt><code>--rest-socket</code> <i>path</i></dt>
+<dd>Also serve the REST API on a unix socket (see below).</dd>
+</dl>
+
+<p>For example, to start FatRat as root and have it run as the user <code>fatrat</code> in the background:</p>
+
+<pre>sudo env HOME=/home/fatrat fatrat-nogui --daemon --user fatrat --pidfile /run/fatrat.pid</pre>
+
+<p>FatRat stops cleanly and saves its queues when it gets <code>SIGTERM</code> or <code>SIGINT</code>:</p>
+
+<pre>kill $(cat /run/fatrat.pid)</pre>
+
+<p><code>fatrat --help</code> lists every option. See also <a href="../cmdline.html">Command Line</a>.</p>
+
+<h2>Running as a systemd service</h2>
+
+<p>The Ubuntu packages ship two systemd units, both named <code>fatrat.service</code>. Neither is enabled when you install the package. Both start <code>fatrat --nogui</code> if the <code>fatrat</code> package is installed, and <code>fatrat-nogui</code> otherwise.</p>
+
+<h3>System service</h3>
+
+<pre>sudo systemctl enable --now fatrat</pre>
+
+<p>It runs as the user and group <code>fatrat</code>, which the package creates, with its home in <code>/var/lib/fatrat</code>. The web interface is off until you turn it on (see below). The service also serves the REST API on the unix socket <code>/run/fatrat/rest.sock</code>, so you can use the terminal client on the server without a password:</p>
+
+<pre>sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock</pre>
+
+<p>FatRat can only write to directories the <code>fatrat</code> user may write to. Give it write access to the directories you download into.</p>
+
+<h3>User service</h3>
+
+<pre>systemctl --user enable --now fatrat</pre>
+
+<p>It runs as you, with your normal settings and transfers. It serves the REST API on <code>$XDG_RUNTIME_DIR/fatrat/rest.sock</code>, where <code>fatrat-tui</code> finds it without any options. To keep it running after you log out:</p>
+
+<pre>sudo loginctl enable-linger $USER</pre>
+
+<h2>Turning on the web interface</h2>
+
+<p>The web interface is off by default. Its settings are in the <code>[remote]</code> section of the settings file:</p>
+
+<table>
+<tr><th>Key</th><th>Default</th><th>Meaning</th></tr>
+<tr><td><code>remote/enable</code></td><td><code>false</code></td><td>Serve the web interface.</td></tr>
+<tr><td><code>remote/port</code></td><td><code>2233</code></td><td>TCP port.</td></tr>
+<tr><td><code>remote/password</code></td><td><code>fatrat</code></td><td>Password. If it is empty, anyone who can reach the port gets in without one.</td></tr>
+<tr><td><code>remote/ssl</code></td><td><code>false</code></td><td>Use HTTPS instead of HTTP.</td></tr>
+<tr><td><code>remote/ssl_pem</code></td><td>(empty)</td><td>Full path of the PEM file with the key and certificate for HTTPS.</td></tr>
+</table>
+
+<p>The settings file is <code>~/.config/Dolezel/fatrat.conf</code> (or <code>$XDG_CONFIG_HOME/Dolezel/fatrat.conf</code>), in the home directory of the user FatRat runs as. For the system service, that is <code>/var/lib/fatrat/.config/Dolezel/fatrat.conf</code>. With <code>-c</code>, it is the file you gave.</p>
+
+<p><b>Always set a password of your own.</b> The default password, <code>fatrat</code>, is the same for everyone.</p>
+
+<p>Stop FatRat, then set the keys with <code>fatrat-conf</code>, as the user FatRat runs as:</p>
+
+<pre>fatrat-conf -w remote/enable=true remote/port=2233 remote/password=SECRET</pre>
+
+<p>For the system service:</p>
+
+<pre>sudo systemctl stop fatrat
+sudo -u fatrat -H fatrat-conf -w remote/enable=true remote/password=SECRET
+sudo systemctl start fatrat</pre>
+
+<p><code>fatrat-conf</code> stores the password as you type it, in plain text, so keep the settings file readable only by its owner. To read a value back, run <code>fatrat-conf remote/port</code>. You can also edit the file with a text editor while FatRat is stopped. <code>fatrat-conf</code> writes to the usual settings file only; if you run FatRat with <code>-c</code>, edit that file instead.</p>
+
+<p>Once FatRat runs again, open <code>http://<i>server</i>:<i>port</i>/</code> in a browser, for example <code>http://myserver:2233/</code>. The browser asks for a user name and a password: the user name can be anything, the password is <code>remote/password</code>. See <a href="../web/index.html">Web Interface</a>.</p>
+
+<p>When FatRat is already running, you can change these settings on the Web Interface page of the settings, in the desktop app, the web interface or fatrat-tui. FatRat applies them without a restart.</p>
+
+<p>FatRat listens on the port on all IPv4 addresses of the machine. There is no setting to limit it to one address, so use a firewall if the port must not be reachable from everywhere.</p>
+
+<h2>HTTPS</h2>
+
+<p>Without HTTPS, the password and everything else go over the network unencrypted. For HTTPS, FatRat needs one PEM file that holds the private key (without a passphrase) followed by the certificate. To make a self-signed certificate valid for ten years, run this in the directory where you want to keep it, putting your server's name after <code>CN=</code>:</p>
+
+<pre>openssl req -x509 -newkey rsa:4096 -nodes -days 3650 -subj "/CN=myserver" -keyout key.pem -out cert.pem
+cat key.pem cert.pem &gt; fatrat.pem
+rm key.pem cert.pem
+chmod 600 fatrat.pem</pre>
+
+<p>A certificate you already have from a certificate authority works too: put its key and its certificate (with any intermediate certificates after it) into one file the same way.</p>
+
+<p>Then point FatRat at the file and restart it:</p>
+
+<pre>fatrat-conf -w remote/ssl=true remote/ssl_pem=/full/path/to/fatrat.pem</pre>
+
+<p>The file must be readable by the user FatRat runs as. Open <code>https://<i>server</i>:<i>port</i>/</code>. With a self-signed certificate, the browser warns you the first time. Plain <code>http://</code> no longer works on that port.</p>
+
+<p>If the PEM file doesn't exist, FatRat logs "SSL key file not found, disabling HTTPS" and serves plain HTTP instead.</p>
+
+<p>The Web Interface settings page in the desktop app, the web interface and fatrat-tui can also generate a self-signed certificate. This needs <code>openssl</code> and <code>sed</code> on the server.</p>
+
+<h2>A unix socket for local scripts</h2>
+
+<p>With <code>--rest-socket</code> <i>path</i>, FatRat also serves the REST API on a unix socket:</p>
+
+<pre>fatrat-nogui --rest-socket "$XDG_RUNTIME_DIR/fatrat/rest.sock"</pre>
+
+<p>The socket asks for no password. It is created with mode 0600, so only the user FatRat runs as can use it. It works whether the web interface is on or off. For example:</p>
+
+<pre>curl --unix-socket "$XDG_RUNTIME_DIR/fatrat/rest.sock" http://localhost/api/v1/queues</pre>
+
+<p>Over the network, the same API is at <code>/api/v1/</code> on the web interface's port, with the same password:</p>
+
+<pre>curl -u x:SECRET http://myserver:2233/api/v1/queues</pre>
+
+<p>See <a href="../rest/index.html">REST API</a> for what it can do.</p>
+
+<h2>Handing files to the server</h2>
+
+<ul>
+<li><b>Web interface:</b> add links and upload <code>.torrent</code> files in the browser.</li>
+<li><b>Watch folders:</b> give a queue a folder to watch. Copy <code>.torrent</code> files or lists of links into it, for example over SFTP or a shared folder, and FatRat adds them. See <a href="../watchfolders/index.html">Watch Folders</a>.</li>
+<li><b>REST API:</b> add transfers from scripts, over the network or the unix socket. See <a href="../rest/index.html">REST API</a>.</li>
+</ul>
+
+<h2>Where things are</h2>
+
+<table>
+<tr><th>What</th><th>Where</th></tr>
+<tr><td>Settings</td><td><code>~/.config/Dolezel/fatrat.conf</code>, or the file given with <code>-c</code></td></tr>
+<tr><td>Queues and transfers</td><td><code>~/.local/share/fatrat/queues.xml</code></td></tr>
+<tr><td>Other data, such as <code>.torrent</code> files</td><td><code>~/.local/share/fatrat/</code></td></tr>
+<tr><td>Log</td><td>kept in memory; shown in the web interface and fatrat-tui, and sent to syslog with <code>--syslog</code></td></tr>
+</table>
+
+<p><code>~</code> is the home directory of the user FatRat runs as (<code>/var/lib/fatrat</code> for the system service). The data directory is always under <code>~/.local/share</code>, even if <code>XDG_DATA_HOME</code> is set. With the systemd units, FatRat's own diagnostic output on the console goes to the journal: <code>journalctl -u fatrat</code>, or <code>journalctl --user -u fatrat</code> for the user service.</p>
+
+<h2>Connecting with fatrat-tui</h2>
+
+<p>On the server itself, <code>fatrat-tui</code> uses the unix socket (see the systemd sections above). From another machine, give it the address of the web interface. It asks for the password:</p>
+
+<pre>fatrat-tui --url http://myserver:2233
+fatrat-tui --url https://myserver:2233 --password-file ~/.fatrat-pw</pre>
+
+<p>See <a href="../tui/index.html">Terminal Interface</a>.</p>
 
 </body>
 </html>
