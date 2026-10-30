@@ -7,7 +7,73 @@
 
 <h1>Scheduler</h1>
 
-<p>This page is being written.</p>
+<p>The scheduler runs an action on one queue at a time you choose. Typical uses are to pause a queue during the working day, to resume it overnight, or to cap its speed in the evening.</p>
+
+<p>The scheduler is part of FatRat itself. It runs whenever FatRat runs, including <code>fatrat --nogui</code> on a <a href="../server/index.html">server</a>. It does nothing while FatRat is not running, and an action whose time passes in that period is not run later.</p>
+
+<h2>Actions</h2>
+
+<p>Each scheduled action has a name, a queue, an action and a time. The action is one of:</p>
+
+<dl>
+<dt>Resume all</dt>
+<dd>Starts every transfer in the queue that is paused or has failed. Transfers that are waiting or completed are left alone.</dd>
+<dt>Stop all</dt>
+<dd>Pauses every active transfer in the queue.</dd>
+<dt>Set speed limit</dt>
+<dd>Sets the queue's download and upload limits, in kB/s. 0 means no limit. This replaces the limits you set on the queue. It does not change per-transfer limits or the global limits. See <a href="../transfers/index.html">Transfers and Queues</a>.</dd>
+</dl>
+
+<p>The scheduler acts on a queue, not on single transfers. To act on several queues at a given time, add one action for each.</p>
+
+<h2>When an action runs</h2>
+
+<p>Choose one of two kinds of schedule:</p>
+
+<ul>
+<li><b>Repeated</b>: a time of day and the days of the week it applies to, Monday to Sunday. A new action starts with every day selected. At least one day must stay selected.</li>
+<li><b>One time</b>: a single date and time.</li>
+</ul>
+
+<p>Times are to the minute, and they are in the time zone of the computer that runs FatRat. FatRat checks once a minute. A one-time action stays in the list after it has run. It never runs again, but you can edit its date to reuse it, or delete it.</p>
+
+<p>If the queue has been deleted when the action is due, FatRat writes a message to its log and skips the action. The log is the <b>Log</b> tab in the web interface and the terminal client. Each action that runs is also logged, under "Scheduler".</p>
+
+<h2>Setting up actions</h2>
+
+<h3>Desktop</h3>
+
+<p>Choose <b>Settings</b> → <b>Settings...</b> and open the <b>Scheduler</b> page. It lists the actions by name. Use <b>Add</b>, <b>Edit</b> and <b>Delete</b> (Delete asks you to confirm).</p>
+
+<p>The <b>Scheduled action</b> dialog has these fields:</p>
+
+<ul>
+<li><b>Name</b>: required.</li>
+<li><b>When</b>: <b>Repeated action</b> shows a list of weekdays with check boxes and a time. <b>One time action</b> shows a date and time field.</li>
+<li><b>Queue</b>.</li>
+<li><b>Action</b>: <b>Resume all</b>, <b>Stop all</b> or <b>Set speed limit</b>. The last one shows <b>Download</b> and <b>Upload</b> fields in kB/s.</li>
+</ul>
+
+<p>Changes take effect when you click <b>OK</b> in the Settings dialog. <b>Cancel</b> discards them.</p>
+
+<h3>Web interface</h3>
+
+<p>Click <b>Settings</b> (or press <code>O</code>) and open the <b>Scheduler</b> page. It shows a table of the actions with their queue, action and schedule, and <b>Edit</b> and <b>Delete</b> buttons. <b>Add action...</b> opens the dialog. Add a queue first if there is none. The dialog has these fields:</p>
+
+<ul>
+<li><b>Name</b>, <b>Queue</b> and <b>Action</b>. For <b>Set speed limit</b>, the dialog also asks for a download and upload limit in kB/s. 0 means no limit.</li>
+<li><b>Repeated</b> or <b>One time</b>. A repeated action asks for a <b>Time of day</b> and the days Mon to Sun. A one-time action asks for a <b>Date and time</b>.</li>
+</ul>
+
+<p>The times are in the server's time zone, not your browser's. Changes here are saved as soon as you click <b>Save</b> or <b>Delete</b>, and <b>Cancel</b> on the Settings dialog does not undo them.</p>
+
+<h3>Terminal</h3>
+
+<p>Press <code>O</code> or F2 to open the settings, then choose the <b>Scheduler</b> page. Press <code>A</code> to add an action, Enter to edit the selected one and <code>D</code> to delete it. Times use 24-hour <code>HH:mm</code>, and a one-time date is <code>yyyy-MM-dd HH:mm</code>. Speed limits are in KB/s, and 0 means none. As in the web interface, changes are saved at once.</p>
+
+<h2>Where the actions are stored</h2>
+
+<p>The actions are saved in FatRat's configuration file, in the <code>scheduler/actions</code> section (<code>~/.config/Dolezel/fatrat.conf</code> on Linux). Because all three front ends talk to the same FatRat, they show the same list. An action added in one appears in the others.</p>
 
 </body>
 </html>
