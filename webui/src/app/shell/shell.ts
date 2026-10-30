@@ -51,6 +51,7 @@ interface ToolbarAction {
 }
 
 const TAB_KEYS = ['1', '2', '3', '4'];
+const DOCS_URL = 'https://fatrat.dolezel.info/docs/';
 
 @Component({
   selector: 'app-shell',
@@ -146,7 +147,10 @@ export class Shell {
       { id: 'queue-properties', label: 'Queue Properties', icon: 'pi-sliders-h', hotkeys: [{ key: 'E', label: 'Shift+E' }], disabled: () => !this.hasSelectedQueue, run: () => this.openQueuePropertiesDialog() },
       { id: 'delete-queue', label: 'Delete Queue', icon: 'pi-trash', disabled: () => !this.hasSelectedQueue, run: () => this.requestDeleteQueue() },
     ],
-    [{ id: 'settings', label: 'Settings', icon: 'pi-cog', hotkeys: [{ key: 'o', label: 'O' }], disabled: () => false, run: () => this.openSettingsDialog() }],
+    [
+      { id: 'settings', label: 'Settings', icon: 'pi-cog', hotkeys: [{ key: 'o', label: 'O' }], disabled: () => false, run: () => this.openSettingsDialog() },
+      { id: 'help', label: 'Help', icon: 'pi-question-circle', disabled: () => false, run: () => window.open(DOCS_URL, '_blank', 'noopener') },
+    ],
   ];
 
   private readonly allActions = this.toolbarGroups.flat();

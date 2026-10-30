@@ -3,33 +3,54 @@
 <title>Drop-box</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 </head>
-
 <body>
 
-<table width="100%"><tr>
-	<td width="33%"><img src="dropbox.png" alt="Drop-box" /></td>
-	<td width="33%" align="center" valign="middle"><h2>Drop-box</h2></td>
-	<td width="33%" align="right"><img src="../logo.png" alt="Logo" /></td>
-</tr></table>
+<h1>Drop-box</h1>
+
+<p><b>Desktop only.</b> The web interface and fatrat-tui have no drop-box.</p>
 
 <p>
-The drop-box is a tiny widget, which stays on top of other windows under all circumstances. That way you can always use it as a drop target. For instance you can drag a link from a web browser and drop it onto the drop-box. Then the "Add new transfers" window will appear.
+The drop-box is a small picture of a mouse trap that floats on your desktop. It stays above other windows, so you can always drop links onto it, even while the main window is hidden.
+</p>
+
+<p><img src="dropbox.png" alt="The drop-box: a mouse trap with a piece of cheese" /></p>
+
+<h2>Dropping links</h2>
+
+<p>
+Drag a link from your web browser, or any selected text that holds links, and drop it onto the drop-box. The <b>New transfer</b> dialog opens with the dropped text in it, so you can check the links, pick the queue and start the download. If the <b>New transfer</b> dialog is already open, the dropped text is added to it.
 </p>
 
 <p>
-There are several ways of displaying the drop-box. The first way is through the menu: <code>FatRat - Display the drop-box</code>. The same menu is accessible through the tray icon. Nonetheless, it is faster to middle-click the tray icon, and the drop-box will show up as well. The drop-box can be hidden using the same methods or by middle-clicking it.
+The drop-box takes text only. If FatRat has no queue yet, nothing opens. See <a href="../transfers/index.html">Transfers and Queues</a>.
 </p>
+
+<h2>Showing and hiding it</h2>
+
+<p>The drop-box is hidden when FatRat starts. To show or hide it:</p>
+
+<ul>
+<li>Choose <b>FatRat</b> → <b>Display the drop-box</b> in the main window's menu. The same item is in the tray icon's menu.</li>
+<li>Middle-click the tray icon.</li>
+<li>Middle-click the drop-box itself, to hide it.</li>
+</ul>
 
 <p>
-If the drop-box seems to be too small or too big, you can change its size in the settings dialog.
+To move the drop-box, drag it with the left mouse button. FatRat remembers where you put it.
 </p>
 
-<p align="center">
-<img src="dropbox-settings.png" alt="Drop-box settings" />
+<h2>Settings</h2>
+
+<p>
+The settings are in <b>Settings</b> → <b>Settings...</b>, on the <b>Drop-box</b> page. The <b>Settings</b> menu also has a <b>Drop-box</b> item that opens that page directly.
 </p>
 
-<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+<dl>
+<dt><b>Height</b></dt>
+<dd>The size of the drop-box, from 50 to 1000 pixels. It is square, so this is also its width. The default is 100 px.</dd>
+<dt><b>Unhide the main window on drop</b></dt>
+<dd>When ticked, the main window is shown whenever you drop something onto the drop-box. Off by default.</dd>
+</dl>
 
 </body>
-
 </html>

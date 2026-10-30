@@ -1,0 +1,189 @@
+<html>
+<head>
+<title>Web Interface</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+</head>
+<body>
+
+<h1>Web Interface</h1>
+
+<p>The web interface lets you control FatRat from a browser, on the same machine or over the network. It does almost everything the desktop app does: add and manage transfers and queues, watch their progress, and change the settings. It works on a phone too.</p>
+
+<p><img src="web.png" alt="The web interface: the toolbar at the top, the Queues list on the left, and the Transfers tab with the transfers of the selected queue" /></p>
+
+<h2>Opening it</h2>
+
+<p>The web interface is off by default. <a href="../server/index.html">Running on a Server</a> explains how to turn it on, set a password and use HTTPS.</p>
+
+<p>Once it is on, open <code>http://<i>server</i>:<i>port</i>/</code> in a browser. The default port is <code>2233</code>, so on the machine FatRat runs on that is <code>http://localhost:2233/</code>. With HTTPS turned on, use <code>https://</code> instead.</p>
+
+<p>The browser asks for a user name and a password. Any user name works. The password is the one set in FatRat's Web Interface settings (the default is <code>fatrat</code>, so change it). If the password is empty, the browser doesn't ask.</p>
+
+<h2>Layout</h2>
+
+<ul>
+<li>The <b>toolbar</b> at the top holds the actions. Hover over a button to see its name and key. On the right are <b>Refresh every</b>, which sets how often the page fetches new data from FatRat, and the <b>Shortcuts</b> button.</li>
+<li>The <b>Queues</b> list on the left. Click a queue to show its transfers. Right-click a queue for <b>Resume All</b>, <b>Stop All</b>, <b>Properties</b> and <b>Delete Queue</b>. <b>Resume All</b> queues the paused and failed transfers of the queue, so they wait for a free slot. <b>Stop All</b> pauses every transfer of the queue that is not completed. A warning sign next to a queue means there is a problem with its watch folder; hover over it to see what.</li>
+<li>Four tabs on the right:
+  <ul>
+  <li><b>Transfers</b>: the transfers in the selected queue, with Name, Progress, Size, Down, Up, ETA and Message columns.</li>
+  <li><b>Details</b>: for one selected transfer. Under <b>Download transfer data</b> you can download the transfer's file to the computer the browser runs on. If the transfer is a folder, expand the tree and click a file to download it. For a torrent, it also shows the progress and availability of its pieces, its speed, totals, share ratio, magnet link and comment, and its files, where you can change each file's <b>Priority</b>.</li>
+  <li><b>Speed Graphs</b>: <b>Transfer Speed</b> for the selected transfer and <b>Queue Speed</b> for the selected queue.</li>
+  <li><b>Log</b>: the <b>Global Log</b> and the <b>Transfer Log</b> of the selected transfer.</li>
+  </ul>
+</li>
+<li>The <b>status bar</b> at the bottom shows the total speed of all queues and the speed of the selected queue. If the page can't reach FatRat, it shows <b>Connection lost</b>, and what you see may be out of date.</li>
+</ul>
+
+<h2>Adding transfers</h2>
+
+<p>Click <b>New Transfer</b> (the + button) or press <code>N</code>. In the <b>New Transfer</b> dialog:</p>
+
+<dl>
+<dt><b>Queue</b></dt>
+<dd>The queue to add to. It starts as the selected queue.</dd>
+<dt><b>URLs (one per line)</b></dt>
+<dd>The links to download, for example http, https, ftp or magnet links.</dd>
+<dt><b>Local files (e.g. .torrent)</b></dt>
+<dd>Click <b>Choose files…</b> to upload files from the computer the browser runs on, such as <code>.torrent</code> files or <code>.metalink</code> and <code>.meta4</code> files. FatRat adds one transfer for each file. While files are chosen, the URLs you typed are ignored.</dd>
+<dt><b>Target directory</b></dt>
+<dd>Where to save the download, on the machine FatRat runs on. It starts as the queue's target directory. <b>Browse…</b> lets you pick a directory on that machine.</dd>
+<dt><b>Download as</b></dt>
+<dd>The kind of transfer. Leave it at <b>Automatically detect</b> unless FatRat picks the wrong one.</dd>
+<dt><b>Max download speed (KB/s)</b> and <b>Max upload speed (KB/s)</b></dt>
+<dd>Speed limits for the new transfers. 0 means no limit.</dd>
+<dt><b>Add paused</b></dt>
+<dd>Add the transfers without starting them.</dd>
+</dl>
+
+<p>Click <b>Add</b>, or press <code>Ctrl+Enter</code> in the URLs or target directory field.</p>
+
+<h3>The browser extension</h3>
+
+<p>The <a href="https://fatrat.dolezel.info/webext/">FatRat browser extension</a> for Chrome and Firefox adds <b>Send link to FatRat</b> to the menu you get when you right-click a link. It opens the link in the web interface's New Transfer dialog, ready to add. To connect it to your FatRat, open <b>Settings</b> → <b>Web Interface</b> and click <b>Set up the browser extension...</b>.</p>
+
+<h2>Working with transfers</h2>
+
+<p>Click a transfer to select it. <code>Ctrl</code>+click adds or removes a transfer from the selection, and <code>Shift</code>+click selects a range. The toolbar actions and the right-click menu work on all selected transfers:</p>
+
+<dl>
+<dt><b>Resume</b> and <b>Pause</b></dt>
+<dd>Start or stop the transfers. <b>Resume</b> acts on each selected transfer according to its state. A paused or failed transfer is queued, and runs when its queue has room. A force-resumed transfer becomes a normal one, which the queue's limits apply to. Other transfers, such as completed ones, are left as they are.</dd>
+<dt><b>Force Resume</b></dt>
+<dd>Start the transfers at once, even when the queue is at its limit.</dd>
+<dt><b>Delete</b></dt>
+<dd>Remove the transfers from FatRat and keep the downloaded files.</dd>
+<dt><b>Delete with Data</b></dt>
+<dd>Remove the transfers and delete their downloaded files too.</dd>
+<dt><b>Delete Completed</b></dt>
+<dd>Remove all completed transfers in the selected queue, keeping their files.</dd>
+<dt><b>Move to Top</b>, <b>Move Up</b>, <b>Move Down</b>, <b>Move to Bottom</b></dt>
+<dd>Change the order of the transfers in the queue. You can also drag transfers to a new place in the list.</dd>
+<dt><b>Properties</b></dt>
+<dd>Open the Transfer Properties dialog (see below).</dd>
+</dl>
+
+<p>The delete actions ask before they delete anything. Extensions can add their own items to the right-click menu of a single transfer.</p>
+
+<p><a href="../transfers/index.html">Transfers and Queues</a> explains the transfer states and how a queue decides which transfers run.</p>
+
+<h2>Transfer properties</h2>
+
+<p>Select one or more transfers and click <b>Properties</b> (or press <code>E</code>). The <b>Transfer Properties</b> dialog has:</p>
+
+<ul>
+<li><b>Comment</b>.</li>
+<li><b>Max download speed (KB/s)</b> and <b>Max upload speed (KB/s)</b>.</li>
+<li><b>Destination</b> (for an upload, <b>Source</b>), only when one transfer is selected.</li>
+<li><b>Run on completion</b>: a command to run when the transfer finishes. The hint under it lists the placeholders.</li>
+<li><b>Options</b>: settings that depend on the kind of transfer, for example for a torrent. Only shown when one transfer is selected.</li>
+</ul>
+
+<p>When several transfers are selected, <b>Save</b> applies the values you changed to all of them. See <a href="../transfers/index.html">Transfers and Queues</a> for what each setting means.</p>
+
+<h2>Queue properties</h2>
+
+<p><b>New Queue</b> creates a queue. <b>Queue Properties</b> changes the selected one, and <b>Delete Queue</b> deletes it. The New Queue and Queue Properties dialogs have:</p>
+
+<ul>
+<li><b>Name</b>.</li>
+<li><b>Target directory</b>: where new transfers in this queue are saved.</li>
+<li><b>Move to directory after completion</b>.</li>
+<li><b>Watch folder</b>: a folder on the FatRat machine whose files are added to this queue. See <a href="../watchfolders/index.html">Watch Folders</a>.</li>
+<li><b>Download speed limit (KB/s)</b> and <b>Upload speed limit (KB/s)</b>.</li>
+<li><b>Max active downloads</b> and <b>Max active uploads</b>. In a new queue, these start at -1, which means no limit. 0 lets only force-resumed transfers run.</li>
+<li><b>Count uploads as downloads</b>.</li>
+</ul>
+
+<p>When you delete a queue that still holds transfers, FatRat asks whether to move them to another queue, delete them and keep their files, or delete them with their data. See <a href="../transfers/index.html">Transfers and Queues</a> for what the queue settings mean.</p>
+
+<h2>Settings</h2>
+
+<p>Click <b>Settings</b> (or press <code>O</code>). The Settings dialog has these pages:</p>
+
+<ul>
+<li><b>BitTorrent</b>: ports, connection limits, encryption and port mapping. See <a href="../bittorrent/index.html">BitTorrent</a>.</li>
+<li><b>RSS</b>: turn feed fetching on, set the update interval, and manage the feeds and the rules that pick episodes. See <a href="../rss/index.html">RSS</a>.</li>
+<li><b>Scheduler</b>: the scheduled actions. See <a href="../scheduler/index.html">Scheduler</a>.</li>
+<li><b>Web Interface</b>: the web interface's own settings (port, password, HTTPS) and the browser extension setup.</li>
+<li><b>Extensions</b>: plugin repositories and plugins. See <a href="../extensions/index.html">Extensions</a>.</li>
+</ul>
+
+<p>Most settings are saved when you click <b>OK</b>. RSS feeds and rules, scheduled actions, and extension repositories and plugins (adding, installing, removing, enabling) are different: they take effect as soon as you change them, so <b>Cancel</b> doesn't undo them. Only an extension's own setting fields wait for <b>OK</b>.</p>
+
+<h2>Keyboard shortcuts</h2>
+
+<p>Press <code>?</code> or click <b>Shortcuts</b> to show each key on its button. Press <code>?</code> or <code>Esc</code> to hide them. The shortcuts don't work while you type in a field or while a dialog or menu is open.</p>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>N</code></td><td>New Transfer</td></tr>
+<tr><td><code>D</code>, <code>Del</code>, <code>Backspace</code></td><td>Delete</td></tr>
+<tr><td><code>Shift+D</code>, <code>Shift+Del</code>, <code>Shift+Backspace</code></td><td>Delete with Data</td></tr>
+<tr><td><code>C</code></td><td>Delete Completed</td></tr>
+<tr><td><code>R</code></td><td>Resume</td></tr>
+<tr><td><code>F</code></td><td>Force Resume</td></tr>
+<tr><td><code>P</code></td><td>Pause</td></tr>
+<tr><td><code>E</code></td><td>Properties</td></tr>
+<tr><td><code>{</code></td><td>Move to Top</td></tr>
+<tr><td><code>[</code></td><td>Move Up (repeats while held)</td></tr>
+<tr><td><code>]</code></td><td>Move Down (repeats while held)</td></tr>
+<tr><td><code>}</code></td><td>Move to Bottom</td></tr>
+<tr><td><code>Shift+N</code></td><td>New Queue</td></tr>
+<tr><td><code>Shift+E</code></td><td>Queue Properties</td></tr>
+<tr><td><code>O</code></td><td>Settings</td></tr>
+<tr><td><code>1</code> to <code>4</code></td><td>Transfers, Details, Speed Graphs and Log tabs</td></tr>
+<tr><td><code>?</code></td><td>Show or hide the shortcuts</td></tr>
+</table>
+
+<p>When the transfer list has the focus (click it once), these keys also work:</p>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>Up</code>, <code>Down</code></td><td>Select the previous or next transfer</td></tr>
+<tr><td><code>Page Up</code>, <code>Page Down</code></td><td>Move 10 transfers up or down</td></tr>
+<tr><td><code>Home</code>, <code>End</code></td><td>Go to the first or last transfer</td></tr>
+<tr><td><code>Shift</code> with any of the above</td><td>Extend the selection</td></tr>
+<tr><td><code>Ctrl+A</code></td><td>Select all transfers</td></tr>
+</table>
+
+<p>In the New Transfer and Transfer Properties dialogs, <code>Ctrl+Enter</code> saves. On a Mac, <code>Cmd</code> works instead of <code>Ctrl</code>.</p>
+
+<h2>On a phone</h2>
+
+<p>When the browser window is 768 pixels wide or less, the layout changes:</p>
+
+<ul>
+<li>The toolbar becomes a top bar with <b>New Transfer</b>, <b>Delete</b>, <b>Resume</b> and <b>Pause</b>. The other actions and <b>Refresh every</b> are in the <b>More actions</b> menu (the ⋮ button).</li>
+<li>The queue list moves into a side panel. Tap the ☰ button to open it and pick a queue. The panel also has a <b>New Queue</b> button. The top bar shows the name of the selected queue.</li>
+<li>Transfers are shown as cards. Tap a card to select it. Touch and hold a card to start selecting several; then tap cards to add or remove them, or tap <b>Select all</b>. Each card's ⋮ button opens the transfer's menu.</li>
+<li>The Settings dialog shows the list of pages first. Tap a page to open it, and tap the page's name at the top to go back.</li>
+<li>The keyboard shortcut hints are not shown.</li>
+</ul>
+
+<h2>Help</h2>
+
+<p>The <b>Help</b> button (the ? icon at the end of the toolbar) opens this documentation at <a href="https://fatrat.dolezel.info/docs/">fatrat.dolezel.info/docs</a> in a new tab.</p>
+
+</body>
+</html>

@@ -1,53 +1,108 @@
 <html>
 <head>
-<title>Command Line Interface</title>
+<title>Command Line</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-<style type="text/css">
-pre, code { background-color: #eee }
-</style>
 </head>
-
 <body>
 
-<table width="100%"><tr>
-	<td width="33%"></td>
-	<td width="33%" align="center" valign="middle"><h2>Command Line Interface</h2></td>
-	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
-</tr></table>
+<h1>Command Line</h1>
 
 <p>
-FatRat normally uses D-Bus to check whether there already is a running instance. If you want to bypass this check, launch FatRat like this:
+The desktop program is started with <code>fatrat</code>. A headless build, without the desktop window, is installed as <code>fatrat-nogui</code>. Both take the same options, except where noted below.
 </p>
 
-<pre>fatrat --force  # (or -f)</pre>
+<pre>fatrat [options] [links ...]</pre>
 
 <p>
-If you want FatRat to hide its window on startup (into a tray icon), use the following command:
+<code>fatrat --help</code> prints the options your build supports. The manual page, <code>man fatrat</code>, lists most of them (it has no entry for <code>--rest-socket</code>).
 </p>
 
-<pre>fatrat --hidden  # (or -i)</pre>
+<h2>Options</h2>
 
 <p>
-FatRat can be started with no GUI at all, which may be useful for those who want to run it as a daemon.
+Options are case-insensitive, and each is given separately. Options that take a value (<code>-c</code>, <code>-p</code>, <code>-u</code>, <code>--rest-socket</code>) read the next argument as the value. If it is missing, FatRat prints a message and exits with status 1.
 </p>
 
-<pre>fatrat --nogui  # (or -n)</pre>
+<dl>
+<dt><code>-f</code>, <code>--force</code></dt>
+<dd>Start even if FatRat is already running. See "One instance at a time" below.</dd>
+
+<dt><code>-i</code>, <code>--hidden</code></dt>
+<dd>Desktop only. Start with the main window hidden. This works only if the tray icon exists. <code>fatrat-nogui</code> accepts the option and ignores it.</dd>
+
+<dt><code>-n</code>, <code>--nogui</code></dt>
+<dd>Desktop only. Start with no window at all. FatRat keeps running in the background, and you control it with the web interface or the terminal interface. <code>fatrat-nogui</code> does this without the option, and accepts the option too.</dd>
+
+<dt><code>-d</code>, <code>--daemon</code></dt>
+<dd>Run in the background as a daemon. This implies <code>--nogui</code>.</dd>
+
+<dt><code>-c</code>, <code>--config</code> <i>file</i></dt>
+<dd>Use <i>file</i> (an INI file) to store the settings, instead of the default settings file, <code>~/.config/Dolezel/fatrat.conf</code>. The <code>fatrat-conf</code> command takes the same option.</dd>
+
+<dt><code>--rest-socket</code> <i>path</i></dt>
+<dd>Also serve the REST API on a Unix socket at <i>path</i>. The socket has no authentication and mode 0600. It is available only if FatRat was built with the web interface; otherwise FatRat prints a message and exits with status 1. See <a href="rest/index.html">REST API</a>.</dd>
+
+<dt><code>--syslog</code></dt>
+<dd>Also send the contents of the global log to syslog.</dd>
+
+<dt><code>-p</code>, <code>--pidfile</code> <i>file</i></dt>
+<dd>Write the process ID to <i>file</i>. FatRat removes the file when it exits normally.</dd>
+
+<dt><code>-u</code>, <code>--user</code> <i>user</i>[:<i>group</i>]</dt>
+<dd>Run as <i>user</i> (and as <i>group</i>, if given) instead of the user who started FatRat. Use it when you start FatRat as root. If you leave out the group, FatRat uses the primary group of <i>user</i>. When started as root, it also replaces the supplementary groups with those of <i>user</i>. The process ID file, if any, is handed over to <i>user</i>, so FatRat can still remove it on exit.</dd>
+
+<dt><code>--no-python</code></dt>
+<dd>Turn off support for Python extensions. This option is listed only if FatRat was built with extension support. See <a href="extensions/index.html">Extensions</a>.</dd>
+
+<dt><code>-h</code>, <code>--help</code></dt>
+<dd>Print the list of options and exit.</dd>
+</dl>
 
 <p>
-To show a New transfers dialog with some links, pass them as additional arguments:
+The options are read from left to right as they are found. The <code>-i</code> and <code>-n</code> options are not listed by <code>--help</code> in a build without the desktop window. For running FatRat as a service, see <a href="server/index.html">Running on a Server</a>.
 </p>
 
-<pre>fatrat "http://link1" "http://link2"</pre>
+<h2>Passing links</h2>
 
 <p>
-To see the basic description of command line options, use <code>-h</code> or <code>--help</code> or see the man(1) page
+Any argument that does not start with <code>-</code> is a link. To open the New transfer dialog with the links already filled in, pass them as arguments:
 </p>
+
+<pre>fatrat "http://example.com/a.zip" "http://example.com/b.zip"</pre>
 
 <p>
-A significant advantage of using this metod when compared to passing via D-Bus is that you don't need to have a running instance for this to work. FatRat will automatically create one if needed.
+This works only with the desktop window. The headless <code>fatrat-nogui</code> does not show a dialog, and ignores the links.
 </p>
 
-<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+<h2>One instance at a time</h2>
+
+<p>
+At startup FatRat asks D-Bus whether another instance is already running. If one is, FatRat does not start a second one, and exits with status 0 after one of these:
+</p>
+
+<ul>
+<li>If you passed links, it sends them to the running instance, which opens its New transfer dialog (the headless <code>fatrat-nogui</code> only logs a note and adds nothing). You do not need a running instance for this to work: if there is none, FatRat starts and opens the dialog itself.</li>
+<li>If you passed no links, it tells you that an instance is already running. The desktop program shows this in a message box; <code>fatrat-nogui</code> prints it to the standard error output.</li>
+</ul>
+
+<p>
+Pass <code>--force</code> to skip the check. Without D-Bus support in the build, FatRat does not make the check at all.
+</p>
+
+<h2>Exit status</h2>
+
+<ul>
+<li>0 after <code>--help</code>, and when FatRat found a running instance and handed over to it.</li>
+<li>1 if <code>-c</code>, <code>-p</code>, <code>-u</code> or <code>--rest-socket</code> has no value, or the build has no web interface and you pass <code>--rest-socket</code>.</li>
+<li>1 if <code>--user</code> names a user or group that cannot be found, or FatRat cannot switch to it.</li>
+<li>The value of <code>errno</code> if the <code>--pidfile</code> cannot be written.</li>
+</ul>
+
+<h2>Unknown options</h2>
+
+<p>
+FatRat prints <code>Ignoring unknown option</code> and the option to the standard error output, and carries on. The argument after an unknown option is not skipped, so it is still used as a link or as the next option.
+</p>
+
 </body>
 </html>

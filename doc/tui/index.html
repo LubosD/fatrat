@@ -1,0 +1,283 @@
+<html>
+<head>
+<title>Terminal Interface</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+</head>
+<body>
+
+<h1>Terminal Interface</h1>
+
+<p><img src="tui.png" alt="fatrat-tui: the queues on the left, the transfers of the selected queue on the right, and the keys along the bottom" /></p>
+
+<p><code>fatrat-tui</code> is a full-screen terminal client for FatRat. It manages transfers and queues, and shows transfer details, the RSS feeds and rules, the log, the settings and the extensions. It works over SSH, and it can run at the same time as the desktop app and the web interface, against the same FatRat.</p>
+
+<p><code>fatrat-tui</code> talks to FatRat through its REST API, either on a unix socket or through the web interface. To set up FatRat on a server, see <a href="../server/index.html">Running on a Server</a>.</p>
+
+<h2>Starting it and connecting</h2>
+
+<p>Run it without options:</p>
+
+<pre>fatrat-tui</pre>
+
+<p>By default (<code>--mode auto</code>) it tries these, in this order:</p>
+
+<ol>
+<li>A FatRat server that is already running on the unix socket <code>$XDG_RUNTIME_DIR/fatrat/rest.sock</code>. A unix socket needs no password.</li>
+<li>A FatRat running on this computer whose settings turn on the web interface. <code>fatrat-tui</code> reads the port, HTTPS and the password from FatRat's settings file, and connects to <code>127.0.0.1</code>.</li>
+<li>Otherwise, it starts a private FatRat server of its own (<code>fatrat-nogui</code>, or <code>fatrat</code>) on the unix socket. This server uses your normal FatRat settings and transfers.</li>
+</ol>
+
+<p>If you run the desktop app, turn on its <a href="../web/index.html">web interface</a>, so that <code>fatrat-tui</code> connects to it instead of starting a server of its own.</p>
+
+<p>Other modes skip some of these steps:</p>
+
+<dl>
+<dt><code>--mode local</code></dt>
+<dd>Only the running FatRat found through its settings (step 2).</dd>
+<dt><code>--mode socket</code></dt>
+<dd>Only the unix socket, starting a server there if needed (steps 1 and 3).</dd>
+<dt><code>--no-start</code></dt>
+<dd>In auto mode, never start a server: fail if nothing is running.</dd>
+</dl>
+
+<h3>What it would do: --which</h3>
+
+<p><code>--which</code> prints how <code>fatrat-tui</code> would connect, and why, and then exits. It doesn't start or change anything. For example:</p>
+
+<pre>$ fatrat-tui --which
+Unix socket /run/user/1000/fatrat/rest.sock: nothing is listening
+Settings /home/you/.config/Dolezel/fatrat.conf: the web interface is turned off
+Starting a FatRat server of our own on the unix socket /run/user/1000/fatrat/rest.sock (it uses your normal FatRat settings and transfers)</pre>
+
+<h3>Connecting to another computer</h3>
+
+<p>Give the address of FatRat's web interface with <code>--url</code>, or in the <code>FATRAT_URL</code> environment variable:</p>
+
+<pre>fatrat-tui --url https://server.example.com:2233</pre>
+
+<p><code>--url</code> takes <code>http://host:port</code>, <code>https://host:port</code> or <code>unix:/path/to.sock</code>. It can't be combined with any <code>--mode</code> other than <code>url</code>.</p>
+
+<p>Over HTTP or HTTPS, <code>fatrat-tui</code> needs the web interface password. It takes the first of these:</p>
+
+<ol>
+<li><code>--password-file</code> <i>file</i>: the first line of the file. The file must exist, be readable by you, and not be readable or writable by the group or by others. Otherwise <code>fatrat-tui</code> prints <code>Cannot use the password file</code> and an explanation, and exits without connecting.</li>
+<li>The <code>FATRAT_PASSWORD</code> environment variable.</li>
+<li>The settings of a FatRat running on this computer (step 2 of auto mode).</li>
+<li>Otherwise, it asks for the password in a dialog.</li>
+</ol>
+
+<p><code>--password-prompt</code> always asks, even when one of the others has a password. A user name and password written into the URL are ignored. FatRat's web interface accepts any user name, so <code>fatrat-tui</code> never asks for one.</p>
+
+<p>Over plain <code>http://</code> to another computer, <code>fatrat-tui</code> warns that the password travels unencrypted. Use <code>https://</code> if the server offers it.</p>
+
+<p>When the server's certificate isn't trusted (for example, a self-signed one), <code>fatrat-tui</code> shows its SHA-256 fingerprint and lets you choose <b>Trust for this session</b>, <b>Remember this fingerprint</b> or <b>Quit</b>. Remembered fingerprints are stored in <code>~/.config/fatrat/tui.conf</code>. <code>--insecure</code> turns off the certificate check.</p>
+
+<h3>The unix socket</h3>
+
+<p><code>--socket</code> <i>path</i> uses a different unix socket than <code>$XDG_RUNTIME_DIR/fatrat/rest.sock</code>, for both finding a running server and starting one. For example, for the system service described in <a href="../server/index.html">Running on a Server</a>:</p>
+
+<pre>sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock</pre>
+
+<p>These options affect a server that <code>fatrat-tui</code> starts:</p>
+
+<dl>
+<dt><code>--server-bin</code> <i>path</i></dt>
+<dd>The FatRat program to start. By default it is <code>fatrat-nogui</code> or <code>fatrat</code>, next to <code>fatrat-tui</code> or in <code>PATH</code>.</dd>
+<dt><code>--config</code> <i>file</i></dt>
+<dd>A FatRat settings file. <code>fatrat-tui</code> reads it to find a running FatRat, and a server it starts uses it.</dd>
+<dt><code>--stop</code></dt>
+<dd>Stop a server that <code>fatrat-tui</code> started earlier, and exit.</dd>
+</dl>
+
+<p>While the server starts, <code>fatrat-tui</code> shows the path of its log, <code>~/.local/state/fatrat/tui-server.log</code>.</p>
+
+<h3>Quitting</h3>
+
+<p>Press <code>Q</code> (or Ctrl-C) to quit. If <code>fatrat-tui</code> started the server itself, quitting stops it too. If transfers are active, it asks first: <b>Keep it running (downloads continue)</b>, <b>Stop the server and quit</b> or <b>Cancel</b>. A server that you keep running is found on the unix socket the next time you start <code>fatrat-tui</code>. A server that was already running when you started <code>fatrat-tui</code> is never stopped.</p>
+
+<p>If <code>fatrat-tui</code> ends in another way, because the terminal closes or it gets <code>SIGTERM</code> or <code>SIGHUP</code>, it does not ask. It stops a server it started only when nothing is active, and otherwise leaves it running.</p>
+
+<h2>The screen</h2>
+
+<p>The terminal must be at least 60 columns by 16 lines.</p>
+
+<ul>
+<li>The <b>title bar</b> at the top shows the connection state (<i>connecting</i>, <i>connected</i>, <i>disconnected, retrying</i> or <i>password required</i>), what <code>fatrat-tui</code> is connected to, and the total download and upload speeds.</li>
+<li>Below it are the tabs <b>1 Transfers</b>, <b>2 RSS</b> and <b>3 Log</b>, and <b>O Settings</b> on the right.</li>
+<li>The <b>status line</b>, second from the bottom, shows the total speeds, the speeds of the current queue and how many transfers are marked. Messages, such as errors from the server, replace it for a few seconds.</li>
+<li>The <b>key bar</b> on the last line shows the keys of the focused pane. The key is highlighted in each label, for example the R in <b>Resume</b>.</li>
+</ul>
+
+<h3>Transfers tab</h3>
+
+<p>The <b>Queues</b> pane on the left lists the queues with the number of transfers in each. Below the list it shows the current queue's default directory (<b>Dir</b>), the directory finished transfers are moved to (<b>Move</b>), the watch folder (<b>Watch</b>) and the speed limits (<b>Lim</b>). A queue whose watch folder has a problem gets a <code>!</code> before its name, and the <b>Watch</b> line names the problem.</p>
+
+<p>The <b>Transfers</b> pane on the right lists the transfers of the current queue with their name, state, progress, size, download speed and time left. When the terminal is at least 22 lines high (23 when it is narrower than 100 columns), a <b>Details</b> strip at its bottom shows the selected transfer's name, path, class (the engine), speed, limits, message and comment.</p>
+
+<p>In a terminal narrower than 100 columns, the Queues pane is replaced by a <b>Queue</b> line above the transfers; ← and → switch to the previous and next queue.</p>
+
+<p>Enter opens the details view of the selected transfer. It has the tabs <b>Info</b>, <b>Files</b> (for torrents only) and <b>Log</b>, and replaces the transfer list until you press Esc.</p>
+
+<h3>RSS tab</h3>
+
+<p>The <b>Feeds</b> pane on the left and the <b>Download rules</b> pane on the right. See <a href="../rss/index.html">RSS</a> for what feeds and rules do. A new rule starts with <b>Include repacks</b> and <b>Exclude manual</b> ticked, and <b>Include trailers</b> unticked.</p>
+
+<h3>Log tab</h3>
+
+<p>FatRat's global log. By default it follows the end of the log. Press <code>T</code> to see the log of the transfer selected on the Transfers tab instead, and <code>T</code> again to go back.</p>
+
+<h3>Settings and extensions</h3>
+
+<p><code>O</code> or F2 opens the settings that the connected FatRat offers, such as RSS, Scheduler, BitTorrent and Web Interface. Pages it can't show say so. <code>X</code> or F4 opens the Python <a href="../extensions/index.html">extensions</a>. Its sections are <b>Installed</b>, <b>Available</b> and <b>Repositories</b>; Tab switches between them.</p>
+
+<h2>Keys</h2>
+
+<p>Letter keys work in either case. Press <code>?</code> or F1 for the list of keys inside <code>fatrat-tui</code>.</p>
+
+<h3>Everywhere</h3>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>1</code>, <code>2</code>, <code>3</code></td><td>Transfers, RSS and Log tab</td></tr>
+<tr><td>F2 or <code>O</code></td><td>Settings</td></tr>
+<tr><td>F4 or <code>X</code></td><td>Extensions</td></tr>
+<tr><td>Tab, Shift-Tab</td><td>Next and previous pane</td></tr>
+<tr><td>↑ or <code>K</code>, ↓ or <code>J</code></td><td>Up and down in a list</td></tr>
+<tr><td>←, →</td><td>Queues pane, Transfers pane (in a narrow terminal: previous and next queue)</td></tr>
+<tr><td>PgUp, PgDn, Home, End</td><td>Page up, page down, first, last</td></tr>
+<tr><td><code>/</code></td><td>Filter the transfers by name</td></tr>
+<tr><td>Esc</td><td>Back; on the Transfers tab, clear the filter, then the marks</td></tr>
+<tr><td>F1 or <code>?</code></td><td>Help</td></tr>
+<tr><td><code>Q</code>, Ctrl-C</td><td>Quit</td></tr>
+<tr><td>Ctrl-L</td><td>Redraw the screen</td></tr>
+</table>
+
+<h3>Transfers pane</h3>
+
+<p>Most keys act on the marked transfers, or on the selected one when none is marked.</p>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>R</code></td><td>Resume: queues paused and failed transfers, and turns a forced transfer into a normal one</td></tr>
+<tr><td><code>F</code></td><td>Force resume</td></tr>
+<tr><td><code>P</code></td><td>Pause</td></tr>
+<tr><td><code>N</code></td><td>New transfer</td></tr>
+<tr><td><code>D</code></td><td>Delete: asks whether to keep the files or delete them too</td></tr>
+<tr><td><code>E</code></td><td>Edit the transfer's properties</td></tr>
+<tr><td><code>M</code></td><td>Move, then <code>T</code> to the top, <code>U</code> up, <code>D</code> down or <code>B</code> to the bottom</td></tr>
+<tr><td><code>[</code>, <code>]</code></td><td>Move up, move down</td></tr>
+<tr><td><code>S</code></td><td>Send to another queue</td></tr>
+<tr><td><code>L</code></td><td>Speed limit</td></tr>
+<tr><td>Space</td><td>Mark or unmark</td></tr>
+<tr><td><code>A</code></td><td>Mark all or none</td></tr>
+<tr><td>Enter</td><td>Open the details view</td></tr>
+</table>
+
+<h3>Queues pane</h3>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>N</code></td><td>New queue</td></tr>
+<tr><td><code>E</code></td><td>Edit the queue</td></tr>
+<tr><td><code>D</code></td><td>Delete the queue</td></tr>
+<tr><td><code>[</code>, <code>]</code></td><td>Move the queue up, down</td></tr>
+<tr><td><code>L</code></td><td>Queue speed limits (opens the queue editor)</td></tr>
+<tr><td>Enter</td><td>Open the queue (focus its transfers)</td></tr>
+</table>
+
+<h3>Details view</h3>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td>Tab, Shift-Tab</td><td>Next and previous tab</td></tr>
+<tr><td>Esc or <code>B</code></td><td>Back to the list</td></tr>
+</table>
+
+<p>On the <b>Files</b> tab of a torrent, priority changes take effect only when you apply them:</p>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>+</code> or <code>=</code></td><td>Raise the file's priority</td></tr>
+<tr><td><code>-</code></td><td>Lower the file's priority</td></tr>
+<tr><td><code>S</code></td><td>Skip the file, or stop skipping it</td></tr>
+<tr><td><code>A</code></td><td>Download all files (stop skipping)</td></tr>
+<tr><td>Enter</td><td>Apply the changes</td></tr>
+</table>
+
+<h3>RSS tab</h3>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>N</code>, <code>E</code>, <code>D</code></td><td>New, edit, delete a feed or a rule</td></tr>
+<tr><td><code>R</code></td><td>Refresh the feeds now</td></tr>
+<tr><td><code>T</code></td><td>Rules: test a regular expression</td></tr>
+<tr><td><code>W</code></td><td>Rules: the downloaded episodes</td></tr>
+<tr><td>Tab</td><td>Switch between feeds and rules</td></tr>
+</table>
+
+<h3>Log tab</h3>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><code>F</code></td><td>Follow the end of the log, on or off</td></tr>
+<tr><td><code>/</code></td><td>Search</td></tr>
+<tr><td><code>N</code></td><td>Next match</td></tr>
+<tr><td><code>G</code>, End</td><td>Top, bottom</td></tr>
+<tr><td><code>T</code></td><td>Log of the selected transfer, or back to the global log</td></tr>
+</table>
+
+<h2>Mouse</h2>
+
+<p>In a terminal that supports the xterm mouse protocol, you can use the mouse:</p>
+
+<ul>
+<li>Click a tab, a row, a button or a key in the key bar.</li>
+<li>Double-click a transfer to open its details, or a queue to edit it.</li>
+<li>Right-click a transfer or a queue for a menu.</li>
+<li>Ctrl-click marks a transfer; Shift-click marks a range.</li>
+<li>Drag a transfer to move it in the list, or drop it on a queue to send it there. Dragging a marked transfer takes all marked transfers along. Drag a queue to reorder the queues.</li>
+<li>The wheel scrolls.</li>
+</ul>
+
+<p><code>--no-mouse</code> turns mouse support off, so that the terminal's own mouse handling, such as selecting text, works as usual.</p>
+
+<h2>Editing transfers and queues</h2>
+
+<p><code>N</code> and <code>E</code> open forms. See <a href="../transfers/index.html">Transfers and Queues</a> for what the fields mean.</p>
+
+<ul>
+<li><b>New transfer</b>: <b>Links</b>, <b>Engine</b>, <b>Queue</b>, <b>Save to</b>, <b>Speed limit down</b>, <b>Speed limit up</b> and <b>Start paused</b>. Separate several links with spaces. If <b>Links</b> is the path of a file on the computer where <code>fatrat-tui</code> runs, such as a .torrent file, the file is uploaded to FatRat.</li>
+<li><b>Transfer properties</b>: <b>Comment</b>, <b>Destination</b> (or <b>Source</b> for an upload), <b>Speed limit down</b>, <b>Speed limit up</b>, <b>Run on completion</b> and the engine's <b>Options</b>.</li>
+<li><b>New queue</b> and <b>Edit queue</b>: <b>Name</b>, <b>Default directory</b>, <b>Move finished to</b>, <b>Watch folder</b>, <b>Upload as download</b>, <b>Speed limit down</b>, <b>Speed limit up</b>, <b>Active downloads</b> and <b>Active uploads</b>. Leave <b>Watch folder</b> empty for none; see <a href="../watchfolders/index.html">Watch Folders</a>. In a new queue, <b>Active downloads</b> and <b>Active uploads</b> start at -1, which means no limit; 0 lets only forced transfers run.</li>
+</ul>
+
+<p>Speed limits are in KB/s; 0 means no limit.</p>
+
+<h3>Keys in forms</h3>
+
+<table>
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td>Tab, Shift-Tab, ↑, ↓</td><td>Next and previous field</td></tr>
+<tr><td>←, → or Space</td><td>Change a choice (shown as ◂ … ▸)</td></tr>
+<tr><td>Space</td><td>Tick or untick a check box</td></tr>
+<tr><td>Ctrl-A, Ctrl-E</td><td>Start, end of the text</td></tr>
+<tr><td>Ctrl-U</td><td>Clear the field</td></tr>
+<tr><td>Ctrl-K</td><td>Delete to the end</td></tr>
+<tr><td>Ctrl-W</td><td>Delete the word before the cursor</td></tr>
+<tr><td>Ctrl-B</td><td>Browse for a directory</td></tr>
+<tr><td>Enter</td><td>Save (or Add, Create)</td></tr>
+<tr><td>Esc</td><td>Cancel</td></tr>
+</table>
+
+<p>Ctrl-B browses the directories on the computer where FatRat runs. In the <b>New transfer</b> form it fills <b>Save to</b>; in the queue form it fills the directory field you are in (<b>Default directory</b>, <b>Move finished to</b> or <b>Watch folder</b>). In the directory browser, Enter opens a directory, Backspace goes up, <code>C</code> chooses the current directory, <code>H</code> shows or hides hidden directories, and Esc cancels.</p>
+
+<h2>Plain ASCII</h2>
+
+<p><code>fatrat-tui</code> draws boxes, arrows and progress bars with Unicode characters. It switches to plain ASCII characters when you give <code>--ascii</code>, or when the locale's character set isn't UTF-8 (when the locale set by <code>LC_ALL</code>, <code>LC_CTYPE</code> or <code>LANG</code> doesn't name UTF-8, or isn't installed). It uses colours when the terminal supports them.</p>
+
+<h2>More</h2>
+
+<p>The full reference is <code>man fatrat-tui</code>.</p>
+
+</body>
+</html>

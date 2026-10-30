@@ -113,8 +113,10 @@ Redraw the screen.
 .TP
 .B Q, Ctrl\-C
 Quit. If \fBfatrat-tui\fR started the private server itself, the server is
-stopped too; when transfers are active, \fBQ\fR first asks whether to keep the
-server running or stop it, and \fBCtrl\-C\fR leaves it running.
+stopped too; when transfers are active, it first asks whether to keep the
+server running or stop it. If \fBfatrat-tui\fR is ended by \fBSIGTERM\fR,
+\fBSIGHUP\fR or a lost terminal, it does not ask: it stops the server only if
+nothing is active.
 A server that was already running is never stopped.
 .SS Transfers
 .TP
@@ -212,5 +214,7 @@ if the connection plan failed under \fB\-\-which\fR, no terminal is available, o
 that cannot be planned.
 .SH SEE ALSO
 .BR fatrat (1)
+.PP
+https://fatrat.dolezel.info/docs/tui/index.html
 .SH AUTHOR
 Lubos Dolezel <lubos@dolezel.info>.

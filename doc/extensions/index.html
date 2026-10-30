@@ -1,0 +1,229 @@
+<html>
+<head>
+<title>Extensions</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+</head>
+<body>
+
+<h1>Extensions</h1>
+
+<p>
+Some sites cannot be downloaded from with a plain HTTP request: the link is a
+web page, with a login, a countdown or a captcha in front of the file.
+Extensions are small Python plugins that deal with that. They find the real
+download link and hand it back to FatRat, which downloads it like any other
+transfer, with segmenting, speed limits and resume.
+</p>
+
+<h2>What extensions add</h2>
+
+<ul>
+<li><b>Download</b> plugins, for sites that need special handling. The plugin
+    takes over links that match the site and resolves them.</li>
+<li><b>Link extractor</b> plugins, which turn one link (a folder page, say)
+    into the links inside it.</li>
+<li><b>Upload</b> plugins, which upload a file to a file host and report the
+    link.</li>
+<li><b>Search</b> plugins. Desktop: once one is installed, they appear as engines in the
+    <b>File sharing server search</b> tool.</li>
+<li><b>Account status</b> plugins, which report what is left of a premium
+    account. Desktop: once one is installed, a premium account icon appears in the
+    status bar; click it to see the status.</li>
+</ul>
+
+<p>
+Extensions need a FatRat built with Python support.
+</p>
+
+<h2>Trust</h2>
+
+<p>
+FatRat has no central index of extensions. You add the repositories you want,
+and install individual extensions from them. An installed extension runs with
+your full user privileges, like anything else you install from a git
+repository. Only add repositories you trust. The desktop, web and terminal front ends ask you to confirm before
+they add one; the <code>fatrat-conf</code> command only prints a warning.
+</p>
+
+<h2>Repositories</h2>
+
+<p>
+A repository is a git repository, or just a directory, that contains a
+<code>fatrat-plugins.json</code> file listing the extensions it offers. A git
+repository is cloned (this needs <code>git</code> installed). A directory is
+used where it lies, so changes you make to its files are picked up when the
+extension is reloaded.
+</p>
+
+<p>
+FatRat remembers which commit it installed an extension from. An update is
+something you choose: FatRat never installs one by itself. The desktop app
+can tell you that one is available (see Updating below).
+</p>
+
+<h2>Installing and removing extensions</h2>
+
+<p>
+Every front end shows the repositories you have added, the extensions they
+offer (<b>Available</b>) and the extensions you have <b>Installed</b>. A newly
+installed extension works straight away; you do not need to restart FatRat.
+</p>
+
+<h3>Desktop</h3>
+
+<p>
+Open <b>Settings</b> and choose <b>Extensions</b>. It has four tabs.
+</p>
+
+<ol>
+<li><b>Repositories</b>: type a git URL in the box and press <b>Add</b>, or
+    press <b>Add directory...</b> to pick a local directory. Select a
+    repository and press <b>Remove</b> to forget it. Extensions already
+    installed from it stay installed.</li>
+<li><b>Available</b>: the extensions your repositories offer, with the
+    version, the installed version and the repository. Press <b>Refresh</b>
+    to fetch the repositories again. Select an extension and press
+    <b>Install / update</b>. An extension with a newer version available is
+    shown in bold.</li>
+<li><b>Installed plugins</b>: name, version and description. Untick an
+    extension to switch it off without removing it. Press <b>Remove</b> to
+    delete it. Switching off is applied when you press OK in the settings
+    dialog, and takes effect at once, without a restart.</li>
+<li><b>Plugin settings</b>: pick an extension in the <b>Plugin</b> list to
+    change the settings it declares, such as a user name and password.</li>
+</ol>
+
+<h3>Web interface</h3>
+
+<p>
+Open <b>Settings</b> and choose <b>Extensions</b>. The page has these
+sections:
+</p>
+
+<ul>
+<li><b>Repositories</b>: type a git URL, or a directory on the server, and
+    press <b>Add</b>. <b>Refresh</b> fetches the repositories again.
+    <b>Forget</b> removes a repository; its installed extensions stay.</li>
+<li><b>Available</b>: each entry has an <b>Install</b> button, which reads
+    <b>Update</b> when a newer version is offered, or <b>Reinstall</b> when
+    the same version is installed.</li>
+<li><b>Installed</b>: an <b>Enabled</b> checkbox and a <b>Remove</b> button
+    for each extension.</li>
+<li><b>Plugin settings</b>: the settings the installed extensions declare.
+    A few kinds of setting can only be changed in the desktop interface, and
+    say so.</li>
+</ul>
+
+<h3>Terminal</h3>
+
+<p>
+Press <code>F4</code> (or <code>Ctrl+X</code>) to open the extensions dialog.
+<code>Tab</code> moves between the <b>Installed</b>, <b>Available</b> and
+<b>Repositories</b> sections, and the keys for the current section are shown
+in the bottom bar:
+</p>
+
+<ul>
+<li>Installed: <code>E</code> (or <code>Enter</code>) enables or disables the
+    extension, <code>D</code> removes it.</li>
+<li>Available: <code>Enter</code> installs or updates.</li>
+<li>Repositories: <code>A</code> adds, <code>D</code> forgets,
+    <code>R</code> refreshes.</li>
+</ul>
+
+<p>
+Extension settings are on the <b>Extensions</b> page of the terminal's
+settings dialog.
+</p>
+
+<h3>Command line</h3>
+
+<p>
+<code>fatrat-conf plugins</code> manages extensions without any front end,
+which is useful on a server:
+</p>
+
+<pre>
+fatrat-conf plugins add https://example.com/someone/fatrat-plugins.git
+fatrat-conf plugins repos
+fatrat-conf plugins available
+fatrat-conf plugins install fatrat-plugins myplugin
+fatrat-conf plugins list
+</pre>
+
+<p>
+<code>repos</code> prints the repository ids FatRat gave the repositories;
+<code>install</code> takes a repository id and an extension name. The other
+commands are <code>refresh [id]</code>, <code>updates</code>,
+<code>uninstall NAME</code> and <code>remove-repo ID</code>. A running FatRat
+loads the extension when it next starts; to load it right away, install it
+from one of the front ends.
+</p>
+
+<h2>Dependencies</h2>
+
+<p>
+Most extensions need nothing beyond Python itself. If one needs packages from
+the Python Package Index, FatRat names them and asks before installing
+anything. They are installed with pip for that extension alone, and are
+removed with it. From the command line, add <code>--with-dependencies</code>
+to the <code>install</code> command to agree.
+</p>
+
+<h2>Updating</h2>
+
+<p>
+Refresh the repositories, then install the extension again from the
+<b>Available</b> list (the button says <b>Install / update</b> or
+<b>Update</b>). If transfers are still using the old version, FatRat tells
+you, and the new version takes over when they finish.
+</p>
+
+<p>
+Desktop: FatRat checks the repositories you added for updates 30 seconds after
+it starts, and then every 24 hours. It does nothing if you have added no
+repository. An icon in the status bar shows the number of updates, with the
+tooltip <b>Extension updates</b>. Click it to open the settings. This check is
+on by default. It has no check box in the settings: to switch it off, set
+<code>python/check_updates</code> to <code>false</code> in the settings file
+(see <a href="../config.html">Configuration Files</a>). The web interface and
+the terminal do not check by themselves;
+<code>fatrat-conf plugins updates</code> lists the updates.
+</p>
+
+<h2>Switching extensions off</h2>
+
+<p>
+You can switch off one extension without removing it, as described above. A
+switched-off extension cannot start new transfers; transfers that are already
+using it carry on.
+</p>
+
+<p>
+To run FatRat without any Python extensions, start it with:
+</p>
+
+<pre>
+fatrat --no-python
+</pre>
+
+<p>
+For a server, pass the same option to <code>fatrat-nogui</code>.
+</p>
+
+<h2>Where extensions are stored</h2>
+
+<p>
+Extensions, the repositories' clones and the record of what was installed
+are in <code>~/.local/share/fatrat/plugins/</code>.
+</p>
+
+<h2>Writing your own</h2>
+
+<p>
+An extension is a Python file and a small manifest. See
+<a href="../plugins.html">Writing a FatRat Extension</a>.
+</p>
+
+</body>
+</html>

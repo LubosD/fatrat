@@ -1,20 +1,17 @@
 <html>
 <head>
-<title>Writing a FatRat plugin</title>
+<title>Writing a FatRat Extension</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-<style type="text/css">
-pre, code { background-color: #eee }
-</style>
 </head>
 
 <body>
 
-<table width="100%"><tr>
-	<td width="33%"></td>
-	<td width="33%" align="center" valign="middle"><h2>Writing a FatRat plugin</h2></td>
-	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
-</tr></table>
+<h1>Writing a FatRat Extension</h1>
+
+<p>
+This page is for people who write extensions. To install and manage extensions
+someone else wrote, see <a href="extensions/index.html">Extensions</a>.
+</p>
 
 <p>
 A FatRat plugin is a Python module that teaches FatRat about links it does not
@@ -53,7 +50,7 @@ when it is done.
 
 <h3>What a download plugin can use</h3>
 
-<table border="1" cellpadding="4" cellspacing="0">
+<table>
 <tr><td><code>await self.fetch(url, data=..., headers=...)</code></td>
     <td>Fetch through FatRat: this transfer's cookie jar, the configured proxy,
         FatRat's user agent. <code>data</code> makes it a POST (a mapping is
@@ -143,7 +140,7 @@ python3 -m fatrat_devkit download ./my-repo 'https://example.com/f/abc123'
 whole repository (with a <code>fatrat-plugins.json</code>).
 </p>
 
-<table border="1" cellpadding="4" cellspacing="0">
+<table>
 <tr><td><code>check PATH</code></td>
     <td>Validates the manifests the way FatRat reads them, imports the plugin
         and checks what a plugin author tends to get wrong: a missing or
@@ -174,7 +171,7 @@ whole repository (with a <code>fatrat-plugins.json</code>).
 The commands that run a plugin take these options:
 </p>
 
-<table border="1" cellpadding="4" cellspacing="0">
+<table>
 <tr><td><code>-s KEY=VALUE</code>, <code>--settings FILE.json</code></td>
     <td>Settings the plugin reads through <code>fatrat.settings</code>, such as
         <code>-s example/user=me</code>. <code>true</code> and
