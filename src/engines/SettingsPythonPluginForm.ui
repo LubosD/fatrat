@@ -48,7 +48,7 @@
          <item>
           <widget class="QLabel" name="labelHint">
            <property name="text">
-            <string>Uncheck a plugin to stop loading it. Changes take effect after a restart.</string>
+            <string>Uncheck a plugin to stop loading it. Changes take effect at once.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

@@ -26,7 +26,6 @@ respects for all of the code used other than "OpenSSL".
 
 #include "TorrentOptsWidget.h"
 #include <QHeaderView>
-#include <iostream>
 #include "fatrat.h"
 #include <libtorrent/announce_entry.hpp>
 #include <libtorrent/torrent_info.hpp>
@@ -182,13 +181,6 @@ void TorrentOptsWidget::accepted()
 		else if(!yes && prio != libtorrent::dont_download)
 			prio = libtorrent::dont_download;
 	}
-	
-	for(auto it = m_download->m_vecPriorities.begin();
-		   it != m_download->m_vecPriorities.end(); it++)
-	{
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
 	
 	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
 	
