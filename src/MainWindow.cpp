@@ -1109,7 +1109,7 @@ show_dialog:
 				if(destination.isEmpty())
 					destination = QDir::homePath();
 			}
-			
+
 			if(!m_dlgNewTransfer->m_auth.strUser.isEmpty())
 			{
 				QString& obj = (m_dlgNewTransfer->m_mode == Transfer::Download) ? source : destination;

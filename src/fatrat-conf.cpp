@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 	QSettings& settings = *settingsPtr;
 
 	QSettings defSettings(DATA_LOCATION "/data/defaults.conf", QSettings::IniFormat, qApp);
-	
+
 #ifdef WITH_PYPLUGINS
 	if (!args.isEmpty() && args[0] == "plugins")
 		return pluginCommand(args.mid(1));
