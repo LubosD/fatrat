@@ -185,6 +185,7 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 	settings.set_str(libtorrent::settings_pack::peer_fingerprint, fingerprint);
 	settings.set_str(libtorrent::settings_pack::listen_interfaces, TorrentSessionOptions::listenInterfaces(lstart).toStdString());
 	settings.set_int(libtorrent::settings_pack::max_retry_port_bind, TorrentSessionOptions::listenRetries(lstart, lend));
+	settings.set_str(libtorrent::settings_pack::announce_ip, TorrentSessionOptions::announceIp(getSettingsValue("torrent/external_ip").toString()).toStdString());
 
 	settings.set_bool(libtorrent::settings_pack::enable_upnp, getSettingsValue("torrent/mapping_upnp").toBool());
 	settings.set_bool(libtorrent::settings_pack::enable_natpmp, getSettingsValue("torrent/mapping_natpmp").toBool());

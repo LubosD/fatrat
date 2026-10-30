@@ -1,6 +1,7 @@
 #ifndef TORRENTSESSIONOPTIONS_H
 #define TORRENTSESSIONOPTIONS_H
 #include <QString>
+#include <QHostAddress>
 #include <algorithm>
 
 // Helpers that turn FatRat's torrent settings into libtorrent session settings.
@@ -17,6 +18,15 @@ namespace TorrentSessionOptions
 	inline int listenRetries(int start, int end)
 	{
 		return std::max(0, std::min(end, 65535) - start);
+	}
+
+	// The announce_ip setting; empty if the user gave nothing or something that is not an IP address.
+	inline QString announceIp(const QString& text)
+	{
+		QHostAddress addr;
+		if (!addr.setAddress(text.trimmed()))
+			return QString();
+		return addr.toString();
 	}
 }
 #endif
