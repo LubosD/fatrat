@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "ScheduledActionDlg.h"
 #include "Queue.h"
 #include <QMessageBox>
+#include <QLineEdit>
 
 ScheduledActionDlg::ScheduledActionDlg(QWidget* parent)
 	: QDialog(parent)
@@ -84,6 +85,7 @@ void ScheduledActionDlg::save()
 	else
 		m_action.queue = QUuid(comboQueue->itemData(comboQueue->currentIndex()).toString());
 	m_action.name = lineName->text();
+	m_action.done = false; // an edited action is armed again
 	m_action.repeated = radioRepeated->isChecked();
 	m_action.whenRepeated = timeEdit->time();
 	m_action.whenOneTime = dateTimeEdit->dateTime();
@@ -92,8 +94,8 @@ void ScheduledActionDlg::save()
 	if(m_action.action == ScheduledAction::ActionSetSpeedLimit)
 	{
 		QList<QVariant> sp;
-		sp << lineDown->text().toInt() * 1024;
-		sp << lineUp->text().toInt() * 1024;
+		sp << lineDown->text().trimmed().toInt() * 1024;
+		sp << lineUp->text().trimmed().toInt() * 1024;
 		m_action.actionArgument = sp;
 	}
 	
@@ -106,9 +108,37 @@ void ScheduledActionDlg::accept()
 	if(lineName->text().isEmpty())
 	{
 		QMessageBox::warning(this, "FatRat", tr("Enter the action name!"));
+		return;
 	}
-	else
-		QDialog::accept();
+
+	if(comboAction->currentIndex() == int(ScheduledAction::ActionSetSpeedLimit))
+	{
+		for(QLineEdit* edit : { lineDown, lineUp })
+		{
+			bool ok;
+			const int v = edit->text().trimmed().toInt(&ok);
+			if(!ok || v < 0)
+			{
+				QMessageBox::warning(this, "FatRat", tr("The speed limits must be whole numbers, 0 meaning unlimited."));
+				edit->setFocus();
+				return;
+			}
+		}
+	}
+
+	if(radioRepeated->isChecked())
+	{
+		bool any = false;
+		for(int i=0;i<7;i++)
+			any |= listWeekdays->item(i)->checkState() == Qt::Checked;
+		if(!any)
+		{
+			QMessageBox::warning(this, "FatRat", tr("Select at least one day of the week!"));
+			return;
+		}
+	}
+
+	QDialog::accept();
 }
 
 int ScheduledActionDlg::exec()

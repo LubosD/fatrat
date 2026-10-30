@@ -42,6 +42,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QClipboard>
 
 #include "MainWindow.h"
+#include "Scheduler.h"
 #include <QDir>
 #include "QueueDlg.h"
 #include "Queue.h"
@@ -736,8 +737,10 @@ void MainWindow::deleteQueue()
 	   tr("Do you really want to delete the active queue?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 	{
 		g_queuesLock.lockForWrite();
+		const QString uuid = g_queues[queue]->uuid();
 		delete g_queues.takeAt(queue);
 		g_queuesLock.unlock();
+		Scheduler::queueRemoved(uuid);
 		
 		Queue::saveQueuesAsync();
 		refreshQueues();

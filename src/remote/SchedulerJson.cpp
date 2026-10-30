@@ -30,7 +30,7 @@ static const char* const ActionNames[] = { "resume", "stop", "speedLimit" };
 static const char* const TimeFormat = "HH:mm";
 static const char* const DateTimeFormat = "yyyy-MM-dd'T'HH:mm";
 
-static const QStringList Properties = { "name", "queue", "action", "speedLimit", "repeated", "time", "days", "at" };
+static const QStringList Properties = { "name", "queue", "action", "speedLimit", "repeated", "time", "days", "at", "done" };
 
 static RestError invalid(const QString& message)
 {
@@ -66,6 +66,7 @@ QJsonObject SchedulerJson::actionToJson(const ScheduledAction& a)
 	o["time"] = a.whenRepeated.isValid() ? a.whenRepeated.toString(TimeFormat) : QString();
 	o["days"] = days;
 	o["at"] = a.whenOneTime.isValid() ? a.whenOneTime.toString(DateTimeFormat) : QString();
+	o["done"] = a.done;
 	return o;
 }
 
@@ -169,6 +170,12 @@ void SchedulerJson::applyAction(ScheduledAction& a, const QJsonObject& body, con
 		daysFromJson(body["days"], n.daysRepeated);
 	if (body.contains("at"))
 		n.whenOneTime = dateTimeFromJson(body["at"]);
+
+	// Changing when an action runs arms it again, unless the client says otherwise
+	if (body.contains("repeated") || body.contains("at"))
+		n.done = false;
+	if (body.contains("done"))
+		n.done = RestApi::asBool(body["done"], "done");
 
 	const bool schedule = create || body.contains("repeated") || body.contains("time")
 		|| body.contains("days") || body.contains("at");

@@ -21,6 +21,11 @@ private slots:
 	void createValidation();
 	void patchIsPartial();
 	void patchSwitchesActionAndSchedule();
+
+	void oneTimeRunsOnce();
+	void doneIsPersistedAndRearmed();
+	void everyMinuteIsHandledOnce();
+	void removeForQueueDropsOnlyThatQueue();
 private:
 	QTemporaryDir m_tmp;
 };
@@ -211,6 +216,86 @@ void TestSchedulerResources::patchSwitchesActionAndSchedule()
 
 	QCOMPARE(failure([&] { SchedulerJson::applyAction(a, obj(R"({"repeated":false})"), queues, false); }), 0);
 	QVERIFY(!a.repeated);
+}
+
+void TestSchedulerResources::oneTimeRunsOnce()
+{
+	ScheduledAction a = create(R"({"name":"A","queue":"{11111111-1111-1111-1111-111111111111}","action":"stop",
+		"repeated":false,"at":"2026-10-20T03:00"})");
+	const QDateTime t(QDate(2026, 10, 20), QTime(3, 0, 42));
+
+	QVERIFY(a.dueAt(t));
+	QVERIFY(!a.dueAt(t.addSecs(60)));
+	QVERIFY(!a.dueAt(t.addDays(1)));
+	a.done = true;
+	QVERIFY(!a.dueAt(t));
+
+	ScheduledAction r = create(R"({"name":"R","queue":"{11111111-1111-1111-1111-111111111111}","action":"stop",
+		"time":"03:00","days":[true,false,false,false,false,false,false]})");
+	QVERIFY(!r.dueAt(t)); // a Tuesday
+	QVERIFY(r.dueAt(QDateTime(QDate(2026, 10, 19), QTime(3, 0, 1))));
+}
+
+void TestSchedulerResources::doneIsPersistedAndRearmed()
+{
+	QList<ScheduledAction> in, out;
+	in << create(R"({"name":"A","queue":"{11111111-1111-1111-1111-111111111111}","action":"stop",
+		"repeated":false,"at":"2026-10-20T03:00"})");
+	in[0].id = ScheduledAction::newId();
+	ScheduledAction::saveAll(in);
+
+	ScheduledAction::markDone(in[0].id);
+	ScheduledAction::loadAll(out);
+	QVERIFY(out[0].done);
+	QCOMPARE(SchedulerJson::actionToJson(out[0])["done"].toBool(), true);
+
+	// rescheduling arms it again, an explicit "done" wins
+	SchedulerJson::applyAction(out[0], obj(R"({"at":"2026-10-21T03:00"})"), queues, false);
+	QVERIFY(!out[0].done);
+	SchedulerJson::applyAction(out[0], obj(R"({"at":"2026-10-21T04:00","done":true})"), queues, false);
+	QVERIFY(out[0].done);
+	SchedulerJson::applyAction(out[0], obj(R"({"name":"B"})"), queues, false);
+	QVERIFY(out[0].done);
+}
+
+void TestSchedulerResources::everyMinuteIsHandledOnce()
+{
+	const QDate d(2026, 10, 20);
+	auto at = [&](int h, int m, int s) { return QDateTime(d, QTime(h, m, s)); };
+
+	// same minute: nothing to do (no double firing)
+	QVERIFY(ScheduledAction::minutesToCheck(at(3, 0, 5), at(3, 0, 55)).isEmpty());
+	// the next minute
+	QCOMPARE(ScheduledAction::minutesToCheck(at(3, 0, 55), at(3, 1, 5)), QList<QDateTime>() << at(3, 1, 0));
+	// a late timer must not skip a minute
+	QCOMPARE(ScheduledAction::minutesToCheck(at(3, 0, 50), at(3, 2, 10)),
+		 QList<QDateTime>() << at(3, 1, 0) << at(3, 2, 0));
+	// a long gap (suspend) is cut short
+	QCOMPARE(ScheduledAction::minutesToCheck(at(1, 0, 0), at(3, 0, 0)).size(), 5);
+	// the clock going backwards
+	QVERIFY(ScheduledAction::minutesToCheck(at(3, 5, 0), at(3, 0, 0)).isEmpty());
+	// across midnight
+	QCOMPARE(ScheduledAction::minutesToCheck(at(23, 59, 30), QDateTime(d.addDays(1), QTime(0, 0, 10))),
+		 QList<QDateTime>() << QDateTime(d.addDays(1), QTime(0, 0, 0)));
+}
+
+void TestSchedulerResources::removeForQueueDropsOnlyThatQueue()
+{
+	const QString Q2 = "{22222222-2222-2222-2222-222222222222}";
+	QList<ScheduledAction> in, out;
+	in << create(R"({"name":"A","queue":"{11111111-1111-1111-1111-111111111111}","action":"stop","time":"01:00"})");
+	in << create(R"({"name":"B","queue":"{11111111-1111-1111-1111-111111111111}","action":"stop","time":"02:00"})");
+	in << create(R"({"name":"C","queue":"{11111111-1111-1111-1111-111111111111}","action":"stop","time":"03:00"})");
+	in[2].queue = QUuid(Q2);
+	for (ScheduledAction& a : in)
+		a.id = ScheduledAction::newId();
+	ScheduledAction::saveAll(in);
+
+	QVERIFY(ScheduledAction::removeForQueue(QUuid(Q1)));
+	ScheduledAction::loadAll(out);
+	QCOMPARE(out.size(), 1);
+	QCOMPARE(out[0].name, QString("C"));
+	QVERIFY(!ScheduledAction::removeForQueue(QUuid(Q1)));
 }
 
 QTEST_APPLESS_MAIN(TestSchedulerResources)
