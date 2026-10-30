@@ -28,6 +28,8 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "TransferAdder.h"
 #include "RuntimeException.h"
+#include "WatchFile.h"
+#include <QFileInfo>
 #include <QCoreApplication>
 #include <QReadLocker>
 
@@ -51,7 +53,35 @@ WatchFolderService::Hooks hooks()
 		return entries();
 	};
 
-	h.add = [](const QString& queueUuid, const QStringList& sources, QStringList& rejected) -> int {
+	h.add = [](const QString& queueUuid, const QStringList& input, QStringList& rejected) -> int {
+		// Class detection falls back to the metalink class for anything, so a dropped file names its class
+		// itself: in a build without BitTorrent a .torrent fails clearly instead of becoming a broken
+		// metalink transfer. The same goes for magnet links.
+		TransferAdder::Options opts;
+		QStringList sources = input;
+		if (sources.size() == 1 && sources[0].startsWith('/'))
+		{
+			switch (WatchFile::kind(QFileInfo(sources[0]).fileName()))
+			{
+			case WatchFile::Torrent:
+				opts.engine = "TorrentDownload";
+				break;
+			case WatchFile::Metalink:
+				opts.engine = "MetalinkDownload";
+				break;
+			default:
+				break;
+			}
+		}
+		else if (Transfer::getEngineID("TorrentDownload", Transfer::Download) < 0)
+		{
+			for (int i = sources.size() - 1; i >= 0; i--)
+			{
+				if (sources[i].startsWith("magnet:", Qt::CaseInsensitive))
+					rejected.prepend(sources.takeAt(i));
+			}
+		}
+
 		int added = -1;
 		{
 			QReadLocker l(&g_queuesLock);
@@ -59,7 +89,7 @@ WatchFolderService::Hooks hooks()
 			{
 				if (q->uuid() == queueUuid)
 				{
-					added = TransferAdder::add(q, sources, TransferAdder::Options(), &rejected).size();
+					added = TransferAdder::add(q, sources, opts, &rejected).size();
 					break;
 				}
 			}

@@ -47,7 +47,7 @@ public:
 	~Queue();
 	
 	static void stopQueues();
-	static void loadQueues();
+	static bool loadQueues(); // false when queues.xml could not be read and a default queue was set up
 	static void saveQueues();
 	static void saveQueuesAsync();
 	static void unloadQueues();

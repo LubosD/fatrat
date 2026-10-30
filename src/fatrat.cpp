@@ -219,9 +219,14 @@ int main(int argc,char** argv)
 	qRegisterMetaType<Transfer*>("Transfer*");
 	qRegisterMetaType<Transfer::TransferList>("Transfer::TransferList");
 
-	Queue::loadQueues();
+	const bool queuesLoaded = Queue::loadQueues();
 #ifdef WITH_CURL
-	MetalinkDownload::pruneSourceCopies();
+	// With queues.xml unreadable (say, truncated by a crash and about to be restored from a backup),
+	// every copy would look unused.
+	if (queuesLoaded)
+		MetalinkDownload::pruneSourceCopies();
+#else
+	Q_UNUSED(queuesLoaded);
 #endif
 #ifdef WITH_GUI
 	initAppTools();

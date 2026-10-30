@@ -149,7 +149,7 @@ void Queue::stopQueues()
 	}
 }
 
-void Queue::loadQueues()
+bool Queue::loadQueues()
 {
 	QDomDocument doc;
 	QFile file;
@@ -157,9 +157,10 @@ void Queue::loadQueues()
 	
 	dir.mkpath(".local/share/fatrat");
 	if(!dir.cd(".local/share/fatrat"))
-		return;
+		return false;
 	file.setFileName(dir.absoluteFilePath("queues.xml"));
 	
+	bool loaded = true;
 	QDomDocument::ParseResult parsed;
 	if(!file.open(QIODevice::ReadOnly) || !(parsed = doc.setContent(&file)))
 	{
@@ -171,6 +172,7 @@ void Queue::loadQueues()
 		Queue* q = new Queue;
 		q->setName(QObject::tr("Main queue"));
 		g_queues << q;
+		loaded = false;
 	}
 	else
 	{
@@ -209,6 +211,7 @@ void Queue::loadQueues()
 	}
 
 	m_bLoaded = true;
+	return loaded;
 }
 
 void Queue::BackgroundSaver::run()

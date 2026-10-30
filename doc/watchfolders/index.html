@@ -30,7 +30,7 @@ File extensions are not case-sensitive. Hidden files and all other kinds of file
 </p>
 
 <p>
-A file is processed once its size and modification time have not changed for 2 seconds, so a file that is still being copied in is not read half-written, as long as the copy doesn't stall for longer than that. Writing the file somewhere else and then moving it into the folder is always safe.
+A file is processed once its size and modification time have not changed for 2 seconds, so a file that is still being copied in is not read half-written, as long as the copy doesn't stall for longer than that. Writing the file somewhere else and then moving it into the folder is always safe. A list of links that keeps growing while it is being added may have its first links added twice.
 </p>
 
 <h3>Setting it up</h3>
@@ -67,6 +67,10 @@ If a file with that name already exists, <code>.1</code>, <code>.2</code>, and s
 
 <p>
 FatRat needs write access to the folder, including the permission to enter it, to be able to rename files. A folder it cannot write to is not watched at all.
+</p>
+
+<p>
+Don't use a queue's target directory as its watch folder: a <code>.torrent</code> that FatRat itself is still downloading there could be picked up half-written.
 </p>
 
 <h3>Network folders</h3>
