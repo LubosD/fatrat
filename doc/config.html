@@ -15,17 +15,16 @@
 
 <p>The file holds the values FatRat has saved. For a key that is not in it, FatRat uses the default from <code>defaults.conf</code> (see below). Keys are written as <code>[section]</code> headers followed by <code>key=value</code> lines. The keys in the <code>[General]</code> section are used without a section name, for example <code>gui_refresh</code>, and all other keys with it, for example <code>remote/port</code>.</p>
 
-<p>To read or write a key from the shell, use <code>fatrat-conf</code>. See <a href="server/index.html">Running on a Server</a> for how.</p>
+<p>To read or write a key from the shell, use <code>fatrat-conf</code>. See <a href="server/index.html">Running on a Server</a> for how. Like FatRat, <code>fatrat-conf</code> takes <code>-c</code> <i>file</i> (or <code>--config</code>) to work on another settings file.</p>
 
 <h3>Hand-editing</h3>
 
-<p>Stop FatRat before you edit the file, or it overwrites your changes. When you write a value by hand, put it in double quotes if it contains <code>,</code> <code>;</code> <code>"</code> or <code>\</code>, and write <code>\"</code> and <code>\\</code> inside the quotes. A value without quotes that contains a comma is read as a list, not as text, and FatRat then sees an empty value. For <code>remote/password</code>, that turns the password off:</p>
+<p>Stop FatRat before you edit the file, or it overwrites your changes. When you write a value by hand, put it in double quotes if it contains <code>,</code> <code>;</code> <code>"</code> or <code>\</code>, and write <code>\"</code> and <code>\\</code> inside the quotes. Quoting is the portable way to write such a value. FatRat reads an unquoted <code>password=a,b</code> as the password <code>a,b</code>, but other values with a comma may be read as a list, and a <code>;</code> cuts the rest of an unquoted value off:</p>
 
 <pre>[remote]
-; wrong: read as empty, so anyone can connect
-password=a,b
-; right
 password="a,b"</pre>
+
+<p>If FatRat cannot read the <code>remote/password</code> value as text, it refuses every login and writes a message to its log, until you fix the value.</p>
 
 <h3>Keys you may want to change</h3>
 
@@ -36,15 +35,17 @@ password="a,b"</pre>
 <tr><td><code>remote/enable</code></td><td><code>false</code></td><td>Serve the web interface and the REST API over the network.</td></tr>
 <tr><td><code>remote/port</code></td><td><code>2233</code></td><td>TCP port of the web interface.</td></tr>
 <tr><td><code>remote/password</code></td><td><code>fatrat</code></td><td>Password for the web interface and the REST API. If it is empty, no password is asked for.</td></tr>
-<tr><td><code>remote/ssl</code></td><td><code>false</code></td><td>Use HTTPS. Needs <code>remote/ssl_pem</code>. If the file is missing, FatRat falls back to plain HTTP.</td></tr>
+<tr><td><code>remote/ssl</code></td><td><code>false</code></td><td>Use HTTPS. Needs <code>remote/ssl_pem</code>. If the file is missing, FatRat falls back to plain HTTP. If it is not a valid PEM file, FatRat does not listen at all and logs an error.</td></tr>
 <tr><td><code>remote/ssl_pem</code></td><td>empty</td><td>Path of a PEM file with the private key followed by the certificate.</td></tr>
-<tr><td><code>network/speed_down</code>, <code>network/speed_up</code></td><td><code>131072</code></td><td>The speed of your connection, in bytes per second. The desktop app's speed bars use it as their full scale.</td></tr>
+<tr><td><code>network/speed_down</code>, <code>network/speed_up</code></td><td><code>131072</code></td><td>The speed of your connection, in bytes per second. It only sets the scale of the desktop app's speed graphs and bars, and limits nothing.</td></tr>
 <tr><td><code>rss/enable</code></td><td><code>true</code></td><td>Check RSS feeds.</td></tr>
 <tr><td><code>rss/interval</code></td><td><code>15</code></td><td>Minutes between checks of the feeds.</td></tr>
-<tr><td><code>torrent/listen_start</code>, <code>torrent/listen_end</code></td><td><code>6881</code>, <code>6888</code></td><td>The range of ports BitTorrent listens on.</td></tr>
+<tr><td><code>torrent/listen_start</code>, <code>torrent/listen_end</code></td><td><code>6881</code>, <code>6888</code></td><td>The range of ports BitTorrent listens on. It uses the first free port from <code>listen_start</code> to <code>listen_end</code>.</td></tr>
+<tr><td><code>torrent/external_ip</code></td><td>empty</td><td>The address to announce to trackers. Only a literal IP address is used. If it is empty or not an address, the BitTorrent library decides.</td></tr>
 <tr><td><code>torrent/maxratio</code></td><td><code>1</code></td><td>Seed until this share ratio is reached.</td></tr>
 <tr><td><code>torrent/dht</code></td><td><code>true</code></td><td>Use the distributed tracker (DHT).</td></tr>
 <tr><td><code>torrent/pex</code></td><td><code>true</code></td><td>Use peer exchange.</td></tr>
+<tr><td><code>python/check_updates</code></td><td><code>true</code></td><td>Desktop app only. Check the extension repositories you added for updates, 30 seconds after the start and then every 24 hours. There is no checkbox for it in the settings. See <a href="extensions/index.html">Extensions</a>.</td></tr>
 </table>
 
 <p>See <a href="server/index.html">Running on a Server</a> for the web interface and HTTPS, and <a href="rss/index.html">RSS</a> for the feeds.</p>

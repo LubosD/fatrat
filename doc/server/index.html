@@ -38,9 +38,9 @@
 <dt><code>-d</code>, <code>--daemon</code></dt>
 <dd>Go to the background and detach from the terminal. Implies <code>--nogui</code>.</dd>
 <dt><code>-p</code>, <code>--pidfile</code> <i>file</i></dt>
-<dd>Write the process ID to <i>file</i>. With <code>--daemon</code>, it is the ID of the background process. FatRat does not remove the file when it exits.</dd>
+<dd>Write the process ID to <i>file</i>. With <code>--daemon</code>, it is the ID of the background process. FatRat removes the file when it exits normally.</dd>
 <dt><code>-u</code>, <code>--user</code> <i>user</i>[:<i>group</i>]</dt>
-<dd>Switch to this user and group. Start FatRat as root to use it. Always give the group too: without it, FatRat keeps running with the group <code>root</code>. FatRat sets <code>HOME</code> and the working directory to the user's home directory, so it uses that user's settings and data. It does not reset other variables such as <code>XDG_CONFIG_HOME</code> or <code>XDG_RUNTIME_DIR</code>, so don't pass root's environment on (for example with <code>sudo -E</code>).</dd>
+<dd>Switch to this user and group. Start FatRat as root to use it. If you leave out the group, FatRat uses the primary group of the user. It also replaces the supplementary groups with those of the user. The process ID file is handed over to the user, so FatRat can remove it on exit. FatRat sets <code>HOME</code> and the working directory to the user's home directory, so it uses that user's settings and data. It does not reset other variables such as <code>XDG_CONFIG_HOME</code> or <code>XDG_RUNTIME_DIR</code>, so don't pass root's environment on (for example with <code>sudo -E</code>).</dd>
 <dt><code>--syslog</code></dt>
 <dd>Also send FatRat's log messages to syslog, with the tag <code>fatrat</code>.</dd>
 <dt><code>-c</code>, <code>--config</code> <i>file</i></dt>
@@ -59,11 +59,9 @@
 
 <p>Run only one FatRat per user at a time. Two would use the same settings and queues. For example, don't start one by hand as the <code>fatrat</code> user while the <code>fatrat</code> service is running.</p>
 
-<p>If you have to start FatRat as root, <code>--user</code> with a group is the fallback:</p>
+<p>If you have to start FatRat as root, <code>--user</code> is the fallback:</p>
 
-<pre>sudo fatrat-nogui --daemon --user fatrat:fatrat --pidfile /run/fatrat.pid</pre>
-
-<p>Note that FatRat keeps root's supplementary groups when it switches.</p>
+<pre>sudo fatrat-nogui --daemon --user fatrat --pidfile /run/fatrat.pid</pre>
 
 <p><code>fatrat --help</code> lists every option. See also <a href="../cmdline.html">Command Line</a>.</p>
 
@@ -120,14 +118,14 @@ sudo systemctl start fatrat</pre>
 
 <p><code>fatrat-conf</code> stores the password as you type it, in plain text, so keep the settings file readable only by its owner. To read a value back, run <code>fatrat-conf remote/port</code>. A password typed on the command line also ends up in your shell history.</p>
 
-<p>You can also edit the file with a text editor while FatRat is stopped. On Linux and BSD, <code>fatrat-conf</code> is the safer way, because it quotes the values for you. When you write a value by hand, put it in double quotes if it contains <code>,</code> <code>;</code> <code>"</code> or <code>\</code>, and write <code>\"</code> for a quote and <code>\\</code> for a backslash inside. Without quotes, a password with a comma is read as empty, which turns the password off, and a <code>;</code> cuts the rest of the value off:</p>
+<p>You can also edit the file with a text editor while FatRat is stopped. On Linux and BSD, <code>fatrat-conf</code> is the safer way, because it quotes the values for you. When you write a value by hand, put it in double quotes if it contains <code>,</code> <code>;</code> <code>"</code> or <code>\</code>, and write <code>\"</code> for a quote and <code>\\</code> for a backslash inside. Quoting is the portable way: an unquoted comma in the password is read as part of it, but a <code>;</code> cuts the rest of an unquoted value off. If FatRat cannot read the password value as text, it refuses every login:</p>
 
 <pre>[remote]
 enable=true
 port=2233
 password="SECRET"</pre>
 
-<p><code>fatrat-conf</code> writes to the usual settings file only; if you run FatRat with <code>-c</code>, edit that file instead.</p>
+<p><code>fatrat-conf</code> writes to the usual settings file; if you run FatRat with <code>-c</code>, give <code>fatrat-conf</code> the same <code>-c</code> <i>file</i> option, for example <code>fatrat-conf -c /path/to/file -w remote/enable=true</code>.</p>
 
 <p>Once FatRat runs again, open <code>http://<i>server</i>:<i>port</i>/</code> in a browser, for example <code>http://myserver:2233/</code>. The browser asks for a user name and a password: the user name can be anything, the password is <code>remote/password</code>. See <a href="../web/index.html">Web Interface</a>.</p>
 
@@ -152,7 +150,7 @@ chmod 600 fatrat.pem</pre>
 
 <p>The file must be readable by the user FatRat runs as. Open <code>https://<i>server</i>:<i>port</i>/</code>. With a self-signed certificate, the browser warns you the first time. Plain <code>http://</code> no longer works on that port.</p>
 
-<p>If the PEM file doesn't exist, FatRat logs "SSL key file not found, disabling HTTPS" and serves plain HTTP instead.</p>
+<p>If the PEM file doesn't exist, FatRat logs "SSL key file not found, disabling HTTPS" and serves plain HTTP instead. If the file exists but is not a valid PEM file with both the private key and the certificate, FatRat does not listen at all, and logs an error that names the file. It logs an error too if it cannot listen on the port, for example because another program already uses it. Look at the log in the web interface or fatrat-tui, or in syslog if you use <code>--syslog</code>.</p>
 
 <p>The Web Interface settings page in the desktop app, the web interface and fatrat-tui can also generate a self-signed certificate. This needs <code>openssl</code> and <code>sed</code> on the server. The file is saved as <code>~/.local/share/fatrat/data/fatrat-webui.pem</code>, readable only by its owner.</p>
 

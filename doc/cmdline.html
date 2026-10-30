@@ -20,7 +20,7 @@ The desktop program is started with <code>fatrat</code>. A headless build, witho
 <h2>Options</h2>
 
 <p>
-Options are case-insensitive, and each is given separately. Options that take a value (<code>-c</code>, <code>-p</code>, <code>-u</code>, <code>--rest-socket</code>) read the next argument as the value.
+Options are case-insensitive, and each is given separately. Options that take a value (<code>-c</code>, <code>-p</code>, <code>-u</code>, <code>--rest-socket</code>) read the next argument as the value. If it is missing, FatRat prints a message and exits with status 1.
 </p>
 
 <dl>
@@ -28,16 +28,16 @@ Options are case-insensitive, and each is given separately. Options that take a 
 <dd>Start even if FatRat is already running. See "One instance at a time" below.</dd>
 
 <dt><code>-i</code>, <code>--hidden</code></dt>
-<dd>Desktop only. Start with the main window hidden. This works only if the tray icon exists.</dd>
+<dd>Desktop only. Start with the main window hidden. This works only if the tray icon exists. <code>fatrat-nogui</code> accepts the option and ignores it.</dd>
 
 <dt><code>-n</code>, <code>--nogui</code></dt>
-<dd>Desktop only. Start with no window at all. FatRat keeps running in the background, and you control it with the web interface or the terminal interface. <code>fatrat-nogui</code> does this without the option.</dd>
+<dd>Desktop only. Start with no window at all. FatRat keeps running in the background, and you control it with the web interface or the terminal interface. <code>fatrat-nogui</code> does this without the option, and accepts the option too.</dd>
 
 <dt><code>-d</code>, <code>--daemon</code></dt>
 <dd>Run in the background as a daemon. This implies <code>--nogui</code>.</dd>
 
 <dt><code>-c</code>, <code>--config</code> <i>file</i></dt>
-<dd>Use <i>file</i> to store the settings, instead of the default settings file.</dd>
+<dd>Use <i>file</i> (an INI file) to store the settings, instead of the default settings file, <code>~/.config/Dolezel/fatrat.conf</code>. The <code>fatrat-conf</code> command takes the same option.</dd>
 
 <dt><code>--rest-socket</code> <i>path</i></dt>
 <dd>Also serve the REST API on a Unix socket at <i>path</i>. The socket has no authentication and mode 0600. It is available only if FatRat was built with the web interface; otherwise FatRat prints a message and exits with status 1. See <a href="rest/index.html">REST API</a>.</dd>
@@ -46,10 +46,10 @@ Options are case-insensitive, and each is given separately. Options that take a 
 <dd>Also send the contents of the global log to syslog.</dd>
 
 <dt><code>-p</code>, <code>--pidfile</code> <i>file</i></dt>
-<dd>Write the process ID to <i>file</i>.</dd>
+<dd>Write the process ID to <i>file</i>. FatRat removes the file when it exits normally.</dd>
 
 <dt><code>-u</code>, <code>--user</code> <i>user</i>[:<i>group</i>]</dt>
-<dd>Run as <i>user</i> (and as <i>group</i>, if given) instead of the user who started FatRat. Use it when you start FatRat as root.</dd>
+<dd>Run as <i>user</i> (and as <i>group</i>, if given) instead of the user who started FatRat. Use it when you start FatRat as root. If you leave out the group, FatRat uses the primary group of <i>user</i>. When started as root, it also replaces the supplementary groups with those of <i>user</i>. The process ID file, if any, is handed over to <i>user</i>, so FatRat can still remove it on exit.</dd>
 
 <dt><code>--no-python</code></dt>
 <dd>Turn off support for Python extensions. This option is listed only if FatRat was built with extension support. See <a href="extensions/index.html">Extensions</a>.</dd>
@@ -93,14 +93,15 @@ Pass <code>--force</code> to skip the check. Without D-Bus support in the build,
 
 <ul>
 <li>0 after <code>--help</code>, and when FatRat found a running instance and handed over to it.</li>
-<li>1 if <code>--rest-socket</code> has no path, or the build has no web interface.</li>
-<li>The value of <code>errno</code> if the <code>--pidfile</code> cannot be written, or if <code>--user</code> names a user that cannot be found or switched to.</li>
+<li>1 if <code>-c</code>, <code>-p</code>, <code>-u</code> or <code>--rest-socket</code> has no value, or the build has no web interface and you pass <code>--rest-socket</code>.</li>
+<li>1 if <code>--user</code> names a user or group that cannot be found, or FatRat cannot switch to it.</li>
+<li>The value of <code>errno</code> if the <code>--pidfile</code> cannot be written.</li>
 </ul>
 
 <h2>Unknown options</h2>
 
 <p>
-FatRat does not report unknown options. It skips an unknown option, and it also skips the argument after it. For example, in <code>fatrat -k 002 "http://example.com/a.zip"</code> the unknown <code>-k</code> swallows <code>002</code>, and the link is still used. But in <code>fatrat -x "http://example.com/a.zip"</code> the link is swallowed. Check the spelling of options, and put links before any option you are unsure of.
+FatRat prints <code>Ignoring unknown option</code> and the option to the standard error output, and carries on. The argument after an unknown option is not skipped, so it is still used as a link or as the next option.
 </p>
 
 </body>
