@@ -3,7 +3,7 @@ import { ConfirmationService } from 'primeng/api';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TransferApi } from './api/transfer-api';
-import { TransfersStore } from '../state/transfers.store';
+import { TransfersStore, resumedState } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
 import { JsonValue } from './api/json-value';
 import { TransferState, NewTransferOptions } from './api/models';
@@ -15,8 +15,19 @@ export class TransferActionsService {
   private readonly queuesStore = inject(QueuesStore);
   private readonly confirmation = inject(ConfirmationService);
 
+  /** Per transfer, like the desktop: forced -> Active, paused/failed -> Waiting; the rest is left alone. */
   resume(): void {
-    this.setState('Waiting');
+    const selected = new Set(this.transfersStore.selectedUuids());
+    const active: string[] = [];
+    const waiting: string[] = [];
+    for (const t of this.transfersStore.transfers()) {
+      if (!selected.has(t.uuid)) continue;
+      const next = resumedState(t.state);
+      if (next === 'Active') active.push(t.uuid);
+      else if (next === 'Waiting') waiting.push(t.uuid);
+    }
+    if (active.length > 0) this.setStateOf(active, 'Active');
+    if (waiting.length > 0) this.setStateOf(waiting, 'Waiting');
   }
 
   forceResume(): void {
@@ -128,7 +139,10 @@ export class TransferActionsService {
   private setState(state: Extract<TransferState, 'Waiting' | 'ForcedActive' | 'Paused'>): void {
     const uuids = this.transfersStore.selectedUuids();
     if (uuids.length === 0) return;
+    this.setStateOf(uuids, state);
+  }
 
+  private setStateOf(uuids: string[], state: Extract<TransferState, 'Active' | 'Waiting' | 'ForcedActive' | 'Paused'>): void {
     this.transferApi.setTransferProperties(uuids, { state }).subscribe({
       next: () => this.transfersStore.refreshNow(),
       error: (err) => console.error('Failed to update transfer state', err),

@@ -27,6 +27,7 @@ namespace tui
 		void drawDetails(Canvas& c, const Rect& r);
 		void ensureVisible();
 		void setState(const QString& state, TransferInfo::State local);
+		void resume();
 		void moveSelected(const QString& direction);
 		void moveQueue(const QString& direction);
 		void reorderQueue(int from, int to);
