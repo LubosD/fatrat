@@ -46,8 +46,9 @@ for series in "$@"; do
 
 	docker build -t "$image" --build-arg UBUNTU_VERSION="$release" -f packaging/deb/Dockerfile "$WORK/ctx"
 
-	rm -rf "$OUT/$series"
+	# Only FatRat's own files: the plugin packages built by other projects' build.sh live here too
 	mkdir -p "$OUT/$series"
+	rm -f "$OUT/$series"/fatrat_* "$OUT/$series"/fatrat-common_* "$OUT/$series"/fatrat-nogui_* "$OUT/$series"/fatrat-dev_*
 	docker run --rm \
 		-v "$WORK/source.tar.gz:/source.tar.gz:ro" \
 		-v "$OUT/$series:/out" \

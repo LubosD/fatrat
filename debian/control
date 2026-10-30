@@ -60,3 +60,15 @@ Description: download manager - headless version and terminal UI
  user interface that is controlled through the web interface, and
  fatrat-tui, a terminal (ncurses) client which can start fatrat-nogui
  or connect to a running FatRat.
+
+Package: fatrat-dev
+Architecture: any
+Depends: qt6-base-dev (>= 6.5), ${misc:Depends}
+Description: download manager - development files for native plugins
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains the headers needed to build native FatRat plugins.
+ A plugin has to be built against the headers of the version and
+ flavour it will be loaded into: /usr/include/fatrat belongs to the Qt
+ desktop version (fatrat), /usr/include/fatrat-nogui to fatrat-nogui.

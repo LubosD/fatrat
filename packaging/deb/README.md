@@ -8,6 +8,8 @@ and published as a self-hosted apt repository. Packages:
 | `fatrat`        | the Qt desktop application                                                |
 | `fatrat-nogui`  | `fatrat-nogui` (headless, controlled through the web interface) and `fatrat-tui` |
 | `fatrat-common` | web interface, Python extension support, translations, `fatrat-conf`      |
+| `fatrat-dev`    | headers for native plugins: `/usr/include/fatrat` for the desktop version, `/usr/include/fatrat-nogui` for the headless one |
+| `fatrat-unpack`, `fatrat-nogui-unpack` | the [fatrat-unpack](https://github.com/LubosD/fatrat-unpack) plugin (RAR, 7z, ZIP, split files), built for `fatrat` and `fatrat-nogui` respectively |
 
 All packages are built with libcurl, BitTorrent, the web interface and Python extensions; `fatrat` also
 has D-Bus and the help browser. Jabber (gloox) is not enabled.
@@ -24,6 +26,20 @@ To rebuild the same upstream version, bump the Debian revision: `DEB_REVISION=2 
 The upstream version comes from `VERSION` in `src/fatrat.h`.
 
 To add a new Ubuntu release, add it to `RELEASES` in `build.sh`.
+
+### The unpack plugin
+
+A native plugin has to be built against the headers of the exact FatRat it is loaded into, and the desktop
+and headless flavours differ. `fatrat-unpack` is built in `~/Projects/fatrat-unpack` by its own
+`packaging/deb/build.sh`, from the `fatrat-dev` package that the FatRat build leaves in `out/SERIES/`, and
+the plugin packages are written to the same directory. So build FatRat first, then the plugin:
+
+    packaging/deb/build.sh
+    ~/Projects/fatrat-unpack/packaging/deb/build.sh      # FATRAT_OUT=... if FatRat is elsewhere
+
+The plugin packages depend on exactly the FatRat version they were built with, so publish them together
+with it. The two plugin packages install the same file and conflict with each other: with both `fatrat` and
+`fatrat-nogui` installed, use `fatrat-unpack` (the desktop version is what the systemd units start).
 
 ## Publishing
 
