@@ -859,7 +859,8 @@ void dropPrivileges()
 		qDebug() << "Cannot chown the pid file:" << strerror(errno);
 
 	// Order matters: supplementary groups and gid need root, so they go before setuid()
-	if (initgroups(user.constData(), gid) == -1)
+	// (not root: setgroups() would fail, and setgid()/setuid() succeed only for our own ids anyway)
+	if (geteuid() == 0 && initgroups(user.constData(), gid) == -1)
 	{
 		Logger::global()->enterLogMessage("Cannot initgroups()");
 		std::cerr << "Cannot initgroups(): " << strerror(errno) << "\n";
