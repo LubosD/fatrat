@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Velocitat límit de baixada (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Velocitat límit de baixada (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Velocitat límit de pujada (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Velocitat límit de pujada (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1549,8 +1549,8 @@ Missatge: %2</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Velocitat límit de baixada (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Velocitat límit de baixada (KiB/s):</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1559,8 +1559,8 @@ Missatge: %2</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Velocitat límit de pujada (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Velocitat límit de pujada (KiB/s):</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2661,13 +2661,13 @@ Inicieu FatRat i activeu-ne la interfície web (Ajustaments, Interfície web), o
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Velocitat límit de baixada (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Velocitat límit de baixada (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Velocitat límit de pujada (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Velocitat límit de pujada (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3101,8 +3101,8 @@ Inicieu FatRat i activeu-ne la interfície web (Ajustaments, Interfície web), o
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
-        <translation>kB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -3424,8 +3424,8 @@ Inicieu FatRat i activeu-ne la interfície web (Ajustaments, Interfície web), o
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>

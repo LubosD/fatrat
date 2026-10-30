@@ -1391,9 +1391,9 @@ void MainWindow::refreshDetailsTab()
 		QString speed;
 		
 		if(down)
-			speed = QString("%1 kB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
+			speed = QString("%1 KiB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
 		if(up)
-			speed += QString("%1 kB/s up").arg(double(up)/1024.f, 0, 'f', 1);
+			speed += QString("%1 KiB/s up").arg(double(up)/1024.f, 0, 'f', 1);
 		
 		if(d->total())
 		{

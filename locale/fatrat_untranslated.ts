@@ -536,12 +536,12 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
+        <source>Down speed limit (KiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
+        <source>Up speed limit (KiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1533,7 +1533,7 @@ Message: %2</source>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
+        <source>Down speed limit (KiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1543,7 +1543,7 @@ Message: %2</source>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
+        <source>Up speed limit (KiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2641,12 +2641,12 @@ Start FatRat and turn on its web interface (Settings, Web interface), or use --m
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
+        <source>Down speed limit (KiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
+        <source>Up speed limit (KiB/s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3081,7 +3081,7 @@ Start FatRat and turn on its web interface (Settings, Web interface), or use --m
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
+        <source>KiB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3404,7 +3404,7 @@ Start FatRat and turn on its web interface (Settings, Web interface), or use --m
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
+        <source>KiB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

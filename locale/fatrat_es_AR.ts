@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Límite de velocidad de bajada (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Límite de velocidad de bajada (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Límite de velocidad de subida (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Límite de velocidad de subida (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1545,8 +1545,8 @@ Mensaje: %2</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Límite de velocidad de bajada (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Límite de velocidad de bajada (KiB/s):</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1555,8 +1555,8 @@ Mensaje: %2</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Límite de velocidad de subida /kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Límite de velocidad de subida /KiB/s):</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2657,13 +2657,13 @@ Inicie FatRat y active su interfaz web (Configuración, Interfaz web), o use --m
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Límite de velocidad de bajada (kiB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Límite de velocidad de bajada (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Límite de velocidad de subida (kiB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Límite de velocidad de subida (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3097,7 +3097,7 @@ Inicie FatRat y active su interfaz web (Configuración, Interfaz web), o use --m
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
+        <source>KiB/s</source>
         <translation>kkB/s</translation>
     </message>
     <message>
@@ -3420,8 +3420,8 @@ Inicie FatRat y active su interfaz web (Configuración, Interfaz web), o use --m
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>

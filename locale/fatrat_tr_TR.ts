@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>İndirme hız limiti (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>İndirme hız limiti (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Gönderme hız limiti (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Gönderme hız limiti (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1545,8 +1545,8 @@ Message: %2</source>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>İndirme hız limiti (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>İndirme hız limiti (KiB/s):</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1555,8 +1555,8 @@ Message: %2</source>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Gönderme hız limiti (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Gönderme hız limiti (KiB/s):</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2656,13 +2656,13 @@ FatRat&apos;ı başlatın ve web arayüzünü açın (Ayarlar, Web arayüzü) ya
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>İndirme hız limiti (kiB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>İndirme hız limiti (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Gönderme hız limiti (kiB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Gönderme hız limiti (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3096,8 +3096,8 @@ FatRat&apos;ı başlatın ve web arayüzünü açın (Ayarlar, Web arayüzü) ya
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
-        <translation>kB/sn</translation>
+        <source>KiB/s</source>
+        <translation>KiB/sn</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -3420,8 +3420,8 @@ başlatmanız gerekebilir.</translation>
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>
