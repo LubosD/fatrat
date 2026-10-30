@@ -33,10 +33,12 @@
   (visibleChange)="showNewTransferDialog.set($event)"
 ></app-new-transfer-dialog>
 
-<app-settings-dialog
-  [visible]="showSettingsDialog()"
-  (visibleChange)="showSettingsDialog.set($event)"
-></app-settings-dialog>
+@defer (when showSettingsDialog()) {
+  <app-settings-dialog
+    [visible]="showSettingsDialog()"
+    (visibleChange)="showSettingsDialog.set($event)"
+  ></app-settings-dialog>
+}
 
 <!-- Self-managed, no bindings: visibility is derived internally from PushSocketService events. -->
 <app-captcha-dialog></app-captcha-dialog>
@@ -124,12 +126,16 @@
       </p-tabpanel>
       <p-tabpanel value="2" [lazy]="true">
         <ng-template #content>
-          <app-speed-graphs-tab kind="transfer" [active]="activeTab() === '2'"></app-speed-graphs-tab>
+          @defer (on immediate) {
+            <app-speed-graphs-tab kind="transfer" [active]="activeTab() === '2'"></app-speed-graphs-tab>
+          }
         </ng-template>
       </p-tabpanel>
       <p-tabpanel value="3" [lazy]="true">
         <ng-template #content>
-          <app-speed-graphs-tab kind="queue" [active]="activeTab() === '3'"></app-speed-graphs-tab>
+          @defer (on immediate) {
+            <app-speed-graphs-tab kind="queue" [active]="activeTab() === '3'"></app-speed-graphs-tab>
+          }
         </ng-template>
       </p-tabpanel>
       <p-tabpanel value="4" [lazy]="true">

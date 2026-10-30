@@ -490,7 +490,7 @@ describe('Shell', () => {
     expect(browseService.list).toHaveBeenCalled();
   });
 
-  it('renders Transfer Speed, Queue Speed and Log tabs, and only the active tab is marked active', () => {
+  it('renders Transfer Speed, Queue Speed and Log tabs, and only the active tab is marked active', async () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
@@ -511,6 +511,8 @@ describe('Shell', () => {
     // Activate Transfer Speed (value "2"): its content renders for the first time with
     // active=true, while Log (value "4") remains unrendered.
     fixture.componentInstance['activeTab'].set('2');
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
 
     const speedGraphsTabDebugEl = fixture.debugElement.query(By.directive(SpeedGraphsTab));
@@ -810,9 +812,14 @@ describe('Shell hotkeys', () => {
     expect(actions.resume).not.toHaveBeenCalled();
   });
 
-  it('ignores keys while a modal dialog is open', () => {
+  it('ignores keys while a modal dialog is open', async () => {
     const { actions, fixture, shell } = setup();
     shell['showSettingsDialog'].set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise((r) => setTimeout(r, 100));
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
     expect(document.querySelector('.p-overlay-mask')).not.toBeNull();
     press('r');
