@@ -57,9 +57,10 @@ PAGE = """<!doctype html>
 </div>
 
 <script>
-	// The contents start folded on narrow screens, where they sit above the page.
-	if (matchMedia('(max-width: 820px)').matches)
-		document.querySelector('.docs-nav details').open = false;
+	// The contents are folded on narrow screens, where they sit above the page, and open beside it otherwise.
+	const mq = matchMedia('(max-width: 820px)'), details = document.querySelector('.docs-nav details');
+	details.open = !mq.matches;
+	mq.addEventListener('change', () => details.open = !mq.matches);
 </script>
 </body>
 </html>
@@ -117,7 +118,9 @@ def check_links(doc, ref, body, pages):
 		if not target or ":" in target:  # an anchor in the same page, or another scheme
 			continue
 		resolved = os.path.normpath(here / target)
-		if attr.lower() == "href" and resolved.endswith(".html"):
+		if resolved.startswith("..") or os.path.isabs(resolved):
+			raise DocsError(f"{ref}: {target} points outside doc/")
+		if attr.lower() == "href" and resolved.lower().endswith((".html", ".htm")):
 			if resolved not in pages:
 				raise DocsError(f"{ref}: links to {target}, which is not in the table of contents")
 		elif not (doc / resolved).is_file():
@@ -141,7 +144,7 @@ def build(doc, out):
 		title, body = parse_page(doc / ref)
 		images |= check_links(doc, ref, body, set(pages))
 		root = "../" * (ref.count("/") + 1)
-		rendered[ref] = PAGE.format(title=html.escape(title), root=root, toc=toc_html(toc, ref), body=body)
+		rendered[ref] = PAGE.format(title=title, root=root, toc=toc_html(toc, ref), body=body)
 
 	if out.exists():
 		shutil.rmtree(out)

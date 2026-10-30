@@ -20,6 +20,7 @@ DOMAIN=fatrat.dolezel.info
 MESSAGE=${1:-Update website}
 
 cd "$TOP"
+python3 "$TOP/website/build-docs.py"   # fail fast, before $PAGES is touched
 git worktree prune
 if [ ! -d "$PAGES" ]; then
 	if git show-ref -q --verify refs/heads/gh-pages; then
@@ -36,8 +37,9 @@ fi
 if [ -d "$REPO/dists" ]; then
 	rsync -a --delete --exclude=.git --exclude=/conf --exclude=/db "$REPO/" "$PAGES/"
 fi
-python3 "$TOP/website/build-docs.py"
 rsync -a --exclude=deploy.sh --exclude=build-docs.py --exclude=test_build_docs.py --exclude=__pycache__ "$TOP/website/" "$PAGES/"
+# Drop docs pages removed from doc/; no top-level --delete, as $PAGES also holds the apt repository.
+rsync -a --delete "$TOP/website/docs/" "$PAGES/docs/"
 echo "$DOMAIN" > "$PAGES/CNAME"
 touch "$PAGES/.nojekyll"   # serve the files as they are, without Jekyll processing
 

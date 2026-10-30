@@ -80,6 +80,62 @@ class BuildDocsTest(unittest.TestCase):
 		(self.doc / "index.html").write_text(page("Welcome", '<a href="https://example.com/x.html">x</a><a href="mailto:a@b">m</a>'))
 		build_docs.build(self.doc, self.out)
 
+	def test_title_is_not_escaped_twice(self):
+		(self.doc / "index.html").write_text(page("Q&amp;A", "<p>x</p>"))
+		build_docs.build(self.doc, self.out)
+		self.assertIn("<title>Q&amp;A · FatRat documentation</title>", (self.out / "index.html").read_text())
+
+	def test_uppercase_page_link_is_not_an_image(self):
+		(self.doc / "index.html").write_text(page("Welcome", '<a href="rss/INDEX.HTML">x</a>'))
+		(self.doc / "rss" / "INDEX.HTML").write_text("x")
+		with self.assertRaisesRegex(build_docs.DocsError, "INDEX.HTML"):
+			build_docs.build(self.doc, self.out)
+		self.assertFalse((self.out / "rss" / "INDEX.HTML").exists())
+
+	def test_image_outside_doc_fails(self):
+		(self.doc.parent / "x.png").write_bytes(b"png")
+		(self.doc / "index.html").write_text(page("Welcome", '<img src="../x.png">'))
+		with self.assertRaisesRegex(build_docs.DocsError, r"index\.html.*\.\./x\.png"):
+			build_docs.build(self.doc, self.out)
+
+	def test_link_outside_doc_fails(self):
+		(self.doc / "index.html").write_text(page("Welcome", '<a href="/etc/x.html">x</a>'))
+		with self.assertRaisesRegex(build_docs.DocsError, "/etc/x.html"):
+			build_docs.build(self.doc, self.out)
+
+	def test_link_to_page_outside_toc_fails(self):
+		(self.doc / "extra.html").write_text(page("Extra", "x"))
+		(self.doc / "index.html").write_text(page("Welcome", '<a href="extra.html">x</a>'))
+		with self.assertRaisesRegex(build_docs.DocsError, "extra.html.*table of contents"):
+			build_docs.build(self.doc, self.out)
+
+	def test_page_without_body_fails(self):
+		(self.doc / "index.html").write_text("<html><head><title>T</title></head></html>")
+		with self.assertRaisesRegex(build_docs.DocsError, "index.html.*<body>"):
+			build_docs.build(self.doc, self.out)
+
+	def test_failed_build_leaves_out_untouched(self):
+		self.out.mkdir()
+		(self.out / "old.html").write_text("keep")
+		(self.doc / "index.html").write_text(page("Welcome", '<a href="nope.html">x</a>'))
+		with self.assertRaises(build_docs.DocsError):
+			build_docs.build(self.doc, self.out)
+		self.assertEqual((self.out / "old.html").read_text(), "keep")
+
+	def test_nested_page_links_up_in_sidebar(self):
+		(self.doc / "a").mkdir()
+		(self.doc / "fatrat.qhp").write_text(QHP.replace(
+			'<section title="RSS" ref="rss/index.html" />',
+			'<section title="A" ref="a/index.html"><section title="B" ref="a/b.html" /></section>'))
+		for ref in ("index.html", "a/index.html", "a/b.html"):
+			(self.doc / ref).write_text(page("T", "<p>x</p>"))
+		build_docs.build(self.doc, self.out)
+		b = (self.out / "a" / "b.html").read_text()
+		self.assertIn('<a href="../index.html">FatRat</a>', b)
+		self.assertIn('<a href="index.html">A</a>', b)
+		self.assertIn('<a href="b.html" aria-current="page">B</a>', b)
+		self.assertIn('href="../../style.css"', b)
+
 
 if __name__ == "__main__":
 	unittest.main()
