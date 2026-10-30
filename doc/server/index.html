@@ -15,7 +15,7 @@
 
 <pre>sudo apt install fatrat-nogui</pre>
 
-<p>The <code>fatrat-nogui</code> package contains the headless <code>fatrat-nogui</code> program and <code>fatrat-tui</code>. It pulls in <code>fatrat-common</code>, which holds the web interface, <code>fatrat-conf</code> and the systemd units. The commands that add the repository are in the <a href="https://github.com/LubosD/fatrat#readme">README</a> and on <a href="https://fatrat.dolezel.info/#install">fatrat.dolezel.info</a>.</p>
+<p>The <code>fatrat-nogui</code> package contains the headless <code>fatrat-nogui</code> program and <code>fatrat-tui</code>. Only this package has <code>fatrat-tui</code>. It pulls in <code>fatrat-common</code>, which holds the web interface, <code>fatrat-conf</code> and the systemd units. The commands that add the repository are on <a href="https://fatrat.dolezel.info/#install">fatrat.dolezel.info</a>.</p>
 
 <p>On macOS, Homebrew builds the desktop application, which also runs headless with <code>fatrat --nogui</code>:</p>
 
@@ -40,7 +40,7 @@
 <dt><code>-p</code>, <code>--pidfile</code> <i>file</i></dt>
 <dd>Write the process ID to <i>file</i>. With <code>--daemon</code>, it is the ID of the background process. FatRat does not remove the file when it exits.</dd>
 <dt><code>-u</code>, <code>--user</code> <i>user</i>[:<i>group</i>]</dt>
-<dd>Switch to this user, and to this group if you give one. Start FatRat as root to use it. FatRat finds its settings and data through the <code>HOME</code> environment variable, which it does not change, so set <code>HOME</code> to that user's home directory too.</dd>
+<dd>Switch to this user and group. Start FatRat as root to use it. Always give the group too: without it, FatRat keeps running with the group <code>root</code>. FatRat sets <code>HOME</code> and the working directory to the user's home directory, so it uses that user's settings and data. It does not reset other variables such as <code>XDG_CONFIG_HOME</code> or <code>XDG_RUNTIME_DIR</code>, so don't pass root's environment on (for example with <code>sudo -E</code>).</dd>
 <dt><code>--syslog</code></dt>
 <dd>Also send FatRat's log messages to syslog, with the tag <code>fatrat</code>.</dd>
 <dt><code>-c</code>, <code>--config</code> <i>file</i></dt>
@@ -49,9 +49,13 @@
 <dd>Also serve the REST API on a unix socket (see below).</dd>
 </dl>
 
-<p>For example, to start FatRat as root and have it run as the user <code>fatrat</code> in the background:</p>
+<p>For example, to start FatRat as root and have it run as the user and group <code>fatrat</code> in the background:</p>
 
-<pre>sudo env HOME=/home/fatrat fatrat-nogui --daemon --user fatrat --pidfile /run/fatrat.pid</pre>
+<pre>sudo fatrat-nogui --daemon --user fatrat:fatrat --pidfile /run/fatrat.pid</pre>
+
+<p>Cleaner ways are the systemd service below, or starting FatRat as that user in the first place:</p>
+
+<pre>sudo -u fatrat -H fatrat-nogui --daemon</pre>
 
 <p>FatRat stops cleanly and saves its queues when it gets <code>SIGTERM</code> or <code>SIGINT</code>:</p>
 
@@ -71,13 +75,13 @@
 
 <pre>sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock</pre>
 
-<p>FatRat can only write to directories the <code>fatrat</code> user may write to. Give it write access to the directories you download into.</p>
+<p>FatRat can only write to directories the <code>fatrat</code> user may write to. Give it write access to the directories you download into. The service also keeps <code>/usr</code>, <code>/boot</code> and <code>/etc</code> read-only. To download into a directory under one of them, run <code>sudo systemctl edit fatrat</code> and add the directory to <code>ReadWritePaths=</code> in the <code>[Service]</code> section.</p>
 
 <h3>User service</h3>
 
 <pre>systemctl --user enable --now fatrat</pre>
 
-<p>It runs as you, with your normal settings and transfers. It serves the REST API on <code>$XDG_RUNTIME_DIR/fatrat/rest.sock</code>, where <code>fatrat-tui</code> finds it without any options. To keep it running after you log out:</p>
+<p>It runs as you, with your normal settings and transfers. It serves the REST API on <code>$XDG_RUNTIME_DIR/fatrat/rest.sock</code>, where <code>fatrat-tui</code> finds it without any options. If the desktop app is already running in your session, the service exits without starting a second FatRat. To keep it running after you log out:</p>
 
 <pre>sudo loginctl enable-linger $USER</pre>
 
@@ -94,11 +98,13 @@
 <tr><td><code>remote/ssl_pem</code></td><td>(empty)</td><td>Full path of the PEM file with the key and certificate for HTTPS.</td></tr>
 </table>
 
-<p>The settings file is <code>~/.config/Dolezel/fatrat.conf</code> (or <code>$XDG_CONFIG_HOME/Dolezel/fatrat.conf</code>), in the home directory of the user FatRat runs as. For the system service, that is <code>/var/lib/fatrat/.config/Dolezel/fatrat.conf</code>. With <code>-c</code>, it is the file you gave.</p>
+<p>On Linux and BSD, the settings file is <code>~/.config/Dolezel/fatrat.conf</code> in the home directory of the user FatRat runs as, or <code>$XDG_CONFIG_HOME/Dolezel/fatrat.conf</code> if that variable is set. For the system service, that is <code>/var/lib/fatrat/.config/Dolezel/fatrat.conf</code>. With <code>-c</code>, it is the file you gave.</p>
+
+<p>On macOS, FatRat keeps its settings in the system's preferences store, which neither a text editor nor <code>fatrat-conf</code> can change. For a headless FatRat there, start it with <code>-c</code> <i>file</i> and write the keys into that file in the same format as the example below.</p>
 
 <p><b>Always set a password of your own.</b> The default password, <code>fatrat</code>, is the same for everyone.</p>
 
-<p>Stop FatRat, then set the keys with <code>fatrat-conf</code>, as the user FatRat runs as:</p>
+<p>On Linux and BSD, stop FatRat, then set the keys with <code>fatrat-conf</code>, as the user FatRat runs as:</p>
 
 <pre>fatrat-conf -w remote/enable=true remote/port=2233 remote/password=SECRET</pre>
 
@@ -108,7 +114,14 @@
 sudo -u fatrat -H fatrat-conf -w remote/enable=true remote/password=SECRET
 sudo systemctl start fatrat</pre>
 
-<p><code>fatrat-conf</code> stores the password as you type it, in plain text, so keep the settings file readable only by its owner. To read a value back, run <code>fatrat-conf remote/port</code>. You can also edit the file with a text editor while FatRat is stopped. <code>fatrat-conf</code> writes to the usual settings file only; if you run FatRat with <code>-c</code>, edit that file instead.</p>
+<p><code>fatrat-conf</code> stores the password as you type it, in plain text, so keep the settings file readable only by its owner. To read a value back, run <code>fatrat-conf remote/port</code>. A password typed on the command line also ends up in your shell history. You can also edit the file with a text editor while FatRat is stopped:</p>
+
+<pre>[remote]
+enable=true
+port=2233
+password=SECRET</pre>
+
+<p> <code>fatrat-conf</code> writes to the usual settings file only; if you run FatRat with <code>-c</code>, edit that file instead.</p>
 
 <p>Once FatRat runs again, open <code>http://<i>server</i>:<i>port</i>/</code> in a browser, for example <code>http://myserver:2233/</code>. The browser asks for a user name and a password: the user name can be anything, the password is <code>remote/password</code>. See <a href="../web/index.html">Web Interface</a>.</p>
 
@@ -127,7 +140,7 @@ chmod 600 fatrat.pem</pre>
 
 <p>A certificate you already have from a certificate authority works too: put its key and its certificate (with any intermediate certificates after it) into one file the same way.</p>
 
-<p>Then point FatRat at the file and restart it:</p>
+<p>Then point FatRat at the file and restart it (on macOS, put the two keys into your <code>-c</code> file instead):</p>
 
 <pre>fatrat-conf -w remote/ssl=true remote/ssl_pem=/full/path/to/fatrat.pem</pre>
 
@@ -135,7 +148,7 @@ chmod 600 fatrat.pem</pre>
 
 <p>If the PEM file doesn't exist, FatRat logs "SSL key file not found, disabling HTTPS" and serves plain HTTP instead.</p>
 
-<p>The Web Interface settings page in the desktop app, the web interface and fatrat-tui can also generate a self-signed certificate. This needs <code>openssl</code> and <code>sed</code> on the server.</p>
+<p>The Web Interface settings page in the desktop app, the web interface and fatrat-tui can also generate a self-signed certificate. This needs <code>openssl</code> and <code>sed</code> on the server. The file is saved as <code>~/.local/share/fatrat/data/fatrat-webui.pem</code>, readable only by its owner.</p>
 
 <h2>A unix socket for local scripts</h2>
 
@@ -149,7 +162,9 @@ chmod 600 fatrat.pem</pre>
 
 <p>Over the network, the same API is at <code>/api/v1/</code> on the web interface's port, with the same password:</p>
 
-<pre>curl -u x:SECRET http://myserver:2233/api/v1/queues</pre>
+<pre>curl -u x http://myserver:2233/api/v1/queues</pre>
+
+<p>With <code>-u x</code> and no password, <code>curl</code> asks for it, so it does not show up in your shell history or in the process list.</p>
 
 <p>See <a href="../rest/index.html">REST API</a> for what it can do.</p>
 
@@ -165,7 +180,7 @@ chmod 600 fatrat.pem</pre>
 
 <table>
 <tr><th>What</th><th>Where</th></tr>
-<tr><td>Settings</td><td><code>~/.config/Dolezel/fatrat.conf</code>, or the file given with <code>-c</code></td></tr>
+<tr><td>Settings</td><td><code>~/.config/Dolezel/fatrat.conf</code> on Linux and BSD, or the file given with <code>-c</code></td></tr>
 <tr><td>Queues and transfers</td><td><code>~/.local/share/fatrat/queues.xml</code></td></tr>
 <tr><td>Other data, such as <code>.torrent</code> files</td><td><code>~/.local/share/fatrat/</code></td></tr>
 <tr><td>Log</td><td>kept in memory; shown in the web interface and fatrat-tui, and sent to syslog with <code>--syslog</code></td></tr>
@@ -177,8 +192,18 @@ chmod 600 fatrat.pem</pre>
 
 <p>On the server itself, <code>fatrat-tui</code> uses the unix socket (see the systemd sections above). From another machine, give it the address of the web interface. It asks for the password:</p>
 
-<pre>fatrat-tui --url http://myserver:2233
+<pre>fatrat-tui --url http://myserver:2233</pre>
+
+<p>To give it the password without typing, put it in a file that only you can read. <code>fatrat-tui</code> refuses a password file that others can read:</p>
+
+<pre>chmod 600 ~/.fatrat-pw
 fatrat-tui --url https://myserver:2233 --password-file ~/.fatrat-pw</pre>
+
+<p>Or set the <code>FATRAT_PASSWORD</code> environment variable.</p>
+
+<p>On the server, against the system service, add <code>--no-start</code> so that <code>fatrat-tui</code> fails instead of starting a FatRat of its own when the service is not running:</p>
+
+<pre>sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock --no-start</pre>
 
 <p>See <a href="../tui/index.html">Terminal Interface</a>.</p>
 
