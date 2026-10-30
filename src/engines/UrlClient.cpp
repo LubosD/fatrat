@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include "util/LegacyRegex.h"
 
-#ifndef POSIX_LINUX
+#ifndef __linux__
 #	define lseek64 lseek
 #endif
 

@@ -53,7 +53,7 @@ respects for all of the code used other than "OpenSSL".
 #ifdef WITH_BITTORRENT
 #	include "TorrentDownload.h"
 #endif
-#ifndef POSIX_LINUX
+#ifndef O_LARGEFILE
 #	define O_LARGEFILE 0
 #endif
 
