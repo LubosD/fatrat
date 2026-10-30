@@ -57,7 +57,7 @@
        <item row="1" column="3">
         <widget class="QSpinBox" name="spinUpdateInterval">
          <property name="minimum">
-          <number>5</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>1000</number>
