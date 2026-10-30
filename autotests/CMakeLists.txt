@@ -9,9 +9,20 @@ if(WITH_BITTORRENT)
 	add_executable(tst_torrentpiecemap tst_torrentpiecemap.cpp ${CMAKE_SOURCE_DIR}/src/engines/TorrentPieceMap.cpp)
 	target_link_libraries(tst_torrentpiecemap Qt6::Core Qt6::Test LibtorrentRasterbar::torrent-rasterbar)
 	add_test(NAME torrentpiecemap COMMAND tst_torrentpiecemap)
+
+	add_executable(tst_torrentsessionoptions tst_torrentsessionoptions.cpp)
+	target_include_directories(tst_torrentsessionoptions PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_torrentsessionoptions Qt6::Core Qt6::Network Qt6::Test)
+	add_test(NAME torrentsessionoptions COMMAND tst_torrentsessionoptions)
+
+	add_executable(tst_torrentseeding tst_torrentseeding.cpp)
+	target_include_directories(tst_torrentseeding PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_torrentseeding Qt6::Core Qt6::Test)
+	add_test(NAME torrentseeding COMMAND tst_torrentseeding)
 endif(WITH_BITTORRENT)
 
 add_executable(tst_legacyregex tst_legacyregex.cpp)
+target_compile_definitions(tst_legacyregex PRIVATE DEFAULTS_CONF="${CMAKE_SOURCE_DIR}/data/defaults.conf")
 target_link_libraries(tst_legacyregex Qt6::Core Qt6::Test)
 add_test(NAME legacyregex COMMAND tst_legacyregex)
 
@@ -23,6 +34,11 @@ add_executable(tst_restapi tst_restapi.cpp ${CMAKE_SOURCE_DIR}/src/remote/RestAp
 target_include_directories(tst_restapi PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_restapi Qt6::Core Qt6::Test)
 add_test(NAME restapi COMMAND tst_restapi)
+
+add_executable(tst_settingsstring tst_settingsstring.cpp)
+target_include_directories(tst_settingsstring PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_settingsstring Qt6::Core Qt6::Test)
+add_test(NAME settingsstring COMMAND tst_settingsstring)
 
 add_executable(tst_directorylisting tst_directorylisting.cpp
 	${CMAKE_SOURCE_DIR}/src/remote/RestApi.cpp
@@ -243,3 +259,13 @@ add_executable(tst_metalinksourcestore tst_metalinksourcestore.cpp ${CMAKE_SOURC
 target_include_directories(tst_metalinksourcestore PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
 target_link_libraries(tst_metalinksourcestore Qt6::Core Qt6::Test)
 add_test(NAME metalinksourcestore COMMAND tst_metalinksourcestore)
+
+add_executable(tst_retrypolicy tst_retrypolicy.cpp)
+target_include_directories(tst_retrypolicy PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_retrypolicy Qt6::Core Qt6::Test)
+add_test(NAME retrypolicy COMMAND tst_retrypolicy)
+
+add_executable(tst_defaultsconf tst_defaultsconf.cpp)
+target_compile_definitions(tst_defaultsconf PRIVATE SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+target_link_libraries(tst_defaultsconf Qt6::Core Qt6::Test)
+add_test(NAME defaultsconf COMMAND tst_defaultsconf)

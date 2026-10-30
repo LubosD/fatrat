@@ -83,6 +83,9 @@
              <property name="text">
               <string>Seed up to ratio</string>
              </property>
+             <property name="toolTip">
+              <string>When unticked (or 0), the torrent is stopped as soon as it has been downloaded.</string>
+             </property>
             </widget>
            </item>
            <item row="1" column="1">

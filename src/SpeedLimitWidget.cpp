@@ -58,12 +58,12 @@ void SpeedLimitWidget::refresh()
 		if(down > 0)
 			labelDown->setText(formatSize(down,true));
 		else
-			labelDown->setText(QString::fromUtf8("∞ kB/s"));
+			labelDown->setText(QString::fromUtf8("∞ KiB/s"));
 		
 		if(up > 0)
 			labelUp->setText(formatSize(up,true));
 		else
-			labelUp->setText(QString::fromUtf8("∞ kB/s"));
+			labelUp->setText(QString::fromUtf8("∞ KiB/s"));
 		
 		labelDown->refresh(down);
 		labelDown2->refresh(down);
@@ -148,7 +148,7 @@ void RightClickLabel::mousePressEvent(QMouseEvent* event)
 		menu.addAction(wa);
 		menu.addSeparator();
 		
-		action = menu.addAction(QString::fromUtf8("∞ kB/s"));
+		action = menu.addAction(QString::fromUtf8("∞ KiB/s"));
 		action->setData(0);
 		connect(action, SIGNAL(triggered()), this, SLOT(setLimit()));
 		menu.addSeparator();

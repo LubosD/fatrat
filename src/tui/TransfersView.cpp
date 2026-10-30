@@ -379,6 +379,22 @@ void TransfersView::setState(const QString& state, TransferInfo::State local)
 	m_app.api().patchTransfers(t, QJsonObject{ { "state", state } }, m_app.reply(m_app.tr("Cannot change the state")));
 }
 
+void TransfersView::resume()
+{
+	Store& st = m_app.store();
+	QStringList toActive, toWaiting;
+	for (const TransferInfo* t : st.targetTransfers())
+		if (t->canResume())
+			(t->resumedState() == TransferInfo::Active ? toActive : toWaiting) << t->uuid;
+	for (const auto& g : { qMakePair(toActive, QStringLiteral("Active")), qMakePair(toWaiting, QStringLiteral("Waiting")) })
+	{
+		if (g.first.isEmpty())
+			continue;
+		st.setStateLocally(g.first, TransferInfo::parseState(g.second));
+		m_app.api().patchTransfers(g.first, QJsonObject{ { "state", g.second } }, m_app.reply(m_app.tr("Cannot change the state")));
+	}
+}
+
 void TransfersView::moveSelected(const QString& direction)
 {
 	Store& st = m_app.store();
@@ -493,7 +509,7 @@ void TransfersView::perform(Action a)
 			m_focusQueues = false;
 			return;
 
-		case Action::Resume: return setState("Waiting", TransferInfo::Waiting);
+		case Action::Resume: return resume();
 		case Action::Force: return setState("ForcedActive", TransferInfo::ForcedActive);
 		case Action::Pause: return setState("Paused", TransferInfo::Paused);
 		case Action::NewTransfer: return dialogs::newTransfer(m_app);

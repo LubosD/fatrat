@@ -27,6 +27,7 @@ respects for all of the code used other than "OpenSSL".
 #include "fatrat.h"
 #include "Settings.h"
 #include "QueueMgr.h"
+#include "RetryPolicy.h"
 #include "RuntimeException.h"
 #include <QSettings>
 
@@ -238,11 +239,11 @@ void QueueMgr::transferStateChanged(Transfer* t, Transfer::State, Transfer::Stat
 	}
 	else if(now == Transfer::Failed)
 	{
-		bool bRetry = false;
-		if(g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool())
-			bRetry = t->m_bWorking;
-		else if(g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt() > t->m_nRetryCount)
-			bRetry = true;
+		const bool bRetry = RetryPolicy::shouldRetry(
+			g_settings->value("retryworking", getSettingsDefault("retryworking")).toBool(),
+			t->m_bWorking,
+			g_settings->value("retrycount", getSettingsDefault("retrycount")).toInt(),
+			t->m_nRetryCount);
 		
 		if(bRetry)
 			QMetaObject::invokeMethod(t, "retry", Qt::QueuedConnection);

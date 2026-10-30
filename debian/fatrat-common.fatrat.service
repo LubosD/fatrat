@@ -1,5 +1,5 @@
 # System-wide FatRat server running as the "fatrat" user:  systemctl enable --now fatrat
-# Its home is /var/lib/fatrat: settings in .config/fatrat/fatrat.conf, data in .local/share/fatrat.
+# Its home is /var/lib/fatrat: settings in .config/Dolezel/fatrat.conf, data in .local/share/fatrat.
 # The web interface is off by default; turn it on with a password of your own, then restart:
 #   sudo -u fatrat fatrat-conf -w remote/enable=true remote/password=SECRET
 # or use the terminal UI:  sudo -u fatrat fatrat-tui --socket /run/fatrat/rest.sock

@@ -148,7 +148,7 @@ void CreateTorrentDlg::createTorrent()
 	
 	info->set_priv(bPrivate);
 	
-	for(int i=0;bPrivate && i<listNodes->count();i++)
+	for(int i=0;!bPrivate && i<listNodes->count();i++)
 	{
 		QByteArray text = listNodes->item(i)->text().toUtf8();
 		if(!text.contains(':'))
@@ -178,7 +178,7 @@ void CreateTorrentDlg::createTorrent()
 	for(int i=0;i<listWebSeeds->count();i++)
 	{
 		QByteArray text = listWebSeeds->item(i)->text().toUtf8();
-		if(!text.startsWith("http://"))
+		if(!(text.startsWith("http://") || text.startsWith("https://")) || text.size() <= 7)
 			continue;
 		
 		info->add_url_seed(text.data());
@@ -227,8 +227,8 @@ void CreateTorrentDlg::hasherFinished()
 			libtorrent::entry e = info->generate();
 			std::ofstream fout(torrent.constData(), std::ios_base::binary);
 			libtorrent::bencode(std::ostream_iterator<char>(fout), e);
+			close();
 		}
-		close();
 	}
 	else
 	{

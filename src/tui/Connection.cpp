@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QTcpSocket>
 #include <QUrl>
+#include "../util/SettingsString.h"
 
 namespace tui
 {
@@ -21,7 +22,7 @@ LocalInstance readLocalInstance(const QString& settingsFile)
 	li.enabled = s.value("remote/enable", false).toBool();
 	li.port = quint16(s.value("remote/port", 2233).toUInt());
 	li.ssl = s.value("remote/ssl", false).toBool();
-	li.password = s.value("remote/password", QString()).toString();
+	li.password = settingToString(s.value("remote/password", QString()));
 	return li;
 }
 

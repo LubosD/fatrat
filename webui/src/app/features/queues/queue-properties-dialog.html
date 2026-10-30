@@ -38,11 +38,13 @@
   </div>
   <div class="field">
     <label for="queue-transfer-down">Max active downloads</label>
-    <p-inputnumber inputId="queue-transfer-down" [(ngModel)]="transferDown"></p-inputnumber>
+    <p-inputnumber inputId="queue-transfer-down" [(ngModel)]="transferDown" [min]="-1"></p-inputnumber>
+    <p class="hint">-1 = no limit, 0 = only forced transfers run.</p>
   </div>
   <div class="field">
     <label for="queue-transfer-up">Max active uploads</label>
-    <p-inputnumber inputId="queue-transfer-up" [(ngModel)]="transferUp"></p-inputnumber>
+    <p-inputnumber inputId="queue-transfer-up" [(ngModel)]="transferUp" [min]="-1"></p-inputnumber>
+    <p class="hint">-1 = no limit, 0 = only forced transfers run.</p>
   </div>
   <div class="field">
     <p-checkbox [(ngModel)]="upAsDown" [binary]="true" inputId="queue-up-as-down"></p-checkbox>

@@ -1,4 +1,5 @@
 #include <QtTest>
+#include <QSettings>
 #include "util/LegacyRegex.h"
 
 // Pins the QRegExp semantics that legacyRegex() preserves for patterns users
@@ -16,6 +17,7 @@ private slots:
 	void anchoredDotStarSpansNewlines();
 	void invalidPatternIsReported();
 	void globalMatchFindsEveryLink();
+	void clipboardDefaultsMatchHttps();
 };
 
 void TestLegacyRegex::dotMatchesNewline()
@@ -76,6 +78,23 @@ void TestLegacyRegex::globalMatchFindsEveryLink()
 	while (it.hasNext())
 		links << it.next().captured(0);
 	QCOMPARE(links, QStringList() << "https://a.b/c.torrent" << "http://d.e/f");
+}
+
+void TestLegacyRegex::clipboardDefaultsMatchHttps()
+{
+	QSettings defaults(DEFAULTS_CONF, QSettings::IniFormat);
+	const QStringList patterns = defaults.value("clipboard/regexps").toStringList();
+	QCOMPARE(patterns.size(), 3);
+	for (const QString& p : patterns)
+	{
+		const QString ext = p.mid(p.lastIndexOf('.') + 1);
+		for (const char* scheme : { "http", "https", "ftp" })
+		{
+			const QString url = QString("%1://example.com/a.%2").arg(scheme, ext);
+			QCOMPARE(legacyRegex(p).match(url).captured(0), url);
+		}
+		QVERIFY(!legacyRegex(p).match("gopher://example.com/a." + ext).hasMatch());
+	}
 }
 
 QTEST_APPLESS_MAIN(TestLegacyRegex)

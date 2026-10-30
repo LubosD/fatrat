@@ -502,8 +502,8 @@ void queueEditor(App& app, const QueueInfo* existing)
 	d->addSpacer();
 	d->addText("sdown", app.tr("Speed limit down"), existing ? kbText(existing->speedLimits.down) : "0", "KB/s, 0 = none");
 	d->addText("sup", app.tr("Speed limit up"), existing ? kbText(existing->speedLimits.up) : "0", "KB/s, 0 = none");
-	d->addText("tdown", app.tr("Active downloads"), existing ? QString::number(existing->transferLimits.down) : "0", "at most, 0 = no limit");
-	d->addText("tup", app.tr("Active uploads"), existing ? QString::number(existing->transferLimits.up) : "0", "at most, 0 = no limit");
+	d->addText("tdown", app.tr("Active downloads"), existing ? QString::number(existing->transferLimits.down) : "-1", "-1 = no limit, 0 = only forced");
+	d->addText("tup", app.tr("Active uploads"), existing ? QString::number(existing->transferLimits.up) : "-1", "-1 = no limit, 0 = only forced");
 
 	d->addShortcut('b', true, "Ctrl-B", app.tr("Browse"), [&app, uuid = existing ? existing->uuid : QString()](FormDialog& f) {
 		const QString id = f.focusedId();
@@ -526,10 +526,10 @@ void queueEditor(App& app, const QueueInfo* existing)
 		bool ok1, ok2;
 		const qint64 sd = parseKb(f.text("sdown"), &ok1), su = parseKb(f.text("sup"), &ok2);
 		bool ok3, ok4;
-		const qint64 td = f.text("tdown").trimmed().isEmpty() ? 0 : f.text("tdown").trimmed().toLongLong(&ok3);
-		const qint64 tu = f.text("tup").trimmed().isEmpty() ? 0 : f.text("tup").trimmed().toLongLong(&ok4);
-		ok3 = f.text("tdown").trimmed().isEmpty() || (td >= 0 && QString::number(td) == f.text("tdown").trimmed());
-		ok4 = f.text("tup").trimmed().isEmpty() || (tu >= 0 && QString::number(tu) == f.text("tup").trimmed());
+		const qint64 td = f.text("tdown").trimmed().isEmpty() ? -1 : f.text("tdown").trimmed().toLongLong(&ok3);
+		const qint64 tu = f.text("tup").trimmed().isEmpty() ? -1 : f.text("tup").trimmed().toLongLong(&ok4);
+		ok3 = f.text("tdown").trimmed().isEmpty() || (td >= -1 && QString::number(td) == f.text("tdown").trimmed());
+		ok4 = f.text("tup").trimmed().isEmpty() || (tu >= -1 && QString::number(tu) == f.text("tup").trimmed());
 		if (!ok1 || !ok2 || !ok3 || !ok4)
 		{
 			f.setError(app.tr("Limits must be whole numbers"));

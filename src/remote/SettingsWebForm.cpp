@@ -28,6 +28,8 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "HttpService.h"
 #include <QFileDialog>
+#include <QTemporaryFile>
+#include "util/SettingsString.h"
 #include <QProcess>
 #include <QMessageBox>
 #include <QDir>
@@ -47,7 +49,7 @@ void SettingsWebForm::load()
 {
 	checkEnable->setChecked(getSettingsValue("remote/enable").toBool());
 	spinPort->setValue(getSettingsValue("remote/port").toInt());
-	linePassword->setText(getSettingsValue("remote/password").toString());
+	linePassword->setText(settingToString(getSettingsValue("remote/password")));
 	groupSSL->setChecked(getSettingsValue("remote/ssl").toBool());
 	linePEM->setText(getSettingsValue("remote/ssl_pem").toString());
 }
@@ -81,18 +83,25 @@ void SettingsWebForm::generatePem()
 {
 	const char* script = DATA_LOCATION "/data/genssl.sh";
 	const char* config = DATA_LOCATION "/data/genssl.cnf";
-	const char* pemfile = "/tmp/fatrat-webui.pem";
 
 	CertGenDlg dlg(linePEM->parentWidget());
 
 	if (dlg.exec() != QDialog::Accepted)
 		return;
 
+	// Created with mode 0600 and a unique name; genssl.sh overwrites it
+	QTemporaryFile file;
+	if (!file.open())
+	{
+		QMessageBox::critical(linePEM->parentWidget(), "FatRat", tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
+		return;
+	}
+
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	QProcess prc;
 
 	qDebug() << "Starting: " << script << " " << config;
-	prc.start(script, QStringList() << config << dlg.getHostname());
+	prc.start(script, QStringList() << config << dlg.getHostname() << file.fileName());
 	prc.waitForFinished();
 
 	QApplication::restoreOverrideCursor();
@@ -103,13 +112,7 @@ void SettingsWebForm::generatePem()
 		return;
 	}
 
-	QFile file(pemfile);
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		QMessageBox::critical(linePEM->parentWidget(), "FatRat", tr("Failed to generate a certificate, please ensure you have 'openssl' and 'sed' installed."));
-		return;
-	}
-
+	file.seek(0);
 	QByteArray data = file.readAll();
 	QDir::home().mkpath(USER_PROFILE_PATH "/data");
 
@@ -126,7 +129,6 @@ void SettingsWebForm::generatePem()
 
 	out.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
 	out.close();
-	file.remove();
 	linePEM->setText(path);
 
 	QMessageBox::information(linePEM->parentWidget(), "FatRat", tr("The certificate has been generated."));

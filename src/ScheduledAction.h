@@ -40,6 +40,7 @@ struct ScheduledAction
 	{
 		memset(daysRepeated, 1, sizeof(daysRepeated));
 		repeated = true;
+		done = false;
 		action = ActionResumeAll;
 		whenRepeated = QTime::currentTime();
 		whenOneTime = QDateTime::currentDateTime();
@@ -59,6 +60,17 @@ struct ScheduledAction
 	QTime whenRepeated;
 	bool daysRepeated[7];
 	bool repeated;
+	// A one-time action that has already run; it never runs again unless it is rescheduled
+	bool done;
+
+	// Is the action due in the given minute? (seconds are ignored)
+	bool dueAt(const QDateTime& minute) const;
+	// The whole minutes in (last, now] that still have to be checked. A longer gap than a few
+	// minutes (suspend, clock change) is cut short instead of replaying hours of actions.
+	static QList<QDateTime> minutesToCheck(const QDateTime& last, const QDateTime& now);
+	// Drops the actions of a queue that no longer exists; returns whether any were removed
+	static bool removeForQueue(const QUuid& queue);
+	static void markDone(const QString& id);
 
 	static QString newId();
 	// Entries saved before ids existed get one, and the list is saved again

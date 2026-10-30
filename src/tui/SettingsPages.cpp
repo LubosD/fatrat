@@ -194,7 +194,7 @@ namespace
 			item(B::Bool, "remote/enable", QObject::tr("Remote web control")),
 			item(B::Int, "remote/port", QObject::tr("Port"), 1024, 65535, portRange),
 			item(B::Secret, "remote/password", QObject::tr("Password")),
-			note(QObject::tr("User name: \"admin\" or \"fatrat\", both are equivalent.")),
+			note(QObject::tr("Any user name works; only the password is checked.")),
 			spacer(),
 			item(B::Bool, "remote/ssl", QObject::tr("Use HTTPS")),
 			item(B::Text, "remote/ssl_pem", QObject::tr("PEM file")),

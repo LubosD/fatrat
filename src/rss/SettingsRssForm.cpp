@@ -47,7 +47,7 @@ SettingsRssForm::SettingsRssForm(QWidget* w, QObject* parent)
 	connect(pushRegexpEdit, SIGNAL(clicked()), this, SLOT(regexpEdit()));
 	connect(pushRegexpDelete, SIGNAL(clicked()), this, SLOT(regexpDelete()));
 	
-	connect(pushUpdate, SIGNAL(clicked()), RssFetcher::instance(), SLOT(refresh()));
+	connect(pushUpdate, SIGNAL(clicked()), this, SLOT(updateNow()));
 }
 
 void SettingsRssForm::load()
@@ -90,6 +90,14 @@ void SettingsRssForm::accepted()
 	g_settings->setValue("rss/interval", spinUpdateInterval->value());
 	
 	applySettings();
+}
+
+void SettingsRssForm::updateNow()
+{
+	// The fetcher reads the saved feeds and rules, so feeds added in this dialog need saving first
+	RssFetcher::saveRegexps(m_regexps);
+	RssFetcher::saveFeeds(m_feeds);
+	RssFetcher::instance()->refresh();
 }
 
 void SettingsRssForm::applySettings()

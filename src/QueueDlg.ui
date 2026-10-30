@@ -103,7 +103,7 @@
    <item row="4" column="0" >
     <widget class="QLabel" name="label_2" >
      <property name="text" >
-      <string>Down speed limit (kiB/s):</string>
+      <string>Down speed limit (KiB/s):</string>
      </property>
      <property name="buddy" >
       <cstring>spinDown</cstring>
@@ -129,7 +129,7 @@
    <item row="5" column="0" >
     <widget class="QLabel" name="label_3" >
      <property name="text" >
-      <string>Up speed limit (kiB/s):</string>
+      <string>Up speed limit (KiB/s):</string>
      </property>
      <property name="buddy" >
       <cstring>spinUp</cstring>

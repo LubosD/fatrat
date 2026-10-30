@@ -297,10 +297,12 @@ describe('availableTransferActions', () => {
     });
   });
 
-  it('enables Resume only if some selected transfer is not already Waiting/Active', () => {
-    const transfers = [t('a', 'Active'), t('b', 'Waiting'), t('c', 'Failed')];
-    expect(availableTransferActions(transfers, ['a', 'b']).resume).toBe(false);
+  it('enables Resume only if some selected transfer is Paused, Failed or ForcedActive', () => {
+    const transfers = [t('a', 'Active'), t('b', 'Waiting'), t('c', 'Failed'), t('d', 'Completed'), t('e', 'ForcedActive'), t('f', 'Paused')];
+    expect(availableTransferActions(transfers, ['a', 'b', 'd']).resume).toBe(false);
     expect(availableTransferActions(transfers, ['a', 'c']).resume).toBe(true);
+    expect(availableTransferActions(transfers, ['d', 'e']).resume).toBe(true);
+    expect(availableTransferActions(transfers, ['f']).resume).toBe(true);
   });
 
   it('enables Pause only if some selected transfer is not already Paused', () => {

@@ -105,6 +105,9 @@ waitfor Main queue
 key Left
 key n
 waitfor New queue
+# unlimited active transfers by default (0 would only let forced transfers run)
+expect Active downloads   -1
+expect Active uploads     -1
 type Movies
 key Enter
 waitfor Movies
@@ -231,6 +234,8 @@ waitfor Releases
 key Tab
 key n
 waitfor New download rule
+expect Include repacks  [x]
+expect Exclude manual   [x]
 type ubuntu
 key Enter
 waitfor ubuntu

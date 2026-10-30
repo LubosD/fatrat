@@ -45,6 +45,9 @@ public:
 	
 	void reload();
 
+	// Removes the scheduled actions of a deleted queue
+	static void queueRemoved(const QString& uuid);
+
 	static Scheduler* instance() { return m_instance; }
 protected:
 	void executeAction(const ScheduledAction& action);
@@ -54,6 +57,7 @@ private:
 	QTimer m_timer;
 	static Scheduler* m_instance;
 	QList<ScheduledAction> m_actions;
+	QDateTime m_lastChecked;
 };
 
 #endif

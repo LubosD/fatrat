@@ -78,10 +78,27 @@ describe('TransferActionsService', () => {
     service = TestBed.inject(TransferActionsService);
   });
 
-  it('resume() sets state to Waiting for the selected transfers and refreshes', () => {
+  it('resume() queues paused and failed transfers, turns forced ones into Active, and skips the rest', () => {
+    transfers = [
+      makeTransfer('t1', 'Completed'),
+      makeTransfer('t2', 'Active'),
+      makeTransfer('t3', 'Paused'),
+      makeTransfer('t4', 'ForcedActive'),
+      makeTransfer('t5', 'Failed'),
+      makeTransfer('t6', 'Waiting'),
+      makeTransfer('t7', 'Paused'),
+    ];
+    selectedUuids = ['t1', 't2', 't3', 't4', 't5', 't6'];
     service.resume();
-    expect(setTransferProperties).toHaveBeenCalledWith(['t1', 't2'], { state: 'Waiting' });
+    expect(setTransferProperties).toHaveBeenCalledTimes(2);
+    expect(setTransferProperties).toHaveBeenCalledWith(['t4'], { state: 'Active' });
+    expect(setTransferProperties).toHaveBeenCalledWith(['t3', 't5'], { state: 'Waiting' });
     expect(refreshNow).toHaveBeenCalled();
+  });
+
+  it('resume() sends nothing when no selected transfer can be resumed', () => {
+    service.resume();
+    expect(setTransferProperties).not.toHaveBeenCalled();
   });
 
   it('forceResume() sets state to ForcedActive', () => {

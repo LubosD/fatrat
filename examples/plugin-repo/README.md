@@ -8,9 +8,11 @@ offers.
 ## Trying this one
 
 In FatRat: **Settings → Extensions → Repositories → Add**, pick this
-directory, then install `dummy` from the list and restart FatRat. Nothing is
+directory, then install `dummy` from the list; it is loaded at once. Nothing is
 downloaded: a local repository is used where it lies, so editing
-`dummy/dummy.py` and restarting is the whole development cycle.
+`dummy/dummy.py` and then switching the plugin off and on in Settings →
+Extensions (or `POST /api/v1/plugins/dummy/reload`) is the whole development
+cycle.
 
 ## What is in here
 

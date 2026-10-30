@@ -42,6 +42,8 @@ respects for all of the code used other than "OpenSSL".
 #include <QClipboard>
 
 #include "MainWindow.h"
+#include "Scheduler.h"
+#include <QDir>
 #include "QueueDlg.h"
 #include "Queue.h"
 #include "QueueMgr.h"
@@ -735,8 +737,10 @@ void MainWindow::deleteQueue()
 	   tr("Do you really want to delete the active queue?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 	{
 		g_queuesLock.lockForWrite();
+		const QString uuid = g_queues[queue]->uuid();
 		delete g_queues.takeAt(queue);
 		g_queuesLock.unlock();
+		Scheduler::queueRemoved(uuid);
 		
 		Queue::saveQueuesAsync();
 		refreshQueues();
@@ -1095,6 +1099,17 @@ show_dialog:
 			source = uris[i].trimmed();
 			destination = m_dlgNewTransfer->m_strDestination;
 			
+			// Same fallback as TransferAdder: an empty destination would put the files in the working directory
+			if(m_dlgNewTransfer->m_mode == Transfer::Download && destination.isEmpty())
+			{
+				Queue* dq = getQueue(m_dlgNewTransfer->m_nQueue, false);
+				if(dq)
+					destination = dq->defaultDirectory();
+				doneQueue(dq, false, false);
+				if(destination.isEmpty())
+					destination = QDir::homePath();
+			}
+			
 			if(!m_dlgNewTransfer->m_auth.strUser.isEmpty())
 			{
 				QString& obj = (m_dlgNewTransfer->m_mode == Transfer::Download) ? source : destination;
@@ -1376,9 +1391,9 @@ void MainWindow::refreshDetailsTab()
 		QString speed;
 		
 		if(down)
-			speed = QString("%1 kB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
+			speed = QString("%1 KiB/s down ").arg(double(down)/1024.f, 0, 'f', 1);
 		if(up)
-			speed += QString("%1 kB/s up").arg(double(up)/1024.f, 0, 'f', 1);
+			speed += QString("%1 KiB/s up").arg(double(up)/1024.f, 0, 'f', 1);
 		
 		if(d->total())
 		{

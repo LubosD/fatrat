@@ -43,6 +43,7 @@ public:
 
 	static void applySettings();
 protected slots:
+	void updateNow();
 	void feedAdd();
 	void feedEdit();
 	void feedDelete();

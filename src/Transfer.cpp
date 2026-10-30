@@ -295,6 +295,7 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 				best.engine = &g_enginesDownload[i];
 				best.nClass = i;
 				best.type = Download;
+				best.score = n;
 			}
 		}
 	}
@@ -316,6 +317,7 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 				best.engine = &g_enginesUpload[i];
 				best.nClass = i;
 				best.type = Upload;
+				best.score = n;
 			}
 		}
 	}
@@ -341,11 +343,14 @@ void Transfer::setState(State newState)
 	
 	if(now != was)
 	{
-		m_bWorking = false;
 		changeActive(now);
 		
 		if(now)
+		{
+			// Reset on start only: QueueMgr reads the flag after the transfer fails
+			m_bWorking = false;
 			m_timeStart = QDateTime::currentDateTime();
+		}
 		else
 			m_nTimeRunning += m_timeStart.secsTo(QDateTime::currentDateTime());
 	}

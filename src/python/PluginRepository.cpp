@@ -786,7 +786,7 @@ bool PluginRepository::install(const QString& repositoryId, const QString& plugi
 
 	if (repository->local)
 	{
-		// Used in place: editing the plugin and restarting FatRat is the
+		// Used in place: editing the plugin and reloading it is the
 		// whole development cycle.
 		if (!QFile::link(QFileInfo(pluginSource).absoluteFilePath(), target))
 		{

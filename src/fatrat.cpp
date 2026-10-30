@@ -122,6 +122,7 @@ static void testNotif();
 #endif
 static void writePidFile();
 static void dropPrivileges();
+static void removePidFile();
 
 static bool m_bForceNewInstance = false;
 static bool m_bStartHidden = false;
@@ -299,6 +300,7 @@ int main(int argc,char** argv)
 	delete g_qmgr;
 	exitSettings();
 	delete app;
+	removePidFile();
 	
 	return rval;
 }
@@ -326,16 +328,37 @@ QString argsToArg(int argc,char** argv)
 			daemonize();
 		}
 		else if (!strcasecmp(argv[i], "--pidfile") || !strcasecmp(argv[i], "-p"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << argv[i] << " requires a file name\n";
+				exit(1);
+			}
 			m_strPidFile = argv[++i];
+		}
 		else if (!strcasecmp(argv[i], "--user") || !strcasecmp(argv[i], "-u"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << argv[i] << " requires a user name\n";
+				exit(1);
+			}
 			m_strSetUser = argv[++i];
+		}
 		else if(!strcasecmp(argv[i], "--no-python"))
 		{
 			qDebug() << "Disabling Python support";
 			m_bDisablePython = true;
 		}
 		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << argv[i] << " requires a file name\n";
+				exit(1);
+			}
 			m_strSettingsPath = argv[++i];
+		}
 		else if (!strcasecmp(argv[i], "--rest-socket"))
 		{
 			if (i+1 >= argc)
@@ -352,9 +375,11 @@ QString argsToArg(int argc,char** argv)
 		}
 		else if (!strcasecmp(argv[i], "--syslog"))
 			Logger::global()->toggleSysLog(true);
-		else if(argv[i][0] == '-')
+		else if(argv[i][0] == '-' && argv[i][1] != 0)
 		{
-			i++;
+			// Unknown option: none of the options we know has an optional value,
+			// so do not swallow the argument that follows (it may be a link).
+			std::cerr << "Ignoring unknown option " << argv[i] << "\n";
 		}
 		else
 		{
@@ -446,11 +471,11 @@ QString formatSize(qulonglong size, bool persec)
 	if(size < 1024)
 		rval = QString("%L1 B").arg(size);
 	else if(size < 1024*1024)
-		rval = QString("%L1 KB").arg(size/1024);
+		rval = QString("%L1 KiB").arg(size/1024);
 	else if(size < 1024*1024*1024)
-		rval = QString("%L1 MB").arg(double(size)/1024.0/1024.0, 0, 'f', 1);
+		rval = QString("%L1 MiB").arg(double(size)/1024.0/1024.0, 0, 'f', 1);
 	else
-		rval = QString("%L1 GB").arg(double(size)/1024.0/1024.0/1024.0, 0, 'f', 1);
+		rval = QString("%L1 GiB").arg(double(size)/1024.0/1024.0/1024.0, 0, 'f', 1);
 	
 	if(persec) rval += "/s";
 	return rval;
@@ -774,6 +799,21 @@ void writePidFile()
 	}
 	
 	file.write(QByteArray::number(getpid()));
+	file.write("\n");
+}
+
+void removePidFile()
+{
+	if (m_strPidFile.isEmpty())
+		return;
+	if (!QFile::remove(m_strPidFile))
+	{
+		// Typically the directory (/run) is no longer writable after dropping privileges,
+		// but the file was chowned to us: leave it empty rather than hold a stale PID.
+		QFile file(m_strPidFile);
+		if (file.exists() && file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+			file.close();
+	}
 }
 
 void dropPrivileges()
@@ -789,6 +829,19 @@ void dropPrivileges()
 	else
 		user = m_strSetUser.toLatin1();
 
+	struct passwd* u = getpwnam(user.constData());
+	if (!u)
+	{
+		Logger::global()->enterLogMessage("Cannot getpwnam() - invalid user name?");
+		std::cerr << "Cannot getpwnam() - invalid user name?\n";
+		exit(1);
+	}
+
+	// Copy what we need, the static buffers get overwritten by later getgr*/getpw* calls
+	const uid_t uid = u->pw_uid;
+	gid_t gid = u->pw_gid;
+	const QByteArray home = u->pw_dir;
+
 	if (!group.isEmpty())
 	{
 		struct group* g = getgrnam(group.constData());
@@ -796,32 +849,37 @@ void dropPrivileges()
 		{
 			Logger::global()->enterLogMessage("Cannot getgrnam() - invalid group name?");
 			std::cerr << "Cannot getgrnam() - invalid group name?\n";
-			exit(errno);
+			exit(1);
 		}
-		else if (setgid(g->gr_gid) == -1)
-		{
-			Logger::global()->enterLogMessage("Cannot setgid()");
-			std::cerr << "Cannot setgid()\n";
-			exit(errno);
-		}
+		gid = g->gr_gid;
 	}
 
-	struct passwd* u = getpwnam(user.constData());
-	if (!u)
+	// The pid file was created as the original user: let the new user truncate/remove it
+	if (!m_strPidFile.isEmpty() && chown(m_strPidFile.toLocal8Bit().constData(), uid, gid) == -1)
+		qDebug() << "Cannot chown the pid file:" << strerror(errno);
+
+	// Order matters: supplementary groups and gid need root, so they go before setuid()
+	// (not root: setgroups() would fail, and setgid()/setuid() succeed only for our own ids anyway)
+	if (geteuid() == 0 && initgroups(user.constData(), gid) == -1)
 	{
-		Logger::global()->enterLogMessage("Cannot getpwnam() - invalid user name?");
-		std::cerr << "Cannot getpwnam() - invalid group name?\n";
-		exit(errno);
+		Logger::global()->enterLogMessage("Cannot initgroups()");
+		std::cerr << "Cannot initgroups(): " << strerror(errno) << "\n";
+		exit(1);
 	}
-	else if (setuid(u->pw_uid) == -1)
+	if (setgid(gid) == -1)
+	{
+		Logger::global()->enterLogMessage("Cannot setgid()");
+		std::cerr << "Cannot setgid()\n";
+		exit(1);
+	}
+	if (setuid(uid) == -1)
 	{
 		Logger::global()->enterLogMessage("Cannot setuid()");
 		std::cerr << "Cannot setuid()\n";
-		exit(errno);
+		exit(1);
 	}
-	else
-	{
-		setenv("HOME", u->pw_dir, true);
-		chdir(u->pw_dir);
-	}
+
+	setenv("HOME", home.constData(), true);
+	if (chdir(home.constData()) == -1)
+		qDebug() << "chdir() failed:" << strerror(errno);
 }

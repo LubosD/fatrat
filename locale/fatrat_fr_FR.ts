@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Vitesse limite de téléchargement (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Vitesse limite de téléchargement (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Vitesse limite d&apos;upload (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Vitesse limite d&apos;upload (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1546,8 +1546,8 @@ Message: %2</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Vitesse limite de téléchargement (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Vitesse limite de téléchargement (KiB/s):</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1556,8 +1556,8 @@ Message: %2</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Vitesse limite de l&apos;upload (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Vitesse limite de l&apos;upload (KiB/s):</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2658,13 +2658,13 @@ Lancez FatRat et activez son interface web (Réglages, Interface web), ou utilis
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Vitesse limite de téléchargement (kiB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Vitesse limite de téléchargement (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Vitesse limite d&apos;upload (kiB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Vitesse limite d&apos;upload (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3098,8 +3098,8 @@ Lancez FatRat et activez son interface web (Réglages, Interface web), ou utilis
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
-        <translation>kB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -3421,8 +3421,8 @@ Lancez FatRat et activez son interface web (Réglages, Interface web), ou utilis
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>

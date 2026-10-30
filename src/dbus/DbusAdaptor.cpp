@@ -65,6 +65,14 @@ void FatratAdaptor::addTransfers(const QString &uris)
     QMetaObject::invokeMethod(parent(), "addTransfers", Q_ARG(QString, uris));
 }
 
+QString FatratAdaptor::addTransfersChecked(const QString &uris, const QString &target, const QString &className, int queueID)
+{
+    // handle method call info.dolezel.fatrat.addTransfersChecked
+    QString error;
+    QMetaObject::invokeMethod(parent(), "addTransfersNonInteractive", Q_RETURN_ARG(QString, error), Q_ARG(QString, uris), Q_ARG(QString, target), Q_ARG(QString, className), Q_ARG(int, queueID));
+    return error;
+}
+
 void FatratAdaptor::addTransfersNonInteractive(const QString &uris, const QString &target, const QString &className, int queueID)
 {
     // handle method call info.dolezel.fatrat.addTransfersNonInteractive
