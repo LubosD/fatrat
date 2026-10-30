@@ -80,18 +80,24 @@
     }
   </ng-template>
   <ng-template #end>
-    <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
-    <p-select
-      inputId="refresh-interval"
-      [ariaLabelledBy]="'refresh-interval-label'"
-      [options]="allowedIntervals"
-      [ngModel]="polling.intervalSeconds()"
-      (ngModelChange)="polling.setIntervalSeconds($event)"
-    >
-      <ng-template let-seconds #selectedItem>{{ seconds }} seconds</ng-template>
-      <ng-template let-seconds #item>{{ seconds }} seconds</ng-template>
-    </p-select>
-    <button pButton type="button" [text]="true" severity="secondary" data-testid="action-hotkeys" [attr.aria-pressed]="showHotkeys()" aria-keyshortcuts="?" pTooltip="Keyboard shortcuts (?)" tooltipPosition="bottom" (click)="toggleHotkeys()">Shortcuts <kbd class="hotkey-chip" aria-hidden="true">?</kbd></button>
+    <span class="refresh-control">
+      <i class="pi pi-sync" aria-hidden="true"></i>
+      <label id="refresh-interval-label" for="refresh-interval">Refresh every</label>
+      <p-select
+        inputId="refresh-interval"
+        size="small"
+        [ariaLabelledBy]="'refresh-interval-label'"
+        [options]="allowedIntervals"
+        [ngModel]="polling.intervalSeconds()"
+        (ngModelChange)="polling.setIntervalSeconds($event)"
+      >
+        <ng-template let-seconds #selectedItem>{{ seconds }} seconds</ng-template>
+        <ng-template let-seconds #item>{{ seconds }} seconds</ng-template>
+      </p-select>
+    </span>
+    <span class="toolbar-divider" aria-hidden="true"></span>
+    <button pButton type="button" [text]="true" severity="secondary" size="small" data-testid="action-hotkeys" [attr.aria-pressed]="showHotkeys()" aria-keyshortcuts="?" pTooltip="Keyboard shortcuts (?)" tooltipPosition="bottom" (click)="toggleHotkeys()"><i class="pi pi-bolt" pButtonIcon></i>Shortcuts <kbd class="hotkey-chip" aria-hidden="true">?</kbd></button>
+    <a pButton [text]="true" severity="secondary" size="small" data-testid="action-docs" href="https://fatrat.dolezel.info/docs/" target="_blank" rel="noopener" pTooltip="Open the documentation" tooltipPosition="bottom"><i class="pi pi-book" pButtonIcon></i>Docs<i class="pi pi-external-link docs-external" aria-hidden="true"></i></a>
   </ng-template>
 </p-toolbar>
 }
