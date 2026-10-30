@@ -3,24 +3,85 @@
 <title>Configuration Files</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 </head>
-
 <body>
 
 <h1>Configuration Files</h1>
 
-<p>
-FatRat's configuration files typically reside in <code>/usr/share/fatrat/data</code> (this location is hardcoded at compile time), along with some other data files. Any user may force FatRat to use his own config files by placing them into <code>~/.local/share/fatrat/data</code>.
-</p>
+<p>FatRat keeps three kinds of files: your settings, your queues and other data, and a few data files that ship with the program. You change the settings in the Settings dialog or the web interface, so you rarely need to edit any of them by hand.</p>
 
-<h3>btlinks.txt</h3>
-<p>
-When autodetecting link types, FatRat has to distinguish between ordinary HTTP links and links pointing to torrents. This is quite easy if the link ends with <code>.torrent</code>, however there are many websites that don't follow this scheme. Such websites have regular expressions in the <code>btlinks.txt</code> file - if an URL is <i>fully</i> matched by a regular expression from this file, it is regarded as a URL pointing to a torrent file.
-</p>
+<h2>Settings file</h2>
 
-<h3>defaults.conf</h3>
-<p>
-The default values of all sorts of configurable values are stored in this file. Generally, all of these values may be reconfigured via the GUI. Therefore it shouldn't be necessary to edit this file.
-</p>
+<p>Your settings are in one INI file. On Linux and BSD it is <code>~/.config/Dolezel/fatrat.conf</code>, or <code>$XDG_CONFIG_HOME/Dolezel/fatrat.conf</code> if that variable is set. Start FatRat with <code>-c</code> <i>file</i> (or <code>--config</code>) to use another file. On macOS the settings are in the system's preferences store, which is not a text file, so use <code>-c</code> there if you want to edit them by hand.</p>
+
+<p>The file only holds values you have changed. For every other key FatRat uses the default from <code>defaults.conf</code> (see below). Keys are written as <code>[section]</code> headers followed by <code>key=value</code> lines. The keys in the <code>[General]</code> section are used without a section name, for example <code>gui_refresh</code>, and all other keys with it, for example <code>remote/port</code>.</p>
+
+<p>To read or write a key from the shell, use <code>fatrat-conf</code>. See <a href="server/index.html">Running on a Server</a> for how.</p>
+
+<h3>Hand-editing</h3>
+
+<p>Stop FatRat before you edit the file, or it overwrites your changes. When you write a value by hand, put it in double quotes if it contains <code>,</code> <code>;</code> <code>"</code> or <code>\</code>, and write <code>\"</code> and <code>\\</code> inside the quotes. A value without quotes that contains a comma is read as a list, not as text, and FatRat then sees an empty value. For <code>remote/password</code>, that turns the password off:</p>
+
+<pre>[remote]
+; wrong: read as empty, so anyone can connect
+password=a,b
+; right
+password="a,b"</pre>
+
+<h3>Keys you may want to change</h3>
+
+<p>The <code>[remote]</code> keys switch on the web interface. Settings you can change in the desktop Settings dialog or in the web interface are not listed here.</p>
+
+<table>
+<tr><th>Key</th><th>Default</th><th>Meaning</th></tr>
+<tr><td><code>remote/enable</code></td><td><code>false</code></td><td>Serve the web interface and the REST API over the network.</td></tr>
+<tr><td><code>remote/port</code></td><td><code>2233</code></td><td>TCP port of the web interface.</td></tr>
+<tr><td><code>remote/password</code></td><td><code>fatrat</code></td><td>Password for the web interface and the REST API. If it is empty, no password is asked for.</td></tr>
+<tr><td><code>remote/ssl</code></td><td><code>false</code></td><td>Use HTTPS. Needs <code>remote/ssl_pem</code>. If the file is missing, FatRat falls back to plain HTTP.</td></tr>
+<tr><td><code>remote/ssl_pem</code></td><td>empty</td><td>Path of a PEM file with the private key followed by the certificate.</td></tr>
+<tr><td><code>network/speed_down</code>, <code>network/speed_up</code></td><td><code>131072</code></td><td>The speed of your connection, in bytes per second. The desktop app's speed bars use it as their full scale.</td></tr>
+<tr><td><code>rss/enable</code></td><td><code>true</code></td><td>Check RSS feeds.</td></tr>
+<tr><td><code>rss/interval</code></td><td><code>15</code></td><td>Minutes between checks of the feeds.</td></tr>
+<tr><td><code>torrent/listen_start</code>, <code>torrent/listen_end</code></td><td><code>6881</code>, <code>6888</code></td><td>The range of ports BitTorrent listens on.</td></tr>
+<tr><td><code>torrent/maxratio</code></td><td><code>1</code></td><td>Seed until this share ratio is reached.</td></tr>
+<tr><td><code>torrent/dht</code></td><td><code>true</code></td><td>Use the distributed tracker (DHT).</td></tr>
+<tr><td><code>torrent/pex</code></td><td><code>true</code></td><td>Use peer exchange.</td></tr>
+</table>
+
+<p>See <a href="server/index.html">Running on a Server</a> for the web interface and HTTPS, and <a href="rss/index.html">RSS</a> for the feeds.</p>
+
+<h2>Queues and other data</h2>
+
+<p>FatRat keeps your data in <code>~/.local/share/fatrat</code>, in the home directory of the user it runs as. This is always under <code>~/.local/share</code>, even if <code>XDG_DATA_HOME</code> is set.</p>
+
+<table>
+<tr><th>Path</th><th>Contents</th></tr>
+<tr><td><code>queues.xml</code></td><td>Your queues and transfers. FatRat writes it itself; don't edit it while FatRat runs.</td></tr>
+<tr><td><code>torrents/</code></td><td>Copies of the <code>.torrent</code> files of your BitTorrent transfers.</td></tr>
+<tr><td><code>metalinks/</code></td><td>Copies of the Metalink files of your Metalink transfers.</td></tr>
+<tr><td><code>plugins/</code></td><td>Python extensions you installed. See <a href="extensions/index.html">Extensions</a>.</td></tr>
+<tr><td><code>data/</code></td><td>Your own versions of the data files below, and the certificate that FatRat generates for the web interface (<code>fatrat-webui.pem</code>).</td></tr>
+</table>
+
+<h2>Data files that ship with FatRat</h2>
+
+<p>These files are installed in <code>/usr/share/fatrat/data</code> when you use the packages. If you build FatRat yourself, the directory is <code>share/fatrat/data</code> under the install prefix, which is fixed when the program is built. To change one, copy it to <code>~/.local/share/fatrat/data</code> and edit the copy. FatRat uses your copy instead of the installed file, completely: the two are not merged. Restart FatRat afterwards.</p>
+
+<dl>
+<dt><code>defaults.conf</code></dt>
+<dd>The default value of every setting, in the same format as the settings file. Anything you set in the settings file wins over it. You should not need to change it. Some entries in it are left over from older versions and are not used.</dd>
+
+<dt><code>btlinks.txt</code></dt>
+<dd>When FatRat guesses what a link is, a link that ends with <code>.torrent</code> is a torrent. Many websites don't follow this. This file has one regular expression per line. A link that one of them matches in full is treated as a link to a torrent file.</dd>
+
+<dt><code>bttrackers.txt</code></dt>
+<dd>Tracker addresses, one per line, offered under "Add known" in the desktop app's lists of trackers.</dd>
+
+<dt><code>mirrors.txt</code></dt>
+<dd>Groups of download mirrors, used by the desktop app for HTTP and FTP transfers. A group starts with a name in square brackets, followed by one mirror address per line.</dd>
+
+<dt><code>css/</code></dt>
+<dd>Style sheets for the desktop app's queue list (<code>queueview.css</code>) and headings (<code>label-headers.css</code>).</dd>
+</dl>
 
 </body>
 </html>
