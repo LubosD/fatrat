@@ -253,3 +253,8 @@ add_executable(tst_metalinksourcestore tst_metalinksourcestore.cpp ${CMAKE_SOURC
 target_include_directories(tst_metalinksourcestore PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
 target_link_libraries(tst_metalinksourcestore Qt6::Core Qt6::Test)
 add_test(NAME metalinksourcestore COMMAND tst_metalinksourcestore)
+
+add_executable(tst_defaultsconf tst_defaultsconf.cpp)
+target_compile_definitions(tst_defaultsconf PRIVATE SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+target_link_libraries(tst_defaultsconf Qt6::Core Qt6::Test)
+add_test(NAME defaultsconf COMMAND tst_defaultsconf)

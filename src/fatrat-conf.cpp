@@ -201,7 +201,7 @@ static int pluginCommand(const QStringList& arguments)
 			cerr << "ERROR: " << qPrintable(error) << endl;
 			return 1;
 		}
-		cout << "Installed. Restart FatRat to load it." << endl;
+		cout << "Installed. A running FatRat loads it when it next starts, or install it from a front end to load it at once." << endl;
 		return 0;
 	}
 
