@@ -6,7 +6,8 @@
 #
 # Both go into the gh-pages branch, checked out as a worktree in packaging/deb/gh-pages/, which is then
 # committed and pushed. Without a local repository (no REPO/dists), the apt files already in gh-pages are
-# left as they are and only the website is updated.
+# left as they are and only the website is updated. The docs section (website/docs/) is generated from
+# doc/ by build-docs.py first.
 #
 # The custom domain needs a DNS CNAME record fatrat.dolezel.info -> lubosd.github.io, and "Enforce HTTPS"
 # ticked in the GitHub repository's Pages settings once the certificate has been issued.
@@ -35,7 +36,8 @@ fi
 if [ -d "$REPO/dists" ]; then
 	rsync -a --delete --exclude=.git --exclude=/conf --exclude=/db "$REPO/" "$PAGES/"
 fi
-rsync -a --exclude=deploy.sh "$TOP/website/" "$PAGES/"
+python3 "$TOP/website/build-docs.py"
+rsync -a --exclude=deploy.sh --exclude=build-docs.py --exclude=test_build_docs.py --exclude=__pycache__ "$TOP/website/" "$PAGES/"
 echo "$DOMAIN" > "$PAGES/CNAME"
 touch "$PAGES/.nojekyll"   # serve the files as they are, without Jekyll processing
 

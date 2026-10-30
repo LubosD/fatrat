@@ -37,3 +37,4 @@ __pycache__/
 /packaging/deb/out/
 /packaging/deb/repo/
 /packaging/deb/gh-pages/
+/website/docs/

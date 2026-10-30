@@ -530,6 +530,18 @@ describe('Shell', () => {
     expect(speedGraphsTabDebugEl.componentInstance.active()).toBe(false);
   });
 
+  it('opens the documentation from the Help action', () => {
+    configure([]);
+    const fixture = TestBed.createComponent(Shell);
+    const shell = fixture.componentInstance;
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    const help = shell['toolbarGroups'].flat().find((a) => a.id === 'help');
+    expect(help).toBeDefined();
+    help!.run();
+    expect(open).toHaveBeenCalledWith('https://fatrat.dolezel.info/docs/', '_blank', 'noopener');
+    open.mockRestore();
+  });
+
   it('"Settings" opens the settings dialog', () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);
@@ -643,7 +655,7 @@ describe('Shell (mobile)', () => {
     expect(labels).toEqual([
       'Delete with Data', 'Delete Completed', 'Force Resume', 'Properties',
       'Move to Top', 'Move Up', 'Move Down', 'Move to Bottom',
-      'New Queue', 'Queue Properties', 'Delete Queue', 'Settings',
+      'New Queue', 'Queue Properties', 'Delete Queue', 'Settings', 'Help',
     ]);
     expect(groups.map((g) => g.label)).toEqual(['Actions', 'Refresh every']);
     const byLabel = (label: string) => items.find((i) => i.label === label)!;
