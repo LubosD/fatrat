@@ -109,6 +109,11 @@ check "upload of an unrecognised file" 422 '.error.code=="no_matching_engine"'
 rm -f "$SMOKE_TXT"
 
 # protocol-level checks
+if [ -z "$SOCK" ] && [ -n "$PASS" ]; then
+	out=$(curl -s -i "$API/queues"); status=$(echo "$out" | head -1 | awk '{print $2}'); body=$(echo "$out" | tail -1)
+	check "no credentials" 401 '.error.code=="unauthorized"'
+	echo "$out" | grep -qi '^WWW-Authenticate: Basic' && echo "ok   401 carries WWW-Authenticate" || { echo "FAIL 401 lacks WWW-Authenticate"; fail=1; }
+fi
 req POST /queues -H 'Content-Type: text/xml' --data '<x/>';           check "text/xml rejected" 415 '.error.code=="unsupported_media_type"'
 req POST /settings/apply -H 'Origin: https://evil.example';           check "foreign origin rejected" 403 '.error.code=="forbidden_origin"'
 req POST /queues -H 'Content-Type: application/json' --data '{bad';  check "malformed json" 400 '.error.code=="invalid_json"'
