@@ -99,7 +99,7 @@
 <ng-template #detailsPane>
   <p-tabs [(value)]="activeTab" class="details-tabs">
     <p-tablist>
-      @for (tab of ['Transfers', 'Details', 'Speed Graphs', 'Log']; track $index) {
+      @for (tab of ['Transfers', 'Details', 'Transfer Speed', 'Queue Speed', 'Log']; track $index) {
         <p-tab [value]="'' + $index" class="hotkey-host">{{ tab }}@if (hotkeyBadgesVisible()) {<kbd class="hotkey-badge" aria-hidden="true">{{ $index + 1 }}</kbd>}</p-tab>
       }
     </p-tablist>
@@ -118,12 +118,17 @@
       </p-tabpanel>
       <p-tabpanel value="2" [lazy]="true">
         <ng-template #content>
-          <app-speed-graphs-tab [active]="activeTab() === '2'"></app-speed-graphs-tab>
+          <app-speed-graphs-tab kind="transfer" [active]="activeTab() === '2'"></app-speed-graphs-tab>
         </ng-template>
       </p-tabpanel>
       <p-tabpanel value="3" [lazy]="true">
         <ng-template #content>
-          <app-log-tab [active]="activeTab() === '3'"></app-log-tab>
+          <app-speed-graphs-tab kind="queue" [active]="activeTab() === '3'"></app-speed-graphs-tab>
+        </ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="4" [lazy]="true">
+        <ng-template #content>
+          <app-log-tab [active]="activeTab() === '4'"></app-log-tab>
         </ng-template>
       </p-tabpanel>
     </p-tabpanels>

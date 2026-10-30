@@ -50,7 +50,7 @@ interface ToolbarAction {
   hotkeys?: Hotkey[];
 }
 
-const TAB_KEYS = ['1', '2', '3', '4'];
+const TAB_KEYS = ['1', '2', '3', '4', '5'];
 const DOCS_URL = 'https://fatrat.dolezel.info/docs/';
 
 @Component({

@@ -16,6 +16,10 @@ import { activeGatedPoll } from '../../core/active-gated-poll';
 })
 export class SpeedGraphsTab {
   readonly active = input(false);
+  readonly kind = input.required<'transfer' | 'queue'>();
+
+  private readonly transferActive = computed(() => this.active() && this.kind() === 'transfer');
+  private readonly queueActive = computed(() => this.active() && this.kind() === 'queue');
 
   private readonly transferApi = inject(TransferApi);
   private readonly transfersStore = inject(TransfersStore);
@@ -29,7 +33,7 @@ export class SpeedGraphsTab {
 
   protected readonly transferSamples = toSignal(
     activeGatedPoll(
-      toObservable(this.active),
+      toObservable(this.transferActive),
       toObservable(this.selectedTransferUuid),
       this.polling.ticks$,
       (uuid: string | null) =>
@@ -50,7 +54,7 @@ export class SpeedGraphsTab {
 
   protected readonly queueSamples = toSignal(
     activeGatedPoll(
-      toObservable(this.active),
+      toObservable(this.queueActive),
       toObservable(this.queuesStore.selectedQueueUuid),
       this.polling.ticks$,
       (uuid: string | null) =>

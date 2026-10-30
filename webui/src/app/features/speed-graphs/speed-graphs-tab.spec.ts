@@ -31,11 +31,17 @@ function configure(
   return { getTransferSpeedGraph, getQueueSpeedGraph, ticks$, selectedUuidsSignal, selectedQueueUuidSignal };
 }
 
+function create(kind: 'transfer' | 'queue' = 'transfer', active = true) {
+  const fixture = TestBed.createComponent(SpeedGraphsTab);
+  fixture.componentRef.setInput('kind', kind);
+  fixture.componentRef.setInput('active', active);
+  return fixture;
+}
+
 describe('SpeedGraphsTab', () => {
   it('does not fetch anything while inactive', async () => {
     const { getTransferSpeedGraph, getQueueSpeedGraph } = configure(['t1']);
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', false);
+    const fixture = create('transfer', false);
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -43,21 +49,29 @@ describe('SpeedGraphsTab', () => {
     expect(getQueueSpeedGraph).not.toHaveBeenCalled();
   });
 
-  it('fetches both graphs immediately on activation', async () => {
+  it('fetches only the transfer graph on activation when kind is transfer', async () => {
     const { getTransferSpeedGraph, getQueueSpeedGraph } = configure(['t1'], 'q1');
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', true);
+    const fixture = create('transfer');
     fixture.detectChanges();
     await fixture.whenStable();
 
     expect(getTransferSpeedGraph).toHaveBeenCalledWith('t1');
+    expect(getQueueSpeedGraph).not.toHaveBeenCalled();
+  });
+
+  it('fetches only the queue graph on activation when kind is queue', async () => {
+    const { getTransferSpeedGraph, getQueueSpeedGraph } = configure(['t1'], 'q1');
+    const fixture = create('queue');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
     expect(getQueueSpeedGraph).toHaveBeenCalledWith('q1');
+    expect(getTransferSpeedGraph).not.toHaveBeenCalled();
   });
 
   it('shows a placeholder instead of the transfer chart when selection is not exactly one', async () => {
     configure([]);
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', true);
+    const fixture = create('transfer', true);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -67,8 +81,7 @@ describe('SpeedGraphsTab', () => {
 
   it('shows a placeholder instead of the queue chart when no queue is selected', async () => {
     configure(['t1'], null);
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', true);
+    const fixture = create('queue', true);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -78,8 +91,7 @@ describe('SpeedGraphsTab', () => {
 
   it('refetches on every poll tick while active, and stops on deactivation', async () => {
     const { getTransferSpeedGraph, ticks$ } = configure(['t1'], 'q1');
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', true);
+    const fixture = create('transfer', true);
     fixture.detectChanges();
     await fixture.whenStable();
     expect(getTransferSpeedGraph).toHaveBeenCalledTimes(1);
@@ -97,8 +109,7 @@ describe('SpeedGraphsTab', () => {
   it('refetches the transfer graph when the selected transfer changes while active, without waiting for a poll tick', async () => {
     const getTransferSpeedGraph = vi.fn().mockReturnValue(of([]));
     const { selectedUuidsSignal } = configure(['t1'], 'q1', getTransferSpeedGraph);
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', true);
+    const fixture = create('transfer', true);
     fixture.detectChanges();
     await fixture.whenStable();
     expect(getTransferSpeedGraph).toHaveBeenCalledTimes(1);
@@ -119,8 +130,7 @@ describe('SpeedGraphsTab', () => {
       .fn()
       .mockImplementation((uuid: string) => (uuid === 't1' ? t1Response : t2Response));
     const { selectedUuidsSignal } = configure(['t1'], 'q1', getTransferSpeedGraph);
-    const fixture = TestBed.createComponent(SpeedGraphsTab);
-    fixture.componentRef.setInput('active', true);
+    const fixture = create('transfer', true);
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -162,8 +172,7 @@ describe('SpeedGraphsTab', () => {
           // shareReplay'd ticks$.
         ],
       });
-      const fixture = TestBed.createComponent(SpeedGraphsTab);
-      fixture.componentRef.setInput('active', true);
+      const fixture = create('transfer', true);
       fixture.detectChanges();
       await vi.advanceTimersByTimeAsync(1);
       fixture.detectChanges();

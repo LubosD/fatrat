@@ -490,14 +490,14 @@ describe('Shell', () => {
     expect(browseService.list).toHaveBeenCalled();
   });
 
-  it('renders Speed Graphs and Log tabs, and only the active tab is marked active', () => {
+  it('renders Transfer Speed, Queue Speed and Log tabs, and only the active tab is marked active', () => {
     configure([]);
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
     const tabs = Array.from(root.querySelectorAll('p-tab'));
-    expect(tabs.some((el) => el.textContent?.includes('Speed Graphs'))).toBe(true);
+    expect(tabs.some((el) => el.textContent?.includes('Transfer Speed'))).toBe(true);
     expect(tabs.some((el) => el.textContent?.includes('Log'))).toBe(true);
 
     // Transfers tab (value "0") is selected by default. Both new panels are [lazy]="true", and
@@ -508,8 +508,8 @@ describe('Shell', () => {
     expect(root.querySelector('app-speed-graphs-tab')).toBeNull();
     expect(root.querySelector('app-log-tab')).toBeNull();
 
-    // Activate Speed Graphs (value "2"): its content renders for the first time with
-    // active=true, while Log (value "3") remains unrendered.
+    // Activate Transfer Speed (value "2"): its content renders for the first time with
+    // active=true, while Log (value "4") remains unrendered.
     fixture.componentInstance['activeTab'].set('2');
     fixture.detectChanges();
 
@@ -518,10 +518,10 @@ describe('Shell', () => {
     expect(speedGraphsTabDebugEl.componentInstance.active()).toBe(true);
     expect(root.querySelector('app-log-tab')).toBeNull();
 
-    // Activate Log (value "3"): Speed Graphs' component instance persists (lazy content, once
+    // Activate Log (value "4"): Transfer Speed's component instance persists (lazy content, once
     // rendered, is only hidden — not destroyed) but its `active` input flips to false, proving
     // the [active] binding tracks the current tab rather than being a one-shot initial value.
-    fixture.componentInstance['activeTab'].set('3');
+    fixture.componentInstance['activeTab'].set('4');
     fixture.detectChanges();
 
     const logTabDebugEl = fixture.debugElement.query(By.directive(LogTab));
@@ -767,12 +767,12 @@ describe('Shell hotkeys', () => {
     expect(shell['showSettingsDialog']()).toBe(true);
   });
 
-  it('1-4 switch the tabs', () => {
+  it('1-5 switch the tabs', () => {
     const { shell } = setup();
     press('2');
     expect(shell['activeTab']()).toBe('1');
-    press('4');
-    expect(shell['activeTab']()).toBe('3');
+    press('5');
+    expect(shell['activeTab']()).toBe('4');
     press('1');
     expect(shell['activeTab']()).toBe('0');
   });
@@ -844,7 +844,7 @@ describe('Shell hotkeys', () => {
     fixture.detectChanges();
     expect(el.querySelector('[data-testid="action-new-transfer"] .hotkey-badge')?.textContent?.trim()).toBe('N');
     expect(el.querySelector('[data-testid="action-delete-with-data"] .hotkey-badge')?.textContent?.trim()).toBe('⇧D');
-    expect([...el.querySelectorAll('p-tab .hotkey-badge')].map((b) => b.textContent?.trim())).toEqual(['1', '2', '3', '4']);
+    expect([...el.querySelectorAll('p-tab .hotkey-badge')].map((b) => b.textContent?.trim())).toEqual(['1', '2', '3', '4', '5']);
     expect(el.querySelector('[data-testid="hotkey-hints"]')?.textContent).toContain('Del');
 
     press('?', { shiftKey: true });
