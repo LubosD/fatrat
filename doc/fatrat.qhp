@@ -5,34 +5,54 @@
 	<filterSection>
 		<toc>
 			<section title="FatRat" ref="index.html">
-				<section title="Drop-box" ref="dropbox/index.html" />
+				<section title="Transfers and Queues" ref="transfers/index.html" />
+				<section title="Running on a Server" ref="server/index.html" />
+				<section title="Web Interface" ref="web/index.html" />
+				<section title="Terminal Interface" ref="tui/index.html" />
 				<section title="Watch Folders" ref="watchfolders/index.html" />
+				<section title="Drop-box" ref="dropbox/index.html" />
+				<section title="Clipboard Monitor" ref="clipboard/index.html" />
 				<section title="BitTorrent Support" ref="bittorrent/index.html">
 					<section title="Creating Torrents" ref="bittorrent/create.html" />
 				</section>
 				<section title="RSS Integration" ref="rss/index.html" />
-				<section title="Writing a FatRat plugin" ref="plugins.html" />
-				<section title="Command Line Interface" ref="cmdline.html" />
+				<section title="Scheduler" ref="scheduler/index.html" />
+				<section title="Extensions" ref="extensions/index.html">
+					<section title="Writing a FatRat Extension" ref="plugins.html" />
+				</section>
+				<section title="Command Line" ref="cmdline.html" />
 				<section title="D-Bus Interface" ref="dbus.html" />
+				<section title="REST API" ref="rest/index.html" />
 				<section title="Configuration Files" ref="config.html" />
 			</section>
 		</toc>
 		<files>
 			<file>index.html</file>
 			<file>logo.png</file>
+			<file>transfers/index.html</file>
+			<file>server/index.html</file>
+			<file>web/index.html</file>
+			<file>tui/index.html</file>
+			<file>clipboard/index.html</file>
+			<file>scheduler/index.html</file>
+			<file>extensions/index.html</file>
+			<file>rest/index.html</file>
 			<file>plugins.html</file>
 			<file>cmdline.html</file>
 			<file>dbus.html</file>
 			<file>config.html</file>
+
 			<file>dropbox/index.html</file>
 			<file>dropbox/dropbox.png</file>
 			<file>dropbox/dropbox-settings.png</file>
 			<file>watchfolders/index.html</file>
+
 			<file>rss/index.html</file>
 			<file>rss/rss.png</file>
 			<file>rss/rss_feed.png</file>
 			<file>rss/rss_regexp.png</file>
 			<file>rss/rss_tvshows.png</file>
+
 			<file>bittorrent/index.html</file>
 			<file>bittorrent/create.html</file>
 			<file>bittorrent/create.png</file>
