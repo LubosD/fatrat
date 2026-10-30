@@ -244,9 +244,9 @@ void RssView::ruleForm(const RssRule* existing)
 		existing ? TvsValues.indexOf(existing->tvs) : 0);
 	d->addText("from", m_app.tr("From episode"), existing ? existing->from : QString());
 	d->addText("to", m_app.tr("To episode"), existing ? existing->to : QString());
-	d->addCheck("repacks", m_app.tr("Include repacks"), existing ? existing->includeRepacks : false);
+	d->addCheck("repacks", m_app.tr("Include repacks"), existing ? existing->includeRepacks : true);
 	d->addCheck("trailers", m_app.tr("Include trailers"), existing ? existing->includeTrailers : false);
-	d->addCheck("manuals", m_app.tr("Exclude manual"), existing ? existing->excludeManuals : false);
+	d->addCheck("manuals", m_app.tr("Exclude manual"), existing ? existing->excludeManuals : true);
 	d->addText("link", m_app.tr("Link regexp"), existing ? existing->linkRegexp : QString());
 	d->addShortcut('b', true, "Ctrl-B", m_app.tr("Browse"), [this](FormDialog& f) {
 		dialogs::browseDirectory(m_app, f.text("target"), f.value("queue"), [dp = &f](const QString& p) { dp->setText("target", p); });

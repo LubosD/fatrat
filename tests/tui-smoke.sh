@@ -234,6 +234,8 @@ waitfor Releases
 key Tab
 key n
 waitfor New download rule
+expect Include repacks  [x]
+expect Exclude manual   [x]
 type ubuntu
 key Enter
 waitfor ubuntu
