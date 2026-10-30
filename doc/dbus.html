@@ -3,39 +3,84 @@
 <title>D-Bus Interface</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 </head>
-
 <body>
 
 <h1>D-Bus Interface</h1>
 
 <p>
-The D-Bus interface is very simple at the moment. FatRat's interface name is <code>info.dolezel.fatrat</code> and the path used to access its methods is <code>/</code>. The simplest way to access its method could look like this:
+A running FatRat offers a small interface on the D-Bus session bus. You can use it from scripts to add transfers. It is available if FatRat was built with D-Bus support.
 </p>
 
-<pre>qdbus info.dolezel.fatrat / methodName "argument1" "argument2"</pre>
+<table>
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Bus</td><td>session bus</td></tr>
+<tr><td>Service name</td><td><code>info.dolezel.fatrat</code></td></tr>
+<tr><td>Object path</td><td><code>/</code></td></tr>
+<tr><td>Interface</td><td><code>info.dolezel.fatrat</code></td></tr>
+</table>
 
 <p>
-<code>qdbus</code> is a tool shipped with Qt. The first method we'll have a look at is <code>addTransfers</code>. It accepts only one argument - a string containing links separated by an end-of-line. The user will be presented with a New transfers dialog. An example:
+The examples use <code>gdbus</code>, which comes with GLib. <code>qdbus</code>, shipped with Qt, works too.
 </p>
 
-<pre>qdbus info.dolezel.fatrat / addTransfers "http://link1"</pre>
+<h2>Methods</h2>
+
+<h3>addTransfers</h3>
+
+<pre>addTransfers(in s uris)</pre>
 
 <p>
-To get a list of queues, you can use the <code>getQueues</code> method. The call will return a list of strings.
+Desktop only. Opens the New transfer dialog with the links filled in. <code>uris</code> is a string of links separated by newlines. The method returns nothing. In <code>fatrat-nogui</code> it does nothing except write a note to the log; use <code>addTransfersNonInteractive</code> there.
 </p>
 
-<pre>qdbus info.dolezel.fatrat / getQueues</pre>
+<pre>gdbus call --session --dest info.dolezel.fatrat --object-path / \
+  --method info.dolezel.fatrat.addTransfers "http://example.com/a.zip"</pre>
 
-<p>One can also need to add transfers without showing any dialogs. This is when <code>addTransfersNonInteractive</code> comes in handy.</p>
+<h3>getQueues</h3>
 
-<pre>qdbus info.dolezel.fatrat / addTransfersNonInteractive "links" "target" "className" "queueID"</pre>
+<pre>getQueues() -> as</pre>
 
-<ul>
-<li><code>links</code> - a list of links separated by a newline character</li>
-<li><code>target</code> - the destination directory / URL</li>
-<li><code>className</code> - the transfer type, for example <code>GeneralDownload</code> (HTTP(S), FTP and SFTP downloads), <code>TorrentDownload</code> (BitTorrent downloads) or <code>FtpUpload</code> (FTP and SFTP uploads)</li>
-<li><code>queueID</code> - an integer specifying the index of the queue, where the transfer(s) should be added. For the first queue use 0 (zero)</li>
-</ul>
+<p>
+Returns the names of the queues, in order. The position of a queue in this list is the <code>queueID</code> for <code>addTransfersNonInteractive</code>, counting from 0.
+</p>
+
+<pre>gdbus call --session --dest info.dolezel.fatrat --object-path / \
+  --method info.dolezel.fatrat.getQueues</pre>
+
+<p>
+A new installation answers <code>(['Main queue'],)</code>.
+</p>
+
+<h3>addTransfersNonInteractive</h3>
+
+<pre>addTransfersNonInteractive(in s uris, in s target, in s className, in i queueID)</pre>
+
+<p>
+Adds transfers without showing any dialog. Works with the desktop and with <code>fatrat-nogui</code>.
+</p>
+
+<dl>
+<dt><code>uris</code></dt>
+<dd>The links. They are separated by newlines, or by any whitespace if you set "Links in a list are separated by" to "whitespace characters" in the desktop settings.</dd>
+<dt><code>target</code></dt>
+<dd>The destination: a directory for downloads, or a URL for uploads.</dd>
+<dt><code>className</code></dt>
+<dd>The transfer type. Use <code>auto</code> to let FatRat choose from the first link. Other values are <code>GeneralDownload</code> (HTTP(S), FTP(S) and SFTP downloads), <code>TorrentDownload</code> (BitTorrent), <code>MetalinkDownload</code> (Metalink files) and <code>FtpUpload</code> (FTP(S) and SFTP uploads).</dd>
+<dt><code>queueID</code></dt>
+<dd>The position of the queue, counting from 0 (see <code>getQueues</code>). The first queue is 0.</dd>
+</dl>
+
+<pre>gdbus call --session --dest info.dolezel.fatrat --object-path / \
+  --method info.dolezel.fatrat.addTransfersNonInteractive \
+  "http://example.com/a.zip" "/home/me/Downloads" auto 0</pre>
+
+<p>
+The call returns nothing, whether it worked or not. If the links are empty, the queue number is out of range or the type is unknown, FatRat writes the reason to its log and adds nothing.
+</p>
+
+<p>
+For a way to add transfers that reports errors, and to manage them afterwards, see <a href="rest/index.html">REST API</a>.
+</p>
 
 </body>
 </html>
