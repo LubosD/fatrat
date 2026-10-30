@@ -31,7 +31,7 @@
               }
             ],
             "styles": [
-              "node_modules/primeicons/primeicons.css",
+              "node_modules/@openng/icons/openng-icons.css",
               "src/styles.scss"
             ]
           },

@@ -11,10 +11,10 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { RadioButton } from 'primeng/radiobutton';
-import { Select } from 'primeng/select';
-import { ButtonDirective } from 'primeng/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { RadioButton } from '@openng/optimus-ui/radiobutton';
+import { Select } from '@openng/optimus-ui/select';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { hasCommandModifier } from '../../shared/hotkeys/hotkeys';
 import { DeleteQueueOptions, Queue } from '../../core/api/models';
 

@@ -8,10 +8,10 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ProgressBar } from 'primeng/progressbar';
-import { Menu } from 'primeng/menu';
-import { ButtonDirective, ButtonIcon } from 'primeng/button';
-import type { MenuItem } from 'primeng/api';
+import { ProgressBar } from '@openng/optimus-ui/progressbar';
+import { Menu } from '@openng/optimus-ui/menu';
+import { ButtonDirective, ButtonIcon } from '@openng/optimus-ui/button';
+import type { MenuItem } from '@openng/optimus-ui/api';
 import { TransfersStore, availableTransferActions } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';

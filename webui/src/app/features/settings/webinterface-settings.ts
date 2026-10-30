@@ -6,11 +6,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
-import { InputNumber } from 'primeng/inputnumber';
-import { Checkbox } from 'primeng/checkbox';
-import { Dialog } from 'primeng/dialog';
-import { ButtonDirective } from 'primeng/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { WebinterfaceSettingsApiService } from '../../core/webinterface-settings-api.service';

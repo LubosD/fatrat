@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { TransferApi } from './api/transfer-api';

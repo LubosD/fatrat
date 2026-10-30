@@ -10,9 +10,9 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { ButtonDirective } from 'primeng/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { RssApi } from '../../core/rss-api.service';
 import { ApiError } from '../../core/api/rest-client';
 import { RssRegexp } from '../../core/api/models';

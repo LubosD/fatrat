@@ -10,12 +10,12 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { Textarea } from 'primeng/textarea';
-import { InputNumber } from 'primeng/inputnumber';
-import { ButtonDirective } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { InputGroup } from 'primeng/inputgroup';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { Textarea } from '@openng/optimus-ui/textarea';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';

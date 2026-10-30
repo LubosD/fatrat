@@ -26,8 +26,8 @@ License: GPL-3 with OpenSSL exception
 
 Files: data/remote/*
 Copyright: 2026 Lubos Dolezel <lubos@dolezel.info>
-           Google LLC (Angular), PrimeTek (PrimeNG) and other npm package authors
+           Google LLC (Angular), PrimeTek (PrimeNG, via the Optimus UI fork) and other npm package authors
 License: GPL-3 with OpenSSL exception and MIT
- The web interface is built from webui/ and bundles Angular, PrimeNG
+ The web interface is built from webui/ and bundles Angular, Optimus UI (a fork of PrimeNG v21)
  and other npm packages, which are licensed under the MIT license
  (see webui/package-lock.json for the full list).

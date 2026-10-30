@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
-import { InputNumber } from 'primeng/inputnumber';
-import { Checkbox } from 'primeng/checkbox';
-import { Select } from 'primeng/select';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { Select } from '@openng/optimus-ui/select';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';
 import { JsonValue } from '../../core/api/json-value';

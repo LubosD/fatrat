@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
-import { UIChart } from 'primeng/chart';
+import { UIChart } from '@openng/optimus-ui/chart';
 import type { ChartData, ChartOptions } from 'chart.js';
 import { SpeedSample } from '../../core/api/models';
 import { formatSpeed } from '../transfers/format';

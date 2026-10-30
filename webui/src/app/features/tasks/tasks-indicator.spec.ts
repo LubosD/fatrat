@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { Subject, of } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { TasksIndicator } from './tasks-indicator';
 import { TasksStore } from '../../state/tasks.store';
 import { TasksApi } from '../../core/tasks-api.service';

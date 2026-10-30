@@ -11,8 +11,8 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
-import { Dialog } from 'primeng/dialog';
-import { ButtonDirective } from 'primeng/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { ViewportService } from '../../core/viewport.service';
 import { TransferApi } from '../../core/api/transfer-api';
 import { SettingsDraftService } from '../../core/settings-draft.service';

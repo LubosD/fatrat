@@ -1,5 +1,5 @@
 // Like a Qt view: solid highlight while the table has focus, a softer "inactive" one otherwise.
-// Overrides PrimeNG's row hover, which would otherwise hide the selection under the pointer.
+// Overrides Optimus UI's row hover, which would otherwise hide the selection under the pointer.
 :host ::ng-deep .p-datatable-tbody > tr.selected-row {
   background: var(--p-highlight-background);
   color: var(--p-highlight-color);

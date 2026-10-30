@@ -59,9 +59,9 @@
     }
   </div>
 
-  <!-- PrimeNG's Dialog detects footer content via a ContentChild query keyed on a
+  <!-- Optimus UI's Dialog detects footer content via a ContentChild query keyed on a
        template-ref variable named "footer" — <p-footer> projection does not work here
-       (and Footer from primeng/api isn't a standalone component anyway). -->
+       (and Footer from @openng/optimus-ui/api isn't a standalone component anyway). -->
   <ng-template #footer>
     <div class="footer" data-testid="transfer-dialog-footer">
       @if (saveError()) {

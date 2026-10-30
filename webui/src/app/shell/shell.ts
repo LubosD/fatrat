@@ -10,17 +10,17 @@ import {
 } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Toolbar } from 'primeng/toolbar';
-import { Select } from 'primeng/select';
-import { Splitter } from 'primeng/splitter';
-import { Drawer } from 'primeng/drawer';
-import { Menu } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
-import { ButtonDirective, ButtonIcon } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { Toast } from 'primeng/toast';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { Toolbar } from '@openng/optimus-ui/toolbar';
+import { Select } from '@openng/optimus-ui/select';
+import { Splitter } from '@openng/optimus-ui/splitter';
+import { Drawer } from '@openng/optimus-ui/drawer';
+import { Menu } from '@openng/optimus-ui/menu';
+import { MenuItem } from '@openng/optimus-ui/api';
+import { ButtonDirective, ButtonIcon } from '@openng/optimus-ui/button';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
+import { ConfirmDialog } from '@openng/optimus-ui/confirmdialog';
+import { Toast } from '@openng/optimus-ui/toast';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@openng/optimus-ui/tabs';
 import { ConfirmEnter } from '../shared/confirm-enter/confirm-enter.directive';
 import { QueueList } from '../features/queues/queue-list';
 import { TransferTable } from '../features/transfers/transfer-table';
@@ -395,7 +395,7 @@ export class Shell {
   // Built on demand (not bound as a getter) so the items' disabled states reflect the selection
   // at the moment the menu opens, without handing the template a fresh array on every change detection.
   protected openOverflowMenu(event: Event, menu: Menu): void {
-    // Two labelled groups: PrimeNG's Menu renders every top-level item as a (non-clickable) group
+    // Two labelled groups: Optimus UI's Menu renders every top-level item as a (non-clickable) group
     // heading as soon as one top-level item has children, so the actions can't sit beside a submenu.
     const actions: MenuItem[] = [];
     for (const group of this.toolbarGroups) {

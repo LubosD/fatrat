@@ -61,7 +61,7 @@
     </ng-template>
     <ng-template #body let-row>
       <tr [pSelectableRow]="row" data-testid="form-field-row">
-        @if (mode === 'multiple') { <td class="check"><p-tablecheckbox [value]="row"></p-tablecheckbox></td> }
+        @if (mode === 'multiple') { <td class="check"><p-tableCheckbox [value]="row"></p-tableCheckbox></td> }
         @for (cell of cellsOf(row); track $index) { <td>{{ cell }}</td> }
       </tr>
     </ng-template>

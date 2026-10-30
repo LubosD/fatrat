@@ -1,12 +1,12 @@
 import { DestroyRef, Directive, DOCUMENT, inject, OnInit } from '@angular/core';
-import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmDialog } from '@openng/optimus-ui/confirmdialog';
 import { hasCommandModifier } from '../hotkeys/hotkeys';
 
 /**
  * Makes Enter accept the app's shared confirmation, wherever focus landed, so a hotkey delete is
  * `D` then Enter. Put it on the `<p-confirmDialog>`.
  *
- * PrimeNG lands the initial focus on Reject (the first footer button; its `defaultFocus` selector
+ * Optimus UI lands the initial focus on Reject (the first footer button; its `defaultFocus` selector
  * matches nothing). So focus is moved to Accept on open, and a focused non-accept button only
  * keeps its own Enter once the user moved focus there themselves with Tab.
  */
@@ -22,7 +22,7 @@ export class ConfirmEnter implements OnInit {
   private visibleAtKeydownStart = false;
 
   ngOnInit(): void {
-    this.listen('keydown', () => (this.visibleAtKeydownStart = !!this.dialog.visible()), true);
+    this.listen('keydown', () => (this.visibleAtKeydownStart = !!this.dialog.visible), true);
     this.listen('keydown', (e) => this.onKeydown(e as KeyboardEvent));
     this.listen('focusin', (e) => this.onFocusin(e as FocusEvent));
   }
@@ -33,12 +33,12 @@ export class ConfirmEnter implements OnInit {
   }
 
   private onKeydown(event: KeyboardEvent): void {
-    if (!this.dialog.visible()) {
+    if (!this.dialog.visible) {
       this.tabbedIn = null;
       return;
     }
     if (event.key === 'Tab') {
-      this.tabbedIn = this.dialog.confirmation() ?? null;
+      this.tabbedIn = this.dialog.confirmation ?? null;
       return;
     }
     if (event.key !== 'Enter' || hasCommandModifier(event)) return;
@@ -53,12 +53,12 @@ export class ConfirmEnter implements OnInit {
   }
 
   private onFocusin(event: FocusEvent): void {
-    if (!this.dialog.visible() || !(event.target instanceof Element)) return;
+    if (!this.dialog.visible || !(event.target instanceof Element)) return;
     if (!event.target.classList.contains('p-confirmdialog-reject-button') || this.movedByUser()) return;
     event.target.closest('.p-confirmdialog')?.querySelector<HTMLElement>('.p-confirmdialog-accept-button')?.focus();
   }
 
   private movedByUser(): boolean {
-    return this.tabbedIn !== null && this.tabbedIn === this.dialog.confirmation();
+    return this.tabbedIn !== null && this.tabbedIn === this.dialog.confirmation;
   }
 }

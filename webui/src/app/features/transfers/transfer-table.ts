@@ -9,11 +9,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { TableModule } from 'primeng/table';
-import type { TableContextMenuSelectEvent } from 'primeng/table';
-import { ProgressBar } from 'primeng/progressbar';
-import { ContextMenu } from 'primeng/contextmenu';
-import type { MenuItem } from 'primeng/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import type { TableContextMenuSelectEvent } from '@openng/optimus-ui/table';
+import { ProgressBar } from '@openng/optimus-ui/progressbar';
+import { ContextMenu } from '@openng/optimus-ui/contextmenu';
+import type { MenuItem } from '@openng/optimus-ui/api';
 import { TransfersStore, availableTransferActions } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
 import { Transfer } from '../../core/api/models';

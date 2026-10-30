@@ -144,7 +144,7 @@
 .hotkey-host,
 :host ::ng-deep .hotkey-host {
   position: relative;
-  // PrimeNG buttons clip their content (for the ripple), which would cut the badge off.
+  // Optimus UI buttons clip their content (for the ripple), which would cut the badge off.
   overflow: visible;
 }
 

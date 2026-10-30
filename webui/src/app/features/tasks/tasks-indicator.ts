@@ -1,9 +1,9 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ButtonDirective } from 'primeng/button';
-import { Popover } from 'primeng/popover';
-import { ProgressBar } from 'primeng/progressbar';
-import { MessageService } from 'primeng/api';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { Popover } from '@openng/optimus-ui/popover';
+import { ProgressBar } from '@openng/optimus-ui/progressbar';
+import { MessageService } from '@openng/optimus-ui/api';
 import { TasksStore } from '../../state/tasks.store';
 import { TasksApi } from '../../core/tasks-api.service';
 import { ApiError } from '../../core/api/rest-client';

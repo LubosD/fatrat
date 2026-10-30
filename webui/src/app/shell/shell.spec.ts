@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
 import { Shell } from './shell';
 import { QueuesStore } from '../state/queues.store';
 import { TransfersStore } from '../state/transfers.store';
@@ -501,8 +501,8 @@ describe('Shell', () => {
     expect(tabs.some((el) => el.textContent?.includes('Log'))).toBe(true);
 
     // Transfers tab (value "0") is selected by default. Both new panels are [lazy]="true", and
-    // PrimeNG's TabPanel never instantiates lazy content until that panel is activated at least
-    // once (confirmed against node_modules/primeng/fesm2022/primeng-tabs.mjs's shouldRender()),
+    // Optimus UI's TabPanel never instantiates lazy content until that panel is activated at least
+    // once (confirmed against node_modules/@openng/optimus-ui/fesm2022/openng-optimus-ui-tabs.mjs's shouldRender()),
     // matching the established Phase 3a "Details tab is never opened" behavior tested above — so
     // neither app-speed-graphs-tab nor app-log-tab exists in the DOM yet.
     expect(root.querySelector('app-speed-graphs-tab')).toBeNull();

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Subject, of } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { signal } from '@angular/core';
 import { StatusBar } from './status-bar';
 import { TransferApi } from '../../core/api/transfer-api';

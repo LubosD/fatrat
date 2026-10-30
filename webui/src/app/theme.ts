@@ -1,5 +1,5 @@
-import { definePreset } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
+import { definePreset } from '@openng/optimus-ui-themes';
+import Aura from '@openng/optimus-ui-themes/aura';
 
 /** Aura with a blue primary palette, close to the legacy UI's #567dbc selection colour. */
 export const FatRatPreset = definePreset(Aura, {

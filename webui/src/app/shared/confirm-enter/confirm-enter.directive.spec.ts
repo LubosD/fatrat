@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmationService } from '@openng/optimus-ui/api';
+import { ConfirmDialog } from '@openng/optimus-ui/confirmdialog';
 import { ConfirmEnter } from './confirm-enter.directive';
 
 @Component({
   imports: [ConfirmDialog, ConfirmEnter],
-  template: '<p-confirmdialog appConfirmEnter></p-confirmdialog>',
+  template: '<p-confirmDialog appConfirmEnter></p-confirmDialog>',
 })
 class Host {}
 
@@ -65,7 +65,7 @@ describe('ConfirmEnter', () => {
     expect(event.defaultPrevented).toBe(false);
   });
 
-  it('Enter accepts even when PrimeNG put the initial focus on the reject button', async () => {
+  it('Enter accepts even when Optimus UI put the initial focus on the reject button', async () => {
     const { accept } = await open();
     const event = press('Enter', {}, rejectButton());
     expect(accept).toHaveBeenCalledTimes(1);
@@ -97,7 +97,7 @@ describe('ConfirmEnter', () => {
 
   it('does not accept on the Enter that opened the dialog', async () => {
     // Registered before the directive's listener, so it runs first and opens the dialog mid-event.
-    let opened: (() => void) | undefined;
+    let opened: ReturnType<typeof vi.fn> | undefined;
     const opener = (e: KeyboardEvent) => {
       if (e.key !== 'Enter' || opened) return;
       opened = vi.fn();

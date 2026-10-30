@@ -10,14 +10,14 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Checkbox } from 'primeng/checkbox';
-import { RadioButton } from 'primeng/radiobutton';
-import { Select } from 'primeng/select';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
-import { ButtonDirective } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { RadioButton } from '@openng/optimus-ui/radiobutton';
+import { Select } from '@openng/optimus-ui/select';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@openng/optimus-ui/tabs';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { Subject, Subscription, of } from 'rxjs';
 import { catchError, debounceTime, switchMap } from 'rxjs/operators';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';

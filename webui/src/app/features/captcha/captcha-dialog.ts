@@ -1,8 +1,8 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { ButtonDirective } from 'primeng/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { PushSocketService, CaptchaEvent } from '../../core/push-socket.service';
 import { CaptchaHttpService } from '../../core/captcha-http.service';
 

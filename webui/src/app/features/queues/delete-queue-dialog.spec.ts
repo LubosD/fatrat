@@ -53,7 +53,7 @@ describe('DeleteQueueDialog', () => {
     expect(emitted).toEqual([{ deleteTransfers: true, withData: true }]);
   });
 
-  it('Enter on the first radio input (where PrimeNG puts the initial focus) deletes', () => {
+  it('Enter on the first radio input (where Optimus UI puts the initial focus) deletes', () => {
     const { emitted } = setup([q('q2', 'Two')]);
     const radio = document.querySelector('#delete-mode-move')!;
     expect(radio).not.toBeNull();

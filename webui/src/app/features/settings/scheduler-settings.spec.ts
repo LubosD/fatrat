@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { signal } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { SchedulerSettings } from './scheduler-settings';
 import { SchedulerApi } from '../../core/scheduler-api.service';
 import { ApiError } from '../../core/api/rest-client';

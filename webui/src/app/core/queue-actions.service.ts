@@ -3,7 +3,7 @@ import { TransferApi } from './api/transfer-api';
 import { QueuesStore } from '../state/queues.store';
 import { DeleteQueueOptions, Queue, Transfer } from './api/models';
 import { TransfersStore } from '../state/transfers.store';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
 import { Observable, map, of, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })

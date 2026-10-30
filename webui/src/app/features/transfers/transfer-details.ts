@@ -7,9 +7,9 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
-import { Tree } from 'primeng/tree';
-import type { TreeNode } from 'primeng/api';
-import type { TreeNodeExpandEvent, TreeNodeSelectEvent } from 'primeng/tree';
+import { Tree } from '@openng/optimus-ui/tree';
+import type { TreeNode } from '@openng/optimus-ui/api';
+import type { TreeNodeExpandEvent, TreeNodeSelectEvent } from '@openng/optimus-ui/tree';
 import { TransfersStore } from '../../state/transfers.store';
 import { BrowseService } from '../../core/browse.service';
 import { TRANSFER_DETAIL_COMPONENTS } from './transfer-detail-registry';

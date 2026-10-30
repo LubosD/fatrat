@@ -6,11 +6,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonDirective } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { InputText } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { ConfirmationService } from 'primeng/api';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { Observable } from 'rxjs';
 import { ApiError } from '../../core/api/rest-client';
 import {

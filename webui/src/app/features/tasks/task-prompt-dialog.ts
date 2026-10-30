@@ -8,9 +8,9 @@ import {
   untracked,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { Dialog } from 'primeng/dialog';
-import { ButtonDirective } from 'primeng/button';
-import { MessageService } from 'primeng/api';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { MessageService } from '@openng/optimus-ui/api';
 import { TasksStore } from '../../state/tasks.store';
 import { TasksApi } from '../../core/tasks-api.service';
 import { ApiError } from '../../core/api/rest-client';

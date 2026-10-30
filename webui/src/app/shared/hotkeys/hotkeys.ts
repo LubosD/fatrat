@@ -33,7 +33,7 @@ export function hasCommandModifier(event: KeyboardEvent): boolean {
   return event.ctrlKey || event.metaKey || event.altKey;
 }
 
-// Comboboxes and listboxes count as typing: PrimeNG's Select picks options by typed letters.
+// Comboboxes and listboxes count as typing: Optimus UI's Select picks options by typed letters.
 const TYPING_SELECTOR =
   'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="combobox"], [role="listbox"]';
 
@@ -41,7 +41,7 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(TYPING_SELECTOR) !== null;
 }
 
-// PrimeNG only renders these while open: modal dialog/drawer masks, popup and context menus,
+// Optimus UI only renders these while open: modal dialog/drawer masks, popup and context menus,
 // and the dropdown of a Select.
 const OVERLAY_SELECTOR = '.p-overlay-mask, .p-menu-overlay, .p-select-overlay, .p-contextmenu';
 

@@ -9,9 +9,9 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { TableModule } from 'primeng/table';
-import { ProgressBar } from 'primeng/progressbar';
-import { Select } from 'primeng/select';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ProgressBar } from '@openng/optimus-ui/progressbar';
+import { Select } from '@openng/optimus-ui/select';
 import { FormsModule } from '@angular/forms';
 import { TransferApi } from '../../core/api/transfer-api';
 import { TorrentDownloadApiService } from '../../core/torrent-download-api.service';

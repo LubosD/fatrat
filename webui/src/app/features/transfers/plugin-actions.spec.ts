@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from '@openng/optimus-ui/api';
 import { PluginActions } from './plugin-actions';
 import { TasksApi } from '../../core/tasks-api.service';
 import { ApiError } from '../../core/api/rest-client';

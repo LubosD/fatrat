@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, startWith } from 'rxjs/operators';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from '@openng/optimus-ui/api';
 import { TasksApi } from '../../core/tasks-api.service';
 import { ApiError } from '../../core/api/rest-client';
 import { PluginTransferAction } from '../../core/api/models';

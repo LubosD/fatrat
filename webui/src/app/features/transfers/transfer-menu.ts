@@ -1,4 +1,4 @@
-import type { MenuItem } from 'primeng/api';
+import type { MenuItem } from '@openng/optimus-ui/api';
 import { AvailableTransferActions } from '../../state/transfers.store';
 import { TransferActionsService } from '../../core/transfer-actions.service';
 

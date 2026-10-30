@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
-import { ButtonDirective } from 'primeng/button';
+import { ConfirmationService } from '@openng/optimus-ui/api';
+import { TableModule } from '@openng/optimus-ui/table';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { SchedulerApi } from '../../core/scheduler-api.service';
 import { ApiError } from '../../core/api/rest-client';
 import { QueuesStore } from '../../state/queues.store';

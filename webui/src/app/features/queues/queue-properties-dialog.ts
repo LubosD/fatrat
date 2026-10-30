@@ -8,12 +8,12 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { InputNumber } from 'primeng/inputnumber';
-import { Checkbox } from 'primeng/checkbox';
-import { ButtonDirective } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { InputGroup } from '@openng/optimus-ui/inputgroup';
 import { DirectoryPicker } from '../../shared/directory-picker/directory-picker';
 import { Queue } from '../../core/api/models';
 import { PathSuggest } from '../../shared/path-suggest/path-suggest';

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { TransferActionsService } from './transfer-actions.service';
 import { TransferApi } from './api/transfer-api';
 import { TransfersStore } from '../state/transfers.store';

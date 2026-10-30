@@ -1,12 +1,12 @@
 import { Component, computed, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonDirective } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { ButtonDirective } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Select } from '@openng/optimus-ui/select';
+import { TableModule } from '@openng/optimus-ui/table';
 import { JsonValue } from '../../core/api/json-value';
 import { PluginFormField, PluginFormRow } from '../../core/api/models';
 import { numberFallback } from './form-values';

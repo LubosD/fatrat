@@ -69,7 +69,7 @@ function open(setup: Setup = {}) {
 }
 
 // Types like a user, so the change reaches the view through ngModel; a plain field assignment
-// followed by detectChanges() trips NG0100 inside the (OnPush) PrimeNG dialog.
+// followed by detectChanges() trips NG0100 inside the (OnPush) Optimus UI dialog.
 function typeInto(id: string, value: string): void {
   const input = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement;
   input.value = value;

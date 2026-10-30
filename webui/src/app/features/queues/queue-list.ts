@@ -1,6 +1,6 @@
 import { Component, inject, output, ChangeDetectionStrategy } from '@angular/core';
-import type { MenuItem } from 'primeng/api';
-import { ContextMenu } from 'primeng/contextmenu';
+import type { MenuItem } from '@openng/optimus-ui/api';
+import { ContextMenu } from '@openng/optimus-ui/contextmenu';
 import { QueuesStore } from '../../state/queues.store';
 import { QueueActionsService } from '../../core/queue-actions.service';
 import { Queue } from '../../core/api/models';

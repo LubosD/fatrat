@@ -112,7 +112,7 @@ legend {
     min-height: 44px;
   }
 
-  // Dialogs (tagged styleClass="fr-dialog") fill the screen. !important beats PrimeNG's inline
+  // Dialogs (tagged styleClass="fr-dialog") fill the screen. !important beats Optimus UI's inline
   // [style] widths, but not its injected [breakpoints] rule, which is also !important and has
   // specificity 0,3,0 (.p-dialog[pn_id_N]:not(.p-dialog-maximized)). The repeated class plus
   // :not() lifts this selector to 0,4,0 so it wins regardless of stylesheet order.

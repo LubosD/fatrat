@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { TreeNode } from 'primeng/api';
+import type { TreeNode } from '@openng/optimus-ui/api';
 
 @Injectable({ providedIn: 'root' })
 export class BrowseService {

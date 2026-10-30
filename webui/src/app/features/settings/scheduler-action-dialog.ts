@@ -8,13 +8,13 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { InputNumber } from 'primeng/inputnumber';
-import { Checkbox } from 'primeng/checkbox';
-import { RadioButton } from 'primeng/radiobutton';
-import { Select } from 'primeng/select';
-import { ButtonDirective } from 'primeng/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { InputNumber } from '@openng/optimus-ui/inputnumber';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { RadioButton } from '@openng/optimus-ui/radiobutton';
+import { Select } from '@openng/optimus-ui/select';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import {
   Queue,
   ScheduledAction,

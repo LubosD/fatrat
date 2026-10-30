@@ -12,10 +12,10 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Checkbox } from 'primeng/checkbox';
-import { ButtonDirective } from 'primeng/button';
+import { Dialog } from '@openng/optimus-ui/dialog';
+import { InputText } from '@openng/optimus-ui/inputtext';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
+import { ButtonDirective } from '@openng/optimus-ui/button';
 import { TransferApi } from '../../core/api/transfer-api';
 import { DirectoryEntry } from '../../core/api/models';
 import { PathSuggest } from '../path-suggest/path-suggest';
