@@ -45,6 +45,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QtDebug>
 #include <QStringList>
 #include <QUrl>
+#include <QUuid>
 #include <QUrlQuery>
 #include <QDir>
 #include <QBuffer>
@@ -65,6 +66,7 @@ respects for all of the code used other than "OpenSSL".
 #include <sys/un.h>
 #include <string.h>
 #include <algorithm>
+#include "util/SettingsString.h"
 
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
@@ -97,6 +99,22 @@ HttpService::HttpService()
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(keepalive()));
 	m_timer.start(15 * 1000);
+}
+
+// An unreadable value must never read as "no password": that would switch authentication off.
+static QString readPassword()
+{
+	bool unreadable = false;
+	QString password = settingToString(getSettingsValue("remote/password"), &unreadable);
+
+	if (unreadable)
+	{
+		Logger::global()->enterLogMessage("HttpService",
+			HttpService::tr("The remote/password setting cannot be read as text, refusing all logins until it is fixed"));
+		// Random, never revealed: authentication stays on and nobody can guess it
+		password = QUuid::createUuid().toString();
+	}
+	return password;
 }
 
 HttpService::~HttpService()
@@ -232,7 +250,7 @@ void HttpService::applySettings()
 				else
 				{
 					std::lock_guard<std::mutex> lk(m_passwordMutex);
-					m_strPassword = getSettingsValue("remote/password").toString();
+					m_strPassword = readPassword();
 				}
 			}
 		}
@@ -257,7 +275,7 @@ void HttpService::setup()
 	m_port = getSettingsValue("remote/port").toUInt();
 	{
 		std::lock_guard<std::mutex> lk(m_passwordMutex);
-		m_strPassword = getSettingsValue("remote/password").toString();
+		m_strPassword = readPassword();
 	}
 	m_bUseSSL = getSettingsValue("remote/ssl").toBool();
 

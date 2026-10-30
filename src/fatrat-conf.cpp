@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include "config.h"
+#include "util/SettingsString.h"
 
 #ifdef WITH_PYPLUGINS
 #	include "python/PluginRepository.h"
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
 			if (value.isNull())
 				cerr << "ERROR: Key " << argv[i] << " not found\n";
 			else
-				cout << argv[i] << " = " << value.toString().toStdString() << endl;
+				cout << argv[i] << " = " << settingToString(value).toStdString() << endl;
 		}
 	}
 	else

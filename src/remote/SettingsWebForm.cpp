@@ -29,6 +29,7 @@ respects for all of the code used other than "OpenSSL".
 #include "HttpService.h"
 #include <QFileDialog>
 #include <QTemporaryFile>
+#include "util/SettingsString.h"
 #include <QProcess>
 #include <QMessageBox>
 #include <QDir>
@@ -48,7 +49,7 @@ void SettingsWebForm::load()
 {
 	checkEnable->setChecked(getSettingsValue("remote/enable").toBool());
 	spinPort->setValue(getSettingsValue("remote/port").toInt());
-	linePassword->setText(getSettingsValue("remote/password").toString());
+	linePassword->setText(settingToString(getSettingsValue("remote/password")));
 	groupSSL->setChecked(getSettingsValue("remote/ssl").toBool());
 	linePEM->setText(getSettingsValue("remote/ssl_pem").toString());
 }
