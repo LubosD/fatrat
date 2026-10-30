@@ -38,12 +38,12 @@
 <dt>Automatically download new stuff from RSS feeds</dt>
 <dd>Turns the automatic checking on or off. The web interface calls it <b>Enable RSS feed fetching</b> and the terminal <b>Check the feeds</b>. It is on by default.</dd>
 <dt>Update interval</dt>
-<dd>How often, in minutes, FatRat fetches all feeds. The default is 15. On the desktop you can set 5 to 1000 minutes.</dd>
+<dd>How often, in minutes, FatRat fetches all feeds. The default is 15. On the desktop you can set 1 to 1000 minutes.</dd>
 </dl>
 
 <p>When checking is turned on, FatRat fetches the feeds right away, and then every interval.</p>
 
-<p>To fetch the feeds now, use <b>Update</b> (desktop), <b>Update now</b> (web interface) or <code>R</code> on the RSS tab (terminal). This works even when automatic checking is off. It uses the feeds that are saved, so on the desktop click <b>OK</b> or <b>Apply</b> first after adding a feed.</p>
+<p>To fetch the feeds now, use <b>Update</b> (desktop), <b>Update now</b> (web interface) or <code>R</code> on the RSS tab (terminal). This works even when automatic checking is off. On the desktop, <b>Update</b> first saves the feeds and rules in the dialog, so a feed you just added is fetched too. They stay saved even if you later click <b>Cancel</b>.</p>
 
 <h2>Feeds</h2>
 
@@ -116,11 +116,11 @@
 
 <dl>
 <dt>Download repacks (web interface: <b>Download repacks and propers</b>, terminal: <b>Include repacks</b>)</dt>
-<dd>An item with <code>repack</code> or <code>proper</code> in its title counts as a separate release of the episode. If this is on, FatRat downloads it even though it already has the plain episode. If it is off, such an item is treated as the plain episode: it is downloaded only if you don't have that episode yet. This is on by default for a rule created on the desktop or in the web interface, and off in the terminal.</dd>
+<dd>An item with <code>repack</code> or <code>proper</code> in its title counts as a separate release of the episode. If this is on, FatRat downloads it even though it already has the plain episode. If it is off, such an item is treated as the plain episode: it is downloaded only if you don't have that episode yet. This is on by default for a new rule in all three front ends.</dd>
 <dt>Download trailers/teasers (web interface: <b>Download trailers and teasers</b>, terminal: <b>Include trailers</b>)</dt>
 <dd>An item with <code>trailer</code> or <code>teaser</code> in its title is skipped unless this is on. If it is on, it is tracked separately from the real episode. It is off by default.</dd>
 <dt>Exclude episodes downloaded manually (terminal: <b>Exclude manual</b>)</dt>
-<dd>When you add a BitTorrent transfer yourself from a <code>.torrent</code> file, and its name matches the rule's expression and holds an episode number, FatRat marks that episode as downloaded. It is then not downloaded again from the feed. This is on by default on the desktop and in the web interface, and off by default in the terminal client.</dd>
+<dd>When you add a BitTorrent transfer yourself from a <code>.torrent</code> file, and its name matches the rule's expression and holds an episode number, FatRat marks that episode as downloaded. It is then not downloaded again from the feed. This is on by default for a new rule in all three front ends.</dd>
 </dl>
 
 <h3>List of downloaded episodes</h3>
