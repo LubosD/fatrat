@@ -67,6 +67,7 @@ protected:
 private:
 	TorrentDownload* m_download;
 	QStringList m_columns;
+	int m_rowCount;
 	
 	friend class TorrentProgressDelegate;
 };

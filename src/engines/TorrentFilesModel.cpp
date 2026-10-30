@@ -33,8 +33,10 @@ respects for all of the code used other than "OpenSSL".
 #include <libtorrent/torrent_info.hpp>
 
 TorrentFilesModel::TorrentFilesModel(QObject* parent, TorrentDownload* d)
-	: QAbstractListModel(parent), m_pieces(0), m_download(d)
+	: QAbstractListModel(parent), m_pieces(0), m_download(d), m_rowCount(0)
 {
+	if (d->m_info)
+		m_rowCount = d->m_info->files().num_files();
 	m_columns << tr("File name") << tr("Size") << tr("Progress");
 	m_columns << tr("Priority") << tr("Progress display");
 }
@@ -54,9 +56,7 @@ QModelIndex TorrentFilesModel::parent(const QModelIndex&) const
 
 int TorrentFilesModel::rowCount(const QModelIndex&) const
 {
-	if (!m_download->m_info)
-		return 0;
-	return m_download->m_info->files().num_files();
+	return m_rowCount;
 }
 
 QVariant TorrentFilesModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -101,6 +101,8 @@ QVariant TorrentFilesModel::data(const QModelIndex &index, int role) const
 				}
 				break;
 			case 3:
+				if (size_t(i) >= m_download->m_vecPriorities.size())
+					break;
 				switch(static_cast<std::uint8_t>(m_download->m_vecPriorities[i]))
 				{
 					case 0:
@@ -132,6 +134,16 @@ void TorrentFilesModel::refresh(const libtorrent::bitfield* pieces)
 	
 	if (m_download->m_info)
 		count = m_download->m_info->files().num_files();
+
+	// Magnet links start without metadata, so the row count changes when it arrives;
+	// dataChanged() alone doesn't make the view pick up new rows.
+	if (count != m_rowCount)
+	{
+		beginResetModel();
+		m_rowCount = count;
+		endResetModel();
+		return;
+	}
 
 	dataChanged(createIndex(0, 2), createIndex(count, m_columns.size())); // refresh the view
 }
