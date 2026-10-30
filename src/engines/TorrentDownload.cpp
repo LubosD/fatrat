@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "Queue.h"
 #include "TorrentDownload.h"
+#include "TorrentSeeding.h"
 #include "TorrentSessionOptions.h"
 #ifdef WITH_GUI
 #	include "TorrentSettings.h"
@@ -1473,7 +1474,7 @@ void TorrentWorker::doWork()
 					d->setMode(Transfer::Download);
 				else if(d->state() != Transfer::ForcedActive)
 				{
-					if(double(d->totalUpload()) / d->totalDownload() >= d->m_seedLimitRatio
+					if(TorrentSeeding::ratioReached(d->totalUpload(), d->totalDownload(), d->m_status.total_wanted_done, d->m_seedLimitRatio)
 					  || (d->totalUpload() >= qint64(d->m_seedLimitUpload)*1024*1024 && d->m_seedLimitUpload))
 					{
 						d->setState(Transfer::Completed);
