@@ -3,26 +3,49 @@
 <title>Creating Torrents</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 </head>
-
 <body>
 
 <h1>Creating Torrents</h1>
 
-<p>
-The torrent file creator is available through the app tool menu:
-</p>
+<p>The desktop can make a <code>.torrent</code> file from a file or a folder on your computer. The web interface and the terminal client cannot.</p>
 
-<p><img src="create-menu.png" alt="App tool menu" /></p>
+<h2>Opening the dialog</h2>
 
-<p>
-After clicking the menu item a dialog will show up. There you can specify the file (the "F" button) or the directory (the "D" button) that should represent the newly created torrent's contents. Every torrent consists of so called pieces and every piece has a hash attached, which means that the greater number of pieces you have the larger the torrent file grows. Therefore you should choose a larger piece size if you're creating a torrent for a huge file or directory. On the other hand, smaller piece sizes are a better choice if you want to share a few megabytes of data or even less.
-</p>
+<p><b>Desktop:</b> click the button with the plus sign at the top left of the tab area and choose <b>Create a torrent</b>. The dialog <b>Create a torrent</b> opens.</p>
 
-<p><img src="create.png" alt="Create a torrent dialog" /></p>
+<h2>The dialog</h2>
 
-<p>
-A torrent usually has at least one tracker, because if it doesn't, BitTorrent clients have to rely on a distributed network (DHT). If you don't know what implications this has, you should probably pick a BitTorrent web site, get the "announce URL" and input it. The BitTorrent web site is also the place where you should upload the torrent file when it has been generated. The private torrent option may be mandated by some private torrent sites. If you want to simultaneously distribute the torrent via HTTP, enter the corresponding URL(s) in the "Web seeds" tab. Note that FatRat cannot do any HTTP distribution for you, it merely can use it!
-</p>
+<dl>
+<dt>Data (a single file or a directory)</dt>
+<dd>What the torrent will contain. Type the path, or click <b>F</b> to browse for a file or <b>D</b> to browse for a directory.</dd>
+<dt>Piece size</dt>
+<dd>A torrent is cut into pieces, and the torrent file holds a checksum for each piece. A smaller piece size makes a bigger torrent file. Choose a larger piece size for a large file or folder, and a smaller one for a few megabytes of data. The choices go from 64 KB to 8.0 MB, and the default is 512 KB.</dd>
+<dt>Comment</dt>
+<dd>Text stored in the torrent file. Other people see it when they open the torrent.</dd>
+<dt>Private torrent (disable DHT)</dt>
+<dd>Marks the torrent as private. BitTorrent programs then find peers only through the trackers, never through DHT. Some private torrent sites require this.</dd>
+</dl>
+
+<p>Below these are three tabs. A right-click in the lists of the <b>Trackers</b> and <b>DHT nodes</b> tabs opens a menu with <b>Add</b>, <b>Edit</b> and <b>Delete</b>, and <b>Add known</b>, which offers a few well-known public trackers.</p>
+
+<dl>
+<dt>Trackers</dt>
+<dd>The tracker addresses ("announce URLs") of the torrent. Each address must start with <code>http://</code> or <code>udp://</code>; FatRat leaves out the others. A private torrent needs at least one tracker. If you publish the torrent on a torrent site, the site tells you its announce URL.</dd>
+<dt>DHT nodes</dt>
+<dd>Addresses of DHT nodes that programs can ask for peers, in the form <code>address:port</code>. FatRat leaves out entries in any other form. These are stored in the torrent only when <b>Private torrent (disable DHT)</b> is ticked.</dd>
+</dl>
+
+<p>The dialog also has a <b>Web seeds</b> tab, but you cannot enter anything there in this version, so no web seeds are added to the torrent.</p>
+
+<h2>Creating the file</h2>
+
+<p>Click <b>Create</b>. FatRat reads all the data to compute the checksums, which takes a while for large data; a progress bar shows how far it is. Then FatRat asks where to save the <code>.torrent</code> file. The dialog closes when the file is saved. If the data path is not valid, FatRat says "The data path is invalid." and nothing is created.</p>
+
+<h2>Sharing the torrent</h2>
+
+<p>Making the file does not add it to FatRat. To seed your data, add the new <code>.torrent</code> file as a transfer, and set the destination to the directory that contains your file or folder, not the folder itself. FatRat checks the data it finds there and then seeds it. See <a href="index.html">BitTorrent Support</a> for the seeding limits.</p>
+
+<p>To let other people download it, give them the <code>.torrent</code> file, or upload it to a torrent site.</p>
 
 </body>
 </html>

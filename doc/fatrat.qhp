@@ -56,8 +56,6 @@
 
 			<file>bittorrent/index.html</file>
 			<file>bittorrent/create.html</file>
-			<file>bittorrent/create.png</file>
-			<file>bittorrent/create-menu.png</file>
 		</files>
 	</filterSection>
 </QtHelpProject>
