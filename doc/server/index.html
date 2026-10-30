@@ -49,17 +49,21 @@
 <dd>Also serve the REST API on a unix socket (see below).</dd>
 </dl>
 
-<p>For example, to start FatRat as root and have it run as the user and group <code>fatrat</code> in the background:</p>
+<p>The safe ways to run FatRat as another user are the systemd service (see below), or starting it as that user in the first place. For example, to run it in the background as yourself:</p>
 
-<pre>sudo fatrat-nogui --daemon --user fatrat:fatrat --pidfile /run/fatrat.pid</pre>
-
-<p>Cleaner ways are the systemd service below, or starting FatRat as that user in the first place:</p>
-
-<pre>sudo -u fatrat -H fatrat-nogui --daemon</pre>
+<pre>fatrat-nogui --daemon --pidfile ~/fatrat.pid</pre>
 
 <p>FatRat stops cleanly and saves its queues when it gets <code>SIGTERM</code> or <code>SIGINT</code>:</p>
 
-<pre>kill $(cat /run/fatrat.pid)</pre>
+<pre>kill $(cat ~/fatrat.pid)</pre>
+
+<p>Run only one FatRat per user at a time. Two would use the same settings and queues. For example, don't start one by hand as the <code>fatrat</code> user while the <code>fatrat</code> service is running.</p>
+
+<p>If you have to start FatRat as root, <code>--user</code> with a group is the fallback:</p>
+
+<pre>sudo fatrat-nogui --daemon --user fatrat:fatrat --pidfile /run/fatrat.pid</pre>
+
+<p>Note that FatRat keeps root's supplementary groups when it switches.</p>
 
 <p><code>fatrat --help</code> lists every option. See also <a href="../cmdline.html">Command Line</a>.</p>
 
@@ -100,7 +104,7 @@
 
 <p>On Linux and BSD, the settings file is <code>~/.config/Dolezel/fatrat.conf</code> in the home directory of the user FatRat runs as, or <code>$XDG_CONFIG_HOME/Dolezel/fatrat.conf</code> if that variable is set. For the system service, that is <code>/var/lib/fatrat/.config/Dolezel/fatrat.conf</code>. With <code>-c</code>, it is the file you gave.</p>
 
-<p>On macOS, FatRat keeps its settings in the system's preferences store, which neither a text editor nor <code>fatrat-conf</code> can change. For a headless FatRat there, start it with <code>-c</code> <i>file</i> and write the keys into that file in the same format as the example below.</p>
+<p>On macOS, FatRat keeps its settings in the system's preferences store, which you can't edit as a text file. For a headless FatRat there, start it with <code>-c</code> <i>file</i> and write the keys into that file in the format shown below.</p>
 
 <p><b>Always set a password of your own.</b> The default password, <code>fatrat</code>, is the same for everyone.</p>
 
@@ -114,14 +118,16 @@
 sudo -u fatrat -H fatrat-conf -w remote/enable=true remote/password=SECRET
 sudo systemctl start fatrat</pre>
 
-<p><code>fatrat-conf</code> stores the password as you type it, in plain text, so keep the settings file readable only by its owner. To read a value back, run <code>fatrat-conf remote/port</code>. A password typed on the command line also ends up in your shell history. You can also edit the file with a text editor while FatRat is stopped:</p>
+<p><code>fatrat-conf</code> stores the password as you type it, in plain text, so keep the settings file readable only by its owner. To read a value back, run <code>fatrat-conf remote/port</code>. A password typed on the command line also ends up in your shell history.</p>
+
+<p>You can also edit the file with a text editor while FatRat is stopped. On Linux and BSD, <code>fatrat-conf</code> is the safer way, because it quotes the values for you. When you write a value by hand, put it in double quotes if it contains <code>,</code> <code>;</code> <code>"</code> or <code>\</code>, and write <code>\"</code> for a quote and <code>\\</code> for a backslash inside. Without quotes, a password with a comma is read as empty, which turns the password off, and a <code>;</code> cuts the rest of the value off:</p>
 
 <pre>[remote]
 enable=true
 port=2233
-password=SECRET</pre>
+password="SECRET"</pre>
 
-<p> <code>fatrat-conf</code> writes to the usual settings file only; if you run FatRat with <code>-c</code>, edit that file instead.</p>
+<p><code>fatrat-conf</code> writes to the usual settings file only; if you run FatRat with <code>-c</code>, edit that file instead.</p>
 
 <p>Once FatRat runs again, open <code>http://<i>server</i>:<i>port</i>/</code> in a browser, for example <code>http://myserver:2233/</code>. The browser asks for a user name and a password: the user name can be anything, the password is <code>remote/password</code>. See <a href="../web/index.html">Web Interface</a>.</p>
 
