@@ -227,7 +227,7 @@ Availability Store::availability() const
 		const TransferInfo& x = m_transfers[i];
 		if (!t.contains(x.uuid))
 			continue;
-		a.resume |= x.state != TransferInfo::Waiting && x.state != TransferInfo::Active;
+		a.resume |= x.canResume();
 		a.pause |= x.state != TransferInfo::Paused;
 		a.moveUp |= i > 0;
 		a.moveDown |= i < m_transfers.size() - 1;

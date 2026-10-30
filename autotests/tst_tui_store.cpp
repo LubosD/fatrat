@@ -120,6 +120,29 @@ private slots:
 		QVERIFY(a.moveUp);
 		QVERIFY(!a.moveDown);
 	}
+	void resumeFollowsTheDesktop()
+	{
+		using S = TransferInfo::State;
+		for (S st : { S::Waiting, S::Active, S::Completed })
+		{
+			TransferInfo t = mk("a", "A", st);
+			QVERIFY2(!t.canResume(), qPrintable(TransferInfo::stateName(st)));
+		}
+		QVERIFY(mk("a", "A", S::Paused).canResume());
+		QVERIFY(mk("a", "A", S::Failed).canResume());
+		QCOMPARE(mk("a", "A", S::Paused).resumedState(), S::Waiting);
+		QCOMPARE(mk("a", "A", S::Failed).resumedState(), S::Waiting);
+		// a forced transfer becomes a normal one, as in the desktop's Resume
+		QVERIFY(mk("a", "A", S::ForcedActive).canResume());
+		QCOMPARE(mk("a", "A", S::ForcedActive).resumedState(), S::Active);
+
+		Store s;
+		s.setQueues({ mkq("q") });
+		s.setTransfers("q", { mk("a", "A", S::Completed) });
+		QVERIFY(!s.availability().resume);
+		s.setTransfers("q", { mk("a", "A", S::ForcedActive) });
+		QVERIFY(s.availability().resume);
+	}
 	void otherQueuesBusy()
 	{
 		Store s;

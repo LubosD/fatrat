@@ -38,6 +38,10 @@ namespace tui
 		static State parseState(const QString& s);
 		static QString stateName(State s);
 		bool isActive() const { return state == Active || state == ForcedActive; }
+		// What Resume does, like the desktop: a forced transfer becomes a normal one, a paused or
+		// failed one waits for a free slot; running, waiting and finished transfers are left alone.
+		bool canResume() const { return state == Paused || state == Failed || state == ForcedActive; }
+		State resumedState() const { return state == ForcedActive ? Active : Waiting; }
 		int percent() const;
 	};
 

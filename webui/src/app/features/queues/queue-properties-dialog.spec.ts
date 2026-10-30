@@ -29,6 +29,9 @@ describe('QueuePropertiesDialog', () => {
 
     expect(fixture.componentInstance.name).toBe('');
     expect(fixture.componentInstance.speedDown).toBe(0);
+    // -1 is "no limit"; 0 would let only forced transfers run
+    expect(fixture.componentInstance.transferDown).toBe(-1);
+    expect(fixture.componentInstance.transferUp).toBe(-1);
     expect(fixture.nativeElement.textContent).toContain('New Queue');
   });
 
@@ -81,7 +84,7 @@ describe('QueuePropertiesDialog', () => {
         moveDirectory: '',
         watchDirectory: '',
         speedLimits: { down: 204800, up: 0 },
-        transferLimits: { down: 0, up: 0 },
+        transferLimits: { down: -1, up: -1 },
         upAsDown: false,
       },
     ]);

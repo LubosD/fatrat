@@ -89,4 +89,13 @@ describe('WebinterfaceSettings', () => {
     expect(link.getAttribute('href')).toBe(browserExtensionPageUrl(window.location.href));
     expect(link.getAttribute('target')).toBe('_blank');
   });
+
+  it('says any user name works, as the server only checks the password', () => {
+    configure();
+    const fixture = TestBed.createComponent(WebinterfaceSettings);
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('any user name works');
+    expect(text).not.toContain('"admin"');
+  });
 });

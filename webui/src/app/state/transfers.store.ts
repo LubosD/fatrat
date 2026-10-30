@@ -7,7 +7,7 @@ import { activeGatedPoll } from '../core/active-gated-poll';
 import { TransferApi } from '../core/api/transfer-api';
 import { PollingService } from '../core/polling.service';
 import { QueuesStore } from './queues.store';
-import { Transfer } from '../core/api/models';
+import { Transfer, TransferState } from '../core/api/models';
 
 /** Modifier keys held during a selection gesture. `ctrl` also covers Cmd on macOS. */
 export interface SelectionModifiers {
@@ -34,6 +34,12 @@ export interface AvailableTransferActions {
   properties: boolean;
 }
 
+/** Resume, like the desktop's: a forced transfer becomes a normal one, a paused or failed one waits for a slot. */
+export function resumedState(state: TransferState): 'Active' | 'Waiting' | null {
+  if (state === 'ForcedActive') return 'Active';
+  return state === 'Paused' || state === 'Failed' ? 'Waiting' : null;
+}
+
 export function availableTransferActions(transfers: Transfer[], selectedUuids: string[]): AvailableTransferActions {
   const selected = new Set(selectedUuids);
   const result: AvailableTransferActions = {
@@ -47,7 +53,7 @@ export function availableTransferActions(transfers: Transfer[], selectedUuids: s
   };
   transfers.forEach((t, index) => {
     if (!selected.has(t.uuid)) return;
-    result.resume ||= t.state !== 'Waiting' && t.state !== 'Active';
+    result.resume ||= resumedState(t.state) !== null;
     result.pause ||= t.state !== 'Paused';
     result.moveUp ||= index > 0;
     result.moveDown ||= index < transfers.length - 1;

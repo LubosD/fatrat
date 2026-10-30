@@ -11,7 +11,7 @@
     <label for="wi-password">Password</label>
     <input pInputText type="password" id="wi-password" [(ngModel)]="password" (ngModelChange)="stage('remote/password', $event)" />
   </div>
-  <p>Username: Use "admin" or "fatrat", both are equivalent.</p>
+  <p>Username: any user name works; only the password is checked.</p>
   <fieldset>
     <legend>
       <p-checkbox [(ngModel)]="ssl" [binary]="true" inputId="wi-ssl" (ngModelChange)="stage('remote/ssl', $event)"></p-checkbox>

@@ -79,43 +79,113 @@ Screen size for \fB\-\-script\fR (default 110x34).
 .SH KEYS
 Keys act on the focused pane; the bottom bar always shows those that apply.
 Press \fB?\fR or \fBF1\fR for the full list.
+Letters are plain keys (not Ctrl combinations) and may be upper or lower case.
+.SS Everywhere
 .TP
-.B Ctrl\-1, Ctrl\-2, Ctrl\-3
+.B 1, 2, 3
 Switch to Transfers, RSS or Log.
+.TP
+.B F2 (O), F4 (X)
+Settings, extensions.
 .TP
 .B Tab, Shift\-Tab
 Move focus between panes (next tab in the details view).
 .TP
-.B Up, Down, Ctrl\-K, Ctrl\-J, PgUp, PgDn, Home, End
+.B Up (K), Down (J), PgUp, PgDn, Home, End
 Move through a list.
 .TP
-.B Ctrl\-/
-Filter the list (search, in the log).
+.B Left, Right
+Focus the queues or the transfers pane (in a narrow terminal: previous and
+next queue).
 .TP
-.B Ctrl\-N, Ctrl\-E, Ctrl\-D
-New, edit and delete the selected item.
-.TP
-.B Ctrl\-R, Ctrl\-P, Ctrl\-F
-Resume, pause and force-start the selected transfers.
-.TP
-.B Space, Ctrl\-A
-Mark a transfer; mark all.
-.TP
-.B Enter
-Open the details of a transfer, or open a queue.
-.TP
-.B F2 (Ctrl\-O), F4 (Ctrl\-X)
-Settings, extensions.
+.B /
+Filter the transfers by name (search, in the log).
 .TP
 .B Esc
-Go back or close a dialog.
+Go back or close a dialog; on the Transfers tab, clear the filter, then the
+marks.
+.TP
+.B ? (F1)
+Help.
 .TP
 .B Ctrl\-L
 Redraw the screen.
 .TP
-.B Ctrl\-Q
-Quit. A private server started by \fBfatrat-tui\fR is left running unless it
-is stopped with \fB\-\-stop\fR.
+.B Q, Ctrl\-C
+Quit. If \fBfatrat-tui\fR started the private server itself, the server is
+stopped too; when transfers are active, \fBQ\fR first asks whether to keep the
+server running or stop it, and \fBCtrl\-C\fR leaves it running.
+A server that was already running is never stopped.
+.SS Transfers
+.TP
+.B R, F, P
+Resume, force-start and pause the selected transfers. Resume turns a forced
+transfer into a normal one and queues paused and failed ones.
+.TP
+.B N, E, D
+New transfer, edit its properties, delete.
+.TP
+.B M, [, ]
+Move: \fBM\fR then \fBT\fR (top), \fBU\fR (up), \fBD\fR (down) or \fBB\fR
+(bottom); or \fB[\fR and \fB]\fR to move up and down.
+.TP
+.B S, L
+Send to another queue; speed limit.
+.TP
+.B Space, A
+Mark or unmark a transfer; mark all or none.
+.TP
+.B Enter
+Open the details of a transfer.
+.SS Queues
+.TP
+.B N, E, D
+New, edit and delete a queue.
+.TP
+.B [, ]
+Move the queue up or down.
+.TP
+.B L, Enter
+Queue speed limits; open the queue.
+.SS Details and torrent files
+.TP
+.B Tab, Shift\-Tab
+Next and previous tab.
+.TP
+.B Esc, B
+Back to the list.
+.TP
+.B + (=), \-, S, A, Enter
+Torrent files: raise or lower the priority, skip a file, download all files,
+apply the changes.
+.SS RSS and log
+.TP
+.B N, E, D, R, Tab
+RSS: new, edit, delete, refresh the feeds now, switch between feeds and rules.
+.TP
+.B T, W
+RSS rules: test a regular expression; the downloaded episodes.
+.TP
+.B F, /, N, G, End, T
+Log: follow the end, search, next match, top, bottom, log of the selected
+transfer (or back to the global log).
+.SS In dialogs
+.TP
+.B Tab, Shift\-Tab, Up, Down
+Next and previous field.
+.TP
+.B Space
+Tick a check box or change a choice.
+.TP
+.B Ctrl\-A, Ctrl\-E, Ctrl\-U, Ctrl\-K, Ctrl\-W
+Start of the text, end of the text, clear the field, delete to the end, delete
+the word before the cursor.
+.TP
+.B Ctrl\-B
+Browse for a directory.
+.TP
+.B Enter, Esc
+Save, cancel.
 .SH ENVIRONMENT
 .TP
 .B FATRAT_URL

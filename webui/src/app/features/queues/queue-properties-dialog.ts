@@ -39,8 +39,8 @@ export class QueuePropertiesDialog implements OnChanges {
   watchDirectory = '';
   speedDown = 0;
   speedUp = 0;
-  transferDown = 0;
-  transferUp = 0;
+  transferDown = -1;
+  transferUp = -1;
   upAsDown = false;
   protected pickerTarget: 'defaultDirectory' | 'moveDirectory' | 'watchDirectory' | null = null;
 
@@ -61,8 +61,8 @@ export class QueuePropertiesDialog implements OnChanges {
     this.watchDirectory = q?.watchDirectory ?? '';
     this.speedDown = Math.round((q?.speedLimits.down ?? 0) / 1024);
     this.speedUp = Math.round((q?.speedLimits.up ?? 0) / 1024);
-    this.transferDown = q?.transferLimits.down ?? 0;
-    this.transferUp = q?.transferLimits.up ?? 0;
+    this.transferDown = q?.transferLimits.down ?? -1;
+    this.transferUp = q?.transferLimits.up ?? -1;
     this.upAsDown = q?.upAsDown ?? false;
     this.pickerTarget = null;
   }
