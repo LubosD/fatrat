@@ -16,12 +16,14 @@ function task(overrides: Partial<PluginTask>): PluginTask {
 
 function setup(tasks: PluginTask[]) {
   const failures$ = new Subject<PluginTask>();
+  const added$ = new Subject<PluginTask>();
   const store = {
     tasks: signal(tasks),
     openPrompts: signal(tasks.filter((t) => t.prompt)),
     request: vi.fn(),
     remove: vi.fn(),
     failures$,
+    added$,
   };
   const api = { cancelOrDismiss: vi.fn().mockReturnValue(of(null)) };
   const messages = { add: vi.fn() };
@@ -40,7 +42,7 @@ function setup(tasks: PluginTask[]) {
     answer(t: PluginTask): void;
     stop(t: PluginTask): void;
   };
-  return { fixture, el: fixture.nativeElement as HTMLElement, store, api, messages, c, failures$ };
+  return { fixture, el: fixture.nativeElement as HTMLElement, store, api, messages, c, failures$, added$ };
 }
 
 describe('TasksIndicator', () => {
@@ -82,5 +84,22 @@ describe('TasksIndicator', () => {
     const { messages, failures$ } = setup([]);
     failures$.next(task({ state: 'failed', message: 'Bad password' }));
     expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', detail: 'Bad password' }));
+  });
+
+  it('opens the list when a task is added', async () => {
+    const { fixture, el, store, added$ } = setup([task({ id: 'a' })]);
+    const show = vi.spyOn(fixture.debugElement.query((d) => d.name === 'p-popover').componentInstance, 'show');
+    added$.next(task({ id: 'b' }));
+    await new Promise((r) => setTimeout(r));
+    expect(show).toHaveBeenCalledWith(expect.anything(), el.querySelector('[data-testid="tasks-indicator"]'));
+    expect(store.tasks().length).toBe(1);
+  });
+
+  it('closes the list when the last task goes', () => {
+    const { fixture, store } = setup([task({ id: 'a' })]);
+    const hide = vi.spyOn(fixture.debugElement.query((d) => d.name === 'p-popover').componentInstance, 'hide');
+    store.tasks.set([]);
+    fixture.detectChanges();
+    expect(hide).toHaveBeenCalled();
   });
 });

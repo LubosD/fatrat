@@ -58,6 +58,15 @@ describe('TasksStore', () => {
     expect(failed).toEqual(['a']);
   });
 
+  it('announces tasks that appear by push, not the ones loaded at start', () => {
+    const { store, taskEvents$ } = setup([makeTask({ id: 'a' })]);
+    const added: string[] = [];
+    store.added$.subscribe((t) => added.push(t.id));
+    taskEvents$.next({ type: 'task', task: makeTask({ id: 'a', progress: 5 }) });
+    taskEvents$.next({ type: 'task', task: makeTask({ id: 'b' }) });
+    expect(added).toEqual(['b']);
+  });
+
   it('remembers which task the user asked to answer', () => {
     const { store } = setup();
     store.request('k9');

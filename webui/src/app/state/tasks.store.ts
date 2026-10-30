@@ -28,6 +28,10 @@ export class TasksStore {
   /** Tasks seen to change into "failed" (not ones that had already failed when loaded). */
   readonly failures$: Observable<PluginTask> = this.failures.asObservable();
 
+  private readonly added = new Subject<PluginTask>();
+  /** Tasks that appeared through a push, i.e. were started while this page was open. */
+  readonly added$: Observable<PluginTask> = this.added.asObservable();
+
   constructor() {
     this.socket.taskEvents$.subscribe((event) => this.apply(event));
     this.socket.connected$.subscribe(() => this.reload());
@@ -64,6 +68,7 @@ export class TasksStore {
     if (task.state === 'failed' && previous?.state !== 'failed') {
       this.failures.next(task);
     }
+    if (!previous) this.added.next(task);
     this.tasks.update((tasks) =>
       previous ? tasks.map((t) => (t.id === task.id ? task : t)) : [...tasks, task],
     );

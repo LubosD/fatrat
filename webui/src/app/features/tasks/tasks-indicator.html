@@ -1,5 +1,5 @@
 @if (store.tasks().length) {
-  <button type="button" class="tasks-indicator" [class.waiting]="store.openPrompts().length > 0"
+  <button #indicator type="button" class="tasks-indicator" [class.waiting]="store.openPrompts().length > 0"
           data-testid="tasks-indicator" title="Plugin tasks" (click)="popover.toggle($event)">
     <i class="pi" [class.pi-question-circle]="store.openPrompts().length > 0"
        [class.pi-cog]="store.openPrompts().length === 0"></i>

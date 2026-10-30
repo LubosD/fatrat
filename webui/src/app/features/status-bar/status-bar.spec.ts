@@ -16,7 +16,7 @@ describe('StatusBar', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: TransferApi, useValue: api },
-        { provide: TasksStore, useValue: { tasks: signal([]), openPrompts: signal([]), failures$: new Subject() } },
+        { provide: TasksStore, useValue: { tasks: signal([]), openPrompts: signal([]), failures$: new Subject(), added$: new Subject() } },
         { provide: TasksApi, useValue: {} },
         { provide: MessageService, useValue: { add: vi.fn() } },
         {
