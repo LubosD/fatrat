@@ -361,7 +361,14 @@ void HttpService::registerRoutes(httplib::Server& server, bool authenticated)
 			if (!ok) {
 				res.status = 401;
 				res.set_header("WWW-Authenticate", "Basic realm=\"FatRat\"");
-				res.set_content("Unauthorized", "text/plain");
+				// Same envelope as every /api/v1 error
+				QJsonObject err;
+				err["code"] = "unauthorized";
+				err["message"] = "Authentication required";
+				QJsonObject root;
+				root["error"] = err;
+				const QByteArray body = QJsonDocument(root).toJson(QJsonDocument::Compact);
+				res.set_content(body.constData(), body.size(), "application/json");
 				return httplib::Server::HandlerResponse::Handled;
 			}
 			return httplib::Server::HandlerResponse::Unhandled;
