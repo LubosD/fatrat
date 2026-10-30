@@ -7,7 +7,73 @@
 
 <h1>Clipboard Monitor</h1>
 
-<p>This page is being written.</p>
+<p><b>Desktop only.</b> The web interface and fatrat-tui have no clipboard monitor.</p>
+
+<p>
+The clipboard monitor watches what you copy. When the copied text holds a link that matches one of your patterns, FatRat offers to download it.
+</p>
+
+<h2>What it watches</h2>
+
+<p>It can watch two clipboards. Each one is turned on separately, and both are off by default.</p>
+
+<dl>
+<dt><b>Enable for global clipboard</b></dt>
+<dd>The normal clipboard: text you copy with Ctrl+C or a <b>Copy</b> menu item.</dd>
+<dt><b>Enable for selection clipboard</b></dt>
+<dd>On Linux, the text you select with the mouse (the X11 primary selection), which you can paste with the middle button. Other systems have no selection clipboard, so this option does nothing there.</dd>
+</dl>
+
+<h2>What happens when a link matches</h2>
+
+<p>
+FatRat opens the <b>New transfer</b> dialog with the matching links filled in. Nothing is added until you click <b>OK</b> in that dialog, so you can still change the queue or the destination, or cancel. The dialog starts with the queue selected in the main window, or the first queue if none is selected. If the dialog is already open, the new links are added to the ones in it. If FatRat has no queue yet, nothing happens. See <a href="../transfers/index.html">Transfers and Queues</a>.
+</p>
+
+<p>
+Only the parts of the text that match are used. The rest of the copied text is ignored, and a link found twice is added once.
+</p>
+
+<h2>The patterns</h2>
+
+<p>
+The links to catch are described by regular expressions (Perl-compatible, as in <code>QRegularExpression</code>). These are the defaults:
+</p>
+
+<pre>
+(http|ftp)://.+\.zip
+(http|ftp)://.+\.rar
+(http|ftp)://.+\.iso
+</pre>
+
+<p>
+So by default FatRat catches <code>http://</code> and <code>ftp://</code> links to <code>.zip</code>, <code>.rar</code> and <code>.iso</code> files. Links starting with <code>https://</code> are <i>not</i> caught by the defaults. To catch them too, change <code>(http|ftp)</code> to <code>(https?|ftp)</code>.
+</p>
+
+<h3>How matching works</h3>
+
+<ul>
+<li>Each pattern is searched for in the whole copied text, not line by line, and every place where it matches becomes a link.</li>
+<li>The patterns are tried in the order of the list. Text that one pattern has matched is taken out before the next pattern is tried.</li>
+<li>Matching is case-sensitive, so <code>\.zip</code> does not match <code>.ZIP</code>. Put <code>(?i)</code> at the start of a pattern to ignore case.</li>
+<li>A dot (<code>.</code>) also matches a line break. If you copy several links at once, <code>.+</code> can therefore swallow everything from the first link to the last one and make it one long "link". To match a link only up to the next space or line break, use <code>\S+</code> instead, for example <code>(https?|ftp)://\S+\.zip</code>.</li>
+</ul>
+
+<h2>Settings</h2>
+
+<p>
+The settings are in <b>Settings</b> → <b>Settings...</b>, on the <b>Clipboard monitor</b> page. The <b>Settings</b> menu also has a <b>Clipboard monitor</b> item that opens that page directly.
+</p>
+
+<p>The page has the two check boxes described above and the list <b>Regular expressions to catch</b>:</p>
+
+<ul>
+<li><b>Add</b> adds an empty line to the list. Type the pattern and press Enter.</li>
+<li><b>Edit</b> lets you change the selected pattern.</li>
+<li><b>Delete</b> removes the selected pattern.</li>
+</ul>
+
+<p>Click <b>OK</b> to save your changes. They take effect straight away.</p>
 
 </body>
 </html>
