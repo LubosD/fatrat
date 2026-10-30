@@ -56,7 +56,7 @@ A new installation answers <code>(['Main queue'],)</code>.
 <pre>addTransfersNonInteractive(in s uris, in s target, in s className, in i queueID)</pre>
 
 <p>
-Adds transfers without showing any dialog. Works with the desktop and with <code>fatrat-nogui</code>.
+Adds transfers without showing any dialog. Works with the desktop and with <code>fatrat-nogui</code>. The call returns nothing, so you cannot tell whether it worked. To get the result, use <code>addTransfersChecked</code>, which takes the same arguments.
 </p>
 
 <dl>
@@ -75,11 +75,27 @@ Adds transfers without showing any dialog. Works with the desktop and with <code
   "http://example.com/a.zip" "/home/me/Downloads" auto 0</pre>
 
 <p>
-The call returns nothing, whether it worked or not. If the links are empty, the queue number is out of range or the type is unknown, FatRat writes the reason to its log and adds nothing.
+If the links are empty, the queue number is out of range or the type is unknown, FatRat writes the reason to its log and adds nothing.
+</p>
+
+<h3>addTransfersChecked</h3>
+
+<pre>addTransfersChecked(in s uris, in s target, in s className, in i queueID) -&gt; s</pre>
+
+<p>
+The same as <code>addTransfersNonInteractive</code>, but it returns a string: an empty string if all the transfers were added, or a message that says what went wrong. If a link in the middle of the list fails, the links before it have already been added.
+</p>
+
+<pre>gdbus call --session --dest info.dolezel.fatrat --object-path / \
+  --method info.dolezel.fatrat.addTransfersChecked \
+  "http://example.com/a.zip" "/home/me/Downloads" auto 0</pre>
+
+<p>
+It answers <code>('',)</code> on success, and for example <code>('queueID is out of range',)</code> when the queue number is wrong.
 </p>
 
 <p>
-For a way to add transfers that reports errors, and to manage them afterwards, see <a href="rest/index.html">REST API</a>.
+To manage transfers afterwards, and for a richer way to add them, see <a href="rest/index.html">REST API</a>.
 </p>
 
 </body>
