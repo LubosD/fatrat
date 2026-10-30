@@ -9,10 +9,14 @@
 <h1>Watch Folders</h1>
 
 <p>
-Each queue can watch a folder. Any supported file you put into that folder is added to the queue automatically, and no one needs to click anything. This is handy on servers, with scripts, with shared folders on your network, and with programs such as Sonarr and Radarr, which can save the files they find into a folder ("torrent blackhole").
+Each <a href="../transfers/index.html">queue</a> can watch a folder. Any supported file you put into that folder is added to the queue automatically, and no one needs to click anything. This is handy on servers, with scripts, with shared folders on your network, and with programs such as Sonarr and Radarr, which can save the files they find into a folder ("torrent blackhole").
 </p>
 
-<h3>What is picked up</h3>
+<p>
+On a server without a window, a watch folder is an easy way to hand files over to FatRat: copy them in over the network or SSH. See <a href="../server/index.html">Running on a Server</a>.
+</p>
+
+<h2>What is picked up</h2>
 
 <ul>
 <li><code>.torrent</code> files</li>
@@ -29,23 +33,23 @@ File extensions are not case-sensitive. Hidden files and all other kinds of file
 A file is processed once its size and modification time have not changed for 2 seconds, so a file that is still being copied in is not read half-written, as long as the copy doesn't stall for longer than that. Writing the file somewhere else and then moving it into the folder is always safe. A list of links that keeps growing while it is being added may have its first links added twice.
 </p>
 
-<h3>Setting it up</h3>
+<h2>Setting it up</h2>
 
 <p>
 A folder must be given as an absolute path, and two queues cannot watch the same folder. Leave the field empty to turn watching off.
 </p>
 
 <ul>
-<li><b>Desktop:</b> choose <code>Queue - Properties...</code>, then check <code>Add files dropped into a watch folder</code> and enter the folder (or use the browse button).</li>
-<li><b>Web interface:</b> select the queue and open <code>Queue Properties</code> in the toolbar (or right-click the queue and choose <code>Properties</code>). Enter the folder in the <code>Watch folder</code> field, or use <code>Browse...</code>.</li>
-<li><b>Terminal interface (fatrat-tui):</b> select the queue and edit it (Ctrl-E). Enter the folder in the <code>Watch folder</code> field. Ctrl-B browses for a folder.</li>
-<li><b>REST API:</b> send <code>watchDirectory</code> when creating a queue (POST /queues) or changing one (PATCH /queues/{uuid}). The read-only <code>watchStatus</code> field reports the state.</li>
+<li><b>Desktop:</b> choose <b>Queue</b> → <b>Properties...</b>, then check <b>Add files dropped into a watch folder</b> and enter the folder (or use the browse button).</li>
+<li><b>Web interface:</b> select the queue and click <b>Queue Properties</b> in the toolbar (or right-click the queue and choose <b>Properties</b>). Enter the folder in the <b>Watch folder</b> field, or use <b>Browse…</b>. See <a href="../web/index.html">Web Interface</a>.</li>
+<li><b>Terminal:</b> in <code>fatrat-tui</code>, select the queue and press <b>E</b> to edit it. Enter the folder in the <b>Watch folder</b> field. Ctrl-B browses for a folder. See <a href="../tui/index.html">Terminal Interface</a>.</li>
+<li><b><a href="../rest/index.html">REST API</a>:</b> send <code>watchDirectory</code> when creating a queue (POST /queues) or changing one (PATCH /queues/{uuid}). The read-only <code>watchStatus</code> field reports the state.</li>
 </ul>
 
-<h3>What happens to the files</h3>
+<h2>What happens to the files</h2>
 
 <p>
-New transfers are added to the queue and saved to the queue's target directory. They start as soon as the queue allows it; until then they are in the Waiting state.
+New transfers are added to the queue and saved to the queue's <b>Destination directory</b> (<b>Target directory</b> in the web interface, <b>Default directory</b> in the terminal). See <a href="../transfers/index.html">Transfers and Queues</a>. They start as soon as the queue allows it; until then they are in the Waiting state.
 </p>
 
 <p>
@@ -66,16 +70,16 @@ FatRat needs write access to the folder, including the permission to enter it, t
 </p>
 
 <p>
-Don't use a queue's target directory as its watch folder: a <code>.torrent</code> that FatRat itself is still downloading there could be picked up half-written.
+Don't use a queue's destination directory as its watch folder: a <code>.torrent</code> that FatRat itself is still downloading there could be picked up half-written.
 </p>
 
-<h3>Network folders</h3>
+<h2>Network folders</h2>
 
 <p>
 On local disks FatRat is told about new files by the operating system. Network mounts (NFS, SMB, sshfs) often do not report changes made from other machines, so every watch folder is also rescanned every 60 seconds. A file dropped into a network folder may therefore take up to a minute to be noticed.
 </p>
 
-<h3>Problems</h3>
+<h2>Problems</h2>
 
 <p>
 Every queue with a watch folder has a status:
@@ -97,5 +101,4 @@ Everything the watch folders do is written to the log with the sender "Watch fol
 </p>
 
 </body>
-
 </html>
