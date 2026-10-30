@@ -1,5 +1,5 @@
 # Per-user FatRat server:  systemctl --user enable --now fatrat
-# Settings and data live in the user's home as usual (~/.config/fatrat, ~/.local/share/fatrat).
+# Settings and data live in the user's home as usual (~/.config/Dolezel/fatrat.conf, ~/.local/share/fatrat).
 # fatrat-tui finds it on the default unix socket. To keep it running after logout:
 #   sudo loginctl enable-linger $USER
 [Unit]
