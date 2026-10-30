@@ -26,7 +26,7 @@
 <dd>Marks the torrent as private. BitTorrent programs then find peers only through the trackers, never through DHT. Some private torrent sites require this.</dd>
 </dl>
 
-<p>Below these are three tabs. A right-click in the lists of the <b>Trackers</b> and <b>DHT nodes</b> tabs opens a menu with <b>Add</b>, <b>Edit</b> and <b>Delete</b>, and <b>Add known</b>, which offers a few well-known public trackers.</p>
+<p>Below these are three tabs. A right-click in the lists of the <b>Trackers</b> and <b>DHT nodes</b> tabs opens a menu with <b>Add</b>, <b>Edit</b> and <b>Delete</b>, and <b>Add known</b>, which offers a list of public trackers shipped with FatRat (some may be out of date). The DHT nodes tab has the same menu.</p>
 
 <dl>
 <dt>Trackers</dt>
@@ -39,7 +39,7 @@
 
 <h2>Creating the file</h2>
 
-<p>Click <b>Create</b>. FatRat reads all the data to compute the checksums, which takes a while for large data; a progress bar shows how far it is. Then FatRat asks where to save the <code>.torrent</code> file. The dialog closes when the file is saved. If the data path is not valid, FatRat says "The data path is invalid." and nothing is created.</p>
+<p>Click <b>Create</b>. FatRat reads all the data to compute the checksums, which takes a while for large data; a progress bar shows how far it is. Then FatRat asks where to save the <code>.torrent</code> file. The dialog closes as soon as the checksums are done, even if you cancel the save dialog, in which case the torrent is lost and you have to create it again. If the data path is not valid, FatRat says "The data path is invalid." and nothing is created.</p>
 
 <h2>Sharing the torrent</h2>
 

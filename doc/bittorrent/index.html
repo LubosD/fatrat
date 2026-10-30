@@ -18,7 +18,7 @@
 <ul>
 <li><b>Magnet links</b>, which start with <code>magnet:?xt=urn:btih:</code>. FatRat first downloads the torrent's metadata from other peers. Until then the transfer shows "Downloading metadata" instead of a name, and the list of files is not available.</li>
 <li><b>Links to <code>.torrent</code> files</b> (http or ftp). FatRat downloads the file, then starts the torrent. Some torrent sites hand out torrent files from links that do not end in <code>.torrent</code>. FatRat knows the link patterns of a few of them, from the file <code>btlinks.txt</code> in its data directory.</li>
-<li><b>Local <code>.torrent</code> files.</b> On the desktop, use <b>Add special</b> in the New transfer dialog. In the web interface, use <b>Choose files…</b> under <b>Local files (e.g. .torrent)</b>. In the terminal client, enter the path of the file in <b>Links</b>; it is uploaded to FatRat.</li>
+<li><b>Local <code>.torrent</code> files.</b> On the desktop, use <b>Add special</b> → <b>Add local files...</b> in the New transfer dialog. In the web interface, use <b>Choose files…</b> under <b>Local files (e.g. .torrent)</b>. In the terminal client, enter the path of the file in <b>Links</b>; it is uploaded to FatRat.</li>
 </ul>
 
 <p>You can also drop <code>.torrent</code> and <code>.magnet</code> files into a queue's <a href="../watchfolders/index.html">watch folder</a>, or let <a href="../rss/index.html">RSS</a> add them.</p>
@@ -53,7 +53,7 @@
 <p>The ratio for new torrents is set in the BitTorrent settings (see below). It is 1 at first. You can set different limits for one torrent in its properties:</p>
 
 <ul>
-<li><b>Desktop:</b> <b>Transfer</b> → <b>Properties...</b>, page <b>Details</b>, <b>Seeding limits</b>. Tick <b>Seed up to ratio</b> and enter the ratio; tick <b>Seed until specified amount of data has been uploaded</b> and enter the amount in MB. If you leave <b>Seed up to ratio</b> unticked, the torrent completes as soon as it is downloaded, unless the amount limit applies.</li>
+<li><b>Desktop:</b> <b>Transfer</b> → <b>Properties...</b>, page <b>Details</b>, <b>Seeding limits</b>. Tick <b>Seed up to ratio</b> and enter the ratio; tick <b>Seed until specified amount of data has been uploaded</b> and enter the amount in MB. If you leave <b>Seed up to ratio</b> unticked, the torrent completes as soon as it is downloaded. The amount limit only has an effect when <b>Seed up to ratio</b> is ticked.</li>
 <li><b>Web interface:</b> <b>Properties</b>, <b>Options</b>: <b>Seed up to ratio (0 = stop when downloaded)</b> and <b>Seed until uploaded (0 = no limit)</b>, in MB.</li>
 <li><b>Terminal:</b> the transfer properties (<code>E</code>) show the same fields under <b>Options</b>.</li>
 </ul>
@@ -70,7 +70,7 @@
 
 <dl>
 <dt>Listen port start, Listen port end</dt>
-<dd>(Web interface and terminal: <b>Listen port (from)</b> and <b>Listen port (to)</b>.) FatRat listens for connections from other peers on the first port, on IPv4 and IPv6. The defaults are 6881 and 6888. If you are behind a firewall or router, open or forward this port (or use <b>UPnP</b> or <b>NAT-PMP</b>, below).</dd>
+<dd>(Web interface and terminal: <b>Listen port (from)</b> and <b>Listen port (to)</b>.) FatRat listens for connections from other peers on the first port only, on IPv4 and IPv6; the end of the range is currently ignored. The defaults are 6881 and 6888. If you are behind a firewall or router, open or forward this port (or use <b>UPnP</b> or <b>NAT-PMP</b>, below).</dd>
 <dt>Seed up to ratio (default value)</dt>
 <dd>The ratio that new torrents start with. Default 1.</dd>
 <dt>Maximum connections (global/per torrent)</dt>
