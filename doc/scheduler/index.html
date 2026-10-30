@@ -31,13 +31,13 @@
 <p>Choose one of two kinds of schedule:</p>
 
 <ul>
-<li><b>Repeated</b>: a time of day and the days of the week it applies to, Monday to Sunday. A new action starts with every day selected. At least one day must stay selected.</li>
+<li><b>Repeated</b>: a time of day and the days of the week it applies to, Monday to Sunday. A new action starts with every day selected. The web and terminal front ends require at least one day. On the desktop an action with no day selected is accepted but never runs.</li>
 <li><b>One time</b>: a single date and time.</li>
 </ul>
 
 <p>Times are to the minute, and they are in the time zone of the computer that runs FatRat. FatRat checks once a minute. A one-time action stays in the list after it has run. It never runs again, but you can edit its date to reuse it, or delete it.</p>
 
-<p>If the queue has been deleted when the action is due, FatRat writes a message to its log and skips the action. The log is the <b>Log</b> tab in the web interface and the terminal client. Each action that runs is also logged, under "Scheduler".</p>
+<p>If the queue has been deleted when the action is due, FatRat writes a message to its log and skips the action. The log is the global log: the <b>Log</b> tab in the desktop window, the web interface and the terminal client. Each action that runs is also logged, under "Scheduler".</p>
 
 <h2>Setting up actions</h2>
 
@@ -54,7 +54,7 @@
 <li><b>Action</b>: <b>Resume all</b>, <b>Stop all</b> or <b>Set speed limit</b>. The last one shows <b>Download</b> and <b>Upload</b> fields in kB/s.</li>
 </ul>
 
-<p>Changes take effect when you click <b>OK</b> in the Settings dialog. <b>Cancel</b> discards them.</p>
+<p>Changes take effect when you click <b>OK</b> or <b>Apply</b> in the Settings dialog. <b>Cancel</b> discards them.</p>
 
 <h3>Web interface</h3>
 
@@ -65,7 +65,7 @@
 <li><b>Repeated</b> or <b>One time</b>. A repeated action asks for a <b>Time of day</b> and the days Mon to Sun. A one-time action asks for a <b>Date and time</b>.</li>
 </ul>
 
-<p>The times are in the server's time zone, not your browser's. Changes here are saved as soon as you click <b>Save</b> or <b>Delete</b>, and <b>Cancel</b> on the Settings dialog does not undo them.</p>
+<p>The times are in the server's time zone, not your browser's. Changes here are saved as soon as you click <b>Save</b>, or confirm a <b>Delete</b>, and <b>Cancel</b> on the Settings dialog does not undo them.</p>
 
 <h3>Terminal</h3>
 
