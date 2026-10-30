@@ -1378,6 +1378,19 @@ void TorrentWorker::processAlert(libtorrent::alert* aaa)
 			d->m_strError = errmsg;
 			d->enterLogMessage(tr("File error: %1").arg(errmsg));
 		}
+		else if(IS_ALERT(storage_moved_failed_alert))
+		{
+			// libtorrent leaves the data where it was, so the destination must go back too
+			const QString failedTarget = d->m_strTarget;
+			d->m_strTarget = QString::fromStdString(alert->handle.status(libtorrent::torrent_handle::query_save_path).save_path);
+			d->enterLogMessage(tr("Cannot move the data to %1: %2. The destination has been changed back to %3.")
+					.arg(failedTarget, errmsg, d->m_strTarget));
+			Queue::saveQueuesAsync();
+		}
+		else if(IS_ALERT_S(storage_moved_alert))
+		{
+			d->enterLogMessage(tr("The data have been moved to %1").arg(d->m_strTarget));
+		}
 		else if(IS_ALERT_S(tracker_announce_alert))
 		{
 			d->enterLogMessage(tr("Tracker announce: %1").arg(errmsg));
