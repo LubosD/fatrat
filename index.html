@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FatRat download manager</title>
+<meta name="description" content="FatRat is an open source download manager for Linux and macOS: HTTP(S), FTP(S) and BitTorrent, with queues, RSS, a scheduler and Python extensions. Use it from the desktop, a web browser or a terminal.">
+<meta name="theme-color" content="#1c160e">
+<meta property="og:title" content="FatRat download manager">
+<meta property="og:description" content="Open source download manager for Linux and macOS. HTTP(S), FTP(S), BitTorrent, RSS. Desktop, web and terminal front ends.">
+<meta property="og:image" content="https://fatrat.dolezel.info/img/og.jpg">
+<meta property="og:url" content="https://fatrat.dolezel.info/">
+<link rel="icon" href="img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+	<div class="wrap">
+		<a class="brand" href="#"><img src="img/logo.svg" alt="" width="28" height="34">FatRat</a>
+		<nav>
+			<a class="opt" href="#features">Features</a>
+			<a class="opt" href="#browser">Browser</a>
+			<a class="opt" href="#extensions">Extensions</a>
+			<a href="#install">Install</a>
+			<a href="docs/">Docs</a>
+			<a href="https://github.com/LubosD/fatrat">GitHub</a>
+		</nav>
+	</div>
+</header>
+
+<section class="hero">
+	<div class="wrap">
+		<div>
+			<h1>The download manager that <span>runs anywhere</span> you do.</h1>
+			<p>FatRat downloads over HTTP(S), FTP(S) and BitTorrent, keeps your transfers in queues, follows RSS feeds and runs on a schedule. You can drive it from the desktop app, a web browser, a terminal or a script, all at the same time.</p>
+			<div class="cta">
+				<a class="btn primary" href="#install">Install FatRat 1.3</a>
+				<a class="btn ghost" href="https://github.com/LubosD/fatrat">
+					<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+					Source code
+				</a>
+			</div>
+			<ul class="facts">
+				<li>Free software, GPL v3</li>
+				<li>Linux, BSD and macOS</li>
+				<li>Built on Qt 6</li>
+				<li>Since 2006</li>
+			</ul>
+		</div>
+		<img class="logo" src="img/logo.svg" alt="The FatRat mascot, a rat" width="360" height="435">
+	</div>
+</section>
+
+<section class="shots">
+	<div class="wrap">
+		<div class="tabs" role="tablist" aria-label="Screenshots">
+			<button role="tab" aria-selected="true" aria-controls="shot-desktop" id="t-desktop">Desktop</button>
+			<button role="tab" aria-selected="false" aria-controls="shot-web" id="t-web">Web interface</button>
+			<button role="tab" aria-selected="false" aria-controls="shot-tui" id="t-tui">Terminal</button>
+			<button role="tab" aria-selected="false" aria-controls="shot-graphs" id="t-graphs">Details &amp; graphs</button>
+		</div>
+		<figure class="panel" id="shot-desktop" role="tabpanel" aria-labelledby="t-desktop" style="margin:0">
+			<div class="frame"><img src="img/desktop.webp" alt="FatRat desktop application with a queue of Linux ISO downloads" width="1180" height="680"></div>
+			<figcaption>The Qt desktop application: queues on the left, transfers on the right, and a tray icon to keep it out of the way.</figcaption>
+		</figure>
+		<figure class="panel" id="shot-web" role="tabpanel" aria-labelledby="t-web" hidden style="margin:0">
+			<div class="pair">
+				<div class="frame"><img src="img/web.webp" alt="FatRat web interface showing a queue of torrent and HTTP downloads" width="2240" height="988" loading="lazy"></div>
+				<div class="frame phone"><img src="img/web-mobile.webp" alt="The web interface on a phone" width="780" height="1688" loading="lazy"></div>
+			</div>
+			<figcaption>The built-in web interface, on a desktop browser and on a phone. Leave FatRat running on a server and manage it from anywhere.</figcaption>
+		</figure>
+		<figure class="panel" id="shot-tui" role="tabpanel" aria-labelledby="t-tui" hidden style="margin:0">
+			<div class="frame"><img src="img/tui.webp" alt="fatrat-tui running in a terminal" width="1650" height="924" loading="lazy"></div>
+			<figcaption><code>fatrat-tui</code> works over SSH and in tmux. It's keyboard driven, the mouse works too, and the bottom line always shows which keys apply.</figcaption>
+		</figure>
+		<figure class="panel" id="shot-graphs" role="tabpanel" aria-labelledby="t-graphs" hidden style="margin:0">
+			<div class="pair even">
+				<div class="frame"><img src="img/web-details.webp" alt="Torrent details: piece map, availability and per-file priorities" width="2240" height="1260" loading="lazy"></div>
+				<div class="frame"><img src="img/web-graphs.webp" alt="Download and upload speed graph of a transfer" width="2240" height="1260" loading="lazy"></div>
+			</div>
+			<figcaption>Torrent details with the piece map and per-file priorities, and speed graphs for every transfer and queue.</figcaption>
+		</figure>
+	</div>
+</section>
+
+<section id="features">
+	<div class="wrap">
+		<h2>Everything a download manager should do</h2>
+		<p class="lead">Under development since 2006, and rebuilt in 2026 on Qt 6 with a new web interface, a terminal UI and a REST API.</p>
+		<div class="grid">
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+				<h3>Segmented HTTP and FTP</h3>
+				<p>HTTP, HTTPS, FTP and FTPS downloads over several connections per file, with mirror lists, Metalink and resume.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.2 10.8 7.6-3.6M8.2 13.2l7.6 3.6"/></svg></div>
+				<h3>BitTorrent</h3>
+				<p>.torrent files and magnet links through libtorrent-rasterbar, with DHT, per-file priorities and creating your own torrents.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+				<h3>Queues</h3>
+				<p>Each queue has its own directory, a "move when finished" target, speed limits, a cap on how many transfers run at once, and an optional watch folder: drop .torrent, .metalink or link-list files into it and they're added to the queue.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><path d="M5 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/></svg></div>
+				<h3>RSS and TV shows</h3>
+				<p>Regular-expression rules download new feed items. Episode tracking (season/episode or by date) fetches each episode only once.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+				<h3>Scheduler and limits</h3>
+				<p>Start or stop queues and change their speed limits at set times. Limits apply per transfer or per queue.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg></div>
+				<h3>Clipboard monitor</h3>
+				<p>Copy a link and FatRat offers to download it. There's also a drop box and an "open with FatRat" command line.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 4 7v5c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V7z"/></svg></div>
+				<h3>Uploads too</h3>
+				<p>FTP uploads, plus upload plugins for file hosting sites, run in the same queues as your downloads.</p>
+			</div>
+			<div class="card">
+				<div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg></div>
+				<h3>15 languages</h3>
+				<p>Translated into Czech, German, Spanish, French, Polish, Russian, Ukrainian, Chinese and more.</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="alt">
+	<div class="wrap">
+		<h2>Use it your way</h2>
+		<p class="lead">One FatRat, several ways in. Run the desktop app on your laptop, or the headless daemon on a server or NAS and connect to it from anywhere.</p>
+		<div class="fronts">
+			<div class="card">
+				<h3>Desktop application</h3>
+				<p>The full Qt interface with a tray icon and every setting in one place.</p>
+				<pre>fatrat
+fatrat --hidden   <span class="c"># start in the tray</span></pre>
+			</div>
+			<div class="card">
+				<h3>Headless + web interface</h3>
+				<p><code>fatrat-nogui</code> runs as a daemon and serves the web interface itself, with optional HTTPS.</p>
+				<pre>fatrat-nogui
+<span class="c"># then open http://server:2233/</span></pre>
+			</div>
+			<div class="card">
+				<h3>Terminal UI</h3>
+				<p>Finds a running FatRat by itself, or connects to a remote one by URL.</p>
+				<pre>fatrat-tui
+fatrat-tui --url https://nas:2233</pre>
+			</div>
+			<div class="card">
+				<h3>REST API and D-Bus</h3>
+				<p>A JSON API (with an OpenAPI description) for your own scripts and tools, and D-Bus on the desktop.</p>
+				<pre>curl -u x:PASS http://host:2233/api/v1/queues</pre>
+			</div>
+		</div>
+		<div class="card browser" id="browser">
+			<div>
+				<h3>Browser extension</h3>
+				<p>Right-click any link and choose <b>Send link to FatRat</b>. The link opens in your FatRat web interface, ready to add. Set the address of your own FatRat in the extension's options, or click <i>Set up the browser extension</i> in the web interface under Settings → Web Interface.</p>
+			</div>
+			<div class="stores">
+				<a class="store chrome" href="https://chromewebstore.google.com/detail/fatrat/dplnhpcfmlioabhlhkjckajfmpedmmkp">Get it for Chrome</a>
+				<a class="store firefox" href="https://addons.mozilla.org/firefox/addon/fatrat/">Get it for Firefox</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section id="extensions">
+	<div class="wrap split">
+		<div>
+			<h2>Extensions in plain Python</h2>
+			<p class="lead" style="margin-bottom:1rem">Some sites put a login, a countdown or a captcha in front of the file. A short Python plugin gets past it and hands FatRat the real link, which then downloads like any other transfer, with segments, speed limits and resume.</p>
+			<ul>
+				<li>Download, folder, upload, search and account-status plugins.</li>
+				<li>Install from any git repository you choose. There's no central store.</li>
+				<li>FatRat records the exact commit it installed, so updates only happen when you ask for them.</li>
+				<li>Manage them from the desktop, the web interface, the TUI or <code>fatrat-conf</code>.</li>
+			</ul>
+		</div>
+<pre><span class="c"># ~/.local/share/fatrat/plugins/example/__init__.py</span>
+import fatrat
+
+@fatrat.download_plugin(name="Example.com",
+                        url_pattern=r"https?://example\.com/f/\w+")
+class Example(fatrat.DownloadPlugin):
+    async def process_link(self, url):
+        page = await self.fetch(url)
+        await self.wait(30)
+        self.start_download(
+            page.search(r'href="([^"]+\.bin)"'))</pre>
+	</div>
+</section>
+
+<section id="install" class="alt install">
+	<div class="wrap">
+		<h2>Install</h2>
+		<p class="lead">Packages for Ubuntu, a Homebrew formula for macOS, a Docker image you build yourself, or a CMake build anywhere Qt 6.5 runs.</p>
+		<div class="tabs" role="tablist" aria-label="Installation method">
+			<button role="tab" aria-selected="true" aria-controls="in-ubuntu" id="ti-ubuntu">Ubuntu</button>
+			<button role="tab" aria-selected="false" aria-controls="in-macos" id="ti-macos">macOS</button>
+			<button role="tab" aria-selected="false" aria-controls="in-docker" id="ti-docker">Docker</button>
+			<button role="tab" aria-selected="false" aria-controls="in-source" id="ti-source">From source</button>
+		</div>
+		<div class="panel" id="in-ubuntu" role="tabpanel" aria-labelledby="ti-ubuntu">
+			<p>Signed apt repository for Ubuntu 26.10 and 26.04 LTS (amd64).</p>
+<pre>sudo install -d /etc/apt/keyrings
+sudo curl -fsSLo /etc/apt/keyrings/fatrat.gpg https://fatrat.dolezel.info/fatrat.gpg
+echo "deb [signed-by=/etc/apt/keyrings/fatrat.gpg] https://fatrat.dolezel.info $(. /etc/os-release; echo $VERSION_CODENAME) main" \
+    | sudo tee /etc/apt/sources.list.d/fatrat.list
+sudo apt update
+sudo apt install fatrat          <span class="c"># desktop version</span>
+sudo apt install fatrat-nogui    <span class="c"># headless version + terminal UI</span></pre>
+			<table class="pk">
+				<tr><th>fatrat</th><td>Qt desktop application</td></tr>
+				<tr><th>fatrat-nogui</th><td><code>fatrat-nogui</code> (controlled through the web interface) and <code>fatrat-tui</code></td></tr>
+				<tr><th>fatrat-common</th><td>Files shared by both (installed automatically)</td></tr>
+				<tr><th>fatrat-unpack</th><td>Optional plugin that unpacks downloaded RAR, 7z and ZIP archives (<code>fatrat-nogui-unpack</code> for the headless version)</td></tr>
+			</table>
+		</div>
+		<div class="panel" id="in-macos" role="tabpanel" aria-labelledby="ti-macos" hidden>
+			<p>A <a href="https://brew.sh/">Homebrew</a> formula that builds the latest source with BitTorrent, the web interface and Python extensions.</p>
+<pre>brew install --HEAD lubosd/fatrat/fatrat
+ln -sf "$(brew --prefix)/opt/fatrat/FatRat.app" /Applications/FatRat.app
+
+brew upgrade --fetch-HEAD fatrat   <span class="c"># update to the latest source</span></pre>
+			<p>The symlink puts <b>FatRat.app</b> in your Applications folder, and it keeps working after upgrades. <code>fatrat</code> is also on your <code>PATH</code>, e.g. <code>fatrat --nogui</code> for a headless instance. The formula lives in <a href="https://github.com/LubosD/homebrew-fatrat">LubosD/homebrew-fatrat</a>.</p>
+		</div>
+		<div class="panel" id="in-docker" role="tabpanel" aria-labelledby="ti-docker" hidden>
+			<p>A headless FatRat with HTTP(S)/FTP(S), BitTorrent, the web interface and the terminal UI.</p>
+<pre>git clone https://github.com/LubosD/fatrat.git && cd fatrat
+docker build -t fatrat .
+
+docker run -d --name fatrat -p 2233:2233 -p 6881:6881 -p 6881:6881/udp \
+       -e FATRAT_PASSWORD=secret -v fatrat-config:/config -v ~/Downloads:/downloads fatrat
+
+docker exec -it fatrat fatrat-tui   <span class="c"># terminal UI inside the running container</span></pre>
+			<p>The web interface is then at <code>http://localhost:2233/</code>. See the <a href="https://github.com/LubosD/fatrat#docker">README</a> for all options.</p>
+		</div>
+		<div class="panel" id="in-source" role="tabpanel" aria-labelledby="ti-source" hidden>
+			<p>Needs CMake 3.16+, Qt 6.5+ and a C++17 compiler. BitTorrent needs libtorrent-rasterbar 2.0+, and the web interface needs Node.js at build time.</p>
+<pre>git clone https://github.com/LubosD/fatrat.git && cd fatrat
+cmake -B build -DWITH_BITTORRENT=ON -DWITH_CURL=ON -DWITH_WEBINTERFACE=ON \
+      -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build -j
+sudo cmake --install build</pre>
+			<p>Add <code>-DWITH_GUI=OFF</code> for a headless server build, <code>-DWITH_TUI=ON</code> for the terminal client, or <code>-DWITH_EVERYTHING=ON</code> for all optional features. The full list of options is in the <a href="https://github.com/LubosD/fatrat#building">README</a>.</p>
+		</div>
+		<p>New to FatRat? The <a href="docs/">documentation</a> covers the desktop app, the web and terminal interfaces, and running FatRat on a server.</p>
+	</div>
+</section>
+
+<section>
+	<div class="wrap split" style="align-items:start">
+		<div>
+			<h2>Twenty years of FatRat</h2>
+			<p class="lead">FatRat started in 2006 as a Qt 4 download manager and has grown with Linux ever since. Bug reports and pull requests are welcome on <a href="https://github.com/LubosD/fatrat/issues">GitHub</a>.</p>
+			<p class="lead">Want FatRat in your language? Translations are plain Qt Linguist files in <a href="https://github.com/LubosD/fatrat/tree/master/locale"><code>locale/</code></a>.</p>
+		</div>
+		<ul class="timeline">
+			<li><b>2026 · FatRat 1.3</b><span>Qt 6, a new web interface, the terminal UI, a REST API, Python extensions and Ubuntu packages.</span></li>
+			<li><b>2015</b><span>Ported to Qt 5 and libtorrent 1.0.</span></li>
+			<li><b>2011 · 1.2 beta</b><span>Extension support for file hosting sites, and an AJAX web interface.</span></li>
+			<li><b>2010 · 1.1.3</b><span>Segmented downloads, RSS with TV show tracking, torrent search.</span></li>
+			<li><b>2008 · 1.0</b><span>First stable release.</span></li>
+			<li><b>2006</b><span>The project starts.</span></li>
+		</ul>
+	</div>
+</section>
+
+<footer>
+	<div class="wrap">
+		<div>FatRat © 2006–2026 Luboš Doležel · GNU GPL v3<br><small>Browser logos: <a href="https://fontawesome.com/license/free">Font Awesome Free</a>, CC BY 4.0. Chrome and Firefox are trademarks of their owners.</small></div>
+		<nav>
+			<a href="docs/">Documentation</a>
+			<a href="https://github.com/LubosD/fatrat">Source</a>
+			<a href="https://github.com/LubosD/fatrat/issues">Report a bug</a>
+			<a href="https://github.com/LubosD/fatrat/blob/master/docs/api/openapi.yaml">REST API</a>
+		</nav>
+	</div>
+</footer>
+
+<script>
+document.querySelectorAll('[role="tablist"]').forEach((list) => {
+	const tabs = [...list.querySelectorAll('[role="tab"]')];
+	const select = (tab) => {
+		tabs.forEach((t) => {
+			const on = t === tab;
+			t.setAttribute('aria-selected', on);
+			t.tabIndex = on ? 0 : -1;
+			document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+		});
+	};
+	tabs.forEach((t, i) => {
+		t.addEventListener('click', () => select(t));
+		t.addEventListener('keydown', (e) => {
+			const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+			if (d) { const n = tabs[(i + d + tabs.length) % tabs.length]; select(n); n.focus(); }
+		});
+	});
+	select(tabs[0]);
+});
+</script>
+</body>
+</html>

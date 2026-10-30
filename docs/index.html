@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FatRat · FatRat documentation</title>
+<meta name="theme-color" content="#1c160e">
+<link rel="icon" href="../img/favicon.png" type="image/png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+	<div class="wrap">
+		<a class="brand" href="../"><img src="../img/logo.svg" alt="" width="28" height="34">FatRat</a>
+		<nav>
+			<a href="../docs/">Docs</a>
+			<a href="https://github.com/LubosD/fatrat">GitHub</a>
+		</nav>
+	</div>
+</header>
+
+<div class="wrap docs">
+	<nav class="docs-nav" aria-label="Documentation">
+		<details open>
+			<summary>Contents</summary>
+			<ul>
+				<li><a href="index.html" aria-current="page">FatRat</a>
+					<ul>
+						<li><a href="transfers/index.html">Transfers and Queues</a>
+						</li>
+						<li><a href="server/index.html">Running on a Server</a>
+						</li>
+						<li><a href="web/index.html">Web Interface</a>
+						</li>
+						<li><a href="tui/index.html">Terminal Interface</a>
+						</li>
+						<li><a href="watchfolders/index.html">Watch Folders</a>
+						</li>
+						<li><a href="dropbox/index.html">Drop-box</a>
+						</li>
+						<li><a href="clipboard/index.html">Clipboard Monitor</a>
+						</li>
+						<li><a href="bittorrent/index.html">BitTorrent Support</a>
+							<ul>
+								<li><a href="bittorrent/create.html">Creating Torrents</a>
+								</li>
+							</ul>
+						</li>
+						<li><a href="rss/index.html">RSS Integration</a>
+						</li>
+						<li><a href="scheduler/index.html">Scheduler</a>
+						</li>
+						<li><a href="extensions/index.html">Extensions</a>
+							<ul>
+								<li><a href="plugins.html">Writing a FatRat Extension</a>
+								</li>
+							</ul>
+						</li>
+						<li><a href="cmdline.html">Command Line</a>
+						</li>
+						<li><a href="dbus.html">D-Bus Interface</a>
+						</li>
+						<li><a href="rest/index.html">REST API</a>
+						</li>
+						<li><a href="config.html">Configuration Files</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</details>
+	</nav>
+	<article class="docs-page">
+<h1>FatRat</h1>
+
+<p>FatRat is a free download and upload manager for Linux, BSD and macOS. It downloads over HTTP, HTTPS, FTP and FTPS, downloads torrents and Metalink files, and uploads files over FTP. Every transfer belongs to a queue, which decides where the files go, how fast they may transfer and how many transfers run at once.</p>
+
+<h2>Ways to use it</h2>
+
+<p>FatRat has three front ends:</p>
+
+<ul>
+<li><b>Desktop:</b> the desktop application, with a tray icon.</li>
+<li><b>Web interface:</b> a page in your browser, served by FatRat itself, also on a phone.</li>
+<li><b>Terminal:</b> <code>fatrat-tui</code>, which works in any terminal, also over SSH.</li>
+</ul>
+
+<p>You can use them at the same time, all against one running FatRat. On a server, FatRat can run without any window, and you use the web interface or the terminal to control it.</p>
+
+<p>Scripts and other programs can control FatRat through the <a href="rest/index.html">REST API</a>, and add transfers through the <a href="dbus.html">D-Bus interface</a>.</p>
+
+<h2>Where to start</h2>
+
+<ul>
+<li><a href="transfers/index.html">Transfers and Queues</a>: how to add transfers, what the transfer states mean, and how queues decide what runs.</li>
+<li><a href="server/index.html">Running on a Server</a>: running FatRat without a window, turning on the web interface, and controlling it from other machines.</li>
+<li><a href="web/index.html">Web Interface</a>: using FatRat from a browser.</li>
+<li><a href="tui/index.html">Terminal Interface</a>: using FatRat from a terminal with <code>fatrat-tui</code>.</li>
+</ul>
+
+<h2>Everything else</h2>
+
+<ul>
+<li><a href="watchfolders/index.html">Watch Folders</a>: add the files you save into a folder to a queue automatically.</li>
+<li><a href="dropbox/index.html">Drop-box</a>: a small desktop window you can drop links onto.</li>
+<li><a href="clipboard/index.html">Clipboard Monitor</a>: the desktop application offers to download links you copy.</li>
+<li><a href="bittorrent/index.html">BitTorrent Support</a>: downloading and seeding torrents.</li>
+<li><a href="bittorrent/create.html">Creating Torrents</a>: making a .torrent file from your own files.</li>
+<li><a href="rss/index.html">RSS Integration</a>: downloading new items from RSS feeds, including TV episodes.</li>
+<li><a href="scheduler/index.html">Scheduler</a>: starting and stopping queues and changing their speed limits at set times.</li>
+<li><a href="extensions/index.html">Extensions</a>: Python plugins for sites that need special handling.</li>
+<li><a href="plugins.html">Writing a FatRat Extension</a>: the plugin API, for developers.</li>
+<li><a href="cmdline.html">Command Line</a>: the options of the <code>fatrat</code> program.</li>
+<li><a href="dbus.html">D-Bus Interface</a>: adding transfers from scripts on the desktop.</li>
+<li><a href="rest/index.html">REST API</a>: the JSON API that the web interface and <code>fatrat-tui</code> use.</li>
+<li><a href="config.html">Configuration Files</a>: where FatRat keeps its settings and data files.</li>
+</ul>
+
+<h2>Getting help</h2>
+
+<p>Report bugs and ask questions in the GitHub issues at <a href="https://github.com/LubosD/fatrat/issues">github.com/LubosD/fatrat/issues</a>. Installation instructions are on the website, <a href="https://fatrat.dolezel.info/">fatrat.dolezel.info</a>.</p>
+	</article>
+</div>
+
+<script>
+	// The contents are folded on narrow screens, where they sit above the page, and open beside it otherwise.
+	const mq = matchMedia('(max-width: 820px)'), details = document.querySelector('.docs-nav details');
+	details.open = !mq.matches;
+	mq.addEventListener('change', () => details.open = !mq.matches);
+</script>
+</body>
+</html>

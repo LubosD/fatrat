@@ -1,0 +1,141 @@
+Package: fatrat
+Version: 1.3.2-1~ubuntu26.10.1
+Architecture: amd64
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Installed-Size: 7219
+Depends: fatrat-common (= 1.3.2-1~ubuntu26.10.1), libc6 (>= 2.38), libcurl4t64 (>= 7.56.1), libgcc-s1 (>= 3.3.1), libpython3.14 (>= 3.14.1), libqt6core6t64 (>= 6.11.2), libqt6dbus6 (>= 6.5), libqt6gui6 (>= 6.11.2), libqt6help6 (>= 6.6.0), libqt6network6 (>= 6.7.2), libqt6svg6 (>= 6.6.0), libqt6widgets6 (>= 6.5), libqt6xml6 (>= 6.6.0), libssl4 (>= 4.0.0), libstdc++6 (>= 14), libtorrent-rasterbar2.0t64 (>= 2.0.14)
+Recommends: qt6-svg-plugins
+Homepage: https://github.com/LubosD/fatrat
+Priority: optional
+Section: net
+Filename: pool/main/f/fatrat/fatrat_1.3.2-1~ubuntu26.10.1_amd64.deb
+Size: 4030408
+SHA256: b888e00640ea5466bf99399d7f54e3020cd509c04a75786c87fa14f1abfcc522
+SHA1: f1db7fa478a01197a90d54f1a98dcea60d27c7a9
+MD5sum: 9d26894a4751480e12d8d85a59c4d131
+Description: download manager - Qt desktop version
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains the Qt desktop application.
+
+Package: fatrat-common
+Source: fatrat
+Version: 1.3.2-1~ubuntu26.10.1
+Architecture: amd64
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Installed-Size: 5021
+Depends: libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libqt6core6t64 (>= 6.11.2), libstdc++6 (>= 13.1), systemd | systemd-standalone-sysusers | systemd-sysusers
+Recommends: python3-pip, git
+Homepage: https://github.com/LubosD/fatrat
+Priority: optional
+Section: net
+Filename: pool/main/f/fatrat/fatrat-common_1.3.2-1~ubuntu26.10.1_amd64.deb
+Size: 1015328
+SHA256: 3537760d2c11ceaf971b8e31df49b992089c878a217ca101f2341a40ea1edd2e
+SHA1: 0b6867e8b1cc6fa679b73cc348d6a875978cd147
+MD5sum: 8794124b068b3da43b3d309d65706cfc
+Description: download manager - common files
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains the files shared by the desktop (fatrat) and
+ the headless (fatrat-nogui) versions: the web interface, Python
+ extension support files, translations and the fatrat-conf tool.
+
+Package: fatrat-dev
+Source: fatrat
+Version: 1.3.2-1~ubuntu26.10.1
+Architecture: amd64
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Installed-Size: 167
+Depends: qt6-base-dev (>= 6.5)
+Homepage: https://github.com/LubosD/fatrat
+Priority: optional
+Section: net
+Filename: pool/main/f/fatrat/fatrat-dev_1.3.2-1~ubuntu26.10.1_amd64.deb
+Size: 16254
+SHA256: e5a7a77b1eb5ce06d2564935383c3daadf0240930dadda5387b447447f6e282f
+SHA1: f431c96b93b18b6806b2f2c9e3bc97b0784cae76
+MD5sum: 0d1e91f24c6366a27379bce46e210ec8
+Description: download manager - development files for native plugins
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains the headers needed to build native FatRat plugins.
+ A plugin has to be built against the headers of the version and
+ flavour it will be loaded into: /usr/include/fatrat belongs to the Qt
+ desktop version (fatrat), /usr/include/fatrat-nogui to fatrat-nogui.
+
+Package: fatrat-nogui
+Source: fatrat
+Version: 1.3.2-1~ubuntu26.10.1
+Architecture: amd64
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Installed-Size: 3377
+Depends: fatrat-common (= 1.3.2-1~ubuntu26.10.1), libc6 (>= 2.38), libcurl4t64 (>= 7.56.1), libgcc-s1 (>= 3.3.1), libncursesw6 (>= 6), libpython3.14 (>= 3.14.1), libqt6core6t64 (>= 6.11.2), libqt6network6 (>= 6.7.2), libqt6xml6 (>= 6.6.0), libssl4 (>= 4.0.0), libstdc++6 (>= 14), libtinfo6 (>= 6), libtorrent-rasterbar2.0t64 (>= 2.0.14)
+Homepage: https://github.com/LubosD/fatrat
+Priority: optional
+Section: net
+Filename: pool/main/f/fatrat/fatrat-nogui_1.3.2-1~ubuntu26.10.1_amd64.deb
+Size: 1198946
+SHA256: 98574793d9c77c11e39b42299fe10ddddb6c623b698b89f18096b5ef0e88706f
+SHA1: 1a936815cffbf630e672a2410c559366a9da7aaa
+MD5sum: 7f88210fab0f76d0c06eeadb2eb86da9
+Description: download manager - headless version and terminal UI
+ FatRat is a download manager supporting HTTP(S), FTP(S), BitTorrent,
+ RSS feeds, Python extensions and a web interface.
+ .
+ This package contains fatrat-nogui, a version without a graphical
+ user interface that is controlled through the web interface, and
+ fatrat-tui, a terminal (ncurses) client which can start fatrat-nogui
+ or connect to a running FatRat.
+
+Package: fatrat-nogui-unpack
+Source: fatrat-unpack
+Version: 1.3.2-1~ubuntu26.10.1
+Architecture: amd64
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Installed-Size: 396
+Depends: fatrat-nogui (= 1.3.2-1~ubuntu26.10.1), libarchive13t64 (>= 3.2.1), libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libqt6core6t64 (>= 6.11.2), libstdc++6 (>= 11)
+Conflicts: fatrat-unpack
+Homepage: https://github.com/LubosD/fatrat-unpack
+Priority: optional
+Section: net
+Filename: pool/main/f/fatrat-unpack/fatrat-nogui-unpack_1.3.2-1~ubuntu26.10.1_amd64.deb
+Size: 166630
+SHA256: cdd89508882e37f04a506c988725abfc6d90e8c63b9df404822716b35238f9c1
+SHA1: 7f4c24add09a047712d856b1fb0e10be28d0a6fa
+MD5sum: 6fbbc439ac6d4d23d3b32cfa744e03df
+Description: download manager plugin - unpack downloaded archives (headless)
+ A FatRat plugin that unpacks the archives a transfer downloaded: RAR
+ (including multi-volume), 7z and ZIP, and split .001/.002/... files.
+ It runs as a transfer action and a background task.
+ .
+ This is the build for the headless version of FatRat (fatrat-nogui),
+ which is controlled through the web interface or the terminal UI.
+ The plugin must match the flavour of FatRat it is loaded into, so only
+ one of fatrat-unpack and fatrat-nogui-unpack can be installed.
+
+Package: fatrat-unpack
+Version: 1.3.2-1~ubuntu26.10.1
+Architecture: amd64
+Maintainer: Lubos Dolezel <lubos@dolezel.info>
+Installed-Size: 395
+Depends: fatrat (= 1.3.2-1~ubuntu26.10.1), libarchive13t64 (>= 3.2.1), libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libqt6core6t64 (>= 6.11.2), libstdc++6 (>= 11)
+Conflicts: fatrat-nogui-unpack
+Homepage: https://github.com/LubosD/fatrat-unpack
+Priority: optional
+Section: net
+Filename: pool/main/f/fatrat-unpack/fatrat-unpack_1.3.2-1~ubuntu26.10.1_amd64.deb
+Size: 166508
+SHA256: a1e284b2e9811d035990c904cf93b54d883c27a68270f161508567e9f8a60038
+SHA1: 9abde417073e500c34fb190dbbc42fe5426c47b4
+MD5sum: 01d83335cc402616be71663a0c697d92
+Description: download manager plugin - unpack downloaded archives (desktop)
+ A FatRat plugin that unpacks the archives a transfer downloaded: RAR
+ (including multi-volume), 7z and ZIP, and split .001/.002/... files.
+ It runs as a transfer action and a background task.
+ .
+ This is the build for the Qt desktop version of FatRat (fatrat).
+

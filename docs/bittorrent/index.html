@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BitTorrent Support · FatRat documentation</title>
+<meta name="theme-color" content="#1c160e">
+<link rel="icon" href="../../img/favicon.png" type="image/png">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="top">
+	<div class="wrap">
+		<a class="brand" href="../../"><img src="../../img/logo.svg" alt="" width="28" height="34">FatRat</a>
+		<nav>
+			<a href="../../docs/">Docs</a>
+			<a href="https://github.com/LubosD/fatrat">GitHub</a>
+		</nav>
+	</div>
+</header>
+
+<div class="wrap docs">
+	<nav class="docs-nav" aria-label="Documentation">
+		<details open>
+			<summary>Contents</summary>
+			<ul>
+				<li><a href="../index.html">FatRat</a>
+					<ul>
+						<li><a href="../transfers/index.html">Transfers and Queues</a>
+						</li>
+						<li><a href="../server/index.html">Running on a Server</a>
+						</li>
+						<li><a href="../web/index.html">Web Interface</a>
+						</li>
+						<li><a href="../tui/index.html">Terminal Interface</a>
+						</li>
+						<li><a href="../watchfolders/index.html">Watch Folders</a>
+						</li>
+						<li><a href="../dropbox/index.html">Drop-box</a>
+						</li>
+						<li><a href="../clipboard/index.html">Clipboard Monitor</a>
+						</li>
+						<li><a href="index.html" aria-current="page">BitTorrent Support</a>
+							<ul>
+								<li><a href="create.html">Creating Torrents</a>
+								</li>
+							</ul>
+						</li>
+						<li><a href="../rss/index.html">RSS Integration</a>
+						</li>
+						<li><a href="../scheduler/index.html">Scheduler</a>
+						</li>
+						<li><a href="../extensions/index.html">Extensions</a>
+							<ul>
+								<li><a href="../plugins.html">Writing a FatRat Extension</a>
+								</li>
+							</ul>
+						</li>
+						<li><a href="../cmdline.html">Command Line</a>
+						</li>
+						<li><a href="../dbus.html">D-Bus Interface</a>
+						</li>
+						<li><a href="../rest/index.html">REST API</a>
+						</li>
+						<li><a href="../config.html">Configuration Files</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</details>
+	</nav>
+	<article class="docs-page">
+<h1>BitTorrent Support</h1>
+
+<p>FatRat downloads torrents with the BitTorrent engine, next to its HTTP and FTP downloads. A torrent is a transfer like any other: it lives in a queue, and you start, pause and remove it in the usual way. See <a href="../transfers/index.html">Transfers and Queues</a>.</p>
+
+<p>The one big difference is that a torrent does not finish when its download finishes. FatRat keeps it active and seeds it (uploads to other people) until a limit is reached. See <a href="#seeding">Seeding</a> below.</p>
+
+<h2>Adding torrents</h2>
+
+<p>Add a torrent like any other transfer, in the New transfer dialog (desktop and web interface) or in the terminal client. FatRat accepts:</p>
+
+<ul>
+<li><b>Magnet links</b>, which start with <code>magnet:?xt=urn:btih:</code>. FatRat first downloads the torrent's metadata from other peers. Until then the transfer shows "Downloading metadata" instead of a name, and the list of files is not available.</li>
+<li><b>Links to <code>.torrent</code> files</b> (http or ftp). FatRat downloads the file, then starts the torrent. Some torrent sites hand out torrent files from links that do not end in <code>.torrent</code>. FatRat knows the link patterns of a few of them, from the file <code>btlinks.txt</code> in its data directory.</li>
+<li><b>Local <code>.torrent</code> files.</b> On the desktop, use <b>Add special</b> → <b>Add local files...</b> in the New transfer dialog. In the web interface, use <b>Choose files…</b> under <b>Local files (e.g. .torrent)</b>. In the terminal client, enter the path of the file in <b>Links</b>; it is uploaded to FatRat.</li>
+</ul>
+
+<p>You can also drop <code>.torrent</code> and <code>.magnet</code> files into a queue's <a href="../watchfolders/index.html">watch folder</a>, or let <a href="../rss/index.html">RSS</a> add them.</p>
+
+<p>If you leave <b>Download as</b> (or <b>Auto detect</b>) alone, FatRat picks the BitTorrent engine for these links. If an ordinary HTTP or FTP download turns out to be a torrent file, FatRat can convert it into a torrent transfer. This is switched on with <b>Convert the transfer to BitTorrent if the downloaded file is found to be a torrent</b> on the <b>HTTP/FTP</b> settings page (on by default).</p>
+
+<p>FatRat keeps a copy of each <code>.torrent</code> file in <code>.local/share/fatrat/torrents</code> in the home directory of the user it runs as.</p>
+
+<h2>Choosing files and priorities</h2>
+
+<p>A torrent often holds many files. You can skip some and download others sooner.</p>
+
+<p><b>Desktop:</b> select the torrent and open the <b>Files</b> tab in the details panel. Right-click a file and choose <b>Priority</b>, then <b>Do not download</b>, <b>Normal</b>, <b>Increased</b> or <b>Maximum</b>. <b>Open</b> opens the file. The <b>Details</b> panel also has the tabs <b>General</b> (the tracker, whether the torrent is private, the share ratio, the piece length, the creator, the comment and the magnet link), <b>Peers</b> and <b>Pieces</b>.</p>
+
+<p>Another way: open the transfer's properties (<b>Transfer</b> → <b>Properties...</b>). Its <b>Details</b> page has <b>Files to download</b>, a tree of the files with a check box on each file and folder. Clear the box of a file to skip it.</p>
+
+<p><b>Web interface:</b> select the torrent and open <b>Details</b>. The files are in a table with the columns <b>File Name</b>, <b>File Size</b>, <b>Progress</b> and <b>Priority</b>. The priority is <b>Do not download</b>, <b>Normal</b>, <b>Increased</b> or <b>Maximum</b>.</p>
+
+<p><b>Terminal:</b> open the transfer (Enter) and go to the <b>Files</b> tab. <code>+</code> and <code>-</code> change the priority of a file, <code>S</code> skips it, <code>A</code> downloads all files, and Enter applies the changes. See <a href="../tui/index.html">Terminal Interface</a>.</p>
+
+<h2 id="seeding">Seeding</h2>
+
+<p>An active torrent has two phases: downloading and seeding. When all the files you asked for are downloaded, FatRat logs "The torrent has been downloaded" and the transfer counts as an upload from then on (this matters for the upload speed limit and the number of running uploads of its queue). FatRat marks the transfer <b>Completed</b> when one of these limits is reached:</p>
+
+<ul>
+<li>the <b>share ratio</b> is reached: the amount uploaded divided by the amount downloaded;</li>
+<li>or the transfer has uploaded a given number of megabytes.</li>
+</ul>
+
+<p>A torrent that you force start (<b>Force start</b> on the desktop, <b>Force Resume</b> in the web interface, <b>Force resume</b> in the terminal client) is never completed because of these limits. Use this to seed a torrent indefinitely.</p>
+
+<p>The ratio for new torrents is set in the BitTorrent settings (see below). It is 1 at first. You can set different limits for one torrent in its properties:</p>
+
+<ul>
+<li><b>Desktop:</b> <b>Transfer</b> → <b>Properties...</b>, page <b>Details</b>, <b>Seeding limits</b>. Tick <b>Seed up to ratio</b> and enter the ratio; tick <b>Seed until specified amount of data has been uploaded</b> and enter the amount in MB. If you leave <b>Seed up to ratio</b> unticked, or enter 0, the torrent completes as soon as it is downloaded (the tooltip of the check box says so). Because of that, the amount limit only has an effect when <b>Seed up to ratio</b> is ticked and above 0. An amount of 0 means no amount limit.</li>
+<li><b>Web interface:</b> <b>Properties</b>, <b>Options</b>: <b>Seed up to ratio (0 = stop when downloaded)</b> and <b>Seed until uploaded (0 = no limit)</b>, in MB.</li>
+<li><b>Terminal:</b> the transfer properties (<code>E</code>) show the same fields under <b>Options</b>.</li>
+</ul>
+
+<p><b>Use super seeding</b> is in the same place. Super seeding is a mode for the first seeder of a torrent: FatRat offers each piece to one peer at a time, which spreads the pieces more efficiently when nobody else has the full torrent yet.</p>
+
+<p>On the desktop, the properties of a torrent also let you edit the <b>URL seeds</b> (web addresses that serve the same files, starting with <code>http://</code>) and the <b>Trackers</b> (addresses starting with <code>http://</code> or <code>udp://</code>) of the torrent.</p>
+
+<h2>Settings</h2>
+
+<p><b>Desktop:</b> <b>Settings</b> → <b>Settings...</b>, page <b>BitTorrent</b>. <b>Web interface:</b> the <b>BitTorrent</b> page of the settings dialog. <b>Terminal:</b> press <code>O</code> (or F2) and pick the BitTorrent page. The web interface and the terminal client show most, but not all, of the settings below; the ones they lack are marked.</p>
+
+<h3>Main</h3>
+
+<dl>
+<dt>Listen port start, Listen port end</dt>
+<dd>(Web interface and terminal: <b>Listen port (from)</b> and <b>Listen port (to)</b>.) FatRat listens for connections from other peers, on IPv4 and IPv6, on the first free port from the start to the end of this range. The defaults are 6881 and 6888. If you are behind a firewall or router, open or forward the ports of the range (or use <b>UPnP</b> or <b>NAT-PMP</b>, below).</dd>
+<dt>External IP</dt>
+<dd>The address that FatRat announces to trackers as its own. Enter a literal IP address, such as <code>203.0.113.7</code>; a host name does not work. If it is empty or is not an IP address, the BitTorrent library decides. Leave it empty unless you know you need it.</dd>
+<dt>Seed up to ratio (default value)</dt>
+<dd>The ratio that new torrents start with. Default 1.</dd>
+<dt>Maximum connections (global/per torrent)</dt>
+<dd>How many peers FatRat connects to, in total and for each torrent. Default 200 and 200.</dd>
+<dt>Maximum uploads (global/per torrent)</dt>
+<dd>How many peers FatRat uploads to at the same time, in total and for each torrent. Default 5 and 5.</dd>
+<dt>Maximum open files</dt>
+<dd>How many files FatRat keeps open at once. Default 100.</dd>
+<dt>File allocation mode</dt>
+<dd>Full, Sparse or Compact. Default Full.</dd>
+<dt>Proxy</dt>
+<dd>Desktop only. <b>None</b>, or one of the proxy servers you have defined in the settings. FatRat connects to peers through it.</dd>
+<dt>Identify as</dt>
+<dd>Desktop only. How FatRat names itself to other peers: FatRat, μTorrent or Azureus/Vuze. Some private trackers only allow certain clients.</dd>
+<dt>Enable distributed tracker (DHT)</dt>
+<dd>Finds peers without a tracker. On by default. Torrents marked private never use DHT.</dd>
+<dt>Enable uTorrent Peer Exchange</dt>
+<dd>Lets peers tell each other about more peers. On by default. A change takes effect after FatRat is restarted.</dd>
+<dt>Enable Local Service Discovery</dt>
+<dd>Finds peers on your local network.</dd>
+<dt>Clean up the .torrent storage</dt>
+<dd>Desktop only. Deletes the stored copies of <code>.torrent</code> files whose torrents are no longer in FatRat, and reports how many it removed.</dd>
+</dl>
+
+<h3>Encryption</h3>
+
+<dl>
+<dt>Encryption of incoming connections, Encryption of outgoing connections</dt>
+<dd><b>Disabled</b>, <b>Enabled</b> or <b>Permit only encrypted</b>. The default is <b>Enabled</b> for both.</dd>
+<dt>Encryption levels</dt>
+<dd><b>Plaintext</b>, <b>RC4</b> or <b>Both</b>. Default <b>Both</b>.</dd>
+<dt>Prefer RC4</dt>
+<dd>Off by default.</dd>
+</dl>
+
+<h3>Port mapping</h3>
+
+<dl>
+<dt>Enable UPnP, Enable NAT-PMP</dt>
+<dd>Ask your router to forward the listen port to this computer automatically.</dd>
+</dl>
+
+<h3>Torrent search</h3>
+
+<p>Desktop only: <b>Open pages with details</b> is <b>in a new tab</b> or <b>in an external browser</b>.</p>
+
+<h2>Creating torrents</h2>
+
+<p>The desktop can make a <code>.torrent</code> file from your own files. See <a href="create.html">Creating Torrents</a>.</p>
+	</article>
+</div>
+
+<script>
+	// The contents are folded on narrow screens, where they sit above the page, and open beside it otherwise.
+	const mq = matchMedia('(max-width: 820px)'), details = document.querySelector('.docs-nav details');
+	details.open = !mq.matches;
+	mq.addEventListener('change', () => details.open = !mq.matches);
+</script>
+</body>
+</html>

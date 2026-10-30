@@ -1,0 +1,28 @@
+Origin: FatRat
+Label: FatRat
+Codename: resolute
+Date: Fri, 30 Oct 2026 18:50:43 UTC
+Architectures: amd64 arm64
+Components: main
+Description: FatRat download manager for Ubuntu resolute
+MD5Sum:
+ 20d1855c56f17cba6283651218bdec2d 6638 main/binary-amd64/Packages
+ 3927dc5d56d6d3f5278f8e7e5dfdf643 1957 main/binary-amd64/Packages.gz
+ 0c8c7d6f6faa61a2242bb5590fc0fe36 122 main/binary-amd64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 main/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 main/binary-arm64/Packages.gz
+ c879d91e6b298457c8c851297c43036e 122 main/binary-arm64/Release
+SHA1:
+ 7d93883e869e6977e3286037ebcfbfc9217ee22c 6638 main/binary-amd64/Packages
+ b80d3d9a91aaefa87b2cda56c325043c85f0c658 1957 main/binary-amd64/Packages.gz
+ 4a1699fee38905af90982fa2063029ffe3c53f65 122 main/binary-amd64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/binary-arm64/Packages.gz
+ 7abeaa2681d931c7526f3941e2fb995909174fef 122 main/binary-arm64/Release
+SHA256:
+ d6c4f00f9156546b140b6eb79f967ad1fb7b6d6d34c38e21fb5cbe447ec1bcc0 6638 main/binary-amd64/Packages
+ e08d20ff331433fb18c28a623f4df3301dc26c34e09f89a140e5d8813dce3b18 1957 main/binary-amd64/Packages.gz
+ ba8ffe62f11d7c0406d54658645c40e58eaa757d2681d6e2f0c4982ccb2eb541 122 main/binary-amd64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/binary-arm64/Packages.gz
+ 2ff2ff8b3b783b967d47330a294907cb33f0a16dd333aa297b8d0c824f914d0e 122 main/binary-arm64/Release
