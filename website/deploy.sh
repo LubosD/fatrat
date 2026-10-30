@@ -5,7 +5,7 @@
 #   website/deploy.sh [COMMIT MESSAGE]
 #
 # Both go into the gh-pages branch, checked out as a worktree in packaging/deb/gh-pages/, which is then
-# committed and pushed. Without a local repository (no REPO/dists), the apt files already in gh-pages are
+# committed as a single parentless commit and force-pushed, so old .deb files never pile up in history. Without a local repository (no REPO/dists), the apt files already in gh-pages are
 # left as they are and only the website is updated. The docs section (website/docs/) is generated from
 # doc/ by build-docs.py first.
 #
@@ -47,7 +47,10 @@ git -C "$PAGES" add -A
 if git -C "$PAGES" diff --cached --quiet; then
 	echo "gh-pages is up to date"
 else
-	git -C "$PAGES" commit -q -m "$MESSAGE"
-	git -C "$PAGES" push origin gh-pages
+	# One commit with no parent, force-pushed: the .deb files are binaries, and keeping every release in
+	# history would bloat the repository. (Git LFS is no option, GitHub Pages does not serve LFS files.)
+	COMMIT=$(git -C "$PAGES" commit-tree "$(git -C "$PAGES" write-tree)" -m "$MESSAGE")
+	git -C "$PAGES" reset -q --soft "$COMMIT"
+	git -C "$PAGES" push --force origin gh-pages
 	echo "Pushed; GitHub Pages will serve it at https://$DOMAIN/ in a minute or two"
 fi
