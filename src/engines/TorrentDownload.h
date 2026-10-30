@@ -126,6 +126,7 @@ private:
 	bool storeTorrent();
 	QString storedTorrentName() const;
 	static void fillSettings(libtorrent::settings_pack& settings);
+	void applyFilePriorities();
 private slots:
 	void torrentFileDone(QNetworkReply* reply);
 	void torrentFileReadyRead();
@@ -145,6 +146,7 @@ protected:
 	//qint64 m_nPrevDownload, m_nPrevUpload;
 	std::vector<libtorrent::download_priority_t> m_vecPriorities;
 	bool m_bHasHashCheck, m_bAuto, m_bSuperSeeding;
+	bool m_bSequential = false, m_bFirstLastPieces = false, m_bFirstLastApplied = false;
 	QList<QString> m_urlSeeds;
 	
 	QNetworkAccessManager* m_pFileDownload;

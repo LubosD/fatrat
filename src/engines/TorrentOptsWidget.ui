@@ -120,7 +120,7 @@ of data has been uploaded</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="5" column="0">
             <spacer>
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -137,6 +137,26 @@ of data has been uploaded</string>
             <widget class="QCheckBox" name="checkSuperSeeding">
              <property name="text">
               <string>Use super seeding</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="3">
+            <widget class="QCheckBox" name="checkSequential">
+             <property name="text">
+              <string>Download in sequential order</string>
+             </property>
+             <property name="toolTip">
+              <string>Fetch pieces in order, so that media can be previewed while it downloads.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="3">
+            <widget class="QCheckBox" name="checkFirstLast">
+             <property name="text">
+              <string>Download first and last pieces first</string>
+             </property>
+             <property name="toolTip">
+              <string>Prioritise both ends of each file, where media containers keep their index.</string>
              </property>
             </widget>
            </item>

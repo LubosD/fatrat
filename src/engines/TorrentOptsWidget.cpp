@@ -164,6 +164,8 @@ void TorrentOptsWidget::load()
 	for(size_t i=0;i<m_trackers.size();i++)
 		listTrackers->addItem(QString::fromStdString(m_trackers[i].url));
 	checkSuperSeeding->setChecked(m_download->m_bSuperSeeding);
+	checkSequential->setChecked(m_download->m_bSequential);
+	checkFirstLast->setChecked(m_download->m_bFirstLastPieces);
 }
 
 void TorrentOptsWidget::accepted()
@@ -182,7 +184,9 @@ void TorrentOptsWidget::accepted()
 			prio = libtorrent::dont_download;
 	}
 	
-	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
+	m_download->m_bFirstLastPieces = checkFirstLast->isChecked();
+	m_download->m_bSequential = checkSequential->isChecked();
+	m_download->applyFilePriorities();
 	
 	std::set<std::string> seeds = m_download->m_handle.url_seeds();
 	for (QString url : m_seeds)

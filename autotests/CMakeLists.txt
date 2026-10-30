@@ -19,6 +19,11 @@ if(WITH_BITTORRENT)
 	target_include_directories(tst_torrentseeding PRIVATE ${CMAKE_SOURCE_DIR}/src)
 	target_link_libraries(tst_torrentseeding Qt6::Core Qt6::Test)
 	add_test(NAME torrentseeding COMMAND tst_torrentseeding)
+
+	add_executable(tst_torrentedgepieces tst_torrentedgepieces.cpp)
+	target_include_directories(tst_torrentedgepieces PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_torrentedgepieces Qt6::Core Qt6::Test)
+	add_test(NAME torrentedgepieces COMMAND tst_torrentedgepieces)
 endif(WITH_BITTORRENT)
 
 add_executable(tst_legacyregex tst_legacyregex.cpp)

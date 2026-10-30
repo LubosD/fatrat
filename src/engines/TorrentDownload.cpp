@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "Queue.h"
 #include "TorrentDownload.h"
+#include "TorrentEdgePieces.h"
 #include "TorrentSeeding.h"
 #include "TorrentSessionOptions.h"
 #ifdef WITH_GUI
@@ -813,6 +814,8 @@ void TorrentDownload::load(const QDomNode& map)
 		m_seedLimitUpload = str.toInt();
 
 		m_bSuperSeeding = getXMLProperty(map, "superseeding").toInt() != 0;
+		m_bSequential = getXMLProperty(map, "sequential").toInt() != 0;
+		m_bFirstLastPieces = getXMLProperty(map, "firstlastpieces").toInt() != 0;
 		
 		m_strTarget = str = getXMLProperty(map, "target");
 		
@@ -913,7 +916,7 @@ void TorrentDownload::load(const QDomNode& map)
 					m_vecPriorities[i] = libtorrent::download_priority_t(static_cast<std::uint8_t>(priorities[i].toInt()));
 			}
 			
-			m_handle.prioritize_files(m_vecPriorities);
+			applyFilePriorities();
 		}
 		
 		std::vector<libtorrent::announce_entry> trackers;
@@ -988,11 +991,15 @@ QJsonObject TorrentDownload::optionsForm() const
 		QJsonObject{ { "type", "number" }, { "key", "seedUpload" }, { "title", tr("Seed until uploaded (0 = no limit)") },
 			{ "min", 0 }, { "max", 1000000000 }, { "suffix", "MB" } },
 		QJsonObject{ { "type", "checkbox" }, { "key", "superSeeding" }, { "title", tr("Use super seeding") } },
+		QJsonObject{ { "type", "checkbox" }, { "key", "sequential" }, { "title", tr("Download in sequential order") } },
+		QJsonObject{ { "type", "checkbox" }, { "key", "firstLastPieces" }, { "title", tr("Download first and last pieces first") } },
 	};
 	QJsonObject values = {
 		{ "seedRatio", m_seedLimitRatio },
 		{ "seedUpload", m_seedLimitUpload },
 		{ "superSeeding", m_bSuperSeeding },
+		{ "sequential", m_bSequential },
+		{ "firstLastPieces", m_bFirstLastPieces },
 	};
 	return QJsonObject{ { "fields", fields }, { "values", values } };
 }
@@ -1005,6 +1012,35 @@ void TorrentDownload::setOptions(const QJsonObject& values)
 		m_seedLimitUpload = values.value("seedUpload").toInt();
 	if (values.contains("superSeeding"))
 		m_bSuperSeeding = values.value("superSeeding").toBool();
+	if (values.contains("sequential"))
+		m_bSequential = values.value("sequential").toBool();
+	if (values.contains("firstLastPieces"))
+		m_bFirstLastPieces = values.value("firstLastPieces").toBool();
+}
+
+// Sets the file priorities, then boosts the first and last piece of each wanted file when
+// asked to: prioritize_files() recomputes every piece priority, so this must follow it.
+void TorrentDownload::applyFilePriorities()
+{
+	m_handle.prioritize_files(m_vecPriorities);
+	m_bFirstLastApplied = m_bFirstLastPieces;
+	if (!m_bFirstLastPieces || !m_info)
+		return;
+
+	const libtorrent::file_storage& fs = m_info->files();
+	for (int i = 0; i < fs.num_files(); i++)
+	{
+		const libtorrent::file_index_t fi(i);
+		if (size_t(i) < m_vecPriorities.size() && m_vecPriorities[i] == libtorrent::dont_download)
+			continue;
+		if (fs.pad_file_at(fi))
+			continue;
+		auto edge = TorrentEdgePieces::ofFile(fs.file_offset(fi), fs.file_size(fi), m_info->piece_length());
+		if (edge.first < 0)
+			continue;
+		m_handle.piece_priority(libtorrent::piece_index_t(edge.first), libtorrent::top_priority);
+		m_handle.piece_priority(libtorrent::piece_index_t(edge.second), libtorrent::top_priority);
+	}
 }
 
 void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
@@ -1072,6 +1108,8 @@ void TorrentDownload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "seedlimitratio", QString::number(m_seedLimitRatio));
 	setXMLProperty(doc, map, "seedlimitupload", QString::number(m_seedLimitUpload));
 	setXMLProperty(doc, map, "superseeding", QString::number(m_bSuperSeeding));
+	setXMLProperty(doc, map, "sequential", QString::number(m_bSequential));
+	setXMLProperty(doc, map, "firstlastpieces", QString::number(m_bFirstLastPieces));
 	
 	QString prio;
 	
@@ -1450,6 +1488,19 @@ void TorrentWorker::doWork()
 			//d->m_nPrevDownload = d->done();
 		}
 		
+		{
+			const bool isSequential = bool(d->m_handle.flags() & libtorrent::torrent_flags::sequential_download);
+			if (isSequential != d->m_bSequential)
+			{
+				if (d->m_bSequential)
+					d->m_handle.set_flags(libtorrent::torrent_flags::sequential_download);
+				else
+					d->m_handle.unset_flags(libtorrent::torrent_flags::sequential_download);
+			}
+			if (d->m_bFirstLastApplied != d->m_bFirstLastPieces)
+				d->applyFilePriorities();
+		}
+
 		if(d->isActive())
 		{
 			const bool isSuperSeeding = bool(d->m_handle.flags() & libtorrent::torrent_flags::super_seeding);
@@ -1589,7 +1640,7 @@ RestResult TorrentDownload::setFilePrioritiesRest(const RestRequest& req)
 	for (const QPair<int,int>& c : changes)
 		td->m_vecPriorities[c.first] = libtorrent::download_priority_t(static_cast<std::uint8_t>(c.second));
 
-	td->m_handle.prioritize_files(td->m_vecPriorities);
+	td->applyFilePriorities();
 	return RestResult::noContent();
 }
 

@@ -111,7 +111,7 @@ void TorrentDetails::setPriority(int p)
 {
 	for (int i : m_selFiles)
 		m_download->m_vecPriorities[i] = libtorrent::download_priority_t(p);
-	m_download->m_handle.prioritize_files(m_download->m_vecPriorities);
+	m_download->applyFilePriorities();
 }
 
 void TorrentDetails::openFile()
