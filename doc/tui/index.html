@@ -110,7 +110,7 @@ Starting a FatRat server of our own on the unix socket /run/user/1000/fatrat/res
 
 <p>The <b>Queues</b> pane on the left lists the queues with the number of transfers in each. Below the list it shows the current queue's default directory (<b>Dir</b>), the directory finished transfers are moved to (<b>Move</b>), the watch folder (<b>Watch</b>) and the speed limits (<b>Lim</b>). A queue whose watch folder has a problem gets a <code>!</code> before its name, and the <b>Watch</b> line names the problem.</p>
 
-<p>The <b>Transfers</b> pane on the right lists the transfers of the current queue with their name, state, progress, size, download speed and time left. When the terminal is at least 16 lines high, a <b>Details</b> strip at its bottom shows the selected transfer's name, path, class (the engine), limits and message.</p>
+<p>The <b>Transfers</b> pane on the right lists the transfers of the current queue with their name, state, progress, size, download speed and time left. When the terminal is at least 22 lines high (23 when it is narrower than 100 columns), a <b>Details</b> strip at its bottom shows the selected transfer's name, path, class (the engine), speed, limits, message and comment.</p>
 
 <p>In a terminal narrower than 100 columns, the Queues pane is replaced by a <b>Queue</b> line above the transfers; ← and → switch to the previous and next queue.</p>
 
@@ -271,7 +271,7 @@ Starting a FatRat server of our own on the unix socket /run/user/1000/fatrat/res
 
 <h2>Plain ASCII</h2>
 
-<p><code>fatrat-tui</code> draws boxes, arrows and progress bars with Unicode characters. It switches to plain ASCII characters when you give <code>--ascii</code>, or when the locale's character set isn't UTF-8 (when <code>LC_CTYPE</code>, or <code>LANG</code>, doesn't name a UTF-8 locale). It uses colours when the terminal supports them.</p>
+<p><code>fatrat-tui</code> draws boxes, arrows and progress bars with Unicode characters. It switches to plain ASCII characters when you give <code>--ascii</code>, or when the locale's character set isn't UTF-8 (when the locale set by <code>LC_ALL</code>, <code>LC_CTYPE</code> or <code>LANG</code> doesn't name UTF-8, or isn't installed). It uses colours when the terminal supports them.</p>
 
 <h2>More</h2>
 
