@@ -6,7 +6,7 @@ import { ConfirmEnter } from './confirm-enter.directive';
 
 @Component({
   imports: [ConfirmDialog, ConfirmEnter],
-  template: '<p-confirmDialog appConfirmEnter></p-confirmDialog>',
+  template: '<p-confirmdialog appConfirmEnter></p-confirmdialog>',
 })
 class Host {}
 
@@ -97,7 +97,7 @@ describe('ConfirmEnter', () => {
 
   it('does not accept on the Enter that opened the dialog', async () => {
     // Registered before the directive's listener, so it runs first and opens the dialog mid-event.
-    let opened: ReturnType<typeof vi.fn> | undefined;
+    let opened: (() => void) | undefined;
     const opener = (e: KeyboardEvent) => {
       if (e.key !== 'Enter' || opened) return;
       opened = vi.fn();

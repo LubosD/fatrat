@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
 import { SpeedGraphChart } from './speed-graph-chart';
@@ -12,6 +12,7 @@ import { activeGatedPoll } from '../../core/active-gated-poll';
 @Component({
   selector: 'app-speed-graphs-tab',
   imports: [SpeedGraphChart],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './speed-graphs-tab.html',
 })
 export class SpeedGraphsTab {

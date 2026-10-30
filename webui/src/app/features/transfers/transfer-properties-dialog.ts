@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Textarea } from 'primeng/textarea';
@@ -31,8 +41,20 @@ function messageOf(err: unknown): string {
  */
 @Component({
   selector: 'app-transfer-properties-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputNumber, ButtonDirective, InputText, InputGroup, DirectoryPicker, PathSuggest, FormField],
+  imports: [
+    FormsModule,
+    Dialog,
+    Textarea,
+    InputNumber,
+    ButtonDirective,
+    InputText,
+    InputGroup,
+    DirectoryPicker,
+    PathSuggest,
+    FormField,
+  ],
   templateUrl: './transfer-properties-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transfer-properties-dialog.scss',
 })
 export class TransferPropertiesDialog implements OnChanges {
@@ -76,7 +98,11 @@ export class TransferPropertiesDialog implements OnChanges {
   // reopening with a reference-equal input (e.g. null again, or the same object) would
   // otherwise leave stale, previously-edited-but-cancelled form values in place.
   ngOnChanges(changes: SimpleChanges): void {
-    if ('transfer' in changes || 'transferCount' in changes || changes['visible']?.currentValue === true) {
+    if (
+      'transfer' in changes ||
+      'transferCount' in changes ||
+      changes['visible']?.currentValue === true
+    ) {
       this.resetForm();
       this.loadOptions();
     } else if (changes['visible']?.currentValue === false) {
@@ -135,7 +161,8 @@ export class TransferPropertiesDialog implements OnChanges {
   private changedOptions(): Record<string, JsonValue> {
     const changed: Record<string, JsonValue> = {};
     for (const [key, value] of Object.entries(this.optionValues())) {
-      if (JSON.stringify(value) !== JSON.stringify(this.loadedOptionValues[key])) changed[key] = value;
+      if (JSON.stringify(value) !== JSON.stringify(this.loadedOptionValues[key]))
+        changed[key] = value;
     }
     return changed;
   }
@@ -164,8 +191,10 @@ export class TransferPropertiesDialog implements OnChanges {
     }
 
     const object = this.object.trim();
-    if (this.transferCount === 1 && object !== '' && object !== (t?.object ?? '')) properties['object'] = object;
-    if (this.completionCommand !== (t?.completionCommand ?? '')) properties['completionCommand'] = this.completionCommand;
+    if (this.transferCount === 1 && object !== '' && object !== (t?.object ?? ''))
+      properties['object'] = object;
+    if (this.completionCommand !== (t?.completionCommand ?? ''))
+      properties['completionCommand'] = this.completionCommand;
     return properties;
   }
 
@@ -184,7 +213,10 @@ export class TransferPropertiesDialog implements OnChanges {
     const uuid = t?.uuid;
     const session = this.saveSession;
 
-    const general$ = Object.keys(properties).length > 0 ? this.actions.updateProperties(properties) : of(undefined);
+    const general$ =
+      Object.keys(properties).length > 0
+        ? this.actions.updateProperties(properties)
+        : of(undefined);
 
     this.saving.set(true);
     this.saveError.set('');
@@ -196,7 +228,9 @@ export class TransferPropertiesDialog implements OnChanges {
                 tap(() => this.actions.refresh()),
                 map(() => undefined),
                 // The general properties are saved by now; say which part was refused.
-                catchError((err) => throwError(() => new Error(`Options not saved: ${messageOf(err)}`))),
+                catchError((err) =>
+                  throwError(() => new Error(`Options not saved: ${messageOf(err)}`)),
+                ),
               )
             : of(undefined),
         ),

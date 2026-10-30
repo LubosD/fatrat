@@ -2,8 +2,8 @@
 ARG UBUNTU_VERSION=26.10
 FROM ubuntu:${UBUNTU_VERSION}
 ARG DEBIAN_FRONTEND=noninteractive
-# Node.js for the Angular web UI (the distributions' npm is too old for Angular 21)
-ARG NODE_VERSION=24.14.0
+# Node.js for the Angular web UI (the distributions' npm is too old for Angular 22)
+ARG NODE_VERSION=24.15.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		build-essential devscripts equivs ca-certificates curl xz-utils lintian \

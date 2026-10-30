@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ConnectionHealth } from '../../core/connection-health.service';
 import { StatsStore } from '../../state/stats.store';
 import { formatSpeed } from '../transfers/format';
@@ -8,6 +8,7 @@ import { TasksIndicator } from '../tasks/tasks-indicator';
   selector: 'app-status-bar',
   imports: [TasksIndicator],
   templateUrl: './status-bar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './status-bar.scss',
 })
 export class StatusBar {

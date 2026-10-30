@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -18,6 +26,7 @@ export interface RssFeedFormValue {
   selector: 'app-rss-feed-dialog',
   imports: [FormsModule, Dialog, InputText, ButtonDirective],
   templateUrl: './rss-feed-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './rss-dialogs.scss',
 })
 export class RssFeedDialog implements OnChanges {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -17,6 +17,7 @@ const COUNTDOWN_SECONDS = 30;
 @Component({
   selector: 'app-captcha-dialog',
   imports: [FormsModule, Dialog, InputText, ButtonDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './captcha-dialog.html',
 })
 export class CaptchaDialog {

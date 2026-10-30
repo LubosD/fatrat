@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import type { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { QueuesStore } from '../../state/queues.store';
@@ -10,6 +10,7 @@ import { watchStatusProblem } from './watch-status';
   selector: 'app-queue-list',
   imports: [ContextMenu],
   templateUrl: './queue-list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './queue-list.scss',
 })
 export class QueueList {
@@ -23,10 +24,22 @@ export class QueueList {
 
   // Same entries as the desktop client's queue menu.
   protected readonly contextMenuItems: MenuItem[] = [
-    { label: 'Resume All', icon: 'pi pi-play', command: () => this.withSelectedQueue((uuid) => this.queueActions.resumeAll(uuid)) },
-    { label: 'Stop All', icon: 'pi pi-pause', command: () => this.withSelectedQueue((uuid) => this.queueActions.stopAll(uuid)) },
+    {
+      label: 'Resume All',
+      icon: 'pi pi-play',
+      command: () => this.withSelectedQueue((uuid) => this.queueActions.resumeAll(uuid)),
+    },
+    {
+      label: 'Stop All',
+      icon: 'pi pi-pause',
+      command: () => this.withSelectedQueue((uuid) => this.queueActions.stopAll(uuid)),
+    },
     { separator: true },
-    { label: 'Properties', icon: 'pi pi-sliders-h', command: () => this.propertiesRequested.emit() },
+    {
+      label: 'Properties',
+      icon: 'pi pi-sliders-h',
+      command: () => this.propertiesRequested.emit(),
+    },
     { separator: true },
     { label: 'Delete Queue', icon: 'pi pi-trash', command: () => this.deleteRequested.emit() },
   ];

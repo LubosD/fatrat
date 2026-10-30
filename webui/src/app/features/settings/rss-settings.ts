@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
@@ -34,8 +41,18 @@ const TVS_LABELS: Record<RssTvsMode, string> = {
  */
 @Component({
   selector: 'app-rss-settings',
-  imports: [FormsModule, TableModule, InputNumber, Checkbox, ButtonDirective, RssFeedDialog, RssRegexpDialog, RssDownloadedDialog],
+  imports: [
+    FormsModule,
+    TableModule,
+    InputNumber,
+    Checkbox,
+    ButtonDirective,
+    RssFeedDialog,
+    RssRegexpDialog,
+    RssDownloadedDialog,
+  ],
   templateUrl: './rss-settings.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './rss-dialogs.scss',
 })
 export class RssSettings {
@@ -66,7 +83,9 @@ export class RssSettings {
   protected readonly downloadedDialogOpen = signal(false);
   protected readonly downloadedRegexp = signal<RssRegexp | null>(null);
 
-  protected readonly canAddRegexp = computed(() => this.feeds().length > 0 && this.queues().length > 0);
+  protected readonly canAddRegexp = computed(
+    () => this.feeds().length > 0 && this.queues().length > 0,
+  );
 
   constructor() {
     this.transferApi.getSettingsValues([...KEYS]).subscribe({
@@ -140,7 +159,8 @@ export class RssSettings {
 
   protected saveFeed(value: RssFeedFormValue): void {
     const edited = this.editedFeed();
-    const request = edited === null ? this.api.createFeed(value) : this.api.updateFeed(edited.id, value);
+    const request =
+      edited === null ? this.api.createFeed(value) : this.api.updateFeed(edited.id, value);
     request.subscribe({
       next: () => {
         this.feedDialogOpen.set(false);
@@ -154,9 +174,10 @@ export class RssSettings {
     const count = this.regexps().filter((r) => r.feedId === feed.id).length;
     this.confirmation.confirm({
       header: 'Confirm Delete',
-      message: count === 0
-        ? `Delete the feed "${feed.name}"?`
-        : `Delete the feed "${feed.name}" and its ${count} ${count === 1 ? 'rule' : 'rules'}?`,
+      message:
+        count === 0
+          ? `Delete the feed "${feed.name}"?`
+          : `Delete the feed "${feed.name}" and its ${count} ${count === 1 ? 'rule' : 'rules'}?`,
       accept: () =>
         this.api.deleteFeed(feed.id).subscribe({
           next: () => this.reload(),
@@ -182,7 +203,8 @@ export class RssSettings {
 
   protected saveRegexp(value: RssRegexpFormValue): void {
     const edited = this.editedRegexp();
-    const request = edited === null ? this.api.createRegexp(value) : this.api.updateRegexp(edited.id, value);
+    const request =
+      edited === null ? this.api.createRegexp(value) : this.api.updateRegexp(edited.id, value);
     request.subscribe({
       next: () => {
         this.regexpDialogOpen.set(false);

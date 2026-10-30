@@ -56,9 +56,8 @@
             </span>
           </div>
           <button pButton type="button" size="small" [outlined]="!!entry.installedVersion && !isUpdate(entry)" data-testid="ext-install"
-                  [label]="isUpdate(entry) ? 'Update' : (entry.installedVersion ? 'Reinstall' : 'Install')"
                   [attr.aria-label]="'Install ' + entry.name"
-                  [disabled]="busy()" (click)="install(entry)"></button>
+                  [disabled]="busy()" (click)="install(entry)">{{ isUpdate(entry) ? 'Update' : (entry.installedVersion ? 'Reinstall' : 'Install') }}</button>
         </li>
       } @empty {
         <li class="hint">Nothing available — add a repository first.</li>

@@ -1,4 +1,17 @@
-import { ChangeDetectorRef, Component, signal, ElementRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  signal,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Observable, catchError, concatMap, from, map, of, tap, toArray } from 'rxjs';
 import { Dialog } from 'primeng/dialog';
@@ -16,8 +29,21 @@ import { PathSuggest } from '../../shared/path-suggest/path-suggest';
 
 @Component({
   selector: 'app-new-transfer-dialog',
-  imports: [FormsModule, Dialog, Textarea, InputText, InputNumber, Checkbox, Select, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
+  imports: [
+    FormsModule,
+    Dialog,
+    Textarea,
+    InputText,
+    InputNumber,
+    Checkbox,
+    Select,
+    ButtonDirective,
+    InputGroup,
+    DirectoryPicker,
+    PathSuggest,
+  ],
   templateUrl: './new-transfer-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './new-transfer-dialog.scss',
 })
 /**
@@ -58,7 +84,10 @@ export class NewTransferDialog implements OnChanges {
   // reopening with a reference-equal input (e.g. null again, or the same object) would
   // otherwise leave stale, previously-edited-but-cancelled form values in place.
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']?.currentValue === true || (!this.visible && ('defaultQueueUuid' in changes || 'queues' in changes))) {
+    if (
+      changes['visible']?.currentValue === true ||
+      (!this.visible && ('defaultQueueUuid' in changes || 'queues' in changes))
+    ) {
       this.resetForm();
     } else if (this.visible && !this.queueUuid) {
       // Background polling hands us a fresh `queues` array every refresh; while the dialog is open
@@ -81,7 +110,9 @@ export class NewTransferDialog implements OnChanges {
     const added = urls.filter((url) => !listed.has(url));
     if (added.length === 0) return;
     if (this.files.length > 0) this.onClearFiles();
-    this.urlsText = [this.urlsText.trimEnd(), ...added].filter((line) => line.length > 0).join('\n');
+    this.urlsText = [this.urlsText.trimEnd(), ...added]
+      .filter((line) => line.length > 0)
+      .join('\n');
   }
 
   protected focusUrls(): void {
@@ -155,7 +186,11 @@ export class NewTransferDialog implements OnChanges {
    * Uploads the files one request each, in order. Every file is tried even if an earlier one fails;
    * each accepted file leaves the list, so afterwards it holds just the failed ones for a retry.
    */
-  private uploadFiles(files: File[], options: NewTransferOptions, session: number): Observable<void> {
+  private uploadFiles(
+    files: File[],
+    options: NewTransferOptions,
+    session: number,
+  ): Observable<void> {
     return from(files).pipe(
       concatMap((file) =>
         this.actions.addTransferWithData(file, options).pipe(
@@ -163,7 +198,11 @@ export class NewTransferDialog implements OnChanges {
             if (session === this.session) this.files = this.files.filter((f) => f !== file);
           }),
           map(() => null),
-          catchError((err: unknown) => of(`${file.name}: ${err instanceof Error && err.message ? err.message : 'Failed to add the transfer.'}`)),
+          catchError((err: unknown) =>
+            of(
+              `${file.name}: ${err instanceof Error && err.message ? err.message : 'Failed to add the transfer.'}`,
+            ),
+          ),
         ),
       ),
       toArray(),
@@ -204,7 +243,10 @@ export class NewTransferDialog implements OnChanges {
       speedLimits: { down: (this.speedDown ?? 0) * 1024, up: (this.speedUp ?? 0) * 1024 },
     };
     const session = this.session;
-    const request = this.files.length > 0 ? this.uploadFiles(this.files, options, session) : this.actions.addTransfers(urls, options);
+    const request =
+      this.files.length > 0
+        ? this.uploadFiles(this.files, options, session)
+        : this.actions.addTransfers(urls, options);
 
     this.error.set('');
     this.saving.set(true);
@@ -229,7 +271,9 @@ export class NewTransferDialog implements OnChanges {
         this.queuedUrls = [];
         this.appendUrls(queued);
         this.cdr.markForCheck();
-        this.error.set(err instanceof Error && err.message ? err.message : 'Failed to add the transfer.');
+        this.error.set(
+          err instanceof Error && err.message ? err.message : 'Failed to add the transfer.',
+        );
       },
     });
   }

@@ -1,4 +1,15 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, Type, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  Type,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { Dialog } from 'primeng/dialog';
 import { ButtonDirective } from 'primeng/button';
@@ -13,6 +24,7 @@ import { SettingsPage } from '../../core/api/models';
   imports: [Dialog, ButtonDirective, NgComponentOutlet, NgTemplateOutlet],
   providers: [SettingsDraftService],
   templateUrl: './settings-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settings-dialog.scss',
 })
 export class SettingsDialog implements OnChanges {

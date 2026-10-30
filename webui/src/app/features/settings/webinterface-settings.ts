@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
@@ -11,11 +17,18 @@ import { WebinterfaceSettingsApiService } from '../../core/webinterface-settings
 import { JsonValue } from '../../core/api/json-value';
 import { browserExtensionPageUrl } from './browser-extension';
 
-const KEYS = ['remote/enable', 'remote/port', 'remote/password', 'remote/ssl', 'remote/ssl_pem'] as const;
+const KEYS = [
+  'remote/enable',
+  'remote/port',
+  'remote/password',
+  'remote/ssl',
+  'remote/ssl_pem',
+] as const;
 
 @Component({
   selector: 'app-webinterface-settings',
   imports: [FormsModule, InputText, InputNumber, Checkbox, Dialog, ButtonDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './webinterface-settings.html',
 })
 export class WebinterfaceSettings {

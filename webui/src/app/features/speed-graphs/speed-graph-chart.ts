@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { UIChart } from 'primeng/chart';
 import type { ChartData, ChartOptions } from 'chart.js';
 import { SpeedSample } from '../../core/api/models';
@@ -7,6 +7,7 @@ import { formatSpeed } from '../transfers/format';
 @Component({
   selector: 'app-speed-graph-chart',
   imports: [UIChart],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './speed-graph-chart.html',
 })
 export class SpeedGraphChart implements OnChanges {
@@ -43,8 +44,20 @@ export class SpeedGraphChart implements OnChanges {
       this.chartData = {
         labels: this.samples.map((_, i) => i),
         datasets: [
-          { label: 'Download', data: this.samples.map((s) => s.down), borderColor: '#3b82f6', fill: false, pointRadius: 0 },
-          { label: 'Upload', data: this.samples.map((s) => s.up), borderColor: '#f97316', fill: false, pointRadius: 0 },
+          {
+            label: 'Download',
+            data: this.samples.map((s) => s.down),
+            borderColor: '#3b82f6',
+            fill: false,
+            pointRadius: 0,
+          },
+          {
+            label: 'Upload',
+            data: this.samples.map((s) => s.up),
+            borderColor: '#f97316',
+            fill: false,
+            pointRadius: 0,
+          },
         ],
       };
     }

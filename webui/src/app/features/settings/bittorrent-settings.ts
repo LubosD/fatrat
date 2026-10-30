@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
@@ -9,16 +9,31 @@ import { SettingsDraftService } from '../../core/settings-draft.service';
 import { JsonValue } from '../../core/api/json-value';
 
 const KEYS = [
-  'torrent/listen_start', 'torrent/listen_end', 'torrent/maxratio', 'torrent/maxconnections',
-  'torrent/maxuploads', 'torrent/maxconnections_loc', 'torrent/maxuploads_loc', 'torrent/maxfiles',
-  'torrent/dht', 'torrent/pex', 'torrent/allocation', 'torrent/external_ip', 'torrent/enc_incoming',
-  'torrent/enc_outgoing', 'torrent/enc_level', 'torrent/enc_rc4_prefer', 'torrent/mapping_upnp',
-  'torrent/mapping_natpmp', 'torrent/mapping_lsd',
+  'torrent/listen_start',
+  'torrent/listen_end',
+  'torrent/maxratio',
+  'torrent/maxconnections',
+  'torrent/maxuploads',
+  'torrent/maxconnections_loc',
+  'torrent/maxuploads_loc',
+  'torrent/maxfiles',
+  'torrent/dht',
+  'torrent/pex',
+  'torrent/allocation',
+  'torrent/external_ip',
+  'torrent/enc_incoming',
+  'torrent/enc_outgoing',
+  'torrent/enc_level',
+  'torrent/enc_rc4_prefer',
+  'torrent/mapping_upnp',
+  'torrent/mapping_natpmp',
+  'torrent/mapping_lsd',
 ] as const;
 
 @Component({
   selector: 'app-bittorrent-settings',
   imports: [FormsModule, InputText, InputNumber, Checkbox, Select],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './bittorrent-settings.html',
 })
 export class BittorrentSettings {

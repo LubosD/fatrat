@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { Tree } from 'primeng/tree';
 import type { TreeNode } from 'primeng/api';
@@ -13,6 +20,7 @@ const DETAILS_NAME_MAX_LENGTH = 80;
 @Component({
   selector: 'app-transfer-details',
   imports: [Tree, NgComponentOutlet],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './transfer-details.html',
 })
 export class TransferDetails {
@@ -27,7 +35,8 @@ export class TransferDetails {
     return this.store.transfers().find((t) => t.uuid === uuids[0]) ?? null;
   });
 
-  protected readonly elideName = (name: string): string => elideMiddle(name, DETAILS_NAME_MAX_LENGTH);
+  protected readonly elideName = (name: string): string =>
+    elideMiddle(name, DETAILS_NAME_MAX_LENGTH);
 
   protected readonly treeNodes = signal<TreeNode[]>([]);
 

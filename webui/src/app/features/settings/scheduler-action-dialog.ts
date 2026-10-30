@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -7,7 +15,12 @@ import { Checkbox } from 'primeng/checkbox';
 import { RadioButton } from 'primeng/radiobutton';
 import { Select } from 'primeng/select';
 import { ButtonDirective } from 'primeng/button';
-import { Queue, ScheduledAction, ScheduledActionProperties, ScheduledActionType } from '../../core/api/models';
+import {
+  Queue,
+  ScheduledAction,
+  ScheduledActionProperties,
+  ScheduledActionType,
+} from '../../core/api/models';
 import { WEEKDAYS, nowLocal, toBytes, toKiB } from './scheduler-format';
 
 const ACTIONS: { value: ScheduledActionType; label: string }[] = [
@@ -22,8 +35,18 @@ const ACTIONS: { value: ScheduledActionType; label: string }[] = [
  */
 @Component({
   selector: 'app-scheduler-action-dialog',
-  imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, RadioButton, Select, ButtonDirective],
+  imports: [
+    FormsModule,
+    Dialog,
+    InputText,
+    InputNumber,
+    Checkbox,
+    RadioButton,
+    Select,
+    ButtonDirective,
+  ],
   templateUrl: './scheduler-action-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './scheduler-settings.scss',
 })
 export class SchedulerActionDialog implements OnChanges {
@@ -56,7 +79,10 @@ export class SchedulerActionDialog implements OnChanges {
   private reset(): void {
     const a = this.action;
     this.name = a?.name ?? '';
-    this.queue = a?.queue && this.queues.some((q) => q.uuid === a.queue) ? a.queue : (this.queues[0]?.uuid ?? '');
+    this.queue =
+      a?.queue && this.queues.some((q) => q.uuid === a.queue)
+        ? a.queue
+        : (this.queues[0]?.uuid ?? '');
     this.type = a?.action ?? 'resume';
     this.down = toKiB(a?.speedLimit?.down ?? 0);
     this.up = toKiB(a?.speedLimit?.up ?? 0);
@@ -85,7 +111,8 @@ export class SchedulerActionDialog implements OnChanges {
       action: this.type,
       repeated: this.repeated,
     };
-    if (this.type === 'speedLimit') value.speedLimit = { down: toBytes(this.down ?? 0), up: toBytes(this.up ?? 0) };
+    if (this.type === 'speedLimit')
+      value.speedLimit = { down: toBytes(this.down ?? 0), up: toBytes(this.up ?? 0) };
     if (this.repeated) {
       value.time = this.time;
       value.days = [...this.days];

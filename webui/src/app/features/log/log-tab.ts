@@ -1,4 +1,13 @@
-import { Component, ElementRef, ViewChild, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  computed,
+  inject,
+  input,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { LogService } from '../../core/log.service';
@@ -8,6 +17,7 @@ import { activeGatedPoll } from '../../core/active-gated-poll';
 
 @Component({
   selector: 'app-log-tab',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './log-tab.html',
 })
 export class LogTab {

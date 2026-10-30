@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { ButtonDirective } from 'primeng/button';
@@ -18,6 +18,7 @@ import { actionLabel, whenLabel } from './scheduler-format';
   selector: 'app-scheduler-settings',
   imports: [TableModule, ButtonDirective, SchedulerActionDialog],
   templateUrl: './scheduler-settings.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './scheduler-settings.scss',
 })
 export class SchedulerSettings {

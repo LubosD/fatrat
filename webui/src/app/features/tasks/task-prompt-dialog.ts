@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, inject, linkedSignal, signal, untracked } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+  untracked,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { ButtonDirective } from 'primeng/button';
 import { MessageService } from 'primeng/api';
@@ -16,6 +25,7 @@ import { flattenFields, initialValues } from '../../shared/form-field/form-value
 @Component({
   selector: 'app-task-prompt-dialog',
   imports: [Dialog, ButtonDirective, FormField],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './task-prompt-dialog.html',
 })
 export class TaskPromptDialog {
@@ -34,12 +44,17 @@ export class TaskPromptDialog {
     const task = this.current();
     return task?.prompt?.form.title || task?.title || '';
   });
-  protected readonly fields = computed(() => flattenFields(this.current()?.prompt?.form.fields ?? []));
+  protected readonly fields = computed(() =>
+    flattenFields(this.current()?.prompt?.form.fields ?? []),
+  );
   protected readonly values = linkedSignal<string | null, Record<string, JsonValue>>({
     source: this.promptId,
     computation: () => initialValues(untracked(this.current)?.prompt?.form.fields ?? []),
   });
-  protected readonly error = linkedSignal<string | null, string>({ source: this.promptId, computation: () => '' });
+  protected readonly error = linkedSignal<string | null, string>({
+    source: this.promptId,
+    computation: () => '',
+  });
   protected readonly busy = signal(false);
 
   private readonly now = signal(Date.now());

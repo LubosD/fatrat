@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ProgressBar } from 'primeng/progressbar';
 import { Menu } from 'primeng/menu';
@@ -27,6 +35,7 @@ const CARD_NAME_MAX_LENGTH = 60;
   selector: 'app-transfer-cards',
   imports: [ProgressBar, Menu, ButtonDirective, ButtonIcon],
   templateUrl: './transfer-cards.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transfer-cards.scss',
 })
 export class TransferCards {
@@ -51,7 +60,9 @@ export class TransferCards {
   protected readonly stateLabel = stateLabelText;
   protected readonly trackByUuid = (_: number, transfer: Transfer): string => transfer.uuid;
 
-  private readonly baseMenuItems = createTransferMenuItems(this.actions, () => this.propertiesRequested.emit());
+  private readonly baseMenuItems = createTransferMenuItems(this.actions, () =>
+    this.propertiesRequested.emit(),
+  );
 
   private pressTimer: ReturnType<typeof setTimeout> | null = null;
   private pressOrigin: { x: number; y: number } | null = null;
@@ -73,7 +84,10 @@ export class TransferCards {
 
   protected onPointerMove(event: PointerEvent): void {
     if (this.pressTimer === null || this.pressOrigin === null) return;
-    if (Math.hypot(event.clientX - this.pressOrigin.x, event.clientY - this.pressOrigin.y) > LONG_PRESS_MOVE_TOLERANCE_PX) {
+    if (
+      Math.hypot(event.clientX - this.pressOrigin.x, event.clientY - this.pressOrigin.y) >
+      LONG_PRESS_MOVE_TOLERANCE_PX
+    ) {
       this.cancelPress();
     }
   }
@@ -116,13 +130,18 @@ export class TransferCards {
       this.store.selectOnly(uuid);
     }
     this.menuItems.set(
-      withAvailability(this.baseMenuItems, availableTransferActions(this.store.transfers(), this.store.selectedUuids())),
+      withAvailability(
+        this.baseMenuItems,
+        availableTransferActions(this.store.transfers(), this.store.selectedUuids()),
+      ),
     );
     const base = this.menuItems();
     this.pluginMenu?.unsubscribe();
     const selected = this.store.selectedUuids();
     if (selected.length === 1) {
-      this.pluginMenu = this.pluginActions.menuItems(selected[0]).subscribe((extra) => this.menuItems.set([...base, ...extra]));
+      this.pluginMenu = this.pluginActions
+        .menuItems(selected[0])
+        .subscribe((extra) => this.menuItems.set([...base, ...extra]));
     }
     menu.toggle(event);
   }

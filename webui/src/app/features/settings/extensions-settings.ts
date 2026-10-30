@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
@@ -7,7 +13,13 @@ import { TableModule } from 'primeng/table';
 import { ConfirmationService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { ApiError } from '../../core/api/rest-client';
-import { AvailablePlugin, Plugin, PluginConfigItem, PluginFormField, PluginRepository } from '../../core/api/models';
+import {
+  AvailablePlugin,
+  Plugin,
+  PluginConfigItem,
+  PluginFormField,
+  PluginRepository,
+} from '../../core/api/models';
 import { JsonValue } from '../../core/api/json-value';
 import { PluginsApi } from '../../core/plugins-api.service';
 import { SettingsDraftService } from '../../core/settings-draft.service';
@@ -41,6 +53,7 @@ const EDITABLE = new Set(['text', 'password', 'checkbox', 'combo']);
   selector: 'app-extensions-settings',
   imports: [FormsModule, TableModule, ButtonDirective, Checkbox, InputText, FormField],
   templateUrl: './extensions-settings.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './extensions-settings.scss',
 })
 export class ExtensionsSettings {
@@ -150,7 +163,9 @@ export class ExtensionsSettings {
           `${entry.name} installed. ${result.activeTransfers} transfer(s) still use the old version; the new one takes over when they finish.`,
         );
       else if (result.state === 'failed')
-        this.message.set(`${entry.name} installed, but could not be loaded: ${result.loadError ?? 'unknown error'}`);
+        this.message.set(
+          `${entry.name} installed, but could not be loaded: ${result.loadError ?? 'unknown error'}`,
+        );
       else this.message.set(`${entry.name} installed.`);
     });
   }
@@ -164,22 +179,32 @@ export class ExtensionsSettings {
   }
 
   protected setEnabled(plugin: Plugin, enabled: boolean): void {
-    this.run(this.api.setEnabled(plugin.name, enabled), (updated) => this.message.set(this.describeState(updated)));
+    this.run(this.api.setEnabled(plugin.name, enabled), (updated) =>
+      this.message.set(this.describeState(updated)),
+    );
   }
 
   /** One line for the Installed list: empty when there is nothing to add to "Enabled". */
   protected statusOf(plugin: Plugin): string {
     if (plugin.state === 'draining') {
       const n = plugin.activeTransfers ?? 0;
-      const what = plugin.pendingUninstall ? 'Will be removed' : plugin.pendingReload ? 'Will be replaced' : 'Will be unloaded';
+      const what = plugin.pendingUninstall
+        ? 'Will be removed'
+        : plugin.pendingReload
+          ? 'Will be replaced'
+          : 'Will be unloaded';
       return `${what} when its ${n} transfer(s) finish; it cannot start new ones.`;
     }
-    if (plugin.state === 'failed') return `Could not be loaded: ${plugin.loadError ?? 'unknown error'}`;
+    if (plugin.state === 'failed')
+      return `Could not be loaded: ${plugin.loadError ?? 'unknown error'}`;
     return '';
   }
 
   private describeState(plugin: Plugin): string {
-    return this.statusOf(plugin) || (plugin.enabled ? `${plugin.name} is loaded.` : `${plugin.name} is unloaded.`);
+    return (
+      this.statusOf(plugin) ||
+      (plugin.enabled ? `${plugin.name} is loaded.` : `${plugin.name} is unloaded.`)
+    );
   }
 
   protected stage(key: string | undefined, value: JsonValue): void {
@@ -191,7 +216,10 @@ export class ExtensionsSettings {
     const fields: Field[] = [];
     const add = (item: PluginConfigItem, group: string) =>
       fields.push({
-        item, group, value: null, editable: EDITABLE.has(item.type) && !!item.key,
+        item,
+        group,
+        value: null,
+        editable: EDITABLE.has(item.type) && !!item.key,
         control: item as PluginFormField,
       });
 
@@ -223,7 +251,8 @@ export class ExtensionsSettings {
         for (const field of fields) {
           if (!field.editable) continue;
           const key = field.item.key as string;
-          field.value = this.draft.get(key) ?? byKey.get(key) ?? (field.item.type === 'checkbox' ? false : '');
+          field.value =
+            this.draft.get(key) ?? byKey.get(key) ?? (field.item.type === 'checkbox' ? false : '');
         }
         this.fields.set(fields);
         this.cdr.markForCheck();

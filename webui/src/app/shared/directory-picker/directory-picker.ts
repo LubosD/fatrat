@@ -1,4 +1,15 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  SimpleChanges,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Dialog } from 'primeng/dialog';
@@ -17,6 +28,7 @@ import { PathSuggest } from '../path-suggest/path-suggest';
   selector: 'app-directory-picker',
   imports: [FormsModule, Dialog, InputText, Checkbox, ButtonDirective, PathSuggest],
   templateUrl: './directory-picker.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './directory-picker.scss',
 })
 export class DirectoryPicker implements OnChanges, OnDestroy {
@@ -101,7 +113,8 @@ export class DirectoryPicker implements OnChanges, OnDestroy {
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        const message = err instanceof Error && err.message ? err.message : 'Could not list the directory';
+        const message =
+          err instanceof Error && err.message ? err.message : 'Could not list the directory';
         if (this.path() === '' && path !== '') {
           // Nothing listed yet (e.g. a stale target typed earlier): start from the server's default instead.
           this.load('');

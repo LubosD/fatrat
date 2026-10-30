@@ -1,4 +1,4 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonDirective } from 'primeng/button';
@@ -19,8 +19,20 @@ import { PathSuggest } from '../path-suggest/path-suggest';
  */
 @Component({
   selector: 'app-form-field',
-  imports: [NgTemplateOutlet, FormsModule, ButtonDirective, Checkbox, InputNumber, InputText, Select, TableModule, DirectoryPicker, PathSuggest],
+  imports: [
+    NgTemplateOutlet,
+    FormsModule,
+    ButtonDirective,
+    Checkbox,
+    InputNumber,
+    InputText,
+    Select,
+    TableModule,
+    DirectoryPicker,
+    PathSuggest,
+  ],
   templateUrl: './form-field.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './form-field.scss',
 })
 export class FormField {

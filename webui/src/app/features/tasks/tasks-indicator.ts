@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonDirective } from 'primeng/button';
 import { Popover } from 'primeng/popover';
@@ -14,6 +14,7 @@ import { PluginTask } from '../../core/api/models';
   selector: 'app-tasks-indicator',
   imports: [ButtonDirective, Popover, ProgressBar],
   templateUrl: './tasks-indicator.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './tasks-indicator.scss',
 })
 export class TasksIndicator {
@@ -22,9 +23,15 @@ export class TasksIndicator {
   private readonly messages = inject(MessageService);
 
   constructor() {
-    this.store.failures$.pipe(takeUntilDestroyed()).subscribe((task) =>
-      this.messages.add({ severity: 'error', summary: task.title, detail: task.message ?? 'Failed' }),
-    );
+    this.store.failures$
+      .pipe(takeUntilDestroyed())
+      .subscribe((task) =>
+        this.messages.add({
+          severity: 'error',
+          summary: task.title,
+          detail: task.message ?? 'Failed',
+        }),
+      );
   }
 
   protected isFinished(task: PluginTask): boolean {
@@ -57,7 +64,8 @@ export class TasksIndicator {
       next: () => {
         if (finished) this.store.remove(task.id);
       },
-      error: (err: ApiError) => this.messages.add({ severity: 'error', summary: task.title, detail: err.message }),
+      error: (err: ApiError) =>
+        this.messages.add({ severity: 'error', summary: task.title, detail: err.message }),
     });
   }
 }

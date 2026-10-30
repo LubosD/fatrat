@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -13,6 +23,7 @@ import { EPISODE_EXAMPLE, RssEpisodeMode, isValidEpisode } from './rss-episode';
   selector: 'app-rss-downloaded-dialog',
   imports: [FormsModule, Dialog, InputText, ButtonDirective],
   templateUrl: './rss-downloaded-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './rss-dialogs.scss',
 })
 export class RssDownloadedDialog implements OnChanges {
@@ -57,7 +68,11 @@ export class RssDownloadedDialog implements OnChanges {
 
   protected get canAdd(): boolean {
     const value = this.newEpisode.trim();
-    return this.mode !== null && isValidEpisode(this.mode, value, true) && !this.episodes().includes(value);
+    return (
+      this.mode !== null &&
+      isValidEpisode(this.mode, value, true) &&
+      !this.episodes().includes(value)
+    );
   }
 
   protected add(): void {

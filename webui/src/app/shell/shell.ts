@@ -1,5 +1,13 @@
 import { StatusBar } from '../features/status-bar/status-bar';
-import { Component, computed, DOCUMENT, HostListener, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DOCUMENT,
+  HostListener,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
@@ -33,10 +41,27 @@ import { PollingService } from '../core/polling.service';
 import { TransferActionsService } from '../core/transfer-actions.service';
 import { QueueActionsService } from '../core/queue-actions.service';
 import { TransferApi } from '../core/api/transfer-api';
-import { AvailableTransferActions, TransfersStore, availableTransferActions } from '../state/transfers.store';
+import {
+  AvailableTransferActions,
+  TransfersStore,
+  availableTransferActions,
+} from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
-import { Hotkey, ariaKeyShortcuts, hasCommandModifier, isOverlayOpen, isTypingTarget, matchesHotkey } from '../shared/hotkeys/hotkeys';
-import { DeleteQueueOptions, Queue, Transfer, TransferClass, NewTransferOptions } from '../core/api/models';
+import {
+  Hotkey,
+  ariaKeyShortcuts,
+  hasCommandModifier,
+  isOverlayOpen,
+  isTypingTarget,
+  matchesHotkey,
+} from '../shared/hotkeys/hotkeys';
+import {
+  DeleteQueueOptions,
+  Queue,
+  Transfer,
+  TransferClass,
+  NewTransferOptions,
+} from '../core/api/models';
 
 interface ToolbarAction {
   id: string;
@@ -91,6 +116,7 @@ const DOCS_URL = 'https://fatrat.dolezel.info/docs/';
     StatusBar,
   ],
   templateUrl: './shell.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './shell.scss',
 })
 export class Shell {
@@ -125,31 +151,160 @@ export class Shell {
 
   protected readonly toolbarGroups: ToolbarAction[][] = [
     [
-      { id: 'new-transfer', label: 'New Transfer', icon: 'pi-plus', primary: true, hotkeys: [{ key: 'n', label: 'N' }], disabled: () => false, run: () => this.openNewTransferDialog() },
-      { id: 'delete', label: 'Delete', icon: 'pi-trash', primary: true, hotkeys: [{ key: 'd', label: 'D' }, { key: 'Delete', shift: false, label: 'Del' }, { key: 'Backspace', shift: false, label: 'Backspace' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(false) },
-      { id: 'delete-with-data', label: 'Delete with Data', icon: 'pi-eraser', hotkeys: [{ key: 'D', label: 'Shift+D' }, { key: 'Delete', shift: true, label: 'Shift+Del' }, { key: 'Backspace', shift: true, label: 'Shift+Backspace' }], disabled: () => !this.available.delete, run: () => this.actions.deleteSelected(true) },
-      { id: 'delete-completed', label: 'Delete Completed', icon: 'pi-check-circle', hotkeys: [{ key: 'c', label: 'C' }], disabled: () => false, run: () => this.actions.deleteCompleted() },
+      {
+        id: 'new-transfer',
+        label: 'New Transfer',
+        icon: 'pi-plus',
+        primary: true,
+        hotkeys: [{ key: 'n', label: 'N' }],
+        disabled: () => false,
+        run: () => this.openNewTransferDialog(),
+      },
+      {
+        id: 'delete',
+        label: 'Delete',
+        icon: 'pi-trash',
+        primary: true,
+        hotkeys: [
+          { key: 'd', label: 'D' },
+          { key: 'Delete', shift: false, label: 'Del' },
+          { key: 'Backspace', shift: false, label: 'Backspace' },
+        ],
+        disabled: () => !this.available.delete,
+        run: () => this.actions.deleteSelected(false),
+      },
+      {
+        id: 'delete-with-data',
+        label: 'Delete with Data',
+        icon: 'pi-eraser',
+        hotkeys: [
+          { key: 'D', label: 'Shift+D' },
+          { key: 'Delete', shift: true, label: 'Shift+Del' },
+          { key: 'Backspace', shift: true, label: 'Shift+Backspace' },
+        ],
+        disabled: () => !this.available.delete,
+        run: () => this.actions.deleteSelected(true),
+      },
+      {
+        id: 'delete-completed',
+        label: 'Delete Completed',
+        icon: 'pi-check-circle',
+        hotkeys: [{ key: 'c', label: 'C' }],
+        disabled: () => false,
+        run: () => this.actions.deleteCompleted(),
+      },
     ],
     [
-      { id: 'resume', label: 'Resume', icon: 'pi-play', primary: true, hotkeys: [{ key: 'r', label: 'R' }], disabled: () => !this.available.resume, run: () => this.actions.resume() },
-      { id: 'force-resume', label: 'Force Resume', icon: 'pi-forward', hotkeys: [{ key: 'f', label: 'F' }], disabled: () => !this.available.forceResume, run: () => this.actions.forceResume() },
-      { id: 'pause', label: 'Pause', icon: 'pi-pause', primary: true, hotkeys: [{ key: 'p', label: 'P' }], disabled: () => !this.available.pause, run: () => this.actions.pause() },
-      { id: 'properties', label: 'Properties', icon: 'pi-pencil', hotkeys: [{ key: 'e', label: 'E' }], disabled: () => !this.available.properties, run: () => this.openTransferPropertiesDialog() },
+      {
+        id: 'resume',
+        label: 'Resume',
+        icon: 'pi-play',
+        primary: true,
+        hotkeys: [{ key: 'r', label: 'R' }],
+        disabled: () => !this.available.resume,
+        run: () => this.actions.resume(),
+      },
+      {
+        id: 'force-resume',
+        label: 'Force Resume',
+        icon: 'pi-forward',
+        hotkeys: [{ key: 'f', label: 'F' }],
+        disabled: () => !this.available.forceResume,
+        run: () => this.actions.forceResume(),
+      },
+      {
+        id: 'pause',
+        label: 'Pause',
+        icon: 'pi-pause',
+        primary: true,
+        hotkeys: [{ key: 'p', label: 'P' }],
+        disabled: () => !this.available.pause,
+        run: () => this.actions.pause(),
+      },
+      {
+        id: 'properties',
+        label: 'Properties',
+        icon: 'pi-pencil',
+        hotkeys: [{ key: 'e', label: 'E' }],
+        disabled: () => !this.available.properties,
+        run: () => this.openTransferPropertiesDialog(),
+      },
     ],
     [
-      { id: 'move-top', label: 'Move to Top', icon: 'pi-angle-double-up', hotkeys: [{ key: '{', label: '{' }], disabled: () => !this.available.moveUp, run: () => this.actions.moveSelected('top') },
-      { id: 'move-up', label: 'Move Up', icon: 'pi-angle-up', hotkeys: [{ key: '[', label: '[', repeat: true }], disabled: () => !this.available.moveUp, run: () => this.actions.moveSelected('up') },
-      { id: 'move-down', label: 'Move Down', icon: 'pi-angle-down', hotkeys: [{ key: ']', label: ']', repeat: true }], disabled: () => !this.available.moveDown, run: () => this.actions.moveSelected('down') },
-      { id: 'move-bottom', label: 'Move to Bottom', icon: 'pi-angle-double-down', hotkeys: [{ key: '}', label: '}' }], disabled: () => !this.available.moveDown, run: () => this.actions.moveSelected('bottom') },
+      {
+        id: 'move-top',
+        label: 'Move to Top',
+        icon: 'pi-angle-double-up',
+        hotkeys: [{ key: '{', label: '{' }],
+        disabled: () => !this.available.moveUp,
+        run: () => this.actions.moveSelected('top'),
+      },
+      {
+        id: 'move-up',
+        label: 'Move Up',
+        icon: 'pi-angle-up',
+        hotkeys: [{ key: '[', label: '[', repeat: true }],
+        disabled: () => !this.available.moveUp,
+        run: () => this.actions.moveSelected('up'),
+      },
+      {
+        id: 'move-down',
+        label: 'Move Down',
+        icon: 'pi-angle-down',
+        hotkeys: [{ key: ']', label: ']', repeat: true }],
+        disabled: () => !this.available.moveDown,
+        run: () => this.actions.moveSelected('down'),
+      },
+      {
+        id: 'move-bottom',
+        label: 'Move to Bottom',
+        icon: 'pi-angle-double-down',
+        hotkeys: [{ key: '}', label: '}' }],
+        disabled: () => !this.available.moveDown,
+        run: () => this.actions.moveSelected('bottom'),
+      },
     ],
     [
-      { id: 'new-queue', label: 'New Queue', icon: 'pi-folder-plus', hotkeys: [{ key: 'N', label: 'Shift+N' }], disabled: () => false, run: () => this.openNewQueueDialog() },
-      { id: 'queue-properties', label: 'Queue Properties', icon: 'pi-sliders-h', hotkeys: [{ key: 'E', label: 'Shift+E' }], disabled: () => !this.hasSelectedQueue, run: () => this.openQueuePropertiesDialog() },
-      { id: 'delete-queue', label: 'Delete Queue', icon: 'pi-trash', disabled: () => !this.hasSelectedQueue, run: () => this.requestDeleteQueue() },
+      {
+        id: 'new-queue',
+        label: 'New Queue',
+        icon: 'pi-folder-plus',
+        hotkeys: [{ key: 'N', label: 'Shift+N' }],
+        disabled: () => false,
+        run: () => this.openNewQueueDialog(),
+      },
+      {
+        id: 'queue-properties',
+        label: 'Queue Properties',
+        icon: 'pi-sliders-h',
+        hotkeys: [{ key: 'E', label: 'Shift+E' }],
+        disabled: () => !this.hasSelectedQueue,
+        run: () => this.openQueuePropertiesDialog(),
+      },
+      {
+        id: 'delete-queue',
+        label: 'Delete Queue',
+        icon: 'pi-trash',
+        disabled: () => !this.hasSelectedQueue,
+        run: () => this.requestDeleteQueue(),
+      },
     ],
     [
-      { id: 'settings', label: 'Settings', icon: 'pi-cog', hotkeys: [{ key: 'o', label: 'O' }], disabled: () => false, run: () => this.openSettingsDialog() },
-      { id: 'help', label: 'Help', icon: 'pi-question-circle', disabled: () => false, run: () => window.open(DOCS_URL, '_blank', 'noopener') },
+      {
+        id: 'settings',
+        label: 'Settings',
+        icon: 'pi-cog',
+        hotkeys: [{ key: 'o', label: 'O' }],
+        disabled: () => false,
+        run: () => this.openSettingsDialog(),
+      },
+      {
+        id: 'help',
+        label: 'Help',
+        icon: 'pi-question-circle',
+        disabled: () => false,
+        run: () => window.open(DOCS_URL, '_blank', 'noopener'),
+      },
     ],
   ];
 
@@ -158,7 +313,9 @@ export class Shell {
 
   protected readonly showHotkeys = signal(false);
   // The badges are positioned over the desktop toolbar and tab headers, which the mobile layout lacks.
-  protected readonly hotkeyBadgesVisible = computed(() => this.showHotkeys() && !this.viewport.isMobile());
+  protected readonly hotkeyBadgesVisible = computed(
+    () => this.showHotkeys() && !this.viewport.isMobile(),
+  );
   protected readonly ariaKeyShortcuts = ariaKeyShortcuts;
 
   // Badges sit under 40px-wide buttons, so "Shift+N" is shortened to "⇧N".
@@ -178,7 +335,8 @@ export class Shell {
   @HostListener('document:click', ['$event'])
   protected onDocumentClick(event: MouseEvent): void {
     // The Shortcuts button toggles on its own; hiding here first would turn it straight back on.
-    if (event.target instanceof Element && event.target.closest('[data-testid="action-hotkeys"]')) return;
+    if (event.target instanceof Element && event.target.closest('[data-testid="action-hotkeys"]'))
+      return;
     this.showHotkeys.set(false);
   }
 
@@ -186,7 +344,12 @@ export class Shell {
 
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
-    if (event.defaultPrevented || hasCommandModifier(event) || isTypingTarget(event.target) || isOverlayOpen(this.document)) {
+    if (
+      event.defaultPrevented ||
+      hasCommandModifier(event) ||
+      isTypingTarget(event.target) ||
+      isOverlayOpen(this.document)
+    ) {
       return;
     }
     if (event.key === '?') {
@@ -244,7 +407,12 @@ export class Shell {
         actions.push({ separator: true });
       }
       for (const a of secondary) {
-        actions.push({ label: a.label, icon: `pi ${a.icon}`, disabled: a.disabled(), command: () => a.run() });
+        actions.push({
+          label: a.label,
+          icon: `pi ${a.icon}`,
+          disabled: a.disabled(),
+          command: () => a.run(),
+        });
       }
     }
     const items: MenuItem[] = [
@@ -263,7 +431,10 @@ export class Shell {
   }
 
   protected get available(): AvailableTransferActions {
-    return availableTransferActions(this.transfersStore.transfers(), this.transfersStore.selectedUuids());
+    return availableTransferActions(
+      this.transfersStore.transfers(),
+      this.transfersStore.selectedUuids(),
+    );
   }
 
   protected get hasSelectedQueue(): boolean {
@@ -280,7 +451,8 @@ export class Shell {
 
   protected openQueuePropertiesDialog(): void {
     const uuid = this.queuesStore.selectedQueueUuid();
-    const queue = uuid === null ? null : (this.queuesStore.queues().find((q) => q.uuid === uuid) ?? null);
+    const queue =
+      uuid === null ? null : (this.queuesStore.queues().find((q) => q.uuid === uuid) ?? null);
     this.queueDialogTarget.set(queue);
     this.showQueueDialog.set(true);
   }
@@ -333,7 +505,9 @@ export class Shell {
   protected openTransferPropertiesDialog(): void {
     const uuids = this.transfersStore.selectedUuids();
     const representative =
-      uuids.length > 0 ? (this.transfersStore.transfers().find((t) => t.uuid === uuids[0]) ?? null) : null;
+      uuids.length > 0
+        ? (this.transfersStore.transfers().find((t) => t.uuid === uuids[0]) ?? null)
+        : null;
     this.transferPropertiesTarget.set(representative);
     this.transferPropertiesCount.set(uuids.length);
     this.showTransferPropertiesDialog.set(true);

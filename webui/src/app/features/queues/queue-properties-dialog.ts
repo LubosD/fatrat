@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -23,8 +31,19 @@ export interface QueueFormValue {
 
 @Component({
   selector: 'app-queue-properties-dialog',
-  imports: [FormsModule, Dialog, InputText, InputNumber, Checkbox, ButtonDirective, InputGroup, DirectoryPicker, PathSuggest],
+  imports: [
+    FormsModule,
+    Dialog,
+    InputText,
+    InputNumber,
+    Checkbox,
+    ButtonDirective,
+    InputGroup,
+    DirectoryPicker,
+    PathSuggest,
+  ],
   templateUrl: './queue-properties-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: ['.field > .hint { flex: 1 1 100%; }'],
 })
 export class QueuePropertiesDialog implements OnChanges {

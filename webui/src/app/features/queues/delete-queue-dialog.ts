@@ -1,4 +1,15 @@
-import { Component, DOCUMENT, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  DOCUMENT,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { RadioButton } from 'primeng/radiobutton';
@@ -12,6 +23,7 @@ type DeleteMode = 'move' | 'delete' | 'deleteWithData';
 @Component({
   selector: 'app-delete-queue-dialog',
   imports: [FormsModule, Dialog, RadioButton, Select, ButtonDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './delete-queue-dialog.html',
 })
 export class DeleteQueueDialog implements OnChanges {
@@ -36,7 +48,9 @@ export class DeleteQueueDialog implements OnChanges {
 
   protected onDelete(): void {
     this.confirmed.emit(
-      this.mode === 'move' ? { moveTo: this.moveTo } : { deleteTransfers: true, withData: this.mode === 'deleteWithData' },
+      this.mode === 'move'
+        ? { moveTo: this.moveTo }
+        : { deleteTransfers: true, withData: this.mode === 'deleteWithData' },
     );
     this.close();
   }
@@ -44,9 +58,20 @@ export class DeleteQueueDialog implements OnChanges {
   /** Enter deletes with the chosen mode, except on another button or in the target select. */
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKeydown(event: KeyboardEvent): void {
-    if (!this.visible || event.defaultPrevented || event.key !== 'Enter' || hasCommandModifier(event)) return;
+    if (
+      !this.visible ||
+      event.defaultPrevented ||
+      event.key !== 'Enter' ||
+      hasCommandModifier(event)
+    )
+      return;
     const target = event.target instanceof Element ? event.target : null;
-    if (target?.closest('button:not([data-testid="delete-queue-confirm"]), p-select, [role="combobox"], [role="listbox"]')) return;
+    if (
+      target?.closest(
+        'button:not([data-testid="delete-queue-confirm"]), p-select, [role="combobox"], [role="listbox"]',
+      )
+    )
+      return;
     if (this.document.querySelector('.p-select-overlay')) return;
     event.preventDefault();
     if (!event.repeat) this.onDelete();

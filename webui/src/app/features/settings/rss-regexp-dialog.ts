@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  SimpleChanges,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -40,10 +50,24 @@ type TestState = { kind: 'idle' } | { kind: 'result'; result: RssTestResult } | 
 @Component({
   selector: 'app-rss-regexp-dialog',
   imports: [
-    FormsModule, Dialog, InputText, Checkbox, RadioButton, Select, ButtonDirective, InputGroup,
-    Tabs, TabList, Tab, TabPanels, TabPanel, DirectoryPicker, PathSuggest,
+    FormsModule,
+    Dialog,
+    InputText,
+    Checkbox,
+    RadioButton,
+    Select,
+    ButtonDirective,
+    InputGroup,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    DirectoryPicker,
+    PathSuggest,
   ],
   templateUrl: './rss-regexp-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './rss-dialogs.scss',
 })
 export class RssRegexpDialog implements OnChanges, OnDestroy {
@@ -162,12 +186,20 @@ export class RssRegexpDialog implements OnChanges, OnDestroy {
 
   protected get rangeValid(): boolean {
     const mode = this.episodeMode;
-    return mode === null || (isValidEpisode(mode, this.from, false) && isValidEpisode(mode, this.to, false));
+    return (
+      mode === null ||
+      (isValidEpisode(mode, this.from, false) && isValidEpisode(mode, this.to, false))
+    );
   }
 
   protected get valid(): boolean {
-    return this.feedId !== '' && this.queue !== '' && this.target.trim() !== '' && this.rangeValid
-      && (!this.extractLinks || this.linkRegexp !== '');
+    return (
+      this.feedId !== '' &&
+      this.queue !== '' &&
+      this.target.trim() !== '' &&
+      this.rangeValid &&
+      (!this.extractLinks || this.linkRegexp !== '')
+    );
   }
 
   /** Managing the downloaded episodes works on the stored rule, so its mode must be the stored one. */

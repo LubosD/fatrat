@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Output, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import type { TableContextMenuSelectEvent } from 'primeng/table';
@@ -20,6 +29,7 @@ const TABLE_NAME_MAX_LENGTH = 80;
   selector: 'app-transfer-table',
   imports: [TableModule, ProgressBar, ContextMenu],
   templateUrl: './transfer-table.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transfer-table.scss',
 })
 export class TransferTable {
@@ -39,7 +49,9 @@ export class TransferTable {
 
   private readonly pluginActions = inject(PluginActions);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly baseMenuItems: MenuItem[] = createTransferMenuItems(this.actions, () => this.propertiesRequested.emit());
+  private readonly baseMenuItems: MenuItem[] = createTransferMenuItems(this.actions, () =>
+    this.propertiesRequested.emit(),
+  );
   private pluginMenu?: Subscription;
   protected contextMenuItems: MenuItem[] = this.baseMenuItems;
 
@@ -107,7 +119,8 @@ export class TransferTable {
     if (index < 0) return;
     // Insertion point, then the first row at or after it that isn't itself being moved.
     const moved = new Set(uuids);
-    const before = transfers.slice(after ? index + 1 : index).find((t) => !moved.has(t.uuid))?.uuid ?? null;
+    const before =
+      transfers.slice(after ? index + 1 : index).find((t) => !moved.has(t.uuid))?.uuid ?? null;
     this.actions.moveBefore(uuids, before);
   }
 
@@ -156,7 +169,9 @@ export class TransferTable {
   protected scrollCurrentIntoView(): void {
     const uuid = this.store.currentUuid();
     if (uuid === null) return;
-    const row = this.host.nativeElement.querySelector<HTMLElement>(`tr[data-uuid="${CSS.escape(uuid)}"]`);
+    const row = this.host.nativeElement.querySelector<HTMLElement>(
+      `tr[data-uuid="${CSS.escape(uuid)}"]`,
+    );
     row?.scrollIntoView?.({ block: 'nearest' });
   }
 
@@ -165,7 +180,10 @@ export class TransferTable {
       this.store.selectOnly(event.data.uuid);
     }
     // A fresh array, so the menu re-renders the new disabled flags.
-    const base = withAvailability(this.baseMenuItems, availableTransferActions(this.store.transfers(), this.store.selectedUuids()));
+    const base = withAvailability(
+      this.baseMenuItems,
+      availableTransferActions(this.store.transfers(), this.store.selectedUuids()),
+    );
     this.contextMenuItems = base;
 
     this.pluginMenu?.unsubscribe();

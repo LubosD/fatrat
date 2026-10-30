@@ -1,4 +1,13 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges, inject, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { ProgressBar } from 'primeng/progressbar';
@@ -51,6 +60,7 @@ function toTorrentDownloadProperties(raw: { [key: string]: JsonValue }): Torrent
   selector: 'app-torrent-download-details',
   templateUrl: './torrent-download-details.html',
   imports: [TableModule, ProgressBar, Select, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './torrent-download-details.scss',
 })
 export class TorrentDownloadDetails implements OnChanges, OnDestroy {
@@ -91,7 +101,9 @@ export class TorrentDownloadDetails implements OnChanges, OnDestroy {
   protected progressText(): string {
     const t = this.transfer;
     const percent = t.total > 0 ? ((100 * t.done) / t.total).toFixed(1) : '0.0';
-    return t.mode === 'Download' ? `${percent}%, ${this.formatSize(t.total - t.done)} left` : `${percent}%`;
+    return t.mode === 'Download'
+      ? `${percent}%, ${this.formatSize(t.total - t.done)} left`
+      : `${percent}%`;
   }
 
   protected commentLines(): string[] {
@@ -121,7 +133,9 @@ export class TorrentDownloadDetails implements OnChanges, OnDestroy {
     this.cacheBusterCounter++;
     const uuid = encodeURIComponent(this.transfer.uuid);
     this.progressImageUrl.set(`/subclass/progress?transfer=${uuid}&xx=${this.cacheBusterCounter}`);
-    this.availabilityImageUrl.set(`/subclass/availability?transfer=${uuid}&xx=${this.cacheBusterCounter}`);
+    this.availabilityImageUrl.set(
+      `/subclass/availability?transfer=${uuid}&xx=${this.cacheBusterCounter}`,
+    );
   }
 
   protected readonly priorityOptions = [
@@ -157,7 +171,10 @@ export class TorrentDownloadDetails implements OnChanges, OnDestroy {
         }
         this.properties.update((props) =>
           props
-            ? { ...props, files: props.files.map((f) => (f.name === fileName ? { ...f, priority } : f)) }
+            ? {
+                ...props,
+                files: props.files.map((f) => (f.name === fileName ? { ...f, priority } : f)),
+              }
             : props,
         );
       },
