@@ -53,7 +53,7 @@
 <p>The ratio for new torrents is set in the BitTorrent settings (see below). It is 1 at first. You can set different limits for one torrent in its properties:</p>
 
 <ul>
-<li><b>Desktop:</b> <b>Transfer</b> → <b>Properties...</b>, page <b>Details</b>, <b>Seeding limits</b>. Tick <b>Seed up to ratio</b> and enter the ratio; tick <b>Seed until specified amount of data has been uploaded</b> and enter the amount in MB. If you leave <b>Seed up to ratio</b> unticked, the torrent completes as soon as it is downloaded. The amount limit only has an effect when <b>Seed up to ratio</b> is ticked.</li>
+<li><b>Desktop:</b> <b>Transfer</b> → <b>Properties...</b>, page <b>Details</b>, <b>Seeding limits</b>. Tick <b>Seed up to ratio</b> and enter the ratio; tick <b>Seed until specified amount of data has been uploaded</b> and enter the amount in MB. If you leave <b>Seed up to ratio</b> unticked, or enter 0, the torrent completes as soon as it is downloaded (the tooltip of the check box says so). Because of that, the amount limit only has an effect when <b>Seed up to ratio</b> is ticked and above 0. An amount of 0 means no amount limit.</li>
 <li><b>Web interface:</b> <b>Properties</b>, <b>Options</b>: <b>Seed up to ratio (0 = stop when downloaded)</b> and <b>Seed until uploaded (0 = no limit)</b>, in MB.</li>
 <li><b>Terminal:</b> the transfer properties (<code>E</code>) show the same fields under <b>Options</b>.</li>
 </ul>
@@ -70,7 +70,9 @@
 
 <dl>
 <dt>Listen port start, Listen port end</dt>
-<dd>(Web interface and terminal: <b>Listen port (from)</b> and <b>Listen port (to)</b>.) FatRat listens for connections from other peers on the first port only, on IPv4 and IPv6; the end of the range is currently ignored. The defaults are 6881 and 6888. If you are behind a firewall or router, open or forward this port (or use <b>UPnP</b> or <b>NAT-PMP</b>, below).</dd>
+<dd>(Web interface and terminal: <b>Listen port (from)</b> and <b>Listen port (to)</b>.) FatRat listens for connections from other peers, on IPv4 and IPv6, on the first free port from the start to the end of this range. The defaults are 6881 and 6888. If you are behind a firewall or router, open or forward the ports of the range (or use <b>UPnP</b> or <b>NAT-PMP</b>, below).</dd>
+<dt>External IP</dt>
+<dd>The address that FatRat announces to trackers as its own. Enter a literal IP address, such as <code>203.0.113.7</code>; a host name does not work. If it is empty or is not an IP address, the BitTorrent library decides. Leave it empty unless you know you need it.</dd>
 <dt>Seed up to ratio (default value)</dt>
 <dd>The ratio that new torrents start with. Default 1.</dd>
 <dt>Maximum connections (global/per torrent)</dt>

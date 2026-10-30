@@ -57,7 +57,8 @@ extension is reloaded.
 
 <p>
 FatRat remembers which commit it installed an extension from. An update is
-something you choose, not something that happens by itself.
+something you choose: FatRat never installs one by itself. The desktop app
+can tell you that one is available (see Updating below).
 </p>
 
 <h2>Installing and removing extensions</h2>
@@ -87,7 +88,7 @@ Open <b>Settings</b> and choose <b>Extensions</b>. It has four tabs.
 <li><b>Installed plugins</b>: name, version and description. Untick an
     extension to switch it off without removing it. Press <b>Remove</b> to
     delete it. Switching off is applied when you press OK in the settings
-    dialog.</li>
+    dialog, and takes effect at once, without a restart.</li>
 <li><b>Plugin settings</b>: pick an extension in the <b>Plugin</b> list to
     change the settings it declares, such as a user name and password.</li>
 </ol>
@@ -176,6 +177,18 @@ Refresh the repositories, then install the extension again from the
 <b>Available</b> list (the button says <b>Install / update</b> or
 <b>Update</b>). If transfers are still using the old version, FatRat tells
 you, and the new version takes over when they finish.
+</p>
+
+<p>
+Desktop: FatRat checks the repositories you added for updates 30 seconds after
+it starts, and then every 24 hours. It does nothing if you have added no
+repository. An icon in the status bar shows the number of updates, with the
+tooltip <b>Extension updates</b>. Click it to open the settings. This check is
+on by default. It has no check box in the settings: to switch it off, set
+<code>python/check_updates</code> to <code>false</code> in the settings file
+(see <a href="../config.html">Configuration Files</a>). The web interface and
+the terminal do not check by themselves;
+<code>fatrat-conf plugins updates</code> lists the updates.
 </p>
 
 <h2>Switching extensions off</h2>

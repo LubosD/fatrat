@@ -26,20 +26,20 @@
 <dd>Marks the torrent as private. BitTorrent programs then find peers only through the trackers, never through DHT. Some private torrent sites require this.</dd>
 </dl>
 
-<p>Below these are three tabs. A right-click in the lists of the <b>Trackers</b> and <b>DHT nodes</b> tabs opens a menu with <b>Add</b>, <b>Edit</b> and <b>Delete</b>, and <b>Add known</b>, which offers a list of public trackers shipped with FatRat (some may be out of date). The DHT nodes tab has the same menu.</p>
+<p>Below these are three tabs. A right-click in the list of the <b>Trackers</b> tab opens a menu with <b>Add</b>, <b>Edit</b> and <b>Delete</b>, and <b>Add known</b>, which offers a list of public trackers shipped with FatRat (some may be out of date). The <b>DHT nodes</b> and <b>Web seeds</b> tabs have the same menu.</p>
 
 <dl>
 <dt>Trackers</dt>
 <dd>The tracker addresses ("announce URLs") of the torrent. Each address must start with <code>http://</code> or <code>udp://</code>; FatRat leaves out the others. A private torrent needs at least one tracker. If you publish the torrent on a torrent site, the site tells you its announce URL.</dd>
 <dt>DHT nodes</dt>
-<dd>Addresses of DHT nodes that programs can ask for peers, in the form <code>address:port</code>. FatRat leaves out entries in any other form. These are stored in the torrent only when <b>Private torrent (disable DHT)</b> is ticked.</dd>
+<dd>Addresses of DHT nodes that programs can ask for peers, in the form <code>address:port</code>. FatRat leaves out entries in any other form. These are stored in the torrent only when <b>Private torrent (disable DHT)</b> is not ticked: a private torrent has no DHT nodes.</dd>
+<dt>Web seeds</dt>
+<dd>Web addresses of copies of the data, which downloaders can fetch pieces from. Each address must start with <code>http://</code> or <code>https://</code>; FatRat leaves out the others.</dd>
 </dl>
-
-<p>The dialog also has a <b>Web seeds</b> tab, but you cannot enter anything there in this version, so no web seeds are added to the torrent.</p>
 
 <h2>Creating the file</h2>
 
-<p>Click <b>Create</b>. FatRat reads all the data to compute the checksums, which takes a while for large data; a progress bar shows how far it is. Then FatRat asks where to save the <code>.torrent</code> file. The dialog closes as soon as the checksums are done, even if you cancel the save dialog, in which case the torrent is lost and you have to create it again. If the data path is not valid, FatRat says "The data path is invalid." and nothing is created.</p>
+<p>Click <b>Create</b>. FatRat reads all the data to compute the checksums, which takes a while for large data; a progress bar shows how far it is. Then FatRat asks where to save the <code>.torrent</code> file. The dialog closes after the file is written. If you cancel the save dialog, the Create a torrent dialog stays open, and you can click <b>Create</b> again. FatRat then reads all the data again. If the data path is not valid, FatRat says "The data path is invalid." and nothing is created.</p>
 
 <h2>Sharing the torrent</h2>
 
