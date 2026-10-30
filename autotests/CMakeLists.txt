@@ -9,6 +9,11 @@ if(WITH_BITTORRENT)
 	add_executable(tst_torrentpiecemap tst_torrentpiecemap.cpp ${CMAKE_SOURCE_DIR}/src/engines/TorrentPieceMap.cpp)
 	target_link_libraries(tst_torrentpiecemap Qt6::Core Qt6::Test LibtorrentRasterbar::torrent-rasterbar)
 	add_test(NAME torrentpiecemap COMMAND tst_torrentpiecemap)
+
+	add_executable(tst_torrentsessionoptions tst_torrentsessionoptions.cpp)
+	target_include_directories(tst_torrentsessionoptions PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries(tst_torrentsessionoptions Qt6::Core Qt6::Network Qt6::Test)
+	add_test(NAME torrentsessionoptions COMMAND tst_torrentsessionoptions)
 endif(WITH_BITTORRENT)
 
 add_executable(tst_legacyregex tst_legacyregex.cpp)

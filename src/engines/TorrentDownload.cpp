@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "Queue.h"
 #include "TorrentDownload.h"
+#include "TorrentSessionOptions.h"
 #ifdef WITH_GUI
 #	include "TorrentSettings.h"
 #endif
@@ -179,9 +180,11 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 		fingerprint = libtorrent::generate_fingerprint("LT", s1, s2, s3, s4);
 
 	int lstart = getSettingsValue("torrent/listen_start").toInt();
+	int lend = getSettingsValue("torrent/listen_end").toInt();
 
 	settings.set_str(libtorrent::settings_pack::peer_fingerprint, fingerprint);
-	settings.set_str(libtorrent::settings_pack::listen_interfaces, QString("0.0.0.0:%1, [::]:%1").arg(lstart).toStdString());
+	settings.set_str(libtorrent::settings_pack::listen_interfaces, TorrentSessionOptions::listenInterfaces(lstart).toStdString());
+	settings.set_int(libtorrent::settings_pack::max_retry_port_bind, TorrentSessionOptions::listenRetries(lstart, lend));
 
 	settings.set_bool(libtorrent::settings_pack::enable_upnp, getSettingsValue("torrent/mapping_upnp").toBool());
 	settings.set_bool(libtorrent::settings_pack::enable_natpmp, getSettingsValue("torrent/mapping_natpmp").toBool());
@@ -209,7 +212,6 @@ void TorrentDownload::fillSettings(libtorrent::settings_pack& settings)
 	settings.set_int(libtorrent::settings_pack::unchoke_slots_limit, getSettingsValue("torrent/maxuploads").toInt());
 	settings.set_int(libtorrent::settings_pack::connections_limit, getSettingsValue("torrent/maxconnections").toInt());
 
-	// TODO: Remove cache_size and announce_ip from settings!
 	settings.set_int(libtorrent::settings_pack::disk_io_write_mode, getSettingsValue("torrent/disk_io_write_mode").toInt());
 	settings.set_int(libtorrent::settings_pack::disk_io_read_mode, getSettingsValue("torrent/disk_io_read_mode").toInt());
 
