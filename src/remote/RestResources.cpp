@@ -775,7 +775,9 @@ static RestResult addTransfers(const RestRequest& req)
 
 			if (add.engine.isEmpty())
 			{
-				if (Transfer::BestEngine be = Transfer::bestEngine("/" + uploadedName, Transfer::Download))
+				// Score 1 is only MetalinkDownload's fallback for any file name: an upload that nothing
+				// recognises (not a .torrent, .metalink or .meta4, no plugin claims it) is not a metalink.
+				if (Transfer::BestEngine be = Transfer::bestEngine("/" + uploadedName, Transfer::Download); be && be.score > 1)
 					add.engine = be.engine->shortName;
 				if (add.engine.isEmpty())
 					throw RestError(422, "no_matching_engine", "No download class is able to handle this file.");

@@ -295,6 +295,7 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 				best.engine = &g_enginesDownload[i];
 				best.nClass = i;
 				best.type = Download;
+				best.score = n;
 			}
 		}
 	}
@@ -316,6 +317,7 @@ Transfer::BestEngine Transfer::bestEngine(QString uri, Mode type)
 				best.engine = &g_enginesUpload[i];
 				best.nClass = i;
 				best.type = Upload;
+				best.score = n;
 			}
 		}
 	}

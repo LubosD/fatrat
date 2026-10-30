@@ -102,6 +102,12 @@ TD=$(echo "$body" | jq -r '.uuids[0]')
 req GET "/transfers/$(enc "$TD")";               check "target defaults to the queue directory" 200 '.object=="/tmp"'
 req DELETE "/transfers/$(enc "$TD")";            check "delete defaulted transfer" 204
 
+# multipart upload with automatic class detection: a file nothing recognises is not a metalink
+SMOKE_TXT=$(mktemp); echo "not a download" > "$SMOKE_TXT"
+req POST "/queues/$QE/transfers" -F "file=@$SMOKE_TXT;filename=smoke.txt" -F 'options={"paused":true}'
+check "upload of an unrecognised file" 422 '.error.code=="no_matching_engine"'
+rm -f "$SMOKE_TXT"
+
 # protocol-level checks
 req POST /queues -H 'Content-Type: text/xml' --data '<x/>';           check "text/xml rejected" 415 '.error.code=="unsupported_media_type"'
 req POST /settings/apply -H 'Origin: https://evil.example';           check "foreign origin rejected" 403 '.error.code=="forbidden_origin"'
