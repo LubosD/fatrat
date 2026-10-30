@@ -279,6 +279,13 @@ void HttpService::setup()
 				file.toStdString().c_str(),
 				file.toStdString().c_str()
 			);
+			if (!s->is_valid())
+			{
+				// Do not fall back to plain HTTP: the user asked for encryption
+				Logger::global()->enterLogMessage("HttpService",
+					tr("Cannot use %1 as the SSL key and certificate (invalid or unreadable PEM, it needs both the private key and the certificate), not listening").arg(file));
+				return;
+			}
 			m_server = std::move(s);
 		}
 	}
@@ -292,11 +299,19 @@ void HttpService::setup()
 
 	registerRoutes(*m_server, true);
 
+	if (!m_server->bind_to_port("0.0.0.0", static_cast<int>(m_port)))
+	{
+		Logger::global()->enterLogMessage("HttpService",
+			tr("Cannot listen on port %1 (already in use?)").arg(m_port));
+		m_server.reset();
+		return;
+	}
+
 	Logger::global()->enterLogMessage("HttpService",
 		tr("Listening on port %1").arg(m_port));
 
 	m_serverThread = std::thread([this]() {
-		m_server->listen("0.0.0.0", static_cast<int>(m_port));
+		m_server->listen_after_bind();
 	});
 }
 
