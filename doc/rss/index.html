@@ -23,7 +23,7 @@
 <p>All three front ends manage the same feeds and rules, and they can be open at the same time.</p>
 
 <ul>
-<li><b>Desktop:</b> open <b>Settings</b> and choose the <b>RSS</b> page. It has three tabs: <b>General</b>, <b>RSS feeds</b> and <b>Regular expressions</b> (the rules). Changes are saved when you click <b>OK</b>.</li>
+<li><b>Desktop:</b> open <b>Settings</b> and choose the <b>RSS</b> page. It has three tabs: <b>General</b>, <b>RSS feeds</b> and <b>Regular expressions</b> (the rules). Changes are saved when you click <b>OK</b> or <b>Apply</b>.</li>
 <li><b>Web interface:</b> open <b>Settings</b> and choose <b>RSS</b>. The page lists <b>Feeds</b> and <b>Rules</b>. Feeds and rules are saved as soon as you save their dialog, even if you later click <b>Cancel</b> in Settings. The two general options are saved with <b>OK</b>.</li>
 <li><b>Terminal:</b> press <code>2</code> to open the <b>RSS</b> tab. It has a <b>Feeds</b> pane and a <b>Download rules</b> pane; Tab switches between them. Changes are saved at once. The two general options are in the settings (<code>O</code>), on the RSS page.</li>
 </ul>
@@ -43,7 +43,7 @@
 
 <p>When checking is turned on, FatRat fetches the feeds right away, and then every interval.</p>
 
-<p>To fetch the feeds now, use <b>Update</b> (desktop), <b>Update now</b> (web interface) or <code>R</code> on the RSS tab (terminal). This works even when automatic checking is off. It uses the feeds that are saved, so on the desktop click <b>OK</b> first after adding a feed.</p>
+<p>To fetch the feeds now, use <b>Update</b> (desktop), <b>Update now</b> (web interface) or <code>R</code> on the RSS tab (terminal). This works even when automatic checking is off. It uses the feeds that are saved, so on the desktop click <b>OK</b> or <b>Apply</b> first after adding a feed.</p>
 
 <h2>Feeds</h2>
 
@@ -120,7 +120,7 @@
 <dt>Download trailers/teasers (web interface: <b>Download trailers and teasers</b>, terminal: <b>Include trailers</b>)</dt>
 <dd>An item with <code>trailer</code> or <code>teaser</code> in its title is skipped unless this is on. If it is on, it is tracked separately from the real episode. It is off by default.</dd>
 <dt>Exclude episodes downloaded manually (terminal: <b>Exclude manual</b>)</dt>
-<dd>When you add a BitTorrent transfer yourself from a <code>.torrent</code> file, and its name matches the rule's expression and holds an episode number, FatRat marks that episode as downloaded. It is then not downloaded again from the feed. This is on by default on the desktop and in the web interface.</dd>
+<dd>When you add a BitTorrent transfer yourself from a <code>.torrent</code> file, and its name matches the rule's expression and holds an episode number, FatRat marks that episode as downloaded. It is then not downloaded again from the feed. This is on by default on the desktop and in the web interface, and off by default in the terminal client.</dd>
 </dl>
 
 <h3>List of downloaded episodes</h3>
