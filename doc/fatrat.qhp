@@ -34,6 +34,7 @@
 			<file>web/index.html</file>
 			<file>web/web.png</file>
 			<file>tui/index.html</file>
+			<file>tui/tui.png</file>
 			<file>clipboard/index.html</file>
 			<file>scheduler/index.html</file>
 			<file>extensions/index.html</file>
