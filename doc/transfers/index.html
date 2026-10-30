@@ -31,9 +31,9 @@
 <dt>Type</dt>
 <dd><b>Download</b> or <b>Upload</b>.</dd>
 <dt>URIs (downloads)</dt>
-<dd>The links to download, one per line. <b>Add special</b> lets you add local files (such as a <code>.torrent</code> file), the contents of a text file, or the links on the clipboard. <b>Set authentication data</b> stores a user name and password for links that match a regular expression.</dd>
+<dd>The links to download, one per line. <b>Add special</b> lets you add local files (such as a <code>.torrent</code> file), the contents of a text file, or the links on the clipboard. <b>Set authentication data</b> asks for a user name and password, which FatRat adds to every link in the dialog that has none of its own.</dd>
 <dt>Files (uploads)</dt>
-<dd>The local files to upload. Here <b>Destination</b> is the place to upload to.</dd>
+<dd>The local files to upload. Here <b>Destination</b> is the place to upload to, and <b>Set authentication data</b> adds the user name and password to that address.</dd>
 <dt>Destination</dt>
 <dd>The directory to save into. It starts as the target directory of the chosen queue.</dd>
 <dt>Download as / Upload as</dt>
@@ -58,8 +58,8 @@
 
 <ul>
 <li><b>Desktop:</b> <b>Move to top</b>, <b>Move up</b>, <b>Move down</b> and <b>Move to bottom</b> in the <b>Transfer</b> menu.</li>
-<li><b>Web interface:</b> <b>Move to Top</b>, <b>Move Up</b>, <b>Move Down</b> and <b>Move to Bottom</b> in the transfer menu.</li>
-<li><b>Terminal:</b> <b>M</b> (Move).</li>
+<li><b>Web interface:</b> <b>Move to Top</b> ({), <b>Move Up</b> ([), <b>Move Down</b> (]) and <b>Move to Bottom</b> (}) in the transfer menu.</li>
+<li><b>Terminal:</b> <b>M</b> (Move), then <b>T</b>, <b>U</b>, <b>D</b> or <b>B</b> for top, up, down or bottom. <b>[</b> and <b>]</b> move the transfer up and down directly.</li>
 </ul>
 
 <h3>Creating and editing queues</h3>
@@ -72,39 +72,41 @@
 
 <h3>Queue properties</h3>
 
-<p>The labels below are those of the desktop "Queue properties" dialog. The web interface's labels are given in brackets where they differ.</p>
+<p>Each entry below is headed with the label in the desktop "Queue properties" dialog. The web interface and the terminal labels follow where they differ.</p>
 
 <dl>
 <dt>Name</dt>
 <dd>The queue's name.</dd>
-<dt>Destination directory (web: Target directory)</dt>
-<dd>Where new transfers in this queue save their files, unless you choose another directory when you add them. A new queue gets your Downloads folder, or your home folder if there is no Downloads folder.</dd>
-<dt>Move transfers after completion (web: Move to directory after completion)</dt>
-<dd>When a download completes, its data is moved to this directory. Leave it empty to keep the data where it is. Uploads are never moved.</dd>
-<dt>Add files dropped into a watch folder (web: Watch folder)</dt>
-<dd>A folder that FatRat watches for <code>.torrent</code>, <code>.metalink</code>, <code>.meta4</code>, <code>.txt</code> and <code>.magnet</code> files to add to this queue. See <a href="../watchfolders/index.html">Watch Folders</a>.</dd>
-<dt>Down speed limit / Up speed limit (kiB/s) (web: Download / Upload speed limit (KB/s))</dt>
-<dd>The total speed of all transfers in the queue. 0 means no limit. See Speed limits below.</dd>
+<dt>Destination directory</dt>
+<dd>Web: <b>Target directory</b>. Terminal: <b>Default directory</b>. Where new downloads in this queue save their files, unless you choose another directory when you add them. The desktop fills in your Downloads folder for a new queue, or your home folder if there is no Downloads folder. The web interface and the terminal start with the field empty. If you leave it empty, downloads that are added without a directory, for example from a watch folder, go to your home folder.</dd>
+<dt>Move transfers after completion</dt>
+<dd>Web: <b>Move to directory after completion</b>. Terminal: <b>Move finished to</b>. When a download completes, its data is moved to this directory. Leave it empty to keep the data where it is. Uploads are never moved.</dd>
+<dt>Add files dropped into a watch folder</dt>
+<dd>Web and terminal: <b>Watch folder</b>. A folder that FatRat watches for <code>.torrent</code>, <code>.metalink</code>, <code>.meta4</code>, <code>.txt</code> and <code>.magnet</code> files to add to this queue. See <a href="../watchfolders/index.html">Watch Folders</a>.</dd>
+<dt>Down speed limit / Up speed limit (kiB/s)</dt>
+<dd>Web: <b>Download speed limit (KB/s)</b> and <b>Upload speed limit (KB/s)</b>. Terminal: <b>Speed limit down</b> and <b>Speed limit up</b>. The total speed of all transfers in the queue. 0 means no limit. See Speed limits below.</dd>
 <dt>Limit active transfer count</dt>
-<dd>When ticked, the queue runs at most <b>Maximum active download transfers</b> downloads and <b>Maximum active upload transfers</b> uploads at once (web: <b>Max active downloads</b>, <b>Max active uploads</b>). When unticked, every waiting transfer runs.</dd>
-<dt>Count as downloads (web: Count uploads as downloads)</dt>
-<dd>Uploads count against the download limit, so downloads and uploads share one limit and the upload limit is not used.</dd>
+<dd>Desktop only. When ticked, the queue runs at most <b>Maximum active download transfers</b> downloads and <b>Maximum active upload transfers</b> uploads at once. When unticked, every waiting transfer runs, and the two maximums and <b>Count as downloads</b> can't be changed.</dd>
+<dt>Maximum active download transfers / Maximum active upload transfers</dt>
+<dd>Web: <b>Max active downloads</b> and <b>Max active uploads</b>. Terminal: <b>Active downloads</b> and <b>Active uploads</b>. Here the number itself sets the limit: 0 means that only Forced active transfers run, and -1 (web interface only) means no limit.</dd>
+<dt>Count as downloads</dt>
+<dd>Web: <b>Count uploads as downloads</b>. Terminal: <b>Upload as download</b>. Uploads count against the download limit, so downloads and uploads share one limit and the upload limit is not used.</dd>
 </dl>
 
-<p>A new queue has no speed limits, runs at most 1 download and 1 upload at a time, and does not count uploads as downloads.</p>
+<p>A queue made on the desktop has no speed limits and runs at most 1 download and 1 upload at a time. <b>Important:</b> in the web interface and the terminal, the maximum active downloads and uploads of a new queue start at 0. A queue saved with 0 runs only Forced active transfers, and everything else stays Waiting. Set both numbers to at least 1, or, in the web interface, to -1 for no limit.</p>
 
 <h3>How a queue decides what runs</h3>
 
 <p>Once a second, each queue goes through its transfers from top to bottom. Only transfers that are <b>Waiting</b> or <b>Active</b> take part:</p>
 
 <ul>
-<li>While there is a free place under the queue's limit, the transfer becomes Active.</li>
+<li>While there is a free place under the queue's active-transfer limit, the transfer becomes Active.</li>
 <li>When the limit is reached, the remaining transfers become (or stay) Waiting. This also happens to an Active transfer if you lower the limit, or if you move a waiting transfer above it.</li>
 </ul>
 
 <p>Downloads and uploads have separate limits, unless <b>Count as downloads</b> is ticked. What counts is what the transfer does at the moment: a torrent that has finished downloading and is seeding counts as an upload.</p>
 
-<p>Transfers that are Forced active, Paused, Failed or Completed don't take a place under the limit.</p>
+<p>Transfers that are Forced active, Paused, Failed or Completed don't take a place under the limit. Forced active transfers still share the queue's speed limit with the Active ones.</p>
 
 <h2>Transfer states</h2>
 
@@ -129,16 +131,20 @@
 
 <p>On the desktop, these are in the <b>Transfer</b> menu and on the toolbar. <b>Start</b> on a Forced active transfer makes it a normal Active one again.</p>
 
-<p><b>Desktop:</b> the <b>Queue</b> menu also has <b>Start all</b>, which makes every Paused or Failed transfer in the queue Waiting, and <b>Pause all</b>, which pauses every transfer in the queue that has not completed. <b>FatRat</b> → <b>Pause all transfers</b> pauses the transfers in every queue. Choose it again to put them back in the state they were in.</p>
+<p><b>Desktop:</b> the <b>Queue</b> menu also has <b>Start all</b>, which makes every Paused or Failed transfer in the queue Waiting, and <b>Pause all</b>, which pauses every transfer in the queue that has not completed. <b>FatRat</b> → <b>Pause all transfers</b> pauses the Waiting, Active and Forced active transfers in every queue. Choose it again to put them back in the state they were in. FatRat forgets those states as soon as any transfer changes to a state other than Paused, for example when you start one, a failed one is retried, or a new one is added from a watch folder, RSS or the clipboard. It also forgets them when FatRat is restarted.</p>
+
+<p><b>Web interface:</b> the queue menu has <b>Resume All</b> and <b>Stop All</b>.</p>
 
 <h3>Failed and completed transfers</h3>
 
-<p><b>Desktop:</b> <b>Settings</b> → <b>Queue</b> controls what happens next:</p>
+<p>What happens next is set on the desktop only, in <b>Settings</b> → <b>Settings...</b>, on the <b>Queue</b> page:</p>
 
 <ul>
-<li><b>If transfer fails</b>: <b>Retry</b> a number of <b>times</b> (default 0), or <b>Always retry if the transfer has been working before</b> (on by default).</li>
-<li><b>When transfer completes</b>: <b>Remove from the queue</b> (off by default). <b>Queue</b> → <b>Remove completed</b> removes completed transfers by hand.</li>
+<li><b>If transfer fails</b>: when <b>Always retry if the transfer has been working before</b> is ticked (the default), FatRat retries a failed transfer only if it had been transferring data before it failed. There is no limit on how many times this happens, and the <b>Retry</b> … <b>times</b> count is not used. Untick it to retry any failed transfer up to that many times (default 0).</li>
+<li><b>When transfer completes</b>: <b>Remove from the queue</b> (off by default).</li>
 </ul>
+
+<p>To remove completed transfers by hand, use <b>Queue</b> → <b>Remove completed</b> on the desktop, or <b>Delete Completed</b> (C) in the web interface.</p>
 
 <h2>Transfer properties</h2>
 
@@ -154,13 +160,14 @@
 
 <dl>
 <dt>Destination</dt>
-<dd>The directory a download saves into. For an upload it is the file being uploaded (web: <b>Source</b>). If you change a download's destination, FatRat moves its data there.</dd>
+<dd>The directory a download saves into. For an upload the field is called <b>Source</b>, and it is the file being uploaded. If you change a download's destination, FatRat moves its data there.</dd>
 <dt>Speed limits</dt>
 <dd>Desktop: <b>Down speed limit (kB/s)</b> and <b>Up speed limit (kB/s)</b>. Web: <b>Max download speed (KB/s)</b> and <b>Max upload speed (KB/s)</b>. 0 means no limit.</dd>
 <dt>Comment</dt>
 <dd>Free text for your own notes.</dd>
 <dt>Command on completion</dt>
-<dd>Desktop: "Run the following command when the transfer completes", on the <b>Actions</b> page. Web: <b>Run on completion</b>. In the command, <code>%N</code> is the transfer's name, <code>%T</code> its type, <code>%D</code> its destination directory and <code>%P</code> the file path.</dd>
+<dd>Desktop: "Run the following command when the transfer completes", on the <b>Actions</b> page. Web: <b>Run on completion</b>. In the command, <code>%N</code> is the transfer's name, <code>%T</code> its type, <code>%D</code> its directory (for an upload, the directory of the source file) and <code>%P</code> the file path. The command runs through <code>/bin/sh</code>, and the values are put in as they are, so put quotes around them in case a name contains spaces, for example:
+<pre>cp "%P" /mnt/backup/</pre></dd>
 </dl>
 
 <p>The desktop dialog has these on its <b>Generic options</b>, <b>Comment</b> and <b>Actions</b> pages. A <b>Details</b> page holds the engine's own options. The web interface shows the engine's options under <b>Options</b>.</p>
@@ -180,13 +187,13 @@
 <p>You can limit speed in two places:</p>
 
 <ul>
-<li><b>Per queue:</b> a limit for all transfers in the queue together. On the desktop, the status bar shows the selected queue's limits; right-click them to pick a new limit quickly.</li>
-<li><b>Per transfer:</b> a limit for one transfer, set when you add it or in its properties.</li>
+<li><b>Per queue:</b> a limit for all transfers in the queue together. On the desktop, the status bar shows the selected queue's limits; right-click them to pick a new limit quickly. In the terminal, press <b>L</b> in the queue list.</li>
+<li><b>Per transfer:</b> a limit for one transfer, set when you add it or in its properties. In the terminal, press <b>L</b> in the transfer list.</li>
 </ul>
 
 <p>A queue's limit is shared between its running transfers. FatRat starts by splitting the limit equally, then adjusts the shares every second so that bandwidth one transfer doesn't use can go to the others. When a transfer has its own limit and that limit is lower than its share, the transfer's own limit applies.</p>
 
-<p>There is no limit across all queues. The <b>Line speed</b> setting in <b>Settings</b> → <b>Network</b> is not a speed limit. To change queue limits at set times, use the <a href="../scheduler/index.html">Scheduler</a>.</p>
+<p>There is no limit across all queues. The <b>Line speed</b> setting on the <b>Network</b> page of <b>Settings</b> → <b>Settings...</b> (desktop) is not a speed limit. To change queue limits at set times, use the <a href="../scheduler/index.html">Scheduler</a>.</p>
 
 </body>
 </html>
