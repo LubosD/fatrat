@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TransferApi } from './api/transfer-api';
 import { QueuesStore } from '../state/queues.store';
-import { DeleteQueueOptions, Queue } from './api/models';
+import { DeleteQueueOptions, Queue, Transfer } from './api/models';
 import { TransfersStore } from '../state/transfers.store';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Observable, map, of, switchMap } from 'rxjs';
@@ -51,24 +51,25 @@ export class QueueActionsService {
     });
   }
 
-  /** Mirrors the desktop queue menu's "Resume All" / "Stop All". */
+  /** Mirrors the desktop queue menu: Resume All queues the paused and failed transfers. */
   resumeAll(uuid: string): void {
-    this.setAllStates(uuid, 'Waiting');
+    this.setAllStates(uuid, 'Waiting', (t) => t.state === 'Paused' || t.state === 'Failed');
   }
 
+  /** Stop All pauses everything that isn't finished. */
   stopAll(uuid: string): void {
-    this.setAllStates(uuid, 'Paused');
+    this.setAllStates(uuid, 'Paused', (t) => t.state !== 'Completed');
   }
 
   private showError(summary: string, err: unknown): void {
     this.messages.add({ severity: 'error', summary, detail: err instanceof Error ? err.message : String(err) });
   }
 
-  private setAllStates(queueUuid: string, state: 'Waiting' | 'Paused'): void {
+  private setAllStates(queueUuid: string, state: 'Waiting' | 'Paused', applies: (t: Transfer) => boolean): void {
     this.transferApi
       .getQueueTransfers(queueUuid)
       .pipe(
-        map((transfers) => transfers.map((t) => t.uuid)),
+        map((transfers) => transfers.filter(applies).map((t) => t.uuid)),
         switchMap((uuids) => (uuids.length === 0 ? of(undefined) : this.transferApi.setTransferProperties(uuids, { state }))),
       )
       .subscribe({

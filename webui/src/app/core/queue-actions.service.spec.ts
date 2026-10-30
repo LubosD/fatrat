@@ -15,6 +15,8 @@ describe('QueueActionsService', () => {
   let confirm: ReturnType<typeof vi.fn>;
   let transfersRefresh: ReturnType<typeof vi.fn>;
   let messagesAdd: ReturnType<typeof vi.fn>;
+  let getQueueTransfers: ReturnType<typeof vi.fn>;
+  let setTransferProperties: ReturnType<typeof vi.fn>;
   let service: QueueActionsService;
 
   beforeEach(() => {
@@ -25,11 +27,15 @@ describe('QueueActionsService', () => {
     confirm = vi.fn();
     transfersRefresh = vi.fn();
     messagesAdd = vi.fn();
+    getQueueTransfers = vi.fn().mockReturnValue(
+      of(['Completed', 'Active', 'Waiting', 'Paused', 'Failed', 'ForcedActive'].map((state) => ({ uuid: state.toLowerCase(), state }))),
+    );
+    setTransferProperties = vi.fn().mockReturnValue(of(undefined));
 
     TestBed.configureTestingModule({
       providers: [
         QueueActionsService,
-        { provide: TransferApi, useValue: { createQueue, setQueueProperties, deleteQueue } },
+        { provide: TransferApi, useValue: { createQueue, setQueueProperties, deleteQueue, getQueueTransfers, setTransferProperties } },
         { provide: MessageService, useValue: { add: messagesAdd } },
         { provide: ConfirmationService, useValue: { confirm } },
         { provide: TransfersStore, useValue: { refreshNow: transfersRefresh } },
@@ -86,6 +92,24 @@ describe('QueueActionsService', () => {
     expect(deleteQueue).toHaveBeenCalledWith('q1', { moveTo: 'q2' });
     expect(refreshNow).toHaveBeenCalled();
     expect(transfersRefresh).toHaveBeenCalled();
+  });
+
+  it('resumeAll() queues only the paused and failed transfers, like the desktop', () => {
+    service.resumeAll('q1');
+    expect(getQueueTransfers).toHaveBeenCalledWith('q1');
+    expect(setTransferProperties).toHaveBeenCalledTimes(1);
+    expect(setTransferProperties).toHaveBeenCalledWith(['paused', 'failed'], { state: 'Waiting' });
+  });
+
+  it('stopAll() pauses everything that is not completed', () => {
+    service.stopAll('q1');
+    expect(setTransferProperties).toHaveBeenCalledWith(['active', 'waiting', 'paused', 'failed', 'forcedactive'], { state: 'Paused' });
+  });
+
+  it('resumeAll() sends nothing when no transfer qualifies', () => {
+    getQueueTransfers.mockReturnValue(of([{ uuid: 'a', state: 'Completed' }]));
+    service.resumeAll('q1');
+    expect(setTransferProperties).not.toHaveBeenCalled();
   });
 
   it('createQueue() does not refresh when the API call errors', () => {
