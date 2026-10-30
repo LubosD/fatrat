@@ -326,16 +326,37 @@ QString argsToArg(int argc,char** argv)
 			daemonize();
 		}
 		else if (!strcasecmp(argv[i], "--pidfile") || !strcasecmp(argv[i], "-p"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << argv[i] << " requires a file name\n";
+				exit(1);
+			}
 			m_strPidFile = argv[++i];
+		}
 		else if (!strcasecmp(argv[i], "--user") || !strcasecmp(argv[i], "-u"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << argv[i] << " requires a user name\n";
+				exit(1);
+			}
 			m_strSetUser = argv[++i];
+		}
 		else if(!strcasecmp(argv[i], "--no-python"))
 		{
 			qDebug() << "Disabling Python support";
 			m_bDisablePython = true;
 		}
 		else if (!strcasecmp(argv[i], "-c") || !strcasecmp(argv[i], "--config"))
+		{
+			if (i+1 >= argc)
+			{
+				std::cerr << argv[i] << " requires a file name\n";
+				exit(1);
+			}
 			m_strSettingsPath = argv[++i];
+		}
 		else if (!strcasecmp(argv[i], "--rest-socket"))
 		{
 			if (i+1 >= argc)
@@ -352,9 +373,11 @@ QString argsToArg(int argc,char** argv)
 		}
 		else if (!strcasecmp(argv[i], "--syslog"))
 			Logger::global()->toggleSysLog(true);
-		else if(argv[i][0] == '-')
+		else if(argv[i][0] == '-' && argv[i][1] != 0)
 		{
-			i++;
+			// Unknown option: none of the options we know has an optional value,
+			// so do not swallow the argument that follows (it may be a link).
+			std::cerr << "Ignoring unknown option " << argv[i] << "\n";
 		}
 		else
 		{
