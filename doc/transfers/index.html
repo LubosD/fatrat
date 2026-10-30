@@ -78,7 +78,7 @@
 <dt>Name</dt>
 <dd>The queue's name.</dd>
 <dt>Destination directory</dt>
-<dd>Web: <b>Target directory</b>. Terminal: <b>Default directory</b>. Where new downloads in this queue save their files, unless you choose another directory when you add them. The desktop fills in your Downloads folder for a new queue, or your home folder if there is no Downloads folder. The web interface and the terminal start with the field empty. If you leave it empty, downloads that are added without a directory, for example from a watch folder, go to your home folder.</dd>
+<dd>Web: <b>Target directory</b>. Terminal: <b>Default directory</b>. Where new downloads in this queue save their files, unless you choose another directory when you add them. The desktop fills in your Downloads folder for a new queue, or your home folder if there is no Downloads folder. The web interface and the terminal start with the field empty. If you leave it empty, downloads added from the web interface, the terminal or a watch folder without a directory go to your home folder. On the desktop, fill in <b>Destination</b> yourself in the New transfer dialog.</dd>
 <dt>Move transfers after completion</dt>
 <dd>Web: <b>Move to directory after completion</b>. Terminal: <b>Move finished to</b>. When a download completes, its data is moved to this directory. Leave it empty to keep the data where it is. Uploads are never moved.</dd>
 <dt>Add files dropped into a watch folder</dt>
@@ -167,7 +167,7 @@
 <dd>Free text for your own notes.</dd>
 <dt>Command on completion</dt>
 <dd>Desktop: "Run the following command when the transfer completes", on the <b>Actions</b> page. Web: <b>Run on completion</b>. In the command, <code>%N</code> is the transfer's name, <code>%T</code> its type, <code>%D</code> its directory (for an upload, the directory of the source file) and <code>%P</code> the file path. The command runs through <code>/bin/sh</code>, and the values are put in as they are, so put quotes around them in case a name contains spaces, for example:
-<pre>cp "%P" /mnt/backup/</pre></dd>
+<pre>cp -r "%P" /mnt/backup/</pre></dd>
 </dl>
 
 <p>The desktop dialog has these on its <b>Generic options</b>, <b>Comment</b> and <b>Actions</b> pages. A <b>Details</b> page holds the engine's own options. The web interface shows the engine's options under <b>Options</b>.</p>
