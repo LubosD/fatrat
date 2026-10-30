@@ -6,6 +6,9 @@ info:
     JSON API used by the FatRat web UI. All paths are under /api/v1.
     Authentication: HTTP Basic (any user name, the password from the Web Interface settings),
     unchanged from the previous XML-RPC endpoint.
+    A missing or wrong password is answered with 401, the `WWW-Authenticate: Basic` header (so browsers
+    prompt) and the usual error body with code `unauthorized`; this applies to every route, whatever the
+    operation lists below.
     Requests with a body must use Content-Type: application/json (multipart/form-data for the transfer
     upload only), and any request carrying an Origin header must name the same host as Host. This keeps
     cross-site pages from driving the API with the browser's cached credentials.
@@ -119,6 +122,9 @@ paths:
         application/json adds one transfer per entry of `urls`.
         multipart/form-data adds one transfer from the uploaded `file` part (a .torrent, metalink, ...);
         the `options` part is a JSON string with the same fields as the JSON body, minus `urls`.
+        With `class` empty the engine is picked from the file name; a file nothing recognises (not a
+        .torrent, .metalink or .meta4, and no plugin claims it) is 422 `no_matching_engine`.
+        500 `temp_file_failed` or `create_failed` are server-side failures.
       parameters: [ { $ref: "#/components/parameters/queue" } ]
       requestBody:
         required: true
@@ -135,6 +141,7 @@ paths:
         "201": { description: Created, content: { application/json: { schema: { type: object, required: [uuids], properties: { uuids: { type: array, items: { type: string } } } } } } }
         "404": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
+        "500": { $ref: "#/components/responses/Error" }
   /queues/{queue}/transfers/move:
     post:
       summary: Reorder transfers within a queue
@@ -169,6 +176,10 @@ paths:
   /transfers:
     patch:
       summary: Update several transfers (all-or-nothing)
+      description: |
+        Either every transfer is updated or none is: bad input (an unknown transfer or queue, a bad value, an
+        `object` that is not an existing directory/readable file) is rejected with nothing changed, and if
+        changing `object` fails on one transfer the ones already changed are put back.
       requestBody:
         required: true
         content:
@@ -287,6 +298,203 @@ paths:
       responses:
         "200": { description: OK, content: { application/json: { schema: { type: object, required: [path], properties: { path: { type: string } } } } } }
         "500": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/actions:
+    get:
+      summary: Plugin actions that apply to the transfer
+      description: What the transfer's context menu offers, built-in and from plugins; the list may change between calls.
+      tags: [plugins]
+      parameters: [ { $ref: "#/components/parameters/transfer" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/TransferAction" } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /transfers/{transfer}/actions/{action}:
+    post:
+      summary: Run a plugin action on the transfer
+      description: |
+        204 if the action finished without creating a task, 202 with the id of the task it started otherwise
+        (follow it under /tasks). 404 `action_not_found` for an unknown action, 409 `not_applicable` if it no longer
+        applies to this transfer, 500 `plugin_error` if the plugin raised an exception.
+      tags: [plugins]
+      parameters:
+        - { $ref: "#/components/parameters/transfer" }
+        - { name: action, in: path, required: true, schema: { type: string }, description: Action id }
+      responses:
+        "202": { description: A task was started, content: { application/json: { schema: { type: object, required: [task], properties: { task: { type: string } } } } } }
+        "204": { description: Done, nothing to follow }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "500": { $ref: "#/components/responses/Error" }
+  /tasks:
+    get:
+      summary: Tasks started by plugin actions (running, waiting for an answer, or finished and not yet dismissed)
+      tags: [plugins]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Task" } } } } }
+  /tasks/{task}:
+    parameters:
+      - { name: task, in: path, required: true, schema: { type: string }, description: Task id }
+    get:
+      summary: One task
+      tags: [plugins]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Cancel a running task, or dismiss a finished one
+      description: 204 for a finished task (it is removed from the list), 202 with the task for a running one (cancellation was requested, the plugin stops at its own pace).
+      tags: [plugins]
+      responses:
+        "202": { description: Cancellation requested, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "204": { description: Dismissed }
+        "404": { $ref: "#/components/responses/Error" }
+  /tasks/{task}/prompts/{prompt}:
+    parameters:
+      - { name: task, in: path, required: true, schema: { type: string }, description: Task id }
+      - { name: prompt, in: path, required: true, schema: { type: string }, description: "Prompt id, see Task.prompt.id" }
+    post:
+      summary: Answer a question a task is asking
+      description: |
+        `values` holds the answer for each keyed field of the question's form. 400 `invalid_answer` if it does not
+        validate (or is not an object), 404 `task_not_found`/`prompt_not_found`, 409 `already_answered` if the
+        question is no longer open, 410 `expired` once its time ran out. Returns the task afterwards.
+      tags: [plugins]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [values], properties: { values: { type: object, additionalProperties: true } } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Dismiss a question without answering it
+      description: The plugin sees the question as declined. Same 404, 409 and 410 as answering.
+      tags: [plugins]
+      responses:
+        "204": { description: Dismissed }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+  /plugins:
+    get:
+      summary: Installed Python extensions
+      description: |
+        A plugin whose manifest cannot be read is listed too, with `valid` false and an `error`, and none of
+        the other fields.
+      tags: [plugins]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Plugin" } } } } }
+    post:
+      summary: Install (or update) a plugin from a repository
+      description: |
+        A plugin that needs packages from PyPI is refused with 422 `dependencies_required` (the message lists them)
+        unless `withDependencies` is true. Other failures are 422 `install_failed`. The plugin is loaded now, or
+        replaces the running version once its transfers end.
+      tags: [plugins]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repository, plugin]
+              properties:
+                repository: { type: string, description: Repository id }
+                plugin: { type: string }
+                withDependencies: { type: boolean, default: false }
+      responses:
+        "201":
+          description: Installed (Location points at the plugin)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [plugin, repository, dependencies, state, activeTransfers, pendingReload, restartRequired]
+                properties:
+                  plugin: { type: string }
+                  repository: { type: string }
+                  dependencies: { type: array, items: { type: string }, description: The PyPI packages that were installed with it }
+                  state: { $ref: "#/components/schemas/PluginState" }
+                  activeTransfers: { type: integer }
+                  pendingReload: { type: boolean }
+                  loadError: { type: string, description: Only present if loading failed }
+                  restartRequired: { type: boolean, description: Always false; kept for older clients }
+        "422": { $ref: "#/components/responses/Error" }
+  /plugins/available:
+    get:
+      summary: Plugins the added repositories offer
+      tags: [plugins]
+      parameters:
+        - { name: updates, in: query, required: false, schema: { type: boolean, default: false }, description: Only those with a newer version than the installed one }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/AvailablePlugin" } } } } }
+  /plugins/{plugin}:
+    parameters:
+      - { name: plugin, in: path, required: true, schema: { type: string }, description: Plugin name }
+    get:
+      summary: One installed plugin
+      tags: [plugins]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Plugin" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      summary: Enable or disable a plugin
+      description: Only `enabled` can be changed; any other key is 422 `unknown_property`. Takes effect at once (a plugin still used by transfers is `draining`).
+      tags: [plugins]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, properties: { enabled: { type: boolean } } } } } }
+      responses:
+        "200": { description: The plugin afterwards, content: { application/json: { schema: { $ref: "#/components/schemas/Plugin" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Uninstall a plugin
+      description: 204 when removed, 202 if transfers still use it (the files go when they end). 500 `uninstall_failed` if the files cannot be removed.
+      tags: [plugins]
+      responses:
+        "202": { description: Draining, content: { application/json: { schema: { type: object, required: [plugin, state, activeTransfers], properties: { plugin: { type: string }, state: { const: draining }, activeTransfers: { type: integer } } } } } }
+        "204": { description: Uninstalled }
+        "404": { $ref: "#/components/responses/Error" }
+        "500": { $ref: "#/components/responses/Error" }
+  /plugins/{plugin}/reload:
+    post:
+      summary: Import the plugin's files again (for a plugin under development)
+      tags: [plugins]
+      parameters:
+        - { name: plugin, in: path, required: true, schema: { type: string }, description: Plugin name }
+      responses:
+        "200": { description: The plugin afterwards, content: { application/json: { schema: { $ref: "#/components/schemas/Plugin" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+  /plugin-repositories:
+    get:
+      summary: Plugin repositories that have been added
+      tags: [plugins]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/PluginRepository" } } } } }
+    post:
+      summary: Add a repository
+      description: "`source` is a git URL or a local directory. Plugins from it run with the user's privileges. 422 `repository_rejected` if it cannot be added."
+      tags: [plugins]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [source], properties: { source: { type: string } } } } } }
+      responses:
+        "201": { description: Added (Location points at the repository), content: { application/json: { schema: { $ref: "#/components/schemas/PluginRepository" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /plugin-repositories/refresh:
+    post:
+      summary: Fetch one repository, or all of them, again
+      description: Returns the list of repositories, like GET. The body may be empty. Runs on the request's own thread and can take seconds. 422 `refresh_failed` on error.
+      tags: [plugins]
+      requestBody: { required: false, content: { application/json: { schema: { type: object, properties: { repository: { type: string, description: Repository id; all if omitted } } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/PluginRepository" } } } } }
+        "422": { $ref: "#/components/responses/Error" }
+  /plugin-repositories/{repository}:
+    delete:
+      summary: Forget a repository (installed plugins stay)
+      tags: [plugins]
+      parameters:
+        - { name: repository, in: path, required: true, schema: { type: string }, description: Repository id }
+      responses:
+        "204": { description: Removed }
+        "404": { $ref: "#/components/responses/Error" }
   /rss/feeds:
     get:
       summary: List the RSS feeds
@@ -457,7 +665,7 @@ components:
           type: object
           required: [code, message]
           properties:
-            code: { type: string, description: "Stable slug, e.g. queue_not_found, transfer_not_found, invalid_property, invalid_json, invalid_direction, invalid_path, path_not_found, path_not_readable, no_matching_engine, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent, feed_not_found, regexp_not_found, duplicate_feed, no_episode_tracking, queue_not_empty" }
+            code: { type: string, description: "Stable slug, e.g. unauthorized, queue_not_found, transfer_not_found, task_not_found, action_not_found, prompt_not_found, plugin_not_found, repository_not_found, feed_not_found, regexp_not_found, invalid_property, unknown_property, invalid_json, invalid_answer, invalid_direction, invalid_path, path_not_found, path_not_readable, missing_file, missing_parameter, no_matching_engine, transfer_failed, unknown_route, method_not_allowed, unsupported_media_type, forbidden_origin, not_a_torrent, torrent_not_ready, duplicate_feed, no_episode_tracking, queue_not_empty, already_answered, not_applicable, expired, dependencies_required, install_failed, refresh_failed, repository_rejected, invalid_watch_directory, watch_directory_in_use, certificate_failed, temp_file_failed, create_failed, plugin_error, uninstall_failed, internal_error" }
             message: { type: string }
     SpeedPair:
       type: object
@@ -558,7 +766,7 @@ components:
       properties:
         uuid: { type: string }
         name: { type: string }
-        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed, Ready, Testing] }
+        state: { enum: [Waiting, Active, Paused, ForcedActive, Failed, Completed] }
         class: { type: string }
         message: { type: string }
         mode: { enum: [Download, Upload] }
@@ -660,6 +868,78 @@ components:
         time: { type: string, pattern: '^\d\d:\d\d$' }
         days: { type: array, minItems: 7, maxItems: 7, items: { type: boolean } }
         at: { type: string }
+    TransferAction:
+      type: object
+      required: [id, label, icon]
+      properties: { id: { type: string }, label: { type: string }, icon: { type: string } }
+    Task:
+      type: object
+      required: [id, plugin, title, transfer, transferName, state, progress, status, message]
+      description: A unit of work started by a plugin action. `prompt` is present while it waits for an answer.
+      properties:
+        id: { type: string }
+        plugin: { type: string }
+        title: { type: string }
+        transfer: { type: [string, "null"], description: UUID of the transfer it was started on }
+        transferName: { type: [string, "null"] }
+        state: { enum: [running, waiting, done, failed, cancelled] }
+        progress: { type: number }
+        status: { type: string }
+        message: { type: [string, "null"] }
+        prompt:
+          type: object
+          required: [id, form, expiresAt]
+          properties:
+            id: { type: string }
+            form: { type: object, required: [fields], properties: { fields: { type: array, items: { $ref: "#/components/schemas/FormField" } } }, description: The question, as a form }
+            expiresAt: { type: string, format: date-time }
+    PluginState: { enum: [loaded, failed, unloaded, draining], description: "draining: switched off or being replaced or removed, but still held by transfers started from it" }
+    Plugin:
+      type: object
+      required: [name, valid]
+      description: |
+        With `valid` false only `name` and `error` are present. The other fields are present when it is true,
+        except `loadError` (only if loading failed).
+      properties:
+        name: { type: string }
+        valid: { type: boolean }
+        error: { type: string }
+        version: { type: string }
+        description: { type: string }
+        license: { type: string }
+        homepage: { type: string }
+        api: { type: integer, description: The plugin API version the plugin was written for }
+        enabled: { type: boolean }
+        enabledKey: { type: string, description: The settings key behind `enabled` }
+        config: { type: object, additionalProperties: true, description: "The plugin's settings form from its manifest" }
+        state: { $ref: "#/components/schemas/PluginState" }
+        activeTransfers: { type: integer }
+        pendingReload: { type: boolean }
+        pendingUninstall: { type: boolean }
+        loadError: { type: string }
+        repository: { type: string, description: "Id of the repository it was installed from; only filled in by GET /plugins" }
+        source: { type: string, description: "Where it was installed from; only filled in by GET /plugins" }
+        permissions: { type: array, items: { type: string } }
+    AvailablePlugin:
+      type: object
+      required: [name, version, description, repository, installedVersion, dependencies]
+      properties:
+        name: { type: string }
+        version: { type: string }
+        description: { type: string }
+        repository: { type: string }
+        installedVersion: { type: string, description: Empty if not installed }
+        dependencies: { type: array, items: { type: string }, description: PyPI packages it needs }
+    PluginRepository:
+      type: object
+      required: [id, source, local, name, description, revision]
+      properties:
+        id: { type: string }
+        source: { type: string }
+        local: { type: boolean }
+        name: { type: string }
+        description: { type: string }
+        revision: { type: string }
     SettingsPage:
       type: object
       required: [title, script, icon]
