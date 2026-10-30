@@ -174,7 +174,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				fprintf(stderr, "Cannot use the password file %s (missing, or readable by others).\n", qPrintable(p.value("password-file")));
+				fprintf(stderr, "Cannot use the password file %s (missing, unreadable, or accessible by group or others; use chmod 600).\n", qPrintable(p.value("password-file")));
 				return 2;
 			}
 		}
