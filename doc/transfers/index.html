@@ -7,7 +7,186 @@
 
 <h1>Transfers and Queues</h1>
 
-<p>This page is being written.</p>
+<p>A transfer is one download or upload: a file over HTTP or FTP, a torrent, an FTP upload, and so on. Every transfer belongs to a queue. The queue decides where its files go, how fast its transfers may run and how many of them run at once.</p>
+
+<h2>Adding transfers</h2>
+
+<p>You can add transfers in several ways:</p>
+
+<ul>
+<li><b>Desktop:</b> <b>Transfer</b> → <b>New transfer</b> (Ctrl+N) opens the New transfer dialog, described below.</li>
+<li><b>Web interface:</b> the <b>New Transfer</b> button. See <a href="../web/index.html">Web Interface</a>.</li>
+<li><b>Terminal:</b> press <b>N</b> in the transfer list of fatrat-tui. See <a href="../tui/index.html">Terminal Interface</a>.</li>
+<li><b>Drop-box:</b> drag links onto the drop-box window. See <a href="../dropbox/index.html">Drop-box</a>.</li>
+<li><b>Clipboard monitor:</b> FatRat can pick up links you copy that match a pattern. See <a href="../clipboard/index.html">Clipboard Monitor</a>.</li>
+<li><b>Watch folders:</b> files saved into a queue's watch folder are added to that queue. See <a href="../watchfolders/index.html">Watch Folders</a>.</li>
+<li><b>Command line:</b> pass links as arguments when you start the desktop app. See <a href="../cmdline.html">Command Line</a>.</li>
+</ul>
+
+<h3>The New transfer dialog</h3>
+
+<p><b>Desktop:</b> the dialog asks for the following:</p>
+
+<dl>
+<dt>Type</dt>
+<dd><b>Download</b> or <b>Upload</b>.</dd>
+<dt>URIs (downloads)</dt>
+<dd>The links to download, one per line. <b>Add special</b> lets you add local files (such as a <code>.torrent</code> file), the contents of a text file, or the links on the clipboard. <b>Set authentication data</b> stores a user name and password for links that match a regular expression.</dd>
+<dt>Files (uploads)</dt>
+<dd>The local files to upload. Here <b>Destination</b> is the place to upload to.</dd>
+<dt>Destination</dt>
+<dd>The directory to save into. It starts as the target directory of the chosen queue.</dd>
+<dt>Download as / Upload as</dt>
+<dd>The engine that handles the transfer, for example "BitTorrent download" or "CURL HTTP(S)/FTP(S)/SFTP download". Leave it at <b>Auto detect</b> to let FatRat choose from the link.</dd>
+<dt>Queue</dt>
+<dd>The queue that gets the new transfers.</dd>
+<dt>Down speed limit / Up speed limit (kB/s)</dt>
+<dd>Speed limits for the new transfers. 0 means no limit.</dd>
+<dt>Add paused</dt>
+<dd>Adds the transfers in the Paused state. Otherwise they are added as Waiting, and the queue starts them when it has room.</dd>
+<dt>Set advanced options</dt>
+<dd>Shows the engine's own options (see Transfer properties below) before the transfers are added.</dd>
+</dl>
+
+<p><b>Web interface:</b> the New Transfer dialog adds downloads only. It has <b>Queue</b>, <b>URLs (one per line)</b>, <b>Local files (e.g. .torrent)</b>, <b>Target directory</b>, <b>Download as</b> (empty means "Automatically detect"), <b>Max download speed (KB/s)</b>, <b>Max upload speed (KB/s)</b> and <b>Add paused</b>.</p>
+
+<h2>Queues</h2>
+
+<p>A queue is a list of transfers that share settings. FatRat starts with one queue, "Main queue". You can make more queues, for example one for large downloads that may only run one at a time, and another for small files.</p>
+
+<p>The order of the transfers in a queue matters: when the queue picks which transfers to run, it goes from the top of the list. You can change the order with:</p>
+
+<ul>
+<li><b>Desktop:</b> <b>Move to top</b>, <b>Move up</b>, <b>Move down</b> and <b>Move to bottom</b> in the <b>Transfer</b> menu.</li>
+<li><b>Web interface:</b> <b>Move to Top</b>, <b>Move Up</b>, <b>Move Down</b> and <b>Move to Bottom</b> in the transfer menu.</li>
+<li><b>Terminal:</b> <b>M</b> (Move).</li>
+</ul>
+
+<h3>Creating and editing queues</h3>
+
+<ul>
+<li><b>Desktop:</b> <b>Queue</b> → <b>New queue</b> creates a queue. <b>Queue</b> → <b>Properties...</b> edits the selected one. Double-clicking the speed limits in the status bar also opens the properties.</li>
+<li><b>Web interface:</b> <b>New Queue</b> (Shift+N) and <b>Queue Properties</b> (Shift+E).</li>
+<li><b>Terminal:</b> in the queue list, <b>N</b> (New queue) and <b>E</b> (Edit).</li>
+</ul>
+
+<h3>Queue properties</h3>
+
+<p>The labels below are those of the desktop "Queue properties" dialog. The web interface's labels are given in brackets where they differ.</p>
+
+<dl>
+<dt>Name</dt>
+<dd>The queue's name.</dd>
+<dt>Destination directory (web: Target directory)</dt>
+<dd>Where new transfers in this queue save their files, unless you choose another directory when you add them. A new queue gets your Downloads folder, or your home folder if there is no Downloads folder.</dd>
+<dt>Move transfers after completion (web: Move to directory after completion)</dt>
+<dd>When a download completes, its data is moved to this directory. Leave it empty to keep the data where it is. Uploads are never moved.</dd>
+<dt>Add files dropped into a watch folder (web: Watch folder)</dt>
+<dd>A folder that FatRat watches for <code>.torrent</code>, <code>.metalink</code>, <code>.meta4</code>, <code>.txt</code> and <code>.magnet</code> files to add to this queue. See <a href="../watchfolders/index.html">Watch Folders</a>.</dd>
+<dt>Down speed limit / Up speed limit (kiB/s) (web: Download / Upload speed limit (KB/s))</dt>
+<dd>The total speed of all transfers in the queue. 0 means no limit. See Speed limits below.</dd>
+<dt>Limit active transfer count</dt>
+<dd>When ticked, the queue runs at most <b>Maximum active download transfers</b> downloads and <b>Maximum active upload transfers</b> uploads at once (web: <b>Max active downloads</b>, <b>Max active uploads</b>). When unticked, every waiting transfer runs.</dd>
+<dt>Count as downloads (web: Count uploads as downloads)</dt>
+<dd>Uploads count against the download limit, so downloads and uploads share one limit and the upload limit is not used.</dd>
+</dl>
+
+<p>A new queue has no speed limits, runs at most 1 download and 1 upload at a time, and does not count uploads as downloads.</p>
+
+<h3>How a queue decides what runs</h3>
+
+<p>Once a second, each queue goes through its transfers from top to bottom. Only transfers that are <b>Waiting</b> or <b>Active</b> take part:</p>
+
+<ul>
+<li>While there is a free place under the queue's limit, the transfer becomes Active.</li>
+<li>When the limit is reached, the remaining transfers become (or stay) Waiting. This also happens to an Active transfer if you lower the limit, or if you move a waiting transfer above it.</li>
+</ul>
+
+<p>Downloads and uploads have separate limits, unless <b>Count as downloads</b> is ticked. What counts is what the transfer does at the moment: a torrent that has finished downloading and is seeding counts as an upload.</p>
+
+<p>Transfers that are Forced active, Paused, Failed or Completed don't take a place under the limit.</p>
+
+<h2>Transfer states</h2>
+
+<table>
+<tr><th>State</th><th>Meaning</th></tr>
+<tr><td>Waiting</td><td>Ready to run. The queue starts it as soon as there is room under its limit.</td></tr>
+<tr><td>Active</td><td>Running, and counted against the queue's limit.</td></tr>
+<tr><td>Forced active</td><td>Running regardless of the queue's limit. The terminal shows it as "Forced".</td></tr>
+<tr><td>Paused</td><td>Stopped by you. The queue does not start it.</td></tr>
+<tr><td>Failed</td><td>Stopped by an error. The transfer's message or log says why.</td></tr>
+<tr><td>Completed</td><td>Finished.</td></tr>
+</table>
+
+<h3>Changing the state</h3>
+
+<table>
+<tr><th>Desktop</th><th>Web interface</th><th>Terminal</th><th>What it does</th></tr>
+<tr><td>Start (Ctrl+R)</td><td>Resume</td><td>Resume (R)</td><td>Makes the transfer Waiting, so it runs when the queue has room.</td></tr>
+<tr><td>Force start (Ctrl+F)</td><td>Force Resume</td><td>Force resume (F)</td><td>Makes the transfer Forced active: it starts at once, even when the queue is at its limit.</td></tr>
+<tr><td>Pause (Ctrl+P)</td><td>Pause</td><td>Pause (P)</td><td>Stops the transfer and makes it Paused.</td></tr>
+</table>
+
+<p>On the desktop, these are in the <b>Transfer</b> menu and on the toolbar. <b>Start</b> on a Forced active transfer makes it a normal Active one again.</p>
+
+<p><b>Desktop:</b> the <b>Queue</b> menu also has <b>Start all</b>, which makes every Paused or Failed transfer in the queue Waiting, and <b>Pause all</b>, which pauses every transfer in the queue that has not completed. <b>FatRat</b> → <b>Pause all transfers</b> pauses the transfers in every queue. Choose it again to put them back in the state they were in.</p>
+
+<h3>Failed and completed transfers</h3>
+
+<p><b>Desktop:</b> <b>Settings</b> → <b>Queue</b> controls what happens next:</p>
+
+<ul>
+<li><b>If transfer fails</b>: <b>Retry</b> a number of <b>times</b> (default 0), or <b>Always retry if the transfer has been working before</b> (on by default).</li>
+<li><b>When transfer completes</b>: <b>Remove from the queue</b> (off by default). <b>Queue</b> → <b>Remove completed</b> removes completed transfers by hand.</li>
+</ul>
+
+<h2>Transfer properties</h2>
+
+<p>Open the properties of a transfer with:</p>
+
+<ul>
+<li><b>Desktop:</b> <b>Transfer</b> → <b>Properties...</b> (Ctrl+.).</li>
+<li><b>Web interface:</b> <b>Properties</b> (E) in the transfer menu.</li>
+<li><b>Terminal:</b> <b>E</b> (Edit).</li>
+</ul>
+
+<p>Every transfer has these properties:</p>
+
+<dl>
+<dt>Destination</dt>
+<dd>The directory a download saves into. For an upload it is the file being uploaded (web: <b>Source</b>). If you change a download's destination, FatRat moves its data there.</dd>
+<dt>Speed limits</dt>
+<dd>Desktop: <b>Down speed limit (kB/s)</b> and <b>Up speed limit (kB/s)</b>. Web: <b>Max download speed (KB/s)</b> and <b>Max upload speed (KB/s)</b>. 0 means no limit.</dd>
+<dt>Comment</dt>
+<dd>Free text for your own notes.</dd>
+<dt>Command on completion</dt>
+<dd>Desktop: "Run the following command when the transfer completes", on the <b>Actions</b> page. Web: <b>Run on completion</b>. In the command, <code>%N</code> is the transfer's name, <code>%T</code> its type, <code>%D</code> its destination directory and <code>%P</code> the file path.</dd>
+</dl>
+
+<p>The desktop dialog has these on its <b>Generic options</b>, <b>Comment</b> and <b>Actions</b> pages. A <b>Details</b> page holds the engine's own options. The web interface shows the engine's options under <b>Options</b>.</p>
+
+<h3>Engine options</h3>
+
+<p>What the engine options offer depends on the kind of transfer. For example:</p>
+
+<ul>
+<li><b>HTTP and FTP downloads:</b> the <b>Target file name</b>. The desktop also lists the transfer's <b>URLs</b>: you can add mirrors, and edit each link's HTTP referrer, FTP connection mode, user name and password, proxy server and bind IP address.</li>
+<li><b>Torrents:</b> <b>Seeding limits</b>: seed up to a ratio, seed until a given amount (in MB) has been uploaded, and <b>Use super seeding</b>. The desktop also has <b>Files to download</b>, <b>URL seeds</b> and <b>Trackers</b>. See <a href="../bittorrent/index.html">BitTorrent Support</a>.</li>
+<li><b>FTP uploads:</b> the target URL, FTP connection mode, user name and password, proxy server and bind IP address.</li>
+</ul>
+
+<h2>Speed limits</h2>
+
+<p>You can limit speed in two places:</p>
+
+<ul>
+<li><b>Per queue:</b> a limit for all transfers in the queue together. On the desktop, the status bar shows the selected queue's limits; right-click them to pick a new limit quickly.</li>
+<li><b>Per transfer:</b> a limit for one transfer, set when you add it or in its properties.</li>
+</ul>
+
+<p>A queue's limit is shared between its running transfers. FatRat starts by splitting the limit equally, then adjusts the shares every second so that bandwidth one transfer doesn't use can go to the others. When a transfer has its own limit and that limit is lower than its share, the transfer's own limit applies.</p>
+
+<p>There is no limit across all queues. The <b>Line speed</b> setting in <b>Settings</b> → <b>Network</b> is not a speed limit. To change queue limits at set times, use the <a href="../scheduler/index.html">Scheduler</a>.</p>
 
 </body>
 </html>
