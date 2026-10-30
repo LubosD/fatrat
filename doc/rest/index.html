@@ -54,10 +54,10 @@ curl --unix-socket /run/user/1000/fatrat/rest.sock http://localhost/api/v1/stats
 <tr><td>403</td><td><code>forbidden_origin</code></td><td>The <code>Origin</code> header names another host.</td></tr>
 <tr><td>404</td><td><code>queue_not_found</code>, <code>transfer_not_found</code>, <code>unknown_route</code>, and others</td><td>No such queue, transfer or path.</td></tr>
 <tr><td>405</td><td><code>method_not_allowed</code></td><td>The path exists, but not for this method. The <code>Allow</code> header lists the methods that work.</td></tr>
-<tr><td>409</td><td><code>queue_not_empty</code></td><td>The request conflicts with the current state, for example deleting a queue that still has transfers.</td></tr>
+<tr><td>409</td><td><code>queue_not_empty</code></td><td>The request conflicts with the current state, for example deleting a queue that still has transfers. Other 409 codes exist for particular resources, such as <code>duplicate_feed</code>.</td></tr>
 <tr><td>415</td><td><code>unsupported_media_type</code></td><td>Wrong <code>Content-Type</code>.</td></tr>
 <tr><td>422</td><td><code>invalid_property</code>, <code>no_matching_engine</code>, and others</td><td>The JSON is valid, but a value is wrong, for example an unknown transfer state or transfer class.</td></tr>
-<tr><td>500</td><td><code>internal_error</code></td><td>FatRat failed to handle the request.</td></tr>
+<tr><td>500</td><td><code>internal_error</code></td><td>FatRat failed to handle the request. Other 500 codes name the step that failed.</td></tr>
 </table>
 
 <h2>Examples</h2>
@@ -90,7 +90,7 @@ curl --unix-socket /run/user/1000/fatrat/rest.sock http://localhost/api/v1/stats
 
 <h3>Upload a .torrent file</h3>
 
-<p>Send the file as a <code>multipart/form-data</code> form with the file in the part <code>file</code> and the options, as a JSON string, in the part <code>options</code>. The options are the same as for links, without <code>urls</code>. <code>curl -F</code> makes this form:</p>
+<p>Send the file as a <code>multipart/form-data</code> form with the file in the part <code>file</code> and the options, as a JSON string, in the part <code>options</code>. The options are the same as for links, without <code>urls</code> (<code>upload</code> is ignored). <code>curl -F</code> makes this form:</p>
 
 <pre>curl -g --unix-socket /run/fatrat/rest.sock \
      -X POST http://localhost/api/v1/queues/{4829a1ca-60d7-432d-975d-74884b1adc42}/transfers \
@@ -106,9 +106,9 @@ curl --unix-socket /run/user/1000/fatrat/rest.sock http://localhost/api/v1/stats
      -X PATCH http://localhost/api/v1/transfers/{ea1c4625-144d-438c-aa50-b2223ac7ee75} \
      -H 'Content-Type: application/json' -d '{"state":"Paused"}'</pre>
 
-<p>To change several transfers at once, send <code>PATCH /api/v1/transfers</code> with <code>{"uuids":[...],"properties":{"state":"Paused"}}</code>. Either all of them change or none. The same kind of request can set a comment, a completion command, a speed limit (<code>userSpeedLimits</code>) or move the transfers to another queue (<code>queue</code>).</p>
+<p>To change several transfers at once, send <code>PATCH /api/v1/transfers</code> with <code>{"uuids":[...],"properties":{"state":"Paused"}}</code>. If a request names a transfer that does not exist or a value that is not valid, none of them change. The same kind of request can set a comment, a completion command, a speed limit (<code>userSpeedLimits</code>) or move the transfers to another queue (<code>queue</code>).</p>
 
-<p>Read a transfer with <code>GET /api/v1/transfers/</code><i>uuid</i>. Its <code>state</code> is one of the states above, or <code>Ready</code> or <code>Testing</code>; <code>total</code> and <code>done</code> are bytes.</p>
+<p>Read a transfer with <code>GET /api/v1/transfers/</code><i>uuid</i>. Its <code>state</code> is one of the states above; <code>total</code> and <code>done</code> are bytes.</p>
 
 <h3>Set a queue's watch folder</h3>
 
@@ -128,7 +128,7 @@ curl --unix-socket /run/user/1000/fatrat/rest.sock http://localhost/api/v1/stats
 
 <h2>Other resources</h2>
 
-<p>The API covers everything the web interface does:</p>
+<p>The API covers everything the web interface does. The main paths are:</p>
 
 <table>
 <tr><th>Path</th><th>What it is for</th></tr>
@@ -140,9 +140,11 @@ curl --unix-socket /run/user/1000/fatrat/rest.sock http://localhost/api/v1/stats
 <tr><td><code>/rss</code></td><td>RSS feeds and rules.</td></tr>
 <tr><td><code>/scheduler</code></td><td>Scheduled actions.</td></tr>
 <tr><td><code>/filesystem/directories</code></td><td>List the folders on the machine FatRat runs on.</td></tr>
+<tr><td><code>/plugins</code>, <code>/plugin-repositories</code></td><td>Install, remove and configure extensions and their repositories.</td></tr>
+<tr><td><code>/tasks</code>, <code>/transfers/</code><i>uuid</i><code>/actions</code></td><td>Actions on a transfer and the tasks they start.</td></tr>
 </table>
 
-<p>The <a href="https://github.com/LubosD/fatrat/blob/master/docs/api/openapi.yaml">OpenAPI file</a> lists every path, field and error code. Tools such as Swagger UI can open it.</p>
+<p>The <a href="https://github.com/LubosD/fatrat/blob/master/docs/api/openapi.yaml">OpenAPI file</a> lists the paths, fields and error codes of the main resources (not yet the extension and task paths). Tools such as Swagger UI can open it.</p>
 
 </body>
 </html>

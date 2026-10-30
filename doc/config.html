@@ -13,7 +13,7 @@
 
 <p>Your settings are in one INI file. On Linux and BSD it is <code>~/.config/Dolezel/fatrat.conf</code>, or <code>$XDG_CONFIG_HOME/Dolezel/fatrat.conf</code> if that variable is set. Start FatRat with <code>-c</code> <i>file</i> (or <code>--config</code>) to use another file. On macOS the settings are in the system's preferences store, which is not a text file, so use <code>-c</code> there if you want to edit them by hand.</p>
 
-<p>The file only holds values you have changed. For every other key FatRat uses the default from <code>defaults.conf</code> (see below). Keys are written as <code>[section]</code> headers followed by <code>key=value</code> lines. The keys in the <code>[General]</code> section are used without a section name, for example <code>gui_refresh</code>, and all other keys with it, for example <code>remote/port</code>.</p>
+<p>The file holds the values FatRat has saved. For a key that is not in it, FatRat uses the default from <code>defaults.conf</code> (see below). Keys are written as <code>[section]</code> headers followed by <code>key=value</code> lines. The keys in the <code>[General]</code> section are used without a section name, for example <code>gui_refresh</code>, and all other keys with it, for example <code>remote/port</code>.</p>
 
 <p>To read or write a key from the shell, use <code>fatrat-conf</code>. See <a href="server/index.html">Running on a Server</a> for how.</p>
 
@@ -29,7 +29,7 @@ password="a,b"</pre>
 
 <h3>Keys you may want to change</h3>
 
-<p>The <code>[remote]</code> keys switch on the web interface. Settings you can change in the desktop Settings dialog or in the web interface are not listed here.</p>
+<p>The <code>[remote]</code> keys switch on the web interface. Most settings can also be changed in the Settings dialog of the desktop and web interfaces; the table lists only the ones you may want to set by hand.</p>
 
 <table>
 <tr><th>Key</th><th>Default</th><th>Meaning</th></tr>
@@ -58,7 +58,7 @@ password="a,b"</pre>
 <tr><td><code>queues.xml</code></td><td>Your queues and transfers. FatRat writes it itself; don't edit it while FatRat runs.</td></tr>
 <tr><td><code>torrents/</code></td><td>Copies of the <code>.torrent</code> files of your BitTorrent transfers.</td></tr>
 <tr><td><code>metalinks/</code></td><td>Copies of the Metalink files of your Metalink transfers.</td></tr>
-<tr><td><code>plugins/</code></td><td>Python extensions you installed. See <a href="extensions/index.html">Extensions</a>.</td></tr>
+<tr><td><code>plugins/</code></td><td>Python extensions you installed, and the extension repositories. See <a href="extensions/index.html">Extensions</a>.</td></tr>
 <tr><td><code>data/</code></td><td>Your own versions of the data files below, and the certificate that FatRat generates for the web interface (<code>fatrat-webui.pem</code>).</td></tr>
 </table>
 
