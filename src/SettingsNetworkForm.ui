@@ -14,7 +14,10 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Line speed</string>
+      <string>Line speed (for the speed graphs)</string>
+     </property>
+     <property name="toolTip">
+      <string>The speed of your internet connection. It only sets the scale of the speed graphs and bars and does not limit any transfer. To limit the speed, use the speed limits of a queue or of a transfer.</string>
      </property>
      <layout class="QGridLayout">
       <item row="0" column="0">
@@ -43,7 +46,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>KB/s</string>
+         <string>KiB/s</string>
         </property>
        </widget>
       </item>
@@ -73,7 +76,7 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>KB/s</string>
+         <string>KiB/s</string>
         </property>
        </widget>
       </item>
