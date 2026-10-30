@@ -1,0 +1,117 @@
+/*
+FatRat download manager
+http://fatrat.dolezel.info
+
+Copyright (C) 2026 Lubos Dolezel <lubos a dolezel.info>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+version 3 as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+In addition, as a special exemption, Luboš Doležel gives permission
+to link the code of FatRat with the OpenSSL project's
+"OpenSSL" library (or with modified versions of it that use the; same
+license as the "OpenSSL" library), and distribute the linked
+executables. You must obey the GNU General Public License in all
+respects for all of the code used other than "OpenSSL".
+*/
+
+#include "WatchFile.h"
+#include <QFile>
+#include <QFileInfo>
+#include <QRegularExpression>
+
+namespace WatchFile
+{
+
+Kind kind(const QString& fileName)
+{
+	const QString name = fileName.toLower();
+
+	if (name.startsWith('.'))
+		return Unsupported;
+	if (name.endsWith(".torrent"))
+		return Torrent;
+	if (name.endsWith(".metalink") || name.endsWith(".meta4"))
+		return Metalink;
+	if (name.endsWith(".txt") || name.endsWith(".magnet"))
+		return LinkList;
+	return Unsupported;
+}
+
+Contents read(const QString& path)
+{
+	Contents c;
+	const QFileInfo info(path);
+
+	switch (kind(info.fileName()))
+	{
+	case Unsupported:
+		c.error = "Not a file type watch folders handle";
+		return c;
+	case Torrent:
+	case Metalink:
+		c.sources << info.absoluteFilePath();
+		return c;
+	case LinkList:
+		break;
+	}
+
+	QFile file(path);
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		c.error = file.errorString();
+		return c;
+	}
+
+	// Read one byte past the limit rather than trusting the size listed earlier: the file may have grown since.
+	const QByteArray data = file.read(MaxListSize + 1);
+	if (data.size() > MaxListSize)
+	{
+		c.error = QString("The link list is larger than %1 bytes").arg(MaxListSize);
+		return c;
+	}
+
+	QString text = QString::fromUtf8(data);
+	if (text.startsWith(QChar(0xFEFF)))
+		text.remove(0, 1);
+
+	for (const QString& raw : text.split('\n'))
+	{
+		const QString line = raw.trimmed();
+		if (line.isEmpty() || line.startsWith('#'))
+			continue;
+		// Transfer class detection accepts any string (a metalink is the last resort), so plain text
+		// must not get that far. Two characters at least, so C:\path is not a scheme.
+		static const QRegularExpression link("^[A-Za-z][A-Za-z0-9+.-]+:\\S+$");
+		if (link.match(line).hasMatch())
+			c.sources << line;
+		else
+			c.skipped << line;
+	}
+
+	if (c.sources.isEmpty())
+		c.error = "The link list holds no links";
+	return c;
+}
+
+QString markProcessed(const QString& path, bool added)
+{
+	const QString base = path + (added ? ".added" : ".failed");
+	QString target = base;
+
+	for (int i = 1; QFileInfo::exists(target); i++)
+		target = base + '.' + QString::number(i);
+
+	return QFile::rename(path, target) ? target : QString();
+}
+
+}

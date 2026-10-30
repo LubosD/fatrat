@@ -161,6 +161,12 @@ set(fatrat_SRCS
 	src/Proxy.cpp
 	src/NetIface.cpp
 	src/Queue.cpp
+	src/TransferAdder.cpp
+	src/watch/WatchFile.cpp
+	src/watch/WatchFolderScanner.cpp
+	src/watch/WatchFolderService.cpp
+	src/watch/WatchFolderStatus.cpp
+	src/watch/WatchFolderQueues.cpp
 	src/QueueMgr.cpp
 	src/SimpleEmail.cpp
 	src/Transfer.cpp
@@ -254,6 +260,7 @@ set(fatrat_MOC_HDRS
 	src/Logger.h
 	src/TransferFactory.h
 	src/rss/RssFetcher.h
+	src/watch/WatchFolderService.h
 )
 
 set(fatrat_GUI_MOC_HDRS
@@ -360,6 +367,7 @@ if(WITH_CURL)
 		src/engines/CurlPollingMaster.cpp
 		src/engines/UrlClient.cpp
 		src/engines/MetalinkDownload.cpp
+		src/engines/MetalinkSourceStore.cpp
 	)
 	set(fatrat_GUI_SRCS
 		${fatrat_GUI_SRCS}

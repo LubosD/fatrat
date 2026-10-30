@@ -26,6 +26,8 @@ QueueInfo QueueInfo::fromJson(const QJsonObject& o)
 	q.name = o["name"].toString();
 	q.defaultDirectory = o["defaultDirectory"].toString();
 	q.moveDirectory = o["moveDirectory"].toString();
+	q.watchDirectory = o["watchDirectory"].toString();
+	q.watchStatus = o["watchStatus"].toString();
 	q.upAsDown = o["upAsDown"].toBool();
 	q.transferLimits = SpeedPair::fromJson(o["transferLimits"]);
 	q.speedLimits = SpeedPair::fromJson(o["speedLimits"]);

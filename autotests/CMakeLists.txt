@@ -211,3 +211,35 @@ add_executable(tst_uploadtarget tst_uploadtarget.cpp)
 target_include_directories(tst_uploadtarget PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_uploadtarget Qt6::Core Qt6::Test)
 add_test(NAME uploadtarget COMMAND tst_uploadtarget)
+
+add_executable(tst_watchfile tst_watchfile.cpp ${CMAKE_SOURCE_DIR}/src/watch/WatchFile.cpp)
+target_include_directories(tst_watchfile PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_watchfile Qt6::Core Qt6::Test)
+add_test(NAME watchfile COMMAND tst_watchfile)
+
+add_executable(tst_watchfolderscanner tst_watchfolderscanner.cpp
+	${CMAKE_SOURCE_DIR}/src/watch/WatchFolderScanner.cpp
+	${CMAKE_SOURCE_DIR}/src/watch/WatchFile.cpp)
+target_include_directories(tst_watchfolderscanner PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_watchfolderscanner Qt6::Core Qt6::Test)
+add_test(NAME watchfolderscanner COMMAND tst_watchfolderscanner)
+
+add_executable(tst_watchfolderstatus tst_watchfolderstatus.cpp ${CMAKE_SOURCE_DIR}/src/watch/WatchFolderStatus.cpp)
+target_include_directories(tst_watchfolderstatus PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_watchfolderstatus Qt6::Core Qt6::Test)
+add_test(NAME watchfolderstatus COMMAND tst_watchfolderstatus)
+
+add_executable(tst_watchfolderservice tst_watchfolderservice.cpp
+	${CMAKE_SOURCE_DIR}/src/watch/WatchFolderService.cpp
+	${CMAKE_SOURCE_DIR}/src/watch/WatchFolderScanner.cpp
+	${CMAKE_SOURCE_DIR}/src/watch/WatchFolderStatus.cpp
+	${CMAKE_SOURCE_DIR}/src/watch/WatchFile.cpp
+	${CMAKE_SOURCE_DIR}/src/Logger.cpp)
+target_include_directories(tst_watchfolderservice PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_watchfolderservice Qt6::Core Qt6::Test)
+add_test(NAME watchfolderservice COMMAND tst_watchfolderservice)
+
+add_executable(tst_metalinksourcestore tst_metalinksourcestore.cpp ${CMAKE_SOURCE_DIR}/src/engines/MetalinkSourceStore.cpp)
+target_include_directories(tst_metalinksourcestore PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
+target_link_libraries(tst_metalinksourcestore Qt6::Core Qt6::Test)
+add_test(NAME metalinksourcestore COMMAND tst_metalinksourcestore)

@@ -22,7 +22,7 @@ Licensed under the GNU GPL version 3. Copyright © 2006-2015 Luboš Doležel. Cr
 
 - Queues, each with its own default directory, "move when finished" directory, speed limits and limits on the number of active transfers.
 - Transfers can be paused, resumed, force-started, reordered, moved between queues and deleted with or without their data.
-- A scheduler for timed actions, a clipboard monitor that offers to download copied links, and a drop box.
+- A scheduler for timed actions, a clipboard monitor that offers to download copied links, a drop box, and per-queue watch folders that pick up dropped .torrent, .metalink and link-list files.
 - RSS feeds with download rules based on regular expressions, including TV episode tracking (season/episode or date numbering, repack and trailer handling) so an episode is fetched only once.
 
 **Ways to use it**

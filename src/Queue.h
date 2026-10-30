@@ -47,7 +47,7 @@ public:
 	~Queue();
 	
 	static void stopQueues();
-	static void loadQueues();
+	static bool loadQueues(); // false when queues.xml could not be read and a default queue was set up
 	static void saveQueues();
 	static void saveQueuesAsync();
 	static void unloadQueues();
@@ -71,6 +71,9 @@ public:
 	Q_INVOKABLE void setMoveDirectory(QString path);
 	Q_INVOKABLE QString moveDirectory() const;
 	Q_PROPERTY(QString moveDirectory READ moveDirectory WRITE setMoveDirectory)
+	Q_INVOKABLE void setWatchDirectory(QString path);
+	Q_INVOKABLE QString watchDirectory() const;
+	Q_PROPERTY(QString watchDirectory READ watchDirectory WRITE setWatchDirectory)
 	
 	Q_INVOKABLE QString uuid() const { return m_uuid.toString(); }
 	Q_PROPERTY(QString uuid READ uuid)
@@ -116,7 +119,7 @@ private:
 	void loadQueue(const QDomNode& node);
 	void saveQueue(QDomNode& node,QDomDocument& doc);
 	
-	QString m_strName, m_strDefaultDirectory, m_strMoveDirectory;
+	QString m_strName, m_strDefaultDirectory, m_strMoveDirectory, m_strWatchDirectory;
 	int m_nDownLimit,m_nUpLimit,m_nDownTransferLimit,m_nUpTransferLimit;
 	int m_nDownAuto, m_nUpAuto;
 	bool m_bUpAsDown;

@@ -3,7 +3,7 @@ import { DeleteQueueDialog } from './delete-queue-dialog';
 import { Queue } from '../../core/api/models';
 
 function q(uuid: string, name: string): Queue {
-  return { uuid, name, defaultDirectory: '', moveDirectory: '', upAsDown: false, transferLimits: { down: 0, up: 0 }, speedLimits: { down: 0, up: 0 } };
+  return { uuid, name, defaultDirectory: '', moveDirectory: '', watchDirectory: '', watchStatus: 'off', upAsDown: false, transferLimits: { down: 0, up: 0 }, speedLimits: { down: 0, up: 0 } };
 }
 
 function setup(others: Queue[]) {

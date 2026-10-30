@@ -3,7 +3,7 @@ import { TransferApi } from './api/transfer-api';
 import { QueuesStore } from '../state/queues.store';
 import { DeleteQueueOptions, Queue } from './api/models';
 import { TransfersStore } from '../state/transfers.store';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Observable, map, of, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -12,18 +12,19 @@ export class QueueActionsService {
   private readonly queuesStore = inject(QueuesStore);
   private readonly transfersStore = inject(TransfersStore);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly messages = inject(MessageService);
 
   createQueue(properties: Partial<Queue>): void {
     this.transferApi.createQueue(properties).subscribe({
       next: () => this.queuesStore.refreshNow(),
-      error: (err) => console.error('Failed to create queue', err),
+      error: (err) => this.showError('Cannot create the queue', err),
     });
   }
 
   updateQueueProperties(uuid: string, properties: Partial<Queue>): void {
     this.transferApi.setQueueProperties(uuid, properties).subscribe({
       next: () => this.queuesStore.refreshNow(),
-      error: (err) => console.error('Failed to update queue properties', err),
+      error: (err) => this.showError('Cannot save the queue', err),
     });
   }
 
@@ -57,6 +58,10 @@ export class QueueActionsService {
 
   stopAll(uuid: string): void {
     this.setAllStates(uuid, 'Paused');
+  }
+
+  private showError(summary: string, err: unknown): void {
+    this.messages.add({ severity: 'error', summary, detail: err instanceof Error ? err.message : String(err) });
   }
 
   private setAllStates(queueUuid: string, state: 'Waiting' | 'Paused'): void {

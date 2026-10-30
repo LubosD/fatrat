@@ -28,6 +28,11 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include <QFileDialog>
 #include <QPushButton>
+#include <QMessageBox>
+#include <QReadLocker>
+#include <QDir>
+#include "watch/WatchFolderQueues.h"
+#include "watch/WatchFolderStatus.h"
 
 QueueDlg::QueueDlg(QWidget* parent)
 	: QDialog(parent), m_nDownLimit(0), m_nUpLimit(0), m_nDownTransfersLimit(1), m_nUpTransfersLimit(1), m_bUpAsDown(false), m_bLimit(true)
@@ -44,6 +49,7 @@ QueueDlg::QueueDlg(QWidget* parent)
 	connect(groupLimitQueue, SIGNAL(clicked(bool)), this, SLOT(limitToggled(bool)));
 	connect(toolDestination, SIGNAL(pressed()), this, SLOT(browse()));
 	connect(toolMoveCompleted, SIGNAL(clicked()), this, SLOT(browseMove()));
+	connect(toolWatch, SIGNAL(clicked()), this, SLOT(browseWatch()));
 	
 	spinDown->setRange(0,INT_MAX);
 	spinUp->setRange(0,INT_MAX);
@@ -75,6 +81,11 @@ int QueueDlg::exec()
 		lineMoveCompleted->setText(m_strMoveDirectory);
 	}
 	
+	groupWatch->setChecked(!m_strWatchDirectory.isEmpty());
+	lineWatch->setText(m_strWatchDirectory);
+	labelWatchStatus->setText(WatchFolderStatus::describe(m_strWatchStatus));
+	labelWatchStatus->setVisible(!labelWatchStatus->text().isEmpty());
+	
 	if((r = QDialog::exec()) == QDialog::Accepted)
 	{
 		m_strName = lineName->text();
@@ -90,6 +101,8 @@ int QueueDlg::exec()
 			m_strMoveDirectory = lineMoveCompleted->text();
 		else
 			m_strMoveDirectory.clear();
+		
+		m_strWatchDirectory = groupWatch->isChecked() ? lineWatch->text().trimmed() : QString();
 	}
 	
 	return r;
@@ -97,9 +110,37 @@ int QueueDlg::exec()
 
 void QueueDlg::accept()
 {
-	if(!lineName->text().isEmpty())
-		QDialog::accept();
+	if(lineName->text().isEmpty())
+		return;
+
+	const QString watch = lineWatch->text().trimmed();
+	if(groupWatch->isChecked() && !watch.isEmpty())
+	{
+		if(!QDir::isAbsolutePath(watch))
+		{
+			QMessageBox::warning(this, tr("Watch folder"), tr("The watch folder must be an absolute path."));
+			return;
+		}
+
+		QString owner;
+		{
+			QReadLocker l(&g_queuesLock);
+			const QString uuid = WatchFolderStatus::owner(WatchFolderQueues::entries(), watch, m_strQueueUuid);
+			for(Queue* q : g_queues)
+			{
+				if(q->uuid() == uuid)
+					owner = q->name();
+			}
+		}
+		if(!owner.isEmpty())
+		{
+			QMessageBox::warning(this, tr("Watch folder"), tr("The queue \"%1\" already watches this folder.").arg(owner));
+			return;
+		}
+	}
+	QDialog::accept();
 }
+
 void QueueDlg::limitToggled(bool checked)
 {
 	spinTransfersDown->setEnabled(checked);
@@ -118,4 +159,11 @@ void QueueDlg::browseMove()
 	QString dir = QFileDialog::getExistingDirectory(0, tr("Choose directory"), lineMoveCompleted->text());
 	if(!dir.isNull())
 		lineMoveCompleted->setText(dir);
+}
+
+void QueueDlg::browseWatch()
+{
+	QString dir = QFileDialog::getExistingDirectory(0, tr("Choose directory"), lineWatch->text());
+	if(!dir.isNull())
+		lineWatch->setText(dir);
 }

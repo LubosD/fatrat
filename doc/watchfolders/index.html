@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>Watch Folders</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+</head>
+
+<body>
+
+<table width="100%"><tr>
+	<td width="33%">&nbsp;</td>
+	<td width="33%" align="center" valign="middle"><h2>Watch Folders</h2></td>
+	<td width="33%" align="right"><img src="../logo.png" alt="Logo" /></td>
+</tr></table>
+
+<p>
+Each queue can watch a folder. Any supported file you put into that folder is added to the queue automatically, and no one needs to click anything. This is handy on servers, with scripts, with shared folders on your network, and with programs such as Sonarr and Radarr, which can save the files they find into a folder ("torrent blackhole").
+</p>
+
+<h3>What is picked up</h3>
+
+<ul>
+<li><code>.torrent</code> files</li>
+<li><code>.metalink</code> and <code>.meta4</code> files</li>
+<li><code>.txt</code> files with one link per line. Blank lines and lines starting with <code>#</code> are skipped. The file may be at most 1 MiB.</li>
+<li><code>.magnet</code> files, which are text files holding a magnet link. They are handled like a <code>.txt</code> file with one line.</li>
+</ul>
+
+<p>
+File extensions are not case-sensitive. Hidden files and all other kinds of files are ignored. Subfolders are not scanned.
+</p>
+
+<p>
+A file is processed once its size and modification time have not changed for 2 seconds, so a file that is still being copied in is not read half-written, as long as the copy doesn't stall for longer than that. Writing the file somewhere else and then moving it into the folder is always safe. A list of links that keeps growing while it is being added may have its first links added twice.
+</p>
+
+<h3>Setting it up</h3>
+
+<p>
+A folder must be given as an absolute path, and two queues cannot watch the same folder. Leave the field empty to turn watching off.
+</p>
+
+<ul>
+<li><b>Desktop:</b> choose <code>Queue - Properties...</code>, then check <code>Add files dropped into a watch folder</code> and enter the folder (or use the browse button).</li>
+<li><b>Web interface:</b> select the queue and open <code>Queue Properties</code> in the toolbar (or right-click the queue and choose <code>Properties</code>). Enter the folder in the <code>Watch folder</code> field, or use <code>Browse...</code>.</li>
+<li><b>Terminal interface (fatrat-tui):</b> select the queue and edit it (Ctrl-E). Enter the folder in the <code>Watch folder</code> field. Ctrl-B browses for a folder.</li>
+<li><b>REST API:</b> send <code>watchDirectory</code> when creating a queue (POST /queues) or changing one (PATCH /queues/{uuid}). The read-only <code>watchStatus</code> field reports the state.</li>
+</ul>
+
+<h3>What happens to the files</h3>
+
+<p>
+New transfers are added to the queue and saved to the queue's target directory. They start as soon as the queue allows it; until then they are in the Waiting state.
+</p>
+
+<p>
+After a file is processed, it is renamed in the same folder:
+</p>
+
+<ul>
+<li><code>name.ext.added</code> if at least one transfer was created,</li>
+<li><code>name.ext.failed</code> if nothing could be added.</li>
+</ul>
+
+<p>
+If a file with that name already exists, <code>.1</code>, <code>.2</code>, and so on is appended. In a list of links, links that no transfer type accepts, or that fail to start, are skipped and logged. The file still counts as added if at least one link worked.
+</p>
+
+<p>
+FatRat needs write access to the folder, including the permission to enter it, to be able to rename files. A folder it cannot write to is not watched at all.
+</p>
+
+<p>
+Don't use a queue's target directory as its watch folder: a <code>.torrent</code> that FatRat itself is still downloading there could be picked up half-written.
+</p>
+
+<h3>Network folders</h3>
+
+<p>
+On local disks FatRat is told about new files by the operating system. Network mounts (NFS, SMB, sshfs) often do not report changes made from other machines, so every watch folder is also rescanned every 60 seconds. A file dropped into a network folder may therefore take up to a minute to be noticed.
+</p>
+
+<h3>Problems</h3>
+
+<p>
+Every queue with a watch folder has a status:
+</p>
+
+<ul>
+<li><b>OK</b> - the folder is being watched.</li>
+<li><b>Missing</b> - the folder does not exist (yet). FatRat keeps checking and starts watching it within a minute of it appearing.</li>
+<li><b>Not writable</b> - FatRat cannot rename files in the folder, so nothing is picked up. Fix the folder's permissions.</li>
+<li><b>Duplicate</b> - another queue already watches the same folder, and this queue's setting is ignored.</li>
+</ul>
+
+<p>
+The desktop dialog shows a warning text. The web interface shows a warning in the queue properties and an icon in the queue list. The terminal interface marks the queue with "!" and shows <code>Watch &lt;folder&gt; (&lt;status&gt;)</code> in the queue info panel.
+</p>
+
+<p>
+Everything the watch folders do is written to the log with the sender "Watch folder".
+</p>
+
+<p align="center"><small>Copyright &copy; 2006-2026 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
+
+</body>
+
+</html>

@@ -32,9 +32,11 @@ respects for all of the code used other than "OpenSSL".
 #include "Queue.h"
 #include "RestTasks.h"
 #include "Transfer.h"
+#include "TransferAdder.h"
 #include "TransferFactory.h"
 #include "TransferHttpService.h"
 #include "plugins/FormValidator.h"
+#include "watch/WatchFolderQueues.h"
 #include "Settings.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -156,6 +158,8 @@ static QJsonObject queueToJson(Queue* q)
 	o["uuid"] = q->uuid();
 	o["defaultDirectory"] = q->defaultDirectory();
 	o["moveDirectory"] = q->moveDirectory();
+	o["watchDirectory"] = q->watchDirectory();
+	o["watchStatus"] = WatchFolderStatus::status(WatchFolderQueues::entries(), q->uuid());
 	o["upAsDown"] = q->upAsDown();
 
 	q->transferLimits(down, up);
@@ -186,7 +190,7 @@ namespace
 {
 	struct QueueUpdate
 	{
-		std::optional<QString> name, defaultDirectory, moveDirectory;
+		std::optional<QString> name, defaultDirectory, moveDirectory, watchDirectory;
 		std::optional<bool> upAsDown;
 		std::optional<QPair<int,int>> speedLimits, transferLimits;
 
@@ -204,6 +208,12 @@ namespace
 					u.defaultDirectory = RestApi::asString(it.value(), key);
 				else if (key == "moveDirectory")
 					u.moveDirectory = RestApi::asString(it.value(), key);
+				else if (key == "watchDirectory")
+				{
+					u.watchDirectory = RestApi::asString(it.value(), key).trimmed();
+					if (!u.watchDirectory->isEmpty() && !QDir::isAbsolutePath(*u.watchDirectory))
+						throw RestError(422, "invalid_watch_directory", QString("Not an absolute path: %1").arg(*u.watchDirectory));
+				}
 				else if (key == "upAsDown")
 					u.upAsDown = RestApi::asBool(it.value(), key);
 				else if (key == "speedLimits")
@@ -222,11 +232,31 @@ namespace
 			return u;
 		}
 
+		// Two queues must not watch the same folder. The caller holds g_queuesLock.
+		void checkWatchDirectory(const QString& selfUuid) const
+		{
+			if (!watchDirectory || watchDirectory->isEmpty())
+				return;
+
+			const QString owner = WatchFolderStatus::owner(WatchFolderQueues::entries(), *watchDirectory, selfUuid);
+			if (owner.isEmpty())
+				return;
+
+			QString name = owner;
+			for (Queue* q : g_queues)
+			{
+				if (q->uuid() == owner)
+					name = q->name();
+			}
+			throw RestError(422, "watch_directory_in_use", QString("The queue \"%1\" already watches %2").arg(name, *watchDirectory));
+		}
+
 		void apply(Queue* q) const
 		{
 			if (name) q->setName(*name);
 			if (defaultDirectory) q->setDefaultDirectory(*defaultDirectory);
 			if (moveDirectory) q->setMoveDirectory(*moveDirectory);
+			if (watchDirectory) q->setWatchDirectory(*watchDirectory);
 			if (upAsDown) q->setUpAsDown(*upAsDown);
 			if (speedLimits) q->setSpeedLimits(speedLimits->first, speedLimits->second);
 			if (transferLimits) q->setTransferLimits(transferLimits->first, transferLimits->second);
@@ -434,12 +464,16 @@ static RestResult createQueue(const RestRequest& req)
 
 	std::unique_ptr<Queue> q(new Queue);
 	update.apply(q.get());
-	QJsonObject json = queueToJson(q.get());
+	QJsonObject json;
 
 	{
 		QWriteLocker l(&g_queuesLock);
-		g_queues << q.release();
+		update.checkWatchDirectory(q->uuid());
+		Queue* added = q.release();
+		g_queues << added;
+		json = queueToJson(added);
 	}
+	WatchFolderService::requestReload();
 	return RestResult::created(json, QString("%1/queues/%2").arg(RestApi::Prefix, json["uuid"].toString()));
 }
 
@@ -448,6 +482,7 @@ static RestResult patchQueue(const RestRequest& req)
 	QueueUpdate update = QueueUpdate::parse(req.jsonObject());
 	QueueGuard g(req.pathParams["queue"]);
 
+	update.checkWatchDirectory(g.queue()->uuid());
 	update.apply(g.queue());
 	return RestResult::ok(queueToJson(g.queue()));
 }
@@ -717,21 +752,16 @@ static RestResult addTransfers(const RestRequest& req)
 		opts = AddOptions::parse(req.jsonObject(), true);
 
 	QueueGuard g(req.pathParams["queue"]);
-	Queue* q = g.queue();
-	const Transfer::Mode mode = opts.upload ? Transfer::Upload : Transfer::Download;
 
-	// A download without a target goes where the queue's downloads go. An empty target would make the
-	// engines write relative to FatRat's working directory (and a .torrent fetched over HTTP could then
-	// not be loaded, as TorrentDownload only recognizes absolute paths as local files).
-	if (mode == Transfer::Download && opts.target.isEmpty())
-	{
-		opts.target = q->defaultDirectory();
-		if (opts.target.isEmpty())
-			opts.target = QDir::homePath();
-	}
+	TransferAdder::Options add;
+	add.engine = opts.engine;
+	add.target = opts.target;
+	add.upload = opts.upload && !req.isMultipart(); // an uploaded file is always something to download
+	add.paused = opts.paused;
+	add.down = opts.down;
+	add.up = opts.up;
+
 	QStringList uuids;
-	QList<Transfer*> created;
-
 	try
 	{
 		if (req.isMultipart())
@@ -743,73 +773,21 @@ static RestResult addTransfers(const RestRequest& req)
 			tempFile.write(uploadedData);
 			tempFile.flush();
 
-			QString engine = opts.engine;
-			if (engine.isEmpty())
+			if (add.engine.isEmpty())
 			{
 				if (Transfer::BestEngine be = Transfer::bestEngine("/" + uploadedName, Transfer::Download))
-					engine = be.engine->shortName;
-				if (engine.isEmpty())
+					add.engine = be.engine->shortName;
+				if (add.engine.isEmpty())
 					throw RestError(422, "no_matching_engine", "No download class is able to handle this file.");
 			}
-
-			Transfer* t = TransferFactory::instance()->createInstance(engine);
-			if (!t)
-				throw RestError(422, "no_matching_engine", QString("Unknown transfer class: %1").arg(engine));
-			created << t;
-
-			TransferFactory::instance()->init(t, tempFile.fileName(), opts.target);
-			t->setUserSpeedLimits(opts.down, opts.up);
-			TransferFactory::instance()->setState(t, opts.paused ? Transfer::Paused : Transfer::Waiting);
-			uuids << t->uuid();
+			uuids = TransferAdder::add(g.queue(), { tempFile.fileName() }, add);
 		}
 		else
-		{
-			// With an explicit class every URL uses it; otherwise each URL is detected on its own
-			// (a batch may mix e.g. HTTP links and magnet links).
-			int explicitClass = -1;
-			if (!opts.engine.isEmpty())
-				explicitClass = Transfer::getEngineID(opts.engine, mode);
-
-			for (const QString& uri : opts.urls)
-			{
-				int classID = explicitClass;
-				if (classID == -1)
-				{
-					Transfer::BestEngine eng = (mode == Transfer::Download)
-						? Transfer::bestEngine(uri, Transfer::Download)
-						: Transfer::bestEngine(opts.target, Transfer::Upload);
-
-					if (eng.nClass < 0)
-						throw RestError(422, "no_matching_engine", QString("Couldn't autodetect transfer type for \"%1\"").arg(uri));
-					classID = eng.nClass;
-				}
-
-				Transfer* t = TransferFactory::instance()->createInstance(Transfer::getEngineName(classID, mode));
-				if (!t)
-					throw RestError(500, "create_failed", "Failed to create a class instance.");
-				created << t;
-
-				TransferFactory::instance()->init(t, uri.trimmed(), opts.target);
-				t->setUserSpeedLimits(opts.down, opts.up);
-				TransferFactory::instance()->setState(t, opts.paused ? Transfer::Paused : Transfer::Waiting);
-				uuids << t->uuid();
-			}
-		}
-
-		q->lockW();
-		for (Transfer* t : created)
-			q->add(t);
-		q->unlock();
+			uuids = TransferAdder::add(g.queue(), opts.urls, add);
 	}
-	catch (const RuntimeException& e)
+	catch (const TransferAdder::Error& e)
 	{
-		qDeleteAll(created);
-		throw RestError(422, "transfer_failed", e.what());
-	}
-	catch (...)
-	{
-		qDeleteAll(created);
-		throw;
+		throw RestError(e.code() == "create_failed" ? 500 : 422, e.code(), e.what());
 	}
 
 	QJsonObject rv;

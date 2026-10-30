@@ -17,11 +17,15 @@ export interface DeleteQueueOptions {
   withData?: boolean;
 }
 
+export type WatchStatus = 'off' | 'ok' | 'missing' | 'not_writable' | 'duplicate';
+
 export interface Queue {
   uuid: string;
   name: string;
   defaultDirectory: string;
   moveDirectory: string;
+  watchDirectory: string;
+  watchStatus: WatchStatus;
   upAsDown: boolean;
   transferLimits: SpeedLimits;
   speedLimits: SpeedLimits;

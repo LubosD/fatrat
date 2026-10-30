@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { QueueActionsService } from './queue-actions.service';
 import { TransferApi } from './api/transfer-api';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ApiError } from './api/rest-client';
 import { TransfersStore } from '../state/transfers.store';
 import { QueuesStore } from '../state/queues.store';
 
@@ -13,6 +14,7 @@ describe('QueueActionsService', () => {
   let deleteQueue: ReturnType<typeof vi.fn>;
   let confirm: ReturnType<typeof vi.fn>;
   let transfersRefresh: ReturnType<typeof vi.fn>;
+  let messagesAdd: ReturnType<typeof vi.fn>;
   let service: QueueActionsService;
 
   beforeEach(() => {
@@ -22,11 +24,13 @@ describe('QueueActionsService', () => {
     deleteQueue = vi.fn().mockReturnValue(of(undefined));
     confirm = vi.fn();
     transfersRefresh = vi.fn();
+    messagesAdd = vi.fn();
 
     TestBed.configureTestingModule({
       providers: [
         QueueActionsService,
         { provide: TransferApi, useValue: { createQueue, setQueueProperties, deleteQueue } },
+        { provide: MessageService, useValue: { add: messagesAdd } },
         { provide: ConfirmationService, useValue: { confirm } },
         { provide: TransfersStore, useValue: { refreshNow: transfersRefresh } },
         { provide: QueuesStore, useValue: { refreshNow } },
@@ -45,6 +49,25 @@ describe('QueueActionsService', () => {
     service.updateQueueProperties('q1', { name: 'Renamed' });
     expect(setQueueProperties).toHaveBeenCalledWith('q1', { name: 'Renamed' });
     expect(refreshNow).toHaveBeenCalled();
+  });
+
+  it('shows the server message when saving a queue fails', () => {
+    setQueueProperties.mockReturnValue(throwError(() => new ApiError(422, 'watch_directory_in_use', 'The queue "TV" already watches /srv/w')));
+    service.updateQueueProperties('q1', { watchDirectory: '/srv/w' });
+    expect(messagesAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Cannot save the queue', detail: 'The queue "TV" already watches /srv/w' }));
+  });
+
+  it('falls back to the message of a plain Error', () => {
+    setQueueProperties.mockReturnValue(throwError(() => new Error('boom')));
+    service.updateQueueProperties('q1', { name: 'x' });
+    expect(messagesAdd).toHaveBeenCalledWith(expect.objectContaining({ detail: 'boom' }));
+  });
+
+  it('shows the server message when creating a queue fails', () => {
+    createQueue.mockReturnValue(throwError(() => new ApiError(422, 'invalid_watch_directory', 'Not a directory')));
+    service.createQueue({ name: 'TV', watchDirectory: '/x' });
+    expect(messagesAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', detail: 'Not a directory' }));
+    expect(refreshNow).not.toHaveBeenCalled();
   });
 
   it('confirmDeleteEmptyQueue() asks for confirmation and deletes only once accepted', () => {

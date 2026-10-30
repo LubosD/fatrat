@@ -60,6 +60,9 @@ respects for all of the code used other than "OpenSSL".
 #include "Settings.h"
 #include "config.h"
 #include "RuntimeException.h"
+#ifdef WITH_CURL
+#	include "engines/MetalinkDownload.h"
+#endif
 #ifdef WITH_GUI
 #	include "MainWindow.h"
 #	include "AppTools.h"
@@ -73,6 +76,7 @@ respects for all of the code used other than "OpenSSL".
 #	include "dbus/KNotify.h"
 #endif
 #include "rss/RssFetcher.h"
+#include "watch/WatchFolderQueues.h"
 #include "Scheduler.h"
 #include "TransferFactory.h"
 #include "plugins/TaskManager.h"
@@ -215,7 +219,15 @@ int main(int argc,char** argv)
 	qRegisterMetaType<Transfer*>("Transfer*");
 	qRegisterMetaType<Transfer::TransferList>("Transfer::TransferList");
 
-	Queue::loadQueues();
+	const bool queuesLoaded = Queue::loadQueues();
+#ifdef WITH_CURL
+	// With queues.xml unreadable (say, truncated by a crash and about to be restored from a backup),
+	// every copy would look unused.
+	if (queuesLoaded)
+		MetalinkDownload::pruneSourceCopies();
+#else
+	Q_UNUSED(queuesLoaded);
+#endif
 #ifdef WITH_GUI
 	initAppTools();
 #endif
@@ -237,6 +249,7 @@ int main(int argc,char** argv)
 		qDebug() << "FatRat is up and running now";
 	
 	new RssFetcher;
+	new WatchFolderService(WatchFolderQueues::hooks());
 	
 #ifdef WITH_DBUS
 	initDbus();
@@ -261,6 +274,7 @@ int main(int argc,char** argv)
 	delete HttpService::instance();
 #endif
 	delete RssFetcher::instance();
+	delete WatchFolderService::instance();
 	delete Scheduler::instance();
 #ifdef WITH_GUI
 	delete g_wndMain;

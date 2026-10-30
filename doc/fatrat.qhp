@@ -6,6 +6,7 @@
 		<toc>
 			<section title="FatRat" ref="index.html">
 				<section title="Drop-box" ref="dropbox/index.html" />
+				<section title="Watch Folders" ref="watchfolders/index.html" />
 				<section title="BitTorrent Support" ref="bittorrent/index.html">
 					<section title="Creating Torrents" ref="bittorrent/create.html" />
 				</section>
@@ -43,6 +44,7 @@
 			<file>dropbox/index.html</file>
 			<file>dropbox/dropbox.png</file>
 			<file>dropbox/dropbox-settings.png</file>
+			<file>watchfolders/index.html</file>
 			
 			<file>rs.com/index.html</file>
 			<file>rs.com/download.html</file>

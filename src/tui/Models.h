@@ -15,10 +15,11 @@ namespace tui
 
 	struct QueueInfo
 	{
-		QString uuid, name, defaultDirectory, moveDirectory;
+		QString uuid, name, defaultDirectory, moveDirectory, watchDirectory, watchStatus;
 		bool upAsDown = false;
 		SpeedPair transferLimits, speedLimits;
 		static QueueInfo fromJson(const QJsonObject& o);
+		bool watchProblem() const { return watchStatus == "missing" || watchStatus == "not_writable" || watchStatus == "duplicate"; }
 	};
 
 	struct TransferInfo

@@ -26,6 +26,7 @@ respects for all of the code used other than "OpenSSL".
 
 #include "config.h"
 #include "MetalinkDownload.h"
+#include "MetalinkSourceStore.h"
 #ifdef WITH_GUI
 #	include "MetalinkSettings.h"
 #endif
@@ -38,6 +39,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QTemporaryFile>
+#include <QReadLocker>
 
 #include "RuntimeException.h"
 #include "Queue.h"
@@ -134,6 +136,28 @@ void MetalinkDownload::init(QString source, QString target)
 {
 	m_strTarget = target;
 	m_strSource = source;
+
+	// The file is read only once the transfer starts; by then the original may be gone.
+	if (source.startsWith('/'))
+		m_strSource = MetalinkSourceStore().keep(source, uuid());
+}
+
+void MetalinkDownload::pruneSourceCopies()
+{
+	QSet<QString> inUse;
+	QReadLocker l(&g_queuesLock);
+
+	for (Queue* q : g_queues)
+	{
+		q->lock();
+		for (int i = 0; i < q->size(); i++)
+		{
+			if (q->at(i)->myClass() == "MetalinkDownload")
+				inUse << q->at(i)->remoteURI();
+		}
+		q->unlock();
+	}
+	MetalinkSourceStore().prune(inUse);
 }
 
 QString MetalinkDownload::name() const
@@ -318,6 +342,7 @@ decide:
 							this->myQueue()->add(t);
 						if (isActive())
 							t->setState(Waiting);
+						MetalinkSourceStore().release(m_strSource); // expanded: the copy is not needed any more
 						this->deleteLater();
 					}
 					catch (const RuntimeException& e)
@@ -388,6 +413,7 @@ decide:
 					this->myQueue()->add(t);
 				if (isActive())
 					t->setState(Waiting);
+				MetalinkSourceStore().release(m_strSource); // expanded: the copy is not needed any more
 				this->deleteLater();
 			}
 			else

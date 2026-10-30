@@ -11,6 +11,8 @@ function makeQueue(uuid: string, name: string): Queue {
     name,
     defaultDirectory: '/downloads',
     moveDirectory: '',
+    watchDirectory: '',
+    watchStatus: 'off',
     upAsDown: false,
     transferLimits: { down: 0, up: 0 },
     speedLimits: { down: 0, up: 0 },
