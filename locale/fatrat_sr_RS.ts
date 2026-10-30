@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Ограничење брзине преузимања (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Ограничење брзине преузимања (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Ограничење брзине отпремања (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Ограничење брзине отпремања (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1546,8 +1546,8 @@ Message: %2</source>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Ограничење брзине преузимања (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Ограничење брзине преузимања (KiB/s):</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1556,8 +1556,8 @@ Message: %2</source>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Ограничење брзине отпремања (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Ограничење брзине отпремања (KiB/s):</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2658,13 +2658,13 @@ Start FatRat and turn on its web interface (Settings, Web interface), or use --m
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Ограничење брзине преузимања (kiB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Ограничење брзине преузимања (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Ограничење брзине отпремања (kiB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Ограничење брзине отпремања (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3098,8 +3098,8 @@ Start FatRat and turn on its web interface (Settings, Web interface), or use --m
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
-        <translation>kB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -3421,8 +3421,8 @@ Start FatRat and turn on its web interface (Settings, Web interface), or use --m
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>

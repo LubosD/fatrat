@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Max. rychlost stahování (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Max. rychlost stahování (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Max. rychlost uploadu (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Max. rychlost uploadu (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1524,13 +1524,13 @@ Zpráva: %2</translation>
     </message>
     <message>
         <location line="-34"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Max. rychlost stahování (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Max. rychlost stahování (KiB/s):</translation>
     </message>
     <message>
         <location line="+24"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Max. rychlost uploadu (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Max. rychlost uploadu (KiB/s):</translation>
     </message>
     <message>
         <location line="-119"/>
@@ -2656,13 +2656,13 @@ Spusťte FatRat a zapněte jeho webové rozhraní (Nastavení, Webové rozhraní
     </message>
     <message>
         <location line="+61"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Omezení rychlosti stahování (kiB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Omezení rychlosti stahování (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Omezení rychlosti uploadu (kiB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Omezení rychlosti uploadu (KiB/s):</translation>
     </message>
     <message>
         <location line="+35"/>
@@ -3096,7 +3096,7 @@ Spusťte FatRat a zapněte jeho webové rozhraní (Nastavení, Webové rozhraní
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
+        <source>KiB/s</source>
         <translation></translation>
     </message>
     <message>
@@ -3419,8 +3419,8 @@ Spusťte FatRat a zapněte jeho webové rozhraní (Nastavení, Webové rozhraní
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>

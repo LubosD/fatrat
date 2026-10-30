@@ -539,13 +539,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Limit prędkości pobierania (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Limit prędkości pobierania (KiB/s):</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Limit prędkości wysyłania (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Limit prędkości wysyłania (KiB/s):</translation>
     </message>
 </context>
 <context>
@@ -1545,8 +1545,8 @@ Komunikat: %2</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Down speed limit (kB/s):</source>
-        <translation>Limit prędkości pobierania (kB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Limit prędkości pobierania (KiB/s):</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1555,8 +1555,8 @@ Komunikat: %2</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Up speed limit (kB/s):</source>
-        <translation>Limit prędkości wysyłania (kB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Limit prędkości wysyłania (KiB/s):</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -2678,13 +2678,13 @@ Uruchom FatRat i włącz jego interfejs WWW (Ustawienia, Interfejs WWW) albo uż
     </message>
     <message>
         <location line="+25"/>
-        <source>Down speed limit (kiB/s):</source>
-        <translation>Limit prędkości pobierania (kiB/s):</translation>
+        <source>Down speed limit (KiB/s):</source>
+        <translation>Limit prędkości pobierania (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
-        <source>Up speed limit (kiB/s):</source>
-        <translation>Limit prędkości wysyłania (kiB/s):</translation>
+        <source>Up speed limit (KiB/s):</source>
+        <translation>Limit prędkości wysyłania (KiB/s):</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3097,8 +3097,8 @@ Uruchom FatRat i włącz jego interfejs WWW (Ustawienia, Interfejs WWW) albo uż
     <message>
         <location line="+10"/>
         <location line="+10"/>
-        <source>kB/s</source>
-        <translation>kB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -3420,8 +3420,8 @@ Uruchom FatRat i włącz jego interfejs WWW (Ustawienia, Interfejs WWW) albo uż
     <message>
         <location line="+23"/>
         <location line="+30"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
+        <source>KiB/s</source>
+        <translation>KiB/s</translation>
     </message>
     <message>
         <location line="-23"/>

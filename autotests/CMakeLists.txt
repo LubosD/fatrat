@@ -12,6 +12,7 @@ if(WITH_BITTORRENT)
 endif(WITH_BITTORRENT)
 
 add_executable(tst_legacyregex tst_legacyregex.cpp)
+target_compile_definitions(tst_legacyregex PRIVATE DEFAULTS_CONF="${CMAKE_SOURCE_DIR}/data/defaults.conf")
 target_link_libraries(tst_legacyregex Qt6::Core Qt6::Test)
 add_test(NAME legacyregex COMMAND tst_legacyregex)
 
@@ -243,3 +244,8 @@ add_executable(tst_metalinksourcestore tst_metalinksourcestore.cpp ${CMAKE_SOURC
 target_include_directories(tst_metalinksourcestore PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
 target_link_libraries(tst_metalinksourcestore Qt6::Core Qt6::Test)
 add_test(NAME metalinksourcestore COMMAND tst_metalinksourcestore)
+
+add_executable(tst_retrypolicy tst_retrypolicy.cpp)
+target_include_directories(tst_retrypolicy PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_retrypolicy Qt6::Core Qt6::Test)
+add_test(NAME retrypolicy COMMAND tst_retrypolicy)

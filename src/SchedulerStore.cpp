@@ -57,6 +57,7 @@ void ScheduledAction::loadAll(QList<ScheduledAction>& list)
 		a.whenOneTime = QDateTime::fromString(g_settings->value("whenOneTime").toString(), Qt::ISODate);
 		a.whenRepeated = QTime::fromString(g_settings->value("whenRepeated").toString(), Qt::ISODate);
 		a.repeated = g_settings->value("repeated").toBool();
+		a.done = g_settings->value("done").toBool();
 		a.actionArgument = g_settings->value("actionArgument");
 		
 		QString days = g_settings->value("daysRepeated").toString();
@@ -88,6 +89,7 @@ void ScheduledAction::saveAll(const QList<ScheduledAction>& items)
 		g_settings->setValue("whenOneTime", a.whenOneTime.toString(Qt::ISODate));
 		g_settings->setValue("whenRepeated", a.whenRepeated.toString(Qt::ISODate));
 		g_settings->setValue("repeated", a.repeated);
+		g_settings->setValue("done", a.done);
 		g_settings->setValue("actionArgument", a.actionArgument);
 		
 		char days[8];
@@ -99,4 +101,73 @@ void ScheduledAction::saveAll(const QList<ScheduledAction>& items)
 	}
 	
 	g_settings->endArray();
+}
+
+static QDateTime wholeMinute(const QDateTime& t)
+{
+	QDateTime r = t;
+	r.setTime(QTime(t.time().hour(), t.time().minute()));
+	return r;
+}
+
+bool ScheduledAction::dueAt(const QDateTime& minute) const
+{
+	if(repeated)
+	{
+		return daysRepeated[minute.date().dayOfWeek()-1]
+			&& minute.time().hour() == whenRepeated.hour() && minute.time().minute() == whenRepeated.minute();
+	}
+	return !done && whenOneTime.isValid() && wholeMinute(whenOneTime) == wholeMinute(minute);
+}
+
+QList<QDateTime> ScheduledAction::minutesToCheck(const QDateTime& last, const QDateTime& now)
+{
+	const int MaxCatchUp = 5;
+	QList<QDateTime> rv;
+	const QDateTime end = wholeMinute(now);
+	QDateTime m = wholeMinute(last);
+
+	if(!last.isValid() || m >= end)
+		return rv;
+	if(m.secsTo(end) > MaxCatchUp*60)
+		m = end.addSecs(-MaxCatchUp*60);
+
+	while((m = m.addSecs(60)) <= end)
+		rv << m;
+	return rv;
+}
+
+bool ScheduledAction::removeForQueue(const QUuid& queue)
+{
+	QList<ScheduledAction> list;
+	bool removed = false;
+
+	loadAll(list);
+	for(int i=0;i<list.size();i++)
+	{
+		if(list[i].queue == queue)
+		{
+			list.removeAt(i--);
+			removed = true;
+		}
+	}
+	if(removed)
+		saveAll(list);
+	return removed;
+}
+
+void ScheduledAction::markDone(const QString& id)
+{
+	QList<ScheduledAction> list;
+
+	loadAll(list);
+	for(ScheduledAction& a : list)
+	{
+		if(a.id == id)
+		{
+			a.done = true;
+			saveAll(list);
+			return;
+		}
+	}
 }

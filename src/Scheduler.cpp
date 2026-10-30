@@ -35,9 +35,10 @@ Scheduler* Scheduler::m_instance = 0;
 Scheduler::Scheduler()
 {
 	reload();
+	m_lastChecked = QDateTime::currentDateTime();
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
-	m_timer.start(60*1000);
+	m_timer.start(10*1000);
 	m_instance = this;
 }
 
@@ -48,27 +49,24 @@ Scheduler::~Scheduler()
 
 void Scheduler::doWork()
 {
-	QDateTime time = QDateTime::currentDateTime();
-	foreach(const ScheduledAction& a, m_actions)
+	const QDateTime now = QDateTime::currentDateTime();
+
+	// Every minute is handled exactly once, however late or early the timer fires
+	for(const QDateTime& minute : ScheduledAction::minutesToCheck(m_lastChecked, now))
 	{
-		if(a.repeated)
+		for(ScheduledAction& a : m_actions)
 		{
-			const QTime& atime = a.whenRepeated;
-			if(a.daysRepeated[time.date().dayOfWeek()-1]
-			   && time.time().hour() == atime.hour() && time.time().minute() == atime.minute())
+			if(!a.dueAt(minute))
+				continue;
+			if(!a.repeated)
 			{
-				executeAction(a);
+				a.done = true;
+				ScheduledAction::markDone(a.id);
 			}
-		}
-		else
-		{
-			QTime atime = a.whenOneTime.time();
-			if(time.date() == a.whenOneTime.date() && time.time().hour() == atime.hour() && time.time().minute() == atime.minute())
-			{
-				executeAction(a);
-			}
+			executeAction(a);
 		}
 	}
+	m_lastChecked = now;
 }
 
 void Scheduler::executeAction(const ScheduledAction& action)
@@ -114,3 +112,9 @@ void Scheduler::reload()
 	ScheduledAction::loadAll(m_actions);
 }
 
+
+void Scheduler::queueRemoved(const QString& uuid)
+{
+	if(ScheduledAction::removeForQueue(QUuid(uuid)) && m_instance)
+		m_instance->reload();
+}

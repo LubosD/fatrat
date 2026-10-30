@@ -341,11 +341,14 @@ void Transfer::setState(State newState)
 	
 	if(now != was)
 	{
-		m_bWorking = false;
 		changeActive(now);
 		
 		if(now)
+		{
+			// Reset on start only: QueueMgr reads the flag after the transfer fails
+			m_bWorking = false;
 			m_timeStart = QDateTime::currentDateTime();
+		}
 		else
 			m_nTimeRunning += m_timeStart.secsTo(QDateTime::currentDateTime());
 	}

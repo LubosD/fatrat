@@ -38,6 +38,7 @@ respects for all of the code used other than "OpenSSL".
 #include "plugins/FormValidator.h"
 #include "watch/WatchFolderQueues.h"
 #include "Settings.h"
+#include "Scheduler.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -551,6 +552,7 @@ static RestResult deleteQueue(const RestRequest& req)
 	}
 
 	removed->deleteLater();
+	Scheduler::queueRemoved(uuid);
 	Queue::saveQueuesAsync();
 	return RestResult::noContent();
 }
