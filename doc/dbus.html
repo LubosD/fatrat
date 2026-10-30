@@ -2,19 +2,11 @@
 <head>
 <title>D-Bus Interface</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-<style type="text/css">
-pre, code { background-color: #eee }
-</style>
 </head>
 
 <body>
 
-<table width="100%"><tr>
-	<td width="33%"></td>
-	<td width="33%" align="center" valign="middle"><h2>D-Bus Interface</h2></td>
-	<td width="33%" align="right"><img src="logo.png" alt="Logo" /></td>
-</tr></table>
+<h1>D-Bus Interface</h1>
 
 <p>
 The D-Bus interface is very simple at the moment. FatRat's interface name is <code>info.dolezel.fatrat</code> and the path used to access its methods is <code>/</code>. The simplest way to access its method could look like this:
@@ -41,10 +33,9 @@ To get a list of queues, you can use the <code>getQueues</code> method. The call
 <ul>
 <li><code>links</code> - a list of links separated by a newline character</li>
 <li><code>target</code> - the destination directory / URL</li>
-<li><code>className</code> - the transfer type; refer to the <a href="jabber/usage.html#classes">Jabber documentation</a> to find out classes' names</li>
+<li><code>className</code> - the transfer type, for example <code>GeneralDownload</code> (HTTP(S), FTP and SFTP downloads), <code>TorrentDownload</code> (BitTorrent downloads) or <code>FtpUpload</code> (FTP and SFTP uploads)</li>
 <li><code>queueID</code> - an integer specifying the index of the queue, where the transfer(s) should be added. For the first queue use 0 (zero)</li>
 </ul>
 
-<p align="center"><small>Copyright &copy; 2006-2008 <a href="http://www.dolezel.info">Luboš Doležel</a></small></p>
 </body>
 </html>
