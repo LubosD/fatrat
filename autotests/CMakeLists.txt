@@ -12,6 +12,7 @@ if(WITH_BITTORRENT)
 endif(WITH_BITTORRENT)
 
 add_executable(tst_legacyregex tst_legacyregex.cpp)
+target_compile_definitions(tst_legacyregex PRIVATE DEFAULTS_CONF="${CMAKE_SOURCE_DIR}/data/defaults.conf")
 target_link_libraries(tst_legacyregex Qt6::Core Qt6::Test)
 add_test(NAME legacyregex COMMAND tst_legacyregex)
 
