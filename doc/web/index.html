@@ -23,7 +23,7 @@
 
 <ul>
 <li>The <b>toolbar</b> at the top holds the actions. Hover over a button to see its name and key. On the right are <b>Refresh every</b>, which sets how often the page fetches new data from FatRat, and the <b>Shortcuts</b> button.</li>
-<li>The <b>Queues</b> list on the left. Click a queue to show its transfers. Right-click a queue for <b>Resume All</b>, <b>Stop All</b>, <b>Properties</b> and <b>Delete Queue</b>. A warning sign next to a queue means there is a problem with its watch folder; hover over it to see what.</li>
+<li>The <b>Queues</b> list on the left. Click a queue to show its transfers. Right-click a queue for <b>Resume All</b>, <b>Stop All</b>, <b>Properties</b> and <b>Delete Queue</b>. <b>Resume All</b> queues the paused and failed transfers of the queue, so they wait for a free slot. <b>Stop All</b> pauses every transfer of the queue that is not completed. A warning sign next to a queue means there is a problem with its watch folder; hover over it to see what.</li>
 <li>Four tabs on the right:
   <ul>
   <li><b>Transfers</b>: the transfers in the selected queue, with Name, Progress, Size, Down, Up, ETA and Message columns.</li>
@@ -68,7 +68,7 @@
 
 <dl>
 <dt><b>Resume</b> and <b>Pause</b></dt>
-<dd>Start or stop the transfers. A resumed transfer runs when its queue has room.</dd>
+<dd>Start or stop the transfers. <b>Resume</b> acts on each selected transfer according to its state. A paused or failed transfer is queued, and runs when its queue has room. A force-resumed transfer becomes a normal one, which the queue's limits apply to. Other transfers, such as completed ones, are left as they are.</dd>
 <dt><b>Force Resume</b></dt>
 <dd>Start the transfers at once, even when the queue is at its limit.</dd>
 <dt><b>Delete</b></dt>
@@ -111,7 +111,7 @@
 <li><b>Move to directory after completion</b>.</li>
 <li><b>Watch folder</b>: a folder on the FatRat machine whose files are added to this queue. See <a href="../watchfolders/index.html">Watch Folders</a>.</li>
 <li><b>Download speed limit (KB/s)</b> and <b>Upload speed limit (KB/s)</b>.</li>
-<li><b>Max active downloads</b> and <b>Max active uploads</b>. In a new queue, these start at 0, which lets only force-resumed transfers run. Set them to at least 1, or to -1 for no limit.</li>
+<li><b>Max active downloads</b> and <b>Max active uploads</b>. In a new queue, these start at -1, which means no limit. 0 lets only force-resumed transfers run.</li>
 <li><b>Count uploads as downloads</b>.</li>
 </ul>
 
