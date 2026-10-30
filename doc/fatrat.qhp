@@ -49,10 +49,7 @@
 			<file>watchfolders/index.html</file>
 
 			<file>rss/index.html</file>
-			<file>rss/rss.png</file>
 			<file>rss/rss_feed.png</file>
-			<file>rss/rss_regexp.png</file>
-			<file>rss/rss_tvshows.png</file>
 
 			<file>bittorrent/index.html</file>
 			<file>bittorrent/create.html</file>

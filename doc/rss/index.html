@@ -3,32 +3,150 @@
 <title>RSS Integration</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 </head>
-
 <body>
 
 <h1>RSS Integration</h1>
 
-<p>
-You can manage the RSS integration in <code>Settings - RSS</code>. Adding of RSS feeds is pretty straightforward. All you have to do is enter the feed's URL, give it a name and click OK.
-</p>
+<p>FatRat can watch RSS feeds and add transfers by itself when a new item matches one of your rules. Typical uses are new episodes of a TV show, a podcast, or releases on a torrent site that publishes a feed.</p>
 
-<p><img src="rss_feed.png" alt="RSS feed" /></p>
+<p>Two things make it work:</p>
 
-<p>
-The second step is to create a regular expression(s) (regexp) matching items from the feed you want to be downloaded. If you want to download everything that appears in the feed, leave the regexp field empty - since only partial match is required, this will match everything. You may want to create a new queue for automatized downloads and such queue may then be selected in this dialog as well.
-</p>
+<ul>
+<li>A <b>feed</b> is a name and the URL of an RSS feed.</li>
+<li>A <b>rule</b> says which items of a feed to download, into which queue, and where to save them.</li>
+</ul>
 
-<p><img src="rss_regexp.png" alt="RSS regexp" /></p>
+<p>A feed without a rule downloads nothing. A rule can also keep track of episode numbers, so that the same episode isn't downloaded twice.</p>
 
-<p>
-The TV show support exists so that duplicate files aren't downloaded. Season based TV shows have episodes marked like <code>S01E12</code> or <code>1x12</code>. Episode based TV shows have no seasons, hence FatRat will regard the last found integer in episode's name as the episode number. Date based TV shows (like The Daily Show, for instance) have date in its name - examples: <code>2008-04-28</code>, <code>4/28/08</code>, etc.
-</p>
+<h2>Where to manage feeds and rules</h2>
 
-<p><img src="rss_tvshows.png" alt="RSS TV shows" /></p>
+<p>All three front ends manage the same feeds and rules, and they can be open at the same time.</p>
 
-<p>
-The download repacks and download teasers/trailers checkboxes do exactly what they say. If you check the former, FatRat will download the same episode again if a repack pops up. As for BitTorrent downloads, manually added transfers may be checked and if a TV show's episode is detected, such episode will not be downloaded again when it appears in RSS.
-</p>
+<ul>
+<li><b>Desktop:</b> open <b>Settings</b> and choose the <b>RSS</b> page. It has three tabs: <b>General</b>, <b>RSS feeds</b> and <b>Regular expressions</b> (the rules). Changes are saved when you click <b>OK</b>.</li>
+<li><b>Web interface:</b> open <b>Settings</b> and choose <b>RSS</b>. The page lists <b>Feeds</b> and <b>Rules</b>. Feeds and rules are saved as soon as you save their dialog, even if you later click <b>Cancel</b> in Settings. The two general options are saved with <b>OK</b>.</li>
+<li><b>Terminal:</b> press <code>2</code> to open the <b>RSS</b> tab. It has a <b>Feeds</b> pane and a <b>Download rules</b> pane; Tab switches between them. Changes are saved at once. The two general options are in the settings (<code>O</code>), on the RSS page.</li>
+</ul>
+
+<p>The rule dialog needs at least one feed and one queue. On the desktop it does not open without them. The web interface and the terminal tell you to add a feed first.</p>
+
+<h2>Turning it on</h2>
+
+<p>These two options are on the <b>General</b> tab on the desktop, and on the RSS page of the web and terminal settings:</p>
+
+<dl>
+<dt>Automatically download new stuff from RSS feeds</dt>
+<dd>Turns the automatic checking on or off. The web interface calls it <b>Enable RSS feed fetching</b> and the terminal <b>Check the feeds</b>. It is on by default.</dd>
+<dt>Update interval</dt>
+<dd>How often, in minutes, FatRat fetches all feeds. The default is 15. On the desktop you can set 5 to 1000 minutes.</dd>
+</dl>
+
+<p>When checking is turned on, FatRat fetches the feeds right away, and then every interval.</p>
+
+<p>To fetch the feeds now, use <b>Update</b> (desktop), <b>Update now</b> (web interface) or <code>R</code> on the RSS tab (terminal). This works even when automatic checking is off. It uses the feeds that are saved, so on the desktop click <b>OK</b> first after adding a feed.</p>
+
+<h2>Feeds</h2>
+
+<p>To add a feed, click <b>Add</b> on the <b>RSS feeds</b> tab (desktop), <b>Add feed...</b> (web interface) or press <code>N</code> on the feeds pane (terminal). Enter these two fields:</p>
+
+<dl>
+<dt>Name</dt>
+<dd>Any name. It is shown in the lists.</dd>
+<dt>URL</dt>
+<dd>The address of the feed.</dd>
+</dl>
+
+<p><img src="rss_feed.png" alt="The desktop RSS feed dialog with the fields Name and URL" /></p>
+
+<p>FatRat reads the <code>title</code>, <code>description</code> and <code>link</code> of each <code>item</code>. If an item has an <code>enclosure</code>, the enclosure's URL is used as the link. If it has a <code>magnetURI</code> element, the magnet link is preferred.</p>
+
+<p>If you change a feed's URL, the rules of that feed follow it. If you delete a feed, its rules are deleted too (the terminal says so before it deletes). A feed that can't be fetched or read is reported in the <b>Log</b> as <code>Failed to fetch the feed</code> or <code>Failed to parse the feed</code>.</p>
+
+<h2>Rules</h2>
+
+<p>To add a rule, click <b>Add</b> on the <b>Regular expressions</b> tab (desktop), <b>Add rule...</b> (web interface) or press <code>N</code> on the rules pane (terminal). The fields of the rule are these.</p>
+
+<table>
+<tr><th>Field</th><th>What it does</th></tr>
+<tr><td>Feed (desktop: <b>RSS feed</b>)</td><td>The feed the rule applies to. A rule only looks at items of this feed.</td></tr>
+<tr><td>Regular expression (desktop and terminal: <b>Expression</b>)</td><td>Matched against the title of each item. It ignores case, and it is enough that part of the title matches. Leave it empty to match every item.</td></tr>
+<tr><td>Queue (desktop: <b>Destination queue</b>)</td><td>The queue the new transfers are added to.</td></tr>
+<tr><td>Target directory (desktop: <b>Destination directory</b>, terminal: <b>Save to</b>)</td><td>Where the files are saved. It starts as the default directory of the chosen queue, and follows the queue as you change it until you edit it yourself. FatRat creates the directory if it doesn't exist.</td></tr>
+<tr><td>Add paused (web interface: <b>Add the transfers paused</b>)</td><td>Adds the transfers paused instead of waiting to start.</td></tr>
+</table>
+
+<p>Each rule has a way to test the expression. On the desktop, type a title under <b>Expression test</b> on the <b>Main</b> tab; a tick or a cross shows whether it matches. In the web interface, use <b>Try it on a title</b>; for a rule that tracks episodes it also shows the episode FatRat finds. In the terminal, press <code>T</code> on the rules pane.</p>
+
+<p>All the items that match are added, and an item can match more than one rule. A rule's expression is a regular expression; for example <code>^Some Show .* 720p</code> matches titles that start with <code>Some Show</code> and contain <code>720p</code>.</p>
+
+<p>The transfer comment is set to the item's description.</p>
+
+<h3>Link parsing</h3>
+
+<p>By default a rule downloads the item's main link, which is the magnet link if the feed gives one, otherwise the enclosure or link. Some feeds put the real download links in the description instead. Then choose the link parsing option and enter a regular expression that matches the links. The desktop options are <b>No parsing, use the main link</b> and <b>Extract links matched by the following regexp</b> on the <b>Link parsing</b> tab. In the web interface they are on the <b>Link parsing</b> tab as <b>Use the item's main link</b> and <b>Extract links from the item's description</b>. In the terminal, fill in <b>Link regexp</b>.</p>
+
+<p>FatRat searches the description for every match and adds a transfer for each one. An example expression is <code>http://www.server.com/\S+</code>.</p>
+
+<p>A transfer is added only if one of FatRat's transfer types accepts the link. Otherwise the <b>Log</b> shows <code>The transfer wasn't accepted by any class</code> with the item title and link. Every transfer that FatRat adds this way is logged as <code>Automatically adding a new transfer</code>.</p>
+
+<h2>TV shows and podcasts</h2>
+
+<p>A feed can show the same episode several times, for example in different sizes, as a repack, or on several days. To download each episode once, set the rule's numbering. On the desktop this is the <b>TV show/podcast support</b> tab, and in the web interface the <b>TV show/podcast</b> tab. In the terminal it is the <b>Episodes</b> field.</p>
+
+<p>FatRat reads an episode number out of the item title and remembers it for the rule. An item whose episode was already downloaded is skipped. An item in which FatRat can't find a number is skipped as well.</p>
+
+<h3>Numbering</h3>
+
+<dl>
+<dt>Not a TV serie or podcast</dt>
+<dd>No episode tracking. This is the default. The web interface says <b>Not a TV show or podcast</b>, and the terminal <b>Not tracked</b>.</dd>
+<dt>Season based</dt>
+<dd>The title has the season and the episode, as <code>S01E12</code> or <code>1x12</code>. The episode is saved as <code>S01E12</code>.</dd>
+<dt>Episode based</dt>
+<dd>The show has no seasons. FatRat uses the first whole number found in the title as the episode number, and saves it with four digits, for example <code>0123</code>. Take care with titles that contain another number before the episode, such as a year. Use the test to see what FatRat finds.</dd>
+<dt>Date based</dt>
+<dd>The title has a date, as for a daily show. The date is saved as <code>2008-04-28</code>. FatRat understands <code>2008-04-28</code>, <code>28-04-2008</code>, <code>04.28.08</code> and <code>28 Apr 2008</code> (with a hyphen, dot or space between the parts, and a month name in English, short or long). It does not read dates written with slashes, such as <code>4/28/08</code>. When it isn't clear which number is the month and which the day, FatRat guesses by comparing them with the current and the previous month.</dd>
+</dl>
+
+<h3>Range</h3>
+
+<p>The <b>From</b> and <b>To</b> fields limit the episodes the rule downloads. Episodes before <b>From</b> or after <b>To</b> are skipped. The fields start as the widest range: <code>S00E00</code> to <code>S99E99</code> for season based, <code>0000</code> to <code>9999</code> for episode based, and <code>0000-00-00</code> to <code>9999-99-99</code> for date based. To start with a certain episode, enter it in <b>From</b>, written the way FatRat saves it, as above. The web interface labels the fields <b>Download from episode</b> and <b>to episode</b>, and the terminal <b>From episode</b> and <b>To episode</b>.</p>
+
+<h3>Repacks and trailers</h3>
+
+<dl>
+<dt>Download repacks (web interface: <b>Download repacks and propers</b>, terminal: <b>Include repacks</b>)</dt>
+<dd>An item with <code>repack</code> or <code>proper</code> in its title counts as a separate release of the episode. If this is on, FatRat downloads it even though it already has the plain episode. If it is off, such an item is treated as the plain episode: it is downloaded only if you don't have that episode yet. This is on by default for a rule created on the desktop or in the web interface, and off in the terminal.</dd>
+<dt>Download trailers/teasers (web interface: <b>Download trailers and teasers</b>, terminal: <b>Include trailers</b>)</dt>
+<dd>An item with <code>trailer</code> or <code>teaser</code> in its title is skipped unless this is on. If it is on, it is tracked separately from the real episode. It is off by default.</dd>
+<dt>Exclude episodes downloaded manually (terminal: <b>Exclude manual</b>)</dt>
+<dd>When you add a BitTorrent transfer yourself from a <code>.torrent</code> file, and its name matches the rule's expression and holds an episode number, FatRat marks that episode as downloaded. It is then not downloaded again from the feed. This is on by default on the desktop and in the web interface.</dd>
+</dl>
+
+<h3>List of downloaded episodes</h3>
+
+<p>Each tracking rule keeps a list of the episodes it has downloaded. You can look at it, add an episode so that it is never downloaded, or remove one to download it again the next time it shows up in the feed.</p>
+
+<ul>
+<li><b>Desktop:</b> click <b>Manage the list of downloaded episodes</b> on the <b>TV show/podcast support</b> tab. The dialog is called <b>List of downloaded episodes</b>.</li>
+<li><b>Web interface:</b> click <b>Manage the list of downloaded episodes...</b> on the <b>TV show/podcast</b> tab. It is available for a saved rule only.</li>
+<li><b>Terminal:</b> press <code>W</code> on the rules pane. Entries are separated by spaces.</li>
+</ul>
+
+<p>An entry looks like the saved episode, for example <code>S01E12</code>. A repack, a proper or a trailer has a suffix such as <code>S01E12|repack</code>, <code>S01E12|proper</code> or <code>0123|trailer</code>.</p>
+
+<h2>How duplicates are avoided</h2>
+
+<p>FatRat remembers the address of every item that it has seen in the feeds. After each check, the item is on that list, whether it matched a rule or not. So an item is looked at by the rules once only, and a rule you create later doesn't download the items that were already in the feed. If a feed can't be fetched or read during a check, FatRat keeps the earlier list as well.</p>
+
+<p>Episode tracking works on top of that. The same episode can arrive as a different item, with another address, and the list of downloaded episodes stops it from being downloaded again.</p>
+
+<h2>See also</h2>
+
+<ul>
+<li><a href="../transfers/index.html">Transfers and Queues</a>, for the queues the rules download into.</li>
+<li><a href="../bittorrent/index.html">BitTorrent</a>.</li>
+</ul>
 
 </body>
 </html>
